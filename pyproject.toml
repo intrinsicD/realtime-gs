@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rtgs"
+version = "0.1.0"
+description = "Fast 3D Gaussian Splatting via per-image 2D gaussian fitting and 2D-to-3D lifting"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "numpy>=1.24",
+    "torch>=2.2",
+    "pillow>=10.0",
+]
+
+[project.optional-dependencies]
+# Fast CUDA rasterization backend (requires a CUDA toolchain / GPU).
+cuda = ["gsplat>=1.4"]
+# Feed-forward monocular depth backends (Depth Anything V2 via HuggingFace).
+depth = ["transformers>=4.45"]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+rtgs = "rtgs.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "cuda: tests that require a CUDA GPU (deselected automatically when unavailable)",
+    "slow: tests that take more than ~30s (excluded from the default CI run)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests", "scripts", "benchmarks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = [
+    "SIM108", # ternary is not always clearer
+    "B905",   # zip strict= churn on hot paths
+]
