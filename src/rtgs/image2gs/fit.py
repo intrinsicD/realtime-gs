@@ -32,6 +32,13 @@ class FitConfig:
     grad_init_mix: float = 0.7
     row_chunk: int = 64
     log_every: int = 50
+    # Convergence-based early stopping (step 1: "fit until convergence"). PSNR is checked
+    # every ``convergence_check_every`` iterations; if the best PSNR has not improved by
+    # ``convergence_tol`` dB for ``convergence_patience`` consecutive checks, fitting stops.
+    # patience=0 disables early stopping (fixed ``iterations``).
+    convergence_patience: int = 0
+    convergence_tol: float = 0.05
+    convergence_check_every: int = 25
 
 
 def _softplus_inv(x: torch.Tensor) -> torch.Tensor:
@@ -123,7 +130,9 @@ def fit_image(
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(
         opt, T_max=config.iterations, eta_min=config.lr * 0.1
     )
-    history: dict = {"psnr": []}
+    history: dict = {"psnr": [], "stopped_iter": config.iterations - 1}
+    best_psnr = -float("inf")
+    stale_checks = 0
     for it in range(config.iterations):
         opt.zero_grad()
         rendered = render_gaussians_2d(build(), h, w, row_chunk=config.row_chunk)
@@ -134,6 +143,18 @@ def fit_image(
         if it % config.log_every == 0 or it == config.iterations - 1:
             with torch.no_grad():
                 history["psnr"].append((it, psnr(rendered.clamp(0, 1), image)))
+        # Convergence check: stop once quality plateaus (step 1 "until convergence").
+        if config.convergence_patience and (it + 1) % config.convergence_check_every == 0:
+            with torch.no_grad():
+                cur = psnr(rendered.clamp(0, 1), image)
+            if cur > best_psnr + config.convergence_tol:
+                best_psnr = cur
+                stale_checks = 0
+            else:
+                stale_checks += 1
+                if stale_checks >= config.convergence_patience:
+                    history["stopped_iter"] = it
+                    break
 
     result = build().detach()
     with torch.no_grad():

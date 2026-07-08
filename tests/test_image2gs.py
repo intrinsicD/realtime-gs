@@ -93,6 +93,22 @@ def test_fit_image_improves_psnr(tiny_scene):
     assert psnr(rendered.clamp(0, 1), image) > 20.0
 
 
+def test_fit_convergence_early_stops():
+    """With convergence enabled, fitting stops before the iteration cap on an easy image."""
+    img = torch.zeros(24, 24, 3)
+    img[:, 12:] = 1.0  # trivial two-region image; converges fast
+    cfg = FitConfig(
+        n_gaussians=60,
+        iterations=500,
+        log_every=100,
+        convergence_patience=2,
+        convergence_check_every=20,
+        convergence_tol=0.1,
+    )
+    _, hist = fit_image(img, cfg, seed=0)
+    assert hist["stopped_iter"] < cfg.iterations - 1, "should have stopped early"
+
+
 def test_fit_image_deterministic():
     img = torch.rand(16, 16, 3)
     cfg = FitConfig(n_gaussians=30, iterations=20, log_every=10)

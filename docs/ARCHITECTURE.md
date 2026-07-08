@@ -12,8 +12,8 @@
                                     │ Gaussians2D per view (xy, cholesky cov, color, weight)
                     ┌───────────────▼────────────────────────────────┐
  cameras ─────────► │ stage 2  rtgs.lift   (three variants)          │
- (COLMAP or         │   gradient.py: per-ray depth via multi-view    │
-  synthetic)        │     photometric gradient descent               │
+ (COLMAP or         │   gradient.py: ray-constrained depth+rot+scale │
+  synthetic)        │     multi-view descent (color frozen) + merge  │
                     │   depth.py: monocular depth backend + footprint│
                     │     variance for the along-ray sigma           │
                     │   carve.py: voxel color-consistency carving,   │
@@ -36,7 +36,7 @@
 | --- | --- |
 | `rtgs/core` | Shared math and containers: `gaussians2d` (xy, Cholesky cov, color, weight), `gaussians3d` (means, quats, log-scales, opacity, SH; PLY/NPZ IO), `camera` (COLMAP-convention pinhole, project/unproject/rays), `sh` (real spherical harmonics deg ≤ 3), `metrics` (PSNR, SSIM). |
 | `rtgs/image2gs` | Stage 1. `renderer2d` renders a `Gaussians2D` set with accumulated (sum) blending, differentiably, chunked over pixels. `fit` optimizes positions/covariances/colors/weights against an image with gradient-magnitude initialization. |
-| `rtgs/lift` | Stage 2. `base` holds the `Lifter` protocol and shared geometry (2D cov → 3D cov lifting, along-ray sigma estimation). Variants: `gradient`, `depth`, `carve`. `merge` implements moment-matched gaussian merging (used by `carve` and available as a generic post-process). Registry: `rtgs.lift.get_lifter(name)`. |
+| `rtgs/lift` | Stage 2. `base` holds the `Lifter` protocol and shared geometry (2D cov → 3D cov lifting, along-ray sigma estimation). Variants: `gradient` (lift with a footprint-scaled along-ray thickness — the "epsilon" `ray_thickness` knob — then optimize depth + rotation + scale along each pixel ray with color/opacity frozen, and merge redundant gaussians), `depth`, `carve`. `merge` implements moment-matched gaussian merging (used by `gradient`/`carve` and available as a generic post-process). Registry: `rtgs.lift.get_lifter(name)`. |
 | `rtgs/depth` | Depth estimation behind the `DepthBackend` protocol: `mock` (ground-truth/constant, for tests and synthetic scenes), `depth_anything` (Depth Anything V2 via `transformers`, lazy import), `align` (least-squares scale/shift alignment of relative depth to sparse 3D points). |
 | `rtgs/render` | Rasterization behind the `Rasterizer` protocol: `torch_ref` (pure-PyTorch EWA splatting + depth-sorted alpha compositing; the correctness anchor, CPU-capable, fully differentiable) and `gsplat_backend` (CUDA, lazy import). `get_rasterizer("auto")` picks gsplat when CUDA is available. |
 | `rtgs/optim` | Stage 3. `trainer` runs the standard 3DGS optimization (Adam with per-group LRs, L1 + D-SSIM); `density` implements adaptive density control driven by screen-space positional gradients. |

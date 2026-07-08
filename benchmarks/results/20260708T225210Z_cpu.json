@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "timestamp": "2026-07-08T22:52:10+00:00",
+    "device": "cpu",
+    "torch": "2.12.1+cpu",
+    "platform": "Linux-6.18.5-x86_64-with-glibc2.39",
+    "scene": "synthetic_g40_c12_s48",
+    "config": {
+      "image_size": 48,
+      "n_views": 12,
+      "n_gt_gaussians": 40,
+      "fit_gaussians": 150,
+      "fit_iterations": 120,
+      "refine_iterations": 150,
+      "render_repeats": 3
+    },
+    "git_rev": "3d03181"
+  },
+  "results": {
+    "image2gs_fit": {
+      "iters_per_s": 49.79438241761878,
+      "psnr": 30.301807403564453,
+      "seconds": 2.409910398999955
+    },
+    "render_ref": {
+      "fps": 265.9628305124222,
+      "frames": 36,
+      "seconds": 0.13535725999997794
+    },
+    "lift_depth": {
+      "seconds": 0.043082668000010926,
+      "init_psnr": 17.049261411031086,
+      "init_n_gaussians": 1186
+    },
+    "e2e_depth": {
+      "init_psnr": 17.049261411031086,
+      "final_psnr": 28.525786240895588,
+      "final_n_gaussians": 3901,
+      "refine_seconds": 30.280915933000074,
+      "total_seconds": 31.875524077000023
+    },
+    "lift_gradient": {
+      "seconds": 15.432456484999989,
+      "init_psnr": 19.411563714345295,
+      "init_n_gaussians": 1793
+    },
+    "e2e_gradient": {
+      "init_psnr": 19.411563714345295,
+      "final_psnr": 25.375625292460125,
+      "final_n_gaussians": 6797,
+      "refine_seconds": 36.76103143299997,
+      "total_seconds": 53.6670776819999
+    },
+    "lift_carve": {
+      "seconds": 0.19678190900003756,
+      "init_psnr": 17.48476203282674,
+      "init_n_gaussians": 1020
+    },
+    "e2e_carve": {
+      "init_psnr": 17.48476203282674,
+      "final_psnr": 29.132058143615723,
+      "final_n_gaussians": 4201,
+      "refine_seconds": 28.399843972999975,
+      "total_seconds": 29.72646174900001
+    },
+    "lift_sfm": {
+      "seconds": 0.001651579000053971,
+      "init_psnr": 19.954487482706707,
+      "init_n_gaussians": 200
+    },
+    "e2e_sfm": {
+      "init_psnr": 19.954487482706707,
+      "final_psnr": 28.66924540201823,
+      "final_n_gaussians": 1369,
+      "refine_seconds": 8.363642944000048,
+      "total_seconds": 8.733080758999904
+    },
+    "lift_random": {
+      "seconds": 0.0006043109999609442,
+      "init_psnr": 8.082314928372702,
+      "init_n_gaussians": 2000
+    },
+    "e2e_random": {
+      "init_psnr": 8.082314928372702,
+      "final_psnr": 27.934141159057617,
+      "final_n_gaussians": 1884,
+      "refine_seconds": 27.83322448800004,
+      "total_seconds": 28.683131674000037
+    }
+  }
+}
