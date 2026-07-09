@@ -17,6 +17,44 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-09 — Plane-sweep (`cost`) depth vs per-ray gradient descent
+- **Question**: We start with no depth and no SfM points, only posed images. Is a discrete
+  multi-hypothesis **plane sweep** (cost volume) a better model-free depth estimator than
+  optimizing depth by per-ray gradient descent (the `gradient` lifter)? Does polishing the
+  plane-sweep result with the ray optimizer help? Does confidence rejection matter?
+- **Setup**: synthetic ring scene (12 views, 48×48, 40 GT gaussians), 150 2D gaussians/
+  view, seed 0, CPU. New `cost` lifter: coarse-to-fine sweep (3 rounds × 64 depths),
+  robust cross-view color cost (best 60% of neighbor views), soft-argmin depth,
+  along-ray sigma from the cost-minimum width, optional `optimize_rays` polish.
+  Geometry measured as median distance of lifted means to the nearest GT gaussian.
+- **Result**:
+  - **Geometry**: `gradient` 0.448, `cost` (no polish) **0.243**, `carve` 0.165, `random`
+    0.515. The plane sweep roughly halves the ray-opt's geometric error — the core claim
+    (discrete multi-hypothesis beats continuous descent for depth) holds.
+  - **Polish hurts geometry**: `cost` + ray-opt polish (depth free) → 0.429 (destroyed);
+    with **depth frozen** (refine only rot/scale) → 0.243 preserved (+0.25 dB init only).
+    So it is specifically the *depth* leg of the photometric ray-opt that overfits
+    appearance and pulls gaussians off-surface — polish depth OFF by default.
+  - **Confidence rejection**: lower `max_cost` raises final PSNR (150-iter refine:
+    21.5 → 23.9 dB) but *worsens* median geometry (0.26 → 0.42) — low color-cost does NOT
+    imply correct depth (photo-consistency is ambiguous on low-texture / repeated regions).
+  - **End-to-end (150 refine iters)**: `carve` 28.98 > `gradient` 26.04 > `cost` ~23.9.
+    `cost` has better geometry than `gradient` but lower init PSNR (frozen 2D colors at
+    correct depth render worse than appearance-overfit gaussians), and 150 CPU iters don't
+    close the gap.
+- **Conclusion**: (1) The recommendation was right — a plane sweep is a much better
+  model-free depth estimator than per-ray descent, and it's fast (~0.5 s). (2) The naive
+  ray-opt polish is actively harmful to geometry; keep it off (or depth-frozen). (3) This
+  synthetic scene is adversarial for photo-consistency (semi-transparent, low-texture
+  gaussian blobs → no single opaque surface), which is why `carve` (voxel variance +
+  coverage) still wins and color-cost confidence is a weak filter. The geometry-vs-appearance
+  tension means the real test is opaque, textured **real scenes** with a longer refinement
+  budget (GPU) — that is where plane-sweep depth is expected to pull ahead of both.
+- **Follow-ups**: real-scene run (MipNeRF-360) with train/test split + matched wall-clock;
+  try feature/patch (NCC) consistency instead of per-pixel color to cut ambiguity;
+  variance-based (all-view) cost like `carve` as an alternative aggregation; hybrid
+  `cost` geometry → `carve`-style occupancy filter.
+
 ## 2026-07-08 — Refined `gradient` variant: depth+rot+scale along the ray, then merge
 - **Question**: The staged idea "fit 2D → lift with a thin third axis → optimize each
   gaussian along its ray for position/rotation/scale → full 3DGS". Does optimizing

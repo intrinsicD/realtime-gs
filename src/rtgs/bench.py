@@ -118,7 +118,9 @@ def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
     results["render_ref"] = {"fps": n_frames / dt, "frames": n_frames, "seconds": dt}
 
     # Variant comparison (init quality + refinement).
-    variants = ["depth", "gradient", "carve", "sfm", "random"] if not smoke else ["depth", "sfm"]
+    variants = (
+        ["depth", "gradient", "carve", "cost", "sfm", "random"] if not smoke else ["depth", "sfm"]
+    )
     assert set(variants) <= set(lifter_names())
     pipe_cfg = PipelineConfig(
         fit=fit_cfg,

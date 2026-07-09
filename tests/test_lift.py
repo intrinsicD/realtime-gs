@@ -11,7 +11,7 @@ from rtgs.optim.trainer import Trainer
 
 
 def test_lifter_registry():
-    assert set(lifter_names()) == {"gradient", "depth", "carve", "sfm", "random"}
+    assert set(lifter_names()) == {"gradient", "depth", "carve", "cost", "sfm", "random"}
 
 
 def test_bilinear_sample_exact_at_centers():
@@ -101,6 +101,52 @@ def test_carve_lifter_places_in_occupied_space(tiny_scene, tiny_fits):
     # Placed gaussians concentrate near true geometry.
     d = torch.cdist(g3d.means, tiny_scene.gt_gaussians.means).min(dim=1).values
     assert d.median() < 0.25, f"median distance to GT {d.median()}"
+
+
+def test_cost_volume_estimates_reasonable_geometry(tiny_scene, tiny_fits):
+    """Plane-sweep depth (images+poses only) must place gaussians near the geometry and
+    beat random init, and — the core claim — not worse geometry than the pure ray-opt."""
+    g2ds, _ = tiny_fits
+    cost = get_lifter("cost", polish_iters=0).lift(g2ds, tiny_scene)
+    assert cost.n > 50
+    d_cost = torch.cdist(cost.means, tiny_scene.gt_gaussians.means).min(dim=1).values
+    assert d_cost.median() < 0.35, f"cost median distance to GT {d_cost.median()}"
+
+    grad = get_lifter("gradient", iterations=40, rasterizer="torch").lift(g2ds, tiny_scene)
+    d_grad = torch.cdist(grad.means, tiny_scene.gt_gaussians.means).min(dim=1).values
+    # Discrete multi-hypothesis depth should not be worse geometry than local descent.
+    assert d_cost.median() <= d_grad.median() + 0.1, (d_cost.median(), d_grad.median())
+
+    psnr_cost = Trainer.evaluate(tiny_scene, cost)
+    psnr_random = Trainer.evaluate(
+        tiny_scene, get_lifter("random", n=cost.n).lift(g2ds, tiny_scene)
+    )
+    assert psnr_cost > psnr_random + 2.0, (psnr_cost, psnr_random)
+
+
+def test_cost_volume_confidence_rejection(tiny_scene, tiny_fits):
+    """A stricter cost threshold keeps fewer, more-confident gaussians."""
+    g2ds, _ = tiny_fits
+    loose = get_lifter("cost", max_cost=0.05, polish_iters=0).lift(g2ds, tiny_scene)
+    strict = get_lifter("cost", max_cost=0.008, polish_iters=0).lift(g2ds, tiny_scene)
+    assert strict.n < loose.n
+
+
+def test_cost_volume_polish_runs(tiny_scene, tiny_fits):
+    """The optional ray-opt polish (depth frozen) preserves the plane-sweep positions."""
+    g2ds, _ = tiny_fits
+    no_polish = get_lifter("cost", polish_iters=0).lift(g2ds, tiny_scene)
+    polished = get_lifter(
+        "cost",
+        polish_iters=20,
+        rasterizer="torch",
+        polish_kwargs={"optimize_depth": False},
+    ).lift(g2ds, tiny_scene)
+    assert polished.n > 50
+    # Depth frozen ⇒ means stay on their rays; geometry must not degrade materially.
+    d0 = torch.cdist(no_polish.means, tiny_scene.gt_gaussians.means).min(dim=1).values.median()
+    d1 = torch.cdist(polished.means, tiny_scene.gt_gaussians.means).min(dim=1).values.median()
+    assert d1 <= d0 + 0.05, (d0, d1)
 
 
 def test_baselines(tiny_scene, tiny_fits):

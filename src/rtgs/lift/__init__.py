@@ -8,6 +8,7 @@ Variants (see docs/ARCHITECTURE.md): `gradient` (multi-view photometric descent)
 from rtgs.lift.base import Lifter
 from rtgs.lift.baselines import RandomLifter, SfMLifter
 from rtgs.lift.carve import CarveLifter
+from rtgs.lift.cost_volume import CostVolumeLifter
 from rtgs.lift.depth import DepthLifter
 from rtgs.lift.gradient import GradientLifter
 
@@ -15,6 +16,7 @@ _LIFTERS = {
     "gradient": GradientLifter,
     "depth": DepthLifter,
     "carve": CarveLifter,
+    "cost": CostVolumeLifter,
     "sfm": SfMLifter,
     "random": RandomLifter,
 }
@@ -34,6 +36,7 @@ def lifter_names() -> list[str]:
 
 __all__ = [
     "CarveLifter",
+    "CostVolumeLifter",
     "DepthLifter",
     "GradientLifter",
     "Lifter",
