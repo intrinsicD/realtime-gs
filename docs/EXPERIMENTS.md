@@ -17,6 +17,37 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-08 — Refined `gradient` variant: depth+rot+scale along the ray, then merge
+- **Question**: The staged idea "fit 2D → lift with a thin third axis → optimize each
+  gaussian along its ray for position/rotation/scale → full 3DGS". Does optimizing
+  rotation+scale (not just depth) and merging redundant gaussians beat the old depth-only
+  `gradient` lifter, and is a literal thin "epsilon" a good along-ray init?
+- **Setup**: synthetic ring scene (12 views, 48×48, 40 GT gaussians), 150 2D gaussians/
+  view, `gradient` lift 100–120 iters, refine 150 iters, `rasterizer="torch"`, seed 0,
+  CPU. Compared against the old depth-only behavior and across `ray_thickness`. Rev after
+  this commit.
+- **Result** (lift-only): depth-only `n=1800, med-dist-to-GT=0.355, init-PSNR=17.95`;
+  depth+rot+scale `0.446, 18.69`; +merge(0.01) `n=1790` (barely changed). End-to-end
+  (150 refine iters): OLD depth-only `init 16.98 → final 25.30, n 1800→3564`; NEW
+  depth+rot+scale +merge(0.03) `init 17.95 → final 25.85, n 1634→3408`. Coarser merge
+  does reduce count (voxel-frac 0.01/0.03/0.06 → n 1792/1634/1152). Thin
+  `ray_thickness=0.05` raised init-PSNR (19.85) but **worsened** geometry (med-dist 0.519).
+- **Conclusion**: (1) Optimizing rotation+scale + merging gives a **small but real** gain
+  (init +1.0 dB, final +0.55 dB) from fewer, better-shaped gaussians. (2) **Merge barely
+  fires at a fine voxel because the geometry is scattered** (median 0.35–0.45 to GT vs
+  0.19–0.21 for `carve`/`depth`) — problems ④ (redundancy) and ⑤ (under-constrained depth)
+  are coupled: cross-view merging only helps *after* depth converges onto surfaces, which
+  single-view-sampled photometric descent does not achieve in ~100 CPU iters. (3) A literal
+  thin "epsilon" trades appearance for geometry (higher init PSNR, worse 3D placement) and
+  is numerically riskier — footprint-scaled thickness is the right default; the knob is
+  clamped to ≥0.05× the footprint. End-to-end the `gradient` variant is still the weakest
+  (25.85 vs carve 29.13, depth 28.53) precisely because of the scattered geometry.
+- **Follow-ups**: (a) GPU run with many more ray-opt iterations + gsplat — does geometry
+  converge enough for merge to matter? (b) Hybrid: `depth`/`carve` init → short `gradient`
+  polish (start from good geometry so the ray stage refines rather than searches).
+  (c) Real-scene measurement with train/test split + matched wall-clock vs SfM-init 3DGS
+  (the actual step-5 comparison; synthetic numbers here are relative-only).
+
 ## 2026-07-07 — Pipeline v1 sanity on synthetic scenes
 - **Question**: Do all three lifting variants beat random initialization on synthetic
   scenes, and does refinement converge from each?
