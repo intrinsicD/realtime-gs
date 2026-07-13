@@ -47,6 +47,23 @@ def test_lift_covariance_scales_with_depth(tiny_scene):
     assert (evals > 0).all()
 
 
+def test_lift_covariance_reprojects_off_axis(tiny_scene):
+    cam = tiny_scene.cameras[0]
+    uv = torch.tensor([[4.5, 27.5]])
+    cov2d = torch.tensor([[[5.0, 1.2], [1.2, 2.0]]])
+    depth = torch.tensor([2.0])
+    cov_world = lift_covariance(cam, uv, cov2d, depth, torch.tensor([0.03]))
+    point = cam.unproject(uv, depth)
+    point_cam = cam.world_to_cam(point)
+    x, y, z = point_cam[0]
+    jac = torch.tensor(
+        [[[cam.fx / z, 0.0, -cam.fx * x / z**2], [0.0, cam.fy / z, -cam.fy * y / z**2]]]
+    )
+    cov_cam = cam.R @ cov_world @ cam.R.T
+    projected = jac @ cov_cam @ jac.transpose(-1, -2)
+    assert torch.allclose(projected, cov2d, atol=1e-4, rtol=1e-4)
+
+
 def test_lift_view_at_depth_positions(tiny_scene):
     """Lifted means must land exactly on unproject(xy, depth)."""
     cam = tiny_scene.cameras[0]

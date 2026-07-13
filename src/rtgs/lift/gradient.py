@@ -51,8 +51,12 @@ class GradientLifter:
         min_weight: float = 0.05,
         depth_jitter: float = 0.15,
         ray_thickness: float = 1.0,
+        init_opacity: float = 0.1,
         optimize_rotation: bool = True,
         optimize_scale: bool = True,
+        max_log_scale_delta: float = 1.0,
+        depth_prior_lambda: float = 1e-3,
+        scale_prior_lambda: float = 1e-4,
         ssim_lambda: float = 0.0,
         merge: bool = True,
         merge_voxel_frac: float = 0.01,
@@ -67,8 +71,12 @@ class GradientLifter:
         self.min_weight = min_weight
         self.depth_jitter = depth_jitter
         self.ray_thickness = max(ray_thickness, _MIN_THICKNESS)
+        self.init_opacity = init_opacity
         self.optimize_rotation = optimize_rotation
         self.optimize_scale = optimize_scale
+        self.max_log_scale_delta = max_log_scale_delta
+        self.depth_prior_lambda = depth_prior_lambda
+        self.scale_prior_lambda = scale_prior_lambda
         self.ssim_lambda = ssim_lambda
         self.merge = merge
         self.merge_voxel_frac = merge_voxel_frac
@@ -80,12 +88,19 @@ class GradientLifter:
     def lift(self, gaussians2d: list[Gaussians2D], scene: SceneData) -> Gaussians3D:
         """Lift every view, optimize along the rays, and merge the result."""
         center, extent = scene.center_and_extent()
-        gen = torch.Generator().manual_seed(self.seed)
+        device = gaussians2d[0].xy.device
+        center = center.to(device)
+        gen = torch.Generator(device=device).manual_seed(self.seed)
 
-        origins, dirs, log_t0 = [], [], []
+        origins, dirs, t_nears, t_fars, raw_t0 = [], [], [], [], []
         base_parts: list[Gaussians3D] = []
-        for g2d, camera in zip(gaussians2d, scene.cameras):
+        half = 0.5 * extent
+        for view_index, (g2d, camera) in enumerate(zip(gaussians2d, scene.cameras)):
             keep = g2d.weight > self.min_weight
+            if scene.masks is not None:
+                from rtgs.lift.base import bilinear_sample
+
+                keep &= bilinear_sample(scene.masks[view_index].to(g2d.xy), g2d.xy) > 0.5
             g2d_v = Gaussians2D(
                 xy=g2d.xy[keep], chol=g2d.chol[keep], color=g2d.color[keep], weight=g2d.weight[keep]
             )
@@ -93,13 +108,32 @@ class GradientLifter:
             if n == 0:
                 continue
             o, d = camera.pixel_rays(g2d_v.xy)  # d has unit camera-space depth: t == depth
+            near, far = _ray_box(o, d, center - half, center + half)
+            intersects = far > near.clamp_min(0.05)
+            if not bool(intersects.any()):
+                continue
+            g2d_v = Gaussians2D(
+                xy=g2d_v.xy[intersects],
+                chol=g2d_v.chol[intersects],
+                color=g2d_v.color[intersects],
+                weight=g2d_v.weight[intersects],
+            )
+            d = d[intersects]
+            near = near[intersects].clamp_min(0.05)
+            far = far[intersects]
+            n = g2d_v.n
             origins.append(o.expand(n, 3))
             dirs.append(d)
-            # Initial depth: distance from the camera to the scene center (+ jitter to
-            # break the all-at-one-shell symmetry).
-            t_init = (center - camera.position).norm()
-            jitter = 1.0 + self.depth_jitter * (2 * torch.rand(n, generator=gen) - 1)
-            log_t0.append((t_init * jitter).log())
+            t_nears.append(near)
+            t_fars.append(far)
+            # Initialize at the optical-axis center depth, then jitter within the valid ray/AABB
+            # interval. Unlike Euclidean camera distance this is the correct parameter for d.z=1.
+            center_depth = camera.project(center[None])[1][0]
+            fraction = ((center_depth - near) / (far - near)).clamp(0.05, 0.95)
+            fraction = (
+                fraction + self.depth_jitter * (torch.rand(n, generator=gen, device=device) - 0.5)
+            ).clamp(0.01, 0.99)
+            raw_t0.append(torch.logit(fraction))
             # Unit-depth lift fixes each gaussian's rotation and unit-depth scales; the
             # along-ray sigma is the footprint minor axis scaled by ray_thickness (the
             # "epsilon" knob, clamped away from degeneracy).
@@ -107,7 +141,12 @@ class GradientLifter:
             sigma_unit = self.ray_thickness * s_min / (0.5 * (camera.fx + camera.fy))
             base_parts.append(
                 lift_view_at_depth(
-                    camera, g2d_v, torch.ones(n), sigma_unit, sh_degree=self.sh_degree
+                    camera,
+                    g2d_v,
+                    torch.ones(n, device=device),
+                    sigma_unit,
+                    sh_degree=self.sh_degree,
+                    opacity=torch.full((n,), self.init_opacity, device=device),
                 )
             )
         if not base_parts:
@@ -116,40 +155,54 @@ class GradientLifter:
         base = Gaussians3D.cat(base_parts)
         origins_t = torch.cat(origins)
         dirs_t = torch.cat(dirs)
+        near_t = torch.cat(t_nears)
+        far_t = torch.cat(t_fars)
 
         # Optimized parameters. Lateral position and color/SH/opacity stay frozen.
-        log_t = torch.cat(log_t0).clone().requires_grad_(True)
+        raw_t_init = torch.cat(raw_t0)
+        raw_t = raw_t_init.clone().requires_grad_(True)
         quat_p = base.quats.detach().clone().requires_grad_(self.optimize_rotation)
-        dscale = torch.zeros_like(base.log_scales).requires_grad_(self.optimize_scale)
+        raw_scale = torch.zeros_like(base.log_scales).requires_grad_(self.optimize_scale)
 
-        groups = [{"params": [log_t], "lr": self.lr}]
+        groups = [{"params": [raw_t], "lr": self.lr}]
         if self.optimize_rotation:
             groups.append({"params": [quat_p], "lr": self.lr_rotation})
         if self.optimize_scale:
-            groups.append({"params": [dscale], "lr": self.lr_scale})
+            groups.append({"params": [raw_scale], "lr": self.lr_scale})
         opt = torch.optim.Adam(groups)
 
         def build() -> Gaussians3D:
-            t = log_t.exp()
+            t = near_t + torch.sigmoid(raw_t) * (far_t - near_t)
+            dscale = self.max_log_scale_delta * torch.tanh(raw_scale)
             return Gaussians3D(
                 means=origins_t + t[:, None] * dirs_t,
                 quats=torch.nn.functional.normalize(quat_p, dim=-1),
                 # t-scaling keeps the projected footprint ~constant with depth; dscale is
                 # the free per-axis correction the optimizer learns.
-                log_scales=base.log_scales + log_t[:, None] + dscale,
+                log_scales=base.log_scales + t.log()[:, None] + dscale,
                 opacity=base.opacity,
                 sh=base.sh,
             )
 
         renderer = get_rasterizer(self.rasterizer)
         self.history = []
-        n_views = scene.n_views
+        train_views = scene.training_views
         for _ in range(self.iterations):
-            v = int(torch.randint(0, n_views, (1,), generator=gen))
+            view_pos = int(torch.randint(0, len(train_views), (1,), generator=gen, device=device))
+            v = train_views[view_pos]
             out = renderer.render(build(), scene.cameras[v])
-            loss = (out.color - scene.images[v]).abs().mean()
+            target = scene.images[v]
+            if scene.masks is not None:
+                mask = scene.masks[v].to(target)[..., None]
+                target = target * mask
+                loss = ((out.color - target).abs() * (0.1 + 0.9 * mask)).mean()
+            else:
+                loss = (out.color - target).abs().mean()
             if self.ssim_lambda > 0:
-                loss = loss + self.ssim_lambda * (1.0 - ssim(out.color, scene.images[v]))
+                loss = loss + self.ssim_lambda * (1.0 - ssim(out.color, target))
+            loss = loss + self.depth_prior_lambda * (raw_t - raw_t_init).square().mean()
+            if self.optimize_scale:
+                loss = loss + self.scale_prior_lambda * raw_scale.square().mean()
             opt.zero_grad()
             loss.backward()
             opt.step()
@@ -158,5 +211,15 @@ class GradientLifter:
         result = build().detach()
         self.n_before_merge = result.n
         if self.merge:
-            result = merge_by_voxel(result, self.merge_voxel_frac * extent)
+            result = merge_by_voxel(result, self.merge_voxel_frac * extent, opacity_mode="mean")
         return result
+
+
+def _ray_box(
+    origin: torch.Tensor, directions: torch.Tensor, lo: torch.Tensor, hi: torch.Tensor
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Intersect one-origin camera rays with an axis-aligned scene volume."""
+    safe = torch.where(directions.abs() < 1e-9, torch.full_like(directions, 1e-9), directions)
+    ta = (lo[None] - origin[None]) / safe
+    tb = (hi[None] - origin[None]) / safe
+    return torch.minimum(ta, tb).amax(dim=-1), torch.maximum(ta, tb).amin(dim=-1)

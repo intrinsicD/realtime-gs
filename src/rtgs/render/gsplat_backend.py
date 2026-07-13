@@ -62,20 +62,25 @@ class GsplatRasterizer:
             backgrounds=bg,
             render_mode="RGB+D",
             packed=False,
+            absgrad=True,
         )
         color = colors[0, :, :, :3]
         depth = colors[0, :, :, 3]
         alpha = alphas[0, :, :, 0]
         means2d = meta.get("means2d")
-        if means2d is not None:
-            means2d = means2d[0] if means2d.ndim == 3 else means2d
+        # Keep gsplat's original tensor: the renderer graph uses this leaf directly, while a
+        # post-hoc ``means2d[0]`` view does not receive ``.grad``.  DensityController handles
+        # the leading camera dimension.
+        if means2d is not None and means2d.requires_grad:
+            means2d.retain_grad()
         radii = meta.get("radii")
-        visible = None
-        if radii is not None:
-            r = radii[0] if radii.ndim > 2 else radii
-            visible = (
-                (r > 0).any(-1).nonzero(as_tuple=True)[0]
-                if r.ndim == 2
-                else (r > 0).nonzero(as_tuple=True)[0]
-            )
+        visible = None if radii is None else _visible_indices(radii)
         return RenderOutput(color=color, alpha=alpha, depth=depth, means2d=means2d, visible=visible)
+
+
+def _visible_indices(radii: torch.Tensor) -> torch.Tensor:
+    """Normalize gsplat's scalar/axis radius layouts to Gaussian indices."""
+    # gsplat versions expose either [C,N] scalar radii or [C,N,2] axis radii.
+    r = radii[0] if radii.ndim >= 2 and radii.shape[0] == 1 else radii
+    visible = (r > 0).all(-1) if r.ndim == 2 else r > 0
+    return visible.nonzero(as_tuple=True)[0]

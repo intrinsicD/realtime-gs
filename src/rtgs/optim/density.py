@@ -41,20 +41,36 @@ class DensityConfig:
 class DensityController:
     """Accumulates densification statistics and performs param/optimizer surgery."""
 
-    def __init__(self, config: DensityConfig, n_gaussians: int, scene_extent: float):
+    def __init__(
+        self,
+        config: DensityConfig,
+        n_gaussians: int,
+        scene_extent: float,
+        device: torch.device | str = "cpu",
+    ):
         self.cfg = config
         self.extent = scene_extent
-        self.grad_accum = torch.zeros(n_gaussians)
-        self.count = torch.zeros(n_gaussians)
+        self.grad_accum = torch.zeros(n_gaussians, device=device)
+        self.count = torch.zeros(n_gaussians, device=device)
         self.stats: list[dict] = []
 
     def accumulate(self, out: RenderOutput, width: int, height: int) -> None:
         """Record screen-space positional gradients after loss.backward()."""
-        if out.means2d is None or out.means2d.grad is None or out.visible is None:
+        if out.means2d is None or out.visible is None:
             return
-        norm = out.means2d.grad.norm(dim=-1) * (max(width, height) * 0.5)
-        self.grad_accum[out.visible] += norm
-        self.count[out.visible] += 1.0
+        grad = getattr(out.means2d, "absgrad", None)
+        if grad is None:
+            grad = out.means2d.grad
+        if grad is None:
+            return
+        if grad.ndim == 3:
+            grad = grad[0]
+        visible = out.visible.to(self.grad_accum.device)
+        # torch_ref exposes only visible rows; gsplat exposes all N rows.
+        visible_grad = grad if grad.shape[0] == visible.shape[0] else grad[visible]
+        norm = visible_grad.norm(dim=-1) * (max(width, height) * 0.5)
+        self.grad_accum.index_add_(0, visible, norm.to(self.grad_accum))
+        self.count.index_add_(0, visible, torch.ones_like(norm, device=self.count.device))
 
     def step(
         self,
@@ -83,6 +99,30 @@ class DensityController:
         prune_mask = (opacity < cfg.prune_opacity) | (
             scale_max > cfg.prune_scale_frac * self.extent
         )
+        # Dense transferred initializations can already exceed the configured budget. Cull the
+        # least significant remaining splats on the first scheduled round instead of preserving
+        # an over-budget set forever.
+        budget_excess = max(n - int(prune_mask.sum()) - cfg.max_gaussians, 0)
+        if budget_excess:
+            eligible = (~prune_mask).nonzero(as_tuple=True)[0]
+            significance = opacity[eligible] * scales[eligible].prod(dim=-1)
+            prune_mask[eligible[torch.topk(significance, budget_excess, largest=False).indices]] = (
+                True
+            )
+        # Each clone or split grows the surviving set by one. Respect the hard primitive
+        # budget even when one density round has many candidates.
+        growth_budget = max(cfg.max_gaussians - n + int(prune_mask.sum()), 0)
+        candidates = (clone_mask | split_mask).nonzero(as_tuple=True)[0]
+        if candidates.numel() > growth_budget:
+            keep_candidates = (
+                candidates[torch.topk(avg_grad[candidates], growth_budget).indices]
+                if growth_budget
+                else candidates[:0]
+            )
+            selected = torch.zeros_like(densify)
+            selected[keep_candidates] = True
+            clone_mask &= selected
+            split_mask &= selected
         # Split replaces the original: the original is pruned, two children are added.
         keep_mask = ~(prune_mask | split_mask)
 
@@ -96,18 +136,20 @@ class DensityController:
 
                 rot = quat_to_rotmat(child["quats"])
                 s = child["log_scales"].exp()
-                noise = torch.randn(s.shape, generator=generator) * s
+                noise = (
+                    torch.randn(s.shape, generator=generator, device=s.device, dtype=s.dtype) * s
+                )
                 child["means"] = child["means"] + (rot @ noise[..., None])[..., 0]
                 child["log_scales"] = child["log_scales"] - torch.log(
-                    torch.tensor(cfg.split_factor)
+                    child["log_scales"].new_tensor(cfg.split_factor)
                 )
                 extras.append(child)
 
         new_params = _edit_params(optimizer, params, keep_mask, extras)
 
         n_new = new_params["means"].shape[0]
-        self.grad_accum = torch.zeros(n_new)
-        self.count = torch.zeros(n_new)
+        self.grad_accum = torch.zeros(n_new, device=params["means"].device)
+        self.count = torch.zeros(n_new, device=params["means"].device)
         self.stats.append(
             {
                 "iteration": iteration,
@@ -121,7 +163,7 @@ class DensityController:
 
         if cfg.opacity_reset_every and iteration % cfg.opacity_reset_every == 0:
             with torch.no_grad():
-                cap = torch.logit(torch.tensor(cfg.opacity_reset_value))
+                cap = torch.logit(new_params["opacity_logit"].new_tensor(cfg.opacity_reset_value))
                 new_params["opacity_logit"].clamp_max_(cap)
         return new_params
 
@@ -149,7 +191,12 @@ def _edit_params(
             for key in ("exp_avg", "exp_avg_sq"):
                 buf = state[key]
                 pads = [
-                    torch.zeros((e[name].shape[0], *buf.shape[1:]), dtype=buf.dtype) for e in extras
+                    torch.zeros(
+                        (e[name].shape[0], *buf.shape[1:]),
+                        dtype=buf.dtype,
+                        device=buf.device,
+                    )
+                    for e in extras
                 ]
                 state[key] = torch.cat([buf[keep_mask]] + pads)
             optimizer.state[new] = state

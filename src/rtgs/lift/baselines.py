@@ -25,8 +25,8 @@ def _knn_scale(points: torch.Tensor, k: int = 3) -> torch.Tensor:
 
 def _colors_from_views(points: torch.Tensor, scene: SceneData) -> torch.Tensor:
     """Sample each point's color from the first view it projects into (gray fallback)."""
-    colors = torch.full((points.shape[0], 3), 0.5)
-    remaining = torch.ones(points.shape[0], dtype=torch.bool)
+    colors = torch.full((points.shape[0], 3), 0.5, device=points.device)
+    remaining = torch.ones(points.shape[0], dtype=torch.bool, device=points.device)
     for image, cam in zip(scene.images, scene.cameras):
         if not bool(remaining.any()):
             break
@@ -42,18 +42,18 @@ def _isotropic(
     points: torch.Tensor, scales: torch.Tensor, colors: torch.Tensor, opacity: float
 ) -> Gaussians3D:
     n = points.shape[0]
-    quats = torch.zeros(n, 4)
+    quats = torch.zeros(n, 4, device=points.device, dtype=points.dtype)
     quats[:, 0] = 1.0
     covs_scales = scales[:, None].expand(n, 3)
     from rtgs.core.sh import rgb_to_sh
 
-    sh = torch.zeros(n, 1, 3)
+    sh = torch.zeros(n, 1, 3, device=points.device, dtype=points.dtype)
     sh[:, 0] = rgb_to_sh(colors)
     return Gaussians3D(
         means=points,
         quats=quats,
         log_scales=covs_scales.log(),
-        opacity=torch.full((n,), opacity),
+        opacity=torch.full((n,), opacity, device=points.device, dtype=points.dtype),
         sh=sh,
     )
 
@@ -83,11 +83,16 @@ class RandomLifter:
     def lift(self, gaussians2d: list[Gaussians2D], scene: SceneData) -> Gaussians3D:
         """Random points in a sphere of half the scene extent around the center."""
         center, extent = scene.center_and_extent()
-        gen = torch.Generator().manual_seed(self.seed)
-        v = torch.randn(self.n, 3, generator=gen)
+        device = center.device
+        gen = torch.Generator(device=device).manual_seed(self.seed)
+        v = torch.randn(self.n, 3, generator=gen, device=device)
         v = v / v.norm(dim=-1, keepdim=True)
-        r = 0.5 * extent * torch.rand(self.n, 1, generator=gen) ** (1 / 3)
+        r = 0.5 * extent * torch.rand(self.n, 1, generator=gen, device=device) ** (1 / 3)
         pts = center + v * r
-        scales = torch.full((self.n,), 0.5 * extent / max(self.n, 1) ** (1 / 3))
-        colors = torch.full((self.n, 3), 0.5)
+        scales = torch.full(
+            (self.n,),
+            0.5 * extent / max(self.n, 1) ** (1 / 3),
+            device=device,
+        )
+        colors = torch.full((self.n, 3), 0.5, device=device)
         return _isotropic(pts, scales, colors, self.opacity)

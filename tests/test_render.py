@@ -6,6 +6,7 @@ import torch
 from rtgs.core.camera import Camera
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.render.base import get_rasterizer
+from rtgs.render.gsplat_backend import _visible_indices
 from rtgs.render.torch_ref import TorchRasterizer
 
 
@@ -101,6 +102,14 @@ def test_registry():
     assert isinstance(get_rasterizer("torch"), TorchRasterizer)
     with pytest.raises(ValueError):
         get_rasterizer("nonsense")
+
+
+def test_gsplat_radius_layouts_map_visibility():
+    scalar = torch.tensor([[1.0, 0.0, 2.0]])
+    axes = torch.tensor([[[1.0, 2.0], [0.0, 0.0], [2.0, 3.0]]])
+    expected = torch.tensor([0, 2])
+    assert torch.equal(_visible_indices(scalar), expected)
+    assert torch.equal(_visible_indices(axes), expected)
 
 
 @pytest.mark.cuda

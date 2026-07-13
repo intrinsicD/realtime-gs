@@ -3,8 +3,8 @@
 Parametrization follows GaussianImage (Zhang et al., ECCV 2024): the 2x2 covariance is
 stored via its Cholesky factor ``L = [[l11, 0], [l21, l22]]`` with positive diagonal, which
 keeps it symmetric positive definite by construction. Color is factored into a [0,1]^3
-``color`` and a [0,1] ``weight`` (the accumulated-blending amplitude) so that lifting to 3D
-can reuse ``color`` as RGB and ``weight`` as opacity.
+``color`` and a [0,1] ``weight`` (the accumulated-blending amplitude). The amplitude is not
+an alpha-compositing opacity; lifters use a conservative independent 3D opacity prior.
 """
 
 from __future__ import annotations
@@ -65,6 +65,15 @@ class Gaussians2D:
             self.chol.detach().clone(),
             self.color.detach().clone(),
             self.weight.detach().clone(),
+        )
+
+    def to(self, device: torch.device | str) -> Gaussians2D:
+        """Return a copy on ``device``."""
+        return Gaussians2D(
+            self.xy.to(device),
+            self.chol.to(device),
+            self.color.to(device),
+            self.weight.to(device),
         )
 
     def save_npz(self, path: str | Path) -> None:

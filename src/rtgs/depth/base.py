@@ -12,7 +12,7 @@ from typing import Literal, Protocol
 
 import torch
 
-DepthKind = Literal["metric", "relative", "affine"]
+DepthKind = Literal["metric", "relative", "affine", "inverse"]
 
 
 @dataclass

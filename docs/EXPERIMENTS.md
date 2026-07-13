@@ -17,6 +17,34 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-13 — Geometry/device correctness pass and calibrated Janelle smoke test
+- **Question**: Do projection-correct covariance, bounded ray depths, independent opacity,
+  color-independent carving coverage, and corrected density/timing plumbing improve the
+  initialization pipeline; and does it run on the supplied calibrated object captures?
+- **Setup**: `python benchmarks/run.py --quick --update-docs`, CPU, seed 0, synthetic 12-view
+  48×48 scene, 150 2D gaussians/view, 120 fit + 150 refine iterations. Real-data smoke used
+  `2025_03_07_stage_with_fabric/frame_00008`, four evenly sampled views at 1/64 resolution,
+  real PNG masks, 60 gaussians/view, 15 fit + 5 bounded-ray + 3 refine iterations. The capture
+  inventory is 26 RGB views in each stage frame and 30/32 in the two karate frames; the stage
+  frames also contain per-camera masks. Result: `benchmarks/results/20260713T123616Z_cpu.json`.
+- **Result**: Synthetic init/final PSNR changed versus the 2026-07-08 tracked run: depth
+  17.05/28.53 → **19.08/31.36** dB; gradient 19.41/25.38 → **22.43/30.86**; carve
+  17.48/29.13 → **20.31/31.91**. Gradient lift time fell 15.43 → 7.93 s. The comparison now
+  includes the shared 3.90 s all-view fit cost and time/PSNR samples. On Janelle, the bounded-ray
+  init reached **23.75 dB**, short refinement reached 23.83 dB, and ray-stage loss fell
+  0.0124 → 0.0073. A mock relative-inverse-depth backend exercised the no-SfM bounds alignment
+  and produced 46 finite splats at 18.49 dB. Coverage threshold 0.4 reduced the synthetic
+  carving median center-to-GT distance from 0.276 to 0.236 (0.3 threshold vs 0.4).
+- **Conclusion**: The repaired transfer now improves all three initializers on the integration
+  benchmark, and both proposed depth routes execute on the real calibration format. This is a
+  regression/integration comparison, not an isolated causal ablation; GPU quality and real
+  held-out full-resolution quality remain unmeasured. Actual StructSplat/GaussianImage fields can
+  now skip native stage 1 through the adapter rather than being conflated with 3D opacity.
+- **Follow-ups**: Create a CUDA-enabled environment for the RTX 4090 and run the full 26-view
+  frame at 1/4 resolution; compare StructSplat versus native versus GaussianImage at matched
+  2D PSNR and primitive count; run real Depth Anything V2 Small and a depth→bounded-ray hybrid;
+  report held-out PSNR/SSIM/LPIPS and time-to-quality against SfM when sparse points are available.
+
 ## 2026-07-08 — Refined `gradient` variant: depth+rot+scale along the ray, then merge
 - **Question**: The staged idea "fit 2D → lift with a thin third axis → optimize each
   gaussian along its ray for position/rotation/scale → full 3DGS". Does optimizing

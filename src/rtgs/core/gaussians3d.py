@@ -202,6 +202,32 @@ class Gaussians3D:
             self.sh.detach().clone(),
         )
 
+    def to(self, device: torch.device | str) -> Gaussians3D:
+        """Return a copy on ``device``."""
+        return Gaussians3D(
+            self.means.to(device),
+            self.quats.to(device),
+            self.log_scales.to(device),
+            self.opacity.to(device),
+            self.sh.to(device),
+        )
+
+    def with_sh_degree(self, degree: int) -> Gaussians3D:
+        """Return a copy padded or truncated to ``degree`` spherical harmonics."""
+        k = num_sh_bases(degree)
+        if k == self.sh.shape[1]:
+            return self.detach()
+        sh = self.sh.new_zeros(self.n, k, 3)
+        shared = min(k, self.sh.shape[1])
+        sh[:, :shared] = self.sh[:, :shared]
+        return Gaussians3D(
+            self.means.detach().clone(),
+            self.quats.detach().clone(),
+            self.log_scales.detach().clone(),
+            self.opacity.detach().clone(),
+            sh,
+        )
+
     def save_npz(self, path: str | Path) -> None:
         """Save to a compressed .npz archive."""
         np.savez_compressed(

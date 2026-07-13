@@ -170,9 +170,9 @@ Reduced-3DGS redundancy tests are useful merge-candidate selectors. Implemented 
    pure-PyTorch reference renderer defines semantics and keeps CPU CI honest. No INRIA
    code anywhere.
 2. **Stage 1**: GaussianImage Cholesky parametrization + accumulated summation, with the
-   amplitude factored as `weight * color` (weight ∈ [0,1] transfers to 3D opacity —
-   a deliberate small departure from unconstrained colors, costing a little 2D PSNR for a
-   semantically liftable representation). L2 loss; gradient-magnitude init at 70/30 mix
+   amplitude factored as `weight * color`. Accumulated amplitude is **not identifiable as
+   alpha opacity**, so lifting uses an independent low opacity prior and fuses repeated
+   observations without union-inflating it. L2 loss; gradient-magnitude init at 70/30 mix
    (Image-GS). Error-driven progressive addition is roadmap M3.
 3. **Missing-dimension covariance** (variant B): lateral `Sigma_lat = (z/f)^2 * Sigma_2D`
    (pixelSplat's footprint prior generalized to anisotropic gaussians); along-ray

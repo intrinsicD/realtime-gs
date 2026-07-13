@@ -3,7 +3,11 @@
 import pytest
 import torch
 
-from rtgs.depth.align import align_depth_to_points, scale_shift_align
+from rtgs.depth.align import (
+    align_depth_to_points,
+    align_inverse_depth_to_bounds,
+    scale_shift_align,
+)
 from rtgs.depth.mock import ConstantDepth, GroundTruthDepth
 
 
@@ -52,6 +56,15 @@ def test_mock_backends(tiny_scene):
     const = ConstantDepth(2.0)
     pred = const.predict(tiny_scene.images[0])
     assert (pred.depth == 2.0).all()
+
+
+def test_inverse_depth_bounds_alignment_without_sfm(tiny_scene):
+    camera = tiny_scene.cameras[0]
+    center, extent = tiny_scene.center_and_extent()
+    inverse = torch.linspace(0.1, 1.0, 32 * 32).reshape(32, 32)
+    depth = align_inverse_depth_to_bounds(inverse, camera, center, extent)
+    assert torch.isfinite(depth).all() and (depth > 0).all()
+    assert depth[-1, -1] < depth[0, 0]  # higher inverse depth remains nearer
 
 
 def test_gt_backend_shape_mismatch(tiny_scene):

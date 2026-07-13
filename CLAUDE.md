@@ -57,12 +57,12 @@ python3 -m venv .venv && .venv/bin/pip install -e '.[dev]' \
 ```
 src/rtgs/
   core/        gaussians2d, gaussians3d, camera, sh, metrics — shared math & containers
-  image2gs/    stage 1: differentiable 2D splatting + per-image fitting
+  image2gs/    stage 1: differentiable 2D splatting, fitting, external adapters
   lift/        stage 2: base utilities + gradient.py / depth.py / carve.py / merge.py
   depth/       DepthBackend protocol, mock (tests), depth_anything (lazy), align (scale/shift)
   render/      Rasterizer protocol, torch_ref (CPU reference), gsplat_backend (CUDA)
   optim/       stage 3: trainer.py (3DGS loop), density.py (clone/split/prune)
-  data/        synthetic.py (test scenes with GT), colmap.py (real scenes)
+  data/        synthetic.py (GT), colmap.py, calibrated.py (object-capture JSON)
   pipeline.py  end-to-end orchestration;  cli.py  argparse CLI
 tests/         CPU-only pytest suite; conftest.py has seeding + tiny-scene fixtures
 benchmarks/    run.py harness + results/*.json

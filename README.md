@@ -36,6 +36,25 @@ python3 -m venv .venv
 ./scripts/verify.sh                                   # lint + tests + docs-sync
 ```
 
+For the calibrated object captures in the Janelle dataset, point ``--scene`` at one frame.
+The loader finds `calibration_dome.json`, undistorts RGB and masks, uses every eighth camera as
+held-out evaluation, and keeps evenly distributed cameras when `--max-images` is set:
+
+```bash
+.venv/bin/rtgs run \
+  --scene ~/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 \
+  --downscale 4 --device cuda --lifter gradient \
+  --n-gaussians 15000 --fit-iterations 1000 --refine-iters 7000 --out runs/janelle-gradient
+
+# Skip native stage 1 and consume per-image StructSplat/GaussianImage-style NPZ files.
+.venv/bin/rtgs run --scene ~/Dropbox/Work/Janelle/karate/frame_00005 \
+  --downscale 4 --device cuda --fits runs/structsplat \
+  --fit-format structsplat --lifter depth --refine-iters 7000 --out runs/janelle-depth
+```
+
+The default depth checkpoint is the Apache-2.0 Depth Anything V2 Small model. Other checkpoint
+names are rejected unless their code and weights have been explicitly license-verified.
+
 ## Documentation
 
 | Doc | Contents |
@@ -49,6 +68,6 @@ python3 -m venv .venv
 
 ## Status
 
-Early research code. The full pipeline runs end-to-end on synthetic scenes and COLMAP
-datasets on CPU; GPU fast paths (gsplat rasterization, Depth Anything V2) activate
-automatically when their dependencies are installed.
+Early research code. The full pipeline runs end-to-end on synthetic scenes, COLMAP datasets, and
+the calibrated object-capture JSON format on CPU. GPU fast paths (gsplat rasterization and Depth
+Anything V2) activate automatically when their dependencies are installed.

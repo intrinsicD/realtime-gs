@@ -12,6 +12,7 @@
 - [x] Lifting variants: `gradient`, `depth`, `carve` (+ `sfm`/`random` baselines)
 - [x] 3DGS refinement loop with adaptive density control
 - [x] Synthetic ground-truthed scenes; COLMAP text/binary parsing
+- [x] Calibrated object-capture JSON, distortion/masks, held-out split, external 2D adapters
 - [x] End-to-end tests and variant-comparison benchmark
 
 ## M2 — GPU validation (needs a CUDA box)

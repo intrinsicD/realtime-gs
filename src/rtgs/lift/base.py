@@ -79,21 +79,78 @@ def lift_covariance(
     sigma_ray: torch.Tensor,
 ) -> torch.Tensor:
     """Lift (N,2,2) pixel covariances at (N,) depths into (N,3,3) world covariances."""
-    zx = depth / camera.fx
-    zy = depth / camera.fy
-    a00 = zx * zx * cov2d[:, 0, 0]
-    a01 = zx * zy * cov2d[:, 0, 1]
-    a11 = zy * zy * cov2d[:, 1, 1]
+    # Work in the plane perpendicular to the ray, but solve for the tangent covariance through
+    # the exact local projection Jacobian. Simply applying diag(z/f) and then rotating that plane
+    # is only correct on the principal axis and inflates footprints near image borders.
+    xn = (uv[:, 0] - camera.cx) / camera.fx
+    yn = (uv[:, 1] - camera.cy) / camera.fy
+    points_cam = torch.stack([xn * depth, yn * depth, depth], dim=-1)
+    z = depth.clamp_min(1e-8)
     n = uv.shape[0]
-    m = torch.zeros(n, 3, 3, device=uv.device, dtype=torch.float32)
-    m[:, 0, 0] = a00
-    m[:, 0, 1] = a01
-    m[:, 1, 0] = a01
-    m[:, 1, 1] = a11
-    m[:, 2, 2] = sigma_ray**2
+    jac = torch.zeros(n, 2, 3, device=uv.device, dtype=uv.dtype)
+    jac[:, 0, 0] = camera.fx / z
+    jac[:, 0, 2] = -camera.fx * points_cam[:, 0] / z.square()
+    jac[:, 1, 1] = camera.fy / z
+    jac[:, 1, 2] = -camera.fy * points_cam[:, 1] / z.square()
     basis = ray_basis(camera, uv)
+    tangent = basis[:, :, :2]
+    projection_on_tangent = jac @ tangent
+    inv_projection = torch.linalg.inv(projection_on_tangent)
+    cov_tangent = inv_projection @ cov2d @ inv_projection.transpose(-1, -2)
+
+    m = torch.zeros(n, 3, 3, device=uv.device, dtype=uv.dtype)
+    m[:, :2, :2] = cov_tangent
+    m[:, 2, 2] = sigma_ray**2
     cov_cam = basis @ m @ basis.transpose(-1, -2)
     r_c2w = camera.R.T.to(uv.device)
+    return r_c2w @ cov_cam @ r_c2w.T
+
+
+def surface_covariance_from_depth(
+    camera: Camera,
+    g2d: Gaussians2D,
+    depth_map: torch.Tensor,
+    depth_at_center: torch.Tensor,
+    normal_thickness: float = 0.15,
+) -> torch.Tensor:
+    """Lift image covariance through the local depth surface Jacobian.
+
+    For ``X(u,v) = D(u,v) K^-1 [u,v,1]``, ``J Sigma_2D J^T`` is the covariance tangent to
+    the reconstructed surface. A small normal variance makes it positive definite without
+    turning surface slope into artificial ray thickness.
+    """
+    gx = torch.zeros_like(depth_map)
+    gy = torch.zeros_like(depth_map)
+    gx[:, 1:-1] = 0.5 * (depth_map[:, 2:] - depth_map[:, :-2])
+    gy[1:-1, :] = 0.5 * (depth_map[2:, :] - depth_map[:-2, :])
+    du = bilinear_sample(gx, g2d.xy)
+    dv = bilinear_sample(gy, g2d.xy)
+    q = torch.stack(
+        [
+            (g2d.xy[:, 0] - camera.cx) / camera.fx,
+            (g2d.xy[:, 1] - camera.cy) / camera.fy,
+            torch.ones_like(depth_at_center),
+        ],
+        dim=-1,
+    )
+    ex = torch.zeros_like(q)
+    ey = torch.zeros_like(q)
+    ex[:, 0] = depth_at_center / camera.fx
+    ey[:, 1] = depth_at_center / camera.fy
+    j_u = ex + q * du[:, None]
+    j_v = ey + q * dv[:, None]
+    jac_surface = torch.stack([j_u, j_v], dim=-1)  # (N,3,2)
+    cov_cam = jac_surface @ g2d.covariance() @ jac_surface.transpose(-1, -2)
+
+    normal = torch.nn.functional.normalize(torch.linalg.cross(j_u, j_v), dim=-1)
+    evals2d = eigvals_2x2(g2d.covariance())
+    pixel_minor = evals2d[:, 0].clamp_min(1e-8).sqrt()
+    f_mean = 0.5 * (camera.fx + camera.fy)
+    sigma_normal = normal_thickness * depth_at_center / f_mean * pixel_minor
+    cov_cam = cov_cam + sigma_normal.square()[:, None, None] * (
+        normal[:, :, None] * normal[:, None, :]
+    )
+    r_c2w = camera.R.T.to(g2d.xy)
     return r_c2w @ cov_cam @ r_c2w.T
 
 
@@ -144,6 +201,7 @@ def lift_view_at_depth(
     depth: torch.Tensor,
     sigma_ray: torch.Tensor,
     sh_degree: int = 0,
+    opacity: torch.Tensor | None = None,
 ) -> Gaussians3D:
     """Lift one view's gaussians to given per-gaussian depths (all inputs pre-filtered)."""
     means = camera.unproject(g2d.xy, depth)
@@ -152,6 +210,29 @@ def lift_view_at_depth(
         means=means,
         covs=covs,
         colors=g2d.color.clamp(0.0, 1.0),
-        opacity=g2d.weight.clamp(0.02, 0.99),
+        opacity=(g2d.weight if opacity is None else opacity).clamp(0.02, 0.99),
+        sh_degree=sh_degree,
+    )
+
+
+def lift_view_from_depth_map(
+    camera: Camera,
+    g2d: Gaussians2D,
+    depth_map: torch.Tensor,
+    depth: torch.Tensor,
+    sh_degree: int = 0,
+    opacity: torch.Tensor | None = None,
+    normal_thickness: float = 0.15,
+) -> Gaussians3D:
+    """Lift one view using a local depth surface for both means and covariances."""
+    means = camera.unproject(g2d.xy, depth)
+    covs = surface_covariance_from_depth(
+        camera, g2d, depth_map, depth, normal_thickness=normal_thickness
+    )
+    return Gaussians3D.from_means_covs(
+        means=means,
+        covs=covs,
+        colors=g2d.color.clamp(0.0, 1.0),
+        opacity=(g2d.weight if opacity is None else opacity).clamp(0.02, 0.99),
         sh_degree=sh_degree,
     )

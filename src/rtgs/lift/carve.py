@@ -22,7 +22,7 @@ import torch
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.data.scene import SceneData
-from rtgs.image2gs.renderer2d import render_gaussians_2d
+from rtgs.image2gs.renderer2d import render_gaussian_coverage_2d
 from rtgs.lift.base import bilinear_sample, lift_view_at_depth
 from rtgs.lift.merge import merge_by_voxel
 
@@ -40,12 +40,13 @@ class CarveLifter:
         hull_fraction: float = 0.85,
         color_std_sigma: float = 0.20,
         color_match_sigma: float = 0.35,
-        coverage_thresh: float = 0.08,
+        coverage_thresh: float = 0.40,  # 2026-07-13 experiment: rejects broad low-density tails
         samples_per_ray: int = 64,
         min_score: float = 0.05,
         min_weight: float = 0.05,
         merge: bool = True,
         merge_voxel_scale: float = 1.0,
+        init_opacity: float = 0.1,
         sh_degree: int = 0,
     ):
         self.grid_res = grid_res
@@ -60,6 +61,7 @@ class CarveLifter:
         self.min_weight = min_weight
         self.merge = merge
         self.merge_voxel_scale = merge_voxel_scale
+        self.init_opacity = init_opacity
         self.sh_degree = sh_degree
 
     def lift(self, gaussians2d: list[Gaussians2D], scene: SceneData) -> Gaussians3D:
@@ -71,7 +73,8 @@ class CarveLifter:
         g = self.grid_res
 
         # Voxel centers, flattened (G^3, 3) with index = (z*G + y)*G + x.
-        r = torch.arange(g, dtype=torch.float32)
+        device = center.device
+        r = torch.arange(g, dtype=torch.float32, device=device)
         zz, yy, xx = torch.meshgrid(r, r, r, indexing="ij")
         idx3 = torch.stack([xx, yy, zz], dim=-1).reshape(-1, 3)
         centers = lo[None, :] + (idx3 + 0.5) * voxel
@@ -83,17 +86,19 @@ class CarveLifter:
         # photo-consistency test alone.
         coverage_maps = []
         with torch.no_grad():
-            for g2d, cam in zip(gaussians2d, scene.cameras):
-                recon = render_gaussians_2d(g2d, cam.height, cam.width)
-                coverage_maps.append(recon.clamp_min(0.0).mean(dim=-1))
+            for view_index, (g2d, cam) in enumerate(zip(gaussians2d, scene.cameras)):
+                if scene.masks is not None:
+                    coverage_maps.append(scene.masks[view_index].to(g2d.xy).float())
+                else:
+                    coverage_maps.append(render_gaussian_coverage_2d(g2d, cam.height, cam.width))
 
         # Color statistics accumulate over ALL views that see a voxel (not only covered
         # ones): a free-space voxel projecting onto the object in some views and onto
         # background in others must show its cross-view variance to get carved.
-        n_seen = torch.zeros(nv)
-        n_covered = torch.zeros(nv)
-        c_sum = torch.zeros(nv, 3)
-        c_sqsum = torch.zeros(nv, 3)
+        n_seen = torch.zeros(nv, device=device)
+        n_covered = torch.zeros(nv, device=device)
+        c_sum = torch.zeros(nv, 3, device=device)
+        c_sqsum = torch.zeros(nv, 3, device=device)
         for image, cov_map, cam in zip(scene.images, coverage_maps, scene.cameras):
             uv, z = cam.project(centers)
             inside = (z > _NEAR) & cam.in_image(uv, margin=-0.5)
@@ -118,8 +123,10 @@ class CarveLifter:
         # Place each view's gaussians along their tunnels.
         parts: list[Gaussians3D] = []
         s = self.samples_per_ray
-        for g2d, cam in zip(gaussians2d, scene.cameras):
+        for view_index, (g2d, cam) in enumerate(zip(gaussians2d, scene.cameras)):
             keep = g2d.weight > self.min_weight
+            if scene.masks is not None:
+                keep &= bilinear_sample(scene.masks[view_index].to(g2d.xy), g2d.xy) > 0.5
             if int(keep.sum()) == 0:
                 continue
             g2d_v = Gaussians2D(
@@ -129,7 +136,7 @@ class CarveLifter:
             t0, t1 = _ray_box(o, d, lo, lo + 2 * half)
             valid_ray = t1 > t0.clamp_min(_NEAR)
             t0 = t0.clamp_min(_NEAR)
-            steps = torch.linspace(0.0, 1.0, s)
+            steps = torch.linspace(0.0, 1.0, s, device=device)
             ts = t0[:, None] + (t1 - t0).clamp_min(0.0)[:, None] * steps[None, :]  # (N,S)
             pts = o.reshape(1, 1, 3) + ts[:, :, None] * d[:, None, :]  # (N,S,3)
 
@@ -164,7 +171,14 @@ class CarveLifter:
                 weight=g2d_v.weight[placed],
             )
             parts.append(
-                lift_view_at_depth(cam, sub, t_best[placed], sigma_ray[placed], self.sh_degree)
+                lift_view_at_depth(
+                    cam,
+                    sub,
+                    t_best[placed],
+                    sigma_ray[placed],
+                    self.sh_degree,
+                    opacity=torch.full_like(t_best[placed], self.init_opacity),
+                )
             )
 
         if not parts:
@@ -174,7 +188,7 @@ class CarveLifter:
             )
         result = Gaussians3D.cat(parts)
         if self.merge:
-            result = merge_by_voxel(result, voxel * self.merge_voxel_scale)
+            result = merge_by_voxel(result, voxel * self.merge_voxel_scale, opacity_mode="mean")
         return result
 
 

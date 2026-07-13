@@ -81,3 +81,23 @@ def test_density_surgery_preserves_optimizer_state():
     loss = sum(p.sum() for p in new_params.values())
     loss.backward()
     opt.step()
+
+
+def test_density_controller_enforces_budget_on_dense_init():
+    controller = DensityController(
+        DensityConfig(start_iter=1, every=1, grad_threshold=1.0, max_gaussians=3),
+        5,
+        scene_extent=1.0,
+    )
+    params = {
+        "means": torch.randn(5, 3, requires_grad=True),
+        "quats": torch.tensor([[1.0, 0.0, 0.0, 0.0]] * 5, requires_grad=True),
+        "log_scales": torch.full((5, 3), -3.0, requires_grad=True),
+        "opacity_logit": torch.arange(5.0, requires_grad=True),
+        "sh": torch.zeros(5, 1, 3, requires_grad=True),
+    }
+    optimizer = torch.optim.Adam(
+        [{"params": [param], "lr": 1e-2, "name": name} for name, param in params.items()]
+    )
+    new_params = controller.step(1, params, optimizer)
+    assert new_params["means"].shape[0] == 3

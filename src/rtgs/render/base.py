@@ -29,7 +29,7 @@ class RenderOutput:
     color: torch.Tensor  # (H, W, 3)
     alpha: torch.Tensor  # (H, W)
     depth: torch.Tensor  # (H, W)
-    means2d: torch.Tensor | None = None  # (V, 2) projected centers of visible gaussians
+    means2d: torch.Tensor | None = None  # (V,2) or (1,N,2), retained screen centers
     visible: torch.Tensor | None = None  # (V,) indices into the input gaussian set
 
 
