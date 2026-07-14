@@ -21,9 +21,10 @@
       gsplat snapshots
 - [x] Depth Anything V2 Small smoke test and bounds alignment on a calibrated Janelle capture
 - [x] Optional StructSplat CUDA stage-1 backend with configurable progressive density growth
-- [ ] Wire gsplat densification strategies as an alternative to `rtgs.optim.density`
+- [x] Wire gsplat Default and MCMC/relocation strategies as alternatives to
+      `rtgs.optim.density`, including AbsGS/revised-opacity controls and hard budgets
 - [ ] Benchmark on MipNeRF-360 `garden`/`bicycle` @ 7k iters: init-PSNR and
-      time-to-quality vs SfM init (protocol in docs/RESEARCH.md §6)
+      time-to-quality vs SfM init (protocol in docs/RESEARCH.md §7)
 - [ ] Fit-time target: stage 1+2 < 30 s for 200 images @ 1080p on one consumer GPU
 
 ## M3 — Research questions (log answers in docs/EXPERIMENTS.md)
@@ -36,8 +37,12 @@
       growth on Janelle; repeat across scenes and compare gsplat MCMC/teleportation
 - [x] Progressive/error-driven stage-1 allocation via StructSplat residual/tensor growth;
       compare `quadtree_wse` and GaussianImage at matched wall-clock/count
-- [ ] Add LPIPS-VGG and novel-view geometry diagnostics to held-out evaluation
-- [ ] Run full 26-view Janelle frame at 1/8 and 1/4 resolution with time/VRAM curves
+- [ ] Add LPIPS-VGG to held-out evaluation
+- [x] Add alpha-IoU/leakage metrics and both interpolated-orbit and elevation-varying
+      novel-view geometry diagnostics
+- [x] Run full 26-view Janelle frame at 1/8 and 1/4 resolution with quality/VRAM curves
+- [ ] Repeat clean time-to-quality runs on an otherwise idle GPU and add a train-only validation
+      checkpoint policy (never select checkpoints on the held-out test views)
 - [ ] Feed-forward multi-view init (VGGT/MASt3R pointmaps) as a fourth variant
 
 ## M4 — Real-time ambitions

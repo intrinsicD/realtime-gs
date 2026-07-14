@@ -18,6 +18,7 @@ from rtgs.data.scene import SceneData
 from rtgs.image2gs.fit import FitConfig, fit_views
 from rtgs.lift import get_lifter
 from rtgs.optim.trainer import TrainConfig, Trainer
+from rtgs.render.base import get_rasterizer
 
 
 @dataclass
@@ -67,6 +68,12 @@ def run_pipeline(
         gaussians2d = [gaussian.to(device) for gaussian in gaussians2d]
     timings: dict = {}
     metrics: dict = {}
+    evaluation_renderer = get_rasterizer(
+        config.train.rasterizer,
+        device=device,
+        packed=config.train.packed,
+        antialiased=config.train.antialiased,
+    )
 
     t0 = time.perf_counter()
     fit_histories: list[dict] = []
@@ -87,7 +94,7 @@ def run_pipeline(
     _sync(device)
     timings["lift"] = time.perf_counter() - t1
     metrics["init_n_gaussians"] = init.n
-    _record_evaluation_metrics(metrics, "init", scene, init)
+    _record_evaluation_metrics(metrics, "init", scene, init, evaluation_renderer)
 
     refined = init
     train_history: dict = {}
@@ -98,7 +105,7 @@ def run_pipeline(
         _sync(device)
         timings["refine"] = time.perf_counter() - t2
         metrics["final_n_gaussians"] = refined.n
-        _record_evaluation_metrics(metrics, "final", scene, refined)
+        _record_evaluation_metrics(metrics, "final", scene, refined, evaluation_renderer)
 
     timings["total"] = time.perf_counter() - t0
     return PipelineResult(
@@ -163,19 +170,19 @@ def _sync(device: torch.device) -> None:
 
 
 def _record_evaluation_metrics(
-    output: dict, prefix: str, scene: SceneData, gaussians: Gaussians3D
+    output: dict, prefix: str, scene: SceneData, gaussians: Gaussians3D, renderer=None
 ) -> None:
     """Store strict test metrics plus diagnostic train metrics with unambiguous names."""
     test_indices = scene.testing_views
     primary_indices = test_indices or scene.training_views
     split = "test" if test_indices else "train"
-    primary = Trainer.evaluate_metrics(scene, gaussians, indices=primary_indices)
+    primary = Trainer.evaluate_metrics(scene, gaussians, renderer, indices=primary_indices)
     for name, value in primary.items():
         output[f"{prefix}_{name}_{split}"] = value
     headline = primary["psnr_fg"] if "psnr_fg" in primary else primary["psnr"]
     output[f"{prefix}_psnr"] = headline
     if test_indices:
-        train = Trainer.evaluate_metrics(scene, gaussians, indices=scene.training_views)
+        train = Trainer.evaluate_metrics(scene, gaussians, renderer, indices=scene.training_views)
         for name, value in train.items():
             output[f"{prefix}_{name}_train"] = value
 

@@ -20,8 +20,9 @@ primitives, we:
      by moment matching.
    - **D · `hybrid`** — aligned monocular depth initializes each bounded ray, then a short
      multi-view photometric optimization corrects depth before confidence/color-aware fusion.
-3. **Refine with standard 3DGS optimization** (density control included) from this dense,
-   structured initialization — the hypothesis is that far fewer iterations are needed.
+3. **Refine with standard 3DGS optimization** from this dense, structured initialization.
+   CUDA runs can select gsplat's Default (AbsGS/revised opacity) or MCMC
+   (relocation/teleportation + noise) strategy under a hard configurable primitive budget.
 
 Rendering/refinement reuses the state-of-the-art CUDA stack ([gsplat](https://github.com/nerfstudio-project/gsplat))
 on GPU; a pure-PyTorch reference rasterizer keeps the whole pipeline testable on CPU.
@@ -53,7 +54,9 @@ python3 -m venv .venv-cuda
   --downscale 16 --device cuda --fit-backend structsplat \
   --initial-gaussians 640 --max-gaussians 2000 --fit-iterations 300 \
   --lifter carve --lifter-args '{"grid_res":96}' \
-  --refine-iters 1000 --densify-stop 300 --max-3d-gaussians 15000 \
+  --refine-iters 7000 --density-strategy gsplat-default \
+  --densify-start 200 --densify-stop 3500 --densify-every 100 \
+  --max-3d-gaussians 30000 --target-sh-degree 3 --antialiased \
   --out runs/janelle-carve
 
 # Fixed 640 control: 640 is the start, not a hard-coded ceiling.
@@ -64,9 +67,17 @@ python3 -m venv .venv-cuda
 
 `--initial-gaussians` and `--max-gaussians` are independent. StructSplat can grow from any
 configured start until convergence or the maximum; the native backend keeps the initial count
-fixed. Every `rtgs run --out ...` writes `gaussians_init.ply`, `gaussians.ply`, sampled
-calibrated-camera reference/init/final/error images, `reconstruction_contact_sheet.png`, and
-`reconstruction.gif` for visual inspection.
+fixed. Every `rtgs run --out ...` writes `gaussians_init.ply`, `gaussians.ply`, metrics and
+training-history JSON, sampled calibrated-camera reference/init/final/error images,
+`reconstruction_contact_sheet.png`, `reconstruction.gif`, an interpolated `novel_orbit.gif`,
+and an off-plane `novel_elevation.gif` for geometry inspection. `rtgs refine` writes the same
+metrics/history sidecars and visual diagnostics unless `--no-preview` is supplied.
+
+For the most initialization-robust density control, substitute
+`--density-strategy gsplat-mcmc`; this enables gsplat's low-opacity relocation/teleportation,
+growth, and position noise. `classic` remains the CPU-compatible reference strategy. Default
+strategy uses the published AbsGS-compatible gradient threshold automatically; the threshold,
+opacity-reset interval, density window, and final budget remain explicit CLI controls.
 
 Open the saved result in the interactive browser viewer (Viser is an optional Apache-2.0
 dependency):
@@ -82,9 +93,13 @@ The viewer auto-detects a sibling `gaussians_init.ply`, supports orbit navigatio
 initial/final switching, significance-ranked splat-count and opacity controls, and train/test
 camera filtering. Click a camera or choose it in the sidebar; **Render exact snapshot** compares
 the reference RGB against a full-SH render from the selected `Rasterizer` backend. The orbitable
-WebGL preview itself uses degree-0 color. For a remote GPU host, add `--host 0.0.0.0 --no-open`
-and use SSH port forwarding. `--max-viewer-gaussians` is only a configurable browser-transfer cap;
-it never changes the reconstruction.
+WebGL preview refreshes its RGB-only splats from the model's full SH coefficients as the camera
+moves; the exact snapshot remains authoritative for sorting and rasterization. For a remote GPU
+host, add `--host 0.0.0.0 --no-open` and use SSH port forwarding.
+`--max-viewer-gaussians` is only a configurable browser-transfer cap; it never changes the
+reconstruction. Training writes `gaussians.config.json`; `view` and `render` automatically reuse
+its packed/antialiased render mode, with explicit `--[no-]packed` and `--[no-]antialiased`
+overrides available.
 
 The default depth checkpoint is the Apache-2.0 Depth Anything V2 Small model. Other checkpoint
 names are rejected unless their code and weights have been explicitly license-verified.

@@ -11,6 +11,7 @@ from rtgs.core.gaussians3d import Gaussians3D, quat_to_rotmat
 from rtgs.core.sh import rgb_to_sh
 from rtgs.viewer import (
     _image_uint8,
+    _view_dependent_rgbs,
     camera_to_viewer_pose,
     prepare_viewer_data,
     selected_gaussians,
@@ -48,6 +49,16 @@ def test_selected_gaussians_matches_controls_and_cap():
     assert selected.opacity.item() == 1.0
 
 
+def test_viewer_evaluates_full_sh_from_live_camera_position():
+    gaussians = _gaussians().with_sh_degree(1)
+    gaussians.sh[:, 3, 0] = 0.5
+    data = prepare_viewer_data(gaussians)
+    from_left = _view_dependent_rgbs(data, 1, np.array([-3.0, 0.0, 0.0]), data.n)
+    from_right = _view_dependent_rgbs(data, 1, np.array([5.0, 0.0, 0.0]), data.n)
+    assert from_left.shape == (data.n, 3)
+    assert not np.allclose(from_left, from_right)
+
+
 def test_camera_to_viewer_pose_uses_camera_to_world_rotation():
     camera = Camera.look_at(
         eye=torch.tensor([2.0, -1.0, 3.0]),
@@ -72,6 +83,9 @@ def test_cli_view_auto_detects_initial_without_importing_viser(tmp_path, monkeyp
     gaussians = _gaussians().subset(torch.tensor([0, 1]))
     gaussians.save_ply(tmp_path / "gaussians.ply")
     gaussians.subset(torch.tensor([0])).save_ply(tmp_path / "gaussians_init.ply")
+    (tmp_path / "gaussians.config.json").write_text(
+        '{"training": {"packed": true, "antialiased": true}}'
+    )
     called = {}
 
     def fake_launch(models, **kwargs):
@@ -94,3 +108,5 @@ def test_cli_view_auto_detects_initial_without_importing_viser(tmp_path, monkeyp
     assert called["kwargs"]["scene"] is None
     assert called["kwargs"]["device"] == torch.device("cpu")
     assert called["kwargs"]["open_browser"] is False
+    assert called["kwargs"]["snapshot_packed"] is True
+    assert called["kwargs"]["snapshot_antialiased"] is True

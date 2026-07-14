@@ -190,9 +190,10 @@ Reduced-3DGS redundancy tests are useful merge-candidate selectors. Implemented 
 5. **Variant C**: coverage-based hull test (2D gaussian weight maps as soft silhouettes)
    + Seitz-Dyer color-consistency scoring on a dense grid; ray-tunnel argmax placement;
    Runnalls/Hierarchical-3DGS moment-matched merging.
-6. **Refinement**: classic 3DGS recipe with screen-space-gradient density control on the
-   reference stack; on GPU, gsplat strategies (MCMC first — least init-sensitive) are the
-   intended replacements. Given EDGS and Desiatov-Sattler, evaluate with densification
+6. **Refinement**: classic 3DGS screen-gradient density control remains the CPU/reference
+   stack. GPU runs can use gsplat Default (including AbsGS and revised opacity) or MCMC
+   (relocation/teleportation plus position noise), with canonical per-field optimizers and a
+   hard primitive budget. Given EDGS and Desiatov-Sattler, evaluate with densification
    *disabled or shortened* — that is where the speed win lives (roadmap M3).
 7. **Evaluation**: stage 1 and lifting consume training views only. Held-out images are used for
    explicit full-canvas, foreground, foreground-crop PSNR, and crop SSIM; synthetic

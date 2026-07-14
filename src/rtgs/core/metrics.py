@@ -69,8 +69,21 @@ def image_metrics(
 def _gaussian_window(size: int, sigma: float, device: torch.device) -> torch.Tensor:
     coords = torch.arange(size, dtype=torch.float32, device=device) - (size - 1) / 2
     g = torch.exp(-(coords**2) / (2 * sigma**2))
-    g = g / g.sum()
-    return g[:, None] @ g[None, :]
+    return g / g.sum()
+
+
+def _separable_filter(image: torch.Tensor, kernel: torch.Tensor) -> torch.Tensor:
+    """Apply an exact separable Gaussian window channel-wise.
+
+    This computes the same outer-product filter as a dense 11x11 convolution with roughly
+    one fifth of the multiply-adds, which matters because SSIM runs every training step.
+    """
+    channels = image.shape[1]
+    radius = kernel.numel() // 2
+    vertical = kernel.view(1, 1, -1, 1).expand(channels, 1, -1, 1)
+    horizontal = kernel.view(1, 1, 1, -1).expand(channels, 1, 1, -1)
+    filtered = F.conv2d(image, vertical, padding=(radius, 0), groups=channels)
+    return F.conv2d(filtered, horizontal, padding=(0, radius), groups=channels)
 
 
 def ssim(pred: torch.Tensor, target: torch.Tensor, window_size: int = 11) -> torch.Tensor:
@@ -83,16 +96,14 @@ def ssim(pred: torch.Tensor, target: torch.Tensor, window_size: int = 11) -> tor
         raise ValueError("expected (H, W, 3) images")
     x = pred.permute(2, 0, 1)[None]  # (1,3,H,W)
     y = target.permute(2, 0, 1)[None]
-    win = _gaussian_window(window_size, 1.5, pred.device)
-    win = win.expand(3, 1, window_size, window_size)
-    pad = window_size // 2
+    kernel = _gaussian_window(window_size, 1.5, pred.device)
 
-    mu_x = F.conv2d(x, win, padding=pad, groups=3)
-    mu_y = F.conv2d(y, win, padding=pad, groups=3)
+    mu_x = _separable_filter(x, kernel)
+    mu_y = _separable_filter(y, kernel)
     mu_x2, mu_y2, mu_xy = mu_x * mu_x, mu_y * mu_y, mu_x * mu_y
-    sigma_x2 = F.conv2d(x * x, win, padding=pad, groups=3) - mu_x2
-    sigma_y2 = F.conv2d(y * y, win, padding=pad, groups=3) - mu_y2
-    sigma_xy = F.conv2d(x * y, win, padding=pad, groups=3) - mu_xy
+    sigma_x2 = _separable_filter(x * x, kernel) - mu_x2
+    sigma_y2 = _separable_filter(y * y, kernel) - mu_y2
+    sigma_xy = _separable_filter(x * y, kernel) - mu_xy
 
     c1, c2 = 0.01**2, 0.03**2
     ssim_map = ((2 * mu_xy + c1) * (2 * sigma_xy + c2)) / (

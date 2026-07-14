@@ -62,7 +62,7 @@ src/rtgs/
   lift/        stage 2: gradient.py / depth.py / hybrid.py / carve.py / merge.py
   depth/       DepthBackend protocol, mock (tests), depth_anything (lazy), align (scale/shift)
   render/      Rasterizer protocol, torch_ref (CPU reference), gsplat_backend (CUDA)
-  optim/       stage 3: trainer.py (3DGS loop), density.py (clone/split/prune)
+  optim/       stage 3: trainer.py; CPU classic density.py; CUDA gsplat strategies.py
   data/        synthetic.py (GT), colmap.py, calibrated.py (object-capture JSON)
   pipeline.py  strict-split orchestration; visualize.py previews; viewer.py browser UI; cli.py CLI
 tests/         CPU-only pytest suite; conftest.py has seeding + tiny-scene fixtures

@@ -27,15 +27,18 @@ class DensityConfig:
     stop_iter: int = 10_000_000
     every: int = 40
     grad_threshold: float = 2e-4
+    absgrad: bool = False
     # Split (instead of clone) when the max scale exceeds this fraction of scene extent.
     split_scale_frac: float = 0.01
     split_factor: float = 1.6
-    prune_opacity: float = 0.01
+    prune_opacity: float = 0.005
     # Prune when the max scale exceeds this fraction of scene extent.
-    prune_scale_frac: float = 0.5
+    prune_scale_frac: float = 0.1
     max_gaussians: int = 100_000
-    opacity_reset_every: int = 0  # 0 disables (short refinement runs don't need it)
+    opacity_reset_every: int = 3_000
     opacity_reset_value: float = 0.011
+    revised_opacity: bool = True
+    mcmc_noise_lr: float = 500_000.0
 
 
 class DensityController:
@@ -62,9 +65,8 @@ class DensityController:
         """Record screen-space positional gradients after loss.backward()."""
         if out.means2d is None or out.visible is None:
             return
-        grad = getattr(out.means2d, "absgrad", None)
-        if grad is None:
-            grad = out.means2d.grad
+        grad = getattr(out.means2d, "absgrad", None) if self.cfg.absgrad else None
+        grad = out.means2d.grad if grad is None else grad
         if grad is None:
             return
         if grad.ndim == 3:
@@ -80,7 +82,7 @@ class DensityController:
         self,
         iteration: int,
         params: dict[str, torch.Tensor],
-        optimizer: torch.optim.Adam,
+        optimizer: torch.optim.Adam | dict[str, torch.optim.Optimizer],
         generator: torch.Generator | None = None,
         force_budget: bool = False,
     ) -> dict[str, torch.Tensor]:
@@ -92,8 +94,10 @@ class DensityController:
             return params
 
         avg_grad = self.grad_accum / self.count.clamp_min(1.0)
-        scales = params["log_scales"].detach().exp()
-        opacity = torch.sigmoid(params["opacity_logit"].detach())
+        scale_key = "scales" if "scales" in params else "log_scales"
+        opacity_key = "opacities" if "opacities" in params else "opacity_logit"
+        scales = params[scale_key].detach().exp()
+        opacity = torch.sigmoid(params[opacity_key].detach())
         scale_max = scales.max(dim=-1).values
 
         densify = (avg_grad > cfg.grad_threshold) & (self.count > 0)
@@ -146,14 +150,19 @@ class DensityController:
                 from rtgs.core.gaussians3d import quat_to_rotmat
 
                 rot = quat_to_rotmat(child["quats"])
-                s = child["log_scales"].exp()
+                s = child[scale_key].exp()
                 noise = (
                     torch.randn(s.shape, generator=generator, device=s.device, dtype=s.dtype) * s
                 )
                 child["means"] = child["means"] + (rot @ noise[..., None])[..., 0]
-                child["log_scales"] = child["log_scales"] - torch.log(
-                    child["log_scales"].new_tensor(cfg.split_factor)
+                child[scale_key] = child[scale_key] - torch.log(
+                    child[scale_key].new_tensor(cfg.split_factor)
                 )
+                if cfg.revised_opacity:
+                    child_opacity = 1.0 - torch.sqrt(
+                        1.0 - torch.sigmoid(child[opacity_key]).clamp(max=1.0 - 1e-6)
+                    )
+                    child[opacity_key] = torch.logit(child_opacity.clamp_min(1e-6))
                 extras.append(child)
 
         new_params = _edit_params(optimizer, params, keep_mask, extras)
@@ -178,13 +187,14 @@ class DensityController:
 
         if cfg.opacity_reset_every and iteration % cfg.opacity_reset_every == 0:
             with torch.no_grad():
-                cap = torch.logit(new_params["opacity_logit"].new_tensor(cfg.opacity_reset_value))
-                new_params["opacity_logit"].clamp_max_(cap)
+                opacity_key = "opacities" if "opacities" in new_params else "opacity_logit"
+                cap = torch.logit(new_params[opacity_key].new_tensor(cfg.opacity_reset_value))
+                new_params[opacity_key].clamp_max_(cap)
         return new_params
 
 
 def _edit_params(
-    optimizer: torch.optim.Adam,
+    optimizer: torch.optim.Adam | dict[str, torch.optim.Optimizer],
     params: dict[str, torch.Tensor],
     keep_mask: torch.Tensor,
     extras: list[dict[str, torch.Tensor]],
@@ -195,13 +205,16 @@ def _edit_params(
     'name' matching the params dict key (the trainer guarantees this).
     """
     new_params: dict[str, torch.Tensor] = {}
-    for group in optimizer.param_groups:
-        name = group["name"]
+    if isinstance(optimizer, dict):
+        entries = [(name, optimizer[name], optimizer[name].param_groups[0]) for name in params]
+    else:
+        entries = [(group["name"], optimizer, group) for group in optimizer.param_groups]
+    for name, parameter_optimizer, group in entries:
         old = params[name]
         rows = [old.detach()[keep_mask]] + [e[name] for e in extras]
         new = torch.cat(rows).requires_grad_(True)
 
-        state = optimizer.state.pop(old, None)
+        state = parameter_optimizer.state.pop(old, None)
         if state is not None:
             for key in ("exp_avg", "exp_avg_sq"):
                 buf = state[key]
@@ -214,7 +227,7 @@ def _edit_params(
                     for e in extras
                 ]
                 state[key] = torch.cat([buf[keep_mask]] + pads)
-            optimizer.state[new] = state
+            parameter_optimizer.state[new] = state
         group["params"] = [new]
         new_params[name] = new
     return new_params

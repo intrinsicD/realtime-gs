@@ -8,6 +8,7 @@ import numpy as np
 import torch
 from PIL import Image, ImageDraw
 
+from rtgs.core.camera import Camera
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.data.scene import SceneData
 from rtgs.render.base import get_rasterizer
@@ -19,15 +20,12 @@ def save_reconstruction_artifacts(
     final: Gaussians3D,
     output_dir: str | Path,
     rasterizer: str = "auto",
+    packed: bool = False,
+    antialiased: bool = False,
     max_comparisons: int = 12,
     max_animation_frames: int = 48,
 ) -> dict[str, str]:
-    """Save reference/init/final/error views, a contact sheet, and a turntable GIF.
-
-    The GIF follows the calibrated capture cameras.  For object-centric captures this is a more
-    trustworthy first inspection than inventing an orbit axis that may not match dataset world
-    coordinates.
-    """
+    """Save calibrated comparisons plus calibrated-path and novel-orbit animations."""
     output = Path(output_dir)
     render_dir = output / "renders"
     for name in ("reference", "initial", "final", "error", "comparison"):
@@ -36,7 +34,7 @@ def save_reconstruction_artifacts(
     device = final.means.device
     scene = scene.to(device)
     initial = initial.to(device)
-    renderer = get_rasterizer(rasterizer, device=device)
+    renderer = get_rasterizer(rasterizer, device=device, packed=packed, antialiased=antialiased)
     comparisons: list[Image.Image] = []
     final_frames: list[Image.Image] = []
     preferred = scene.testing_views + [
@@ -85,7 +83,94 @@ def save_reconstruction_artifacts(
         loop=0,
         optimize=False,
     )
-    return {"contact_sheet": str(contact_path), "turntable": str(gif_path)}
+
+    novel_path = output / "novel_orbit.gif"
+    orbit_frames: list[Image.Image] = []
+    with torch.no_grad():
+        for camera in _novel_orbit_cameras(scene, max_animation_frames):
+            image = renderer.render(final, camera, sh_degree=final.sh_degree).color.clamp(0, 1)
+            orbit_frames.append(_resize_for_gif(_pil(image), max_side=640))
+    orbit_frames[0].save(
+        novel_path,
+        save_all=True,
+        append_images=orbit_frames[1:],
+        duration=100,
+        loop=0,
+        optimize=False,
+    )
+
+    elevation_path = output / "novel_elevation.gif"
+    elevation_frames: list[Image.Image] = []
+    with torch.no_grad():
+        for camera in _novel_orbit_cameras(scene, max_animation_frames, vary_elevation=True):
+            image = renderer.render(final, camera, sh_degree=final.sh_degree).color.clamp(0, 1)
+            elevation_frames.append(_resize_for_gif(_pil(image), max_side=640))
+    elevation_frames[0].save(
+        elevation_path,
+        save_all=True,
+        append_images=elevation_frames[1:],
+        duration=100,
+        loop=0,
+        optimize=False,
+    )
+    return {
+        "contact_sheet": str(contact_path),
+        "turntable": str(gif_path),
+        "novel_orbit": str(novel_path),
+        "novel_elevation": str(elevation_path),
+    }
+
+
+def _novel_orbit_cameras(
+    scene: SceneData, frames: int, *, vary_elevation: bool = False
+) -> list[Camera]:
+    """Create an object-centric orbit in the capture rig's dominant camera plane.
+
+    The path uses the calibrated cameras to infer radius, plane, image size, and intrinsics.
+    Its angles are offset by half a frame so none is an exact training camera pose.
+    """
+    if frames <= 0:
+        raise ValueError("novel orbit requires at least one frame")
+    center, _ = scene.center_and_extent()
+    positions = torch.stack([camera.position for camera in scene.cameras]).to(center)
+    offsets = positions - center
+    covariance = offsets.T @ offsets / max(offsets.shape[0], 1)
+    _, eigenvectors = torch.linalg.eigh(covariance)
+    axis_x = eigenvectors[:, -1]
+    axis_y = eigenvectors[:, -2]
+    normal = torch.linalg.cross(axis_x, axis_y)
+    # Choose a stable handedness consistent with the capture cameras' down direction.
+    camera_down = torch.stack([camera.R[1] for camera in scene.cameras]).to(center).mean(dim=0)
+    if torch.dot(normal, camera_down) < 0:
+        normal = -normal
+        axis_y = -axis_y
+    radius = offsets.norm(dim=-1).median().clamp_min(1e-3)
+    height = torch.quantile((offsets @ normal).abs(), 0.9) * 0.75
+    reference = scene.cameras[len(scene.cameras) // 2]
+    fov_x = float(
+        torch.rad2deg(2.0 * torch.atan(torch.tensor(reference.width / (2.0 * reference.fx))))
+    )
+    cameras = []
+    for index in range(frames):
+        angle = center.new_tensor(2.0 * torch.pi * (index + 0.5) / frames)
+        elevation = height * torch.sin(2.0 * angle) if vary_elevation else height.new_zeros(())
+        planar_radius = torch.sqrt((radius.square() - elevation.square()).clamp_min(1e-6))
+        eye = center + planar_radius * (torch.cos(angle) * axis_x + torch.sin(angle) * axis_y)
+        eye = eye + elevation * normal
+        camera = Camera.look_at(
+            eye,
+            center,
+            up=normal,
+            fov_x_deg=fov_x,
+            width=reference.width,
+            height=reference.height,
+        )
+        camera.fx = reference.fx
+        camera.fy = reference.fy
+        camera.cx = reference.cx
+        camera.cy = reference.cy
+        cameras.append(camera.to(center.device))
+    return cameras
 
 
 def _pil(image: torch.Tensor) -> Image.Image:

@@ -21,7 +21,7 @@ import torch
 
 from rtgs.core.camera import Camera
 from rtgs.core.gaussians3d import Gaussians3D, rotmat_to_quat
-from rtgs.core.sh import sh_to_rgb
+from rtgs.core.sh import eval_sh, sh_to_rgb
 
 
 @dataclass(frozen=True)
@@ -33,6 +33,7 @@ class ViewerSplatData:
     rgbs: np.ndarray
     opacities: np.ndarray
     source_indices: torch.Tensor
+    sh_coefficients: torch.Tensor
 
     @property
     def n(self) -> int:
@@ -103,7 +104,25 @@ def prepare_viewer_data(
                 opacities[source_indices, None].numpy(), dtype=np.float32
             ),
             source_indices=source_indices,
+            sh_coefficients=g.sh[source_indices].detach().clone(),
         )
+
+
+def _view_dependent_rgbs(
+    data: ViewerSplatData,
+    sh_degree: int,
+    camera_position: np.ndarray | None,
+    count: int,
+) -> np.ndarray:
+    """Evaluate the displayed prefix's SH colors from a browser-camera position."""
+    count = min(max(int(count), 1), data.n)
+    if camera_position is None or sh_degree == 0:
+        return data.rgbs[:count]
+    position = torch.as_tensor(camera_position, dtype=torch.float32)
+    centers = torch.from_numpy(data.centers[:count])
+    directions = torch.nn.functional.normalize(centers - position[None], dim=-1)
+    colors = eval_sh(sh_degree, data.sh_coefficients[:count], directions).clamp(0.0, 1.0)
+    return np.ascontiguousarray(colors.numpy(), dtype=np.float32)
 
 
 def selected_gaussians(
@@ -167,6 +186,8 @@ def create_viewer(
     scene=None,
     device: torch.device | str = "cpu",
     snapshot_rasterizer: str = "auto",
+    snapshot_packed: bool = False,
+    snapshot_antialiased: bool = False,
     snapshot_dir: Path | None = None,
     host: str = "127.0.0.1",
     port: int = 8080,
@@ -180,6 +201,8 @@ def create_viewer(
             snapshots through the rasterizer abstraction.
         device: Device used only for exact snapshots.
         snapshot_rasterizer: ``auto``, ``torch``, or ``gsplat``.
+        snapshot_packed: Match gsplat models optimized with packed rasterization.
+        snapshot_antialiased: Match gsplat models optimized with antialiased rasterization.
         snapshot_dir: Optional directory in which exact snapshot PNGs are also saved.
         host/port: Viser server binding.
         max_viewer_gaussians: Optional transfer/display cap, independent of fitted counts.
@@ -242,8 +265,8 @@ def create_viewer(
             frustum_handles.append(handle)
 
     server.gui.add_markdown(
-        "**realtime-gs viewer**\n\nOrbit in the viewport. The WebGL preview uses degree-0 "
-        "color; exact snapshots use every active SH band."
+        "**realtime-gs viewer**\n\nOrbit in the viewport. WebGL colors are refreshed from "
+        "every active SH band as the camera moves; exact snapshots use the full rasterizer."
     )
     model_control = server.gui.add_dropdown(
         "Gaussian set", options=model_names, initial_value=current_name
@@ -288,10 +311,12 @@ def create_viewer(
         )
         snapshot_button = server.gui.add_button("Render exact snapshot", color="green")
         snapshot_status = server.gui.add_markdown(
-            f"Snapshot backend: `{snapshot_rasterizer}` on `{device}`."
+            f"Snapshot backend: `{snapshot_rasterizer}` on `{device}`; "
+            f"packed=`{snapshot_packed}`, antialiased=`{snapshot_antialiased}`."
         )
 
     lock = threading.Lock()
+    last_view_position: list[np.ndarray | None] = [None]
 
     def selected_camera_index() -> int:
         assert camera_control is not None
@@ -322,14 +347,44 @@ def create_viewer(
             opacity = np.clip(
                 current_data.opacities[:count] * float(opacity_control.value), 0.0, 1.0
             )
+            colors = _view_dependent_rgbs(
+                current_data,
+                models[model_control.value].sh_degree,
+                last_view_position[0],
+                count,
+            )
             gaussian_handle_box[0].remove()
             gaussian_handle_box[0] = server.scene.add_gaussian_splats(
                 "/reconstruction",
                 centers=current_data.centers[:count],
                 covariances=current_data.covariances[:count],
-                rgbs=current_data.rgbs[:count],
+                rgbs=colors,
                 opacities=opacity,
             )
+
+    def attach_view_dependent_color(client: Any) -> None:
+        """Keep Viser's RGB-only splats synchronized with the client's full-SH view."""
+        last_update = [0.0]
+
+        def update(camera: Any, *, force: bool = False) -> None:
+            now = time.monotonic()
+            if not force and now - last_update[0] < 0.1:
+                return
+            position = np.asarray(camera.position, dtype=np.float32)
+            with lock:
+                last_update[0] = now
+                last_view_position[0] = position
+                count = int(count_control.value)
+                name = model_control.value
+                gaussian_handle_box[0].rgbs = _view_dependent_rgbs(
+                    prepared[name], models[name].sh_degree, position, count
+                )
+
+        @client.camera.on_update
+        def _(camera: Any) -> None:
+            update(camera)
+
+        update(client.camera, force=True)
 
     @model_control.on_update
     def _(_: Any) -> None:
@@ -422,7 +477,12 @@ def create_viewer(
                     models[name], data, int(count_control.value), float(opacity_control.value)
                 ).to(device)
                 camera = scene.cameras[index].to(device)
-                renderer = get_rasterizer(snapshot_rasterizer, device=device)
+                renderer = get_rasterizer(
+                    snapshot_rasterizer,
+                    device=device,
+                    packed=snapshot_packed,
+                    antialiased=snapshot_antialiased,
+                )
                 with torch.no_grad():
                     output = renderer.render(selected, camera).color.clamp(0.0, 1.0)
                 image = _image_uint8(output)
@@ -445,12 +505,14 @@ def create_viewer(
         @server.on_client_connect
         def _(client: Any) -> None:
             set_client_camera(client, selected_camera_index())
+            attach_view_dependent_color(client)
 
     else:
 
         @server.on_client_connect
         def _(client: Any) -> None:
             frame_client_camera(client)
+            attach_view_dependent_color(client)
 
     return ViewerApp(
         server=server,

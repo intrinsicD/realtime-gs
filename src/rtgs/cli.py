@@ -127,22 +127,35 @@ def _cmd_refine(args: argparse.Namespace) -> int:
 
     scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
     init = _load_gaussians(Path(args.init))
-    cfg = TrainConfig(
-        iterations=args.iterations,
-        rasterizer=args.rasterizer,
-        device=args.device,
-        densify=args.densify,
-        density=_density_config(args),
-    )
+    cfg = _train_config(args, args.iterations, TrainConfig)
     refined, history = Trainer(cfg).train(scene, init)
-    print(f"PSNR: {history['psnr']}")
-    _save_gaussians(refined, Path(args.out))
+    metrics = _split_metrics(scene, refined, cfg)
+    print(json.dumps({"metrics": metrics, "training": _history_summary(history)}, indent=2))
+    out = Path(args.out)
+    _save_gaussians(refined, out)
+    out.with_suffix(".history.json").write_text(json.dumps(history, indent=2))
+    out.with_suffix(".metrics.json").write_text(json.dumps(metrics, indent=2))
+    _save_training_config(out.with_suffix(".config.json"), cfg)
+    if args.preview:
+        from rtgs.visualize import save_reconstruction_artifacts
+
+        init_path = out.with_name("gaussians_init.ply")
+        if not init_path.exists():
+            init.save_ply(init_path)
+        save_reconstruction_artifacts(
+            scene,
+            init,
+            refined,
+            out.parent,
+            rasterizer=args.rasterizer,
+            packed=args.packed,
+            antialiased=args.antialiased,
+        )
     return 0
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
     from rtgs.image2gs.fit import FitConfig
-    from rtgs.optim.density import DensityConfig
     from rtgs.optim.trainer import TrainConfig
     from rtgs.pipeline import PipelineConfig, run_pipeline
 
@@ -160,17 +173,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         ),
         lifter=args.lifter,
         lifter_kwargs=json.loads(args.lifter_args),
-        train=TrainConfig(
-            iterations=args.refine_iters,
-            rasterizer=args.rasterizer,
-            densify=args.densify,
-            density=DensityConfig(
-                start_iter=args.densify_start,
-                stop_iter=args.densify_stop,
-                every=args.densify_every,
-                max_gaussians=args.max_3d_gaussians,
-            ),
-        ),
+        train=_train_config(args, args.refine_iters, TrainConfig),
         refine=args.refine_iters > 0,
         device=args.device,
         seed=args.seed,
@@ -185,6 +188,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
         (out / "metrics.json").write_text(
             json.dumps({"metrics": result.metrics, "timings": result.timings}, indent=2)
         )
+        (out / "training_history.json").write_text(json.dumps(result.train_history, indent=2))
+        _save_training_config(out / "gaussians.config.json", cfg.train)
         if args.preview:
             from rtgs.visualize import save_reconstruction_artifacts
 
@@ -194,9 +199,13 @@ def _cmd_run(args: argparse.Namespace) -> int:
                 result.gaussians,
                 out,
                 rasterizer=args.rasterizer,
+                packed=args.packed,
+                antialiased=args.antialiased,
             )
             print(f"visual reconstruction -> {artifacts['contact_sheet']}")
-            print(f"turntable -> {artifacts['turntable']}")
+            print(f"calibrated camera path -> {artifacts['turntable']}")
+            print(f"novel orbit -> {artifacts['novel_orbit']}")
+            print(f"novel elevation path -> {artifacts['novel_elevation']}")
     return 0
 
 
@@ -209,8 +218,17 @@ def _cmd_render(args: argparse.Namespace) -> int:
     scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
     device = _resolve_device(args.device)
     scene = scene.to(device)
-    g = _load_gaussians(Path(args.gaussians)).to(device)
-    renderer = get_rasterizer(args.rasterizer, device=g.means.device)
+    gaussians_path = Path(args.gaussians).expanduser()
+    g = _load_gaussians(gaussians_path).to(device)
+    saved_packed, saved_antialiased = _saved_render_options(gaussians_path)
+    packed = saved_packed if args.packed is None else args.packed
+    antialiased = saved_antialiased if args.antialiased is None else args.antialiased
+    renderer = get_rasterizer(
+        args.rasterizer,
+        device=g.means.device,
+        packed=packed,
+        antialiased=antialiased,
+    )
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     with torch.no_grad():
@@ -240,11 +258,16 @@ def _cmd_view(args: argparse.Namespace) -> int:
     if args.scene is not None:
         scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
     snapshot_dir = None if args.snapshot_dir is None else Path(args.snapshot_dir).expanduser()
+    saved_packed, saved_antialiased = _saved_render_options(final_path)
+    packed = saved_packed if args.packed is None else args.packed
+    antialiased = saved_antialiased if args.antialiased is None else args.antialiased
     launch_viewer(
         models,
         scene=scene,
         device=_resolve_device(args.device),
         snapshot_rasterizer=args.rasterizer,
+        snapshot_packed=packed,
+        snapshot_antialiased=antialiased,
         snapshot_dir=snapshot_dir,
         host=args.host,
         port=args.port,
@@ -299,12 +322,102 @@ def _add_scene_args(p: argparse.ArgumentParser) -> None:
 def _density_config(args: argparse.Namespace):
     from rtgs.optim.density import DensityConfig
 
+    absgrad = args.density_absgrad
+    if absgrad is None:
+        absgrad = args.density_strategy == "gsplat-default"
+    grad_threshold = args.density_grad_threshold
+    if grad_threshold is None:
+        grad_threshold = 8e-4 if absgrad else 2e-4
     return DensityConfig(
         start_iter=args.densify_start,
         stop_iter=args.densify_stop,
         every=args.densify_every,
+        grad_threshold=grad_threshold,
+        absgrad=absgrad,
+        prune_opacity=args.prune_opacity,
+        prune_scale_frac=args.prune_scale_frac,
         max_gaussians=args.max_3d_gaussians,
+        opacity_reset_every=args.opacity_reset_every,
+        revised_opacity=args.revised_opacity,
+        mcmc_noise_lr=args.mcmc_noise_lr,
     )
+
+
+def _train_config(args: argparse.Namespace, iterations: int, cls=None):
+    if cls is None:
+        from rtgs.optim.trainer import TrainConfig
+
+        cls = TrainConfig
+    return cls(
+        iterations=iterations,
+        rasterizer=args.rasterizer,
+        device=args.device,
+        densify=args.densify,
+        density_strategy=args.density_strategy,
+        density=_density_config(args),
+        target_sh_degree=args.target_sh_degree,
+        sh_degree_interval=args.sh_degree_interval,
+        random_background=args.random_background,
+        mask_alpha_lambda=args.mask_alpha_lambda,
+        opacity_reg=args.opacity_reg,
+        scale_reg=args.scale_reg,
+        packed=args.packed,
+        antialiased=args.antialiased,
+        eval_every=args.eval_every,
+    )
+
+
+def _split_metrics(scene, gaussians, config) -> dict:
+    from rtgs.optim.trainer import Trainer
+    from rtgs.render.base import get_rasterizer
+
+    renderer = get_rasterizer(
+        config.rasterizer,
+        device=gaussians.means.device,
+        packed=config.packed,
+        antialiased=config.antialiased,
+    )
+
+    if not scene.testing_views:
+        return {
+            "train": Trainer.evaluate_metrics(
+                scene, gaussians, renderer, indices=scene.training_views
+            )
+        }
+    return {
+        "test": Trainer.evaluate_metrics(scene, gaussians, renderer, indices=scene.testing_views),
+        "train": Trainer.evaluate_metrics(scene, gaussians, renderer, indices=scene.training_views),
+    }
+
+
+def _history_summary(history: dict) -> dict:
+    return {
+        "density_strategy": history["density_strategy"],
+        "resolved_sh_degree_interval": history["resolved_sh_degree_interval"],
+        "peak_vram_gb": history["peak_vram_gb"],
+        "final_n_gaussians": history["n_gaussians"][-1][1] if history["n_gaussians"] else None,
+    }
+
+
+def _save_training_config(path: Path, config) -> None:
+    from dataclasses import asdict
+
+    path.write_text(json.dumps({"training": asdict(config)}, indent=2))
+
+
+def _saved_render_options(gaussians_path: Path) -> tuple[bool, bool]:
+    """Load packed/antialiased flags saved beside a reconstruction, if present."""
+    path = gaussians_path.expanduser()
+    candidates = [path.with_suffix(".config.json"), path.parent / "training_config.json"]
+    config_path = next((candidate for candidate in candidates if candidate.is_file()), None)
+    if config_path is None:
+        return False, False
+    try:
+        payload = json.loads(config_path.read_text())
+        training = payload.get("training", payload)
+        return bool(training.get("packed", False)), bool(training.get("antialiased", False))
+    except (OSError, TypeError, ValueError):
+        return False, False
 
 
 def _add_density_args(p: argparse.ArgumentParser) -> None:
@@ -315,6 +428,45 @@ def _add_density_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--densify-stop", type=int, default=10_000_000)
     p.add_argument("--densify-every", type=int, default=40)
     p.add_argument("--max-3d-gaussians", type=int, default=100_000)
+    p.add_argument(
+        "--density-strategy",
+        choices=["classic", "gsplat-default", "gsplat-mcmc"],
+        default="classic",
+    )
+    p.add_argument("--density-grad-threshold", type=float, default=None)
+    p.add_argument("--density-absgrad", action=argparse.BooleanOptionalAction, default=None)
+    p.add_argument("--prune-opacity", type=float, default=0.005)
+    p.add_argument("--prune-scale-frac", type=float, default=0.1)
+    p.add_argument("--opacity-reset-every", type=int, default=3_000)
+    p.add_argument("--revised-opacity", action=argparse.BooleanOptionalAction, default=True)
+    p.add_argument("--mcmc-noise-lr", type=float, default=500_000.0)
+
+
+def _add_training_args(p: argparse.ArgumentParser) -> None:
+    p.add_argument("--target-sh-degree", type=int, choices=range(4), default=3)
+    p.add_argument(
+        "--sh-degree-interval",
+        type=int,
+        default=None,
+        help="steps between SH bands; default adapts for short runs and caps at 1000",
+    )
+    p.add_argument(
+        "--random-background",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="with masks, randomize the composited background to discourage floaters",
+    )
+    p.add_argument("--mask-alpha-lambda", type=float, default=0.05)
+    p.add_argument("--opacity-reg", type=float, default=None)
+    p.add_argument("--scale-reg", type=float, default=None)
+    p.add_argument("--packed", action=argparse.BooleanOptionalAction, default=False)
+    p.add_argument("--antialiased", action=argparse.BooleanOptionalAction, default=False)
+    p.add_argument(
+        "--eval-every",
+        type=int,
+        default=250,
+        help="evaluate held-out views every N steps (final evaluation always runs)",
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -359,8 +511,15 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--iterations", type=int, default=1000)
     p.add_argument("--rasterizer", default="auto")
     _add_density_args(p)
+    _add_training_args(p)
     p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.add_argument("--out", required=True)
+    p.add_argument(
+        "--preview",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="save calibrated and novel-view visual diagnostics beside the output",
+    )
     p.set_defaults(func=_cmd_refine)
 
     p = sub.add_parser("run", help="end-to-end: fit -> lift -> refine")
@@ -386,6 +545,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--refine-iters", type=int, default=200)
     p.add_argument("--rasterizer", default="auto")
     _add_density_args(p)
+    _add_training_args(p)
     p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default=None, help="optional output directory")
@@ -401,6 +561,8 @@ def main(argv: list[str] | None = None) -> int:
     _add_scene_args(p)
     p.add_argument("--gaussians", required=True)
     p.add_argument("--rasterizer", default="auto")
+    p.add_argument("--packed", action=argparse.BooleanOptionalAction, default=None)
+    p.add_argument("--antialiased", action=argparse.BooleanOptionalAction, default=None)
     p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.add_argument("--out", required=True)
     p.set_defaults(func=_cmd_render)
@@ -430,6 +592,18 @@ def main(argv: list[str] | None = None) -> int:
         choices=["auto", "torch", "gsplat"],
         default="auto",
         help="backend for exact calibrated-camera snapshots",
+    )
+    p.add_argument(
+        "--antialiased",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="match antialiased training (default: auto-detect saved config)",
+    )
+    p.add_argument(
+        "--packed",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="match packed rendering (default: auto-detect saved config)",
     )
     p.add_argument("--device", default="auto", help="snapshot device: auto, cpu, cuda, cuda:N")
     p.add_argument(

@@ -18,7 +18,9 @@ from rtgs.render.base import RenderOutput
 class GsplatRasterizer:
     """Rasterizer backed by gsplat.rasterization (requires CUDA)."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self, *, packed: bool = False, absgrad: bool = False, antialiased: bool = False
+    ) -> None:
         try:
             import gsplat  # noqa: F401
         except ImportError as e:
@@ -28,6 +30,9 @@ class GsplatRasterizer:
             ) from e
         if not torch.cuda.is_available():
             raise RuntimeError("gsplat backend requires a CUDA device; use get_rasterizer('torch')")
+        self.packed = packed
+        self.absgrad = absgrad
+        self.antialiased = antialiased
 
     def render(
         self,
@@ -61,8 +66,9 @@ class GsplatRasterizer:
             sh_degree=degree,
             backgrounds=bg,
             render_mode="RGB+D",
-            packed=False,
-            absgrad=True,
+            packed=self.packed,
+            absgrad=self.absgrad,
+            rasterize_mode="antialiased" if self.antialiased else "classic",
         )
         color = colors[0, :, :, :3]
         depth = colors[0, :, :, 3]
@@ -74,8 +80,18 @@ class GsplatRasterizer:
         if means2d is not None and means2d.requires_grad:
             means2d.retain_grad()
         radii = meta.get("radii")
-        visible = None if radii is None else _visible_indices(radii)
-        return RenderOutput(color=color, alpha=alpha, depth=depth, means2d=means2d, visible=visible)
+        if self.packed and "gaussian_ids" in meta:
+            visible = torch.unique(meta["gaussian_ids"])
+        else:
+            visible = None if radii is None else _visible_indices(radii)
+        return RenderOutput(
+            color=color,
+            alpha=alpha,
+            depth=depth,
+            means2d=means2d,
+            visible=visible,
+            strategy_info=meta,
+        )
 
 
 def _visible_indices(radii: torch.Tensor) -> torch.Tensor:
