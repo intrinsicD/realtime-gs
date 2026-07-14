@@ -13,7 +13,7 @@ from dataclasses import dataclass
 import torch
 
 from rtgs.core.gaussians2d import Gaussians2D
-from rtgs.core.metrics import psnr
+from rtgs.core.metrics import masked_psnr, psnr
 from rtgs.image2gs.renderer2d import render_gaussians_2d
 
 # Minimum Cholesky diagonal in pixels; keeps covariances well-conditioned.
@@ -24,8 +24,16 @@ _MIN_DIAG = 0.3
 class FitConfig:
     """Hyperparameters for per-image 2D gaussian fitting."""
 
-    n_gaussians: int = 512
+    # Initial count (and the fixed count for the native backend). StructSplat can grow this with
+    # convergence-aware density control up to the independently configurable maximum.
+    n_gaussians: int = 640
+    max_gaussians: int | None = 5_000
     iterations: int = 300
+    backend: str = "native"  # native or structsplat (optional MIT dependency)
+    adaptive_density: bool = True
+    growth_waves: int = 5
+    relocate_fraction: float = 0.0
+    structsplat_renderer: str = "auto"
     lr: float = 1e-2
     # Fraction of position-sampling probability taken from the gradient magnitude; the
     # rest is uniform (Image-GS uses a 0.3 uniform floor).
@@ -64,6 +72,7 @@ def init_gaussians_2d(
     """Initialize N gaussians: positions ~ gradient magnitude + uniform, colors sampled
     from the image, isotropic scale from the average area budget per gaussian."""
     h, w = image.shape[:2]
+    device = image.device
     grad = _gradient_magnitude(image).reshape(-1)
     uniform = torch.ones_like(grad) / grad.numel()
     prob = grad_mix * grad / grad.sum().clamp_min(1e-8) + (1 - grad_mix) * uniform
@@ -72,17 +81,17 @@ def init_gaussians_2d(
     xx = (idx % w).float() + 0.5
     xy = torch.stack([xx, yy], dim=-1)
     # Jitter within the pixel to break ties from replacement sampling.
-    xy = xy + (torch.rand(n, 2, generator=generator) - 0.5)
+    xy = xy + (torch.rand(n, 2, generator=generator, device=device) - 0.5)
     xy[:, 0] = xy[:, 0].clamp(0.0, w - 1e-3)
     xy[:, 1] = xy[:, 1].clamp(0.0, h - 1e-3)
 
     scale0 = max((h * w / n) ** 0.5 * 0.6, _MIN_DIAG + 0.1)
-    chol = torch.zeros(n, 3)
+    chol = torch.zeros(n, 3, device=device, dtype=image.dtype)
     chol[:, 0] = scale0
     chol[:, 2] = scale0
 
     color = image.reshape(-1, 3)[idx].clone()
-    weight = torch.full((n,), 0.5)
+    weight = torch.full((n,), 0.5, device=device, dtype=image.dtype)
     return Gaussians2D(xy=xy, chol=chol, color=color, weight=weight)
 
 
@@ -90,6 +99,7 @@ def fit_image(
     image: torch.Tensor,
     config: FitConfig | None = None,
     seed: int | None = None,
+    mask: torch.Tensor | None = None,
 ) -> tuple[Gaussians2D, dict]:
     """Fit 2D gaussians to an (H, W, 3) image in [0,1].
 
@@ -97,15 +107,30 @@ def fit_image(
     (iteration, value)) and 'final_psnr'.
     """
     config = config or FitConfig()
+    if config.backend == "structsplat":
+        from rtgs.image2gs.structsplat_backend import fit_image_structsplat
+
+        return fit_image_structsplat(image, config, seed=seed, mask=mask)
+    if config.backend != "native":
+        raise ValueError("fit backend must be 'native' or 'structsplat'")
+    xy_offset = image.new_zeros(2)
+    if mask is not None:
+        image, mask, xy_offset = _crop_to_mask(image, mask)
     h, w = image.shape[:2]
+    target = image
+    if mask is not None:
+        if mask.shape != image.shape[:2]:
+            raise ValueError("mask size does not match image")
+        target = image * mask.to(image).clamp(0, 1)[..., None]
     gen = None
     if seed is not None:
-        gen = torch.Generator(device="cpu").manual_seed(seed)
+        gen = torch.Generator(device=image.device).manual_seed(seed)
 
-    g0 = init_gaussians_2d(image, config.n_gaussians, config.grad_init_mix, gen)
+    g0 = init_gaussians_2d(target, config.n_gaussians, config.grad_init_mix, gen)
 
     # Raw (unconstrained) parameters.
-    xy_raw = torch.logit((g0.xy / torch.tensor([w, h], dtype=torch.float32)).clamp(1e-4, 1 - 1e-4))
+    wh = image.new_tensor([w, h])
+    xy_raw = torch.logit((g0.xy / wh).clamp(1e-4, 1 - 1e-4))
     diag_raw = _softplus_inv(g0.chol[:, [0, 2]] - _MIN_DIAG)
     off_raw = g0.chol[:, 1].clone()
     color_raw = torch.logit(g0.color.clamp(1e-3, 1 - 1e-3))
@@ -113,8 +138,6 @@ def fit_image(
     params = [xy_raw, diag_raw, off_raw, color_raw, weight_raw]
     for p in params:
         p.requires_grad_(True)
-
-    wh = torch.tensor([w, h], dtype=torch.float32)
 
     def build() -> Gaussians2D:
         diag = torch.nn.functional.softplus(diag_raw) + _MIN_DIAG
@@ -136,17 +159,21 @@ def fit_image(
     for it in range(config.iterations):
         opt.zero_grad()
         rendered = render_gaussians_2d(build(), h, w, row_chunk=config.row_chunk)
-        loss = torch.nn.functional.mse_loss(rendered, image)
+        if mask is None:
+            loss = torch.nn.functional.mse_loss(rendered, target)
+        else:
+            weights = 0.1 + 0.9 * mask.to(rendered).clamp(0, 1)
+            loss = (((rendered - target) ** 2) * weights[..., None]).mean()
         loss.backward()
         opt.step()
         sched.step()
         if it % config.log_every == 0 or it == config.iterations - 1:
             with torch.no_grad():
-                history["psnr"].append((it, psnr(rendered.clamp(0, 1), image)))
+                history["psnr"].append((it, psnr(rendered.clamp(0, 1), target)))
         # Convergence check: stop once quality plateaus (step 1 "until convergence").
         if config.convergence_patience and (it + 1) % config.convergence_check_every == 0:
             with torch.no_grad():
-                cur = psnr(rendered.clamp(0, 1), image)
+                cur = psnr(rendered.clamp(0, 1), target)
             if cur > best_psnr + config.convergence_tol:
                 best_psnr = cur
                 stale_checks = 0
@@ -159,7 +186,13 @@ def fit_image(
     result = build().detach()
     with torch.no_grad():
         final = render_gaussians_2d(result, h, w, row_chunk=config.row_chunk)
-        history["final_psnr"] = psnr(final.clamp(0, 1), image)
+        history["final_psnr_full"] = psnr(final.clamp(0, 1), target)
+        history["final_psnr"] = (
+            history["final_psnr_full"]
+            if mask is None
+            else masked_psnr(final.clamp(0, 1), image, mask)
+        )
+    result.xy += xy_offset
     return result, history
 
 
@@ -167,11 +200,31 @@ def fit_views(
     images: list[torch.Tensor],
     config: FitConfig | None = None,
     seed: int = 0,
+    masks: list[torch.Tensor] | None = None,
 ) -> tuple[list[Gaussians2D], list[dict]]:
     """Fit every view of a scene independently (embarrassingly parallel across images)."""
     results, histories = [], []
     for i, image in enumerate(images):
-        g, hist = fit_image(image, config, seed=seed + i)
+        mask = None if masks is None else masks[i]
+        g, hist = fit_image(image, config, seed=seed + i, mask=mask)
         results.append(g)
         histories.append(hist)
     return results, histories
+
+
+def _crop_to_mask(
+    image: torch.Tensor, mask: torch.Tensor, margin_fraction: float = 0.05
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Crop a masked fit to useful pixels and return its original-image xy offset."""
+    if mask.shape != image.shape[:2]:
+        raise ValueError("mask size does not match image")
+    foreground = torch.nonzero(mask > 0.5)
+    if foreground.numel() == 0:
+        raise ValueError("cannot fit an empty foreground mask")
+    height, width = image.shape[:2]
+    margin = max(2, round(max(height, width) * margin_fraction))
+    y0 = max(0, int(foreground[:, 0].min()) - margin)
+    y1 = min(height, int(foreground[:, 0].max()) + 1 + margin)
+    x0 = max(0, int(foreground[:, 1].min()) - margin)
+    x1 = min(width, int(foreground[:, 1].max()) + 1 + margin)
+    return image[y0:y1, x0:x1], mask[y0:y1, x0:x1], image.new_tensor([x0, y0])

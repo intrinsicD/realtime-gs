@@ -1,9 +1,12 @@
 """Stage 1: 2D splatting renderer and per-image fitting."""
 
+import numpy as np
+import pytest
 import torch
 
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.metrics import psnr
+from rtgs.image2gs.adapters import load_gaussians2d
 from rtgs.image2gs.fit import FitConfig, fit_image, init_gaussians_2d
 from rtgs.image2gs.renderer2d import render_gaussians_2d
 
@@ -116,3 +119,40 @@ def test_fit_image_deterministic():
     g2, h2 = fit_image(img, cfg, seed=7)
     assert torch.allclose(g1.xy, g2.xy)
     assert h1["final_psnr"] == h2["final_psnr"]
+
+
+def test_masked_fit_crops_work_but_restores_full_image_coordinates():
+    image = torch.zeros(40, 48, 3)
+    image[12:20, 20:28] = torch.rand(8, 8, 3)
+    mask = torch.zeros(40, 48)
+    mask[12:20, 20:28] = 1.0
+    config = FitConfig(n_gaussians=20, iterations=1, log_every=1)
+    gaussians, history = fit_image(image, config, seed=0, mask=mask)
+    # Five-percent margin is two pixels here; centers are returned in original-image space.
+    assert ((gaussians.xy[:, 0] >= 18) & (gaussians.xy[:, 0] < 30)).all()
+    assert ((gaussians.xy[:, 1] >= 10) & (gaussians.xy[:, 1] < 22)).all()
+    assert "final_psnr_full" in history
+
+
+def test_structsplat_adapter_materializes_covariance_filter(tmp_path):
+    path = tmp_path / "field.npz"
+    np.savez(
+        path,
+        means=np.array([[2.0, 3.0]], dtype=np.float32),
+        log_scales=np.log(np.array([[2.0, 3.0]], dtype=np.float32)),
+        rotations=np.zeros(1, dtype=np.float32),
+        colors=np.ones((1, 3), dtype=np.float32),
+        filter_variance=np.array([5.0], dtype=np.float32),
+    )
+    gaussian = load_gaussians2d(path, source="structsplat")
+    assert torch.allclose(gaussian.xy, torch.tensor([[2.5, 3.5]]))
+    assert torch.allclose(gaussian.covariance()[0].diag(), torch.tensor([9.0, 14.0]))
+
+
+def test_masked_fit_rejects_empty_foreground():
+    with pytest.raises(ValueError, match="empty foreground"):
+        fit_image(
+            torch.zeros(16, 16, 3),
+            FitConfig(n_gaussians=16, iterations=1),
+            mask=torch.zeros(16, 16),
+        )

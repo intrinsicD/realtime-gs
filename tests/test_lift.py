@@ -11,7 +11,7 @@ from rtgs.optim.trainer import Trainer
 
 
 def test_lifter_registry():
-    assert set(lifter_names()) == {"gradient", "depth", "carve", "sfm", "random"}
+    assert set(lifter_names()) == {"gradient", "depth", "hybrid", "carve", "sfm", "random"}
 
 
 def test_bilinear_sample_exact_at_centers():
@@ -45,6 +45,23 @@ def test_lift_covariance_scales_with_depth(tiny_scene):
     assert torch.allclose(c2, 4.0 * c1, rtol=1e-4, atol=1e-8)
     evals = torch.linalg.eigvalsh(c1)
     assert (evals > 0).all()
+
+
+def test_lift_covariance_reprojects_off_axis(tiny_scene):
+    cam = tiny_scene.cameras[0]
+    uv = torch.tensor([[4.5, 27.5]])
+    cov2d = torch.tensor([[[5.0, 1.2], [1.2, 2.0]]])
+    depth = torch.tensor([2.0])
+    cov_world = lift_covariance(cam, uv, cov2d, depth, torch.tensor([0.03]))
+    point = cam.unproject(uv, depth)
+    point_cam = cam.world_to_cam(point)
+    x, y, z = point_cam[0]
+    jac = torch.tensor(
+        [[[cam.fx / z, 0.0, -cam.fx * x / z**2], [0.0, cam.fy / z, -cam.fy * y / z**2]]]
+    )
+    cov_cam = cam.R @ cov_world @ cam.R.T
+    projected = jac @ cov_cam @ jac.transpose(-1, -2)
+    assert torch.allclose(projected, cov2d, atol=1e-4, rtol=1e-4)
 
 
 def test_lift_view_at_depth_positions(tiny_scene):
@@ -91,6 +108,16 @@ def test_gradient_lifter_improves_over_iterations(tiny_scene, tiny_fits):
     first = sum(hist[:10]) / 10
     last = sum(hist[-10:]) / 10
     assert last < first * 0.9, f"photometric loss did not decrease: {first} -> {last}"
+
+
+def test_hybrid_lifter_uses_depth_prior_and_refines(tiny_scene, tiny_fits):
+    g2ds, _ = tiny_fits
+    lifter = get_lifter("hybrid", iterations=10, rasterizer="torch", seed=0)
+    g3d = lifter.lift(g2ds, tiny_scene)
+    assert g3d.n > 100
+    distance = torch.cdist(g3d.means, tiny_scene.gt_gaussians.means).min(dim=1).values
+    assert distance.median() < 0.25
+    assert len(lifter.history) == 10
 
 
 def test_carve_lifter_places_in_occupied_space(tiny_scene, tiny_fits):

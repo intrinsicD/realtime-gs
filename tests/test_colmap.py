@@ -50,6 +50,7 @@ def test_read_images_text(tmp_path):
     assert len(images) == 2
     assert images[1]["name"] == "frame_000.png"
     assert images[1]["camera_id"] == 1
+    assert images[1]["point3d_ids"] == [42]
     assert np.allclose(images[2]["tvec"], [-0.3, 0.0, 2.0])
 
 
@@ -94,6 +95,7 @@ def test_read_binary_model(tmp_path):
     assert cams[1]["params"] == [500.0, 505.0, 320.0, 240.0]
     images = read_images_binary(tmp_path / "images.bin")
     assert images[1]["name"] == "frame_000.png"
+    assert images[1]["point3d_ids"] == [42]
     assert np.allclose(images[1]["tvec"], [0.1, -0.2, 2.5])
     model = read_model(tmp_path)
     assert model.points.shape == (1, 3)

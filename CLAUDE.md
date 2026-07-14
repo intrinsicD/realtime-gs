@@ -7,11 +7,12 @@ as the initialization for standard 3DGS optimization.**
 Pipeline (see `docs/ARCHITECTURE.md` for the full design):
 
 ```
-images ──► [1] image2gs: fit 2D gaussians per image (GaussianImage-style)
-       ──► [2] lift: 2D→3D, three competing variants
+images ──► [1] image2gs: fit compact 2D gaussians per image (native or StructSplat)
+       ──► [2] lift: 2D→3D, four competing variants
               A. lift.gradient — multi-view photometric gradient descent on per-ray depths
               B. lift.depth    — feed-forward monocular depth (Depth Anything V2 / mock)
               C. lift.carve    — voxel color-consistency carving + merging along ray tunnels
+              D. lift.hybrid   — aligned depth seed + bounded-ray photometric correction
        ──► [3] optim: standard 3DGS refinement + density control (gsplat on GPU)
 ```
 
@@ -49,7 +50,7 @@ python3 -m venv .venv && .venv/bin/pip install -e '.[dev]' \
 .venv/bin/ruff check . && .venv/bin/ruff format --check .
 .venv/bin/python scripts/docs_sync.py     # docs↔code consistency check
 .venv/bin/python benchmarks/run.py --quick --update-docs   # refresh benchmarks
-.venv/bin/rtgs --help                     # CLI: fit-images / lift / refine / run / render / bench
+.venv/bin/rtgs --help                     # CLI: fit-images / lift / refine / run / render / view / bench
 ```
 
 ## Repository map
@@ -57,13 +58,13 @@ python3 -m venv .venv && .venv/bin/pip install -e '.[dev]' \
 ```
 src/rtgs/
   core/        gaussians2d, gaussians3d, camera, sh, metrics — shared math & containers
-  image2gs/    stage 1: differentiable 2D splatting + per-image fitting
-  lift/        stage 2: base utilities + gradient.py / depth.py / carve.py / merge.py
+  image2gs/    stage 1: differentiable 2D splatting, native/StructSplat fitting, adapters
+  lift/        stage 2: gradient.py / depth.py / hybrid.py / carve.py / merge.py
   depth/       DepthBackend protocol, mock (tests), depth_anything (lazy), align (scale/shift)
   render/      Rasterizer protocol, torch_ref (CPU reference), gsplat_backend (CUDA)
-  optim/       stage 3: trainer.py (3DGS loop), density.py (clone/split/prune)
-  data/        synthetic.py (test scenes with GT), colmap.py (real scenes)
-  pipeline.py  end-to-end orchestration;  cli.py  argparse CLI
+  optim/       stage 3: trainer.py; CPU classic density.py; CUDA gsplat strategies.py
+  data/        synthetic.py (GT), colmap.py, calibrated.py (object-capture JSON)
+  pipeline.py  strict-split orchestration; visualize.py previews; viewer.py browser UI; cli.py CLI
 tests/         CPU-only pytest suite; conftest.py has seeding + tiny-scene fixtures
 benchmarks/    run.py harness + results/*.json
 docs/          ARCHITECTURE, RESEARCH (SOTA survey), ROADMAP, BENCHMARKS, EXPERIMENTS

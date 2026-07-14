@@ -51,13 +51,13 @@ class TorchRasterizer:
         r_wc = camera.R.to(device)
         cov_cam = r_wc @ cov_world @ r_wc.T
         zs = z.clamp_min(_NEAR)
-        jac = torch.zeros(g.n, 2, 3, device=device, dtype=torch.float32)
+        jac = torch.zeros(g.n, 2, 3, device=device, dtype=g.means.dtype)
         jac[:, 0, 0] = camera.fx / zs
         jac[:, 0, 2] = -camera.fx * means_cam[:, 0] / zs**2
         jac[:, 1, 1] = camera.fy / zs
         jac[:, 1, 2] = -camera.fy * means_cam[:, 1] / zs**2
         cov2d = jac @ cov_cam @ jac.transpose(-1, -2)
-        cov2d = cov2d + _DILATION * torch.eye(2, device=device)
+        cov2d = cov2d + _DILATION * torch.eye(2, device=device, dtype=g.means.dtype)
 
         # Visibility: in front of camera and 3-sigma footprint intersects the image.
         eig_max = (
@@ -68,9 +68,13 @@ class TorchRasterizer:
         visible = in_front & camera.in_image(uv_all, margin=radii.detach())
         vis_idx = visible.nonzero(as_tuple=True)[0]
         if vis_idx.numel() == 0:
-            bg = torch.zeros(3, device=device) if background is None else background
+            bg = (
+                torch.zeros(3, device=device, dtype=g.means.dtype)
+                if background is None
+                else background.to(g.means)
+            )
             color = bg[None, None, :].expand(h, w, 3).clone()
-            zero = torch.zeros(h, w, device=device)
+            zero = torch.zeros(h, w, device=device, dtype=g.means.dtype)
             return RenderOutput(
                 color=color, alpha=zero, depth=zero.clone(), means2d=None, visible=vis_idx
             )
@@ -97,13 +101,17 @@ class TorchRasterizer:
         i01 = -cov2d_v[:, 0, 1] / det
         i11 = cov2d_v[:, 0, 0] / det
 
-        bg = torch.zeros(3, device=device) if background is None else background
-        xs = torch.arange(w, device=device, dtype=torch.float32) + 0.5
+        bg = (
+            torch.zeros(3, device=device, dtype=g.means.dtype)
+            if background is None
+            else background.to(g.means)
+        )
+        xs = torch.arange(w, device=device, dtype=g.means.dtype) + 0.5
 
         color_rows, alpha_rows, depth_rows = [], [], []
         for r0 in range(0, h, self.row_chunk):
             r1 = min(r0 + self.row_chunk, h)
-            ys = torch.arange(r0, r1, device=device, dtype=torch.float32) + 0.5
+            ys = torch.arange(r0, r1, device=device, dtype=g.means.dtype) + 0.5
             pix = torch.stack(
                 [xs[None, :].expand(r1 - r0, w), ys[:, None].expand(r1 - r0, w)], dim=-1
             ).reshape(-1, 2)  # (P,2)

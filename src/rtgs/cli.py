@@ -1,8 +1,7 @@
 """rtgs command-line interface (argparse; see docs/ARCHITECTURE.md §CLI).
 
-Commands: fit-images, lift, refine, run, render, bench. `--scene synthetic[:key=val,..]`
-builds a procedural test scene; any other value is treated as a COLMAP dataset directory
-(sparse/0 + images/).
+Commands: fit-images, lift, refine, run, render, view, bench. `--scene synthetic[:key=val,..]`
+builds a procedural test scene; calibrated frame directories and COLMAP datasets are detected.
 """
 
 from __future__ import annotations
@@ -15,6 +14,14 @@ from pathlib import Path
 import torch
 
 
+def _resolve_device(requested: str) -> torch.device:
+    return torch.device(
+        "cuda"
+        if requested == "auto" and torch.cuda.is_available()
+        else ("cpu" if requested == "auto" else requested)
+    )
+
+
 def _load_scene(spec: str, downscale: int = 1, max_images: int | None = None):
     from rtgs.data.synthetic import make_synthetic_scene
 
@@ -25,6 +32,16 @@ def _load_scene(spec: str, downscale: int = 1, max_images: int | None = None):
                 k, v = kv.split("=")
                 kwargs[k] = int(v)
         return make_synthetic_scene(**kwargs)
+    path = Path(spec).expanduser()
+    frame = path.parent if path.name == "rgb" else path
+    if (frame / "rgb").is_dir():
+        from rtgs.data.calibrated import load_calibrated_scene
+
+        try:
+            return load_calibrated_scene(frame, downscale=downscale, max_images=max_images)
+        except FileNotFoundError:
+            pass
+
     from rtgs.data.colmap import load_colmap_scene
 
     return load_colmap_scene(spec, downscale=downscale, max_images=max_images)
@@ -55,7 +72,17 @@ def _cmd_fit_images(args: argparse.Namespace) -> int:
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
-    cfg = FitConfig(n_gaussians=args.n_gaussians, iterations=args.iterations)
+    device = _resolve_device(args.device)
+    cfg = FitConfig(
+        n_gaussians=args.n_gaussians,
+        max_gaussians=args.max_gaussians,
+        iterations=args.iterations,
+        backend=args.fit_backend,
+        adaptive_density=args.adaptive_density,
+        growth_waves=args.growth_waves,
+        relocate_fraction=args.relocate_fraction,
+        structsplat_renderer=args.structsplat_renderer,
+    )
     paths = sorted(
         p for p in Path(args.images).iterdir() if p.suffix.lower() in (".png", ".jpg", ".jpeg")
     )
@@ -66,24 +93,31 @@ def _cmd_fit_images(args: argparse.Namespace) -> int:
         img = torch.from_numpy(
             np.asarray(PILImage.open(p).convert("RGB"), dtype=np.float32) / 255.0
         )
-        g, hist = fit_image(img, cfg, seed=args.seed + i)
+        g, hist = fit_image(img.to(device), cfg, seed=args.seed + i)
         g.save_npz(out_dir / f"{p.stem}.npz")
         print(f"{p.name}: {g.n} gaussians, PSNR {hist['final_psnr']:.2f} dB")
     return 0
 
 
 def _cmd_lift(args: argparse.Namespace) -> int:
-    from rtgs.core.gaussians2d import Gaussians2D
     from rtgs.lift import get_lifter
 
     scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
-    fits_dir = Path(args.fits)
-    g2ds = [Gaussians2D.load_npz(p) for p in sorted(fits_dir.glob("*.npz"))]
-    if len(g2ds) != scene.n_views:
-        print(f"found {len(g2ds)} fits for {scene.n_views} views", file=sys.stderr)
+    g2ds = _load_2d_fits(Path(args.fits), scene, args.fit_format)
+    train_indices = scene.training_views
+    if len(g2ds) not in (scene.n_views, len(train_indices)):
+        print(
+            f"found {len(g2ds)} fits; expected {scene.n_views} all-view or "
+            f"{len(train_indices)} train-only fits",
+            file=sys.stderr,
+        )
         return 1
+    scene = scene.subset(train_indices)
+    if len(g2ds) != len(train_indices):
+        g2ds = [g2ds[i] for i in train_indices]
+    device = _resolve_device(args.device)
     lifter = get_lifter(args.lifter, **json.loads(args.lifter_args))
-    g3d = lifter.lift(g2ds, scene)
+    g3d = lifter.lift([g.to(device) for g in g2ds], scene.to(device))
     _save_gaussians(g3d, Path(args.out))
     return 0
 
@@ -93,10 +127,30 @@ def _cmd_refine(args: argparse.Namespace) -> int:
 
     scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
     init = _load_gaussians(Path(args.init))
-    cfg = TrainConfig(iterations=args.iterations, rasterizer=args.rasterizer)
+    cfg = _train_config(args, args.iterations, TrainConfig)
     refined, history = Trainer(cfg).train(scene, init)
-    print(f"PSNR: {history['psnr']}")
-    _save_gaussians(refined, Path(args.out))
+    metrics = _split_metrics(scene, refined, cfg)
+    print(json.dumps({"metrics": metrics, "training": _history_summary(history)}, indent=2))
+    out = Path(args.out)
+    _save_gaussians(refined, out)
+    out.with_suffix(".history.json").write_text(json.dumps(history, indent=2))
+    out.with_suffix(".metrics.json").write_text(json.dumps(metrics, indent=2))
+    _save_training_config(out.with_suffix(".config.json"), cfg)
+    if args.preview:
+        from rtgs.visualize import save_reconstruction_artifacts
+
+        init_path = out.with_name("gaussians_init.ply")
+        if not init_path.exists():
+            init.save_ply(init_path)
+        save_reconstruction_artifacts(
+            scene,
+            init,
+            refined,
+            out.parent,
+            rasterizer=args.rasterizer,
+            packed=args.packed,
+            antialiased=args.antialiased,
+        )
     return 0
 
 
@@ -107,21 +161,51 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
     cfg = PipelineConfig(
-        fit=FitConfig(n_gaussians=args.n_gaussians, iterations=args.fit_iterations),
+        fit=FitConfig(
+            n_gaussians=args.n_gaussians,
+            max_gaussians=args.max_gaussians,
+            iterations=args.fit_iterations,
+            backend=args.fit_backend,
+            adaptive_density=args.adaptive_density,
+            growth_waves=args.growth_waves,
+            relocate_fraction=args.relocate_fraction,
+            structsplat_renderer=args.structsplat_renderer,
+        ),
         lifter=args.lifter,
         lifter_kwargs=json.loads(args.lifter_args),
-        train=TrainConfig(iterations=args.refine_iters, rasterizer=args.rasterizer),
+        train=_train_config(args, args.refine_iters, TrainConfig),
         refine=args.refine_iters > 0,
+        device=args.device,
         seed=args.seed,
     )
-    result = run_pipeline(scene, cfg)
+    fits = None if args.fits is None else _load_2d_fits(Path(args.fits), scene, args.fit_format)
+    result = run_pipeline(scene, cfg, gaussians2d=fits)
     print(json.dumps({"metrics": result.metrics, "timings": result.timings}, indent=2))
     if args.out:
         out = Path(args.out)
+        _save_gaussians(result.gaussians_init, out / "gaussians_init.ply")
         _save_gaussians(result.gaussians, out / "gaussians.ply")
         (out / "metrics.json").write_text(
             json.dumps({"metrics": result.metrics, "timings": result.timings}, indent=2)
         )
+        (out / "training_history.json").write_text(json.dumps(result.train_history, indent=2))
+        _save_training_config(out / "gaussians.config.json", cfg.train)
+        if args.preview:
+            from rtgs.visualize import save_reconstruction_artifacts
+
+            artifacts = save_reconstruction_artifacts(
+                scene,
+                result.gaussians_init,
+                result.gaussians,
+                out,
+                rasterizer=args.rasterizer,
+                packed=args.packed,
+                antialiased=args.antialiased,
+            )
+            print(f"visual reconstruction -> {artifacts['contact_sheet']}")
+            print(f"calibrated camera path -> {artifacts['turntable']}")
+            print(f"novel orbit -> {artifacts['novel_orbit']}")
+            print(f"novel elevation path -> {artifacts['novel_elevation']}")
     return 0
 
 
@@ -132,8 +216,19 @@ def _cmd_render(args: argparse.Namespace) -> int:
     from rtgs.render.base import get_rasterizer
 
     scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
-    g = _load_gaussians(Path(args.gaussians))
-    renderer = get_rasterizer(args.rasterizer)
+    device = _resolve_device(args.device)
+    scene = scene.to(device)
+    gaussians_path = Path(args.gaussians).expanduser()
+    g = _load_gaussians(gaussians_path).to(device)
+    saved_packed, saved_antialiased = _saved_render_options(gaussians_path)
+    packed = saved_packed if args.packed is None else args.packed
+    antialiased = saved_antialiased if args.antialiased is None else args.antialiased
+    renderer = get_rasterizer(
+        args.rasterizer,
+        device=g.means.device,
+        packed=packed,
+        antialiased=antialiased,
+    )
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     with torch.no_grad():
@@ -146,16 +241,232 @@ def _cmd_render(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_view(args: argparse.Namespace) -> int:
+    from rtgs.viewer import launch_viewer
+
+    final_path = Path(args.gaussians).expanduser()
+    models = {"final": _load_gaussians(final_path)}
+    initial_path = None if args.initial is None else Path(args.initial).expanduser()
+    if initial_path is None and final_path.name == "gaussians.ply":
+        candidate = final_path.with_name("gaussians_init.ply")
+        if candidate.is_file():
+            initial_path = candidate
+    if initial_path is not None:
+        models["initial"] = _load_gaussians(initial_path)
+
+    scene = None
+    if args.scene is not None:
+        scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
+    snapshot_dir = None if args.snapshot_dir is None else Path(args.snapshot_dir).expanduser()
+    saved_packed, saved_antialiased = _saved_render_options(final_path)
+    packed = saved_packed if args.packed is None else args.packed
+    antialiased = saved_antialiased if args.antialiased is None else args.antialiased
+    launch_viewer(
+        models,
+        scene=scene,
+        device=_resolve_device(args.device),
+        snapshot_rasterizer=args.rasterizer,
+        snapshot_packed=packed,
+        snapshot_antialiased=antialiased,
+        snapshot_dir=snapshot_dir,
+        host=args.host,
+        port=args.port,
+        max_viewer_gaussians=args.max_viewer_gaussians,
+        open_browser=args.open,
+    )
+    return 0
+
+
 def _cmd_bench(args: argparse.Namespace) -> int:
     from rtgs.bench import main as bench_main
 
     return bench_main(args.bench_args)
 
 
+def _load_2d_fits(fits_dir: Path, scene, source: str):
+    """Load per-view fits in scene order instead of unsafe lexicographic order."""
+    from rtgs.image2gs.adapters import load_gaussians2d
+
+    paths = sorted(fits_dir.expanduser().glob("*.npz"))
+    if scene.view_names is not None:
+        ordered = []
+        missing = []
+        for index, name in enumerate(scene.view_names):
+            matches = [
+                path for path in paths if path.stem == name or path.stem.startswith(name + "_")
+            ]
+            if not matches and index in scene.testing_views:
+                missing.append(index)
+                continue
+            if len(matches) != 1:
+                raise ValueError(
+                    f"expected one 2D fit for view '{name}' in {fits_dir}, found {len(matches)}"
+                )
+            ordered.append(matches[0])
+        if missing and len(ordered) != len(scene.training_views):
+            raise ValueError("partial 2D fits must contain every training view")
+        paths = ordered
+    return [load_gaussians2d(path, source=source) for path in paths]
+
+
 def _add_scene_args(p: argparse.ArgumentParser) -> None:
-    p.add_argument("--scene", required=True, help="'synthetic[:k=v,..]' or COLMAP dataset dir")
+    p.add_argument(
+        "--scene",
+        required=True,
+        help="'synthetic[:k=v,..]', calibrated frame dir, or COLMAP dataset dir",
+    )
     p.add_argument("--downscale", type=int, default=1)
     p.add_argument("--max-images", type=int, default=None)
+
+
+def _density_config(args: argparse.Namespace):
+    from rtgs.optim.density import DensityConfig
+
+    absgrad = args.density_absgrad
+    if absgrad is None:
+        absgrad = args.density_strategy == "gsplat-default"
+    grad_threshold = args.density_grad_threshold
+    if grad_threshold is None:
+        grad_threshold = 8e-4 if absgrad else 2e-4
+    return DensityConfig(
+        start_iter=args.densify_start,
+        stop_iter=args.densify_stop,
+        every=args.densify_every,
+        grad_threshold=grad_threshold,
+        absgrad=absgrad,
+        prune_opacity=args.prune_opacity,
+        prune_scale_frac=args.prune_scale_frac,
+        max_gaussians=args.max_3d_gaussians,
+        opacity_reset_every=args.opacity_reset_every,
+        revised_opacity=args.revised_opacity,
+        mcmc_noise_lr=args.mcmc_noise_lr,
+    )
+
+
+def _train_config(args: argparse.Namespace, iterations: int, cls=None):
+    if cls is None:
+        from rtgs.optim.trainer import TrainConfig
+
+        cls = TrainConfig
+    return cls(
+        iterations=iterations,
+        rasterizer=args.rasterizer,
+        device=args.device,
+        densify=args.densify,
+        density_strategy=args.density_strategy,
+        density=_density_config(args),
+        target_sh_degree=args.target_sh_degree,
+        sh_degree_interval=args.sh_degree_interval,
+        random_background=args.random_background,
+        mask_alpha_lambda=args.mask_alpha_lambda,
+        opacity_reg=args.opacity_reg,
+        scale_reg=args.scale_reg,
+        packed=args.packed,
+        antialiased=args.antialiased,
+        eval_every=args.eval_every,
+    )
+
+
+def _split_metrics(scene, gaussians, config) -> dict:
+    from rtgs.optim.trainer import Trainer
+    from rtgs.render.base import get_rasterizer
+
+    renderer = get_rasterizer(
+        config.rasterizer,
+        device=gaussians.means.device,
+        packed=config.packed,
+        antialiased=config.antialiased,
+    )
+
+    if not scene.testing_views:
+        return {
+            "train": Trainer.evaluate_metrics(
+                scene, gaussians, renderer, indices=scene.training_views
+            )
+        }
+    return {
+        "test": Trainer.evaluate_metrics(scene, gaussians, renderer, indices=scene.testing_views),
+        "train": Trainer.evaluate_metrics(scene, gaussians, renderer, indices=scene.training_views),
+    }
+
+
+def _history_summary(history: dict) -> dict:
+    return {
+        "density_strategy": history["density_strategy"],
+        "resolved_sh_degree_interval": history["resolved_sh_degree_interval"],
+        "peak_vram_gb": history["peak_vram_gb"],
+        "final_n_gaussians": history["n_gaussians"][-1][1] if history["n_gaussians"] else None,
+    }
+
+
+def _save_training_config(path: Path, config) -> None:
+    from dataclasses import asdict
+
+    path.write_text(json.dumps({"training": asdict(config)}, indent=2))
+
+
+def _saved_render_options(gaussians_path: Path) -> tuple[bool, bool]:
+    """Load packed/antialiased flags saved beside a reconstruction, if present."""
+    path = gaussians_path.expanduser()
+    candidates = [path.with_suffix(".config.json"), path.parent / "training_config.json"]
+    config_path = next((candidate for candidate in candidates if candidate.is_file()), None)
+    if config_path is None:
+        return False, False
+    try:
+        payload = json.loads(config_path.read_text())
+        training = payload.get("training", payload)
+        return bool(training.get("packed", False)), bool(training.get("antialiased", False))
+    except (OSError, TypeError, ValueError):
+        return False, False
+
+
+def _add_density_args(p: argparse.ArgumentParser) -> None:
+    p.add_argument(
+        "--densify", action=argparse.BooleanOptionalAction, default=True, help="3D density control"
+    )
+    p.add_argument("--densify-start", type=int, default=60)
+    p.add_argument("--densify-stop", type=int, default=10_000_000)
+    p.add_argument("--densify-every", type=int, default=40)
+    p.add_argument("--max-3d-gaussians", type=int, default=100_000)
+    p.add_argument(
+        "--density-strategy",
+        choices=["classic", "gsplat-default", "gsplat-mcmc"],
+        default="classic",
+    )
+    p.add_argument("--density-grad-threshold", type=float, default=None)
+    p.add_argument("--density-absgrad", action=argparse.BooleanOptionalAction, default=None)
+    p.add_argument("--prune-opacity", type=float, default=0.005)
+    p.add_argument("--prune-scale-frac", type=float, default=0.1)
+    p.add_argument("--opacity-reset-every", type=int, default=3_000)
+    p.add_argument("--revised-opacity", action=argparse.BooleanOptionalAction, default=True)
+    p.add_argument("--mcmc-noise-lr", type=float, default=500_000.0)
+
+
+def _add_training_args(p: argparse.ArgumentParser) -> None:
+    p.add_argument("--target-sh-degree", type=int, choices=range(4), default=3)
+    p.add_argument(
+        "--sh-degree-interval",
+        type=int,
+        default=None,
+        help="steps between SH bands; default adapts for short runs and caps at 1000",
+    )
+    p.add_argument(
+        "--random-background",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="with masks, randomize the composited background to discourage floaters",
+    )
+    p.add_argument("--mask-alpha-lambda", type=float, default=0.05)
+    p.add_argument("--opacity-reg", type=float, default=None)
+    p.add_argument("--scale-reg", type=float, default=None)
+    p.add_argument("--packed", action=argparse.BooleanOptionalAction, default=False)
+    p.add_argument("--antialiased", action=argparse.BooleanOptionalAction, default=False)
+    p.add_argument(
+        "--eval-every",
+        type=int,
+        default=250,
+        help="evaluate held-out views every N steps (final evaluation always runs)",
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -166,16 +477,31 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("fit-images", help="stage 1: fit 2D gaussians per image")
     p.add_argument("--images", required=True, help="directory of images")
     p.add_argument("--out", required=True, help="output directory for per-image .npz")
-    p.add_argument("--n-gaussians", type=int, default=4096)
+    p.add_argument(
+        "--initial-gaussians",
+        "--n-gaussians",
+        dest="n_gaussians",
+        type=int,
+        default=640,
+        help="initial 2D Gaussian count (native backend keeps this fixed)",
+    )
     p.add_argument("--iterations", type=int, default=300)
+    _add_fit_backend_args(p)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.set_defaults(func=_cmd_fit_images)
 
     p = sub.add_parser("lift", help="stage 2: lift 2D fits into a 3D gaussian set")
     _add_scene_args(p)
     p.add_argument("--fits", required=True, help="directory of stage-1 .npz files")
     p.add_argument("--lifter", default="depth")
+    p.add_argument(
+        "--fit-format",
+        choices=["auto", "native", "structsplat", "gaussianimage"],
+        default="auto",
+    )
     p.add_argument("--lifter-args", default="{}", help="JSON kwargs for the lifter")
+    p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.add_argument("--out", required=True, help="output .npz or .ply")
     p.set_defaults(func=_cmd_lift)
 
@@ -184,27 +510,114 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--init", required=True, help="input .npz or .ply")
     p.add_argument("--iterations", type=int, default=1000)
     p.add_argument("--rasterizer", default="auto")
+    _add_density_args(p)
+    _add_training_args(p)
+    p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.add_argument("--out", required=True)
+    p.add_argument(
+        "--preview",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="save calibrated and novel-view visual diagnostics beside the output",
+    )
     p.set_defaults(func=_cmd_refine)
 
     p = sub.add_parser("run", help="end-to-end: fit -> lift -> refine")
     _add_scene_args(p)
     p.add_argument("--lifter", default="depth")
     p.add_argument("--lifter-args", default="{}")
-    p.add_argument("--n-gaussians", type=int, default=512, help="2D gaussians per image")
+    p.add_argument("--fits", default=None, help="optional native/StructSplat .npz directory")
+    p.add_argument(
+        "--fit-format",
+        choices=["auto", "native", "structsplat", "gaussianimage"],
+        default="auto",
+    )
+    p.add_argument(
+        "--initial-gaussians",
+        "--n-gaussians",
+        dest="n_gaussians",
+        type=int,
+        default=640,
+        help="initial 2D Gaussian count per image",
+    )
     p.add_argument("--fit-iterations", type=int, default=300)
+    _add_fit_backend_args(p)
     p.add_argument("--refine-iters", type=int, default=200)
     p.add_argument("--rasterizer", default="auto")
+    _add_density_args(p)
+    _add_training_args(p)
+    p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default=None, help="optional output directory")
+    p.add_argument(
+        "--preview",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="with --out, save comparisons and an animated reconstruction turntable",
+    )
     p.set_defaults(func=_cmd_run)
 
     p = sub.add_parser("render", help="render a saved gaussian set from scene cameras")
     _add_scene_args(p)
     p.add_argument("--gaussians", required=True)
     p.add_argument("--rasterizer", default="auto")
+    p.add_argument("--packed", action=argparse.BooleanOptionalAction, default=None)
+    p.add_argument("--antialiased", action=argparse.BooleanOptionalAction, default=None)
+    p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.add_argument("--out", required=True)
     p.set_defaults(func=_cmd_render)
+
+    p = sub.add_parser("view", help="open an interactive browser viewer for saved gaussians")
+    p.add_argument("--gaussians", required=True, help="final reconstruction .npz or .ply")
+    p.add_argument(
+        "--initial",
+        default=None,
+        help="optional initialization .npz or .ply (auto-detected beside gaussians.ply)",
+    )
+    p.add_argument(
+        "--scene",
+        default=None,
+        help="optional scene for calibrated cameras, references, and exact snapshots",
+    )
+    p.add_argument("--downscale", type=int, default=1)
+    p.add_argument("--max-images", type=int, default=None)
+    p.add_argument(
+        "--max-viewer-gaussians",
+        type=int,
+        default=None,
+        help="optional WebGL transfer/display cap (does not alter saved reconstruction)",
+    )
+    p.add_argument(
+        "--rasterizer",
+        choices=["auto", "torch", "gsplat"],
+        default="auto",
+        help="backend for exact calibrated-camera snapshots",
+    )
+    p.add_argument(
+        "--antialiased",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="match antialiased training (default: auto-detect saved config)",
+    )
+    p.add_argument(
+        "--packed",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="match packed rendering (default: auto-detect saved config)",
+    )
+    p.add_argument("--device", default="auto", help="snapshot device: auto, cpu, cuda, cuda:N")
+    p.add_argument(
+        "--snapshot-dir", default=None, help="optionally save exact snapshots as PNG files"
+    )
+    p.add_argument("--host", default="127.0.0.1", help="viewer bind address")
+    p.add_argument("--port", type=int, default=8080)
+    p.add_argument(
+        "--open",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="open the viewer URL in a local browser",
+    )
+    p.set_defaults(func=_cmd_view)
 
     p = sub.add_parser("bench", help="run the benchmark harness (rtgs.bench)")
     p.add_argument(
@@ -216,6 +629,39 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
     return args.func(args)
+
+
+def _add_fit_backend_args(p: argparse.ArgumentParser) -> None:
+    p.add_argument(
+        "--fit-backend",
+        choices=["native", "structsplat"],
+        default="native",
+        help="optional StructSplat backend grows from the configured initial count",
+    )
+    p.add_argument(
+        "--max-gaussians",
+        type=int,
+        default=5_000,
+        help="maximum per-image count for StructSplat density growth",
+    )
+    p.add_argument(
+        "--adaptive-density",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="grow until convergence/stall or max count; disable for a fixed growth schedule",
+    )
+    p.add_argument("--growth-waves", type=int, default=5)
+    p.add_argument(
+        "--relocate-fraction",
+        type=float,
+        default=0.0,
+        help="StructSplat relocation ablation; matched evidence favors 0",
+    )
+    p.add_argument(
+        "--structsplat-renderer",
+        choices=["auto", "normalized", "cuda", "cuda_tiled"],
+        default="auto",
+    )
 
 
 if __name__ == "__main__":

@@ -29,8 +29,11 @@ class RenderOutput:
     color: torch.Tensor  # (H, W, 3)
     alpha: torch.Tensor  # (H, W)
     depth: torch.Tensor  # (H, W)
-    means2d: torch.Tensor | None = None  # (V, 2) projected centers of visible gaussians
+    means2d: torch.Tensor | None = None  # (V,2) or (1,N,2), retained screen centers
     visible: torch.Tensor | None = None  # (V,) indices into the input gaussian set
+    # Backend-native metadata used by optional optimization strategies. Pipeline code must
+    # otherwise remain backend-agnostic; torch_ref leaves this as None.
+    strategy_info: dict | None = None
 
 
 class Rasterizer(Protocol):
@@ -47,14 +50,24 @@ class Rasterizer(Protocol):
         ...
 
 
-def get_rasterizer(name: str = "auto") -> Rasterizer:
+def get_rasterizer(
+    name: str = "auto",
+    device: torch.device | str | None = None,
+    *,
+    packed: bool = False,
+    absgrad: bool = False,
+    antialiased: bool = False,
+) -> Rasterizer:
     """Return a rasterizer backend: 'torch' (reference), 'gsplat' (CUDA), or 'auto'.
 
     'auto' picks gsplat when both the package and a CUDA device are available,
-    otherwise the reference implementation.
+    otherwise the reference implementation. Supplying ``device`` also prevents a
+    CUDA-capable host from selecting gsplat for explicitly CPU-resident data.
     """
     if name == "auto":
-        name = "gsplat" if _gsplat_available() else "torch"
+        requested = None if device is None else torch.device(device)
+        wants_cuda = requested is None or requested.type == "cuda"
+        name = "gsplat" if wants_cuda and _gsplat_available() else "torch"
     if name == "torch":
         from rtgs.render.torch_ref import TorchRasterizer
 
@@ -62,7 +75,7 @@ def get_rasterizer(name: str = "auto") -> Rasterizer:
     if name == "gsplat":
         from rtgs.render.gsplat_backend import GsplatRasterizer
 
-        return GsplatRasterizer()
+        return GsplatRasterizer(packed=packed, absgrad=absgrad, antialiased=antialiased)
     raise ValueError(f"unknown rasterizer '{name}' (expected 'auto', 'torch' or 'gsplat')")
 
 

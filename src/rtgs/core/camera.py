@@ -35,13 +35,14 @@ class Camera:
         """3x3 intrinsic matrix."""
         return torch.tensor(
             [[self.fx, 0.0, self.cx], [0.0, self.fy, self.cy], [0.0, 0.0, 1.0]],
-            dtype=torch.float32,
+            dtype=self.R.dtype,
+            device=self.R.device,
         )
 
     @property
     def viewmat(self) -> torch.Tensor:
         """4x4 world-to-camera matrix."""
-        m = torch.eye(4, dtype=torch.float32)
+        m = torch.eye(4, dtype=self.R.dtype, device=self.R.device)
         m[:3, :3] = self.R
         m[:3, 3] = self.t
         return m
@@ -53,11 +54,11 @@ class Camera:
 
     def world_to_cam(self, points: torch.Tensor) -> torch.Tensor:
         """Transform (M,3) world points to camera coordinates."""
-        return points @ self.R.T + self.t
+        return points @ self.R.to(points).T + self.t.to(points)
 
     def cam_to_world(self, points: torch.Tensor) -> torch.Tensor:
         """Transform (M,3) camera points to world coordinates."""
-        return (points - self.t) @ self.R
+        return (points - self.t.to(points)) @ self.R.to(points)
 
     def project(self, points_world: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """Project (M,3) world points; returns pixel coords (M,2) and camera-space depth (M,).
@@ -92,16 +93,29 @@ class Camera:
             ],
             dim=-1,
         )
-        d_world = d_cam @ self.R  # rotate to world (R^T @ d, batched)
-        return self.position, d_world
+        d_world = d_cam @ self.R.to(uv)  # rotate to world (R^T @ d, batched)
+        return self.position.to(uv), d_world
 
     def in_image(self, uv: torch.Tensor, margin: float = 0.0) -> torch.Tensor:
         """Boolean mask of pixels inside the image bounds (with optional margin)."""
         return (
-            (uv[:, 0] >= -margin)
-            & (uv[:, 0] <= self.width + margin)
-            & (uv[:, 1] >= -margin)
-            & (uv[:, 1] <= self.height + margin)
+            (uv[:, 0] >= 0.5 - margin)
+            & (uv[:, 0] <= self.width - 0.5 + margin)
+            & (uv[:, 1] >= 0.5 - margin)
+            & (uv[:, 1] <= self.height - 0.5 + margin)
+        )
+
+    def to(self, device: torch.device | str) -> Camera:
+        """Return a copy whose extrinsics live on ``device``."""
+        return Camera(
+            fx=self.fx,
+            fy=self.fy,
+            cx=self.cx,
+            cy=self.cy,
+            width=self.width,
+            height=self.height,
+            R=self.R.to(device),
+            t=self.t.to(device),
         )
 
     @staticmethod
@@ -117,7 +131,7 @@ class Camera:
         eye = torch.as_tensor(eye, dtype=torch.float32)
         target = torch.as_tensor(target, dtype=torch.float32)
         up = (
-            torch.tensor([0.0, 1.0, 0.0])
+            eye.new_tensor([0.0, 1.0, 0.0])
             if up is None
             else torch.as_tensor(up, dtype=torch.float32)
         )
@@ -125,7 +139,7 @@ class Camera:
         x = torch.nn.functional.normalize(torch.linalg.cross(z, up), dim=0)
         if not torch.isfinite(x).all() or x.norm() < 1e-6:
             x = torch.nn.functional.normalize(
-                torch.linalg.cross(z, torch.tensor([1.0, 0.0, 0.0])), dim=0
+                torch.linalg.cross(z, eye.new_tensor([1.0, 0.0, 0.0])), dim=0
             )
         y = torch.linalg.cross(z, x)
         r_c2w = torch.stack([x, y, z], dim=1)  # columns are camera axes in world

@@ -37,7 +37,14 @@ def test_cli_run_end_to_end(tmp_path, capsys):
     assert rc == 0
     metrics = json.loads((tmp_path / "out" / "metrics.json").read_text())
     assert "init_psnr" in metrics["metrics"]
+    assert (tmp_path / "out" / "gaussians_init.ply").exists()
     assert (tmp_path / "out" / "gaussians.ply").exists()
+    assert (tmp_path / "out" / "reconstruction_contact_sheet.png").exists()
+    assert (tmp_path / "out" / "reconstruction.gif").exists()
+    assert (tmp_path / "out" / "novel_orbit.gif").exists()
+    assert (tmp_path / "out" / "novel_elevation.gif").exists()
+    assert (tmp_path / "out" / "training_history.json").exists()
+    assert (tmp_path / "out" / "gaussians.config.json").exists()
     printed = json.loads(capsys.readouterr().out.split("saved")[0])
     assert printed["metrics"]["init_n_gaussians"] > 0
 

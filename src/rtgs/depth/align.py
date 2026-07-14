@@ -65,8 +65,93 @@ def align_depth_to_points(
         raise ValueError("not enough points project into the view for depth alignment")
     uv = uv[valid]
     z = z[valid]
-    xi = uv[:, 0].long().clamp(0, camera.width - 1)
-    yi = uv[:, 1].long().clamp(0, camera.height - 1)
-    pred_samples = depth[yi, xi]
+    pred_samples = _bilinear_sample(depth, uv)
     s, b = scale_shift_align(pred_samples, z, robust_iters=robust_iters)
     return (s * depth + b).clamp_min(1e-4)
+
+
+def align_inverse_depth_to_points(
+    inverse_depth: torch.Tensor,
+    camera: Camera,
+    points_world: torch.Tensor,
+    robust_iters: int = 2,
+) -> torch.Tensor:
+    """Align a relative inverse-depth/disparity map, then convert it to metric depth."""
+    uv, z = camera.project(points_world)
+    valid = (z > 0.01) & camera.in_image(uv)
+    if int(valid.sum()) < 2:
+        raise ValueError("not enough observed points to align inverse depth")
+    pred_samples = _bilinear_sample(inverse_depth, uv[valid])
+    ref_inverse = z[valid].reciprocal()
+    scale, shift = scale_shift_align(pred_samples, ref_inverse, robust_iters=robust_iters)
+    aligned_inverse = (scale * inverse_depth + shift).clamp_min(1e-6)
+    return aligned_inverse.reciprocal()
+
+
+def align_inverse_depth_to_bounds(
+    inverse_depth: torch.Tensor,
+    camera: Camera,
+    center_world: torch.Tensor,
+    extent: float,
+    mask: torch.Tensor | None = None,
+) -> torch.Tensor:
+    """Scale inverse depth from known object bounds when no sparse points exist.
+
+    This is intentionally a prior, not claimed metric depth: foreground 5/95 percentiles are
+    mapped to the far/near faces of the calibrated object volume. Subsequent multi-view
+    optimization can move the resulting splats, but initialization is finite and scene-scaled.
+    """
+    center_depth = camera.project(center_world.to(inverse_depth)[None])[1][0]
+    near = (center_depth - 0.5 * extent).clamp_min(0.05)
+    far = (center_depth + 0.5 * extent).clamp_min(near + 1e-3)
+    values = _valid_values(inverse_depth, mask)
+    lo, hi = torch.quantile(values, values.new_tensor([0.05, 0.95]))
+    if hi - lo < 1e-8:
+        return torch.full_like(inverse_depth, center_depth)
+    scale = (near.reciprocal() - far.reciprocal()) / (hi - lo)
+    shift = far.reciprocal() - scale * lo
+    return (scale * inverse_depth + shift).clamp_min(1e-6).reciprocal()
+
+
+def align_depth_to_bounds(
+    depth: torch.Tensor,
+    camera: Camera,
+    center_world: torch.Tensor,
+    extent: float,
+    mask: torch.Tensor | None = None,
+) -> torch.Tensor:
+    """Affine-align monotonically increasing relative depth to calibrated object bounds."""
+    center_depth = camera.project(center_world.to(depth)[None])[1][0]
+    near = (center_depth - 0.5 * extent).clamp_min(0.05)
+    far = (center_depth + 0.5 * extent).clamp_min(near + 1e-3)
+    values = _valid_values(depth, mask)
+    lo, hi = torch.quantile(values, values.new_tensor([0.05, 0.95]))
+    if hi - lo < 1e-8:
+        return torch.full_like(depth, center_depth)
+    return (near + (depth - lo) * (far - near) / (hi - lo)).clamp(near, far)
+
+
+def _valid_values(depth: torch.Tensor, mask: torch.Tensor | None) -> torch.Tensor:
+    valid = torch.isfinite(depth)
+    if mask is not None:
+        valid &= mask.to(depth) > 0.5
+    values = depth[valid]
+    if values.numel() < 2:
+        raise ValueError("not enough valid foreground pixels to align depth to scene bounds")
+    return values
+
+
+def _bilinear_sample(grid: torch.Tensor, uv: torch.Tensor) -> torch.Tensor:
+    """Sample an image with the repository's half-integer pixel-center convention."""
+    h, w = grid.shape
+    x = (uv[:, 0] - 0.5).clamp(0, w - 1)
+    y = (uv[:, 1] - 0.5).clamp(0, h - 1)
+    x0, y0 = x.floor().long(), y.floor().long()
+    x1, y1 = (x0 + 1).clamp_max(w - 1), (y0 + 1).clamp_max(h - 1)
+    fx, fy = x - x0, y - y0
+    return (
+        grid[y0, x0] * (1 - fx) * (1 - fy)
+        + grid[y0, x1] * fx * (1 - fy)
+        + grid[y1, x0] * (1 - fx) * fy
+        + grid[y1, x1] * fx * fy
+    )

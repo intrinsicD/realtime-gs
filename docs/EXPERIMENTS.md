@@ -17,6 +17,115 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-14 — gsplat density strategies, full-SH convergence, and novel-view repair
+- **Question**: Were the poor novel views caused by correct state-of-the-art 3DGS refinement, or
+  by missing density/appearance/geometry machinery; and do more iterations/resolution improve the
+  compact 2D-Gaussian initialization?
+- **Setup**: RTX 4090, PyTorch 2.12.0+cu132, gsplat 1.5.3, seed 0, the 23-train/3-test split of
+  Janelle `frame_00008`, and the 3,015-splat fixed-640 StructSplat→carve initialization from the
+  earlier experiment. Matched 1/16 runs used 2k iterations and a 30k cap with gsplat Default
+  (AbsGS threshold 8e-4, revised opacity, reset) or MCMC (relocation/teleportation and position
+  noise). The selected Default recipe then ran 7k iterations with complete masks, randomized
+  backgrounds, explicit alpha loss, degree-3 SH, and antialiased rasterization at 1/8
+  (666×576, cap 30k) and 1/4 (1332×1152, cap 45k). Several unrelated processes concurrently
+  saturated the GPU, so elapsed times are not benchmark-valid; process peak-VRAM is retained.
+- **Result**: At 1/16, Default and MCMC tied at **25.20 dB held-out foreground PSNR**; Default
+  ended at 12,483 splats with 0.943 held-out alpha IoU, versus MCMC's 15,049 and 0.929. Default
+  also fit training foreground better (28.27 versus 27.55 dB), so MCMC's extra relocation did
+  not win this already-structured init. The 1/8 run ended at 21,202 splats and **25.67 dB
+  held-out foreground / 32.52 dB crop / 0.9606 crop SSIM**, with 0.954 alpha IoU and 0.0040
+  mean outside alpha; training crop reached 38.16 dB. Its held-out foreground curve peaked at
+  25.79 around 4k and remained within 0.12 dB at 7k. Peak allocated VRAM was 0.27 GiB. The 1/4
+  run reached 39,250 splats, 25.21/32.04/0.9580, 0.959 alpha IoU, 0.0034 outside alpha, and
+  0.97 GiB peak VRAM; its held-out curve peaked at 25.51 around 3k while training crop reached
+  38.24 dB. The true full-SH orbit and elevation-varying path are coherent; remaining artifacts
+  are thin strands around hair, hands, and the dress hem rather than the former unconstrained
+  novel-view splat cloud.
+- **Bugs found/fixed**: The old 1k run never activated SH bands 1–3; gsplat always requested
+  AbsGS gradients while applying the incompatible classic 2e-4 threshold; the custom controller
+  was not gsplat Default or MCMC and had no relocation/teleportation; final metrics/previews
+  silently recreated classic rasterization even after antialiased training; and Viser froze
+  degree-0 RGB while the model used full SH. The repair uses canonical per-field optimizers,
+  short-run-aware SH scheduling, gsplat strategy pre/post hooks, mask/alpha geometry loss,
+  strategy-safe hard-budget surgery, persisted render configuration, view-dependent WebGL SH
+  colors, and both in-plane and off-plane novel diagnostics.
+- **Conclusion**: The compact initialization can now converge to a coherent object rather than
+  merely fitting calibrated views. Default is the better choice on this scene; MCMC remains a
+  useful initialization-robust alternative, not a universal improvement. More resolution and
+  primitives sharpen appearance and silhouettes but do not automatically improve held-out
+  PSNR; the 1/8 result is the best balanced reconstruction, while 1/4 is the higher-detail visual
+  result. The performance numbers must be rerun on an idle GPU.
+- **Follow-ups**: Repeat Default/MCMC on other frames and an SfM baseline, add LPIPS-VGG, record
+  clean time-to-quality on an idle GPU, consider a train-only validation split/checkpoint policy
+  rather than selecting on the three held-out test views, and target the residual hair/hem
+  floaters with geometry-aware pruning or a stronger multi-view/depth initialization.
+
+## 2026-07-14 — Compact 2D starts, strict held-out metrics, and CUDA Janelle ablation
+- **Question**: Is 640 a useful configurable *start* rather than an image-wise final cap; which
+  lift gives the best object-centric initialization; and how much 3D density growth is useful?
+- **Setup**: RTX 4090, PyTorch 2.12.0+cu132, gsplat 1.5.3, seed 0. Janelle
+  `2025_03_07_stage_with_fabric/frame_00008` has 26 calibrated RGB/mask views; every eighth view
+  gives 23 train and 3 strictly held-out views. Runs used 1/16 resolution (333×288), 300 stage-1
+  iterations, 1000 refinement iterations, and foreground/crop held-out metrics. StructSplat
+  compared fixed 320, fixed 640, and adaptive 640→2000 against native fixed 640. Downstream
+  controls used `carve(grid_res=96)` and density disabled, unrestricted, or stopped at iteration
+  300 with a 15k cap. Full machine-readable result:
+  `benchmarks/results/20260714T085148Z_cuda_janelle.json`. The CPU synthetic regression benchmark
+  is `benchmarks/results/20260714T090516Z_cpu.json`.
+- **Result**: Mean stage-1 foreground PSNR / 23-view wall time was StructSplat fixed-320
+  **27.35 dB / 13.45 s**, fixed-640 **28.60 / 14.67**, adaptive-2000 **29.41 / 15.01**, versus
+  native fixed-640 **25.66 / 47.29**. Fixed-640→carve initialized only 3,015 3D splats at
+  **21.98 dB** held-out foreground PSNR, versus native-640's 3,613 at **20.16 dB** and
+  adaptive-2000's 5,473 at **21.32 dB**. With the short 15k-capped density schedule, fixed-640
+  reached **25.67 dB foreground / 32.08 dB crop / 0.9604 crop SSIM**. Fixed-320 reached
+  25.50/31.89/0.9598, retaining a small deficit from its weaker init (-0.53 dB). For the same
+  adaptive-2000 init, no density / unrestricted growth / capped growth reached 25.60 at 5,473 /
+  25.04 at 70,485 / **25.76 dB at 15,000** splats. Depth-seeded bounded-ray `hybrid` improved
+  initialization over direct monocular `depth` from **12.68 to 20.23 dB**; under the same 15k
+  cap it refined to 23.41 versus depth's 23.20 dB, but `carve` remained better and faster.
+  On the synthetic CPU benchmark, hybrid initialized at 21.61 dB and refined to 31.44 dB versus
+  direct depth's 19.08/31.33, confirming the integration without claiming the real-depth ranking.
+- **Conclusion**: 640 is a sound default start for this scene, not a ceiling. More per-image 2D
+  splats improve the isolated image fit but did not improve the 3D initialization; compact
+  structured fits plus carving were better. Adaptive 2k recovered 0.09 dB more final quality,
+  while fixed 640 gave the strongest initialization with fewer splats. A short hard-capped 3D
+  growth phase beat both no growth and unrestricted growth; the latter overfit the training views
+  and expanded to 70k–100k splats. StructSplat fixed-640 was about 3.2× faster than native
+  fixed-640 and improved held-out initialization by 1.82 dB. These are one-frame, low-resolution
+  findings, not a cross-dataset ranking.
+- **Follow-ups**: Repeat at 1/8 and 1/4 resolution, add LPIPS-VGG and peak-VRAM/time-to-quality,
+  test `quadtree_wse` and GaussianImage at matched time/count, and compare the current density
+  controller with gsplat MCMC/relocation. Inspect the saved contact sheet/GIF before choosing a
+  high-resolution run.
+
+## 2026-07-13 — Geometry/device correctness pass and calibrated Janelle smoke test
+- **Question**: Do projection-correct covariance, bounded ray depths, independent opacity,
+  color-independent carving coverage, and corrected density/timing plumbing improve the
+  initialization pipeline; and does it run on the supplied calibrated object captures?
+- **Setup**: `python benchmarks/run.py --quick --update-docs`, CPU, seed 0, synthetic 12-view
+  48×48 scene, 150 2D gaussians/view, 120 fit + 150 refine iterations. Real-data smoke used
+  `2025_03_07_stage_with_fabric/frame_00008`, four evenly sampled views at 1/64 resolution,
+  real PNG masks, 60 gaussians/view, 15 fit + 5 bounded-ray + 3 refine iterations. The capture
+  inventory is 26 RGB views in each stage frame and 30/32 in the two karate frames; the stage
+  frames also contain per-camera masks. Result: `benchmarks/results/20260713T123616Z_cpu.json`.
+- **Result**: Synthetic init/final PSNR changed versus the 2026-07-08 tracked run: depth
+  17.05/28.53 → **19.08/31.36** dB; gradient 19.41/25.38 → **22.43/30.86**; carve
+  17.48/29.13 → **20.31/31.91**. Gradient lift time fell 15.43 → 7.93 s. The comparison now
+  includes the shared 3.90 s all-view fit cost and time/PSNR samples. On Janelle, the bounded-ray
+  init reached **23.75 dB**, short refinement reached 23.83 dB, and ray-stage loss fell
+  0.0124 → 0.0073. A mock relative-inverse-depth backend exercised the no-SfM bounds alignment
+  and produced 46 finite splats at 18.49 dB. Coverage threshold 0.4 reduced the synthetic
+  carving median center-to-GT distance from 0.276 to 0.236 (0.3 threshold vs 0.4).
+- **Conclusion**: The repaired transfer now improves all three initializers on the integration
+  benchmark, and both proposed depth routes execute on the real calibration format. This is a
+  regression/integration comparison, not an isolated causal ablation; GPU quality and real
+  held-out full-resolution quality remain unmeasured. Actual StructSplat/GaussianImage fields can
+  now skip native stage 1 through the adapter rather than being conflated with 3D opacity.
+- **Follow-ups**: Create a CUDA-enabled environment for the RTX 4090 and run the full 26-view
+  frame at 1/4 resolution; compare StructSplat versus native versus GaussianImage at matched
+  2D PSNR and primitive count; run real Depth Anything V2 Small and a depth→bounded-ray hybrid;
+  report held-out PSNR/SSIM/LPIPS and time-to-quality against SfM when sparse points are available.
+
 ## 2026-07-08 — Refined `gradient` variant: depth+rot+scale along the ray, then merge
 - **Question**: The staged idea "fit 2D → lift with a thin third axis → optimize each
   gaussian along its ray for position/rotation/scale → full 3DGS". Does optimizing

@@ -87,6 +87,7 @@ def _git_rev(root: Path) -> str:
 def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
     """Execute all benchmarks; returns {'meta': ..., 'results': ...}."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    bench_device = torch.device(device)
     scene = make_synthetic_scene(
         n_gaussians=config.n_gt_gaussians,
         n_cameras=config.n_views,
@@ -98,10 +99,12 @@ def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
     # Stage-1 fitting speed/quality.
     fit_cfg = FitConfig(n_gaussians=config.fit_gaussians, iterations=config.fit_iterations)
     t0 = time.perf_counter()
-    _, hist = fit_image(scene.images[0], fit_cfg, seed=0)
+    _, hist = fit_image(scene.images[0].to(bench_device), fit_cfg, seed=0)
+    if bench_device.type == "cuda":
+        torch.cuda.synchronize()
     dt = time.perf_counter() - t0
     results["image2gs_fit"] = {
-        "iters_per_s": config.fit_iterations / dt,
+        "iters_per_s": (hist["stopped_iter"] + 1) / dt,
         "psnr": hist["final_psnr"],
         "seconds": dt,
     }
@@ -115,10 +118,12 @@ def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
                 renderer.render(scene.gt_gaussians, cam)
     dt = time.perf_counter() - t0
     n_frames = config.render_repeats * len(scene.cameras)
-    results["render_ref"] = {"fps": n_frames / dt, "frames": n_frames, "seconds": dt}
+    results["render_ref_cpu"] = {"fps": n_frames / dt, "frames": n_frames, "seconds": dt}
 
     # Variant comparison (init quality + refinement).
-    variants = ["depth", "gradient", "carve", "sfm", "random"] if not smoke else ["depth", "sfm"]
+    variants = (
+        ["depth", "hybrid", "gradient", "carve", "sfm", "random"] if not smoke else ["depth", "sfm"]
+    )
     assert set(variants) <= set(lifter_names())
     pipe_cfg = PipelineConfig(
         fit=fit_cfg,
@@ -128,19 +133,28 @@ def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
             eval_every=max(config.refine_iterations // 2, 1),
         ),
     )
+    if bench_device.type == "cuda":
+        torch.cuda.reset_peak_memory_stats()
     comparison = compare_lifters(scene, {v: {} for v in variants}, pipe_cfg)
+    peak_vram = torch.cuda.max_memory_allocated() / 1024**2 if bench_device.type == "cuda" else 0.0
     for name, res in comparison.items():
         results[f"lift_{name}"] = {
             "seconds": res.timings["lift"],
             "init_psnr": res.metrics["init_psnr"],
             "init_n_gaussians": res.metrics["init_n_gaussians"],
+            "fit_seconds": res.timings["fit"],
         }
         results[f"e2e_{name}"] = {
             "init_psnr": res.metrics["init_psnr"],
             "final_psnr": res.metrics["final_psnr"],
             "final_n_gaussians": res.metrics["final_n_gaussians"],
             "refine_seconds": res.timings["refine"],
+            "fit_seconds": res.timings["fit"],
+            "lift_seconds": res.timings["lift"],
             "total_seconds": res.timings["total"],
+            "peak_vram_mb": peak_vram,
+            "psnr_curve": res.train_history.get("psnr", []),
+            "seconds_curve": res.train_history.get("elapsed", []),
         }
 
     meta = {

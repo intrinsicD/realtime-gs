@@ -18,7 +18,9 @@ from rtgs.render.base import RenderOutput
 class GsplatRasterizer:
     """Rasterizer backed by gsplat.rasterization (requires CUDA)."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self, *, packed: bool = False, absgrad: bool = False, antialiased: bool = False
+    ) -> None:
         try:
             import gsplat  # noqa: F401
         except ImportError as e:
@@ -28,6 +30,9 @@ class GsplatRasterizer:
             ) from e
         if not torch.cuda.is_available():
             raise RuntimeError("gsplat backend requires a CUDA device; use get_rasterizer('torch')")
+        self.packed = packed
+        self.absgrad = absgrad
+        self.antialiased = antialiased
 
     def render(
         self,
@@ -61,21 +66,37 @@ class GsplatRasterizer:
             sh_degree=degree,
             backgrounds=bg,
             render_mode="RGB+D",
-            packed=False,
+            packed=self.packed,
+            absgrad=self.absgrad,
+            rasterize_mode="antialiased" if self.antialiased else "classic",
         )
         color = colors[0, :, :, :3]
         depth = colors[0, :, :, 3]
         alpha = alphas[0, :, :, 0]
         means2d = meta.get("means2d")
-        if means2d is not None:
-            means2d = means2d[0] if means2d.ndim == 3 else means2d
+        # Keep gsplat's original tensor: the renderer graph uses this leaf directly, while a
+        # post-hoc ``means2d[0]`` view does not receive ``.grad``.  DensityController handles
+        # the leading camera dimension.
+        if means2d is not None and means2d.requires_grad:
+            means2d.retain_grad()
         radii = meta.get("radii")
-        visible = None
-        if radii is not None:
-            r = radii[0] if radii.ndim > 2 else radii
-            visible = (
-                (r > 0).any(-1).nonzero(as_tuple=True)[0]
-                if r.ndim == 2
-                else (r > 0).nonzero(as_tuple=True)[0]
-            )
-        return RenderOutput(color=color, alpha=alpha, depth=depth, means2d=means2d, visible=visible)
+        if self.packed and "gaussian_ids" in meta:
+            visible = torch.unique(meta["gaussian_ids"])
+        else:
+            visible = None if radii is None else _visible_indices(radii)
+        return RenderOutput(
+            color=color,
+            alpha=alpha,
+            depth=depth,
+            means2d=means2d,
+            visible=visible,
+            strategy_info=meta,
+        )
+
+
+def _visible_indices(radii: torch.Tensor) -> torch.Tensor:
+    """Normalize gsplat's scalar/axis radius layouts to Gaussian indices."""
+    # gsplat versions expose either [C,N] scalar radii or [C,N,2] axis radii.
+    r = radii[0] if radii.ndim >= 2 and radii.shape[0] == 1 else radii
+    visible = (r > 0).all(-1) if r.ndim == 2 else r > 0
+    return visible.nonzero(as_tuple=True)[0]
