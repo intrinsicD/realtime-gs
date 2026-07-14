@@ -29,7 +29,8 @@ from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.core.metrics import ssim
 from rtgs.data.scene import SceneData
-from rtgs.lift.base import eigvals_2x2, lift_view_at_depth
+from rtgs.lift.base import bilinear_sample, eigvals_2x2, lift_view_at_depth
+from rtgs.lift.depth import AlignedDepthPrior
 from rtgs.lift.merge import merge_by_voxel
 from rtgs.render.base import get_rasterizer
 
@@ -87,6 +88,18 @@ class GradientLifter:
 
     def lift(self, gaussians2d: list[Gaussians2D], scene: SceneData) -> Gaussians3D:
         """Lift every view, optimize along the rays, and merge the result."""
+        return self.lift_with_priors(gaussians2d, scene, priors=None)
+
+    def lift_with_priors(
+        self,
+        gaussians2d: list[Gaussians2D],
+        scene: SceneData,
+        priors: list[AlignedDepthPrior] | None,
+        merge_color_bin_size: float | None = None,
+    ) -> Gaussians3D:
+        """Optimize bounded rays, optionally initialized and weighted by depth priors."""
+        if priors is not None and len(priors) != len(gaussians2d):
+            raise ValueError("one aligned depth prior is required per fitted view")
         center, extent = scene.center_and_extent()
         device = gaussians2d[0].xy.device
         center = center.to(device)
@@ -94,12 +107,11 @@ class GradientLifter:
 
         origins, dirs, t_nears, t_fars, raw_t0 = [], [], [], [], []
         base_parts: list[Gaussians3D] = []
+        observation_weights = []
         half = 0.5 * extent
         for view_index, (g2d, camera) in enumerate(zip(gaussians2d, scene.cameras)):
             keep = g2d.weight > self.min_weight
             if scene.masks is not None:
-                from rtgs.lift.base import bilinear_sample
-
                 keep &= bilinear_sample(scene.masks[view_index].to(g2d.xy), g2d.xy) > 0.5
             g2d_v = Gaussians2D(
                 xy=g2d.xy[keep], chol=g2d.chol[keep], color=g2d.color[keep], weight=g2d.weight[keep]
@@ -129,11 +141,22 @@ class GradientLifter:
             # Initialize at the optical-axis center depth, then jitter within the valid ray/AABB
             # interval. Unlike Euclidean camera distance this is the correct parameter for d.z=1.
             center_depth = camera.project(center[None])[1][0]
-            fraction = ((center_depth - near) / (far - near)).clamp(0.05, 0.95)
+            initial_depth = center_depth.expand(n)
+            confidence = torch.ones(n, device=device)
+            if priors is not None:
+                prior = priors[view_index]
+                sampled = bilinear_sample(prior.depth.to(g2d_v.xy), g2d_v.xy)
+                valid_prior = torch.isfinite(sampled) & (sampled > near) & (sampled < far)
+                initial_depth = torch.where(valid_prior, sampled, initial_depth)
+                if prior.confidence is not None:
+                    confidence = bilinear_sample(prior.confidence.to(g2d_v.xy), g2d_v.xy)
+                    confidence = torch.where(valid_prior, confidence.clamp(0, 1), 0.1)
+            fraction = ((initial_depth - near) / (far - near)).clamp(0.05, 0.95)
             fraction = (
                 fraction + self.depth_jitter * (torch.rand(n, generator=gen, device=device) - 0.5)
             ).clamp(0.01, 0.99)
             raw_t0.append(torch.logit(fraction))
+            observation_weights.append((g2d_v.weight * confidence).clamp_min(1e-3))
             # Unit-depth lift fixes each gaussian's rotation and unit-depth scales; the
             # along-ray sigma is the footprint minor axis scaled by ray_thickness (the
             # "epsilon" knob, clamped away from degeneracy).
@@ -184,7 +207,7 @@ class GradientLifter:
                 sh=base.sh,
             )
 
-        renderer = get_rasterizer(self.rasterizer)
+        renderer = get_rasterizer(self.rasterizer, device=device)
         self.history = []
         train_views = scene.training_views
         for _ in range(self.iterations):
@@ -211,7 +234,13 @@ class GradientLifter:
         result = build().detach()
         self.n_before_merge = result.n
         if self.merge:
-            result = merge_by_voxel(result, self.merge_voxel_frac * extent, opacity_mode="mean")
+            result = merge_by_voxel(
+                result,
+                self.merge_voxel_frac * extent,
+                opacity_mode="mean",
+                component_weights=torch.cat(observation_weights),
+                color_bin_size=merge_color_bin_size,
+            )
         return result
 
 

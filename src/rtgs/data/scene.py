@@ -86,7 +86,10 @@ class SceneData:
     @property
     def training_views(self) -> list[int]:
         """Indices used for optimization (all views unless an explicit split exists)."""
-        return self.train_indices if self.train_indices is not None else list(range(self.n_views))
+        if self.train_indices is not None:
+            return self.train_indices
+        held_out = set(self.testing_views)
+        return [index for index in range(self.n_views) if index not in held_out]
 
     @property
     def testing_views(self) -> list[int]:
@@ -117,6 +120,40 @@ class SceneData:
             test_indices=None if self.test_indices is None else list(self.test_indices),
             bounds_hint=hint,
             name=self.name,
+        )
+
+    def subset(self, indices: list[int], name_suffix: str = "train") -> SceneData:
+        """Return a view-only scene with local all-training indices.
+
+        Stage-1 image fitting and 2D-to-3D lifting must never consume held-out views.  This
+        helper keeps all world-space priors/bounds but subsets every per-view value together,
+        avoiding the easy-to-miss leakage caused by merely changing ``train_indices``.
+        """
+        if not indices:
+            raise ValueError("scene subset cannot be empty")
+        if len(set(indices)) != len(indices) or any(i < 0 or i >= self.n_views for i in indices):
+            raise ValueError("scene subset indices are invalid or duplicated")
+
+        hint = None
+        if self.bounds_hint is not None:
+            hint = (self.bounds_hint[0], self.bounds_hint[1])
+        return SceneData(
+            images=[self.images[i] for i in indices],
+            cameras=[self.cameras[i] for i in indices],
+            view_names=(None if self.view_names is None else [self.view_names[i] for i in indices]),
+            points=self.points,
+            point_visibility=(
+                None
+                if self.point_visibility is None
+                else [self.point_visibility[i] for i in indices]
+            ),
+            masks=None if self.masks is None else [self.masks[i] for i in indices],
+            gt_depths=(None if self.gt_depths is None else [self.gt_depths[i] for i in indices]),
+            gt_gaussians=self.gt_gaussians,
+            train_indices=list(range(len(indices))),
+            test_indices=[],
+            bounds_hint=hint,
+            name=f"{self.name}-{name_suffix}",
         )
 
     def validate(self) -> None:

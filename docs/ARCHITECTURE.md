@@ -5,17 +5,19 @@
 ```
                     ┌────────────────────────────────────────────────┐
  images  ─────────► │ stage 1  rtgs.image2gs                         │
- (per view)         │   fit.py: N 2D gaussians per image             │
+ (per view)         │   fit.py: configurable compact start          │
+                    │   structsplat_backend.py: residual growth     │
                     │   renderer2d.py: differentiable accumulated    │
                     │   splatting (no sorting, GaussianImage-style)  │
                     └───────────────┬────────────────────────────────┘
                                     │ Gaussians2D per view (xy, cholesky cov, color, weight)
                     ┌───────────────▼────────────────────────────────┐
- cameras ─────────► │ stage 2  rtgs.lift   (three variants)          │
+ cameras ─────────► │ stage 2  rtgs.lift   (four variants)           │
  (COLMAP, JSON,     │   gradient.py: bounded ray depth+rot+scale     │
   or synthetic)     │     multi-view descent (color frozen) + merge  │
                     │   depth.py: monocular depth backend + footprint│
                     │     variance for the along-ray sigma           │
+                    │   hybrid.py: depth seed + bounded-ray descent   │
                     │   carve.py: voxel color-consistency carving,   │
                     │     ray-tunnel placement, moment-match merging │
                     └───────────────┬────────────────────────────────┘
@@ -34,33 +36,34 @@
 
 | Package | Responsibility |
 | --- | --- |
-| `rtgs/core` | Shared math and containers: `gaussians2d` (xy, Cholesky cov, color, weight), `gaussians3d` (means, quats, log-scales, opacity, SH; PLY/NPZ IO), `camera` (COLMAP-convention pinhole, project/unproject/rays), `sh` (real spherical harmonics deg ≤ 3), `metrics` (PSNR, SSIM). |
-| `rtgs/image2gs` | Stage 1. `renderer2d` performs sparse accumulated (sum) blending and exposes color-independent coverage; `fit` optimizes masked images with gradient-magnitude initialization. `adapters` converts native, StructSplat RS, and GaussianImage-style NPZ fields into the common Cholesky representation. |
-| `rtgs/lift` | Stage 2. `base` implements projection-consistent covariance lifting and depth-surface covariance. `gradient` bounds every optimized depth to its ray/object-volume intersection, regularizes depth and scale, and merges observations with conservative opacity. `depth` lifts raw metric or aligned inverse depth. `carve` uses real masks when present and otherwise color-independent Gaussian coverage. `merge` performs moment matching. Registry: `rtgs.lift.get_lifter(name)`. |
+| `rtgs/core` | Shared math and containers: `gaussians2d` (xy, Cholesky cov, color, weight), `gaussians3d` (means, quats, log-scales, opacity, SH; PLY/NPZ IO), `camera` (COLMAP-convention pinhole, project/unproject/rays), `sh` (real spherical harmonics deg ≤ 3), `metrics` (full, foreground, and foreground-crop PSNR/SSIM). |
+| `rtgs/image2gs` | Stage 1. `renderer2d` performs sparse accumulated (sum) blending and exposes color-independent coverage; `fit` optimizes foreground-cropped masked images with gradient-magnitude initialization. The optional, lazy `structsplat_backend` starts at a configurable count (640 by default) and uses residual/tensor growth until convergence or a separate configurable maximum. `adapters` converts native, StructSplat RS, and GaussianImage-style NPZ fields into the common Cholesky representation. |
+| `rtgs/lift` | Stage 2. `base` implements projection-consistent covariance lifting and depth-surface covariance. `gradient` bounds every optimized depth to its ray/object-volume intersection. `depth` lifts metric or aligned relative depth. `hybrid` seeds bounded rays with aligned depth, photometrically corrects them, and fuses by confidence/color-aware moments. `carve` uses real masks when present and otherwise color-independent Gaussian coverage. `merge` performs weighted moment matching. Registry: `rtgs.lift.get_lifter(name)`. |
 | `rtgs/depth` | Depth estimation behind the `DepthBackend` protocol: `mock`; permissive-allowlisted Depth Anything V2 Small through `transformers` (lazy import); robust scale/shift alignment to per-view COLMAP tracks; and object-bounds alignment when calibrated captures have no sparse points. |
-| `rtgs/render` | Rasterization behind the `Rasterizer` protocol: `torch_ref` (pure-PyTorch EWA splatting + depth-sorted alpha compositing; the correctness anchor, CPU-capable, fully differentiable) and `gsplat_backend` (CUDA, lazy import). `get_rasterizer("auto")` picks gsplat when CUDA is available. |
+| `rtgs/render` | Rasterization behind the `Rasterizer` protocol: `torch_ref` (pure-PyTorch EWA splatting + depth-sorted alpha compositing; the correctness anchor, CPU-capable, fully differentiable) and `gsplat_backend` (CUDA, lazy import). `get_rasterizer("auto", device=...)` selects gsplat only for CUDA data. |
 | `rtgs/optim` | Stage 3. `trainer` runs device-aware masked 3DGS optimization on training views, reports held-out views, and progressively enables SH bands. `density` consumes torch/gsplat screen gradients, preserves Adam state, and enforces a hard primitive budget. |
 | `rtgs/data` | `synthetic` builds ground-truthed tests; `colmap` parses text/binary reconstructions and observation tracks; `calibrated` loads the object-capture JSON format, applies OpenCV distortion correction to RGB/masks, preserves view ids, estimates object bounds, and creates an every-eighth train/test split. |
-| `rtgs/pipeline` | `pipeline.py` orchestrates stages 1–3 with timing and per-stage metrics; `compare_lifters` runs all variants on one scene. |
+| `rtgs/pipeline` | `pipeline.py` orchestrates stages 1–3 with timing and strict train-only initialization; held-out RGB is used only for reporting. `compare_lifters` shares train-view fits across variants. |
+| `rtgs/visualize` | Writes sampled calibrated-camera reference/init/final/error comparisons, a contact sheet, and an animated reconstruction preview (bounded to 48 frames). |
 | `rtgs/cli` | `cli.py`, argparse-based. |
 
-Registered lifters: `gradient`, `depth`, `carve` (plus `sfm` baseline that mimics classic
+Registered lifters: `gradient`, `depth`, `hybrid`, `carve` (plus `sfm` baseline that mimics classic
 SfM-point initialization for comparison, and `random` as the lower-bound baseline).
 
 ## CLI
 
 | Command | Purpose |
 | --- | --- |
-| `rtgs fit-images ...` | Stage 1 only: fit 2D gaussians to images in a directory, save `.npz` per image. |
+| `rtgs fit-images ...` | Stage 1 only: fit 2D gaussians, optionally growing StructSplat from `--initial-gaussians` to `--max-gaussians`; save `.npz` per image. |
 | `rtgs lift ...` | Stage 2 only: lift fitted 2D gaussians into a 3D gaussian set. |
 | `rtgs refine ...` | Stage 3 only: run 3DGS optimization from an initialization. |
-| `rtgs run ...` | End-to-end on synthetic, COLMAP, or calibrated-frame data; `--fits` skips stage 1 using native/StructSplat/GaussianImage NPZ files. |
+| `rtgs run ...` | End-to-end on synthetic, COLMAP, or calibrated-frame data; `--fits` skips stage 1 using native/StructSplat/GaussianImage NPZ files. `--out` also saves initialization/final PLY and visual previews. |
 | `rtgs render ...` | Render a saved gaussian set from a camera path / dataset cameras. |
 | `rtgs bench ...` | Delegates to `benchmarks/run.py` (variant comparison + micro-benchmarks). |
 
 ## Backend abstractions (hard rule: pluggable, CPU-first)
 
-- **Rasterizer** (`rtgs.render.base.Rasterizer`): `render(gaussians3d, camera, bg) -> RenderOutput(color, alpha, depth, means2d)`. `torch_ref` is authoritative for semantics; `gsplat_backend` must match it (parity test, `@pytest.mark.cuda`). The trainer and the `gradient` lifter only speak to this interface.
+- **Rasterizer** (`rtgs.render.base.Rasterizer`): `render(gaussians3d, camera, bg) -> RenderOutput(color, alpha, depth, means2d)`. `torch_ref` is authoritative for semantics; `gsplat_backend` must match it (parity test, `@pytest.mark.cuda`). Auto-selection respects the data device, including an explicit CPU request on a CUDA host. The trainer and ray lifters only speak to this interface.
 - **DepthBackend** (`rtgs.depth.base.DepthBackend`): `predict(image) -> DepthPrediction(depth, kind)` where kind ∈ {`metric`, `relative`, `affine`, `inverse`}. Non-metric predictions are aligned (`rtgs.depth.align`) before lifting.
 
 No module imports CUDA-only or heavyweight optional dependencies at import time; they are

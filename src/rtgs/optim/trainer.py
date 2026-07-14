@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 import torch
 
 from rtgs.core.gaussians3d import Gaussians3D
-from rtgs.core.metrics import psnr, ssim
+from rtgs.core.metrics import image_metrics, masked_crop, ssim
 from rtgs.data.scene import SceneData
 from rtgs.optim.density import DensityConfig, DensityController
 from rtgs.render.base import get_rasterizer
@@ -58,7 +58,7 @@ class Trainer:
         init = init.with_sh_degree(max(init.sh_degree, cfg.target_sh_degree)).to(device)
         gen = torch.Generator(device=device).manual_seed(cfg.seed)
         _, extent = scene.center_and_extent()
-        renderer = get_rasterizer(cfg.rasterizer)
+        renderer = get_rasterizer(cfg.rasterizer, device=device)
 
         params: dict[str, torch.Tensor] = {
             "means": init.means.detach().clone().requires_grad_(True),
@@ -84,6 +84,8 @@ class Trainer:
         controller = (
             DensityController(cfg.density, init.n, extent, device=device) if cfg.densify else None
         )
+        if controller is not None and init.n > cfg.density.max_gaussians:
+            params = controller.step(0, params, optimizer, generator=gen, force_budget=True)
 
         def build() -> Gaussians3D:
             return Gaussians3D(
@@ -130,7 +132,13 @@ class Trainer:
                 l1 = (out.color - target).abs().mean()
             loss = (1 - cfg.ssim_lambda) * l1
             if cfg.ssim_lambda > 0:
-                loss = loss + cfg.ssim_lambda * (1.0 - ssim(out.color, target_for_loss))
+                if cfg.use_masks and scene.masks is not None:
+                    pred_for_ssim = masked_crop(out.color, mask)
+                    target_for_ssim = masked_crop(target, mask)
+                else:
+                    pred_for_ssim = out.color
+                    target_for_ssim = target_for_loss
+                loss = loss + cfg.ssim_lambda * (1.0 - ssim(pred_for_ssim, target_for_ssim))
             optimizer.zero_grad()
             loss.backward()
 
@@ -166,23 +174,35 @@ class Trainer:
         renderer=None,
         indices: list[int] | None = None,
     ) -> float:
-        """Mean PSNR over held-out views when available, otherwise all views."""
-        renderer = renderer or get_rasterizer("auto")
+        """Mean foreground PSNR when masks exist, otherwise ordinary mean PSNR."""
+        metrics = Trainer.evaluate_metrics(scene, gaussians, renderer, indices)
+        return metrics["psnr_fg"] if "psnr_fg" in metrics else metrics["psnr"]
+
+    @staticmethod
+    def evaluate_metrics(
+        scene: SceneData,
+        gaussians: Gaussians3D,
+        renderer=None,
+        indices: list[int] | None = None,
+    ) -> dict[str, float]:
+        """Average explicit image metrics over a split, preferring held-out views."""
+        renderer = renderer or get_rasterizer("auto", device=gaussians.means.device)
         if indices is None:
             indices = scene.testing_views or list(range(scene.n_views))
         if not indices:
             raise ValueError("cannot evaluate an empty view split")
         device = gaussians.means.device
-        vals = []
+        totals: dict[str, float] = {}
         with torch.no_grad():
             for index in indices:
                 image = scene.images[index].to(device)
                 cam = scene.cameras[index].to(device)
                 out = renderer.render(gaussians, cam)
-                if scene.masks is not None:
-                    image = image * scene.masks[index].to(device)[..., None]
-                vals.append(psnr(out.color.clamp(0, 1), image))
-        return float(sum(vals) / len(vals))
+                mask = None if scene.masks is None else scene.masks[index].to(device)
+                values = image_metrics(out.color, image, mask)
+                for key, value in values.items():
+                    totals[key] = totals.get(key, 0.0) + value
+        return {key: value / len(indices) for key, value in totals.items()}
 
 
 def _resolve_device(requested: str) -> torch.device:

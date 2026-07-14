@@ -11,7 +11,7 @@ from rtgs.optim.trainer import Trainer
 
 
 def test_lifter_registry():
-    assert set(lifter_names()) == {"gradient", "depth", "carve", "sfm", "random"}
+    assert set(lifter_names()) == {"gradient", "depth", "hybrid", "carve", "sfm", "random"}
 
 
 def test_bilinear_sample_exact_at_centers():
@@ -108,6 +108,16 @@ def test_gradient_lifter_improves_over_iterations(tiny_scene, tiny_fits):
     first = sum(hist[:10]) / 10
     last = sum(hist[-10:]) / 10
     assert last < first * 0.9, f"photometric loss did not decrease: {first} -> {last}"
+
+
+def test_hybrid_lifter_uses_depth_prior_and_refines(tiny_scene, tiny_fits):
+    g2ds, _ = tiny_fits
+    lifter = get_lifter("hybrid", iterations=10, rasterizer="torch", seed=0)
+    g3d = lifter.lift(g2ds, tiny_scene)
+    assert g3d.n > 100
+    distance = torch.cdist(g3d.means, tiny_scene.gt_gaussians.means).min(dim=1).values
+    assert distance.median() < 0.25
+    assert len(lifter.history) == 10
 
 
 def test_carve_lifter_places_in_occupied_space(tiny_scene, tiny_fits):

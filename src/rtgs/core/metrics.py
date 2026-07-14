@@ -12,6 +12,60 @@ def psnr(pred: torch.Tensor, target: torch.Tensor) -> float:
     return float(-10.0 * torch.log10(mse))
 
 
+def masked_psnr(pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> float:
+    """Foreground-weighted PSNR without rewarding correctly black background pixels."""
+    if pred.shape != target.shape or pred.ndim != 3 or pred.shape[-1] != 3:
+        raise ValueError("pred and target must have matching (H, W, 3) shapes")
+    if mask.shape != pred.shape[:2]:
+        raise ValueError("mask must match the image height and width")
+    weights = mask.to(device=pred.device, dtype=pred.dtype).clamp(0, 1)
+    if not bool(weights.sum() > 0):
+        raise ValueError("mask has no foreground pixels")
+    denominator = weights.sum() * pred.shape[-1]
+    mse = (((pred - target) ** 2) * weights[..., None]).sum() / denominator
+    return float(-10.0 * torch.log10(mse.clamp_min(1e-12)))
+
+
+def masked_crop(
+    image: torch.Tensor, mask: torch.Tensor, margin_fraction: float = 0.05
+) -> torch.Tensor:
+    """Mask an image and crop it to the foreground bounding box plus a small margin."""
+    if mask.shape != image.shape[:2]:
+        raise ValueError("mask must match the image height and width")
+    foreground = mask > 0.5
+    if not bool(foreground.any()):
+        raise ValueError("mask has no foreground pixels")
+    yy, xx = torch.where(foreground)
+    height, width = image.shape[:2]
+    margin = max(1, round(max(height, width) * margin_fraction))
+    y0 = max(0, int(yy.min()) - margin)
+    y1 = min(height, int(yy.max()) + 1 + margin)
+    x0 = max(0, int(xx.min()) - margin)
+    x1 = min(width, int(xx.max()) + 1 + margin)
+    masked = image * mask.to(image).clamp(0, 1)[..., None]
+    return masked[y0:y1, x0:x1]
+
+
+def image_metrics(
+    pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor | None = None
+) -> dict[str, float]:
+    """Return explicit full-canvas and foreground-aware image quality metrics."""
+    pred = pred.clamp(0, 1)
+    target = target.clamp(0, 1)
+    if mask is None:
+        return {"psnr": psnr(pred, target), "ssim": float(ssim(pred, target))}
+    mask = mask.to(pred).clamp(0, 1)
+    pred_crop = masked_crop(pred, mask)
+    target_crop = masked_crop(target, mask)
+    return {
+        # Full is retained as a diagnostic, never as the masked-scene headline metric.
+        "psnr_full": psnr(pred, target * mask[..., None]),
+        "psnr_fg": masked_psnr(pred, target, mask),
+        "psnr_crop": psnr(pred_crop, target_crop),
+        "ssim_crop": float(ssim(pred_crop, target_crop)),
+    }
+
+
 def _gaussian_window(size: int, sigma: float, device: torch.device) -> torch.Tensor:
     coords = torch.arange(size, dtype=torch.float32, device=device) - (size - 1) / 2
     g = torch.exp(-(coords**2) / (2 * sigma**2))

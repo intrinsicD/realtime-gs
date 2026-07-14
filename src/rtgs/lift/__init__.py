@@ -10,10 +10,12 @@ from rtgs.lift.baselines import RandomLifter, SfMLifter
 from rtgs.lift.carve import CarveLifter
 from rtgs.lift.depth import DepthLifter
 from rtgs.lift.gradient import GradientLifter
+from rtgs.lift.hybrid import HybridLifter
 
 _LIFTERS = {
     "gradient": GradientLifter,
     "depth": DepthLifter,
+    "hybrid": HybridLifter,
     "carve": CarveLifter,
     "sfm": SfMLifter,
     "random": RandomLifter,
@@ -36,6 +38,7 @@ __all__ = [
     "CarveLifter",
     "DepthLifter",
     "GradientLifter",
+    "HybridLifter",
     "Lifter",
     "RandomLifter",
     "SfMLifter",

@@ -55,7 +55,15 @@ def run_pipeline(
     scene.validate()
     device = _resolve_device(config.device)
     scene = scene.to(device)
+    train_indices = scene.training_views
+    train_scene = scene.subset(train_indices)
     if gaussians2d is not None:
+        if len(gaussians2d) == scene.n_views:
+            gaussians2d = [gaussians2d[i] for i in train_indices]
+        elif len(gaussians2d) != train_scene.n_views:
+            raise ValueError(
+                "precomputed 2D fits must cover either every scene view or only training views"
+            )
         gaussians2d = [gaussian.to(device) for gaussian in gaussians2d]
     timings: dict = {}
     metrics: dict = {}
@@ -64,7 +72,10 @@ def run_pipeline(
     fit_histories: list[dict] = []
     if gaussians2d is None:
         gaussians2d, fit_histories = fit_views(
-            scene.images, config.fit, seed=config.seed, masks=scene.masks
+            train_scene.images,
+            config.fit,
+            seed=config.seed,
+            masks=train_scene.masks,
         )
         metrics["fit_psnr_mean"] = sum(h["final_psnr"] for h in fit_histories) / len(fit_histories)
     _sync(device)
@@ -72,11 +83,11 @@ def run_pipeline(
 
     t1 = time.perf_counter()
     lifter = get_lifter(config.lifter, **config.lifter_kwargs)
-    init = lifter.lift(gaussians2d, scene)
+    init = lifter.lift(gaussians2d, train_scene)
     _sync(device)
     timings["lift"] = time.perf_counter() - t1
     metrics["init_n_gaussians"] = init.n
-    metrics["init_psnr"] = Trainer.evaluate(scene, init)
+    _record_evaluation_metrics(metrics, "init", scene, init)
 
     refined = init
     train_history: dict = {}
@@ -87,7 +98,7 @@ def run_pipeline(
         _sync(device)
         timings["refine"] = time.perf_counter() - t2
         metrics["final_n_gaussians"] = refined.n
-        metrics["final_psnr"] = Trainer.evaluate(scene, refined)
+        _record_evaluation_metrics(metrics, "final", scene, refined)
 
     timings["total"] = time.perf_counter() - t0
     return PipelineResult(
@@ -118,9 +129,10 @@ def compare_lifters(
 
     device = _resolve_device(config.device)
     scene = scene.to(device)
+    train_scene = scene.subset(scene.training_views)
     fit_started = time.perf_counter()
     gaussians2d, fit_histories = fit_views(
-        scene.images, config.fit, seed=config.seed, masks=scene.masks
+        train_scene.images, config.fit, seed=config.seed, masks=train_scene.masks
     )
     _sync(device)
     shared_fit_seconds = time.perf_counter() - fit_started
@@ -137,6 +149,7 @@ def compare_lifters(
             seed=config.seed,
         )
         results[name] = run_pipeline(scene, cfg, gaussians2d=gaussians2d)
+        results[name].fit_histories = fit_histories
         results[name].timings["fit"] = shared_fit_seconds
         results[name].timings["total"] += shared_fit_seconds
         results[name].metrics["fit_psnr_mean"] = mean_fit_psnr
@@ -147,6 +160,24 @@ def _sync(device: torch.device) -> None:
     """Synchronize accelerators before recording wall-clock timings."""
     if device.type == "cuda":
         torch.cuda.synchronize(device)
+
+
+def _record_evaluation_metrics(
+    output: dict, prefix: str, scene: SceneData, gaussians: Gaussians3D
+) -> None:
+    """Store strict test metrics plus diagnostic train metrics with unambiguous names."""
+    test_indices = scene.testing_views
+    primary_indices = test_indices or scene.training_views
+    split = "test" if test_indices else "train"
+    primary = Trainer.evaluate_metrics(scene, gaussians, indices=primary_indices)
+    for name, value in primary.items():
+        output[f"{prefix}_{name}_{split}"] = value
+    headline = primary["psnr_fg"] if "psnr_fg" in primary else primary["psnr"]
+    output[f"{prefix}_psnr"] = headline
+    if test_indices:
+        train = Trainer.evaluate_metrics(scene, gaussians, indices=scene.training_views)
+        for name, value in train.items():
+            output[f"{prefix}_{name}_train"] = value
 
 
 def _resolve_device(requested: str) -> torch.device:

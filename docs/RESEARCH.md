@@ -59,17 +59,21 @@ before anything license-sensitive.
   MIT) predicts a full 2D gaussian set in one pass (~10x less wall-clock than optimizing);
   Fast 2DGS ([2512.12774](https://arxiv.org/abs/2512.12774)) similar. Future stage-1
   speedup path.
-- **"StructSplat" clarification**: the only paper by that name
-  ([2606.28321](https://arxiv.org/abs/2606.28321)) is *feed-forward 3D reconstruction from
-  uncalibrated sparse views* — not a 2D image representation. Closest 2D works:
-  Structure-Guided Allocation ([2512.24018](https://arxiv.org/abs/2512.24018), gradient-aligned
-  orientation regularization) and SGI (CVPR 2026, [2603.07789](https://arxiv.org/abs/2603.07789)).
+- **Local StructSplat implementation** (`~/Documents/structsplat`, **MIT**) is a 2D image
+  representation despite the name collision with an unrelated paper. It combines a structure
+  tensor, feature-aware anisotropic weighted-sample-elimination placement, normalized weighted
+  splatting, and residual-driven density growth. The low-budget control consumed here uses
+  `aniso_onedge`; StructSplat's broader evidence currently prefers `quadtree_wse` at 5k and
+  `aniso_onedge` around 2k, so the policy remains configurable rather than universal.
 - **Do not vendor**: LIG (GPL-3.0), MiraGe (INRIA non-commercial license via GaMeS).
   MiraGe ([2410.01521](https://arxiv.org/abs/2410.01521)) is conceptually interesting:
   flat gaussians in 3D rendered by the 3DGS renderer for a single image.
-- **Budget rule of thumb** (from GaussianImage/Image-GS numbers): ~15-30k gaussians per
-  512x512 image for 36-40 dB; fitting seconds/image on GPU with error-driven init and
-  early stopping.
+- **Budget is task- and resolution-dependent, not a fixed cap.** The local max-side-160,
+  640-budget StructSplat control reached 27.70 dB, while adaptive growth to 952 reached 28.67 dB.
+  On Janelle at 333×288, a fixed 640 start was already enough for the strongest measured 3D
+  initialization; 320 converged to essentially the same final held-out result after 3D density
+  control. Keep the initial count and maximum independent; large 15–30k/image compression
+  budgets are not justified for this initialization objective.
 
 ## 3. Depth estimation & feed-forward geometry (variant B backends)
 
@@ -173,7 +177,8 @@ Reduced-3DGS redundancy tests are useful merge-candidate selectors. Implemented 
    amplitude factored as `weight * color`. Accumulated amplitude is **not identifiable as
    alpha opacity**, so lifting uses an independent low opacity prior and fuses repeated
    observations without union-inflating it. L2 loss; gradient-magnitude init at 70/30 mix
-   (Image-GS). Error-driven progressive addition is roadmap M3.
+   (Image-GS). The optional StructSplat backend adds feature-aware initialization and
+   residual-driven progressive growth from a configurable initial count to a separate maximum.
 3. **Missing-dimension covariance** (variant B): lateral `Sigma_lat = (z/f)^2 * Sigma_2D`
    (pixelSplat's footprint prior generalized to anisotropic gaussians); along-ray
    `sigma_ray^2 = grad(D)^T Sigma_2D grad(D) + (z/f)^2 s_min^2` (depth slant + footprint
@@ -189,5 +194,6 @@ Reduced-3DGS redundancy tests are useful merge-candidate selectors. Implemented 
    reference stack; on GPU, gsplat strategies (MCMC first — least init-sensitive) are the
    intended replacements. Given EDGS and Desiatov-Sattler, evaluate with densification
    *disabled or shortened* — that is where the speed win lives (roadmap M3).
-7. **Evaluation**: synthetic ground-truthed scenes for CI-scale claims; §7 protocol for
-   real claims (roadmap M2).
+7. **Evaluation**: stage 1 and lifting consume training views only. Held-out images are used for
+   explicit full-canvas, foreground, foreground-crop PSNR, and crop SSIM; synthetic
+   ground-truthed scenes remain the CI-scale check, and §7 remains the publication protocol.

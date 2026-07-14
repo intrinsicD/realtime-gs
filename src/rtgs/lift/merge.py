@@ -17,17 +17,39 @@ from __future__ import annotations
 import torch
 
 from rtgs.core.gaussians3d import Gaussians3D
+from rtgs.core.sh import sh_to_rgb
 
 
-def merge_by_voxel(g: Gaussians3D, voxel_size: float, opacity_mode: str = "union") -> Gaussians3D:
-    """Merge all gaussians that fall into the same voxel cell; singletons pass through."""
+def merge_by_voxel(
+    g: Gaussians3D,
+    voxel_size: float,
+    opacity_mode: str = "union",
+    component_weights: torch.Tensor | None = None,
+    color_bin_size: float | None = None,
+) -> Gaussians3D:
+    """Merge compatible observations in one voxel using confidence-weighted moments.
+
+    ``color_bin_size`` optionally augments the spatial hash with quantized DC color.  This avoids
+    fusing front/back surfaces that merely land in the same coarse voxel.
+    """
     if g.n == 0:
         return g
     keys = torch.floor(g.means / voxel_size).long()
+    if color_bin_size is not None:
+        if color_bin_size <= 0:
+            raise ValueError("color_bin_size must be positive")
+        colors = sh_to_rgb(g.sh[:, 0]).clamp(0, 1)
+        color_keys = torch.floor(colors / color_bin_size).long()
+        keys = torch.cat([keys, color_keys], dim=-1)
     _, group = torch.unique(keys, dim=0, return_inverse=True)
     n_groups = int(group.max()) + 1
 
-    w = (g.opacity * g.scales.prod(dim=-1)).clamp_min(1e-12)  # (N,)
+    w = g.opacity * g.scales.prod(dim=-1)
+    if component_weights is not None:
+        if component_weights.shape != (g.n,):
+            raise ValueError("component_weights must have shape (N,)")
+        w = w * component_weights.to(w).clamp_min(0)
+    w = w.clamp_min(1e-12)  # (N,)
     w_sum = w.new_zeros(n_groups).index_add_(0, group, w)
 
     means_w = g.means.new_zeros(n_groups, 3).index_add_(0, group, g.means * w[:, None])

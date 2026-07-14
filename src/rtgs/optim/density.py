@@ -48,6 +48,10 @@ class DensityController:
         scene_extent: float,
         device: torch.device | str = "cpu",
     ):
+        if config.every <= 0:
+            raise ValueError("density every must be positive")
+        if config.max_gaussians <= 0:
+            raise ValueError("density max_gaussians must be positive")
         self.cfg = config
         self.extent = scene_extent
         self.grad_accum = torch.zeros(n_gaussians, device=device)
@@ -78,26 +82,28 @@ class DensityController:
         params: dict[str, torch.Tensor],
         optimizer: torch.optim.Adam,
         generator: torch.Generator | None = None,
+        force_budget: bool = False,
     ) -> dict[str, torch.Tensor]:
         """Run one clone/split/prune (+optional opacity reset) round if scheduled."""
         cfg = self.cfg
-        if iteration < cfg.start_iter or iteration > cfg.stop_iter or iteration % cfg.every != 0:
+        n = params["means"].shape[0]
+        scheduled = cfg.start_iter <= iteration <= cfg.stop_iter and iteration % cfg.every == 0
+        if not scheduled and not (force_budget and n > cfg.max_gaussians):
             return params
 
-        n = params["means"].shape[0]
         avg_grad = self.grad_accum / self.count.clamp_min(1.0)
         scales = params["log_scales"].detach().exp()
         opacity = torch.sigmoid(params["opacity_logit"].detach())
         scale_max = scales.max(dim=-1).values
 
         densify = (avg_grad > cfg.grad_threshold) & (self.count > 0)
-        if n >= cfg.max_gaussians:
-            densify = torch.zeros_like(densify)
         is_large = scale_max > cfg.split_scale_frac * self.extent
         clone_mask = densify & ~is_large
         split_mask = densify & is_large
-        prune_mask = (opacity < cfg.prune_opacity) | (
-            scale_max > cfg.prune_scale_frac * self.extent
+        prune_mask = (
+            (opacity < cfg.prune_opacity) | (scale_max > cfg.prune_scale_frac * self.extent)
+            if scheduled
+            else torch.zeros_like(densify)
         )
         # Dense transferred initializations can already exceed the configured budget. Cull the
         # least significant remaining splats on the first scheduled round instead of preserving
@@ -109,6 +115,11 @@ class DensityController:
             prune_mask[eligible[torch.topk(significance, budget_excess, largest=False).indices]] = (
                 True
             )
+        # A row selected for pruning must not also be cloned/split.  Counting such an overlap as
+        # one unit of growth is wrong: after removing the parent, a split appends two children
+        # and can transiently exceed the hard cap (and the intended VRAM bound).
+        clone_mask &= ~prune_mask
+        split_mask &= ~prune_mask
         # Each clone or split grows the surviving set by one. Respect the hard primitive
         # budget even when one density round has many candidates.
         growth_budget = max(cfg.max_gaussians - n + int(prune_mask.sum()), 0)
@@ -148,6 +159,10 @@ class DensityController:
         new_params = _edit_params(optimizer, params, keep_mask, extras)
 
         n_new = new_params["means"].shape[0]
+        if n_new > cfg.max_gaussians:
+            raise RuntimeError(
+                f"density control violated max_gaussians: {n_new} > {cfg.max_gaussians}"
+            )
         self.grad_accum = torch.zeros(n_new, device=params["means"].device)
         self.count = torch.zeros(n_new, device=params["means"].device)
         self.stats.append(

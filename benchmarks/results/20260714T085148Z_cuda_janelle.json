@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "timestamp": "2026-07-14T08:51:48+00:00",
+    "device": "cuda",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "torch": "2.12.0+cu132",
+    "cuda": "13.2",
+    "gsplat": "1.5.3",
+    "git_rev": "aaef37c+working-tree",
+    "scene": "2025_03_07_stage_with_fabric/frame_00008",
+    "config": {
+      "views": 26,
+      "train_views": 23,
+      "test_views": 3,
+      "downscale": 16,
+      "resolution": [333, 288],
+      "fit_iterations": 300,
+      "refine_iterations": 1000,
+      "carve_grid_res": 96,
+      "density_stop": 300,
+      "max_3d_gaussians": 15000,
+      "seed": 0
+    },
+    "notes": "Strict train-only fitting/lifting; metrics use held-out masked views. CUDA reductions are not bit-exact. Source run artifacts are under runs/janelle_frame00008_cuda_d16/."
+  },
+  "results": {
+    "stage1_structsplat_fixed_320": {
+      "n_gaussians_per_image": 320,
+      "mean_foreground_psnr": 27.3468,
+      "mean_crop_psnr": 35.4113,
+      "wall_seconds_23_views": 13.4473
+    },
+    "stage1_structsplat_fixed_640": {
+      "n_gaussians_per_image": 640,
+      "mean_foreground_psnr": 28.5980,
+      "mean_crop_psnr": 39.0408,
+      "wall_seconds_23_views": 14.6743
+    },
+    "stage1_structsplat_adaptive_640_to_2000": {
+      "n_gaussians_per_image": 2000,
+      "mean_foreground_psnr": 29.4114,
+      "mean_crop_psnr": 45.2422,
+      "wall_seconds_23_views": 15.0115
+    },
+    "stage1_native_fixed_640": {
+      "n_gaussians_per_image": 640,
+      "mean_foreground_psnr": 25.6593,
+      "mean_crop_psnr": 19.7738,
+      "wall_seconds_23_views": 47.2926
+    },
+    "e2e_structsplat_fixed640_carve_density_cap15k": {
+      "init_n_gaussians": 3015,
+      "init_foreground_psnr_test": 21.982415,
+      "final_n_gaussians": 15000,
+      "final_foreground_psnr_test": 25.666557,
+      "final_crop_psnr_test": 32.076795,
+      "final_crop_ssim_test": 0.960424,
+      "total_seconds_excluding_precomputed_fit": 3.938915
+    },
+    "e2e_structsplat_fixed320_carve_density_cap15k": {
+      "init_n_gaussians": 1846,
+      "init_foreground_psnr_test": 21.455001,
+      "final_n_gaussians": 15000,
+      "final_foreground_psnr_test": 25.495006,
+      "final_crop_psnr_test": 31.886014,
+      "final_crop_ssim_test": 0.959831,
+      "total_seconds_excluding_precomputed_fit": 3.880207
+    },
+    "e2e_native_fixed640_carve_density_cap15k": {
+      "init_n_gaussians": 3613,
+      "init_foreground_psnr_test": 20.162227,
+      "final_n_gaussians": 15000,
+      "final_foreground_psnr_test": 25.485394,
+      "final_crop_psnr_test": 31.919751,
+      "final_crop_ssim_test": 0.960303,
+      "total_seconds_excluding_precomputed_fit": 3.874536
+    },
+    "e2e_adaptive2000_carve_density_cap15k": {
+      "init_n_gaussians": 5473,
+      "init_foreground_psnr_test": 21.323860,
+      "final_n_gaussians": 15000,
+      "final_foreground_psnr_test": 25.755605,
+      "final_crop_psnr_test": 32.177478,
+      "final_crop_ssim_test": 0.960779,
+      "total_seconds_excluding_precomputed_fit": 4.081736
+    },
+    "e2e_adaptive2000_carve_no_density": {
+      "init_n_gaussians": 5473,
+      "init_foreground_psnr_test": 21.323860,
+      "final_n_gaussians": 5473,
+      "final_foreground_psnr_test": 25.597727,
+      "final_crop_psnr_test": 31.987421,
+      "final_crop_ssim_test": 0.959933,
+      "total_seconds_excluding_precomputed_fit": 3.625459
+    },
+    "e2e_adaptive2000_carve_unrestricted_density": {
+      "init_n_gaussians": 5473,
+      "init_foreground_psnr_test": 21.323860,
+      "final_n_gaussians": 70485,
+      "final_foreground_psnr_test": 25.035636,
+      "final_crop_psnr_test": 31.388526,
+      "final_crop_ssim_test": 0.951273,
+      "total_seconds_excluding_precomputed_fit": 5.638389
+    },
+    "e2e_adaptive2000_depth_density_cap15k": {
+      "init_n_gaussians": 19143,
+      "init_foreground_psnr_test": 12.682436,
+      "final_n_gaussians": 15000,
+      "final_foreground_psnr_test": 23.197102,
+      "final_crop_psnr_test": 29.398080,
+      "final_crop_ssim_test": 0.921190,
+      "total_seconds_excluding_precomputed_fit": 5.997258
+    },
+    "e2e_adaptive2000_hybrid100_density_cap15k": {
+      "init_n_gaussians": 24607,
+      "init_foreground_psnr_test": 20.225672,
+      "final_n_gaussians": 15000,
+      "final_foreground_psnr_test": 23.410725,
+      "final_crop_psnr_test": 29.618263,
+      "final_crop_ssim_test": 0.930688,
+      "total_seconds_excluding_precomputed_fit": 5.960502
+    },
+    "e2e_adaptive2000_depth_unrestricted_density": {
+      "init_n_gaussians": 19143,
+      "init_foreground_psnr_test": 12.682436,
+      "final_n_gaussians": 100000,
+      "final_foreground_psnr_test": 19.074135,
+      "final_crop_psnr_test": 25.115652,
+      "final_crop_ssim_test": 0.854644,
+      "total_seconds_excluding_precomputed_fit": 7.356200
+    },
+    "e2e_adaptive2000_hybrid100_unrestricted_density": {
+      "init_n_gaussians": 24537,
+      "init_foreground_psnr_test": 20.197987,
+      "final_n_gaussians": 100000,
+      "final_foreground_psnr_test": 18.443094,
+      "final_crop_psnr_test": 24.504087,
+      "final_crop_ssim_test": 0.864405,
+      "total_seconds_excluding_precomputed_fit": 7.903005
+    }
+  }
+}

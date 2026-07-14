@@ -42,6 +42,9 @@ def load_gaussians2d(path: str | Path, source: str = "auto") -> Gaussians2D:
         scales = _tensor(data["log_scales"]).exp()
     else:
         scales = _first(data, "scales", "scale", "scaling")
+    if source == "structsplat" and "filter_variance" in keys:
+        filter_variance = _tensor(data["filter_variance"]).reshape(-1, 1).clamp_min(0)
+        scales = torch.sqrt(scales.square() + filter_variance)
     angles = _first(data, "rotations", "rotation", "angles", "angle").reshape(-1)
     covariance = _rs_covariance(scales, angles)
     eye = torch.eye(2, dtype=covariance.dtype, device=covariance.device)

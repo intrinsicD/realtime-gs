@@ -13,7 +13,7 @@ from dataclasses import dataclass
 import torch
 
 from rtgs.core.gaussians2d import Gaussians2D
-from rtgs.core.metrics import psnr
+from rtgs.core.metrics import masked_psnr, psnr
 from rtgs.image2gs.renderer2d import render_gaussians_2d
 
 # Minimum Cholesky diagonal in pixels; keeps covariances well-conditioned.
@@ -24,8 +24,16 @@ _MIN_DIAG = 0.3
 class FitConfig:
     """Hyperparameters for per-image 2D gaussian fitting."""
 
-    n_gaussians: int = 512
+    # Initial count (and the fixed count for the native backend). StructSplat can grow this with
+    # convergence-aware density control up to the independently configurable maximum.
+    n_gaussians: int = 640
+    max_gaussians: int | None = 5_000
     iterations: int = 300
+    backend: str = "native"  # native or structsplat (optional MIT dependency)
+    adaptive_density: bool = True
+    growth_waves: int = 5
+    relocate_fraction: float = 0.0
+    structsplat_renderer: str = "auto"
     lr: float = 1e-2
     # Fraction of position-sampling probability taken from the gradient magnitude; the
     # rest is uniform (Image-GS uses a 0.3 uniform floor).
@@ -99,6 +107,15 @@ def fit_image(
     (iteration, value)) and 'final_psnr'.
     """
     config = config or FitConfig()
+    if config.backend == "structsplat":
+        from rtgs.image2gs.structsplat_backend import fit_image_structsplat
+
+        return fit_image_structsplat(image, config, seed=seed, mask=mask)
+    if config.backend != "native":
+        raise ValueError("fit backend must be 'native' or 'structsplat'")
+    xy_offset = image.new_zeros(2)
+    if mask is not None:
+        image, mask, xy_offset = _crop_to_mask(image, mask)
     h, w = image.shape[:2]
     target = image
     if mask is not None:
@@ -142,7 +159,11 @@ def fit_image(
     for it in range(config.iterations):
         opt.zero_grad()
         rendered = render_gaussians_2d(build(), h, w, row_chunk=config.row_chunk)
-        loss = torch.nn.functional.mse_loss(rendered, target)
+        if mask is None:
+            loss = torch.nn.functional.mse_loss(rendered, target)
+        else:
+            weights = 0.1 + 0.9 * mask.to(rendered).clamp(0, 1)
+            loss = (((rendered - target) ** 2) * weights[..., None]).mean()
         loss.backward()
         opt.step()
         sched.step()
@@ -165,7 +186,13 @@ def fit_image(
     result = build().detach()
     with torch.no_grad():
         final = render_gaussians_2d(result, h, w, row_chunk=config.row_chunk)
-        history["final_psnr"] = psnr(final.clamp(0, 1), target)
+        history["final_psnr_full"] = psnr(final.clamp(0, 1), target)
+        history["final_psnr"] = (
+            history["final_psnr_full"]
+            if mask is None
+            else masked_psnr(final.clamp(0, 1), image, mask)
+        )
+    result.xy += xy_offset
     return result, history
 
 
@@ -183,3 +210,21 @@ def fit_views(
         results.append(g)
         histories.append(hist)
     return results, histories
+
+
+def _crop_to_mask(
+    image: torch.Tensor, mask: torch.Tensor, margin_fraction: float = 0.05
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Crop a masked fit to useful pixels and return its original-image xy offset."""
+    if mask.shape != image.shape[:2]:
+        raise ValueError("mask size does not match image")
+    foreground = torch.nonzero(mask > 0.5)
+    if foreground.numel() == 0:
+        raise ValueError("cannot fit an empty foreground mask")
+    height, width = image.shape[:2]
+    margin = max(2, round(max(height, width) * margin_fraction))
+    y0 = max(0, int(foreground[:, 0].min()) - margin)
+    y1 = min(height, int(foreground[:, 0].max()) + 1 + margin)
+    x0 = max(0, int(foreground[:, 1].min()) - margin)
+    x1 = min(width, int(foreground[:, 1].max()) + 1 + margin)
+    return image[y0:y1, x0:x1], mask[y0:y1, x0:x1], image.new_tensor([x0, y0])

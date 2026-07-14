@@ -18,6 +18,8 @@ primitives, we:
    - **C · `carve`** — a voxel color-consistency volume (space-carving flavor) scores each
      gaussian's ray; gaussians from different views that land in the same cell are merged
      by moment matching.
+   - **D · `hybrid`** — aligned monocular depth initializes each bounded ray, then a short
+     multi-view photometric optimization corrects depth before confidence/color-aware fusion.
 3. **Refine with standard 3DGS optimization** (density control included) from this dense,
    structured initialization — the hypothesis is that far fewer iterations are needed.
 
@@ -29,28 +31,42 @@ on GPU; a pure-PyTorch reference rasterizer keeps the whole pipeline testable on
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e '.[dev]' --extra-index-url https://download.pytorch.org/whl/cpu
-# On a GPU machine additionally: .venv/bin/pip install -e '.[cuda,depth]'
+# On a GPU machine use a CUDA PyTorch wheel, then install .[cuda,depth,dev].
 
 .venv/bin/rtgs run --scene synthetic --lifter depth   # end-to-end on a synthetic scene
 .venv/bin/rtgs bench --quick                          # compare all lifting variants
 ./scripts/verify.sh                                   # lint + tests + docs-sync
 ```
 
-For the calibrated object captures in the Janelle dataset, point ``--scene`` at one frame.
+For the calibrated object captures in the Janelle dataset, point `--scene` at one frame.
 The loader finds `calibration_dome.json`, undistorts RGB and masks, uses every eighth camera as
 held-out evaluation, and keeps evenly distributed cameras when `--max-images` is set:
 
 ```bash
-.venv/bin/rtgs run \
-  --scene ~/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 \
-  --downscale 4 --device cuda --lifter gradient \
-  --n-gaussians 15000 --fit-iterations 1000 --refine-iters 7000 --out runs/janelle-gradient
+python3 -m venv .venv-cuda
+.venv-cuda/bin/pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cu132
+.venv-cuda/bin/pip install -e '.[cuda,depth,dev]'
+.venv-cuda/bin/pip install -e ~/Documents/structsplat   # optional MIT stage-1 backend
 
-# Skip native stage 1 and consume per-image StructSplat/GaussianImage-style NPZ files.
-.venv/bin/rtgs run --scene ~/Dropbox/Work/Janelle/karate/frame_00005 \
-  --downscale 4 --device cuda --fits runs/structsplat \
-  --fit-format structsplat --lifter depth --refine-iters 7000 --out runs/janelle-depth
+.venv-cuda/bin/rtgs run \
+  --scene ~/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 \
+  --downscale 16 --device cuda --fit-backend structsplat \
+  --initial-gaussians 640 --max-gaussians 2000 --fit-iterations 300 \
+  --lifter carve --lifter-args '{"grid_res":96}' \
+  --refine-iters 1000 --densify-stop 300 --max-3d-gaussians 15000 \
+  --out runs/janelle-carve
+
+# Fixed 640 control: 640 is the start, not a hard-coded ceiling.
+.venv-cuda/bin/rtgs run --scene ~/Dropbox/Work/Janelle/karate/frame_00005 \
+  --device cuda --fit-backend structsplat --initial-gaussians 640 \
+  --max-gaussians 640 --no-adaptive-density --lifter hybrid --out runs/janelle-hybrid
 ```
+
+`--initial-gaussians` and `--max-gaussians` are independent. StructSplat can grow from any
+configured start until convergence or the maximum; the native backend keeps the initial count
+fixed. Every `rtgs run --out ...` writes `gaussians_init.ply`, `gaussians.ply`, sampled
+calibrated-camera reference/init/final/error images, `reconstruction_contact_sheet.png`, and
+`reconstruction.gif` for visual inspection.
 
 The default depth checkpoint is the Apache-2.0 Depth Anything V2 Small model. Other checkpoint
 names are rejected unless their code and weights have been explicitly license-verified.
@@ -69,5 +85,6 @@ names are rejected unless their code and weights have been explicitly license-ve
 ## Status
 
 Early research code. The full pipeline runs end-to-end on synthetic scenes, COLMAP datasets, and
-the calibrated object-capture JSON format on CPU. GPU fast paths (gsplat rasterization and Depth
-Anything V2) activate automatically when their dependencies are installed.
+the calibrated object-capture JSON format. The gsplat CUDA path, optional StructSplat CUDA fitter,
+and Depth Anything V2 Small backend have been exercised on an RTX 4090; CPU remains the reference
+and CI path.

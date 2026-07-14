@@ -101,3 +101,47 @@ def test_density_controller_enforces_budget_on_dense_init():
     )
     new_params = controller.step(1, params, optimizer)
     assert new_params["means"].shape[0] == 3
+
+
+def test_trainer_enforces_initial_budget_before_scheduled_density():
+    scene = make_synthetic_scene(n_gaussians=5, n_cameras=3, image_size=16, seed=0)
+    init = make_gt_gaussians(n=12, seed=1)
+    config = TrainConfig(
+        iterations=0,
+        rasterizer="torch",
+        density=DensityConfig(start_iter=60, every=40, max_gaussians=5),
+    )
+    refined, history = Trainer(config).train(scene, init)
+    assert refined.n == 5
+    assert history["density_stats"][0]["iteration"] == 0
+
+
+def test_density_pruned_rows_are_never_split_past_budget():
+    controller = DensityController(
+        DensityConfig(
+            start_iter=1,
+            every=1,
+            grad_threshold=0.0,
+            split_scale_frac=0.001,
+            prune_opacity=0.1,
+            max_gaussians=4,
+        ),
+        4,
+        scene_extent=1.0,
+    )
+    params = {
+        "means": torch.randn(4, 3, requires_grad=True),
+        "quats": torch.tensor([[1.0, 0.0, 0.0, 0.0]] * 4, requires_grad=True),
+        "log_scales": torch.full((4, 3), -3.0, requires_grad=True),
+        "opacity_logit": torch.tensor([-10.0, -10.0, 1.0, 1.0], requires_grad=True),
+        "sh": torch.zeros(4, 1, 3, requires_grad=True),
+    }
+    optimizer = torch.optim.Adam(
+        [{"params": [param], "lr": 1e-2, "name": name} for name, param in params.items()]
+    )
+    controller.grad_accum = torch.ones(4)
+    controller.count = torch.ones(4)
+    new_params = controller.step(1, params, optimizer)
+    assert new_params["means"].shape[0] <= 4
+    assert controller.stats[-1]["pruned"] == 2
+    assert controller.stats[-1]["split"] == 2

@@ -8,7 +8,7 @@ import torch
 from rtgs.core.camera import Camera
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.gaussians3d import Gaussians3D, quat_to_rotmat, rotmat_to_quat
-from rtgs.core.metrics import psnr, ssim
+from rtgs.core.metrics import image_metrics, masked_psnr, psnr, ssim
 from rtgs.core.sh import eval_sh, num_sh_bases, rgb_to_sh, sh_to_rgb
 
 
@@ -135,6 +135,19 @@ def test_ssim_differentiable():
     b = torch.rand(16, 16, 3)
     (1 - ssim(a, b)).backward()
     assert a.grad is not None and torch.isfinite(a.grad).all()
+
+
+def test_foreground_metrics_do_not_reward_black_canvas():
+    target = torch.zeros(32, 32, 3)
+    target[12:20, 12:20] = 1.0
+    mask = torch.zeros(32, 32)
+    mask[12:20, 12:20] = 1.0
+    pred = torch.zeros_like(target)
+    values = image_metrics(pred, target, mask)
+    assert values["psnr_full"] > values["psnr_fg"] + 10.0
+    assert values["psnr_fg"] == masked_psnr(pred, target, mask)
+    with pytest.raises(ValueError, match="no foreground"):
+        image_metrics(pred, target, torch.zeros_like(mask))
 
 
 def test_shape_validation():

@@ -1,5 +1,7 @@
 """End-to-end pipeline: all lifting variants must beat the random baseline and refine."""
 
+from dataclasses import replace
+
 import pytest
 import torch
 
@@ -77,3 +79,26 @@ def test_pipeline_determinism(tiny_scene, tiny_fits):
     r2 = run_pipeline(tiny_scene, cfg, gaussians2d=g2ds)
     assert torch.allclose(r1.gaussians_init.means, r2.gaussians_init.means)
     assert r1.metrics["init_psnr"] == r2.metrics["init_psnr"]
+
+
+def test_held_out_views_cannot_leak_into_initialization(tiny_scene, tiny_fits):
+    g2ds, _ = tiny_fits
+    split = replace(tiny_scene, train_indices=list(range(6)), test_indices=[6, 7])
+    changed_images = list(split.images)
+    changed_images[6] = torch.rand_like(changed_images[6])
+    changed_images[7] = torch.rand_like(changed_images[7])
+    changed = replace(split, images=changed_images)
+    cfg = _fast_config("depth", refine=False)
+    original_result = run_pipeline(split, cfg, gaussians2d=g2ds)
+    changed_result = run_pipeline(changed, cfg, gaussians2d=g2ds)
+    assert torch.equal(original_result.gaussians_init.means, changed_result.gaussians_init.means)
+    assert "init_psnr_test" in original_result.metrics
+    assert original_result.metrics["init_psnr_test"] != changed_result.metrics["init_psnr_test"]
+
+
+def test_stage1_fits_training_views_only(tiny_scene):
+    split = replace(tiny_scene, train_indices=[0, 1], test_indices=[2])
+    cfg = _fast_config("depth", refine=False)
+    cfg.fit = FitConfig(n_gaussians=20, iterations=1, log_every=1)
+    result = run_pipeline(split, cfg)
+    assert len(result.fit_histories) == 2

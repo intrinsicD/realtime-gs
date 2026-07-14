@@ -17,6 +17,44 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-14 — Compact 2D starts, strict held-out metrics, and CUDA Janelle ablation
+- **Question**: Is 640 a useful configurable *start* rather than an image-wise final cap; which
+  lift gives the best object-centric initialization; and how much 3D density growth is useful?
+- **Setup**: RTX 4090, PyTorch 2.12.0+cu132, gsplat 1.5.3, seed 0. Janelle
+  `2025_03_07_stage_with_fabric/frame_00008` has 26 calibrated RGB/mask views; every eighth view
+  gives 23 train and 3 strictly held-out views. Runs used 1/16 resolution (333×288), 300 stage-1
+  iterations, 1000 refinement iterations, and foreground/crop held-out metrics. StructSplat
+  compared fixed 320, fixed 640, and adaptive 640→2000 against native fixed 640. Downstream
+  controls used `carve(grid_res=96)` and density disabled, unrestricted, or stopped at iteration
+  300 with a 15k cap. Full machine-readable result:
+  `benchmarks/results/20260714T085148Z_cuda_janelle.json`. The CPU synthetic regression benchmark
+  is `benchmarks/results/20260714T090516Z_cpu.json`.
+- **Result**: Mean stage-1 foreground PSNR / 23-view wall time was StructSplat fixed-320
+  **27.35 dB / 13.45 s**, fixed-640 **28.60 / 14.67**, adaptive-2000 **29.41 / 15.01**, versus
+  native fixed-640 **25.66 / 47.29**. Fixed-640→carve initialized only 3,015 3D splats at
+  **21.98 dB** held-out foreground PSNR, versus native-640's 3,613 at **20.16 dB** and
+  adaptive-2000's 5,473 at **21.32 dB**. With the short 15k-capped density schedule, fixed-640
+  reached **25.67 dB foreground / 32.08 dB crop / 0.9604 crop SSIM**. Fixed-320 reached
+  25.50/31.89/0.9598, retaining a small deficit from its weaker init (-0.53 dB). For the same
+  adaptive-2000 init, no density / unrestricted growth / capped growth reached 25.60 at 5,473 /
+  25.04 at 70,485 / **25.76 dB at 15,000** splats. Depth-seeded bounded-ray `hybrid` improved
+  initialization over direct monocular `depth` from **12.68 to 20.23 dB**; under the same 15k
+  cap it refined to 23.41 versus depth's 23.20 dB, but `carve` remained better and faster.
+  On the synthetic CPU benchmark, hybrid initialized at 21.61 dB and refined to 31.44 dB versus
+  direct depth's 19.08/31.33, confirming the integration without claiming the real-depth ranking.
+- **Conclusion**: 640 is a sound default start for this scene, not a ceiling. More per-image 2D
+  splats improve the isolated image fit but did not improve the 3D initialization; compact
+  structured fits plus carving were better. Adaptive 2k recovered 0.09 dB more final quality,
+  while fixed 640 gave the strongest initialization with fewer splats. A short hard-capped 3D
+  growth phase beat both no growth and unrestricted growth; the latter overfit the training views
+  and expanded to 70k–100k splats. StructSplat fixed-640 was about 3.2× faster than native
+  fixed-640 and improved held-out initialization by 1.82 dB. These are one-frame, low-resolution
+  findings, not a cross-dataset ranking.
+- **Follow-ups**: Repeat at 1/8 and 1/4 resolution, add LPIPS-VGG and peak-VRAM/time-to-quality,
+  test `quadtree_wse` and GaussianImage at matched time/count, and compare the current density
+  controller with gsplat MCMC/relocation. Inspect the saved contact sheet/GIF before choosing a
+  high-resolution run.
+
 ## 2026-07-13 — Geometry/device correctness pass and calibrated Janelle smoke test
 - **Question**: Do projection-correct covariance, bounded ray depths, independent opacity,
   color-independent carving coverage, and corrected density/timing plumbing improve the

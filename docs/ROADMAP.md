@@ -15,23 +15,27 @@
 - [x] Calibrated object-capture JSON, distortion/masks, held-out split, external 2D adapters
 - [x] End-to-end tests and variant-comparison benchmark
 
-## M2 — GPU validation (needs a CUDA box)
-- [ ] gsplat backend parity test green on GPU; wire gsplat densification strategies as an
-      alternative to `rtgs.optim.density`
-- [ ] Depth Anything V2 backend smoke test + scale alignment on a real COLMAP scene
+## M2 — GPU validation
+- [x] gsplat backend parity test green on RTX 4090; auto backend respects explicit CPU devices
+- [x] Depth Anything V2 Small smoke test and bounds alignment on a calibrated Janelle capture
+- [x] Optional StructSplat CUDA stage-1 backend with configurable progressive density growth
+- [ ] Wire gsplat densification strategies as an alternative to `rtgs.optim.density`
 - [ ] Benchmark on MipNeRF-360 `garden`/`bicycle` @ 7k iters: init-PSNR and
       time-to-quality vs SfM init (protocol in docs/RESEARCH.md §6)
 - [ ] Fit-time target: stage 1+2 < 30 s for 200 images @ 1080p on one consumer GPU
 
 ## M3 — Research questions (log answers in docs/EXPERIMENTS.md)
-- [ ] Which lifting variant wins on init-PSNR? On time-to-30dB after refinement?
+- [x] First calibrated-capture comparison: compact `carve` wins Janelle frame 00008 at 1/16;
+      repeat at higher resolution and on more scenes before treating this as general
 - [ ] Does per-gaussian along-ray variance (footprint depth spread) beat isotropic σ_z?
 - [ ] Carve: does moment-matched merging beat keep-all + prune-in-refinement?
-- [ ] Gradient variant: joint depth+opacity optimization vs depth-only; how few iterations
-      suffice when seeded by the `depth` variant (hybrid B→A)?
-- [ ] How much densification is still needed with dense 2D-gaussian init (can we disable
-      cloning entirely and only prune)?
-- [ ] Progressive/error-driven gaussian allocation in stage 1 (Image-GS-style) vs fixed N
+- [x] Implement depth-seeded bounded-ray hybrid B→A; evaluate uncertainty and shorter schedules
+- [x] Initial density ablation: a short 15k-capped schedule beats no-density and unrestricted
+      growth on Janelle; repeat across scenes and compare gsplat MCMC/teleportation
+- [x] Progressive/error-driven stage-1 allocation via StructSplat residual/tensor growth;
+      compare `quadtree_wse` and GaussianImage at matched wall-clock/count
+- [ ] Add LPIPS-VGG and novel-view geometry diagnostics to held-out evaluation
+- [ ] Run full 26-view Janelle frame at 1/8 and 1/4 resolution with time/VRAM curves
 - [ ] Feed-forward multi-view init (VGGT/MASt3R pointmaps) as a fourth variant
 
 ## M4 — Real-time ambitions

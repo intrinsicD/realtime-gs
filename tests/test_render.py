@@ -100,6 +100,7 @@ def test_empty_and_behind_camera():
 
 def test_registry():
     assert isinstance(get_rasterizer("torch"), TorchRasterizer)
+    assert isinstance(get_rasterizer("auto", device="cpu"), TorchRasterizer)
     with pytest.raises(ValueError):
         get_rasterizer("nonsense")
 
