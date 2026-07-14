@@ -45,6 +45,7 @@
 | `rtgs/data` | `synthetic` builds ground-truthed tests; `colmap` parses text/binary reconstructions and observation tracks; `calibrated` loads the object-capture JSON format, applies OpenCV distortion correction to RGB/masks, preserves view ids, estimates object bounds, and creates an every-eighth train/test split. |
 | `rtgs/pipeline` | `pipeline.py` orchestrates stages 1–3 with timing and strict train-only initialization; held-out RGB is used only for reporting. `compare_lifters` shares train-view fits across variants. |
 | `rtgs/visualize` | Writes sampled calibrated-camera reference/init/final/error comparisons, a contact sheet, and an animated reconstruction preview (bounded to 48 frames). |
+| `rtgs/viewer` | Optional, lazily imported Viser WebGL viewer for orbit navigation, initialization/final comparison, splat controls, calibrated train/test cameras, and exact snapshots through the pluggable rasterizer. |
 | `rtgs/cli` | `cli.py`, argparse-based. |
 
 Registered lifters: `gradient`, `depth`, `hybrid`, `carve` (plus `sfm` baseline that mimics classic
@@ -59,6 +60,7 @@ SfM-point initialization for comparison, and `random` as the lower-bound baselin
 | `rtgs refine ...` | Stage 3 only: run 3DGS optimization from an initialization. |
 | `rtgs run ...` | End-to-end on synthetic, COLMAP, or calibrated-frame data; `--fits` skips stage 1 using native/StructSplat/GaussianImage NPZ files. `--out` also saves initialization/final PLY and visual previews. |
 | `rtgs render ...` | Render a saved gaussian set from a camera path / dataset cameras. |
+| `rtgs view ...` | Interactively inspect saved PLY/NPZ gaussians in a browser; optionally load a scene for reference images, train/test camera frusta, and exact torch/gsplat snapshots. |
 | `rtgs bench ...` | Delegates to `benchmarks/run.py` (variant comparison + micro-benchmarks). |
 
 ## Backend abstractions (hard rule: pluggable, CPU-first)
@@ -68,6 +70,10 @@ SfM-point initialization for comparison, and `random` as the lower-bound baselin
 
 No module imports CUDA-only or heavyweight optional dependencies at import time; they are
 imported inside functions and failures produce actionable error messages.
+
+Viser's WebGL preview consumes explicit centers, covariances, degree-0 RGB, and opacity. Exact
+viewer snapshots still go through `Rasterizer`, so gsplat/CUDA snapshots use all active SH bands
+and remain subject to the same backend parity contract as training and `rtgs render`.
 
 ## Conventions
 

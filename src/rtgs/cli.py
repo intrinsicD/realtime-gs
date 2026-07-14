@@ -1,6 +1,6 @@
 """rtgs command-line interface (argparse; see docs/ARCHITECTURE.md §CLI).
 
-Commands: fit-images, lift, refine, run, render, bench. `--scene synthetic[:key=val,..]`
+Commands: fit-images, lift, refine, run, render, view, bench. `--scene synthetic[:key=val,..]`
 builds a procedural test scene; calibrated frame directories and COLMAP datasets are detected.
 """
 
@@ -223,6 +223,37 @@ def _cmd_render(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_view(args: argparse.Namespace) -> int:
+    from rtgs.viewer import launch_viewer
+
+    final_path = Path(args.gaussians).expanduser()
+    models = {"final": _load_gaussians(final_path)}
+    initial_path = None if args.initial is None else Path(args.initial).expanduser()
+    if initial_path is None and final_path.name == "gaussians.ply":
+        candidate = final_path.with_name("gaussians_init.ply")
+        if candidate.is_file():
+            initial_path = candidate
+    if initial_path is not None:
+        models["initial"] = _load_gaussians(initial_path)
+
+    scene = None
+    if args.scene is not None:
+        scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
+    snapshot_dir = None if args.snapshot_dir is None else Path(args.snapshot_dir).expanduser()
+    launch_viewer(
+        models,
+        scene=scene,
+        device=_resolve_device(args.device),
+        snapshot_rasterizer=args.rasterizer,
+        snapshot_dir=snapshot_dir,
+        host=args.host,
+        port=args.port,
+        max_viewer_gaussians=args.max_viewer_gaussians,
+        open_browser=args.open,
+    )
+    return 0
+
+
 def _cmd_bench(args: argparse.Namespace) -> int:
     from rtgs.bench import main as bench_main
 
@@ -373,6 +404,46 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.add_argument("--out", required=True)
     p.set_defaults(func=_cmd_render)
+
+    p = sub.add_parser("view", help="open an interactive browser viewer for saved gaussians")
+    p.add_argument("--gaussians", required=True, help="final reconstruction .npz or .ply")
+    p.add_argument(
+        "--initial",
+        default=None,
+        help="optional initialization .npz or .ply (auto-detected beside gaussians.ply)",
+    )
+    p.add_argument(
+        "--scene",
+        default=None,
+        help="optional scene for calibrated cameras, references, and exact snapshots",
+    )
+    p.add_argument("--downscale", type=int, default=1)
+    p.add_argument("--max-images", type=int, default=None)
+    p.add_argument(
+        "--max-viewer-gaussians",
+        type=int,
+        default=None,
+        help="optional WebGL transfer/display cap (does not alter saved reconstruction)",
+    )
+    p.add_argument(
+        "--rasterizer",
+        choices=["auto", "torch", "gsplat"],
+        default="auto",
+        help="backend for exact calibrated-camera snapshots",
+    )
+    p.add_argument("--device", default="auto", help="snapshot device: auto, cpu, cuda, cuda:N")
+    p.add_argument(
+        "--snapshot-dir", default=None, help="optionally save exact snapshots as PNG files"
+    )
+    p.add_argument("--host", default="127.0.0.1", help="viewer bind address")
+    p.add_argument("--port", type=int, default=8080)
+    p.add_argument(
+        "--open",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="open the viewer URL in a local browser",
+    )
+    p.set_defaults(func=_cmd_view)
 
     p = sub.add_parser("bench", help="run the benchmark harness (rtgs.bench)")
     p.add_argument(

@@ -31,7 +31,7 @@ on GPU; a pure-PyTorch reference rasterizer keeps the whole pipeline testable on
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e '.[dev]' --extra-index-url https://download.pytorch.org/whl/cpu
-# On a GPU machine use a CUDA PyTorch wheel, then install .[cuda,depth,dev].
+# On a GPU machine use a CUDA PyTorch wheel, then install .[cuda,depth,viewer,dev].
 
 .venv/bin/rtgs run --scene synthetic --lifter depth   # end-to-end on a synthetic scene
 .venv/bin/rtgs bench --quick                          # compare all lifting variants
@@ -45,7 +45,7 @@ held-out evaluation, and keeps evenly distributed cameras when `--max-images` is
 ```bash
 python3 -m venv .venv-cuda
 .venv-cuda/bin/pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cu132
-.venv-cuda/bin/pip install -e '.[cuda,depth,dev]'
+.venv-cuda/bin/pip install -e '.[cuda,depth,viewer,dev]'
 .venv-cuda/bin/pip install -e ~/Documents/structsplat   # optional MIT stage-1 backend
 
 .venv-cuda/bin/rtgs run \
@@ -67,6 +67,24 @@ configured start until convergence or the maximum; the native backend keeps the 
 fixed. Every `rtgs run --out ...` writes `gaussians_init.ply`, `gaussians.ply`, sampled
 calibrated-camera reference/init/final/error images, `reconstruction_contact_sheet.png`, and
 `reconstruction.gif` for visual inspection.
+
+Open the saved result in the interactive browser viewer (Viser is an optional Apache-2.0
+dependency):
+
+```bash
+.venv-cuda/bin/rtgs view \
+  --gaussians runs/janelle-carve/gaussians.ply \
+  --scene ~/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 \
+  --downscale 16 --device cuda --rasterizer gsplat
+```
+
+The viewer auto-detects a sibling `gaussians_init.ply`, supports orbit navigation,
+initial/final switching, significance-ranked splat-count and opacity controls, and train/test
+camera filtering. Click a camera or choose it in the sidebar; **Render exact snapshot** compares
+the reference RGB against a full-SH render from the selected `Rasterizer` backend. The orbitable
+WebGL preview itself uses degree-0 color. For a remote GPU host, add `--host 0.0.0.0 --no-open`
+and use SSH port forwarding. `--max-viewer-gaussians` is only a configurable browser-transfer cap;
+it never changes the reconstruction.
 
 The default depth checkpoint is the Apache-2.0 Depth Anything V2 Small model. Other checkpoint
 names are rejected unless their code and weights have been explicitly license-verified.

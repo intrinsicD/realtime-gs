@@ -20,6 +20,8 @@ dependencies = [
 cuda = ["gsplat>=1.4"]
 # Feed-forward monocular depth backends (Depth Anything V2 via HuggingFace).
 depth = ["transformers>=4.45"]
+# Interactive browser viewer (Apache-2.0; imported lazily).
+viewer = ["viser>=1.0.30,<2"]
 dev = [
     "pytest>=8.0",
     "ruff>=0.6",

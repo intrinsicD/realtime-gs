@@ -50,7 +50,7 @@ python3 -m venv .venv && .venv/bin/pip install -e '.[dev]' \
 .venv/bin/ruff check . && .venv/bin/ruff format --check .
 .venv/bin/python scripts/docs_sync.py     # docs↔code consistency check
 .venv/bin/python benchmarks/run.py --quick --update-docs   # refresh benchmarks
-.venv/bin/rtgs --help                     # CLI: fit-images / lift / refine / run / render / bench
+.venv/bin/rtgs --help                     # CLI: fit-images / lift / refine / run / render / view / bench
 ```
 
 ## Repository map
@@ -64,7 +64,7 @@ src/rtgs/
   render/      Rasterizer protocol, torch_ref (CPU reference), gsplat_backend (CUDA)
   optim/       stage 3: trainer.py (3DGS loop), density.py (clone/split/prune)
   data/        synthetic.py (GT), colmap.py, calibrated.py (object-capture JSON)
-  pipeline.py  strict-split orchestration; visualize.py previews; cli.py argparse CLI
+  pipeline.py  strict-split orchestration; visualize.py previews; viewer.py browser UI; cli.py CLI
 tests/         CPU-only pytest suite; conftest.py has seeding + tiny-scene fixtures
 benchmarks/    run.py harness + results/*.json
 docs/          ARCHITECTURE, RESEARCH (SOTA survey), ROADMAP, BENCHMARKS, EXPERIMENTS

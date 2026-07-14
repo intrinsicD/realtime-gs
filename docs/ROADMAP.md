@@ -17,6 +17,8 @@
 
 ## M2 — GPU validation
 - [x] gsplat backend parity test green on RTX 4090; auto backend respects explicit CPU devices
+- [x] Interactive Viser viewer with initialization/final controls, calibrated cameras, and exact
+      gsplat snapshots
 - [x] Depth Anything V2 Small smoke test and bounds alignment on a calibrated Janelle capture
 - [x] Optional StructSplat CUDA stage-1 backend with configurable progressive density growth
 - [ ] Wire gsplat densification strategies as an alternative to `rtgs.optim.density`
