@@ -173,7 +173,15 @@
       The older CPU synthetic RGB preregistration is not the execution protocol for this follow-up
 - [ ] Add aggregate device-byte/index budgets, replace eager Python overlap lists with CSR/lazy
       storage, add indexed CUDA compact-teacher queries, and bound backward activation memory before
-      making a production-scale claim
+      making a production-scale claim. (Flattened CPU CSR observation queries landed 2026-07-20 with
+      exact parity and a tracked micro-benchmark; the device-byte/index budgets, CUDA queries, and
+      backward-memory bound remain.)
+- [ ] Evaluate the dense image-free initializer: `select_all_eligible` retains one carve lift per
+      2D Gaussian across all views and `merge_by_voxel(return_group=True)` deduplicates them (the
+      cluster map is a cross-view correspondence byproduct). The mechanism is CPU-tested and opt-in;
+      before any default change, run the frozen calibrated scene and report saved initialization-only
+      metrics for dense+merge vs the balanced top-K, then decide whether a 4-dof
+      inverse-projection-fiber local refine between lift and merge is warranted
 - [x] Implement depth-seeded bounded-ray hybrid B→A; evaluate uncertainty and shorter schedules
 - [x] Initial density ablation: a short 15k-capped schedule beats no-density and unrestricted
       growth on Janelle; repeat across scenes and compare gsplat MCMC/teleportation

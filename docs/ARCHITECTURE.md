@@ -152,7 +152,12 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
   component–tile overlaps in contiguous arrays, aggregate bundle/component/index/3D-cardinality
   budgets are incomplete, and custom query backends must honor the chunk contract. Placement emits
   a silent-by-default typed `CompactPlacementProgress` record and persists final pair/chunk/payload
-  counters in the initialization diagnostics.
+  counters in the initialization diagnostics. An opt-in `select_all_eligible` mode retains every
+  globally supported candidate (one lift per proposed 2D Gaussian across all views) instead of the
+  balanced top-K; `rtgs.lift.merge.merge_by_voxel(..., return_group=True)` then deduplicates the
+  dense set and returns the cluster map, whose composition with per-Gaussian lineage is the
+  cross-view correspondence byproduct. This dense-then-merge path is a tested CPU mechanism only —
+  no initialization-quality result is claimed, and the balanced top-K remains the default.
 
 No module imports CUDA-only or heavyweight optional dependencies at import time; they are
 imported inside functions and failures produce actionable error messages.

@@ -919,6 +919,80 @@ def test_initializer_csr_preserves_grouped_reference_selection_and_geometry():
     torch.testing.assert_close(csr.scores, grouped.scores, atol=1e-6, rtol=2e-6)
 
 
+def test_select_all_eligible_lifts_every_supported_2d_gaussian():
+    inputs = _inputs()
+    config = replace(
+        _config(n_init_3d=1), anchor_mode="component_centers", select_all_eligible=True
+    )
+    result = CompactCarveInitializer(config).initialize(inputs)
+
+    # Every proposed component-center candidate that passes support is retained (no top-K).
+    assert result.diagnostics["selection_mode"] == "all_eligible"
+    assert result.n_init_3d == result.diagnostics["eligible_candidate_count"]
+    assert result.n_init_3d > _config().n_init_3d  # denser than the sparse 5k-style default
+    # Lineage/geometry stay 1:1 with the lifted set and every view contributes.
+    assert result.lineage.source_view_indices.numel() == result.n_init_3d
+    assert result.depths.numel() == result.n_init_3d
+    assert result.gaussians.covariance().shape == (result.n_init_3d, 3, 3)
+    assert set(result.lineage.source_view_indices.tolist()) == set(range(inputs.n_views))
+
+    # Deterministic.
+    repeated = CompactCarveInitializer(config).initialize(inputs)
+    assert torch.equal(result.gaussians.means, repeated.gaussians.means)
+    assert torch.equal(result.scores, repeated.scores)
+
+    # Default (top-K) selection is untouched.
+    assert (
+        CompactCarveInitializer(_config()).initialize(inputs).diagnostics["selection_mode"]
+        == "balanced_topk"
+    )
+
+
+def test_config_rejects_non_bool_select_all_eligible():
+    with pytest.raises(TypeError, match="select_all_eligible must be a bool"):
+        replace(_config(), select_all_eligible=1)
+
+
+def test_all_gaussian_lift_then_voxel_merge_recovers_cross_view_correspondence():
+    from rtgs.lift.merge import merge_by_voxel
+
+    cameras = [_camera(x) for x in (-0.75, 0.0, 0.75)]
+    names = [f"v{i}" for i in range(3)]
+    inputs = ReconstructionInputs(
+        observations=[
+            _field(camera, name, n_init=2) for camera, name in zip(cameras, names, strict=True)
+        ],
+        cameras=cameras,
+        view_names=names,
+        bounds_hint=(torch.zeros(3), 1.2),
+        name="tri-view-plane",
+    )
+    config = replace(
+        _config(n_init_3d=1), anchor_mode="component_centers", select_all_eligible=True
+    )
+    lifted = CompactCarveInitializer(config).initialize(inputs)
+    assert lifted.n_init_3d >= len(_TARGETS) * inputs.n_views - 2  # ~one lift per (view, target)
+
+    merged, group = merge_by_voxel(
+        lifted.gaussians,
+        voxel_size=0.08,
+        component_weights=lifted.scores.clamp_min(1e-6),
+        return_group=True,
+    )
+    assert group.shape == (lifted.n_init_3d,)
+    assert merged.n < lifted.n_init_3d  # redundant per-view lifts are deduplicated
+
+    # The group map is the correspondence byproduct: at least one cluster fuses lifts from
+    # more than one source view (the same 3D surface patch seen from different cameras).
+    view_ids = lifted.lineage.source_view_indices
+    cross_view = 0
+    for cluster in group.unique().tolist():
+        member_views = view_ids[group == cluster].unique()
+        if member_views.numel() > 1:
+            cross_view += 1
+    assert cross_view >= 1
+
+
 def test_placement_progress_is_silent_by_default_and_persists_counters():
     inputs = _inputs()
     config = _config()

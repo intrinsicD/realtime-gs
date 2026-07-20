@@ -63,6 +63,7 @@ class CompactCarveConfig:
     init_opacity: float = 0.1
     sh_degree: int = 0
     max_anchor_rounds: int = 8
+    select_all_eligible: bool = False
 
     def __post_init__(self) -> None:
         integer_fields = (
@@ -133,6 +134,8 @@ class CompactCarveConfig:
             raise ValueError("sh_degree must be in [0,3]")
         if self.max_anchor_rounds <= 0:
             raise ValueError("max_anchor_rounds must be positive")
+        if not isinstance(self.select_all_eligible, bool):
+            raise TypeError("select_all_eligible must be a bool")
 
 
 @dataclass(frozen=True)
@@ -679,16 +682,22 @@ class CompactCarveInitializer:
                 "compact Carve found fewer globally supported ray placements than n_init_3d; "
                 "increase candidate_multiplier or loosen the preregistered support thresholds"
             )
-        selected = _balanced_topk(
-            best_scores,
-            eligible,
-            view_ids,
-            self.config.n_init_3d,
-            inputs.n_views,
-        )
+        if self.config.select_all_eligible:
+            # Retain every globally supported candidate (one lift per proposed 2D Gaussian) in
+            # canonical candidate order; a downstream voxel merge deduplicates redundant views.
+            selected = eligible.nonzero(as_tuple=True)[0]
+        else:
+            selected = _balanced_topk(
+                best_scores,
+                eligible,
+                view_ids,
+                self.config.n_init_3d,
+                inputs.n_views,
+            )
+        n_selected = int(selected.numel())
 
         selected_covariances = torch.empty(
-            self.config.n_init_3d,
+            n_selected,
             3,
             3,
             dtype=dtype,
@@ -718,7 +727,7 @@ class CompactCarveInitializer:
         unclamped_colors = best_colors[selected]
         colors = unclamped_colors.clamp(0.0, 1.0)
         opacity = torch.full(
-            (self.config.n_init_3d,),
+            (n_selected,),
             self.config.init_opacity,
             dtype=dtype,
         )
@@ -744,6 +753,9 @@ class CompactCarveInitializer:
             "search_aabb_lower": lo.tolist(),
             "search_aabb_upper": hi.tolist(),
             "anchor_mode": self.config.anchor_mode,
+            "selection_mode": (
+                "all_eligible" if self.config.select_all_eligible else "balanced_topk"
+            ),
             "candidate_count": candidate_count,
             "proposed_candidates_per_view": proposed_per_view,
             "eligible_candidate_count": int(eligible.sum()),
