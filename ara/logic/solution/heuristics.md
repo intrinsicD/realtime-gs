@@ -50,3 +50,35 @@
   `tests/test_field_observability.py`]
 - **Evidence**: [N138, N139, N146]
 - **From staging**: O121
+
+## H05: Cache exact compact evaluation targets across candidates
+- **Rationale**: Compact teachers and support masks are invariant when candidates share
+  `ReconstructionInputs`. Render each teacher once, crop the calibrated camera to the exact scored
+  fit window, and reuse the target tensors while only rerendering candidate 3D Gaussians. Keep
+  progress opt-in so silent library calls perform no progress timing or record allocation.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Sensitivity**: medium
+- **Code ref**: [`src/rtgs/lift/compact_init_eval.py`, `src/rtgs/render/torch_ref.py`,
+  `benchmarks/compact_init_eval.py`, `tests/test_compact_init_eval.py`, `tests/test_render.py`]
+- **Evidence**: [N156, `ara/evidence/tables/20260720_dense_confidence_gated_init.md`]
+- **From staging**: O130
+- **Boundary**: Prepared targets retain about 652.5 MB on this seven-view bundle. The CPU Torch
+  renderer remains the semantic anchor; gsplat replay is a fast diagnostic with measured small
+  numerical drift, not bit-exact backend equivalence.
+
+## H06: Flatten exact compact queries before adding hierarchy or CUDA
+- **Rationale**: Replace Python-fragmented tile candidate evaluation with one canonical flattened
+  CSR pair stream, bounded vectorized evaluation, and deterministic reductions. This preserves
+  candidate identity while removing interpreter overhead; only a post-CSR profile should justify
+  hierarchy or CUDA complexity.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Sensitivity**: medium
+- **Code ref**: [`src/rtgs/core/observation2d.py`, `src/rtgs/lift/compact_carve.py`,
+  `benchmarks/run.py`, `tests/test_observation_csr.py`]
+- **Evidence**: [N150, N157, `benchmarks/results/20260720T123859Z_cpu.json`,
+  `benchmarks/results/20260720T213644Z_cpu_AUDIT.md`]
+- **From staging**: O128
+- **Boundary**: The latest 26.6x quick ratio is not a causal current-worktree claim. Full
+  26-view/130,000-component production placement timing remains separately open.

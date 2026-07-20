@@ -2557,3 +2557,171 @@ tree:
       - "Reduce inputs, views, depth samples, or resolution."
     evidence: [N149, "docs/TASK_COMPACT_PLACEMENT_CSR_ACCELERATION.md"]
     status: resolved
+  - id: N151
+    type: experiment
+    title: "Calibrated dense-all versus balanced top-K initialization"
+    provenance: ai-executed
+    timestamp: "2026-07-20T23:45+02:00"
+    result: >
+      On the strict seven-view, 640-components-per-view frame_00008 compact bundle, the CPU
+      correctness-anchor E1 run measured balanced top-K at 172 Gaussians and 18.169987 dB mean
+      foreground PSNR versus dense-all+voxel-merge at 2,319 and 20.141388 dB. Dense improved all
+      seven views by 1.6373--2.3093 dB, but its 13.4826x count exceeded the frozen 2x gate, so E1
+      failed. The raw JSON hash is
+      7bf4ac973fe373c5b4cf7170877001041f46f9e63ccbf0e16a9b0d3d744f6ea6 and the independent audit
+      accepts only the scoped init-quality/count result.
+    evidence:
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e1_RESULT.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e1_AUDIT.md"
+      - "runs/dense_confidence_gated_init_e1_20260720/init_eval.json"
+      - "ara/evidence/tables/20260720_dense_confidence_gated_init.md"
+    also_depends_on: [N149, N150]
+    status: resolved
+  - id: N152
+    type: experiment
+    title: "Frozen correspondence-confidence gate implementation and count reproduction"
+    provenance: ai-executed
+    timestamp: "2026-07-20T23:45+02:00"
+    result: >
+      Before opening easy-only render quality, I1 froze view multiplicity >=2, RMS cluster spread
+      <=0.5 voxel, maximum half-max width <=0.2, minimum covered views >=2, and maximum
+      reprojection residual <=16 px, with an expected 60 retained clusters. The deterministic
+      CPU-first implementation retained exactly 60/2,319 clusters and rejected the constructed
+      single-view decoy. Its seven-view same-training-view screen was +0.450489 dB over top-K and
+      remains exploratory. The independent audit accepts implementation/count reproduction and
+      rejects a downstream/default interpretation.
+    evidence:
+      - "src/rtgs/lift/compact_confidence_gate.py"
+      - "tests/test_compact_confidence_gate.py"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_i1_PREREG.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_i1_RESULT.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_i1_AUDIT.md"
+      - "ara/evidence/tables/20260720_dense_confidence_gated_init.md"
+    also_depends_on: [N151]
+    status: resolved
+  - id: N153
+    type: experiment
+    title: "Late-release E2 easy-only downstream comparison"
+    provenance: ai-executed
+    timestamp: "2026-07-20T23:45+02:00"
+    result: >
+      E2 froze seven optimization views, C1002 validation, late-release C1004, downscale 8, 300
+      gsplat-Default steps, a 2,319 cap, main seed 20260720, and top-K repeat seed 20260721. C1004
+      foreground PSNR was 14.907903 dB dense-all, 12.733240 easy-only, 11.227999 top-K, and
+      11.235098 repeat. Easy-only missed dense by 2.174663 dB outside the 0.007099 dB control
+      envelope, while ending at 1,229 Gaussians and still rising at step 300. The raw result hash
+      is 1990a5e9510e83da5a94f5d8684700149e6bba6e77bba9eee0960fef5bf91e32; saved PLY replay and
+      independent audit reproduced the decision.
+    evidence:
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e2_PREREG.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e2_RESULT.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e2_AUDIT.md"
+      - "runs/dense_confidence_gated_init_e2_20260720/e2_result.json"
+      - "ara/evidence/tables/20260720_dense_confidence_gated_init.md"
+    also_depends_on: [N151, N152]
+    status: resolved
+  - id: N154
+    type: dead_end
+    title: "Easy-only as a default under the frozen 300-step schedule"
+    provenance: ai-executed
+    timestamp: "2026-07-20T23:45+02:00"
+    hypothesis: >
+      Sixty high-confidence easy clusters plus matched density control can reconstruct dropped-hard
+      regions within the control-repeat held-out quality band while remaining no larger or slower
+      than dense-all.
+    failure_mode: >
+      Easy-only satisfied the final-count and native-time inequalities but finished 2.174663 dB
+      below dense-all on late-release C1004, far outside the 0.007099 dB repeat envelope. Its count
+      and validation quality were still rising, and no spatial localization attributed the deficit
+      to hard-dropped regions.
+    lesson: >
+      Reject this exact short schedule as a route to the default, but do not infer that density
+      control can never recover or that hard correspondences caused the deficit. A longer
+      budget-filling or localization test requires a fresh preregistration.
+    evidence:
+      - N153
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e2_AUDIT.md"
+    status: resolved
+  - id: N155
+    type: decision
+    title: "Retain balanced top-K and keep I2/E3 closed"
+    provenance: ai-executed
+    timestamp: "2026-07-20T23:45+02:00"
+    choice: >
+      Apply the preregistered chain literally: retain balanced top-K as the default because E1
+      failed its count gate and E2 easy-only failed held-out quality. Do not open the conditional
+      hard-correspondence I2/E3 branch because the aggregate held-out regression was not localized
+      to hard-dropped regions.
+    alternatives:
+      - "Promote dense-all despite its 13.48x initial count."
+      - "Promote easy-only based on its exploratory seven-view initialization screen."
+      - "Open hard-set correspondence based on aggregate E2 loss without localization."
+    evidence: [N151, N152, N153, N154, "docs/TASK_DENSE_CONFIDENCE_GATED_INIT.md"]
+    status: resolved
+  - id: N156
+    type: experiment
+    title: "Compact initialization evaluator performance diagnosis and exact cache"
+    provenance: ai-executed
+    timestamp: "2026-07-20T23:45+02:00"
+    result: >
+      Host perf was blocked by kernel.perf_event_paranoid=4. One-view cProfile attributed 634.043
+      seconds to the full-frame Torch render, 2.202 seconds to compact-teacher construction, and
+      1.104 seconds to metrics. Rendering only the exact fit-window camera and using gsplat reduced
+      the calibrated replay from 98m31s/17,552,984 KiB RSS to 47.18s/1,811,176 KiB, with exact PLY
+      hashes and at most 0.003812 dB aggregate drift from the CPU anchor. A post-result immutable
+      teacher/support cache took 14.309 seconds once and then 7.548/7.106 seconds per repeated
+      top-K evaluation, exactly matching frozen GPU aggregate metrics; boolean support retained
+      652,517,359 bytes and peaked at 2,269,648 KiB RSS. Silent progress paths are regression-tested
+      to perform no timing calls.
+    evidence:
+      - "src/rtgs/lift/compact_init_eval.py"
+      - "src/rtgs/render/torch_ref.py"
+      - "tests/test_compact_init_eval.py"
+      - "tests/test_render.py"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e1_RESULT.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e2_RESULT.md"
+      - "ara/evidence/tables/20260720_dense_confidence_gated_init.md"
+    also_depends_on: [N151, N153]
+    status: resolved
+  - id: N157
+    type: experiment
+    title: "Post-change quick CPU benchmark refresh and audit"
+    provenance: ai-executed
+    timestamp: "2026-07-20T23:45+02:00"
+    result: >
+      The complete quick benchmark wrote receipt 20260720T213644Z_cpu.json and refreshed the
+      generated benchmark table. The exact CSR case retained its frozen structure, maximum color
+      and weight-sum errors of 2.3841858e-7, and within_contract=1. Its local speed ratio was 26.6x,
+      but the audit rejects causal timing/quality claims because the worktree was dirty, metadata
+      binds only HEAD 68d0a6d, the preceding receipt used a different PyTorch build/revision, and
+      the quick suite does not exercise the calibrated evaluator cache.
+    evidence:
+      - "benchmarks/results/20260720T213644Z_cpu.json"
+      - "benchmarks/results/20260720T213644Z_cpu_AUDIT.md"
+      - "docs/BENCHMARKS.md"
+    also_depends_on: [N150, N156]
+    status: resolved
+  - id: N158
+    type: question
+    title: "Qualitative inspection of the easy-only E2 reconstruction"
+    provenance: user
+    timestamp: "2026-07-21T00:56+02:00"
+    description: >
+      Inspect the saved easy-only E2 final reconstruction against its 60-Gaussian initialization
+      through the calibrated gsplat viewer. The server is live at http://127.0.0.1:8775 and was
+      verified HTTP 200 with 2,888,259 bytes; no visual assessment or new quality claim has yet
+      been supplied.
+    also_depends_on: [N152, N153, N154]
+    status: open
+  - id: N159
+    type: question
+    title: "Qualitative inspection of the full 130k-input plateau reconstruction"
+    provenance: user
+    timestamp: "2026-07-21T00:59+02:00"
+    description: >
+      Inspect the full all-view reconstruction that consumed 130,000 compact 2D components,
+      comparing its 5,000-Gaussian initialization with the selected 70k-step 36,816-Gaussian
+      final model. The separate calibrated gsplat viewer is live at http://127.0.0.1:8776 and
+      verified HTTP 200; no new visual assessment has yet been supplied.
+    also_depends_on: [N148, N149]
+    status: open

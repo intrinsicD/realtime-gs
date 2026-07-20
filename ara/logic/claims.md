@@ -383,3 +383,28 @@
 - **Boundary**: This claim concerns the Jacobian-based EWA covariance used by this repository after
   fixing the mean. It does not cover additional physical amplitude/thickness measurements, exact
   nonlinear finite-support projection, or priors that supply the missing scalar.
+
+## C24: Dense confidence gating fails the frozen route to a default
+- **Statement**: In the frozen one-frame calibrated E1/I1/E2 chain, dense-all improves seven-view
+  compact initialization by 1.971401 dB over balanced top-K but fails the E1 count limit at
+  13.4826x, and the 60-cluster easy-only seed finishes 2.174663 dB below dense-all on late-release
+  C1004 after the matched 300-step schedule. Neither arm passes the preregistered route to a
+  default change.
+- **Status**: supported
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Source-bound replay changes any frozen count, metric, repeat
+  envelope, decision operand, or audit disposition. Success of a separately preregistered longer
+  schedule or another frame does not falsify this protocol-scoped statement.
+- **Proof**: [N151, N152, N153, N154, N155,
+  `benchmarks/results/20260720_dense_confidence_gated_init_e1_AUDIT.md`,
+  `benchmarks/results/20260720_dense_confidence_gated_init_i1_AUDIT.md`,
+  `benchmarks/results/20260720_dense_confidence_gated_init_e2_AUDIT.md`,
+  `ara/evidence/tables/20260720_dense_confidence_gated_init.md`]
+- **Dependencies**: []
+- **Tags**: compact-initialization, confidence-gate, density-control, calibrated, held-out,
+  negative-result
+- **From staging**: O129
+- **Boundary**: This is one frame, one frozen main schedule, one control repeat, and one
+  late-release held-out camera. Easy-only was still growing at step 300, and the deficit was not
+  localized to hard-dropped regions.

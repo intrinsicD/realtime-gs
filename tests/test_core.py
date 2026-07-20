@@ -158,6 +158,23 @@ def test_gaussians3d_ply_roundtrip(tmp_path):
     assert torch.allclose(g.log_scales, g2.log_scales, atol=1e-5)
 
 
+def test_gaussians3d_empty_degree_zero_ply_roundtrip(tmp_path):
+    g = Gaussians3D(
+        means=torch.empty(0, 3),
+        quats=torch.empty(0, 4),
+        log_scales=torch.empty(0, 3),
+        opacity=torch.empty(0),
+        sh=torch.empty(0, 1, 3),
+    )
+    path = tmp_path / "empty.ply"
+    g.save_ply(path)
+
+    loaded = Gaussians3D.load_ply(path)
+
+    assert loaded.n == 0
+    assert loaded.sh.shape == (0, 1, 3)
+
+
 def test_gaussians3d_npz_roundtrip(tmp_path):
     g = Gaussians3D.from_means_covs(
         means=torch.randn(5, 3),

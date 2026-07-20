@@ -257,7 +257,8 @@ class Gaussians3D:
         k = self.sh.shape[1]
         sh_np = self.sh.detach().cpu().numpy()
         f_dc = sh_np[:, 0, :]  # (N,3)
-        f_rest = sh_np[:, 1:, :].transpose(0, 2, 1).reshape(n, -1)  # channel-major like 3DGS
+        # Spell out the zero-width dimension so empty degree-0 sets remain valid PLY artifacts.
+        f_rest = sh_np[:, 1:, :].transpose(0, 2, 1).reshape(n, 3 * (k - 1))
         opacity_logit = torch.logit(self.opacity.clamp(1e-6, 1 - 1e-6)).detach().cpu().numpy()
 
         props = ["x", "y", "z", "nx", "ny", "nz"]

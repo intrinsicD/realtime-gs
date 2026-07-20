@@ -1955,7 +1955,53 @@ observations:
       exact CSR implementation task with explicit falsification and parity gates.
     potential_type: heuristic
     bound_to: [N149, N150]
-    promoted: false
-    promoted_to: null
-    crystallized_via: null
+    promoted: true
+    promoted_to: "logic/solution/heuristics.md:H06"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O129
+    timestamp: "2026-07-20T23:45+02:00"
+    provenance: ai-executed
+    content: >
+      In the frozen one-frame calibrated chain, dense-all has materially better compact-view
+      initialization than balanced top-K but fails the count-controlled E1 gate, while the frozen
+      60-cluster easy-only seed fails E2 held-out quality under the exact 300-step matched-cap
+      schedule. This supports neither dense-all nor easy-only as a default and does not prove
+      longer density recovery impossible.
+    context: "Audited E1/I1/E2 results N151-N155 and synchronized task/roadmap disposition."
+    potential_type: claim
+    bound_to: [N151, N152, N153, N154, N155]
+    promoted: true
+    promoted_to: "logic/claims.md:C24"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O130
+    timestamp: "2026-07-20T23:45+02:00"
+    provenance: ai-suggested
+    content: >
+      When several initializations are scored against identical compact inputs, render only the
+      teacher fit-window camera, prepare exact teacher/support targets once, and reuse them across
+      candidates. Keep the rasterizer pluggable and progress callback-based; the silent path must
+      not collect timing or allocate progress records.
+    context: "Implemented, parity-tested, calibrated-profiled evaluator repair in N156."
+    potential_type: heuristic
+    bound_to: [N156]
+    promoted: true
+    promoted_to: "logic/solution/heuristics.md:H05"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O131
+    timestamp: "2026-07-20T23:45+02:00"
+    provenance: ai-suggested
+    content: >
+      Performance observations from this chain are local diagnostics unless source state,
+      dependency/runtime version, host load, warmup, and repeats are bound. A dirty-worktree quick
+      receipt or a single mixed CPU/GPU run may validate mechanism and parity but cannot support a
+      portable causal speed claim.
+    context: "Perf restriction, single-run calibrated profiles, and adversarial audit of N157."
+    potential_type: constraint
+    bound_to: [N156, N157]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R23"
+    crystallized_via: artifact-commitment
     stale: false

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+from dataclasses import replace
 
 import pytest
 import torch
@@ -14,10 +15,14 @@ from rtgs.data.reconstruction_inputs import ReconstructionInputs
 from rtgs.lift.compact_carve import CompactCarveConfig, CompactCarveInitializer
 from rtgs.lift.compact_init_eval import (
     InitEvaluation,
+    InitEvaluationProgress,
+    crop_camera_to_fit_window,
     dense_merged_initialization,
     evaluate_initialization,
+    prepare_evaluation_targets,
     render_teacher_image,
 )
+from rtgs.render.torch_ref import TorchRasterizer
 
 _TARGETS = torch.tensor(
     [
@@ -112,6 +117,63 @@ def test_render_teacher_image_shape_coverage_and_determinism():
     assert torch.equal(color, shared)
 
 
+def test_cropped_camera_matches_full_render_slice():
+    inputs = _inputs()
+    result = CompactCarveInitializer(_config()).initialize(inputs)
+    camera = inputs.cameras[0]
+    fit_window = (5, 7, 31, 29)
+    cropped_camera = crop_camera_to_fit_window(camera, fit_window)
+    rasterizer = TorchRasterizer(row_chunk=7)
+
+    full = rasterizer.render(result.gaussians, camera).color
+    cropped = rasterizer.render(result.gaussians, cropped_camera).color
+    fit_x, fit_y, fit_width, fit_height = fit_window
+    expected = full[fit_y : fit_y + fit_height, fit_x : fit_x + fit_width]
+
+    assert cropped.shape == expected.shape
+    assert torch.allclose(cropped, expected, atol=2e-6, rtol=0.0)
+    assert cropped_camera.cx == camera.cx - fit_x
+    assert cropped_camera.cy == camera.cy - fit_y
+
+
+def test_crop_camera_rejects_invalid_fit_window():
+    camera = _camera(0.0)
+    with pytest.raises(ValueError, match="positive rectangle"):
+        crop_camera_to_fit_window(camera, (0, 0, 0, 10))
+    with pytest.raises(ValueError, match="inside the camera"):
+        crop_camera_to_fit_window(camera, (40, 40, 16, 16))
+
+
+def test_evaluate_initialization_silent_path_does_not_call_perf_counter(monkeypatch):
+    inputs = _inputs()
+    result = CompactCarveInitializer(_config()).initialize(inputs)
+
+    def fail_if_called():
+        raise AssertionError("silent evaluation must not collect progress timing")
+
+    monkeypatch.setattr("rtgs.lift.compact_init_eval.perf_counter", fail_if_called)
+
+    evaluation = evaluate_initialization(inputs, result.gaussians)
+
+    assert evaluation.n_gaussians == result.gaussians.n
+
+
+def test_evaluate_initialization_emits_view_progress():
+    inputs = _inputs()
+    result = CompactCarveInitializer(_config()).initialize(inputs)
+    records: list[InitEvaluationProgress] = []
+
+    evaluate_initialization(inputs, result.gaussians, progress_callback=records.append)
+
+    assert [record.phase for record in records] == [
+        phase for _ in range(inputs.n_views) for phase in ("view_start", "view_complete")
+    ]
+    complete = records[1::2]
+    assert [record.completed_views for record in complete] == list(range(1, inputs.n_views + 1))
+    assert all(record.view_seconds is not None and record.view_seconds >= 0 for record in complete)
+    assert all(record.visible_gaussians is not None for record in complete)
+
+
 def test_evaluate_initialization_reports_finite_per_view_metrics():
     inputs = _inputs()
     result = CompactCarveInitializer(_config()).initialize(inputs)
@@ -130,6 +192,27 @@ def test_evaluate_initialization_reports_finite_per_view_metrics():
     repeated = evaluate_initialization(inputs, result.gaussians)
     assert repeated.as_dict() == evaluation.as_dict()
     assert json.loads(json.dumps(evaluation.as_dict()))["n_gaussians"] == result.gaussians.n
+
+
+def test_prepared_evaluation_targets_preserve_exact_metrics():
+    inputs = _inputs()
+    result = CompactCarveInitializer(_config()).initialize(inputs)
+    direct = evaluate_initialization(inputs, result.gaussians)
+    targets = prepare_evaluation_targets(inputs)
+
+    prepared = evaluate_initialization(inputs, result.gaussians, targets=targets)
+
+    assert prepared.as_dict() == direct.as_dict()
+
+
+def test_evaluate_initialization_rejects_mismatched_prepared_target():
+    inputs = _inputs()
+    result = CompactCarveInitializer(_config()).initialize(inputs)
+    targets = list(prepare_evaluation_targets(inputs))
+    targets[0] = replace(targets[0], view_name="wrong-view")
+
+    with pytest.raises(ValueError, match="does not match"):
+        evaluate_initialization(inputs, result.gaussians, targets=targets)
 
 
 def test_evaluate_initialization_validates_backend_count():
@@ -180,12 +263,38 @@ def test_harness_run_writes_metrics_and_viewer_plys(tmp_path):
     )
     assert report["dense_merged"]["n_gaussians"] >= 1
     assert report["dense_merged"]["lifted"] > report["topk"]["n_gaussians"]
+    histogram = report["dense_merged"]["cluster_view_multiplicity_histogram"]
+    assert sum(histogram.values()) == report["dense_merged"]["n_gaussians"]
+    assert (
+        sum(count for multiplicity, count in histogram.items() if int(multiplicity) > 1)
+        == report["dense_merged"]["cross_view_correspondence_clusters"]
+    )
     assert math.isfinite(report["delta_mean_foreground_psnr"])
+    assert len(report["per_view_foreground_psnr_delta"]) == 5
+    assert set(report["preregistered_e1_decision"]) == {
+        "mean_gain_at_least_0_5_db",
+        "no_view_regresses_more_than_0_25_db",
+        "gaussian_count_within_2x",
+        "worst_view_delta_db",
+        "gaussian_count_ratio",
+        "dense_is_better_init",
+    }
+    assert report["evaluation_backend"] == "TorchRasterizer"
+    assert report["render_device"] == "cpu"
+    assert report["fit_window_rendering"] is True
+    assert set(report["stage_seconds"]) >= {
+        "topk_placement",
+        "topk_evaluation",
+        "dense_placement",
+        "dense_merge",
+        "dense_evaluation",
+    }
+    assert all(seconds >= 0 for seconds in report["stage_seconds"].values())
     assert report["dense_refined_merged"] is None  # refine is off by default
     assert (tmp_path / "init_topk.ply").exists()
     assert (tmp_path / "init_dense_merged.ply").exists()
     assert (tmp_path / "init_eval.json").exists()
-    assert report["viewer_command"].startswith("rtgs view --gaussians")
+    assert report["viewer_command"].startswith(".venv/bin/rtgs view --gaussians")
 
 
 def test_harness_refine_stage_reports_objective_and_saves_ply(tmp_path):

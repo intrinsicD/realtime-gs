@@ -176,20 +176,14 @@
       making a production-scale claim. (Flattened CPU CSR observation queries landed 2026-07-20 with
       exact parity and a tracked micro-benchmark; the device-byte/index budgets, CUDA queries, and
       backward-memory bound remain.)
-- [ ] Evaluate the dense image-free initializer: `select_all_eligible` retains one carve lift per
-      2D Gaussian across all views and `merge_by_voxel(return_group=True)` deduplicates them (the
-      cluster map is a cross-view correspondence byproduct). Mechanism, init-only compact-view
-      metrics (`rtgs.lift.compact_init_eval`), and the dense-vs-top-K harness
-      (`benchmarks/compact_init_eval.py`) are CPU-tested and opt-in; the synthetic scene is only a
-      mechanism check. Remaining before any default change: run the harness on a frozen calibrated
-      `dataset/` frame, report saved initialization-only metrics + viewer PLYs for dense+merge vs
-      the balanced top-K through the results-audit skill. A correspondence-free 4-dof local refine
-      between lift and merge (`rtgs.lift.compact_refine`) is prototyped and off by default: it
-      optimizes a smooth multi-view consensus but does not reliably improve geometry (it drifts to
-      the density core), empirically reconfirming that pinning fiber depth needs explicit
-      cross-view correspondence — wire `fiber_correspondence` into the refine before expecting a
-      geometry gain. Preregistered execution chain (E1 init-only → I1 confidence gate → E2 easy-only
-      seed + density control → I2/E3 correspondence for the hard set) in
+- [x] Execute and independently audit the calibrated dense confidence-gated initialization chain.
+      E1 found a +1.9714 dB all-view init-only gain for dense+merge but failed the 2× count gate at
+      13.48×. I1 reproduced the frozen 60/2,319 easy-only classifier. E2 then rejected easy-only
+      under its exact 300-step matched-cap schedule: C1004 foreground PSNR was 12.7332 dB versus
+      dense-all's 14.9079 dB, outside the 0.0071 dB repeat envelope, although easy-only remained
+      smaller and was still growing. Keep balanced top-K as the default. I2/E3 remains closed
+      because the aggregate deficit was not localized to hard-dropped regions; any longer
+      budget-filling or localization test needs a fresh preregistration. Full chain and records:
       `docs/TASK_DENSE_CONFIDENCE_GATED_INIT.md`
 - [x] Implement depth-seeded bounded-ray hybrid B→A; evaluate uncertainty and shorter schedules
 - [x] Initial density ablation: a short 15k-capped schedule beats no-density and unrestricted

@@ -156,18 +156,18 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
   globally supported candidate (one lift per proposed 2D Gaussian across all views) instead of the
   balanced top-K; `rtgs.lift.merge.merge_by_voxel(..., return_group=True)` then deduplicates the
   dense set and returns the cluster map, whose composition with per-Gaussian lineage is the
-  cross-view correspondence byproduct. `rtgs.lift.compact_init_eval` scores an initialization
-  *before* any 3DGS optimization by rendering it through each camera and comparing to that view's
-  exact 2D teacher render (full/foreground PSNR + SSIM), and `benchmarks/compact_init_eval.py`
-  compares dense+merge against the balanced top-K end to end (`--synthetic` or `--bundle`), saving
-  init-only metrics, viewer PLYs, and a side-by-side `rtgs view` command. `rtgs.lift.compact_refine`
-  is an opt-in prototype that lifts a `CompactInitializationResult` into the exact
-  `InverseProjectionFiber` and locally refines depth (optionally the covariance ray-scale) against a
-  smooth, correspondence-free multi-view consensus objective before merging; it reproduces the
-  documented limitation that consensus optimizes but does not pin geometry (it can drift to the
-  density core), so it is off by default. This dense-then-merge(-then-optional-refine) path is a
-  tested CPU mechanism only — no calibrated-scene initialization-quality result is claimed, and the
-  balanced top-K remains the default.
+  cross-view correspondence byproduct. `compact_confidence_gate` deterministically filters those
+  clusters using frozen multiplicity, cohesion, depth-sharpness, covered-view, and reprojection
+  thresholds; it is opt-in and emits complete typed per-cluster diagnostics.
+  `rtgs.lift.compact_init_eval` scores an initialization *before* optimization against exact compact
+  teachers (full/foreground PSNR + SSIM), renders only each teacher's fit window, accepts pluggable
+  rasterizers, exposes silent-by-default view/row progress, and can cache immutable teacher/support
+  targets across candidates. `benchmarks/compact_init_eval.py` saves metrics and viewer PLYs for
+  top-K, dense+merge, and optional easy-only arms. The audited calibrated chain found that dense
+  improved init quality but failed its count gate, while easy-only failed the frozen downstream
+  held-out gate; balanced top-K therefore remains the default. `rtgs.lift.compact_refine` remains an
+  off-by-default correspondence-free prototype: it can optimize consensus while drifting toward
+  the density core, so it does not authorize a geometry claim.
 
 No module imports CUDA-only or heavyweight optional dependencies at import time; they are
 imported inside functions and failures produce actionable error messages.

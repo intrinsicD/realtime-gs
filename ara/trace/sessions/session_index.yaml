@@ -43,8 +43,15 @@ sessions:
     open_threads: 7
   - id: "2026-07-20_001"
     date: "2026-07-20"
-    summary: "Completed and audited the full compact all-view 70k development fit, exposed the weak 5k initializer, and committed an exact CPU CSR acceleration task."
-    turn_count: 1
-    events_count: 4
-    claims_touched: []
+    summary: "Executed and audited calibrated dense-confidence E1/I1/E2, rejected a default change, and repaired the evaluator's dominant performance path."
+    turn_count: 2
+    events_count: 15
+    claims_touched: [C24]
     open_threads: 4
+  - id: "2026-07-21_001"
+    date: "2026-07-21"
+    summary: "Launched verified calibrated viewers for both easy-only E2 and the full 130k-input plateau reconstruction."
+    turn_count: 2
+    events_count: 2
+    claims_touched: []
+    open_threads: 2

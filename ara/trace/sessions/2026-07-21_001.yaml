@@ -1,0 +1,45 @@
+session:
+  id: "2026-07-21_001"
+  date: "2026-07-21"
+  started: "2026-07-21T00:56+02:00"
+  last_turn: "2026-07-21T00:59+02:00"
+  turn_count: 2
+  summary: "Launched verified calibrated viewers for both easy-only E2 and the full 130k-input plateau reconstruction."
+
+events_logged:
+  - turn: 1
+    type: question
+    id: N158
+    routing: direct
+    provenance: user
+    summary: "Opened qualitative inspection of the easy-only E2 final result against its initialization."
+  - turn: 2
+    type: question
+    id: N159
+    routing: direct
+    provenance: user
+    summary: "Opened qualitative inspection of the full 130k-input reconstruction's 5k initial and 36,816 final Gaussians."
+
+ai_actions:
+  - turn: 1
+    action: "Launched the calibrated gsplat/CUDA viewer for the easy-only E2 final and initial PLYs and verified the process-owned HTTP endpoint."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 2
+    action: "Launched the packed antialiased calibrated gsplat/CUDA viewer for the full all-view final and initial PLYs on port 8776 and verified the process-owned HTTP endpoint."
+    provenance: ai-executed
+    files_changed: []
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The user asked to inspect the saved result in the viewer; no visual judgment has been supplied yet."
+  - turn: 2
+    excerpt: "The user clarified that the desired inspection is the full run sourced from 130,000 compact 2D components, not only the easy-only E2 arm."
+
+open_threads:
+  - "Await the user's qualitative comparison of the easy-only final result and its 60-Gaussian initialization."
+  - "Await the user's qualitative comparison of the full run's 5,000-Gaussian initialization and 36,816-Gaussian plateau model."
+
+ai_suggestions_pending: []

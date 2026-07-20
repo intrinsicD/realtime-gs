@@ -58,3 +58,6 @@
 - `tables/20260717_masked_bundle_acquisition.md`: qualified recovery of the immutable seven-view
   masked 640/100 compact-teacher bundle, including strict content integrity, the terminal
   postcondition false positive, and the known incorrect descriptive per-view InitConfig seed.
+- `tables/20260720_dense_confidence_gated_init.md`: audited calibrated E1/I1/E2 chain,
+  count/quality decisions, late-release held-out result, profiler decomposition, exact target-cache
+  parity, artifact hashes, and explicit local-performance/default boundaries.

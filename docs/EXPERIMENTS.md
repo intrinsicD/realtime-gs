@@ -17,6 +17,49 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-20 — Calibrated dense confidence-gated initialization chain (E1/I1/E2)
+
+- **Question**: Can dense all-Gaussian compact placement improve calibrated initialization, can a
+  frozen correspondence-confidence classifier compress it to an accurate easy-only seed, and can
+  matched density control reconstruct the dropped hard set without losing held-out quality?
+- **Setup**: E1/I1 used the strict seven-view, 640-components/view Janelle `frame_00008` compact
+  bundle with seed 0 and voxel size 0.06. E1 compared balanced top-K with dense-all+merge against
+  exact compact teachers. Before opening easy-only quality, I1 froze multiplicity/cohesion/depth/
+  reprojection thresholds and expected 60 retained clusters. E2 then froze seven optimization
+  views, C1002 validation, late-release C1004 held-out, `downscale=8`, a 300-step gsplat
+  DefaultStrategy schedule, a 2,319 cap, seeds 20260720/20260721, and the control-repeat-calibrated
+  decision. Canonical result/audit files are
+  `benchmarks/results/20260720_dense_confidence_gated_init_{e1,i1,e2}_{RESULT,AUDIT}.md`; E2's
+  preregistration SHA-256 is
+  `9a7107a3314f17b514c64d7aa91d656e81535b75fc2f032d795a8547547d9f9e`.
+- **Result**: E1 dense-all gained **+1.9714 dB** mean foreground PSNR with every view positive, but
+  failed the count gate at **2,319/172 = 13.48×**. I1 retained exactly **60/2,319** clusters and its
+  exploratory same-view screen led top-K by +0.4505 dB. In E2, C1004 foreground PSNR was
+  **14.9079 dB dense-all**, **12.7332 easy-only**, and 11.2280 top-K; the top-K repeat was 11.2351.
+  Easy-only therefore missed dense-all by **2.1747 dB**, outside the **0.0071 dB** repeat envelope,
+  while ending at 1,229 versus 2,319 Gaussians and taking 2.191 versus 2.298 native seconds. It was
+  still growing and improving at step 300. The raw E2 result SHA-256 is
+  `1990a5e9510e83da5a94f5d8684700149e6bba6e77bba9eee0960fef5bf91e32`.
+- **Performance diagnosis**: Host `perf` was blocked by `kernel.perf_event_paranoid=4`, so a
+  one-view `cProfile` decomposition found 634.0 s in the full-frame Torch render versus 2.2 s in
+  teacher construction. Cropping the camera to the scored fit window and using the pluggable
+  gsplat backend reduced the calibrated E1 replay from 98m31s/17.6 GB RSS to 47.2s/1.81 GB, with
+  exact PLY hashes and at most 0.003812 dB aggregate metric drift from the CPU anchor. A post-result
+  immutable-target cache was exact against the frozen GPU metrics: 14.31 s one-time preparation,
+  then 7.55/7.11 s repeated evaluations, 652,517,359 retained bytes, and 2,269,648 KiB peak RSS.
+  These are single-machine diagnostics, not portable benchmark claims.
+- **Conclusion**: Dense placement has real calibrated init signal, but neither dense-all nor the
+  easy-only compression passes the frozen route to a default change. E2 is a valid negative for
+  this short matched-cap schedule, not proof that densification can never recover. Because the
+  held-out deficit was not spatially localized to hard-dropped regions, I2/E3 remains closed and
+  balanced top-K remains the default.
+- **Follow-ups**: If revisited, preregister a longer budget-filling control or spatial-localization
+  diagnostic on fresh evidence. Do not attribute the deficit to missing hard correspondences or
+  tune I1 thresholds on the consumed E2 result. Re-run clean repeated timing on an idle machine
+  before making performance claims.
+
+---
+
 ## 2026-07-20 — Dense all-Gaussian init, voxel merge, and a correspondence-free 4-dof refine
 
 - **Question**: Does lifting *every* supported 2D Gaussian (not the sparse top-K), then

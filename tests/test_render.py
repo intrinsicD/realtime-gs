@@ -13,7 +13,7 @@ from rtgs.render.gsplat_backend import (
     _remove_shadowed_gsplat_editable_finders,
     _visible_indices,
 )
-from rtgs.render.torch_ref import TorchRasterizer
+from rtgs.render.torch_ref import TorchRasterizer, TorchRenderProgress
 
 
 def _one_gaussian(color=(1.0, 0.0, 0.0), opacity=0.9, scale=0.1, mean=(0.0, 0.0, 0.0)):
@@ -38,6 +38,18 @@ def test_center_gaussian_hits_center_pixel():
     assert 0.6 < out.alpha[c, c] <= 0.91
     # red channel only
     assert out.color[..., 1].max() < 1e-4
+
+
+def test_torch_rasterizer_emits_row_chunk_progress():
+    records: list[TorchRenderProgress] = []
+    camera = _front_camera(size=33)
+
+    TorchRasterizer(row_chunk=7, progress_callback=records.append).render(_one_gaussian(), camera)
+
+    assert [record.completed_rows for record in records] == [7, 14, 21, 28, 33]
+    assert all(record.total_rows == 33 for record in records)
+    assert all(record.visible_gaussians == 1 for record in records)
+    assert all(record.elapsed_seconds >= 0 for record in records)
 
 
 def test_depth_ordering_front_occludes_back():

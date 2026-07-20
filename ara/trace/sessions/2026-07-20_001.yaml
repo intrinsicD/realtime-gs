@@ -2,9 +2,9 @@ session:
   id: "2026-07-20_001"
   date: "2026-07-20"
   started: "2026-07-20T02:47+02:00"
-  last_turn: "2026-07-20T02:47+02:00"
-  turn_count: 1
-  summary: "Completed and audited the full compact all-view 70k development fit, exposed the weak 5k initializer, and committed an exact CPU CSR acceleration task."
+  last_turn: "2026-07-20T23:45+02:00"
+  turn_count: 2
+  summary: "Executed and audited calibrated dense-confidence E1/I1/E2, rejected a default change, and repaired the evaluator's dominant performance path."
 
 events_logged:
   - turn: 1
@@ -32,6 +32,73 @@ events_logged:
     provenance: ai-suggested
     summary: "Python-fragmented tile evaluation is the leading placement bottleneck hypothesis, but its detailed profile and prototype speedup were not preserved."
 
+  - turn: 2
+    type: experiment
+    id: N151
+    routing: direct
+    provenance: ai-executed
+    summary: "E1 dense-all gained 1.9714 dB but failed the 2x count gate at 13.48x."
+  - turn: 2
+    type: experiment
+    id: N152
+    routing: direct
+    provenance: ai-executed
+    summary: "I1 implemented the frozen cluster classifier and reproduced exactly 60 retained clusters."
+  - turn: 2
+    type: experiment
+    id: N153
+    routing: direct
+    provenance: ai-executed
+    summary: "E2 easy-only finished 2.1747 dB below dense-all on late-release C1004."
+  - turn: 2
+    type: dead_end
+    id: N154
+    routing: direct
+    provenance: ai-executed
+    summary: "Closed easy-only as a default under the exact 300-step matched-cap schedule."
+  - turn: 2
+    type: decision
+    id: N155
+    routing: direct
+    provenance: ai-executed
+    summary: "Retained balanced top-K and kept I2/E3 closed because localization was absent."
+  - turn: 2
+    type: experiment
+    id: N156
+    routing: direct
+    provenance: ai-executed
+    summary: "Profiled full-frame rendering, added fit-window/pluggable evaluation and exact target caching."
+  - turn: 2
+    type: experiment
+    id: N157
+    routing: direct
+    provenance: ai-executed
+    summary: "Refreshed and audited the quick CPU benchmark without authorizing causal timing claims."
+  - turn: 2
+    type: claim
+    id: C24
+    routing: crystallized
+    provenance: ai-executed
+    summary: "Dense confidence gating fails the frozen E1/E2 route to a default."
+  - turn: 2
+    type: heuristic
+    id: H05
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Cache exact compact evaluation targets and render only scored fit windows."
+  - turn: 2
+    type: heuristic
+    id: H06
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Flatten exact CSR queries before hierarchy or CUDA complexity."
+  - turn: 2
+    type: constraint
+    id: R23
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Qualify dirty/single-run timings as local diagnostics."
+
 ai_actions:
   - turn: 1
     action: "Implemented the recoverable full-compact harness, segmented global optimization schedules, high-resolution tiled SSIM, immutable selection/evaluation lineage, and focused CPU tests."
@@ -55,7 +122,47 @@ ai_actions:
     files_changed:
       - "docs/TASK_COMPACT_PLACEMENT_CSR_ACCELERATION.md"
 
-claims_touched: []
+  - turn: 2
+    action: "Implemented the confidence gate, E2 sealed harness, fit-window evaluation, pluggable rasterizer/progress hooks, immutable target cache, and empty degree-0 PLY repair."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/lift/compact_confidence_gate.py"
+      - "src/rtgs/lift/compact_init_eval.py"
+      - "src/rtgs/render/torch_ref.py"
+      - "src/rtgs/core/gaussians3d.py"
+      - "benchmarks/compact_init_eval.py"
+      - "benchmarks/dense_confidence_gated_init_e2.py"
+  - turn: 2
+    action: "Ran and independently audited calibrated E1, preregistered/implemented I1, and preregistered/executed late-release E2."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e1_RESULT.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e1_AUDIT.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_i1_RESULT.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_i1_AUDIT.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e2_RESULT.md"
+      - "benchmarks/results/20260720_dense_confidence_gated_init_e2_AUDIT.md"
+  - turn: 2
+    action: "Ran cProfile/resource diagnostics, calibrated cache parity timing, the tracked quick benchmark with audit, focused CUDA parity tests, and two full CPU verification passes."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260720T213644Z_cpu.json"
+      - "benchmarks/results/20260720T213644Z_cpu_AUDIT.md"
+      - "docs/BENCHMARKS.md"
+  - turn: 2
+    action: "Synchronized the experiment log, task outcome, roadmap, architecture, and ARA evidence."
+    provenance: ai-executed
+    files_changed:
+      - "docs/EXPERIMENTS.md"
+      - "docs/TASK_DENSE_CONFIDENCE_GATED_INIT.md"
+      - "docs/ROADMAP.md"
+      - "docs/ARCHITECTURE.md"
+      - "ara/evidence/tables/20260720_dense_confidence_gated_init.md"
+
+claims_touched:
+  - id: C24
+    action: crystallized
+    turn: 2
 
 key_context:
   - turn: 1
@@ -65,12 +172,19 @@ key_context:
   - turn: 1
     excerpt: "All T/V/H-labelled cameras participated in fitting; the final original-reference metrics are fitted-view diagnostics, not held-out or novel-view evidence."
 
+  - turn: 2
+    excerpt: "The user requested faster execution, progress visibility without performance impact, and Python/perf-equivalent profiling."
+  - turn: 2
+    excerpt: "E2 is negative for the exact 300-step schedule; easy-only was still growing, so incapability and hard-correspondence causality remain unsupported."
+  - turn: 2
+    excerpt: "Prepared targets reproduced the frozen aggregate GPU metrics exactly and silent progress paths are timer-free."
+
 open_threads:
-  - "Implement Phase 1 of the exact flattened CPU CSR placement task and run its frozen parity and five-minute production gates."
-  - "Save quantitative initialization-only metrics and compare the current top-K placer with the source-fiber/correspondence-aware initializer."
-  - "Run a genuinely held-out or novel-view protocol before making general 3D reconstruction-quality claims."
+  - "Run the still-open frozen 26-view/130,000-component CSR production timing gate on a comparable idle baseline host."
+  - "If easy-only is revisited, preregister a longer budget-filling or spatial-localization experiment on fresh evidence; do not retune I1 on consumed E2."
+  - "Repeat calibrated quality and clean timing across frames/seeds before generalizing the one-frame E2 or local speed observations."
   - "Make future long production runs replay-complete by freezing dependency source, exact commands, optimizer state, RNG state, and host timing metadata."
 
 ai_suggestions_pending:
-  - "Treat the 108--120x prototype ratio and 2.5--3 minute CPU estimate only as hypotheses until the tracked CSR benchmark reproduces them."
-  - "Do not interpret acceleration of the current top-K placement as an improvement to its visibly weak initial geometry."
+  - "Use cached fit-window evaluation and gsplat for fast diagnostics while retaining Torch CPU as the semantic anchor."
+  - "Do not open hard-correspondence I2/E3 without the preregistered spatial localization signal."

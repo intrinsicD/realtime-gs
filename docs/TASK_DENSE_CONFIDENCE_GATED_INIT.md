@@ -1,19 +1,44 @@
 # Task: Confidence-gated dense image-free initialization (chained experiment plan)
 
-Status: preregistered plan — not yet executed on calibrated data
+Status: E1/I1/E2 executed and independently audited — negative E2; no default change; I2/E3 closed
 Primary path: `CompactCarveConfig.select_all_eligible` → `merge_by_voxel(return_group=True)` →
 correspondence-confidence gate → fixed 3D fitting + density control
 Depends on: the CSR-accelerated placement, `rtgs.lift.compact_init_eval`,
 `benchmarks/compact_init_eval.py`, and `rtgs.lift.compact_refine` (all landed 2026-07-20).
 
+## Outcome (2026-07-20)
+
+- **E1 failed its count-controlled gate.** Dense+merge improved all seven calibrated compact
+  training views and gained **+1.9714 dB** mean foreground PSNR over balanced top-K, but used
+  **13.48×** as many Gaussians (2,319 versus 172), above the frozen 2× limit.
+- **I1 reproduced its frozen gate.** The deterministic confidence classifier retained exactly
+  **60/2,319** clusters. Its same-view init-only screen was +0.4505 dB over top-K, but was
+  exploratory because those views parameterized the classifier.
+- **E2 rejected easy-only under the exact frozen downstream schedule.** After 300 matched
+  gsplat-Default steps, late-release C1004 foreground PSNR was **14.9079 dB** for dense-all,
+  **12.7332 dB** for easy-only, and 11.2280 dB for top-K. Easy-only was 2.1747 dB behind dense-all,
+  far outside the 0.0071 dB control-repeat envelope, despite ending smaller and slightly faster.
+- Balanced top-K remains the default. Easy-only was still growing at step 300, so the negative
+  result applies to this schedule rather than proving incapability. The deficit was not spatially
+  localized to hard-dropped regions, so the plan's condition for opening I2/E3 was not met.
+
+Canonical records:
+[`E1 result`](../benchmarks/results/20260720_dense_confidence_gated_init_e1_RESULT.md),
+[`E1 audit`](../benchmarks/results/20260720_dense_confidence_gated_init_e1_AUDIT.md),
+[`I1 result`](../benchmarks/results/20260720_dense_confidence_gated_init_i1_RESULT.md),
+[`I1 audit`](../benchmarks/results/20260720_dense_confidence_gated_init_i1_AUDIT.md),
+[`E2 preregistration`](../benchmarks/results/20260720_dense_confidence_gated_init_e2_PREREG.md),
+[`E2 result`](../benchmarks/results/20260720_dense_confidence_gated_init_e2_RESULT.md), and
+[`E2 audit`](../benchmarks/results/20260720_dense_confidence_gated_init_e2_AUDIT.md).
+
 ## Why this exists
 
-Two 2026-07-20 findings motivate this chain:
+Two 2026-07-20 pre-execution findings motivated this chain:
 
 1. **Dense+merge is a cheap, promising denser init.** Retaining one carve lift per supported 2D
    Gaussian across all views and deduplicating with the voxel-hash moment merge led the balanced
-   top-K by +1.04 dB init-only mean foreground PSNR on the synthetic scene. This is a mechanism
-   check only; the calibrated-frame number is unmeasured.
+   top-K by +1.04 dB init-only mean foreground PSNR on the synthetic scene. This was a
+   mechanism check only; the calibrated-frame number was unmeasured at preregistration.
 2. **Correspondence-free consensus does not pin geometry.** The local 4-dof refine
    (`rtgs.lift.compact_refine`) reliably maximizes its multi-view consensus objective but can move
    geometry *away* from the surface (it rewards coverage, drifting to the volumetric density core).
@@ -54,7 +79,7 @@ thresholds are preregistered in I1 and frozen before E2.
 
 ## Chain: experiment → evidence → implementation/follow-up → experiment …
 
-### E1 — Dense+merge vs balanced top-K, init-only, on a calibrated frame
+### E1 — Dense+merge vs balanced top-K, init-only, on a calibrated frame — complete
 
 - **Hypothesis**: on a calibrated `dataset/` frame, dense+merge yields higher init-only compact-view
   mean foreground PSNR than the balanced top-K at a controlled Gaussian count, and its merge
@@ -70,7 +95,7 @@ thresholds are preregistered in I1 and frozen before E2.
 - **Unlocks**: the cluster multiplicity distribution parameterizes I1 either way; a negative E1 still
   informs the gate (e.g. dense init is noisy → gating is more important, not less).
 
-### I1 — Correspondence-confidence gate (implementation)
+### I1 — Correspondence-confidence gate (implementation) — complete
 
 - Build a per-cluster confidence record from the signals above and a preregistered classifier
   (start with `m_c ≥ 2` AND spread ≤ τ·voxel AND `candidate_half_max_widths` ≤ w AND
@@ -80,7 +105,7 @@ thresholds are preregistered in I1 and frozen before E2.
   (e.g. a target seen by 3 views is easy; a single-view-only decoy is hard). Off by default; opt-in
   config on the dense path. Add a `--gate` mode to `benchmarks/compact_init_eval.py`.
 
-### E2 — Easy-only seed + density control vs dense-all vs top-K, downstream
+### E2 — Easy-only seed + density control vs dense-all vs top-K, downstream — complete
 
 - **Hypothesis**: an easy-only accurate seed + Adam + density control (gsplat DefaultStrategy
   clone/split/prune and MCMC teleport/relocation via `rtgs.optim.strategies`, or the CPU classic
@@ -99,7 +124,7 @@ thresholds are preregistered in I1 and frozen before E2.
   localize to hard-dropped areas), open I2/E3; otherwise easy-only becomes the candidate default and
   the correspondence work is deprioritized.
 
-### I2 / E3 — Explicit correspondence for the hard set (conditional on E2)
+### I2 / E3 — Explicit correspondence for the hard set — closed by E2 unlock rule
 
 - **I2**: wire `rtgs.lift.fiber_correspondence` into `compact_refine` so hard-set depth is
   constrained by cross-view matches (not consensus), recovering the correspondences the consensus
@@ -123,8 +148,7 @@ thresholds are preregistered in I1 and frozen before E2.
 
 ## Definition of done (per stage)
 
-E1 done when the calibrated dense-vs-top-K init-only comparison is measured, audited, and logged.
-I1 done when the gate is implemented, tested, and its diagnostics reproduce the E1 cluster
-distribution. E2 done when the three-arm downstream comparison meets its preregistered rule and is
-audited. I2/E3 are opened only by an E2 outcome that localizes held-out regressions to hard-dropped
-regions.
+E1, I1, and E2 are complete, audited, and logged. E2 did not meet its preregistered win rule,
+and its aggregate held-out deficit was not localized to hard-dropped regions; therefore I2/E3 were
+not opened. A longer budget-filling schedule or spatial-localization diagnostic would be a new,
+separately preregistered experiment rather than a reinterpretation of this chain.

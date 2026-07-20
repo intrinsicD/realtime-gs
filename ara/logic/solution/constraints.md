@@ -252,3 +252,16 @@
   `src/rtgs/lift/field_lifter.py`, `tests/test_field_loss.py`, `tests/test_field_validation.py`]
 - **Evidence**: [N113, N145, N146, `docs/DESIGN_field_lift.md`]
 - **From staging**: O127
+
+## R23: Qualify local performance diagnostics before portability claims
+- **Constraint**: A performance number is portable or causal only when source state, dependency
+  versions, device/host state, warmup, repetitions, and comparable inputs are bound. Dirty-worktree
+  quick receipts and single-run mixed CPU/GPU profiles may support mechanism diagnosis and parity
+  checks but must remain explicitly local diagnostics.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Code ref**: [`benchmarks/results/20260720T213644Z_cpu_AUDIT.md`,
+  `benchmarks/results/20260720_dense_confidence_gated_init_e1_RESULT.md`,
+  `benchmarks/results/20260720_dense_confidence_gated_init_e2_RESULT.md`]
+- **Evidence**: [N156, N157, `ara/evidence/tables/20260720_dense_confidence_gated_init.md`]
+- **From staging**: O131

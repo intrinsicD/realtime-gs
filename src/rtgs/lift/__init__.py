@@ -23,12 +23,20 @@ from rtgs.lift.compact_carve import (
     make_placement_progress_printer,
     score_world_points,
 )
+from rtgs.lift.compact_confidence_gate import (
+    ClusterConfidenceConfig,
+    ClusterConfidenceRecord,
+    ConfidenceGateResult,
+    gate_merged_initialization,
+)
 from rtgs.lift.compact_init_eval import (
     InitEvaluation,
+    InitEvaluationTarget,
     InitViewMetrics,
     dense_merged_initialization,
     evaluate_initialization,
     merge_initialization,
+    prepare_evaluation_targets,
     render_teacher_image,
 )
 from rtgs.lift.compact_refine import (
@@ -88,6 +96,9 @@ __all__ = [
     "CompactCandidateAuditCallback",
     "CompactCarveConfig",
     "CompactCarveInitializer",
+    "ClusterConfidenceConfig",
+    "ClusterConfidenceRecord",
+    "ConfidenceGateResult",
     "CompactInitializationResult",
     "CompactInitializer",
     "CompactLineage",
@@ -98,6 +109,7 @@ __all__ = [
     "CompactRayDepthAuditCallback",
     "DepthLifter",
     "InitEvaluation",
+    "InitEvaluationTarget",
     "InitViewMetrics",
     "LocalDepthRefineConfig",
     "LocalDepthRefineResult",
@@ -112,6 +124,7 @@ __all__ = [
     "RandomLifter",
     "SfMLifter",
     "get_lifter",
+    "gate_merged_initialization",
     "build_fiber_from_initialization",
     "covariance_projection_design",
     "cyclic_shift_grouped_scores",
@@ -123,6 +136,7 @@ __all__ = [
     "lifter_names",
     "make_placement_progress_printer",
     "merge_initialization",
+    "prepare_evaluation_targets",
     "pairwise_center_cost",
     "pairwise_conic_cost",
     "pairwise_gaussian_geometry_cost",

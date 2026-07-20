@@ -8,6 +8,10 @@ the fast path. Chunked over pixel rows to bound memory.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from dataclasses import dataclass
+from time import perf_counter
+
 import torch
 
 from rtgs.core.camera import Camera
@@ -36,6 +40,19 @@ _MAX_ALPHA = 0.999
 KERNEL_SUPPORT_MODES = ("hard", "c1_taper", "hard_forward_c1_taper_gradient")
 
 
+@dataclass(frozen=True)
+class TorchRenderProgress:
+    """Bounded row-chunk progress for long reference renders."""
+
+    completed_rows: int
+    total_rows: int
+    visible_gaussians: int
+    elapsed_seconds: float
+
+
+TorchRenderProgressCallback = Callable[[TorchRenderProgress], None]
+
+
 class TorchRasterizer:
     """Reference implementation of the Rasterizer protocol."""
 
@@ -49,6 +66,7 @@ class TorchRasterizer:
         kernel_support_mode: str = "hard",
         collect_kernel_support_diagnostics: bool = False,
         visibility_margin_sigma: float = DEFAULT_VISIBILITY_MARGIN_SIGMA,
+        progress_callback: TorchRenderProgressCallback | None = None,
     ):
         if sh_color_activation not in SH_COLOR_ACTIVATIONS:
             choices = ", ".join(SH_COLOR_ACTIVATIONS)
@@ -71,6 +89,7 @@ class TorchRasterizer:
         self.kernel_support_mode = kernel_support_mode
         self.collect_kernel_support_diagnostics = collect_kernel_support_diagnostics
         self.visibility_margin_sigma = _validate_visibility_margin_sigma(visibility_margin_sigma)
+        self.progress_callback = progress_callback
 
     def render(
         self,
@@ -184,6 +203,7 @@ class TorchRasterizer:
         collect_kernel_diagnostics = (
             self.collect_kernel_support_diagnostics and torch.is_grad_enabled()
         )
+        render_started = perf_counter() if self.progress_callback is not None else None
         for r0 in range(0, h, self.row_chunk):
             r1 = min(r0 + self.row_chunk, h)
             ys = torch.arange(r0, r1, device=device, dtype=g.means.dtype) + 0.5
@@ -218,6 +238,16 @@ class TorchRasterizer:
             color_rows.append(color)
             alpha_rows.append(acc)
             depth_rows.append(depth)
+            if self.progress_callback is not None:
+                assert render_started is not None
+                self.progress_callback(
+                    TorchRenderProgress(
+                        completed_rows=r1,
+                        total_rows=h,
+                        visible_gaussians=int(vis_idx.numel()),
+                        elapsed_seconds=perf_counter() - render_started,
+                    )
+                )
 
         kernel_support_diagnostics = None
         if collect_kernel_diagnostics:
