@@ -23,6 +23,14 @@ from rtgs.lift.compact_carve import (
     make_placement_progress_printer,
     score_world_points,
 )
+from rtgs.lift.compact_init_eval import (
+    InitEvaluation,
+    InitViewMetrics,
+    dense_merged_initialization,
+    evaluate_initialization,
+    merge_initialization,
+    render_teacher_image,
+)
 from rtgs.lift.depth import DepthLifter
 from rtgs.lift.field_lifter import FieldLiftConfig, FieldLifter, FieldLiftResult
 from rtgs.lift.gradient import GradientLifter
@@ -83,6 +91,8 @@ __all__ = [
     "CompactRayDepthAuditBatch",
     "CompactRayDepthAuditCallback",
     "DepthLifter",
+    "InitEvaluation",
+    "InitViewMetrics",
     "FieldLiftConfig",
     "FieldLiftResult",
     "FieldLifter",
@@ -96,15 +106,19 @@ __all__ = [
     "get_lifter",
     "covariance_projection_design",
     "cyclic_shift_grouped_scores",
+    "dense_merged_initialization",
+    "evaluate_initialization",
     "exact_assignment_loss",
     "exact_linear_assignment",
     "hard_correspondence_loss",
     "lifter_names",
     "make_placement_progress_printer",
+    "merge_initialization",
     "pairwise_center_cost",
     "pairwise_conic_cost",
     "pairwise_gaussian_geometry_cost",
     "radius_connected_components",
+    "render_teacher_image",
     "score_world_points",
     "select_component_representatives",
     "spd_affine_invariant_squared",

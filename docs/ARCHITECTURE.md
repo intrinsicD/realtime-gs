@@ -156,8 +156,13 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
   globally supported candidate (one lift per proposed 2D Gaussian across all views) instead of the
   balanced top-K; `rtgs.lift.merge.merge_by_voxel(..., return_group=True)` then deduplicates the
   dense set and returns the cluster map, whose composition with per-Gaussian lineage is the
-  cross-view correspondence byproduct. This dense-then-merge path is a tested CPU mechanism only —
-  no initialization-quality result is claimed, and the balanced top-K remains the default.
+  cross-view correspondence byproduct. `rtgs.lift.compact_init_eval` scores an initialization
+  *before* any 3DGS optimization by rendering it through each camera and comparing to that view's
+  exact 2D teacher render (full/foreground PSNR + SSIM), and `benchmarks/compact_init_eval.py`
+  compares dense+merge against the balanced top-K end to end (`--synthetic` or `--bundle`), saving
+  init-only metrics, viewer PLYs, and a side-by-side `rtgs view` command. This dense-then-merge
+  path is a tested CPU mechanism only — no calibrated-scene initialization-quality result is
+  claimed, and the balanced top-K remains the default.
 
 No module imports CUDA-only or heavyweight optional dependencies at import time; they are
 imported inside functions and failures produce actionable error messages.

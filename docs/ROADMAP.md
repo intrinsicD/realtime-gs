@@ -178,9 +178,12 @@
       backward-memory bound remain.)
 - [ ] Evaluate the dense image-free initializer: `select_all_eligible` retains one carve lift per
       2D Gaussian across all views and `merge_by_voxel(return_group=True)` deduplicates them (the
-      cluster map is a cross-view correspondence byproduct). The mechanism is CPU-tested and opt-in;
-      before any default change, run the frozen calibrated scene and report saved initialization-only
-      metrics for dense+merge vs the balanced top-K, then decide whether a 4-dof
+      cluster map is a cross-view correspondence byproduct). Mechanism, init-only compact-view
+      metrics (`rtgs.lift.compact_init_eval`), and the dense-vs-top-K harness
+      (`benchmarks/compact_init_eval.py`) are CPU-tested and opt-in; the synthetic scene is only a
+      mechanism check. Remaining before any default change: run the harness on a frozen calibrated
+      `dataset/` frame, report saved initialization-only metrics + viewer PLYs for dense+merge vs
+      the balanced top-K through the results-audit skill, then decide whether a 4-dof
       inverse-projection-fiber local refine between lift and merge is warranted
 - [x] Implement depth-seeded bounded-ray hybrid B→A; evaluate uncertainty and shorter schedules
 - [x] Initial density ablation: a short 15k-capped schedule beats no-density and unrestricted
