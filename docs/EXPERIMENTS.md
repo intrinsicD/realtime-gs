@@ -46,10 +46,13 @@ comment at the changed default. Threshold changes in tests must cite an entry he
   fiber geometry needs explicit cross-view correspondence, not consensus. The refine is retained as
   an opt-in prototype and a seam the correspondence path can plug into; it is **off by default** and
   makes no quality claim. Absolute synthetic numbers are relative-only.
-- **Follow-ups**: Run `benchmarks/compact_init_eval.py --bundle` on a calibrated `dataset/` frame
-  through the results-audit skill and report saved init-only metrics + viewer PLYs for
-  top-K vs dense+merge (± refine); only then wire correspondence (`fiber_correspondence`) into the
-  refine to constrain depth, and re-measure.
+- **Follow-ups**: Execute the preregistered chain in
+  `docs/TASK_DENSE_CONFIDENCE_GATED_INIT.md` — E1: `benchmarks/compact_init_eval.py --bundle` on a
+  calibrated `dataset/` frame (init-only top-K vs dense+merge, audited); I1: a correspondence-
+  confidence gate (view multiplicity + cohesion + depth sharpness) that keeps only easy clusters;
+  E2: easy-only seed + density control (split/merge/prune + MCMC teleport) vs dense-all vs top-K on
+  downstream held-out quality; I2/E3: wire `fiber_correspondence` for the hard set only if
+  densification cannot cover the dropped regions.
 
 ---
 
