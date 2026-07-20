@@ -31,6 +31,12 @@ from rtgs.lift.compact_init_eval import (
     merge_initialization,
     render_teacher_image,
 )
+from rtgs.lift.compact_refine import (
+    LocalDepthRefineConfig,
+    LocalDepthRefineResult,
+    build_fiber_from_initialization,
+    refine_initialization_depths,
+)
 from rtgs.lift.depth import DepthLifter
 from rtgs.lift.field_lifter import FieldLiftConfig, FieldLifter, FieldLiftResult
 from rtgs.lift.gradient import GradientLifter
@@ -93,6 +99,8 @@ __all__ = [
     "DepthLifter",
     "InitEvaluation",
     "InitViewMetrics",
+    "LocalDepthRefineConfig",
+    "LocalDepthRefineResult",
     "FieldLiftConfig",
     "FieldLiftResult",
     "FieldLifter",
@@ -104,6 +112,7 @@ __all__ = [
     "RandomLifter",
     "SfMLifter",
     "get_lifter",
+    "build_fiber_from_initialization",
     "covariance_projection_design",
     "cyclic_shift_grouped_scores",
     "dense_merged_initialization",
@@ -118,6 +127,7 @@ __all__ = [
     "pairwise_conic_cost",
     "pairwise_gaussian_geometry_cost",
     "radius_connected_components",
+    "refine_initialization_depths",
     "render_teacher_image",
     "score_world_points",
     "select_component_representatives",

@@ -181,7 +181,27 @@ def test_harness_run_writes_metrics_and_viewer_plys(tmp_path):
     assert report["dense_merged"]["n_gaussians"] >= 1
     assert report["dense_merged"]["lifted"] > report["topk"]["n_gaussians"]
     assert math.isfinite(report["delta_mean_foreground_psnr"])
+    assert report["dense_refined_merged"] is None  # refine is off by default
     assert (tmp_path / "init_topk.ply").exists()
     assert (tmp_path / "init_dense_merged.ply").exists()
     assert (tmp_path / "init_eval.json").exists()
     assert report["viewer_command"].startswith("rtgs view --gaussians")
+
+
+def test_harness_refine_stage_reports_objective_and_saves_ply(tmp_path):
+    from benchmarks.compact_init_eval import _synthetic_inputs, run
+
+    report = run(
+        _synthetic_inputs(),
+        n_init_3d=5,
+        merge_voxel_size=0.06,
+        out_dir=tmp_path,
+        init_opacity=0.5,
+        refine=True,
+    )
+    refined = report["dense_refined_merged"]
+    assert refined is not None
+    assert math.isfinite(refined["consensus_objective_initial"])
+    assert refined["consensus_objective_refined"] >= refined["consensus_objective_initial"] - 1e-6
+    assert refined["n_gaussians"] >= 1
+    assert (tmp_path / "init_dense_refined_merged.ply").exists()

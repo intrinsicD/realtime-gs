@@ -17,6 +17,42 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-20 — Dense all-Gaussian init, voxel merge, and a correspondence-free 4-dof refine
+
+- **Question**: Does lifting *every* supported 2D Gaussian (not the sparse top-K), then
+  deduplicating with a voxel-hash merge — optionally with a local 4-dof depth refine between lift
+  and merge — improve the image-free initialization, and does a correspondence-free local refine
+  help?
+- **Setup**: CPU-only, deterministic. New opt-in seams: `CompactCarveConfig.select_all_eligible`
+  (one carve lift per 2D Gaussian across all views), `merge_by_voxel(return_group=True)` (dedup +
+  cross-view correspondence byproduct), init-only compact-view metrics rendering each 3D
+  initialization against its exact 2D teacher (`rtgs.lift.compact_init_eval`), a runnable harness
+  (`benchmarks/compact_init_eval.py --synthetic|--bundle [--refine]`), and a correspondence-free
+  local 4-dof refine (`rtgs.lift.compact_refine`) that lifts a `CompactInitializationResult` into
+  the exact `InverseProjectionFiber` and gradient-optimizes depth (optionally the covariance
+  ray-scale) against a smooth multi-view consensus objective (soft coverage × color agreement,
+  source view excluded). Evidence is CPU-fixture mechanism only; no calibrated bundle was run.
+- **Result**: On the synthetic 5-camera scene, dense+merge leads the balanced top-K by **+1.04 dB**
+  init-only mean foreground PSNR (7.49 vs 6.45) at a comparable Gaussian count, and the merge group
+  map recovers the expected cross-view correspondence clusters. The local refine **does** maximize
+  its consensus objective and is deterministic, but its effect on geometry is at best neutral and
+  can be **negative**: on a deliberately coarse-sampled fixture the objective rose (3.9938→3.9956)
+  while mean distance-to-truth *worsened* (0.122→0.140). Correspondence-free consensus rewards
+  multi-view coverage, so it drifts toward the volumetric density core rather than the exact
+  surface.
+- **Conclusion**: (1) Retaining all 2D Gaussians + merge is a cheap, real denser-init gain on the
+  fixture and is the first thing to measure on a calibrated frame. (2) The consensus objective is a
+  poor *depth* refiner on its own — this empirically reproduces the documented finding that pinning
+  fiber geometry needs explicit cross-view correspondence, not consensus. The refine is retained as
+  an opt-in prototype and a seam the correspondence path can plug into; it is **off by default** and
+  makes no quality claim. Absolute synthetic numbers are relative-only.
+- **Follow-ups**: Run `benchmarks/compact_init_eval.py --bundle` on a calibrated `dataset/` frame
+  through the results-audit skill and report saved init-only metrics + viewer PLYs for
+  top-K vs dense+merge (± refine); only then wire correspondence (`fiber_correspondence`) into the
+  refine to constrain depth, and re-measure.
+
+---
+
 ## 2026-07-20 — Flattened exact CPU CSR observation index (placement Phase 1)
 
 - **Question**: Can the exact, image-free compact-placement query be accelerated by replacing the

@@ -183,8 +183,12 @@
       (`benchmarks/compact_init_eval.py`) are CPU-tested and opt-in; the synthetic scene is only a
       mechanism check. Remaining before any default change: run the harness on a frozen calibrated
       `dataset/` frame, report saved initialization-only metrics + viewer PLYs for dense+merge vs
-      the balanced top-K through the results-audit skill, then decide whether a 4-dof
-      inverse-projection-fiber local refine between lift and merge is warranted
+      the balanced top-K through the results-audit skill. A correspondence-free 4-dof local refine
+      between lift and merge (`rtgs.lift.compact_refine`) is prototyped and off by default: it
+      optimizes a smooth multi-view consensus but does not reliably improve geometry (it drifts to
+      the density core), empirically reconfirming that pinning fiber depth needs explicit
+      cross-view correspondence — wire `fiber_correspondence` into the refine before expecting a
+      geometry gain
 - [x] Implement depth-seeded bounded-ray hybrid B→A; evaluate uncertainty and shorter schedules
 - [x] Initial density ablation: a short 15k-capped schedule beats no-density and unrestricted
       growth on Janelle; repeat across scenes and compare gsplat MCMC/teleportation

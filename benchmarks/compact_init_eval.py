@@ -30,8 +30,13 @@ import torch
 from rtgs.core.camera import Camera
 from rtgs.core.observation2d import GaussianObservationField, GaussianObservationIndex
 from rtgs.data.reconstruction_inputs import ReconstructionInputs
-from rtgs.lift.compact_carve import CompactCarveConfig, CompactCarveInitializer
+from rtgs.lift.compact_carve import (
+    CompactCarveConfig,
+    CompactCarveInitializer,
+    CompactInitializationResult,
+)
 from rtgs.lift.compact_init_eval import evaluate_initialization, merge_initialization
+from rtgs.lift.compact_refine import LocalDepthRefineConfig, refine_initialization_depths
 
 
 def _synthetic_inputs(*, image_size: int = 48) -> ReconstructionInputs:
@@ -119,6 +124,7 @@ def run(
     color_std_sigma: float = 0.20,
     min_score: float = 0.05,
     init_opacity: float = 0.5,
+    refine: bool = False,
 ) -> dict:
     shared = dict(
         candidate_multiplier=4,
@@ -155,6 +161,37 @@ def run(
         if dense.lineage.source_view_indices[group == cluster].unique().numel() > 1:
             cross_view_clusters += 1
 
+    refined_block: dict | None = None
+    if refine:
+        # Correspondence-free local 4-dof refine between lift and merge (prototype). Reported
+        # honestly: the consensus objective is optimized, but geometry may drift because
+        # correspondence-free consensus rewards coverage, not the exact surface.
+        refined = refine_initialization_depths(
+            inputs, dense, LocalDepthRefineConfig(init_opacity=init_opacity), backends=indexes
+        )
+        refined_merged, _ = merge_initialization(
+            CompactInitializationResult(
+                gaussians=refined.gaussians,
+                lineage=dense.lineage,
+                depths=refined.refined_depths,
+                depth_sigmas=dense.depth_sigmas,
+                ray_sigmas=dense.ray_sigmas,
+                scores=dense.scores,
+                diagnostics=dense.diagnostics,
+            ),
+            merge_voxel_size,
+        )
+        refined_eval = evaluate_initialization(inputs, refined_merged, backends=indexes)
+        refined_ply = out_dir / "init_dense_refined_merged.ply"
+        refined_merged.save_ply(refined_ply)
+        refined_block = {
+            "consensus_objective_initial": refined.initial_objective,
+            "consensus_objective_refined": refined.refined_objective,
+            "mean_absolute_depth_change": refined.diagnostics["mean_absolute_depth_change"],
+            "ply": str(refined_ply),
+            **refined_eval.as_dict(),
+        }
+
     report = {
         "scene": inputs.name,
         "n_views": inputs.n_views,
@@ -172,6 +209,7 @@ def run(
         "delta_mean_foreground_psnr": (
             dense_eval.mean_foreground_psnr - topk_eval.mean_foreground_psnr
         ),
+        "dense_refined_merged": refined_block,
         "artifacts": {"topk_ply": str(topk_ply), "dense_merged_ply": str(dense_ply)},
         "viewer_command": (f"rtgs view --gaussians {dense_ply} --initial {topk_ply}"),
     }
@@ -188,6 +226,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--n-init-3d", type=int, default=None, help="top-K control budget")
     parser.add_argument("--merge-voxel", type=float, default=0.06, help="merge voxel size")
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument(
+        "--refine",
+        action="store_true",
+        help="also run the correspondence-free local 4-dof depth refine (prototype)",
+    )
     args = parser.parse_args(argv)
 
     if args.bundle is not None:
@@ -205,6 +248,7 @@ def main(argv: list[str] | None = None) -> int:
         merge_voxel_size=args.merge_voxel,
         out_dir=out_dir,
         seed=args.seed,
+        refine=args.refine,
     )
     print(json.dumps(report, indent=2))
     print(
@@ -221,6 +265,18 @@ def main(argv: list[str] | None = None) -> int:
         )
     )
     print("Δ mean fg-PSNR (dense - top-K): {:+.2f} dB".format(report["delta_mean_foreground_psnr"]))
+    if report["dense_refined_merged"] is not None:
+        refined = report["dense_refined_merged"]
+        print(
+            "refine  consensus objective {:.4f} -> {:.4f}, mean |Δdepth| {:.4f}; "
+            "merged fg-PSNR {:.2f} dB over {} gaussians".format(
+                refined["consensus_objective_initial"],
+                refined["consensus_objective_refined"],
+                refined["mean_absolute_depth_change"],
+                refined["mean_foreground_psnr"],
+                refined["n_gaussians"],
+            )
+        )
     print("\nviewer:", report["viewer_command"])
     return 0
 
