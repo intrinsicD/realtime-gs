@@ -17,6 +17,98 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-20 — Dense all-Gaussian init, voxel merge, and a correspondence-free 4-dof refine
+
+- **Question**: Does lifting *every* supported 2D Gaussian (not the sparse top-K), then
+  deduplicating with a voxel-hash merge — optionally with a local 4-dof depth refine between lift
+  and merge — improve the image-free initialization, and does a correspondence-free local refine
+  help?
+- **Setup**: CPU-only, deterministic. New opt-in seams: `CompactCarveConfig.select_all_eligible`
+  (one carve lift per 2D Gaussian across all views), `merge_by_voxel(return_group=True)` (dedup +
+  cross-view correspondence byproduct), init-only compact-view metrics rendering each 3D
+  initialization against its exact 2D teacher (`rtgs.lift.compact_init_eval`), a runnable harness
+  (`benchmarks/compact_init_eval.py --synthetic|--bundle [--refine]`), and a correspondence-free
+  local 4-dof refine (`rtgs.lift.compact_refine`) that lifts a `CompactInitializationResult` into
+  the exact `InverseProjectionFiber` and gradient-optimizes depth (optionally the covariance
+  ray-scale) against a smooth multi-view consensus objective (soft coverage × color agreement,
+  source view excluded). Evidence is CPU-fixture mechanism only; no calibrated bundle was run.
+- **Result**: On the synthetic 5-camera scene, dense+merge leads the balanced top-K by **+1.04 dB**
+  init-only mean foreground PSNR (7.49 vs 6.45) at a comparable Gaussian count, and the merge group
+  map recovers the expected cross-view correspondence clusters. The local refine **does** maximize
+  its consensus objective and is deterministic, but its effect on geometry is at best neutral and
+  can be **negative**: on a deliberately coarse-sampled fixture the objective rose (3.9938→3.9956)
+  while mean distance-to-truth *worsened* (0.122→0.140). Correspondence-free consensus rewards
+  multi-view coverage, so it drifts toward the volumetric density core rather than the exact
+  surface.
+- **Conclusion**: (1) Retaining all 2D Gaussians + merge is a cheap, real denser-init gain on the
+  fixture and is the first thing to measure on a calibrated frame. (2) The consensus objective is a
+  poor *depth* refiner on its own — this empirically reproduces the documented finding that pinning
+  fiber geometry needs explicit cross-view correspondence, not consensus. The refine is retained as
+  an opt-in prototype and a seam the correspondence path can plug into; it is **off by default** and
+  makes no quality claim. Absolute synthetic numbers are relative-only.
+- **Follow-ups**: Execute the preregistered chain in
+  `docs/TASK_DENSE_CONFIDENCE_GATED_INIT.md` — E1: `benchmarks/compact_init_eval.py --bundle` on a
+  calibrated `dataset/` frame (init-only top-K vs dense+merge, audited); I1: a correspondence-
+  confidence gate (view multiplicity + cohesion + depth sharpness) that keeps only easy clusters;
+  E2: easy-only seed + density control (split/merge/prune + MCMC teleport) vs dense-all vs top-K on
+  downstream held-out quality; I2/E3: wire `fiber_correspondence` for the hard set only if
+  densification cannot cover the dropped regions.
+
+---
+
+## 2026-07-20 — Flattened exact CPU CSR observation index (placement Phase 1)
+
+- **Question**: Can the exact, image-free compact-placement query be accelerated by replacing the
+  per-tile Python query loop in `GaussianObservationIndex` with one flattened CSR index and a
+  bounded vectorized point/component pair stream, **without** changing any selected ray, depth
+  sample, score equation, or downstream geometry? (Task:
+  `docs/TASK_COMPACT_PLACEMENT_CSR_ACCELERATION.md`, Phase 1.)
+- **Setup**: CPU-only, seed 0. The index now retains three contiguous arrays (`tile_keys` int64
+  `[T]`, `tile_offsets` int64 `[T+1]`, `component_ids` int32/int64 `[E]`) built directly in
+  canonical component-ID order, and answers queries by `torch.searchsorted` + a bounded
+  `(point, component)` pair stream evaluated through the exact
+  `GaussianObservationField._paired_values` / `_paired_weights`, reduced with deterministic
+  `index_add`. Streaming is capped by `CompactCarveConfig.max_query_pairs` (default 1,048,576),
+  plumbed into every index. The pre-CSR grouped index is retained privately
+  (`_GroupedObservationIndexReference`) as the frozen parity/benchmark oracle. Parity is tested
+  against both that oracle and the all-component `GaussianObservationField.query` reference across
+  tile sizes 1/2/16, normalized/additive blending, support fade, filter variance/AA dilation,
+  affine color, odd-crop mean residuals, zero amplitudes, mixed radii, window/support/empty-tile
+  edges, and coordinate gradients (`tests/test_observation_csr.py`,
+  `tests/test_compact_carve.py`). Tracked micro-case `compact_placement_csr_cpu` added to
+  `benchmarks/run.py`; result file `benchmarks/results/20260720T123859Z_cpu.json`
+  (torch 2.13.0+cpu).
+- **Result**: The CSR query is numerically indistinguishable from the reference within the float32
+  contract — **max color error 2.4e-7**, **max weight-sum error 2.4e-7** vs the grouped oracle,
+  and **bit-exact (0.0)** vs the sequential all-component `field.query` reference (both sum the
+  identical candidate subset in ascending component order). Discrete decisions (`n_seen`,
+  `n_covered`, winning depth index, selected candidate indices, source lineage) are **exactly
+  equal** to the grouped reference on the deterministic placement fixtures, and are invariant to
+  the legal pair budget. The tracked `--quick` micro-case (600 components, 2,048 query points,
+  tile 16) recorded **grouped 0.1427 s → CSR 0.0082 s = 17.4× speedup**, retained payload 20,480
+  bytes, `int32` component IDs, 4,094 entries over 256 non-empty tiles (max 27 candidates), peak
+  pair chunk 32,766, `within_contract=1`. The speedup grows with field size (the per-query
+  candidate list, not projection, dominated the old path), consistent with — but not a substitute
+  for — the session-local 108–120× production-batch prototype.
+- **Conclusion**: Phase 1's flattened CSR CPU path is implemented as the production default,
+  preserves exact placement identity and downstream geometry, bounds transient memory, and makes
+  progress visible (`CompactPlacementProgress`) and persisted (placement counters in the
+  initialization diagnostics). The CPU micro-benchmark and unit parity confirm the mechanism and
+  the direction of the speedup with high confidence. **What is not established here**: the full
+  production confirmatory gate — all 26 views, 130,000 compact 2D Gaussians, 32 depth samples,
+  4.16M sampled points, selecting 5,000 seeds, wall time `4:02:28 → ≤ 300 s` (target ≤ 180 s) — was
+  **not** run in this CPU environment (the production bundle and a comparable baseline workstation
+  are unavailable here); it remains open on the baseline machine, to be measured against the frozen
+  reference audit. Per the task, this acceleration does **not** improve the visibly weak
+  5,000-Gaussian initialization quality; that remains work for the correspondence-aware fiber
+  initializer.
+- **Follow-ups**: Run the frozen 26-view/130k production placement on the baseline workstation and
+  confirm the ≤5-minute gate and exact-parity/quality guardrails; save initialization-only metrics
+  and viewer-ready PLYs beside the downstream metrics; only then consider the optional pluggable
+  CUDA scorer (Phase 2) and evidence-gated hierarchy (Phase 3, opened only on a post-CSR profile).
+
+---
+
 ## 2026-07-20 — Full compact all-view reconstruction and placement diagnosis (development)
 
 - **Question**: Are the 26 mask-aware, sub-168,000-byte StructSplat bundles sufficient to fit a

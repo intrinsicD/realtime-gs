@@ -173,7 +173,24 @@
       The older CPU synthetic RGB preregistration is not the execution protocol for this follow-up
 - [ ] Add aggregate device-byte/index budgets, replace eager Python overlap lists with CSR/lazy
       storage, add indexed CUDA compact-teacher queries, and bound backward activation memory before
-      making a production-scale claim
+      making a production-scale claim. (Flattened CPU CSR observation queries landed 2026-07-20 with
+      exact parity and a tracked micro-benchmark; the device-byte/index budgets, CUDA queries, and
+      backward-memory bound remain.)
+- [ ] Evaluate the dense image-free initializer: `select_all_eligible` retains one carve lift per
+      2D Gaussian across all views and `merge_by_voxel(return_group=True)` deduplicates them (the
+      cluster map is a cross-view correspondence byproduct). Mechanism, init-only compact-view
+      metrics (`rtgs.lift.compact_init_eval`), and the dense-vs-top-K harness
+      (`benchmarks/compact_init_eval.py`) are CPU-tested and opt-in; the synthetic scene is only a
+      mechanism check. Remaining before any default change: run the harness on a frozen calibrated
+      `dataset/` frame, report saved initialization-only metrics + viewer PLYs for dense+merge vs
+      the balanced top-K through the results-audit skill. A correspondence-free 4-dof local refine
+      between lift and merge (`rtgs.lift.compact_refine`) is prototyped and off by default: it
+      optimizes a smooth multi-view consensus but does not reliably improve geometry (it drifts to
+      the density core), empirically reconfirming that pinning fiber depth needs explicit
+      cross-view correspondence — wire `fiber_correspondence` into the refine before expecting a
+      geometry gain. Preregistered execution chain (E1 init-only → I1 confidence gate → E2 easy-only
+      seed + density control → I2/E3 correspondence for the hard set) in
+      `docs/TASK_DENSE_CONFIDENCE_GATED_INIT.md`
 - [x] Implement depth-seeded bounded-ray hybrid B→A; evaluate uncertainty and shorter schedules
 - [x] Initial density ablation: a short 15k-capped schedule beats no-density and unrestricted
       growth on Janelle; repeat across scenes and compare gsplat MCMC/teleportation

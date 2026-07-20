@@ -26,14 +26,20 @@ def merge_by_voxel(
     opacity_mode: str = "union",
     component_weights: torch.Tensor | None = None,
     color_bin_size: float | None = None,
-) -> Gaussians3D:
+    return_group: bool = False,
+) -> Gaussians3D | tuple[Gaussians3D, torch.Tensor]:
     """Merge compatible observations in one voxel using confidence-weighted moments.
 
     ``color_bin_size`` optionally augments the spatial hash with quantized DC color.  This avoids
     fusing front/back surfaces that merely land in the same coarse voxel.
+
+    With ``return_group=True`` also returns the ``(N,)`` cluster assignment mapping each input
+    Gaussian to its merged output row.  Composed with per-Gaussian source lineage, that assignment
+    is the cross-view correspondence byproduct: inputs sharing a cluster are the same surface patch
+    seen from different views.
     """
     if g.n == 0:
-        return g
+        return (g, torch.zeros(0, dtype=torch.long, device=g.means.device)) if return_group else g
     keys = torch.floor(g.means / voxel_size).long()
     if color_bin_size is not None:
         if color_bin_size <= 0:
@@ -86,10 +92,11 @@ def merge_by_voxel(
     evecs[det < 0, :, 2] *= -1.0
     from rtgs.core.gaussians3d import rotmat_to_quat
 
-    return Gaussians3D(
+    merged = Gaussians3D(
         means=mu,
         quats=rotmat_to_quat(evecs),
         log_scales=evals.clamp_min(1e-12).sqrt().log(),
         opacity=opacity,
         sh=sh_merged,
     )
+    return (merged, group) if return_group else merged

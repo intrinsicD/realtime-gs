@@ -129,21 +129,45 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
   production default; the real TUM registered-depth reference is isolated in its research harness.
 - **Compact observation query** (`GaussianObservationField` / `GaussianObservationIndex`): the
   dependency-free field is the CPU equation anchor and the sparse CPU tile index implements the
-  same point-query surface. `GaussianPointProposal` has O(`N_opt,2D`) base component state; the
-  reference query is O(samples x components), while the tile index stores O(component x overlapped
-  tiles) entries and queries only local candidates. It uses fixed-attempt null thinning plus a
-  uniform floor. Its declared risk is continuous fitted-window area, not the legacy discrete-pixel
-  loss; equivalence is an experiment, not an assumption. Current parity evidence covers complete
-  CPU pixel grids, not CUDA or arbitrary continuous coordinates.
+  same point-query surface. The index stores three flattened CSR arrays (`tile_keys`,
+  `tile_offsets`, `component_ids`) instead of one tensor per tile, and answers queries by streaming
+  a bounded `(point, component)` pair sequence — in canonical point-major, ascending-component
+  order — through exact paired field evaluation, replacing the eager per-tile Python query loop.
+  `GaussianPointProposal` has O(`N_opt,2D`) base component state; the reference query is
+  O(samples x components), while the CSR index stores O(component x overlapped tiles) entries and
+  evaluates only local candidates. The pre-CSR grouped index is retained privately
+  (`_GroupedObservationIndexReference`) as the frozen parity/benchmark oracle. It uses
+  fixed-attempt null thinning plus a uniform floor. Its declared risk is continuous fitted-window
+  area, not the legacy discrete-pixel loss; equivalence is an experiment, not an assumption.
+  Current parity evidence covers complete CPU pixel grids, not CUDA or arbitrary continuous
+  coordinates.
 - **CompactInitializer** (`rtgs.lift.base.CompactInitializer`): consumes
   `ReconstructionInputs` rather than `SceneData`. The first implementation is the standalone
   `CompactCarveInitializer`; it is deliberately not registered in the legacy lifter registry or
   wired into the CLI. A bounded research harness now composes it with `CompactTrainer`, but the
   terminal calibrated lifecycle failed at its later exact-viewer ABI gate and therefore did not
   establish an end-to-end integration PASS.
-  Query point batches and reference-backend point–component temporaries are explicitly capped;
-  the static tile index still stores all component–tile overlaps, aggregate bundle/component/index/
-  3D-cardinality budgets are incomplete, and custom query backends must honor the chunk contract.
+  Query point batches and the transient streamed point–component pair chunk are explicitly capped
+  (`CompactCarveConfig.max_query_pairs`, plumbed into each index); the CSR index still stores all
+  component–tile overlaps in contiguous arrays, aggregate bundle/component/index/3D-cardinality
+  budgets are incomplete, and custom query backends must honor the chunk contract. Placement emits
+  a silent-by-default typed `CompactPlacementProgress` record and persists final pair/chunk/payload
+  counters in the initialization diagnostics. An opt-in `select_all_eligible` mode retains every
+  globally supported candidate (one lift per proposed 2D Gaussian across all views) instead of the
+  balanced top-K; `rtgs.lift.merge.merge_by_voxel(..., return_group=True)` then deduplicates the
+  dense set and returns the cluster map, whose composition with per-Gaussian lineage is the
+  cross-view correspondence byproduct. `rtgs.lift.compact_init_eval` scores an initialization
+  *before* any 3DGS optimization by rendering it through each camera and comparing to that view's
+  exact 2D teacher render (full/foreground PSNR + SSIM), and `benchmarks/compact_init_eval.py`
+  compares dense+merge against the balanced top-K end to end (`--synthetic` or `--bundle`), saving
+  init-only metrics, viewer PLYs, and a side-by-side `rtgs view` command. `rtgs.lift.compact_refine`
+  is an opt-in prototype that lifts a `CompactInitializationResult` into the exact
+  `InverseProjectionFiber` and locally refines depth (optionally the covariance ray-scale) against a
+  smooth, correspondence-free multi-view consensus objective before merging; it reproduces the
+  documented limitation that consensus optimizes but does not pin geometry (it can drift to the
+  density core), so it is off by default. This dense-then-merge(-then-optional-refine) path is a
+  tested CPU mechanism only — no calibrated-scene initialization-quality result is claimed, and the
+  balanced top-K remains the default.
 
 No module imports CUDA-only or heavyweight optional dependencies at import time; they are
 imported inside functions and failures produce actionable error messages.

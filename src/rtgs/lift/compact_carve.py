@@ -16,6 +16,7 @@ clamping it to the 3D Gaussian RGB domain.
 from __future__ import annotations
 
 import math
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
@@ -62,6 +63,7 @@ class CompactCarveConfig:
     init_opacity: float = 0.1
     sh_degree: int = 0
     max_anchor_rounds: int = 8
+    select_all_eligible: bool = False
 
     def __post_init__(self) -> None:
         integer_fields = (
@@ -132,6 +134,8 @@ class CompactCarveConfig:
             raise ValueError("sh_degree must be in [0,3]")
         if self.max_anchor_rounds <= 0:
             raise ValueError("max_anchor_rounds must be positive")
+        if not isinstance(self.select_all_eligible, bool):
+            raise TypeError("select_all_eligible must be a bool")
 
 
 @dataclass(frozen=True)
@@ -236,6 +240,74 @@ class CompactInitializationResult:
         return self.gaussians.n
 
 
+@dataclass(frozen=True)
+class CompactPlacementProgress:
+    """Typed, silent-by-default progress record for the exact image-free placement loop.
+
+    The library emits these; long-running consumers (benchmark, CLI) throttle their printing. The
+    final counters are also persisted in :attr:`CompactInitializationResult.diagnostics` so a long
+    silent regression cannot recur unobserved.
+    """
+
+    phase: str  # "index_built", "ray_batch", or "complete"
+    completed_ray_batches: int
+    total_ray_batches: int
+    sampled_points: int
+    completed_point_view_queries: int
+    evaluated_pairs: int
+    index_payload_bytes: tuple[int, ...]
+    index_build_seconds: float
+    elapsed_seconds: float
+    points_per_second: float
+    estimated_remaining_seconds: float
+    current_pair_chunk: int
+    peak_pair_chunk: int
+
+    def format_line(self) -> str:
+        """One-line human summary for progress printers."""
+        payload_mib = sum(self.index_payload_bytes) / 1024**2
+        return (
+            f"[compact-placement {self.phase}] "
+            f"batch {self.completed_ray_batches}/{self.total_ray_batches} "
+            f"points {self.sampled_points} pairs {self.evaluated_pairs} "
+            f"chunk {self.current_pair_chunk}/{self.peak_pair_chunk} "
+            f"index {payload_mib:.1f}MiB build {self.index_build_seconds:.2f}s "
+            f"elapsed {self.elapsed_seconds:.1f}s "
+            f"~{self.estimated_remaining_seconds:.1f}s left "
+            f"({self.points_per_second:.0f} pts/s)"
+        )
+
+
+CompactPlacementProgressCallback = Callable[[CompactPlacementProgress], None]
+
+
+def make_placement_progress_printer(
+    *,
+    every_batches: int = 10,
+    every_seconds: float = 30.0,
+    printer: Callable[[str], None] = print,
+) -> CompactPlacementProgressCallback:
+    """Build a throttled progress callback that prints at a bounded batch/time interval.
+
+    Always prints the ``index_built`` and ``complete`` phases; ``ray_batch`` phases print at most
+    once every ``every_batches`` batches or ``every_seconds`` seconds, whichever comes first.
+    """
+    state = {"last_batch": 0, "last_time": 0.0}
+
+    def callback(record: CompactPlacementProgress) -> None:
+        due = (
+            record.phase != "ray_batch"
+            or record.completed_ray_batches - state["last_batch"] >= every_batches
+            or record.elapsed_seconds - state["last_time"] >= every_seconds
+        )
+        if due:
+            state["last_batch"] = record.completed_ray_batches
+            state["last_time"] = record.elapsed_seconds
+            printer(record.format_line())
+
+    return callback
+
+
 def score_world_points(
     inputs: ReconstructionInputs,
     points: torch.Tensor,
@@ -271,6 +343,7 @@ def score_world_points(
                 tile_size=config.tile_size,
                 max_entries=config.max_index_entries_per_view,
                 max_candidates=config.max_candidates_per_tile,
+                max_query_pairs=config.max_query_pairs,
             )
             for field in inputs.observations
         ]
@@ -332,6 +405,7 @@ class CompactCarveInitializer:
         *,
         candidate_audit_callback: CompactCandidateAuditCallback | None = None,
         ray_depth_audit_callback: CompactRayDepthAuditCallback | None = None,
+        progress_callback: CompactPlacementProgressCallback | None = None,
     ) -> CompactInitializationResult:
         """Produce ``n_init_3d`` all-view-scored Gaussians or fail on insufficient support.
 
@@ -339,12 +413,16 @@ class CompactCarveInitializer:
         once with detached clones of every proposed candidate and the exact selected indices.
         ``ray_depth_audit_callback`` is a scalable observation hook called once per contiguous
         ray batch with detached clones of every sampled depth and its exact consensus statistics.
+        ``progress_callback`` is silent by default; when supplied it receives a typed
+        :class:`CompactPlacementProgress` record at index completion, after every ray batch, and at
+        completion. Library code never prints; long-running consumers throttle their own output.
         """
         _validate_cpu_inputs(inputs)
         if self.config.min_views > inputs.n_views:
             raise ValueError("compact Carve min_views exceeds the number of compact views")
         dtype = inputs.observations[0].dtype
         generator = torch.Generator(device="cpu").manual_seed(self.config.seed)
+        build_start = time.perf_counter()
         if backends is None:
             backends = [
                 GaussianObservationIndex(
@@ -352,6 +430,7 @@ class CompactCarveInitializer:
                     tile_size=self.config.tile_size,
                     max_entries=self.config.max_index_entries_per_view,
                     max_candidates=self.config.max_candidates_per_tile,
+                    max_query_pairs=self.config.max_query_pairs,
                 )
                 for field in inputs.observations
             ]
@@ -371,6 +450,18 @@ class CompactCarveInitializer:
                     raise ValueError("indexed query backend differs from compact Carve caps")
             if isinstance(backend, GaussianObservationField) and backend is not field:
                 raise ValueError("field query backends must correspond to their ordered teacher")
+
+        index_build_seconds = time.perf_counter() - build_start
+        index_payload_bytes = tuple(int(getattr(b, "payload_bytes", 0)) for b in backends)
+        placement_start = time.perf_counter()
+
+        def _placement_counters() -> tuple[int, int, int]:
+            evaluated = sum(int(getattr(b, "total_pairs_evaluated", 0)) for b in backends)
+            current_chunk = max(
+                (int(getattr(b, "last_pair_chunk", 0)) for b in backends), default=0
+            )
+            peak_chunk = max((int(getattr(b, "peak_pair_chunk", 0)) for b in backends), default=0)
+            return evaluated, current_chunk, peak_chunk
 
         view_ids, component_ids, xy, anchor_attempts, proposed_per_view = _propose_anchors(
             inputs,
@@ -405,9 +496,30 @@ class CompactCarveInitializer:
             half_max_widths = torch.zeros(candidate_count, dtype=dtype)
 
         ray_batch = max(1, self.config.query_batch_size // self.config.samples_per_ray)
+        total_ray_batches = math.ceil(candidate_count / ray_batch)
+        total_points = candidate_count * self.config.samples_per_ray
         steps = (
             torch.arange(self.config.samples_per_ray, dtype=dtype) + 0.5
         ) / self.config.samples_per_ray
+        if progress_callback is not None:
+            progress_callback(
+                CompactPlacementProgress(
+                    phase="index_built",
+                    completed_ray_batches=0,
+                    total_ray_batches=total_ray_batches,
+                    sampled_points=0,
+                    completed_point_view_queries=0,
+                    evaluated_pairs=0,
+                    index_payload_bytes=index_payload_bytes,
+                    index_build_seconds=index_build_seconds,
+                    elapsed_seconds=time.perf_counter() - placement_start,
+                    points_per_second=0.0,
+                    estimated_remaining_seconds=0.0,
+                    current_pair_chunk=0,
+                    peak_pair_chunk=0,
+                )
+            )
+        completed_batches = 0
         for start in range(0, candidate_count, ray_batch):
             end = min(start + ray_batch, candidate_count)
             local_views = view_ids[start:end]
@@ -537,22 +649,55 @@ class CompactCarveInitializer:
                     0.0,
                 )
 
+            completed_batches += 1
+            if progress_callback is not None:
+                elapsed = time.perf_counter() - placement_start
+                sampled_points = end * self.config.samples_per_ray
+                evaluated_pairs, current_chunk, peak_chunk = _placement_counters()
+                rate = sampled_points / elapsed if elapsed > 0 else 0.0
+                remaining = (total_points - sampled_points) / rate if rate > 0 else 0.0
+                progress_callback(
+                    CompactPlacementProgress(
+                        phase="ray_batch",
+                        completed_ray_batches=completed_batches,
+                        total_ray_batches=total_ray_batches,
+                        sampled_points=sampled_points,
+                        completed_point_view_queries=sampled_points * inputs.n_views,
+                        evaluated_pairs=evaluated_pairs,
+                        index_payload_bytes=index_payload_bytes,
+                        index_build_seconds=index_build_seconds,
+                        elapsed_seconds=elapsed,
+                        points_per_second=rate,
+                        estimated_remaining_seconds=remaining,
+                        current_pair_chunk=current_chunk,
+                        peak_pair_chunk=peak_chunk,
+                    )
+                )
+
+        placement_seconds = time.perf_counter() - placement_start
+        final_evaluated_pairs, _, final_peak_chunk = _placement_counters()
         eligible = valid_rays & (best_scores > self.config.min_score)
         if int(eligible.sum()) < self.config.n_init_3d:
             raise ValueError(
                 "compact Carve found fewer globally supported ray placements than n_init_3d; "
                 "increase candidate_multiplier or loosen the preregistered support thresholds"
             )
-        selected = _balanced_topk(
-            best_scores,
-            eligible,
-            view_ids,
-            self.config.n_init_3d,
-            inputs.n_views,
-        )
+        if self.config.select_all_eligible:
+            # Retain every globally supported candidate (one lift per proposed 2D Gaussian) in
+            # canonical candidate order; a downstream voxel merge deduplicates redundant views.
+            selected = eligible.nonzero(as_tuple=True)[0]
+        else:
+            selected = _balanced_topk(
+                best_scores,
+                eligible,
+                view_ids,
+                self.config.n_init_3d,
+                inputs.n_views,
+            )
+        n_selected = int(selected.numel())
 
         selected_covariances = torch.empty(
-            self.config.n_init_3d,
+            n_selected,
             3,
             3,
             dtype=dtype,
@@ -582,7 +727,7 @@ class CompactCarveInitializer:
         unclamped_colors = best_colors[selected]
         colors = unclamped_colors.clamp(0.0, 1.0)
         opacity = torch.full(
-            (self.config.n_init_3d,),
+            (n_selected,),
             self.config.init_opacity,
             dtype=dtype,
         )
@@ -608,6 +753,9 @@ class CompactCarveInitializer:
             "search_aabb_lower": lo.tolist(),
             "search_aabb_upper": hi.tolist(),
             "anchor_mode": self.config.anchor_mode,
+            "selection_mode": (
+                "all_eligible" if self.config.select_all_eligible else "balanced_topk"
+            ),
             "candidate_count": candidate_count,
             "proposed_candidates_per_view": proposed_per_view,
             "eligible_candidate_count": int(eligible.sum()),
@@ -620,6 +768,17 @@ class CompactCarveInitializer:
                 backend.n_entries if isinstance(backend, GaussianObservationIndex) else None
                 for backend in backends
             ],
+            "teacher_component_id_dtypes": [
+                str(backend.component_id_dtype).removeprefix("torch.")
+                if isinstance(backend, GaussianObservationIndex)
+                else None
+                for backend in backends
+            ],
+            "placement_evaluated_pairs": final_evaluated_pairs,
+            "placement_peak_pair_chunk": final_peak_chunk,
+            "placement_index_payload_bytes": list(index_payload_bytes),
+            "placement_ray_batches": total_ray_batches,
+            "placement_sampled_points": total_points,
             "color_clipped_fraction": float((colors != unclamped_colors).any(dim=1).float().mean()),
         }
         result = CompactInitializationResult(
@@ -653,6 +812,26 @@ class CompactCarveInitializer:
                     candidate_valid_mask=valid_rays.detach().clone(),
                     candidate_eligible_mask=eligible.detach().clone(),
                     selected_candidate_indices=selected.detach().clone(),
+                )
+            )
+        if progress_callback is not None:
+            progress_callback(
+                CompactPlacementProgress(
+                    phase="complete",
+                    completed_ray_batches=completed_batches,
+                    total_ray_batches=total_ray_batches,
+                    sampled_points=total_points,
+                    completed_point_view_queries=total_points * inputs.n_views,
+                    evaluated_pairs=final_evaluated_pairs,
+                    index_payload_bytes=index_payload_bytes,
+                    index_build_seconds=index_build_seconds,
+                    elapsed_seconds=placement_seconds,
+                    points_per_second=(
+                        total_points / placement_seconds if placement_seconds > 0 else 0.0
+                    ),
+                    estimated_remaining_seconds=0.0,
+                    current_pair_chunk=0,
+                    peak_pair_chunk=final_peak_chunk,
                 )
             )
         return result
@@ -990,8 +1169,11 @@ __all__ = [
     "CompactCarveInitializer",
     "CompactInitializationResult",
     "CompactLineage",
+    "CompactPlacementProgress",
+    "CompactPlacementProgressCallback",
     "CompactPointScores",
     "CompactRayDepthAuditBatch",
     "CompactRayDepthAuditCallback",
+    "make_placement_progress_printer",
     "score_world_points",
 ]

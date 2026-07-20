@@ -1003,3 +1003,36 @@ def test_merge_keeps_separate_cells():
     )
     merged = merge_by_voxel(g, voxel_size=1.0)
     assert merged.n == 2
+
+
+def test_merge_by_voxel_returns_group_correspondence_map():
+    # Two views of one surface patch (near 0) plus a distinct patch (near 5).
+    means = torch.tensor(
+        [[0.0, 0.0, 0.0], [0.02, 0.0, 0.0], [5.0, 5.0, 5.0]],
+    )
+    g = Gaussians3D.from_means_covs(
+        means=means,
+        covs=torch.eye(3).expand(3, 3, 3) * 1e-4,
+        colors=torch.rand(3, 3),
+        opacity=torch.full((3,), 0.5),
+    )
+    # Default return type is unchanged (backward compatible).
+    assert isinstance(merge_by_voxel(g, voxel_size=1.0), Gaussians3D)
+
+    merged, group = merge_by_voxel(g, voxel_size=1.0, return_group=True)
+    assert merged.n == 2
+    assert group.shape == (3,)
+    # The first two inputs (same patch, different views) fuse; the third stays separate.
+    assert int(group[0]) == int(group[1])
+    assert int(group[2]) != int(group[0])
+
+    # Empty input stays empty and still returns a group vector.
+    empty = Gaussians3D.from_means_covs(
+        means=torch.zeros(0, 3),
+        covs=torch.zeros(0, 3, 3),
+        colors=torch.zeros(0, 3),
+        opacity=torch.zeros(0),
+    )
+    empty_merged, empty_group = merge_by_voxel(empty, voxel_size=1.0, return_group=True)
+    assert empty_merged.n == 0
+    assert empty_group.shape == (0,)
