@@ -1,0 +1,40 @@
+{
+  "schema": "inverse_projection_fiber_iter1e_independent_results_audit_v1",
+  "verdict": "ACCEPT_VALID_NEGATIVE_WITH_REPLAY_CAVEATS",
+  "scientific_status": "FAIL",
+  "transaction_committed": true,
+  "result_sha256": "2601a45d19d1d8a636d3c0db5ef8b14adf5f4137baaf718c86e1f80a84cecf9e",
+  "terminal_sha256": "4f886e723f459670aec0078dd0b076de3b994bb6bbcefcc76e50aeacaf2164d3",
+  "lifecycle_sha256": "d20e7788e8df2c782db50c4ea0daf8d970e57e3837f9743df3b8df3ea1c4db39",
+  "commit_validation_sha256": "948346f0a9b9d3a217de75b7b39ee403e747730e4b89e07845e4a90740fb18db",
+  "executed_source_archive_sha256": "cc23e3ab9e95307453e97193d71f84040a832b16b08fb4e9d231f661ecb1f5a5",
+  "executed_source_archive_files": 50,
+  "executed_source_archive_matches_result_manifest": true,
+  "independent_checks": {
+    "canonical_json": true,
+    "cross_hashes": true,
+    "current_public_inode_identity": true,
+    "publication_order_and_no_uncertainty": true,
+    "aggregate_arithmetic": true,
+    "scientific_gate_recomputation": true,
+    "exact_base_metric_rederivation": false
+  },
+  "claim_dispositions": {
+    "exact_source_projection_invariant": "CONFIRM_SYNTHETIC_ONLY",
+    "latent_hardmin_recovers_correspondence": "RETIRE_FOR_THIS_PROTOCOL",
+    "fiber_approaches_oracle": "RETIRE",
+    "fiber_separates_from_shuffled": "RETIRE",
+    "fiber_vs_free_attribution": "UNINTERPRETABLE",
+    "true_global_correspondence": "NOT_TESTED",
+    "appearance_topology_real_data": "NOT_TESTED",
+    "performance": "NOT_TESTED"
+  },
+  "findings": [
+    "Exact per-hypothesis evaluation arrays and float64 final tensors were not saved, so exact base metrics cannot be independently reconstructed without reusing consumed roots.",
+    "The executed sentinel combiner omitted construction, finite-difference, and duplicate-hard-min pass flags; all three passed in this run, so the negative outcome is unchanged.",
+    "The dirty executed source is now durably preserved in a 50-file archive that matches the result manifest.",
+    "Commit validation is a post-lifecycle current-state record and is not itself cross-hash anchored by lifecycle."
+  ],
+  "cuda_or_gpu_work_performed": false,
+  "official_roots_rerun": false
+}

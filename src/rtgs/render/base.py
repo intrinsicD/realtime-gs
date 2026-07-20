@@ -14,6 +14,40 @@ import torch
 
 from rtgs.core.camera import Camera
 from rtgs.core.gaussians3d import Gaussians3D
+from rtgs.core.sh import DEFAULT_SMU1_MU
+
+DEFAULT_VISIBILITY_MARGIN_SIGMA = 3.0
+
+
+def _validate_visibility_margin_sigma(value: float) -> float:
+    """Normalize the Torch coarse-culling margin and reject invalid values."""
+    margin = float(value)
+    if not torch.isfinite(torch.tensor(margin)) or margin <= 0.0:
+        raise ValueError("visibility_margin_sigma must be finite and positive")
+    return margin
+
+
+@dataclass
+class SHColorDiagnostics:
+    """Visible SH colors before/after activation, retained for gradient audits."""
+
+    preactivation: torch.Tensor  # (V,3), shifted SH color before the floor
+    activated: torch.Tensor  # (V,3), color consumed by compositing
+    gaussian_indices: torch.Tensor  # (V,), rows in the input Gaussian set
+
+
+@dataclass
+class KernelSupportDiagnostics:
+    """Per-chunk kernel inputs/outputs retained until one training backward pass.
+
+    The reference renderer is row-chunked, so preserving chunk boundaries avoids an
+    outcome-sized concatenation in the forward pass.  The trainer reduces these tensors
+    immediately after backward and clears both lists.
+    """
+
+    q_chunks: list[torch.Tensor]  # each (P,V), squared Mahalanobis distance
+    kernel_chunks: list[torch.Tensor]  # each (P,V), kernel consumed by compositing
+    gaussian_indices: torch.Tensor  # (V,), rows in the input Gaussian set
 
 
 @dataclass
@@ -31,6 +65,8 @@ class RenderOutput:
     depth: torch.Tensor  # (H, W)
     means2d: torch.Tensor | None = None  # (V,2) or (1,N,2), retained screen centers
     visible: torch.Tensor | None = None  # (V,) indices into the input gaussian set
+    sh_color_diagnostics: SHColorDiagnostics | None = None
+    kernel_support_diagnostics: KernelSupportDiagnostics | None = None
     # Backend-native metadata used by optional optimization strategies. Pipeline code must
     # otherwise remain backend-agnostic; torch_ref leaves this as None.
     strategy_info: dict | None = None
@@ -57,6 +93,12 @@ def get_rasterizer(
     packed: bool = False,
     absgrad: bool = False,
     antialiased: bool = False,
+    sh_color_activation: str = "hard",
+    sh_smu1_mu: float = DEFAULT_SMU1_MU,
+    collect_sh_color_diagnostics: bool = False,
+    kernel_support_mode: str = "hard",
+    collect_kernel_support_diagnostics: bool = False,
+    visibility_margin_sigma: float = DEFAULT_VISIBILITY_MARGIN_SIGMA,
 ) -> Rasterizer:
     """Return a rasterizer backend: 'torch' (reference), 'gsplat' (CUDA), or 'auto'.
 
@@ -68,14 +110,32 @@ def get_rasterizer(
         requested = None if device is None else torch.device(device)
         wants_cuda = requested is None or requested.type == "cuda"
         name = "gsplat" if wants_cuda and _gsplat_available() else "torch"
+    visibility_margin_sigma = _validate_visibility_margin_sigma(visibility_margin_sigma)
     if name == "torch":
         from rtgs.render.torch_ref import TorchRasterizer
 
-        return TorchRasterizer()
+        return TorchRasterizer(
+            sh_color_activation=sh_color_activation,
+            sh_smu1_mu=sh_smu1_mu,
+            collect_sh_color_diagnostics=collect_sh_color_diagnostics,
+            kernel_support_mode=kernel_support_mode,
+            collect_kernel_support_diagnostics=collect_kernel_support_diagnostics,
+            visibility_margin_sigma=visibility_margin_sigma,
+        )
     if name == "gsplat":
         from rtgs.render.gsplat_backend import GsplatRasterizer
 
-        return GsplatRasterizer(packed=packed, absgrad=absgrad, antialiased=antialiased)
+        return GsplatRasterizer(
+            packed=packed,
+            absgrad=absgrad,
+            antialiased=antialiased,
+            sh_color_activation=sh_color_activation,
+            sh_smu1_mu=sh_smu1_mu,
+            collect_sh_color_diagnostics=collect_sh_color_diagnostics,
+            kernel_support_mode=kernel_support_mode,
+            collect_kernel_support_diagnostics=collect_kernel_support_diagnostics,
+            visibility_margin_sigma=visibility_margin_sigma,
+        )
     raise ValueError(f"unknown rasterizer '{name}' (expected 'auto', 'torch' or 'gsplat')")
 
 

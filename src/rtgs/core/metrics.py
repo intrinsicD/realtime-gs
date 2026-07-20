@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import torch
 import torch.nn.functional as F
+from torch.utils.checkpoint import checkpoint
+
+_DEFAULT_SSIM_TILE_ROWS = 256
 
 
 def psnr(pred: torch.Tensor, target: torch.Tensor) -> float:
@@ -86,18 +89,14 @@ def _separable_filter(image: torch.Tensor, kernel: torch.Tensor) -> torch.Tensor
     return F.conv2d(filtered, horizontal, padding=(0, radius), groups=channels)
 
 
-def ssim(pred: torch.Tensor, target: torch.Tensor, window_size: int = 11) -> torch.Tensor:
-    """Structural similarity (mean over image), differentiable.
-
-    Standard single-scale SSIM with an 11x11 gaussian window (sigma 1.5), matching the
-    formulation used by 3DGS training losses.
-    """
-    if pred.ndim != 3 or pred.shape[-1] != 3:
-        raise ValueError("expected (H, W, 3) images")
-    x = pred.permute(2, 0, 1)[None]  # (1,3,H,W)
-    y = target.permute(2, 0, 1)[None]
-    kernel = _gaussian_window(window_size, 1.5, pred.device)
-
+def _ssim_tile_sum(
+    x: torch.Tensor,
+    y: torch.Tensor,
+    kernel: torch.Tensor,
+    local_y0: int,
+    local_y1: int,
+) -> torch.Tensor:
+    """Return the SSIM-map sum over the non-halo rows of an NCHW image tile."""
     mu_x = _separable_filter(x, kernel)
     mu_y = _separable_filter(y, kernel)
     mu_x2, mu_y2, mu_xy = mu_x * mu_x, mu_y * mu_y, mu_x * mu_y
@@ -109,4 +108,61 @@ def ssim(pred: torch.Tensor, target: torch.Tensor, window_size: int = 11) -> tor
     ssim_map = ((2 * mu_xy + c1) * (2 * sigma_xy + c2)) / (
         (mu_x2 + mu_y2 + c1) * (sigma_x2 + sigma_y2 + c2)
     )
-    return ssim_map.mean()
+    return ssim_map[:, :, local_y0:local_y1].sum()
+
+
+def ssim(
+    pred: torch.Tensor,
+    target: torch.Tensor,
+    window_size: int = 11,
+    *,
+    tile_rows: int | None = _DEFAULT_SSIM_TILE_ROWS,
+) -> torch.Tensor:
+    """Structural similarity (mean over image), differentiable.
+
+    Standard single-scale SSIM with an 11x11 gaussian window (sigma 1.5), matching the
+    formulation used by 3DGS training losses. The image is evaluated at its exact resolution
+    in row tiles by default. Each tile includes the gaussian-window halo, retaining the same
+    zero-padding semantics as a full-frame convolution. During autograd, tile computations are
+    checkpointed so only one tile's SSIM intermediates need to be resident at a time.
+
+    Pass ``tile_rows=None`` to use one full-height tile.
+    """
+    if pred.shape != target.shape or pred.ndim != 3 or pred.shape[-1] != 3:
+        raise ValueError("expected matching (H, W, 3) images")
+    if window_size <= 0 or window_size % 2 == 0:
+        raise ValueError("window_size must be a positive odd integer")
+    if tile_rows is not None and tile_rows <= 0:
+        raise ValueError("tile_rows must be positive or None")
+
+    x = pred.permute(2, 0, 1)[None]  # (1,3,H,W)
+    y = target.permute(2, 0, 1)[None]
+    kernel = _gaussian_window(window_size, 1.5, pred.device)
+    radius = window_size // 2
+    height = pred.shape[0]
+    rows_per_tile = height if tile_rows is None else tile_rows
+    total = pred.new_zeros(())
+
+    for y0 in range(0, height, rows_per_tile):
+        y1 = min(height, y0 + rows_per_tile)
+        source_y0 = max(0, y0 - radius)
+        source_y1 = min(height, y1 + radius)
+        local_y0 = y0 - source_y0
+        local_y1 = local_y0 + (y1 - y0)
+        x_tile = x[:, :, source_y0:source_y1]
+        y_tile = y[:, :, source_y0:source_y1]
+        if torch.is_grad_enabled() and (x_tile.requires_grad or y_tile.requires_grad):
+            tile_sum = checkpoint(
+                _ssim_tile_sum,
+                x_tile,
+                y_tile,
+                kernel,
+                local_y0,
+                local_y1,
+                use_reentrant=False,
+            )
+        else:
+            tile_sum = _ssim_tile_sum(x_tile, y_tile, kernel, local_y0, local_y1)
+        total = total + tile_sum
+
+    return total / pred.numel()

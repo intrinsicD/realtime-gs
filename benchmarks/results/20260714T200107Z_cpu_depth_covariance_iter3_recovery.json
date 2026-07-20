@@ -1,0 +1,1250 @@
+{
+  "meta": {
+    "timestamp": "2026-07-14T20:02:22+00:00",
+    "git_rev": "2dddca4",
+    "git_dirty": true,
+    "replay_manifest": "benchmarks/results/20260714_depth_covariance_REPLAY.md",
+    "torch": "2.9.0+cu128",
+    "device": "cpu",
+    "command": [
+      "/home/alex/Documents/realtime-gs/.venv/bin/python",
+      "benchmarks/depth_covariance_ablation.py",
+      "--seeds",
+      "0",
+      "1",
+      "2",
+      "--modes",
+      "isotropic",
+      "footprint",
+      "surface",
+      "--condition",
+      "blur-noise",
+      "--refine-iters",
+      "100",
+      "--merge",
+      "--densify",
+      "--robust-depth-gradients",
+      "--output",
+      "benchmarks/results/20260714T200107Z_cpu_depth_covariance_iter3_recovery.json"
+    ],
+    "config": {
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "modes": [
+        "isotropic",
+        "footprint",
+        "surface"
+      ],
+      "condition": "blur-noise",
+      "views": 12,
+      "test_every": 4,
+      "image_size": 48,
+      "gt_gaussians": 40,
+      "fit_gaussians": 150,
+      "fit_iters": 120,
+      "refine_iters": 100,
+      "merge": true,
+      "densify": true,
+      "normal_thickness": 0.15,
+      "robust_depth_gradients": true,
+      "isotropic_factors": [
+        0.5,
+        1.0,
+        2.0
+      ],
+      "threads": 4
+    }
+  },
+  "runs": [
+    {
+      "seed": 0,
+      "train_indices": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10
+      ],
+      "test_indices": [
+        3,
+        7,
+        11
+      ],
+      "fit_seconds": 3.5347394229997917,
+      "fit_psnr_mean": 28.681102964613174,
+      "isotropic_reference_sigma": 0.07648634165525436,
+      "isotropic_selected_sigma": 0.07648634165525436,
+      "isotropic_train_sweep_psnr": {
+        "0.5": 20.844647301567925,
+        "1": 20.999921798706055,
+        "2": 20.567477332221138
+      },
+      "modes": {
+        "isotropic": {
+          "n_init": 851,
+          "lift_seconds": 0.013686931999927765,
+          "init_train": {
+            "psnr": 20.999921798706055,
+            "ssim": 0.7288614445262485
+          },
+          "init_test": {
+            "psnr": 20.907546997070312,
+            "ssim": 0.7363387942314148
+          },
+          "init_test_diagnostics": {
+            "alpha_iou": 0.6748632987340292,
+            "foreground_coverage": 1.0,
+            "depth_rmse_intersection": 0.11721935449196613
+          },
+          "covariance": {
+            "condition_median": 1.300002098083496,
+            "condition_p95": 1.7810999155044556,
+            "condition_p99": 20.637800216674805,
+            "max_scale_over_extent": 0.07011807709932327,
+            "p99_scale_over_extent": 0.06403467804193497
+          },
+          "refine_seconds": 6.240375115999996,
+          "refine_history": {
+            "psnr": [
+              [
+                33,
+                24.730994542439777
+              ],
+              [
+                66,
+                26.867074966430664
+              ],
+              [
+                99,
+                27.635544459025066
+              ],
+              [
+                100,
+                27.728387196858723
+              ]
+            ],
+            "elapsed": [
+              [
+                33,
+                1.7242428340000515
+              ],
+              [
+                66,
+                3.43942727700005
+              ],
+              [
+                99,
+                6.067201825999746
+              ],
+              [
+                100,
+                6.2340475679998235
+              ]
+            ],
+            "n_gaussians": [
+              [
+                33,
+                851
+              ],
+              [
+                66,
+                851
+              ],
+              [
+                99,
+                1496
+              ],
+              [
+                100,
+                1496
+              ]
+            ],
+            "density_stats": [
+              {
+                "iteration": 80,
+                "n_before": 851,
+                "n_after": 1496,
+                "cloned": 0,
+                "split": 645,
+                "pruned": 0
+              }
+            ],
+            "density_strategy": "classic"
+          },
+          "n_final": 1496,
+          "final_train": {
+            "psnr": 28.28319549560547,
+            "ssim": 0.923065529929267
+          },
+          "final_test": {
+            "psnr": 27.728387196858723,
+            "ssim": 0.9079720576604208
+          },
+          "final_test_diagnostics": {
+            "alpha_iou": 0.8968000213305155,
+            "foreground_coverage": 0.9977688789367676,
+            "depth_rmse_intersection": 0.08153891350824359
+          }
+        },
+        "footprint": {
+          "n_init": 851,
+          "lift_seconds": 0.0183270959996662,
+          "init_train": {
+            "psnr": 20.86158710055881,
+            "ssim": 0.6499808695581224
+          },
+          "init_test": {
+            "psnr": 20.667368570963543,
+            "ssim": 0.6491170724232992
+          },
+          "init_test_diagnostics": {
+            "alpha_iou": 0.6221397121747335,
+            "foreground_coverage": 1.0,
+            "depth_rmse_intersection": 0.15537684557311965
+          },
+          "covariance": {
+            "condition_median": 2.2499523162841797,
+            "condition_p95": 8.978217124938965,
+            "condition_p99": 10.944385528564453,
+            "max_scale_over_extent": 0.19760911166667938,
+            "p99_scale_over_extent": 0.1657334864139557
+          },
+          "refine_seconds": 5.94055037399994,
+          "refine_history": {
+            "psnr": [
+              [
+                33,
+                24.34040069580078
+              ],
+              [
+                66,
+                26.596794764200848
+              ],
+              [
+                99,
+                26.55258623758952
+              ],
+              [
+                100,
+                26.63187599182129
+              ]
+            ],
+            "elapsed": [
+              [
+                33,
+                1.7551405939998403
+              ],
+              [
+                66,
+                3.4897360779996234
+              ],
+              [
+                99,
+                5.802511887000037
+              ],
+              [
+                100,
+                5.937653177999891
+              ]
+            ],
+            "n_gaussians": [
+              [
+                33,
+                851
+              ],
+              [
+                66,
+                851
+              ],
+              [
+                99,
+                1269
+              ],
+              [
+                100,
+                1269
+              ]
+            ],
+            "density_stats": [
+              {
+                "iteration": 80,
+                "n_before": 851,
+                "n_after": 1269,
+                "cloned": 3,
+                "split": 534,
+                "pruned": 119
+              }
+            ],
+            "density_strategy": "classic"
+          },
+          "n_final": 1269,
+          "final_train": {
+            "psnr": 27.95936181810167,
+            "ssim": 0.9189315636952718
+          },
+          "final_test": {
+            "psnr": 26.63187599182129,
+            "ssim": 0.8855303724606832
+          },
+          "final_test_diagnostics": {
+            "alpha_iou": 0.8849113384882609,
+            "foreground_coverage": 0.9992558360099792,
+            "depth_rmse_intersection": 0.08652685785446233
+          }
+        },
+        "surface": {
+          "n_init": 851,
+          "lift_seconds": 0.01630589299975327,
+          "init_train": {
+            "psnr": 21.08177990383572,
+            "ssim": 0.7113001743952433
+          },
+          "init_test": {
+            "psnr": 20.87249247233073,
+            "ssim": 0.7054490645726522
+          },
+          "init_test_diagnostics": {
+            "alpha_iou": 0.6415171027183533,
+            "foreground_coverage": 1.0,
+            "depth_rmse_intersection": 0.11223415547955727
+          },
+          "covariance": {
+            "condition_median": 105.74797821044922,
+            "condition_p95": 413.6783447265625,
+            "condition_p99": 619.3900146484375,
+            "max_scale_over_extent": 0.2620609998703003,
+            "p99_scale_over_extent": 0.17177778482437134
+          },
+          "refine_seconds": 5.813451245999659,
+          "refine_history": {
+            "psnr": [
+              [
+                33,
+                24.638439814249676
+              ],
+              [
+                66,
+                26.690176645914715
+              ],
+              [
+                99,
+                26.948397954305012
+              ],
+              [
+                100,
+                27.043214162190754
+              ]
+            ],
+            "elapsed": [
+              [
+                33,
+                1.713499388999935
+              ],
+              [
+                66,
+                3.479233280999779
+              ],
+              [
+                99,
+                5.682498220999605
+              ],
+              [
+                100,
+                5.809402690999832
+              ]
+            ],
+            "n_gaussians": [
+              [
+                33,
+                851
+              ],
+              [
+                66,
+                851
+              ],
+              [
+                99,
+                1199
+              ],
+              [
+                100,
+                1199
+              ]
+            ],
+            "density_stats": [
+              {
+                "iteration": 80,
+                "n_before": 851,
+                "n_after": 1199,
+                "cloned": 3,
+                "split": 511,
+                "pruned": 166
+              }
+            ],
+            "density_strategy": "classic"
+          },
+          "n_final": 1199,
+          "final_train": {
+            "psnr": 27.871938281589085,
+            "ssim": 0.9177032377984788
+          },
+          "final_test": {
+            "psnr": 27.043214162190754,
+            "ssim": 0.8937991857528687
+          },
+          "final_test_diagnostics": {
+            "alpha_iou": 0.8911857803662618,
+            "foreground_coverage": 0.9926055471102396,
+            "depth_rmse_intersection": 0.08224361231392564
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "train_indices": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10
+      ],
+      "test_indices": [
+        3,
+        7,
+        11
+      ],
+      "fit_seconds": 3.08327809299999,
+      "fit_psnr_mean": 28.683504316541885,
+      "isotropic_reference_sigma": 0.07481096684932709,
+      "isotropic_selected_sigma": 0.07481096684932709,
+      "isotropic_train_sweep_psnr": {
+        "0.5": 21.139381832546658,
+        "1": 21.301346884833443,
+        "2": 20.92770830790202
+      },
+      "modes": {
+        "isotropic": {
+          "n_init": 851,
+          "lift_seconds": 0.013401384000189864,
+          "init_train": {
+            "psnr": 21.301346884833443,
+            "ssim": 0.7306573722097609
+          },
+          "init_test": {
+            "psnr": 21.045254389444988,
+            "ssim": 0.7450380523999532
+          },
+          "init_test_diagnostics": {
+            "alpha_iou": 0.7087154785792033,
+            "foreground_coverage": 1.0,
+            "depth_rmse_intersection": 0.10918455444350601
+          },
+          "covariance": {
+            "condition_median": 1.3041123151779175,
+            "condition_p95": 3.3504233360290527,
+            "condition_p99": 80.68190002441406,
+            "max_scale_over_extent": 0.07242980599403381,
+            "p99_scale_over_extent": 0.06556461751461029
+          },
+          "refine_seconds": 6.179283791000216,
+          "refine_history": {
+            "psnr": [
+              [
+                33,
+                24.269458770751953
+              ],
+              [
+                66,
+                26.174265543619793
+              ],
+              [
+                99,
+                26.705448786417644
+              ],
+              [
+                100,
+                26.792418162027996
+              ]
+            ],
+            "elapsed": [
+              [
+                33,
+                1.6940227969998887
+              ],
+              [
+                66,
+                3.4137667720001446
+              ],
+              [
+                99,
+                6.012664964000123
+              ],
+              [
+                100,
+                6.174346597999829
+              ]
+            ],
+            "n_gaussians": [
+              [
+                33,
+                851
+              ],
+              [
+                66,
+                851
+              ],
+              [
+                99,
+                1488
+              ],
+              [
+                100,
+                1488
+              ]
+            ],
+            "density_stats": [
+              {
+                "iteration": 80,
+                "n_before": 851,
+                "n_after": 1488,
+                "cloned": 0,
+                "split": 637,
+                "pruned": 0
+              }
+            ],
+            "density_strategy": "classic"
+          },
+          "n_final": 1488,
+          "final_train": {
+            "psnr": 27.847254011366104,
+            "ssim": 0.911922362115648
+          },
+          "final_test": {
+            "psnr": 26.792418162027996,
+            "ssim": 0.8888206680615743
+          },
+          "final_test_diagnostics": {
+            "alpha_iou": 0.9054516752560934,
+            "foreground_coverage": 0.9912124077479044,
+            "depth_rmse_intersection": 0.09104703868207266
+          }
+        },
+        "footprint": {
+          "n_init": 851,
+          "lift_seconds": 0.018050161999781267,
+          "init_train": {
+            "psnr": 21.217466354370117,
+            "ssim": 0.6530202296045091
+          },
+          "init_test": {
+            "psnr": 21.252354939778645,
+            "ssim": 0.6787538925806681
+          },
+          "init_test_diagnostics": {
+            "alpha_iou": 0.6428353786468506,
+            "foreground_coverage": 1.0,
+            "depth_rmse_intersection": 0.1431114187633478
+          },
+          "covariance": {
+            "condition_median": 2.3449087142944336,
+            "condition_p95": 9.306610107421875,
+            "condition_p99": 11.685298919677734,
+            "max_scale_over_extent": 0.19245147705078125,
+            "p99_scale_over_extent": 0.16544096171855927
+          },
+          "refine_seconds": 5.735829321999972,
+          "refine_history": {
+            "psnr": [
+              [
+                33,
+                24.13226318359375
+              ],
+              [
+                66,
+                26.133586883544922
+              ],
+              [
+                99,
+                26.498009999593098
+              ],
+              [
+                100,
+                26.615612030029297
+              ]
+            ],
+            "elapsed": [
+              [
+                33,
+                1.7314765920000355
+              ],
+              [
+                66,
+                3.4177310670002043
+              ],
+              [
+                99,
+                5.60751598700017
+              ],
+              [
+                100,
+                5.731560232999982
+              ]
+            ],
+            "n_gaussians": [
+              [
+                33,
+                851
+              ],
+              [
+                66,
+                851
+              ],
+              [
+                99,
+                1195
+              ],
+              [
+                100,
+                1195
+              ]
+            ],
+            "density_stats": [
+              {
+                "iteration": 80,
+                "n_before": 851,
+                "n_after": 1195,
+                "cloned": 6,
+                "split": 505,
+                "pruned": 167
+              }
+            ],
+            "density_strategy": "classic"
+          },
+          "n_final": 1195,
+          "final_train": {
+            "psnr": 27.645638995700413,
+            "ssim": 0.909679094950358
+          },
+          "final_test": {
+            "psnr": 26.615612030029297,
+            "ssim": 0.8892918626467387
+          },
+          "final_test_diagnostics": {
+            "alpha_iou": 0.9057054917017618,
+            "foreground_coverage": 0.989603598912557,
+            "depth_rmse_intersection": 0.09039906857081847
+          }
+        },
+        "surface": {
+          "n_init": 851,
+          "lift_seconds": 0.016236545000083424,
+          "init_train": {
+            "psnr": 21.4231751759847,
+            "ssim": 0.713909023337894
+          },
+          "init_test": {
+            "psnr": 21.36478614807129,
+            "ssim": 0.7229125499725342
+          },
+          "init_test_diagnostics": {
+            "alpha_iou": 0.6651781598726908,
+            "foreground_coverage": 1.0,
+            "depth_rmse_intersection": 0.10075271528180514
+          },
+          "covariance": {
+            "condition_median": 117.78868103027344,
+            "condition_p95": 432.92376708984375,
+            "condition_p99": 708.2511596679688,
+            "max_scale_over_extent": 0.23015674948692322,
+            "p99_scale_over_extent": 0.17349229753017426
+          },
+          "refine_seconds": 5.587555961000362,
+          "refine_history": {
+            "psnr": [
+              [
+                33,
+                24.295352935791016
+              ],
+              [
+                66,
+                26.09361966451009
+              ],
+              [
+                99,
+                25.97731590270996
+              ],
+              [
+                100,
+                26.099449157714844
+              ]
+            ],
+            "elapsed": [
+              [
+                33,
+                1.6851173160002872
+              ],
+              [
+                66,
+                3.382361095000306
+              ],
+              [
+                99,
+                5.461233227000321
+              ],
+              [
+                100,
+                5.584062055000231
+              ]
+            ],
+            "n_gaussians": [
+              [
+                33,
+                851
+              ],
+              [
+                66,
+                851
+              ],
+              [
+                99,
+                1130
+              ],
+              [
+                100,
+                1130
+              ]
+            ],
+            "density_stats": [
+              {
+                "iteration": 80,
+                "n_before": 851,
+                "n_after": 1130,
+                "cloned": 5,
+                "split": 485,
+                "pruned": 211
+              }
+            ],
+            "density_strategy": "classic"
+          },
+          "n_final": 1130,
+          "final_train": {
+            "psnr": 27.2011292775472,
+            "ssim": 0.9046087331242032
+          },
+          "final_test": {
+            "psnr": 26.099449157714844,
+            "ssim": 0.8782201806704203
+          },
+          "final_test_diagnostics": {
+            "alpha_iou": 0.9003228147824606,
+            "foreground_coverage": 0.9922404885292053,
+            "depth_rmse_intersection": 0.10330918229537335
+          }
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "train_indices": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10
+      ],
+      "test_indices": [
+        3,
+        7,
+        11
+      ],
+      "fit_seconds": 3.147714871000062,
+      "fit_psnr_mean": 27.868404388427734,
+      "isotropic_reference_sigma": 0.07597020268440247,
+      "isotropic_selected_sigma": 0.07597020268440247,
+      "isotropic_train_sweep_psnr": {
+        "0.5": 20.99834632873535,
+        "1": 21.149438222249348,
+        "2": 20.725155300564236
+      },
+      "modes": {
+        "isotropic": {
+          "n_init": 828,
+          "lift_seconds": 0.01355163000016546,
+          "init_train": {
+            "psnr": 21.149438222249348,
+            "ssim": 0.7455503212081062
+          },
+          "init_test": {
+            "psnr": 20.88631757100423,
+            "ssim": 0.7560219168663025
+          },
+          "init_test_diagnostics": {
+            "alpha_iou": 0.6632954875628153,
+            "foreground_coverage": 1.0,
+            "depth_rmse_intersection": 0.10986605417025302
+          },
+          "covariance": {
+            "condition_median": 1.3148895502090454,
+            "condition_p95": 1.8409888744354248,
+            "condition_p99": 35.195682525634766,
+            "max_scale_over_extent": 0.07898829132318497,
+            "p99_scale_over_extent": 0.06874890625476837
+          },
+          "refine_seconds": 6.033222444999865,
+          "refine_history": {
+            "psnr": [
+              [
+                33,
+                24.029541015625
+              ],
+              [
+                66,
+                25.939551035563152
+              ],
+              [
+                99,
+                26.52935854593913
+              ],
+              [
+                100,
+                26.620346705118816
+              ]
+            ],
+            "elapsed": [
+              [
+                33,
+                1.6803537349996986
+              ],
+              [
+                66,
+                3.3344762669999
+              ],
+              [
+                99,
+                5.8687269480001305
+              ],
+              [
+                100,
+                6.027714454000034
+              ]
+            ],
+            "n_gaussians": [
+              [
+                33,
+                828
+              ],
+              [
+                66,
+                828
+              ],
+              [
+                99,
+                1460
+              ],
+              [
+                100,
+                1460
+              ]
+            ],
+            "density_stats": [
+              {
+                "iteration": 80,
+                "n_before": 828,
+                "n_after": 1460,
+                "cloned": 0,
+                "split": 632,
+                "pruned": 0
+              }
+            ],
+            "density_strategy": "classic"
+          },
+          "n_final": 1460,
+          "final_train": {
+            "psnr": 27.252852121988933,
+            "ssim": 0.9154598050647311
+          },
+          "final_test": {
+            "psnr": 26.620346705118816,
+            "ssim": 0.9043610294659933
+          },
+          "final_test_diagnostics": {
+            "alpha_iou": 0.8972389300664266,
+            "foreground_coverage": 0.9906156659126282,
+            "depth_rmse_intersection": 0.08536838505024416
+          }
+        },
+        "footprint": {
+          "n_init": 828,
+          "lift_seconds": 0.018326589000025706,
+          "init_train": {
+            "psnr": 21.074905183580185,
+            "ssim": 0.6684704489178128
+          },
+          "init_test": {
+            "psnr": 20.808701197306316,
+            "ssim": 0.6703270872433981
+          },
+          "init_test_diagnostics": {
+            "alpha_iou": 0.6092902223269144,
+            "foreground_coverage": 1.0,
+            "depth_rmse_intersection": 0.14655625940781103
+          },
+          "covariance": {
+            "condition_median": 2.2532026767730713,
+            "condition_p95": 9.03324031829834,
+            "condition_p99": 11.578709602355957,
+            "max_scale_over_extent": 0.19991497695446014,
+            "p99_scale_over_extent": 0.1716623306274414
+          },
+          "refine_seconds": 5.586546689999977,
+          "refine_history": {
+            "psnr": [
+              [
+                33,
+                23.860347112019856
+              ],
+              [
+                66,
+                25.955177307128906
+              ],
+              [
+                99,
+                26.120416005452473
+              ],
+              [
+                100,
+                26.207589467366535
+              ]
+            ],
+            "elapsed": [
+              [
+                33,
+                1.6815429839998615
+              ],
+              [
+                66,
+                3.366966328000217
+              ],
+              [
+                99,
+                5.463992211000004
+              ],
+              [
+                100,
+                5.582727396999871
+              ]
+            ],
+            "n_gaussians": [
+              [
+                33,
+                828
+              ],
+              [
+                66,
+                828
+              ],
+              [
+                99,
+                1147
+              ],
+              [
+                100,
+                1147
+              ]
+            ],
+            "density_stats": [
+              {
+                "iteration": 80,
+                "n_before": 828,
+                "n_after": 1147,
+                "cloned": 4,
+                "split": 492,
+                "pruned": 177
+              }
+            ],
+            "density_strategy": "classic"
+          },
+          "n_final": 1147,
+          "final_train": {
+            "psnr": 26.633175743950737,
+            "ssim": 0.8989628354708353
+          },
+          "final_test": {
+            "psnr": 26.207589467366535,
+            "ssim": 0.8878429134686788
+          },
+          "final_test_diagnostics": {
+            "alpha_iou": 0.8825043042500814,
+            "foreground_coverage": 0.9942325552304586,
+            "depth_rmse_intersection": 0.0907533065873672
+          }
+        },
+        "surface": {
+          "n_init": 828,
+          "lift_seconds": 0.01623415499989278,
+          "init_train": {
+            "psnr": 21.31960572136773,
+            "ssim": 0.7246350049972534
+          },
+          "init_test": {
+            "psnr": 21.076101303100586,
+            "ssim": 0.7255163590113322
+          },
+          "init_test_diagnostics": {
+            "alpha_iou": 0.6381447513898214,
+            "foreground_coverage": 1.0,
+            "depth_rmse_intersection": 0.10500044892411015
+          },
+          "covariance": {
+            "condition_median": 111.57406616210938,
+            "condition_p95": 415.2963562011719,
+            "condition_p99": 623.196533203125,
+            "max_scale_over_extent": 0.3098921477794647,
+            "p99_scale_over_extent": 0.17876651883125305
+          },
+          "refine_seconds": 5.3748773479997,
+          "refine_history": {
+            "psnr": [
+              [
+                33,
+                24.071123758951824
+              ],
+              [
+                66,
+                25.870586395263672
+              ],
+              [
+                99,
+                25.561378479003906
+              ],
+              [
+                100,
+                25.697255452473957
+              ]
+            ],
+            "elapsed": [
+              [
+                33,
+                1.6776514530001805
+              ],
+              [
+                66,
+                3.327489676999903
+              ],
+              [
+                99,
+                5.268313353999929
+              ],
+              [
+                100,
+                5.374084059999859
+              ]
+            ],
+            "n_gaussians": [
+              [
+                33,
+                828
+              ],
+              [
+                66,
+                828
+              ],
+              [
+                99,
+                1043
+              ],
+              [
+                100,
+                1043
+              ]
+            ],
+            "density_stats": [
+              {
+                "iteration": 80,
+                "n_before": 828,
+                "n_after": 1043,
+                "cloned": 3,
+                "split": 442,
+                "pruned": 230
+              }
+            ],
+            "density_strategy": "classic"
+          },
+          "n_final": 1043,
+          "final_train": {
+            "psnr": 26.1367310418023,
+            "ssim": 0.904448495970832
+          },
+          "final_test": {
+            "psnr": 25.697255452473957,
+            "ssim": 0.8895403146743774
+          },
+          "final_test_diagnostics": {
+            "alpha_iou": 0.8894429802894592,
+            "foreground_coverage": 0.991776724656423,
+            "depth_rmse_intersection": 0.08112406172215851
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "isotropic": {
+      "init_test_psnr": {
+        "mean": 20.946372985839844,
+        "std": 0.08628917149310457,
+        "samples": [
+          20.907546997070312,
+          21.045254389444988,
+          20.88631757100423
+        ]
+      },
+      "init_test_ssim": {
+        "mean": 0.7457995878325568,
+        "std": 0.009863634285918155,
+        "samples": [
+          0.7363387942314148,
+          0.7450380523999532,
+          0.7560219168663025
+        ]
+      },
+      "condition_p99": {
+        "mean": 45.505127588907875,
+        "std": 31.32150975870932,
+        "samples": [
+          20.637800216674805,
+          80.68190002441406,
+          35.195682525634766
+        ]
+      },
+      "final_test_psnr": {
+        "mean": 27.047050688001846,
+        "std": 0.5962941600390453,
+        "samples": [
+          27.728387196858723,
+          26.792418162027996,
+          26.620346705118816
+        ]
+      },
+      "final_test_ssim": {
+        "mean": 0.9003845850626627,
+        "std": 0.010176100110616277,
+        "samples": [
+          0.9079720576604208,
+          0.8888206680615743,
+          0.9043610294659933
+        ]
+      }
+    },
+    "footprint": {
+      "init_test_psnr": {
+        "mean": 20.909474902682835,
+        "std": 0.30523559375727227,
+        "samples": [
+          20.667368570963543,
+          21.252354939778645,
+          20.808701197306316
+        ]
+      },
+      "init_test_ssim": {
+        "mean": 0.6660660174157885,
+        "std": 0.015270979481254,
+        "samples": [
+          0.6491170724232992,
+          0.6787538925806681,
+          0.6703270872433981
+        ]
+      },
+      "condition_p99": {
+        "mean": 11.402798016866049,
+        "std": 0.40055814523602645,
+        "samples": [
+          10.944385528564453,
+          11.685298919677734,
+          11.578709602355957
+        ]
+      },
+      "final_test_psnr": {
+        "mean": 26.48502582973904,
+        "std": 0.24040451428406837,
+        "samples": [
+          26.63187599182129,
+          26.615612030029297,
+          26.207589467366535
+        ]
+      },
+      "final_test_ssim": {
+        "mean": 0.8875550495253669,
+        "std": 0.0018971956520986819,
+        "samples": [
+          0.8855303724606832,
+          0.8892918626467387,
+          0.8878429134686788
+        ]
+      }
+    },
+    "surface": {
+      "init_test_psnr": {
+        "mean": 21.10445997450087,
+        "std": 0.24736900872225182,
+        "samples": [
+          20.87249247233073,
+          21.36478614807129,
+          21.076101303100586
+        ]
+      },
+      "init_test_ssim": {
+        "mean": 0.7179593245188395,
+        "std": 0.010912144991637309,
+        "samples": [
+          0.7054490645726522,
+          0.7229125499725342,
+          0.7255163590113322
+        ]
+      },
+      "condition_p99": {
+        "mean": 650.2792358398438,
+        "std": 50.24122172208037,
+        "samples": [
+          619.3900146484375,
+          708.2511596679688,
+          623.196533203125
+        ]
+      },
+      "final_test_psnr": {
+        "mean": 26.279972924126515,
+        "std": 0.6909000179079595,
+        "samples": [
+          27.043214162190754,
+          26.099449157714844,
+          25.697255452473957
+        ]
+      },
+      "final_test_ssim": {
+        "mean": 0.8871865603658887,
+        "std": 0.008051799137353379,
+        "samples": [
+          0.8937991857528687,
+          0.8782201806704203,
+          0.8895403146743774
+        ]
+      }
+    }
+  }
+}

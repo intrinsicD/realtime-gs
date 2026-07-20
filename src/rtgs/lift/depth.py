@@ -1,13 +1,14 @@
 """Variant B: lift 2D gaussians to feed-forward monocular depth.
 
 Each gaussian center samples the view's depth map; non-metric predictions are first
-aligned to the scene scale against sparse points (rtgs.depth.align). The along-ray
-variance comes from the depth spread across the gaussian's footprint
-(:func:`rtgs.lift.base.footprint_sigma_ray`).
+aligned to the scene scale against sparse points (rtgs.depth.align). Covariance lifting
+is selectable for controlled research ablations: the default local surface Jacobian,
+ray-oriented footprint depth spread, or a no-gradient isotropic-thickness control.
 """
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 import torch
@@ -22,10 +23,16 @@ from rtgs.depth.align import (
     align_inverse_depth_to_points,
 )
 from rtgs.depth.base import DepthBackend
-from rtgs.lift.base import bilinear_sample, lift_view_from_depth_map
+from rtgs.lift.base import (
+    bilinear_sample,
+    footprint_sigma_ray,
+    lift_view_at_depth,
+    lift_view_from_depth_map,
+)
 from rtgs.lift.merge import merge_by_voxel
 
 _MIN_DEPTH = 0.05
+_COVARIANCE_MODES = {"surface", "footprint", "isotropic"}
 
 
 @dataclass
@@ -90,6 +97,10 @@ class DepthLifter:
         min_weight: float = 0.05,
         init_opacity: float = 0.1,
         normal_thickness: float = 0.15,
+        covariance_mode: str = "surface",
+        isotropic_sigma: float | None = None,
+        # Invalid-boundary handling is justified by docs/EXPERIMENTS.md (2026-07-14).
+        robust_depth_gradients: bool = True,
         merge: bool = True,
         merge_voxel_frac: float = 0.01,
     ):
@@ -98,6 +109,20 @@ class DepthLifter:
         self.min_weight = min_weight
         self.init_opacity = init_opacity
         self.normal_thickness = normal_thickness
+        if covariance_mode not in _COVARIANCE_MODES:
+            raise ValueError(
+                f"covariance_mode must be one of {sorted(_COVARIANCE_MODES)}, "
+                f"got {covariance_mode!r}"
+            )
+        self.covariance_mode = covariance_mode
+        if isotropic_sigma is not None and (
+            not math.isfinite(isotropic_sigma) or isotropic_sigma <= 0
+        ):
+            raise ValueError("isotropic_sigma must be finite and positive")
+        if covariance_mode == "isotropic" and isotropic_sigma is None:
+            raise ValueError("covariance_mode='isotropic' requires isotropic_sigma")
+        self.isotropic_sigma = isotropic_sigma
+        self.robust_depth_gradients = robust_depth_gradients
         self.merge = merge
         self.merge_voxel_frac = merge_voxel_frac
 
@@ -138,17 +163,41 @@ class DepthLifter:
             z_v = z[valid]
             component_weights.append((g2d.weight[valid] * confidence[valid]).clamp_min(1e-3))
             opacity = torch.full_like(z_v, self.init_opacity)
-            parts.append(
-                lift_view_from_depth_map(
-                    camera,
-                    g2d_v,
-                    depth_map,
-                    z_v,
-                    self.sh_degree,
-                    opacity=opacity,
-                    normal_thickness=self.normal_thickness,
+            if self.covariance_mode == "surface":
+                parts.append(
+                    lift_view_from_depth_map(
+                        camera,
+                        g2d_v,
+                        depth_map,
+                        z_v,
+                        self.sh_degree,
+                        opacity=opacity,
+                        normal_thickness=self.normal_thickness,
+                        robust_depth_gradients=self.robust_depth_gradients,
+                    )
                 )
-            )
+            else:
+                sigma_ray = (
+                    footprint_sigma_ray(
+                        camera,
+                        g2d_v,
+                        depth_map,
+                        z_v,
+                        robust_depth_gradients=self.robust_depth_gradients,
+                    )
+                    if self.covariance_mode == "footprint"
+                    else torch.full_like(z_v, self.isotropic_sigma)
+                )
+                parts.append(
+                    lift_view_at_depth(
+                        camera,
+                        g2d_v,
+                        z_v,
+                        sigma_ray,
+                        self.sh_degree,
+                        opacity=opacity,
+                    )
+                )
         if not parts:
             raise ValueError("no gaussians survived depth lifting (all invalid depth/weight)")
         result = Gaussians3D.cat(parts)

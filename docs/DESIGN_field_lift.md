@@ -1,10 +1,10 @@
 # Design: field-level 2D→3D lifting with discrete topology control
 
-Status: **proposal / not yet implemented.** This document captures the design agreed in the
-2026-07-18 research discussion and lays out an implementation plan and task breakdown. It
-depends on results and one code module (`inverse_projection_fiber`) being developed in a
-parallel session that is **not yet pushed**; interfaces here are written to compose with that
-work rather than duplicate it. Nothing in this document is built yet.
+Status: **implemented research path.** The CPU-first implementation covers the typed compact
+input boundary, measurement and observability controls, analytic field proxy, visibility/gain,
+fiber refit, deterministic topology moves, maskless placement, registry/pipeline/CLI integration,
+and semantic validation. This status is an implementation statement only: no reconstruction-
+quality, performance, production-default, or topology-utility claim has been established.
 
 Related docs: `docs/ARCHITECTURE.md` (current pipeline), `docs/RESEARCH.md` (SOTA survey and
 reuse decisions), `docs/EXPERIMENTS.md` (the empirical record this design leans on),
@@ -16,9 +16,9 @@ reuse decisions), `docs/EXPERIMENTS.md` (the empirical record this design leans 
 
 The repository's thesis is: fit every image with 2D gaussians, then **lift** those 2D
 gaussians into a 3D gaussian set that serves as the initialization for 3DGS refinement. The
-central unsolved sub-problem is **cross-view correspondence**: every surface patch is observed
-by 2D gaussians in several images, but the pipeline never represents that correspondence
-explicitly. Today it is handled implicitly and brittly in three different disguises:
+central longstanding sub-problem is **cross-view correspondence**: every surface patch is observed
+by 2D gaussians in several images, but the established lifters do not represent that
+correspondence explicitly. They handle it implicitly and brittly in three different disguises:
 
 - `gradient` lifts every per-view 2D gaussian to its own 3D gaussian on its ray, and lets
   observations interact only through the rendered photometric loss — no direct cross-view
@@ -37,10 +37,11 @@ Two facts make this the right moment:
 
 1. **Preprocessing is moving stage 1 offline.** After preprocessing, the pipeline consumes only
    per-view 2D gaussians + cameras (+ optional masks/depth/SfM). Images never re-enter the loop.
-2. **The fitted field is a sufficient statistic** — and a better one than the image: a few
-   hundred primitives instead of `H×W` pixels, and, because GaussianImage stage-1 blending is
-   **accumulated summation**, the field is a closed-form gaussian mixture. Lifting-stage losses
-   between mixtures therefore have closed forms — no rasterization in the inner loop.
+2. **The fitted field is the Stage-2 observation boundary:** a few hundred primitives instead of
+   `H×W` pixels. For additive peak-Gaussian mixtures, the whole-plane density `D` and RGB
+   numerator `N` have closed-form product-kernel losses. Normalized StructSplat rendering with
+   finite support/fade and optional affine color is not that additive objective; the implementation
+   evaluates those frozen-teacher semantics separately with bounded deterministic point sampling.
 
 ---
 
@@ -57,8 +58,8 @@ geometric DOF; one view constrains 5 (center 2, covariance-tangent-block 3). The
 ray-adapted basis this is exactly one extra Cholesky row appended to the (measured) 2D Cholesky
 factor — parametrizing the fiber by that row is unconstrained and degeneracy-free (no
 quaternion normalization, no `_MIN_THICKNESS` hack). The current `lift_covariance` sits at the
-untilted point (shears = 0, thickness = `sigma_ray`) of this fiber. This is the module the
-parallel session is building as `inverse_projection_fiber`.
+untilted point (shears = 0, thickness = `sigma_ray`) of this fiber. The implemented
+`inverse_projection_fiber` module provides this parametrization.
 
 ### 2.2 Two views do NOT isolate the covariance — observability table (✓verified)
 
@@ -84,8 +85,8 @@ well-spread triples; narrow-baseline captures are near-degenerate even with many
 ### 2.3 Components have no stable identity — losses must be field-level
 
 Fitted 2D components are decomposition artifacts, not relabeled projections of latent 3D
-gaussians. The parallel session measured **83.75% of moment-split child centers differ from the
-latent parent's projected center**. One latent gaussian may be split into several fitted
+gaussians. The unequal-decomposition control measured **83.75% of moment-split child centers
+differ from the latent parent's projected center**. One latent gaussian may be split into several fitted
 components, and one fitted component may absorb several latent gaussians; occlusion/compositing
 break conditional independence further. Therefore:
 
@@ -114,10 +115,10 @@ duplicate, for two structural reasons:
 
 So the architecture is **"posteriors propose, discrete moves dispose"**: soft association
 supplies evidence; explicit birth/death/merge/split enact topology, each accepted only if the
-exact objective improves (split-merge EM / reversible-jump lineage). Precedent already in-repo:
+implemented analytic additive density proxy plus parsimony improves. Precedent already in-repo:
 gsplat MCMC relocation/teleport (stage 3) and StructSplat residual growth (stage 1).
 
-### 2.5 Attention ≡ the E-step (why we are not adding a transformer)
+### 2.5 Attention ≡ the E-step (conceptual background; no transformer is added)
 
 Row-softmax over candidates is one-sided entropic OT; Sinkhorn-with-dustbin is
 partial/entropic OT with both marginals (SuperGlue layer); the propose/refit alternation is EM
@@ -150,13 +151,13 @@ preprocessing (offline, images only here) ─► per-view artifact: 2D gaussians
    maskless : ladder (§5) — frustum-consensus bounds + field-sweep placement + optional anchors
         │  Gaussians3D on/near the surface, fiber-parametrized (exact source projection at init)
         ▼
-[stage 2b] FIELD-FIT loop  (image-free; the new core)
+[stage 2b] FIELD-FIT loop  (image-free; implemented research core)
    repeat until field loss converges or budget reached:
      • backproject each 3D gaussian into each reference view (closed form)
-     • field loss L = Σ_v ‖ F̂_v − F_v ‖²  (geometry + appearance), with per-gaussian
+     • analytic proxy loss on additive density D and RGB numerator N, with per-gaussian
        per-view VISIBILITY weights and a per-view GAIN
      • continuous step: fiber-constrained refit (depth + covariance free column; color/SH staged)
-     • discrete moves: prune / merge / split / birth(teleport), accepted on exact objective delta
+     • discrete moves: prune / merge / split / birth, accepted on analytic-proxy objective delta
    outputs: 3D gaussian set + dense soft cross-view correspondences (byproduct)
         │
         ▼
@@ -164,30 +165,37 @@ preprocessing (offline, images only here) ─► per-view artifact: 2D gaussians
                                                                 ceiling off the final result
 ```
 
-The pipeline slots into existing structure: `rtgs run --fits` already skips images for stage 1;
-`carve` is the masked entry; stage 3 is unchanged. The genuinely new piece is **stage 2b**, one
-module owning the closed-form field loss, visibility/gain estimation, and the move scheduler.
+The native path is `SceneFits` → `run_field_pipeline` / `FieldLifter.fit`, or
+`rtgs lift-field --dataset ...`; it never loads source images. `SceneFits` preserves optional
+lossless `PackedAlpha` and requires a complete, disjoint, explicit train/held-out partition.
+The CLI saves the standard 3DGS PLY/NPZ requested by `--out`, plus
+`Path(--out).with_suffix(".field.npz")` containing field masses, render opacity, source/fiber
+state, visibility, gains, split indices, and per-view soft correspondences. Strict
+`Path(--out).with_suffix(".diagnostics.json")` stores semantic validation and diagnostics.
+Stage 3 remains separate and unchanged.
 
 ---
 
 ## 4. Stage 2b — the field-fit loop (detail)
 
-### 4.1 Field loss (decomposition-invariant, closed form)
+### 4.1 Analytic additive proxy and frozen-teacher semantic validation
 
-Per view `v`, compare backprojected mixture `F̂_v` to reference fit `F_v` by the L2 field
-discrepancy, whose cross terms are product-kernel evaluations
+For an **additive peak-Gaussian mixture**, compare the projected and reference density `D` and RGB
+numerator `N` by whole-plane L2 discrepancies whose cross terms are product-kernel evaluations
 `⟨N₁,N₂⟩ = N(μ₁−μ₂; 0, Σ₁+Σ₂)` — closed form with analytic gradients:
 
 ```
-L_v = ‖F̂_v‖² − 2⟨F̂_v, F_v⟩ + ‖F_v‖²        (last term constant in the optimization)
-F̂_v(x) = Σ_i g_iv · a_iv(x),   a_iv = backproject_v(G_i),  g_iv = visibility·gain·amplitude
+L_v = L2(D̂_v,D_v) + L2(N̂_v,N_v)
+D̂_v(x) = Σ_i g_iv · a_iv(x),   N̂_v(x) = Σ_i g_iv · c_iv · a_iv(x)
+g_iv = visibility · gain · field_mass
 ```
 
-Appearance is included by making amplitudes RGB-valued (evaluate SH toward `v`); shape agreement
-is implicit in the covariances inside the kernels. **No gaussian ever needs to know which
-reference gaussian it corresponds to.** The `O(N·M)` pairwise sum is sparse in practice (kernels
-decay fast; only overlapping pairs contribute) — this is the "sparse attention" pattern
-reappearing as the sparsity of a loss, not as a learned layer.
+This analytic proxy is exact for `D` and `N` under those additive whole-plane semantics. It is
+**not** the normalized finite-support/fade StructSplat RGB renderer, and optional affine color is
+not preserved by the proxy. `field_validation` therefore evaluates each immutable teacher through
+its actual query equation at a deterministic bounded sample, reporting isolated train and held-out
+density/RGB aggregates. Those sampled metrics validate semantics; they are not silently substituted
+into the analytic optimizer. **No Gaussian needs a component correspondence in either path.**
 
 ### 4.2 Visibility and amplitude semantics (must be explicit)
 
@@ -206,30 +214,38 @@ Optimize each gaussian on its fiber: depth `t` and the free covariance column (t
 preserved). Color/SH **staged**: geometry-only first; enable appearance after per-track
 stabilization; enforce the source-view emitted color as a directional constraint (soft or gated
 on local component dominance — it is exact only for the fitted component's representation, not
-the isolated physical color). The observability gate (§2.2) decides which gaussians get full
+the isolated physical color). A topology merge retains its representative anchor's actually
+observed source color rather than inventing an averaged anchor. The observability gate (§2.2)
+decides which gaussians get full
 covariance freedom vs. a pinned `λQ` mode.
 
 ### 4.4 Discrete moves — the scheduler
 
-"Propose from diagnostics, dispose on exact objective delta + parsimony," SMEM-style,
-deterministic and CPU-testable:
+"Propose from diagnostics, dispose on analytic additive density-proxy delta + parsimony,"
+SMEM-style, deterministic and CPU-testable. The current integrated defaults are:
 
-- **merge**: candidates from component redundancy (spatial + field overlap); score by the
-  Runnalls KL bound **on the field change** (decomposition-invariant, unlike the current voxel
-  hash). Replaces `merge_by_voxel`.
-- **prune (death)**: candidates by low mass-share + negligible field-error increase when removed.
-- **split**: candidates by association/field-residual bimodality under a gaussian.
-- **birth (teleport)**: candidates from unexplained reference-field residual peaks; for maskless
-  unbounded scenes, may spawn far-shell/background gaussians.
+- **merge**: bounded multi-view projected Runnalls-KL field-bound ranking proposes a pair;
+- **prune (death)**: the lowest field-mass component is proposed;
+- **split**: the integrated default is an exactly co-located mass split; a directed residual split
+  exists behind `TopologyOps` and in tests but is not the default;
+- **birth**: unexplained-reference-field residual scoring selects an unused source component.
 
-Accept a move iff `Δ(field loss) + Δ(parsimony) < 0` on the exact objective. This keeps the loop
-convergent and reproducible.
+Accept a move iff `Δ(additive density proxy) + Δ(parsimony) < 0`, with visibility and gains fixed
+for the transaction. Advanced multi-move scheduling and evidence that these moves improve a real
+reconstruction remain future empirical work.
+Merge construction retains one representative source fiber in full; it never averages depth or
+shear coordinates expressed in different camera-ray bases. Mass, lineage, and alpha coverage are
+combined, and the exact transaction objective rejects a representative-fiber merge that changes
+the field too much.
 
 ### 4.5 Correspondences as output
 
 At convergence the normalized product-kernel overlaps between backprojected and reference
-gaussians are the dense soft cross-view correspondences — attention as a **byproduct**, never an
-input, and never turned into opacity/existence.
+gaussians are the dense soft cross-view correspondences. Each projected row is gated by the
+detached center-transmittance visibility of that 3D gaussian in that view before normalization.
+Visibility, field mass, rendering opacity, and the resulting association posterior remain
+separate quantities. The correspondence is attention as a **byproduct**, never an input and never
+turned into opacity/existence.
 
 ---
 
@@ -246,7 +262,9 @@ Maskless is the **main** path for casual/outside-in captures (e.g. the roadmap's
 - **Tier 1 — depth anchors (best available, all optional):** SfM-track depth (EDGS-style pinning
   + alignment target); monocular depth (Depth Anything V2 Small) run **at preprocessing time**,
   aligned, stored as per-gaussian prior + confidence in the artifact; or nothing (Tier 2 runs
-  unanchored with a wider range).
+  unanchored with a wider range). The implementation uses explicit per-component priors directly;
+  for trusted train-only sparse geometry, it also takes a confidence-weighted seed from the nearest
+  visible projected SfM point inside the source component's footprint.
 - **Tier 2 — placement by discrete field-sweep along rays, not descent.** Port the unmerged
   `cost`/plane-sweep lifter and swap image sampling for **field evaluation**: K depth hypotheses
   in Tier-0 bounds (warm-started by Tier-1), scored by robust cross-view field agreement (best
@@ -267,12 +285,16 @@ mask semantically (far-shell gaussians as a separate population with a coarser b
 
 ## 6. Preprocessing artifact schema
 
-Bake the ladder's inputs into the per-view artifact so the pipeline never needs images
-regardless of dataset type. Required: 2D gaussians (`xy`, Cholesky `chol`, `color`, `weight`) +
-camera. Optional (presence selects the ladder rung): per-gaussian depth prior + confidence,
-sparse-track depth samples, neighbor-view list, mask. **Open item — needs the schema the
-preprocessing work settles on** (see §9). Until then, build behind a thin loader boundary against
-the existing `--fits` adapter format and reconcile later.
+`SceneFits` is the implemented image-free boundary. It carries ordered
+`GaussianObservationField` teachers and cameras, unique view names, optional lossless
+`PackedAlpha`, depth priors/confidences, neighbor lists, sparse points/visibility, and bounds.
+Its train and held-out indices must form a complete, unique, disjoint partition with at least one
+training view. `SceneFits.from_compact_dataset` deliberately preserves alpha instead of routing
+through the legacy `CompactDataset.to_reconstruction_inputs()` adapter that drops it.
+Optional points/bounds carry an explicit `geometry_is_train_only` provenance bit. With held-out
+views, unverified geometry is retained for reporting but excluded from fitting; training-camera
+frustum consensus supplies the working volume. If every view trains, or the caller explicitly
+attests train-only provenance, the points/bounds may be used.
 
 ---
 
@@ -294,66 +316,57 @@ rules (test scenes ≤64×64, ≤300 gaussians, ≤200 iters; suite < ~3 min).
   recover geometry, reintroduce inferred topology / soft association. This cleanly separates the
   three failure modes: **topology vs. observability vs. optimization.**
 - **Field-loss unit tests.** Closed-form value/gradient vs. finite differences; invariance under
-  re-decomposition of a fixed field (split a component, loss unchanged); `τ→0` reduces soft
-  association to the hard graph.
-- **Move-scheduler tests.** Each move only accepted when the exact objective improves; duplicate
-  pair is removed by merge; a planted second mode is recovered by birth; determinism under seed.
-- **Ablations to log in `docs/EXPERIMENTS.md`.** hard graph (`τ→0`) vs. soft, on the parallel
+  exact co-located amplitude splitting and permutation; chunked/dense parity.
+- **Move-scheduler tests.** Each move is accepted only when the configured proxy objective
+  improves; a duplicate pair is removed by merge; a planted second mode is recovered by birth;
+  determinism under seed.
+- **Ablations to log in `docs/EXPERIMENTS.md`.** hard graph (`τ→0`) vs. soft, on the prior
   session's failing root case and on unequal per-view counts; field-sweep vs. per-ray descent;
   visibility-weights on/off; observability-gate on/off; anchored vs. anchored+consensus. Field L2
   gives an image-free metric; held-out image PSNR remains the reported number (stage 3).
 
 ---
 
-## 8. Implementation plan (phases → tasks)
+## 8. Implemented phases
 
 Ordering favors the shared core first and the highest-risk/highest-value pieces early, each with
 its falsifier. Tasks are tracked in the session task list; IDs referenced here after creation.
 
-- **Phase 0 — scaffolding & boundaries.** Loader boundary over the `--fits` format; a `SceneFits`
-  container; a `TopologyOps` interface (prune/merge/split/birth) so the parallel session's
-  association/fiber machinery can drop in. No algorithms yet. *(Task: scaffolding.)*
-- **Phase 1 — measurement first.** GT correspondence harness + oracle observability baseline
+- [x] **Phase 0 — scaffolding & boundaries.** Loader boundary; a `SceneFits`
+  container; and a `TopologyOps` interface (prune/merge/split/birth). *(Task: scaffolding.)*
+- [x] **Phase 1 — measurement first.** GT correspondence harness + oracle observability baseline
   (§7). This is deliberately before the optimizer: it tells us whether topology, observability,
   or optimization is the actual bottleneck, and it is the control every later ablation compares
   against. *(Tasks: GT harness; oracle baseline.)*
-- **Phase 2 — field loss.** Closed-form product-kernel field discrepancy with RGB amplitudes and
-  analytic gradients; unit tests incl. re-decomposition invariance. *(Task: field loss.)*
-- **Phase 3 — visibility & gain.** Per-gaussian per-view transmittance weights + per-view gain,
+- [x] **Phase 2 — field loss.** Closed-form additive `D`/`N` product-kernel discrepancy and
+  gradients, plus separate sampled frozen-teacher semantic validation. *(Task: field loss.)*
+- [x] **Phase 3 — visibility & gain.** Per-gaussian per-view transmittance weights + per-view gain,
   block-fixed and refreshed; tests that back-surface gaussians are not penalized in views that
   don't see them. *(Task: visibility/gain.)*
-- **Phase 4 — continuous fiber refit.** Depth + free covariance column on the fiber, staged
-  color/SH with the source directional constraint, observability gate. Consumes the parallel
-  session's `inverse_projection_fiber` when available; a minimal internal fiber otherwise, behind
-  the same interface. *(Task: fiber refit.)*
-- **Phase 5 — discrete move scheduler.** prune/merge/split/birth with exact-objective acceptance;
-  field-change Runnalls score replacing the voxel-hash merge. *(Task: scheduler.)*
-- **Phase 6 — maskless ladder.** Frustum-consensus bounds; port `cost`/plane-sweep to field
+- [x] **Phase 4 — continuous fiber refit.** Depth + free covariance column on the fiber, staged
+  color/SH with the source directional constraint and observability gate, reusing
+  `inverse_projection_fiber`. *(Task: fiber refit.)*
+- [x] **Phase 5 — discrete move scheduler.** Deterministic prune/merge/split/birth proposals with
+  transactional additive-density-proxy-plus-parsimony acceptance. *(Task: scheduler.)*
+- [x] **Phase 6 — maskless ladder.** Frustum-consensus bounds; field-sweep placement,
   evaluation; wire optional SfM/depth anchors; far-shell/background population. *(Task: maskless
   ladder.)*
-- **Phase 7 — integration.** Register as a lifter / stage-2 entry (`get_lifter`), pipeline test,
-  benchmark entry, `docs/ARCHITECTURE.md` row + `docs/EXPERIMENTS.md` entries + `docs/ROADMAP.md`
-  update; `./scripts/verify.sh` green (lint, format, CPU tests, docs-sync). *(Task: integration &
-  docs.)*
+- [x] **Phase 7 — integration.** Register as a lifter / stage-2 entry (`get_lifter`), pipeline test,
+  image-free CLI and persistent field-state sidecars, mechanism benchmark entry, focused CPU
+  tests, and synchronized architecture/roadmap/research documentation. *(Task: integration & docs.)*
 
-Dependency sketch: 0 → {1, 2}; 2 → 3 → 4 → 5; {4,5} → 6; everything → 7. Phase 1 runs parallel to
-2–3 and gates whether 4–6 are even the right investment.
+Dependency sketch: 0 → {1, 2}; 2 → 3 → 4 → 5; {4,5} → 6; everything → 7.
 
 ---
 
-## 9. Open decisions (need input; recommended default in **bold**)
+## 9. Open empirical questions
 
-1. **Preprocessing artifact schema** — existing `--fits` only / extended with optional
-   depth+SfM+neighbors / not settled. **Default: build behind a thin loader boundary against the
-   current format and reconcile when the schema is fixed** (unblocks all CPU work now).
-2. **Build scope for this session** — which phases this session owns vs. the parallel session.
-   **Default: field loss + GT/oracle measurement harness (phases 1–3), behind the `TopologyOps`
-   and fiber interfaces.**
-3. **First data target** — **synthetic CPU scenes** / Janelle masked / RGB-only maskless.
-   **Default: synthetic CPU (deterministic, in-suite); real data once preprocessing lands.**
-4. **Ownership of fiber + association machinery** — parallel session owns it (interface here) /
-   build here / decide later. **Default: parallel session owns it; keep stage 2b self-contained
-   behind an interface its machinery can replace.**
+Implementation does not answer whether field lifting improves initialization quality, time to
+quality, topology recovery, or memory/runtime on calibrated data. The required next evidence is a
+frozen train/held-out calibrated protocol comparing: topology moves on/off and by proposal type;
+analytic proxy change versus frozen-teacher semantic metrics; visibility/gain ablations;
+observability-gate behavior under narrow baselines; and masked versus maskless placement. None of
+those questions is closed, and the research path is not a default.
 
 ---
 

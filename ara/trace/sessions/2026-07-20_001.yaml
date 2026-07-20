@@ -1,0 +1,76 @@
+session:
+  id: "2026-07-20_001"
+  date: "2026-07-20"
+  started: "2026-07-20T02:47+02:00"
+  last_turn: "2026-07-20T02:47+02:00"
+  turn_count: 1
+  summary: "Completed and audited the full compact all-view 70k development fit, exposed the weak 5k initializer, and committed an exact CPU CSR acceleration task."
+
+events_logged:
+  - turn: 1
+    type: decision
+    id: N148
+    routing: direct
+    provenance: user
+    summary: "Use all 130,000 compact components at high resolution and fit to the declared plateau instead of stopping at 96 tracks."
+  - turn: 1
+    type: experiment
+    id: N149
+    routing: direct
+    provenance: ai-executed
+    summary: "Completed the 26-view 70k development fit, original fitted-view evaluation, artifact audit, and initial/final viewer handoff."
+  - turn: 1
+    type: decision
+    id: N150
+    routing: direct
+    provenance: user-revised
+    summary: "Implement exact flattened CPU CSR placement first; gate CUDA and hierarchy work on measured post-CSR evidence."
+  - turn: 1
+    type: heuristic
+    id: O128
+    routing: staged
+    provenance: ai-suggested
+    summary: "Python-fragmented tile evaluation is the leading placement bottleneck hypothesis, but its detailed profile and prototype speedup were not preserved."
+
+ai_actions:
+  - turn: 1
+    action: "Implemented the recoverable full-compact harness, segmented global optimization schedules, high-resolution tiled SSIM, immutable selection/evaluation lineage, and focused CPU tests."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/full_compact_reconstruction.py"
+      - "src/rtgs/core/metrics.py"
+      - "src/rtgs/optim/trainer.py"
+      - "tests/test_full_compact_recovery.py"
+      - "tests/test_metrics_ssim.py"
+      - "tests/test_optim.py"
+  - turn: 1
+    action: "Ran the full 26-view reconstruction through the selected 70k checkpoint, evaluated all fitted original views after selection, launched the initial/final viewer, and completed an independent results audit."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260720T002059Z_full_compact_all_view_development.json"
+      - "docs/EXPERIMENTS.md"
+  - turn: 1
+    action: "Specified the exact CPU CSR query implementation, parity tests, benchmark protocol, progress reporting, and evidence-gated CUDA/hierarchy follow-ups."
+    provenance: ai-executed
+    files_changed:
+      - "docs/TASK_COMPACT_PLACEMENT_CSR_ACCELERATION.md"
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The user rejected the bounded 96-track result and required every compact 2D Gaussian, high resolution, and fitting through convergence."
+  - turn: 1
+    excerpt: "The user judged the optimized viewer result already very good but was much disappointed by the true initialization state."
+  - turn: 1
+    excerpt: "All T/V/H-labelled cameras participated in fitting; the final original-reference metrics are fitted-view diagnostics, not held-out or novel-view evidence."
+
+open_threads:
+  - "Implement Phase 1 of the exact flattened CPU CSR placement task and run its frozen parity and five-minute production gates."
+  - "Save quantitative initialization-only metrics and compare the current top-K placer with the source-fiber/correspondence-aware initializer."
+  - "Run a genuinely held-out or novel-view protocol before making general 3D reconstruction-quality claims."
+  - "Make future long production runs replay-complete by freezing dependency source, exact commands, optimizer state, RNG state, and host timing metadata."
+
+ai_suggestions_pending:
+  - "Treat the 108--120x prototype ratio and 2.5--3 minute CPU estimate only as hypotheses until the tracked CSR benchmark reproduces them."
+  - "Do not interpret acceleration of the current top-K placement as an improvement to its visibly weak initial geometry."

@@ -1,0 +1,12 @@
+Preregistration-SHA256: d1440fde596667fd59e996113dd4ffa4414e23e8c783a401343d7476f00afb22
+Frozen-Expected-Map-SHA256: dd382ccd945b3fc9439156f0ce6df6893ad4e17f9d7a77b60079afc905943417
+Reviewed-Source-Collection-SHA256: 0849fdd6eea4b70405e0c26816dfc8a2d99d10049064b31e09d39654376b2bb3
+Harness-SHA256: 687dac366147968616e2888266282869a0a25ef9e9b656b3264743cfae8c67c7
+Focused-Tests-SHA256: 8ea7f74ad13270a0acd11358292ca0a114e43efd578405dde3ca6714f8a4e3bd
+Fit-Seam-SHA256: eb13bdda3a207253fba7a36c55788d75b703b61daf4e9831891d381d8c32b99e
+Seam-Tests-SHA256: 4db63c62288b29c8b020365023a3712d53f2bf523c799e7fd8f0305a0a077e32
+Official-Seeds-Touched: none
+Official-Artifact-State: seal=absent; attempt=absent; result=absent
+Reviewer: Codex independent N78 implementation auditor (/root/n78_final_impl_review)
+Reviewed-At-UTC: 2026-07-16T10:13:25Z
+Verdict: PASS

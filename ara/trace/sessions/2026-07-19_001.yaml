@@ -1,0 +1,111 @@
+session:
+  id: "2026-07-19_001"
+  date: "2026-07-19"
+  started: "2026-07-19T01:34+02:00"
+  last_turn: "2026-07-19T08:30+02:00"
+  turn_count: 2
+  summary: "Implemented the image-free field lift and completed an exploratory calibrated 96-track fit with a live free-orbit viewer; utility remains open."
+
+events_logged:
+  - turn: 1
+    type: decision
+    id: N145
+    routing: direct
+    provenance: user
+    summary: "Implement the field-lift design as a native research path over compact observations."
+  - turn: 1
+    type: experiment
+    id: N146
+    routing: direct
+    provenance: ai-executed
+    summary: "Implemented and CPU-verified the field mechanism, CLI, sidecars, and two calibrated compact-input smokes."
+  - turn: 1
+    type: constraint
+    id: R20
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Raw-fragment identity cannot be supplied by a rank-K association tensor without topology and mass/visibility semantics."
+  - turn: 1
+    type: heuristic
+    id: H04
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Oracle aggregate triangulation and rank-aware covariance solving now isolate geometry from association."
+  - turn: 1
+    type: architecture
+    id: A15
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Field-level continuous fitting, exact fibers, observability gates, and explicit topology are now one registered research path."
+  - turn: 1
+    type: constraint
+    id: R21
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Unverified points and bounds cannot enter field fitting when held-out views exist."
+  - turn: 1
+    type: constraint
+    id: R22
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Additive analytic proxy optimization remains separate from frozen normalized StructSplat validation."
+  - turn: 2
+    type: experiment
+    id: N147
+    routing: direct
+    provenance: ai-executed
+    summary: "Completed and validated a 96-track calibrated compact-field fit and loaded its PLY in the live CPU viewer."
+
+ai_actions:
+  - turn: 1
+    action: "Implemented SceneFits, field loss/measurement/observability/refit/topology/visibility/validation modules, registered FieldLifter, CLI/pipeline integration, state sidecars, diagnostics, docs, and CPU tests."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/data/field_inputs.py"
+      - "src/rtgs/lift/field_lifter.py"
+      - "src/rtgs/lift/field_loss.py"
+      - "src/rtgs/lift/field_measurement.py"
+      - "src/rtgs/lift/field_observability.py"
+      - "src/rtgs/lift/field_refit.py"
+      - "src/rtgs/lift/field_topology.py"
+      - "src/rtgs/lift/field_validation.py"
+      - "src/rtgs/lift/field_visibility.py"
+      - "src/rtgs/cli.py"
+      - "src/rtgs/pipeline.py"
+      - "docs/DESIGN_field_lift.md"
+  - turn: 1
+    action: "Ran the complete field-focused CPU slice, two bounded real compact CLI smokes, the full repository verification, docs sync, and CPU benchmark-harness smoke."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 2
+    action: "Ran the 26-view masked frame_00008 field lift, validated its PLY/state/diagnostics, and started the standard free-orbit viewer on 127.0.0.1:8080."
+    provenance: ai-executed
+    files_changed:
+      - "runs/field_lift_frame_00008_20260719/gaussians_init.ply"
+      - "runs/field_lift_frame_00008_20260719/gaussians_init.field.npz"
+      - "runs/field_lift_frame_00008_20260719/gaussians_init.diagnostics.json"
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The user authorized implementation of the topology-aware field design after the compact dataset migration."
+  - turn: 1
+    excerpt: "The implementation preserves exact source fibers but removes component correspondence from the continuous objective; correspondences are post-hoc outputs."
+  - turn: 2
+    excerpt: "The user requested fitting a 3D Gaussian set from the converted compact dataset and inspecting the result in the viewer."
+
+open_threads:
+  - "Run a frozen oracle-topology/direct-solver feasibility comparison before interpreting learned topology or correspondence quality."
+  - "Establish calibrated initialization quality and topology utility with an explicit train/held-out protocol before any default change."
+  - "Implement full transactional optimizer-state rollback and precise projection-failure receipts."
+  - "Calibrate an explicit outlier/null likelihood beyond the current fixed correspondence dustbin."
+  - "Test directed residual split and multi-round topology scheduling; the integrated default split is co-located and evidence-free."
+  - "Resolve generic ReconstructionInputs.from_scene train-only geometry provenance separately from the safe SceneFits path."
+  - "Teach the viewer to consume compact-dataset cameras without requiring unavailable RGB SceneData images."
+
+ai_suggestions_pending:
+  - "Keep field mass, rendering opacity, visibility, per-view gain, and association posterior as separate quantities."
+  - "Treat the analytic D/N loss as a proxy whenever compact teachers use normalized/fade/affine semantics."
+  - "Do not infer quality, speed, memory, topology recovery, or production readiness from mechanism tests or bounded CLI smokes."
+  - "Retain exact source fibers at representative-track granularity while improving topology and null modeling."

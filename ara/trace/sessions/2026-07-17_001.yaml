@@ -1,0 +1,392 @@
+session:
+  id: "2026-07-17_001"
+  date: "2026-07-17"
+  started: "2026-07-17T00:23+02:00"
+  last_turn: "2026-07-17T12:24+02:00"
+  turn_count: 12
+  summary: "Qualified compact inputs and froze bounded G²SR and teacher-capacity diagnostics without consuming either official run."
+
+events_logged:
+  - turn: 1
+    type: experiment
+    id: N120
+    routing: direct
+    provenance: ai-executed
+    summary: "Full-resolution RGB-denied refinement produced favorable phase-local MSE diagnostics but failed terminally at its first exact gsplat import."
+  - turn: 1
+    type: experiment
+    id: N121
+    routing: direct
+    provenance: ai-executed
+    summary: "Bound ABI resolution, process-owned viewer smoke, and teacher-only working-set hardening passed focused and repository verification without replay."
+  - turn: 1
+    type: decision
+    id: N122
+    routing: direct
+    provenance: ai-executed
+    summary: "Retain uniform as comparison baseline and advance to matched residual/responsibility density allocation."
+  - turn: 1
+    type: claim
+    id: C20
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Gaussian proposals produced no global material convergence win under the sealed fixed-topology protocol."
+  - turn: 1
+    type: observation
+    id: O99
+    routing: staged
+    provenance: ai-suggested
+    summary: "Calibrated MSE improvements remain phase-local because the complete lifecycle failed."
+  - turn: 1
+    type: architecture
+    id: O100
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "CompactTrainer completes A13's fixed-topology RGB-free training boundary."
+  - turn: 1
+    type: constraint
+    id: O101
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Post-failure diagnostics cannot repair a consumed calibrated lifecycle."
+  - turn: 1
+    type: constraint
+    id: O102
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Working-set hardening removes specific hazards but is not production-scale evidence."
+  - turn: 1
+    type: observation
+    id: O97
+    routing: staged
+    provenance: ai-suggested
+    summary: "Updated the older scaling observation to mark preflight/geometry subpoints resolved while retaining remaining scale gaps."
+  - turn: 2
+    type: experiment
+    id: N123
+    routing: direct
+    provenance: ai-executed
+    summary: "Exact archived-teacher/CUDA parity excluded export bugs and localized severe blur and holes to the 640-Gaussian, 100-step, unmasked Stage-1 fields."
+  - turn: 2
+    type: observation
+    id: O103
+    routing: staged
+    provenance: ai-suggested
+    summary: "Frozen observation archives preserve exact native StructSplat field semantics in the audited scope."
+  - turn: 2
+    type: observation
+    id: O104
+    routing: staged
+    provenance: ai-suggested
+    summary: "Teacher fidelity is an upstream bound that must be screened before blaming lifting or refinement."
+  - turn: 2
+    type: observation
+    id: O105
+    routing: staged
+    provenance: ai-suggested
+    summary: "The plan reports generic knobs that the StructSplat adapter does not forward despite binding its effective config digest."
+  - turn: 3
+    type: experiment
+    id: N124
+    routing: direct
+    provenance: ai-executed
+    summary: "Two C0001 executions preserved a roughly 3.1 dB masked/cropped gain and a fixed-growth loss, but fitted outputs were not replay-identical."
+  - turn: 3
+    type: observation
+    id: O106
+    routing: staged
+    provenance: ai-suggested
+    summary: "The replicated one-view gain combines masking, cropping, initialization-domain change, and budget concentration."
+  - turn: 3
+    type: observation
+    id: O107
+    routing: staged
+    provenance: ai-suggested
+    summary: "Seeded CUDA fitting needs deterministic enforcement or repeated-run statistical decisions."
+  - turn: 4
+    type: experiment
+    id: N125
+    routing: direct
+    provenance: ai-executed
+    summary: "Seven masked 640/100 workers produced a strict 4,480-component bundle; no-refit recovery qualified its bytes while the original lifecycle remains FAIL."
+  - turn: 4
+    type: dead_end
+    id: N126
+    routing: direct
+    provenance: ai-executed
+    summary: "A manifest-wide substring denial falsely matched `masked` in the required bundle identifier after successful atomic save."
+  - turn: 4
+    type: observation
+    id: O108
+    routing: staged
+    provenance: ai-suggested
+    summary: "Future per-view provenance must construct and digest actual InitConfig seeds instead of reusing a hard-coded descriptor."
+  - turn: 5
+    type: experiment
+    id: N127
+    routing: direct
+    provenance: ai-executed
+    summary: "Exact replay qualified the sealed occupancy-scalar run but rejected mean and selected LSE beta=2 as improvements over center in the fixed-835 lift."
+  - turn: 5
+    type: observation
+    id: O109
+    routing: staged
+    provenance: ai-suggested
+    summary: "Smooth scalar aggregation increased eligibility but worsened false positives, multiview coverage, and teacher MSE in the frozen protocol."
+  - turn: 5
+    type: observation
+    id: O110
+    routing: staged
+    provenance: ai-suggested
+    summary: "The report split is selector-held-out, not novel or fully design-unseen."
+  - turn: 7
+    type: experiment
+    id: N128
+    routing: direct
+    provenance: ai-executed
+    summary: "The consumed occupancy-refinement attempt failed during its third evaluation bank; zero arm workers ran and the scientific decision is unavailable."
+  - turn: 7
+    type: dead_end
+    id: N129
+    routing: direct
+    provenance: ai-executed
+    summary: "Float32 affine uniform sampling can round a value below one to a translated fitted window's exclusive upper endpoint."
+  - turn: 8
+    type: experiment
+    id: N130
+    routing: direct
+    provenance: ai-executed
+    summary: "Fresh iter2 passed independent implementation review and a focused real-input CUDA structural smoke without consuming official roots or metrics."
+  - turn: 8
+    type: claim
+    id: C21
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "The frozen responsibility-versus-gradient-versus-shuffle allocation hypothesis is implementation-ready and remains scientifically testing."
+  - turn: 9
+    type: experiment
+    id: N131
+    routing: direct
+    provenance: ai-executed
+    summary: "The official iter2 seal command failed in full ambient/order-sensitive verification before every published artifact and scientific operation."
+  - turn: 10
+    type: question
+    id: N132
+    routing: direct
+    provenance: user
+    summary: "Primary-paper review found G²SR very close at the 2D-splat-to-3D level but distinct in explicit flow correspondences, target scope, and compact refinement."
+  - turn: 10
+    type: observation
+    id: O111
+    routing: staged
+    provenance: ai-suggested
+    summary: "Flow-warped sigma-point tracks could be serialized during RGB-authorized Stage 1 and triangulated under the later RGB-free contract."
+  - turn: 10
+    type: observation
+    id: O112
+    routing: staged
+    provenance: ai-suggested
+    summary: "G²SR validates a geometric branch but leaves full-resolution texture, coverage, variable counts, and compact density refinement open."
+  - turn: 11
+    type: observation
+    id: O113
+    routing: staged
+    provenance: ai-suggested
+    summary: "The implemented G²SR diagnostic covers tracked covariance and DLT centers, not the paper's full normal/scale initialization or Hellinger Gauss--Newton solver."
+  - turn: 12
+    type: observation
+    id: O114
+    routing: staged
+    provenance: ai-suggested
+    summary: "The fixed-835 old-640/new-2000 comparison isolates a teacher-package change, not cardinality alone, because exact-residual and fit-config eras differ."
+
+ai_actions:
+  - turn: 1
+    action: "Completed and independently audited the sealed compact-proposal comparison plus the bounded full-resolution RGB-denied interaction; preserved its terminal calibrated failure and phase-local metrics."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260716_compact_point_training_AUDIT.md"
+      - "runs/compact_point_training_20260716/"
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+      - "docs/ROADMAP.md"
+  - turn: 1
+    action: "Hardened future snapshot ABI provenance, viewer PID/socket ownership, and compact preflight/device working-set behavior; added focused regressions and passed canonical verification."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/compact_point_training.py"
+      - "src/rtgs/optim/compact_trainer.py"
+      - "tests/test_compact_point_training.py"
+      - "tests/test_compact_trainer.py"
+      - "docs/ARCHITECTURE.md"
+  - turn: 1
+    action: "Kept the full-resolution gsplat/CUDA viewer live at 127.0.0.1:8876 and wrote separately labelled, hash-bound ABI and viewer diagnostic receipts."
+    provenance: ai-executed
+    files_changed:
+      - "runs/compact_point_training_20260716/postfailure_abi_diagnostic.json"
+      - "runs/compact_point_training_20260716/postfailure_viewer_diagnostic.json"
+  - turn: 1
+    action: "Synchronized the public research/architecture/roadmap ledgers, added compact-training ARA evidence, and passed the independent final scientist claim audit."
+    provenance: ai-executed
+    files_changed:
+      - "CLAUDE.md"
+      - "docs/ARCHITECTURE.md"
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+      - "docs/ROADMAP.md"
+      - "ara/"
+  - turn: 2
+    action: "Re-rendered seven frozen native-resolution teachers with the source-bound StructSplat CUDA path, compared exact point queries and masks, and saved isolated metrics and visual panels without changing source code."
+    provenance: ai-executed
+    files_changed:
+      - "runs/compact_point_training_20260716/stage1_teacher_audit/"
+      - "ara/evidence/tables/20260717_stage1_teacher_fidelity.md"
+  - turn: 3
+    action: "Independently audited the C0001 mask screen, recomputed archive/source/input bindings and metrics, rerendered sampled semantic parity, and reviewed a fresh-process replay."
+    provenance: ai-executed
+    files_changed:
+      - "runs/compact_stage1_mask_screen_20260717/AUDIT.md"
+      - "ara/"
+  - turn: 4
+    action: "Implemented and ran seven fresh native-resolution masked StructSplat workers, atomically saved the strict compact bundle, and preserved the terminal false-positive postcondition failure."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/compact_masked_bundle_acquisition.py"
+      - "runs/compact_masked_bundle_640_20260717/"
+  - turn: 4
+    action: "Built a separately source-bound no-refit recovery verifier, independently audited the bundle, generated the visual QA sheet, and passed ruff/compile, 47 focused tests, decoder-denial reload, docs sync, and diff checks."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/compact_masked_bundle_recovery.py"
+      - "runs/compact_masked_bundle_640_20260717/recovery_result.json"
+      - "runs/compact_masked_bundle_640_20260717/AUDIT.md"
+      - "runs/compact_masked_bundle_640_20260717/RESULT.md"
+      - "docs/EXPERIMENTS.md"
+      - "ara/evidence/tables/20260717_masked_bundle_acquisition.md"
+  - turn: 5
+    action: "Independently verified every sealed source/input/self hash, recomputed selector and Stage-A/Stage-B metrics, replayed the full run under file-open tracing, and wrote the authoritative qualified audit."
+    provenance: ai-executed
+    files_changed:
+      - "runs/compact_occupancy_scalar_ablation_20260717/AUDIT.md"
+      - "ara/"
+  - turn: 6
+    action: "Repaired four independent-review blockers in the standalone GaussianImage++ provider-parity assay, added exact post-attempt byte/hash binding and finite terminal failure handling, and froze the preregistered bundle after 22 CPU tests and Ruff checks passed."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/gaussianimage_plus_provider_parity.py"
+      - "benchmarks/gaussianimage_plus_native_worker.py"
+      - "tests/test_gaussianimage_plus_provider_parity.py"
+      - "benchmarks/results/20260717_gaussianimage_plus_provider_parity_PREREG.md"
+  - turn: 7
+    action: "Independently reconstructed the consumed factorial chronology, validated sealed linkage and partial-bank integrity, proved the float32 endpoint mechanism without replaying an official seed, and wrote the append-only failure audit."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260717_compact_occupancy_refinement_factorial_FAILURE_AUDIT.md"
+      - "ara/"
+  - turn: 8
+    action: "Adversarially reviewed the frozen iter2 implementation, math, Phase-A/Phase-B replay validators, source/runtime/RGB boundaries, and exact four-suite verification; then wrote and mechanically verified the formal PASS review."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260717_compact_responsibility_birth_allocation_iter2_IMPLEMENTATION_REVIEW.md"
+      - "ara/"
+  - turn: 8
+    action: "Ran a focused-root real-input CUDA surgery smoke in a fresh preload-bound process, transparently discarded one reviewer-wrapper type mismatch, and verified the corrected process without writing official artifacts."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 9
+    action: "Independently bounded the failed seal chronology and control-flow publication boundary, confirmed every frozen artifact/run path absent, retired iter2 permanently, and checked a candidate iter3 namespace repository-wide without executing it."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260717_compact_responsibility_birth_allocation_iter2_FAILURE_AUDIT.md"
+      - "ara/"
+  - turn: 10
+    action: "Read the G²SR primary paper end to end at the method and evaluation boundaries, mapped its detector/tracker/triangulator against the repository's compact Carve and trainer, and identified the exact role of its five sigma points."
+    provenance: ai-executed
+    files_changed:
+      - "ara/"
+  - turn: 11
+    action: "Grounded the G²SR comparison in the 2026-07-16--17 Scholar Inbox digest, where it ranked 98, and rechecked the paper's rendering-quality and coverage boundaries against the repository's full-resolution variable-topology objective."
+    provenance: ai-executed
+    files_changed:
+      - "ara/"
+  - turn: 11
+    action: "Completed the repaired, immutable G²SR mechanism-diagnostic harness and its CPU-first geometry core; reported focused and non-slow verification pass, but did not download flow weights or launch an official acquisition."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/g2sr_correspondence_diagnostic.py"
+      - "tests/test_g2sr_correspondence_diagnostic.py"
+      - "src/rtgs/lift/gaussian_correspondence.py"
+      - "tests/test_gaussian_correspondence.py"
+      - "ara/"
+  - turn: 12
+    action: "Implemented and verified a four-phase teacher-capacity crossover harness with exact all-component CompactCarve scoring, complete production candidate audits, paired CPU refinement sampling, strict source/RGB gates, native gsplat evaluation, and viewer handoff; no official phase ran."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/compact_teacher_capacity_crossover.py"
+      - "tests/test_compact_teacher_capacity_crossover.py"
+      - "ara/"
+
+claims_touched:
+  - id: C20
+    action: crystallized
+    turn: 1
+  - id: C21
+    action: crystallized
+    turn: 8
+  - id: C21
+    action: weakened
+    turn: 9
+
+key_context:
+  - turn: 1
+    excerpt: "StructSplat is actively developed; GaussianImage_plus, image-gs, and GaussianImage are acceptable alternative 2D-Gaussian producers. The bounded run used StructSplat read-only because it exposes the exact compact teacher fields."
+  - turn: 2
+    excerpt: "Investigate whether the worse result comes from StructSplat fidelity, sampling, 2D-to-3D lifting, subset selection, or optimization; RGB remains evaluation-only after Stage 1."
+  - turn: 3
+    excerpt: "The masked/cropped teacher improvement replicated in ordering, but the same seeded CUDA fit did not reproduce archive bytes."
+  - turn: 4
+    excerpt: "Use the recovered bundle only as exact content-bound exploratory input: the original lifecycle failed and the plan's effective InitConfig seed is wrong for six views."
+  - turn: 5
+    excerpt: "The sealed run is replayable and selector-isolated, but its selected LSE beta=2 admits substantially more false positives and degrades the fixed-835 Stage-B result."
+  - turn: 6
+    excerpt: "The historical GaussianImage++ implementation review remains FAIL; the repaired source bundle is frozen and no seal, attempt, result, or official run exists pending an independent PASS/FAIL addendum."
+  - turn: 7
+    excerpt: "The immutable NO_REFINEMENT_TARGET_PROMOTION string is not a scientific result: bank construction failed before all banks, every worker, and every decision metric."
+  - turn: 8
+    excerpt: "The fresh iter2 source closure is independently PASS and structurally CUDA-ready; official roots and all scientific outcomes remain untouched pending the parent-owned seal."
+  - turn: 9
+    excerpt: "The parent-owned iter2 seal returned nonzero in full verification before seal/archive publication; no official roots or scientific outcomes were reached, but the once-only namespace is consumed."
+  - turn: 10
+    excerpt: "G²SR is the closest published formulation found so far: it makes cross-view 2D-Gaussian correspondence explicit, whereas the current compact lift independently searches component-center rays."
+  - turn: 11
+    excerpt: "The paper largely matches the geometric core, but realtime-gs remains broader in RGB-free teacher refinement, full-resolution scale, dynamic N_opt^3D, and novel-view rendering; the current code is only the tracked-center diagnostic subset."
+  - turn: 12
+    excerpt: "The frozen crossover uses all 4,480 versus all 14,000 exact component-center rays and identical fixed-835 CPU refinement, but must be interpreted as an old-versus-new teacher-package comparison."
+
+open_threads:
+  - "Correct and digest the actual per-view effective InitConfig seed in future acquisitions; preserve this recovered bundle by exact teacher hashes only."
+  - "Run a paired multi-view masked/full-frame comparison before any general mask-benefit claim, and test converged/adaptive variable N_opt^2D separately."
+  - "Implement and run the frozen residual-responsibility mechanism gate N79 with a matched uniform allocation control."
+  - "Add variable compact N_opt^3D split/clone/prune behavior without changing the immutable teacher objective."
+  - "Run the repaired exact-snapshot worker and viewer lifecycle only in a fresh preregistered calibrated namespace."
+  - "Make compact proposal selection explicit before CLI/pipeline integration; do not treat the provisional pixel_gaussian config default as validated."
+  - "Add aggregate device-byte/index budgets, CSR/lazy indexes, indexed CUDA teacher queries, and bounded backward activation memory."
+  - "Filter or provenance-bind compact sparse points and bounds to selected training views before held-out claims."
+  - "Resolve N110 only with matched compute/exposure, teacher-fidelity reporting, dynamic-count accounting, and isolated original-RGB evaluation."
+  - "Do not promote mean or LSE occupancy aggregation from N127; choose a different bounded mechanism before changing the center-scalar comparison baseline."
+  - "Obtain an independent GaussianImage++ implementation-review addendum over the frozen repaired hashes; seal and run only after an exact PASS and explicit root authorization."
+  - "Freeze and independently review a fresh responsibility-birth iter3 lifecycle with disjoint roots/domains/paths before any seal or official execution."
+  - "Independently re-audit the repaired G²SR harness, then run its bounded flow-warp/five-sigma/DLT diagnostic and compare against compact ray carving without leaking RGB past Stage 1."
+  - "Independently review the teacher-capacity crossover, then run plan/select/evaluate/view-smoke in order without reopening RGB before the atomic selection receipt."
+
+ai_suggestions_pending:
+  - "Treat the recovered bundle's exact teacher hashes as Stage-2 input identity; do not rely on its incorrect descriptive effective-init seed field."
+  - "Use foreground teacher PSNR and exact visual holes as the first gate; do not ask the downstream 3D path to reconstruct detail absent from its frozen teachers."
+  - "Use uniform sampling as the density experiment's matched baseline; do not tune or promote either Gaussian proposal from N119."
+  - "Treat the coarse 835-splat diagnostic as motivation to test capacity, not proof that densification will improve held-out quality."
+  - "Keep post-failure ABI/viewer receipts separate from the consumed calibrated result and require an actual spawned gsplat/CUDA lifecycle for success."
+  - "Describe N127 report views as selector-held-out only; do not claim novel-view or design-unseen generalization."
+  - "Treat N128's terminal decision string only as promotion_authorized=false; do not infer that balanced scheduling or proposal-attempt training lost."
+  - "Use the repository-absent iter3 candidate roots 79101--79403 and 995001--995303 with new iter3 domain/path literals, subject to fresh preregistration and independent review."
+  - "Treat G²SR as the direct correspondence baseline and preserve realtime-gs novelty claims only for independently demonstrated RGB-free compact supervision, scaling, dynamic N_opt^3D, or rendering-quality improvements."
+  - "Interpret the old-640/new-2000 fixed-835 delta as a teacher-package effect unless a matched-semantics 640 field is regenerated; do not label it cardinality-only."

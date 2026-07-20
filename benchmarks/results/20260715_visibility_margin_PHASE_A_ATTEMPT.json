@@ -1,0 +1,32 @@
+{
+  "artifact_type": "visibility_margin_once_only_attempt",
+  "phase": "phase_a",
+  "timestamp_utc": "2026-07-15T21:12:19+00:00",
+  "output": "benchmarks/results/20260715T211212Z_cpu_visibility_margin_audit.json",
+  "inputs": {
+    "seal_sha256": "92396fc86621d432cf0b53be6e37376578b2f4271ab979141c7bdc117f8b1b99"
+  },
+  "command": [
+    "/home/alex/Documents/realtime-gs/.venv/bin/python",
+    "benchmarks/visibility_margin_ablation.py",
+    "audit",
+    "--seal",
+    "benchmarks/results/20260715_visibility_margin_SEAL.json",
+    "--output",
+    "benchmarks/results/20260715T211212Z_cpu_visibility_margin_audit.json"
+  ],
+  "environment": {
+    "python": "3.12.9 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 18:56:27) [GCC 11.2.0]",
+    "torch": "2.9.0+cu128",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "cpu_count": 16,
+    "torch_num_threads": 4,
+    "torch_num_interop_threads": 8,
+    "deterministic_algorithms": true,
+    "cuda_visible_devices": "",
+    "omp_num_threads": "4",
+    "mkl_num_threads": "4",
+    "device": "cpu"
+  }
+}

@@ -49,6 +49,38 @@ def test_load_calibrated_scene_resizes_masks_and_intrinsics(tmp_path):
     assert torch.isfinite(center).all() and extent > 0
 
 
+def test_load_calibrated_scene_ignores_mask_file_in_rgb_directory(tmp_path):
+    frame = tmp_path / "frame_00001"
+    (frame / "rgb").mkdir(parents=True)
+    cameras = []
+    for index in range(3):
+        camera_id = f"C{index:04d}"
+        rgb = np.full((6, 8, 3), 40 * (index + 1), dtype=np.uint8)
+        Image.fromarray(rgb).save(frame / "rgb" / f"{camera_id}.jpg")
+        cameras.append(
+            {
+                "camera_id": camera_id,
+                "extrinsics": {"view_matrix": np.eye(4).reshape(-1).tolist()},
+                "intrinsics": {
+                    "camera_matrix": [6.0, 0.0, 3.0, 0.0, 6.0, 2.0, 0.0, 0.0, 1.0],
+                    "distortion_coefficients": [0.0] * 5,
+                    "resolution": [8, 6],
+                },
+            }
+        )
+
+    stray_mask = np.full((6, 8), 255, dtype=np.uint8)
+    Image.fromarray(stray_mask).save(frame / "rgb" / "mask_C0001.jpg")
+    (tmp_path / "calibration_dome.json").write_text(json.dumps({"cameras": cameras}))
+
+    scene = load_calibrated_scene(frame, test_every=2, load_masks=False)
+
+    assert scene.n_views == 3
+    assert scene.view_names == ["C0000", "C0001", "C0002"]
+    assert scene.train_indices == [0, 2]
+    assert scene.test_indices == [1]
+
+
 def test_structsplat_adapter_converts_rs_and_pixel_centers(tmp_path):
     path = tmp_path / "field.npz"
     np.savez(

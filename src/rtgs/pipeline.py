@@ -14,9 +14,11 @@ import torch
 
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.gaussians3d import Gaussians3D
+from rtgs.data.field_inputs import SceneFits
 from rtgs.data.scene import SceneData
 from rtgs.image2gs.fit import FitConfig, fit_views
 from rtgs.lift import get_lifter
+from rtgs.lift.field_lifter import FieldLiftConfig, FieldLifter, FieldLiftResult
 from rtgs.optim.trainer import TrainConfig, Trainer
 from rtgs.render.base import get_rasterizer
 
@@ -46,6 +48,15 @@ class PipelineResult:
     train_history: dict = field(default_factory=dict)
 
 
+def run_field_pipeline(
+    fits: SceneFits,
+    config: FieldLiftConfig | None = None,
+) -> FieldLiftResult:
+    """Run image-free field lifting from frozen compact observations and cameras."""
+
+    return FieldLifter(config).fit(fits)
+
+
 def run_pipeline(
     scene: SceneData,
     config: PipelineConfig | None = None,
@@ -73,6 +84,10 @@ def run_pipeline(
         device=device,
         packed=config.train.packed,
         antialiased=config.train.antialiased,
+        sh_color_activation=config.train.sh_color_activation,
+        sh_smu1_mu=config.train.sh_smu1_mu,
+        kernel_support_mode=config.train.kernel_support_mode,
+        visibility_margin_sigma=config.train.visibility_margin_sigma,
     )
 
     t0 = time.perf_counter()

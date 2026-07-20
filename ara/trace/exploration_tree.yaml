@@ -1,0 +1,2559 @@
+tree:
+  - id: N01
+    type: question
+    title: "Depth covariance causal ablation"
+    provenance: user
+    timestamp: "2026-07-14T21:55+02:00"
+    description: >
+      Holding fitted 2D primitives, sampled depths, lifted means, colors, opacity, merging,
+      refinement, and seeds fixed, compare surface-Jacobian covariance, per-Gaussian footprint
+      depth spread, and a global isotropic along-ray thickness on CPU.
+    status: resolved
+    children:
+      - id: N02
+        type: experiment
+        title: "Tiny held-out covariance probe"
+        provenance: ai-executed
+        timestamp: "2026-07-14T21:55+02:00"
+        result: >
+          On seed 0 with 25 GT Gaussians, eight 32x32 views (six train/two test), 120 fitted
+          Gaussians per train view, merging disabled, opacity 0.1, and 40 no-density SH0
+          refinement steps, held-out init-to-final PSNR was surface 20.314-to-25.293 dB,
+          footprint 21.455-to-25.572 dB, and a one-pixel z/f ray thickness
+          21.336-to-25.567 dB. Surface p99 covariance condition number was about 1.49e6,
+          versus 19.5 for footprint and 3.16 for z/f.
+        evidence:
+          - "ara/evidence/tables/depth_covariance_probes.md#tiny-held-out-probe"
+        status: resolved
+      - id: N03
+        type: experiment
+        title: "Canonical-size global-sigma pilot"
+        provenance: ai-executed
+        timestamp: "2026-07-14T21:55+02:00"
+        result: >
+          On seed 0 with 40 GT Gaussians, twelve 48x48 views (nine train/three test), shared
+          150-Gaussian 120-step fits, and merging disabled, train-only selection over
+          {0.5,1,2} times footprint RMS sigma chose global sigma 0.07150. Held-out init
+          PSNR/SSIM was surface 19.584/0.371, footprint 20.450/0.588, and selected global
+          isotropic 20.949/0.750. This is a one-seed pilot, not a default-setting result.
+        evidence:
+          - "ara/evidence/tables/depth_covariance_probes.md#canonical-size-global-sigma-pilot"
+        status: resolved
+      - id: N04
+        type: experiment
+        title: "Three-seed raw covariance replication"
+        provenance: ai-executed
+        timestamp: "2026-07-14T22:18+02:00"
+        result: >
+          With identical train-view fits, held-out cameras, merging disabled, and seeds
+          0/1/2, raw mean initialization PSNR was isotropic 20.985 dB, footprint 20.722 dB,
+          and surface 19.744 dB. Raw surface p99 covariance condition averaged 1.76e6 and
+          maximum scale reached 3.16 times scene extent.
+        evidence:
+          - "benchmarks/results/20260714T195655Z_cpu_depth_covariance_iter2_raw.json"
+          - "ara/evidence/tables/depth_covariance_probes.md#official-three-iteration-ablation"
+        status: resolved
+      - id: N05
+        type: experiment
+        title: "Validity-aware clean-depth replication"
+        provenance: ai-executed
+        timestamp: "2026-07-14T22:18+02:00"
+        result: >
+          Validity-aware finite differences raised mean surface initialization from 19.744
+          to 21.195 dB and reduced p99 condition from 1.76e6 to 721. After 60 equal
+          no-density refinement steps, footprint/isotropic/surface reached
+          26.251/26.206/26.040 dB, below the predeclared 0.25 dB separation.
+        evidence:
+          - "benchmarks/results/20260714T195727Z_cpu_depth_covariance_iter2_robust.json"
+          - "benchmarks/results/20260714T200932Z_cpu.json"
+        status: resolved
+      - id: N06
+        type: experiment
+        title: "Perturbed-depth falsification run"
+        provenance: ai-executed
+        timestamp: "2026-07-14T22:18+02:00"
+        result: >
+          Under masked 3x3 blur plus deterministic 2 percent depth noise, robust surface led
+          initialization at 21.086 dB versus isotropic 20.940 and footprint 20.881, but after
+          60 steps isotropic led at 26.002 versus surface 25.918 and footprint 25.901.
+        evidence:
+          - "benchmarks/results/20260714T195902Z_cpu_depth_covariance_iter3_noise.json"
+        status: resolved
+      - id: N07
+        type: dead_end
+        title: "Density surgery on final evaluation step"
+        provenance: ai-executed
+        timestamp: "2026-07-14T22:18+02:00"
+        hypothesis: >
+          An 80-step merge+density run would fairly measure the production interaction.
+        failure_mode: >
+          Classic density surgery fired at step 80 and evaluation happened immediately,
+          collapsing every arm before any recovery optimization.
+        lesson: >
+          Do not compare final quality at a density-surgery step; reserve recovery steps
+          before evaluation.
+        evidence:
+          - "benchmarks/results/20260714T195958Z_cpu_depth_covariance_iter3_production.json"
+        status: resolved
+      - id: N08
+        type: experiment
+        title: "Corrected merge-density recovery run"
+        provenance: ai-executed
+        timestamp: "2026-07-14T22:18+02:00"
+        result: >
+          Extending the perturbed-depth production run to 100 steps gave 20 recovery steps
+          after density surgery. Train-tuned isotropic won all three seeds at 27.047 dB mean
+          held-out PSNR, ahead of footprint 26.485 and surface 26.280.
+        evidence:
+          - "benchmarks/results/20260714T200107Z_cpu_depth_covariance_iter3_recovery.json"
+        status: resolved
+      - id: N09
+        type: decision
+        title: "Default to validity-aware depth gradients"
+        provenance: ai-executed
+        timestamp: "2026-07-14T22:18+02:00"
+        choice: >
+          Treat zero/NaN depth as invalid during finite differences and make this behavior
+          the depth-lifting default.
+        alternatives:
+          - "Retain legacy central differences across invalid background"
+          - "Clamp all depth slopes without distinguishing invalid samples"
+        evidence: [N04, N05, N06]
+        status: resolved
+      - id: N10
+        type: decision
+        title: "Retain pluggable covariance modes"
+        provenance: ai-executed
+        timestamp: "2026-07-14T22:18+02:00"
+        choice: >
+          Keep surface as the production default while exposing footprint and explicitly
+          sized global isotropic controls; defer a mode switch until real-depth evidence.
+        alternatives:
+          - "Switch the default to train-tuned isotropic from synthetic results"
+          - "Switch the default to footprint from clean short-refinement results"
+        evidence: [N05, N06, N08]
+        status: resolved
+  - id: N11
+    type: question
+    title: "Leave-one-source-view-out ray optimization"
+    provenance: ai-suggested
+    timestamp: "2026-07-14T22:59+02:00"
+    description: >
+      Does retaining source-view provenance and excluding or downweighting a target view's own
+      fitted splats during GradientLifter supervision improve depth geometry, merge rate, and
+      held-out initialization quality under an equal CPU iteration budget?
+    status: resolved
+    children:
+      - id: N27
+        type: experiment
+        title: "Preregistered source-aware supervision ablation"
+        provenance: ai-executed
+        timestamp: "2026-07-15T08:34+02:00"
+        result: >
+          Across seeds 0/1/2, Gradient LOSO improved held-out depth RMSE by 0.149 percent
+          but worsened all-source p90 by 0.515 percent. Corrupted-depth Hybrid LOSO worsened
+          held-out RMSE by 0.009 percent, all-source p90 by 2.312 percent, and
+          corrupted-source p90 by 1.364 percent. Both materiality and matched-control
+          attribution gates failed; initialization, paired schedules, balanced exposure,
+          output counts, finite values, and source-bound provenance all passed independent audit.
+        evidence:
+          - "benchmarks/results/20260715T062601Z_cpu_cross_view_supervision.json"
+          - "benchmarks/results/20260715_cross_view_supervision_PREREG.md"
+          - "benchmarks/results/20260715_cross_view_supervision_RESULT.md"
+          - "ara/evidence/tables/cross_view_supervision.md"
+        status: resolved
+      - id: N28
+        type: dead_end
+        title: "Own-source exclusion as a material geometry improvement"
+        provenance: ai-executed
+        timestamp: "2026-07-15T08:34+02:00"
+        hypothesis: >
+          Removing each target view's own fitted splats from photometric supervision would
+          expose enough cross-view signal to materially improve held-out depth RMSE and robust
+          source-depth tails in both Gradient and corrupted-depth Hybrid lifting.
+        failure_mode: >
+          Gradient's 0.149 percent RMSE improvement missed the 2 percent floor and its source
+          p90 worsened; Hybrid worsened all three primary geometry metrics. Small cross-only L1
+          and nearest-median gains did not propagate to the preregistered held-out and tail gates.
+        lesson: >
+          Stop LOSO, matched-dropout, and schedule sweeps on this frozen setup. The result rules
+          out a material own-view-shortcut benefit here, not source exclusion or photometric
+          underidentification universally.
+        evidence:
+          - "benchmarks/results/20260715T062601Z_cpu_cross_view_supervision.json"
+          - "benchmarks/results/20260715_cross_view_supervision_RESULT.md"
+        status: resolved
+      - id: N29
+        type: decision
+        title: "Keep inclusive photometric supervision as default"
+        provenance: ai-executed
+        timestamp: "2026-07-15T08:34+02:00"
+        choice: >
+          Preserve inclusive all-source training as the production default, retain LOSO and
+          globally balanced matched non-self dropout as reproducible research controls, and close
+          further source-exclusion sweeps under the frozen synthetic protocol.
+        alternatives:
+          - "Switch the production default to LOSO"
+          - "Tune LOSO schedules, dropout assignments, or loss weights on the same setup"
+          - "Remove the source-aware research controls after the negative result"
+        evidence: [N27, N28, "benchmarks/results/20260715_cross_view_supervision_RESULT.md"]
+        status: resolved
+      - id: N30
+        type: pivot
+        title: "Pivot from photometric exclusion to direct position consistency"
+        provenance: ai-executed
+        timestamp: "2026-07-15T08:34+02:00"
+        from: "Leave-one-source-view-out and matched-dropout photometric supervision"
+        to: >
+          One direct robust world-frame position-consistency term between fixed train-view
+          matches while retaining bounded-ray depths; test position alone before shape,
+          appearance, confidence, or plane/normal consistency.
+        trigger: >
+          N27/N28 fired the preregistered stopping rule. MAC-Splat's matched world-frame
+          consistency and EDGS-style direct correspondence motivate the next hypothesis but do
+          not prescribe this repository's matches, robust loss, weight, or thresholds.
+        evidence:
+          - N27
+          - N28
+          - "docs/RESEARCH.md#42-scholar-inbox-update-2026-07-15"
+        also_depends_on: [N12, N26]
+        status: resolved
+        children:
+          - id: N31
+            type: question
+            title: "Fixed-match world-frame position consistency"
+            provenance: ai-suggested
+            timestamp: "2026-07-15T08:34+02:00"
+            description: >
+              Does adding one robust position-only loss between fixed cross-view training matches
+              materially improve held-out depth RMSE and source tails over photometric-only
+              bounded-ray optimization, and does a shuffled-match control with the same pair count
+              and graph degree remove the gain?
+            status: resolved
+            children:
+              - id: N32
+                type: experiment
+                title: "Preregistered fixed-match position-consistency run"
+                provenance: ai-executed
+                timestamp: "2026-07-15T10:58+02:00"
+                result: >
+                  Across seeds 0/1/2, correct topology reduced matched-edge p90 by 91.11
+                  percent in Gradient and 86.44 percent in corrupted-depth Hybrid, and reduced
+                  represented-node assigned-GT p90 by 90.00 and 82.42 percent. Whole-scene
+                  held-out RMSE improved only 0.896/1.005 percent, all-source p90
+                  6.499/5.865 percent, and Hybrid corrupted-source p90 5.689 percent, below
+                  every frozen materiality floor. All provenance and structural audits passed.
+                evidence:
+                  - "benchmarks/results/20260715T084557Z_cpu_world_position_consistency.json"
+                  - "benchmarks/results/20260715_world_position_consistency_PREREG.md"
+                  - "benchmarks/results/20260715_world_position_consistency_RESULT.md"
+                  - "ara/evidence/tables/world_position_consistency.md"
+                status: resolved
+              - id: N33
+                type: dead_end
+                title: "Sparse oracle position graph as a material whole-scene improvement"
+                provenance: ai-executed
+                timestamp: "2026-07-15T10:58+02:00"
+                hypothesis: >
+                  A clean fixed correspondence graph over high-purity train-view primitives would
+                  make the position-only loss materially improve held-out and source-tail geometry.
+                failure_mode: >
+                  The loss strongly localized represented primitives in every seed, but the graph
+                  touched only 7.73 to 9.43 percent of retained primitives and all whole-scene
+                  gains remained below the preregistered thresholds.
+                lesson: >
+                  Do not tune the position loss. Test coverage once with a denser train-only
+                  matcher; if a precise dense graph still fails globally, pivot to local
+                  plane/normal consistency.
+                evidence:
+                  - N32
+                  - "benchmarks/results/20260715_world_position_consistency_RESULT.md"
+                status: resolved
+              - id: N34
+                type: decision
+                title: "Keep position consistency opt-in and stop loss sweeps"
+                provenance: ai-executed
+                timestamp: "2026-07-15T10:58+02:00"
+                choice: >
+                  Preserve zero position weight and inclusive photometric supervision as defaults;
+                  retain explicit fixed pairs as a research API, make no deployment claim, and
+                  stop coefficient, Huber delta, norm, and schedule sweeps on this setup.
+                alternatives:
+                  - "Enable the sparse oracle-motivated loss by default"
+                  - "Tune the position-loss coefficient or robust-loss shape"
+                  - "Add shape and appearance consistency before testing coverage"
+                evidence: [N32, N33, "benchmarks/results/20260715_world_position_consistency_RESULT.md"]
+                status: resolved
+              - id: N35
+                type: pivot
+                title: "Pivot from sparse oracle edges to denser train-only matching"
+                provenance: ai-executed
+                timestamp: "2026-07-15T10:58+02:00"
+                from: "Sparse privileged fixed-position graph and position-loss hyperparameter branch"
+                to: >
+                  One denser train-only correspondence graph with the same frozen bounded-ray
+                  position loss and structurally matched shuffled control.
+                trigger: >
+                  N32 passed engagement and local localization in both families but failed global
+                  materiality, firing the preregistered coverage-limited branch.
+                evidence: [N32, N33, N34]
+                also_depends_on: [N30]
+                status: resolved
+                children:
+                  - id: N36
+                    type: question
+                    title: "Dense train-only correspondence coverage"
+                    provenance: ai-suggested
+                    timestamp: "2026-07-15T10:58+02:00"
+                    description: >
+                      Can a frozen, pluggable train-image matcher with mutual-confidence,
+                      reprojection, and ray-angle filtering materially exceed the current 8.4
+                      percent represented-node coverage while retaining enough precision for the
+                      unchanged position loss to improve whole-scene geometry?
+                    status: resolved
+                    children:
+                      - id: N37
+                        type: experiment
+                        title: "Preregistered dense train-only matcher gate"
+                        provenance: ai-executed
+                        timestamp: "2026-07-15T11:50+02:00"
+                        result: >
+                          Across seeds 0/1/2, the frozen raw-patch/epipolar matcher passed every
+                          structural floor with 165 to 187 edges, 227 to 247 represented nodes,
+                          17.99 to 19.10 percent node coverage, and 1.91x to 2.47x the sparse
+                          oracle's same-seed coverage. Strict compositor-identity edge precision
+                          was only 9.04, 11.76, and 10.91 percent versus the frozen 60 percent
+                          floor. The official harness therefore stopped before every Gradient and
+                          Hybrid optimization arm.
+                        evidence:
+                          - "benchmarks/results/20260715T094311Z_cpu_dense_train_position.json"
+                          - "benchmarks/results/20260715_dense_train_position_PREREG.md"
+                          - "benchmarks/results/20260715_dense_train_position_RESULT.md"
+                          - "ara/evidence/tables/dense_train_position.md"
+                        status: resolved
+                      - id: N38
+                        type: dead_end
+                        title: "Raw RGB patch matching as a valid fitted-primitive graph"
+                        provenance: ai-executed
+                        timestamp: "2026-07-15T11:50+02:00"
+                        hypothesis: >
+                          Reciprocal distinctive 5x5 RGB patches plus calibrated epipolar,
+                          cheirality, ray-angle, and reprojection filters would yield a dense graph
+                          precise enough to run the frozen position-consistency arms.
+                        failure_mode: >
+                          Only 17.15 to 22.27 percent of represented nodes had a valid dominant
+                          reference-compositor label. Precision among fully labeled pairs was
+                          70.97 to 80.00 percent, but counting unlabeled/background endpoints false
+                          reduced strict precision to 9.04 to 11.76 percent in every seed.
+                        lesson: >
+                          Calibration and raw local appearance do not establish meaningful fitted-
+                          primitive identity in low-signal regions. Do not tune this matcher or
+                          feed its graph to the position loss after the failed frozen gate.
+                        evidence:
+                          - N37
+                          - "benchmarks/results/20260715_dense_train_position_RESULT.md"
+                        status: resolved
+                      - id: N39
+                        type: decision
+                        title: "Retain the matcher as a rejected CPU reference"
+                        provenance: ai-executed
+                        timestamp: "2026-07-15T11:50+02:00"
+                        choice: >
+                          Keep the pluggable train-only matcher boundary and deterministic tests as
+                          research infrastructure, but withhold all position-optimization arms,
+                          make no production or learned-matcher claim, and stop patch/position
+                          threshold sweeps on this outcome.
+                        alternatives:
+                          - "Run the position arms despite the failed precision gate"
+                          - "Tune patch, ratio, epipolar, reprojection, confidence, or loss settings"
+                          - "Promote the raw-patch backend to a production matcher"
+                        evidence: [N37, N38, "benchmarks/results/20260715_dense_train_position_RESULT.md"]
+                        status: resolved
+                      - id: N40
+                        type: pivot
+                        title: "Pivot from raw matching to depth-backed plane and normal constraints"
+                        provenance: ai-executed
+                        timestamp: "2026-07-15T11:50+02:00"
+                        from: "Raw-patch train-only matching and the fixed-position branch"
+                        to: >
+                          One frozen local plane-pulling plus shortest-axis normal-alignment test
+                          against detached train-depth oriented points, initially scoped to Hybrid.
+                        trigger: >
+                          N37/N38 fired the preregistered matcher-precision stopping rule. Scholar
+                          Inbox's Incremental Gaussian Triangulation supplies the bounded plane and
+                          normal mechanism but assumes RGB-D oriented points.
+                        evidence:
+                          - N37
+                          - N38
+                          - "docs/RESEARCH.md#41-scholar-inbox-update-2026-07-14"
+                        also_depends_on: [N33, N35]
+                        status: resolved
+                        children:
+                          - id: N41
+                            type: question
+                            title: "Depth-backed local plane and normal consistency"
+                            provenance: ai-suggested
+                            timestamp: "2026-07-15T11:50+02:00"
+                            description: >
+                              Do detached train-depth oriented points provide a precise local plane
+                              target whose point-to-plane pulling and shortest-axis normal alignment
+                              materially improve corrupted-depth Hybrid geometry under a frozen,
+                              attribution-controlled protocol?
+                            status: resolved
+                            children:
+                              - id: N42
+                                type: experiment
+                                title: "Preregistered surface-target validity gate"
+                                provenance: ai-executed
+                                timestamp: "2026-07-15T13:09+02:00"
+                                result: >
+                                  Across seeds 0/1/2, frozen four-neighbor corrupted-depth plane
+                                  targets passed every structural floor with 318 to 339 targets,
+                                  24.59 to 26.02 percent retained-node coverage, and 67 to 98
+                                  corrupted targets. The post-freeze clean audit failed every seed:
+                                  all-target plane p90 was 0.160 to 0.175 of extent and corrupted-
+                                  target p90 was 0.239 to 0.271 versus the 0.10 ceiling. Every
+                                  target was labelable. The official harness therefore ran zero of
+                                  the five planned Hybrid optimization arms.
+                                evidence:
+                                  - "benchmarks/results/20260715T110342Z_cpu_surface_plane_normal.json"
+                                  - "benchmarks/results/20260715_surface_plane_normal_PREREG.md"
+                                  - "benchmarks/results/20260715_surface_plane_normal_RESULT.md"
+                                  - "ara/evidence/tables/surface_plane_normal.md"
+                                status: resolved
+                              - id: N43
+                                type: dead_end
+                                title: "Four-neighbor corrupted-depth PCA as an oriented-point source"
+                                provenance: ai-executed
+                                timestamp: "2026-07-15T13:09+02:00"
+                                hypothesis: >
+                                  Spatially compact, cross-view, multi-support PCA neighborhoods
+                                  passing planarity, incidence, and ray-reachability filters would
+                                  provide sufficiently accurate fixed surface planes for corrupted-
+                                  depth Hybrid optimization.
+                                failure_mode: >
+                                  Although every structural proxy passed, clean point-to-plane p90
+                                  exceeded the frozen 0.10 limit in both strata and all seeds;
+                                  normal agreement also failed some seed/stratum checks.
+                                lesson: >
+                                  Locality and a small PCA eigenvalue do not establish surface
+                                  identity under corrupted depth. Reject this constructor without
+                                  threshold tuning and do not expose the withheld utility arms.
+                                evidence:
+                                  - N42
+                                  - "benchmarks/results/20260715_surface_plane_normal_RESULT.md"
+                                status: resolved
+                              - id: N44
+                                type: decision
+                                title: "Retain disabled surface losses and reject the target constructor"
+                                provenance: ai-executed
+                                timestamp: "2026-07-15T13:09+02:00"
+                                choice: >
+                                  Keep the tested retained-indexed point-to-plane and selected-axis
+                                  normal API with zero coefficients, reject the four-neighbor
+                                  corrupted-depth constructor, run no withheld arm, and make no
+                                  production or loss-utility claim.
+                                alternatives:
+                                  - "Tune target radius, neighbor count, planarity, or audit gates"
+                                  - "Run the five Hybrid arms despite the failed clean audit"
+                                  - "Remove the generic loss API even though it was not evaluated"
+                                evidence: [N42, N43, "benchmarks/results/20260715_surface_plane_normal_RESULT.md"]
+                                status: resolved
+                              - id: N45
+                                type: pivot
+                                title: "Pivot from synthetic neighbor planes to calibrated oriented points"
+                                provenance: ai-executed
+                                timestamp: "2026-07-15T13:09+02:00"
+                                from: "Four-neighbor cross-view PCA planes built from corrupted synthetic depth"
+                                to: >
+                                  An independently justified pluggable oriented-point source on
+                                  actual calibrated metric-depth/RGB-D data, audited before any
+                                  plane or normal optimization.
+                                trigger: >
+                                  N42/N43 fired the preregistered post-freeze validity stop. IGT's
+                                  positive mechanism assumes oriented RGB-D points rather than this
+                                  repository-specific corrupted-depth nearest-neighbor adaptation.
+                                evidence:
+                                  - N42
+                                  - N43
+                                  - "docs/RESEARCH.md#43-oriented-point-experiment-update-2026-07-15"
+                                also_depends_on: [N40]
+                                status: resolved
+                                children:
+                                  - id: N46
+                                    type: question
+                                    title: "Calibrated oriented-point backend validity and utility"
+                                    provenance: ai-suggested
+                                    timestamp: "2026-07-15T13:09+02:00"
+                                    description: >
+                                      Can a pluggable source of independently justified metric
+                                      points and normals on actual calibrated depth/RGB-D data pass
+                                      a leakage-safe target audit and then make point-to-plane and
+                                      shortest-axis alignment materially improve Hybrid geometry?
+                                    status: resolved
+                                    children:
+                                      - id: N47
+                                        type: experiment
+                                        title: "Sealed real RGB-D oriented-point transfer audit"
+                                        provenance: ai-executed
+                                        timestamp: "2026-07-15T16:51+02:00"
+                                        result: >
+                                          The TUM fr1/xyz development run constructed 40,341
+                                          eligible targets with 86.69 percent two-view oriented
+                                          support, 24.97 mm surface p90, 3.10 percent relative-
+                                          depth p90, and 0.915 median normal cosine. The sole
+                                          fr1/desk confirmatory run retained 39,422 targets and
+                                          80.36 percent support, but failed transferred surface
+                                          p90 at 202.11 mm versus 42.45 mm, relative-depth p90 at
+                                          25.19 percent versus 5 percent, and p10 normal cosine at
+                                          0.503 versus 0.522. Six other gates passed; decision was
+                                          stop and no Phase-B arm ran.
+                                        evidence:
+                                          - "benchmarks/results/20260715T143959Z_cpu_tum_rgbd_oriented_validity_xyz.json"
+                                          - "benchmarks/results/20260715T144052Z_cpu_tum_rgbd_oriented_validity_desk.json"
+                                          - "benchmarks/results/20260715_tum_rgbd_oriented_validity_THRESHOLDS.json"
+                                          - "benchmarks/results/20260715_tum_rgbd_oriented_validity_RESULT.md"
+                                          - "ara/evidence/tables/tum_rgbd_oriented_validity.md"
+                                        status: resolved
+                                      - id: N48
+                                        type: dead_end
+                                        title: "Registered-depth targets as a transferable Phase-B prerequisite"
+                                        provenance: ai-executed
+                                        timestamp: "2026-07-15T16:51+02:00"
+                                        hypothesis: >
+                                          Registered metric depth plus deterministic five-point
+                                          normals and construction-only sparse visibility would
+                                          yield oriented targets whose cross-view tail validity
+                                          transfers from fr1/xyz to fr1/desk.
+                                        failure_mode: >
+                                          Coverage and two-view support transferred, but desk
+                                          target-level depth and symmetric surface residuals were
+                                          strongly heavy-tailed: p90 reached 25.19 percent and
+                                          202.11 mm, and low-tail normal agreement also missed its
+                                          frozen floor.
+                                        lesson: >
+                                          Plentiful local metric normals do not establish
+                                          transferable cross-view tail consistency. Withhold
+                                          plane/normal utility, do not tune the consumed desk
+                                          case, and isolate occlusion/rigidity on new sequences.
+                                        evidence:
+                                          - N47
+                                          - "benchmarks/results/20260715_tum_rgbd_oriented_validity_RESULT.md"
+                                        status: resolved
+                                      - id: N49
+                                        type: decision
+                                        title: "Retain the backend boundary and withhold Phase B"
+                                        provenance: ai-executed
+                                        timestamp: "2026-07-15T16:51+02:00"
+                                        choice: >
+                                          Keep the CPU-tested oriented-point protocol,
+                                          canonicalization, registered-depth normal utility, and
+                                          zero-default losses; keep the TUM backend harness-local,
+                                          run no Phase-B optimization, and make no utility or
+                                          production claim.
+                                        alternatives:
+                                          - "Run plane/normal optimization despite failed target gates"
+                                          - "Relax p90 or low-tail normal thresholds on desk"
+                                          - "Promote the harness-local TUM backend to production"
+                                          - "Remove the generic API even though its boundary is tested"
+                                        evidence: [N47, N48, "benchmarks/results/20260715_tum_rgbd_oriented_validity_RESULT.md"]
+                                        status: resolved
+                                      - id: N50
+                                        type: pivot
+                                        title: "Pivot from oriented-loss utility to occlusion and rigidity attribution"
+                                        provenance: ai-executed
+                                        timestamp: "2026-07-15T16:51+02:00"
+                                        from: "Phase-B point-to-plane and shortest-axis utility"
+                                        to: >
+                                          A separately preregistered signed-discrepancy audit on
+                                          new development and confirmatory sequences that isolates
+                                          construction-only visibility, occlusion, and rigidity
+                                          before any utility arm.
+                                        trigger: >
+                                          N47/N48 fired the frozen confirmatory stop. The saved
+                                          unsigned artifact establishes a distributed heavy tail
+                                          but cannot identify occlusion, motion, calibration, or
+                                          sparse visibility as its cause.
+                                        evidence: [N47, N48, N49]
+                                        status: resolved
+                                        children:
+                                          - id: N51
+                                            type: question
+                                            title: "New-sequence oriented-target tail attribution"
+                                            provenance: ai-suggested
+                                            timestamp: "2026-07-15T16:51+02:00"
+                                            description: >
+                                              On unseen development/confirmatory RGB-D sequences,
+                                              which construction-only visibility and rigidity
+                                              factors explain signed target-depth tails without
+                                              filtering or tuning on confirmatory residuals, and
+                                              can a frozen correction pass before an ordinary-
+                                              depth-controlled utility test?
+                                            status: resolved
+                                            children:
+                                              - id: N52
+                                                type: experiment
+                                                title: "Preregistered signed T-only visibility attribution"
+                                                provenance: ai-executed
+                                                timestamp: "2026-07-15T18:02+02:00"
+                                                result: >
+                                                  On TUM fr3/sitting_xyz, the nested stride-8
+                                                  T-only construction retained 87.83 percent of
+                                                  176,950 sparse depth-valid pairs and 27,135
+                                                  supported targets. Removed pairs were 30.11
+                                                  percent positive versus 2.90 percent negative;
+                                                  target-paired E+ was 0.1381 and relative-depth
+                                                  p90 improved from 5.226 to 4.809 percent. The
+                                                  target-balanced positive reduction was only
+                                                  1.424 percentage points versus a frozen 1.751
+                                                  point floor, and positive risk ratio was 1.7195
+                                                  with its interval below 2x. Ten other gates
+                                                  passed; confirmation was not authorized.
+                                                evidence:
+                                                  - "benchmarks/results/20260715T160300Z_cpu_tum_rgbd_signed_attribution_sitting.json"
+                                                  - "benchmarks/results/20260715_tum_rgbd_signed_attribution_DECISION.json"
+                                                  - "benchmarks/results/20260715_tum_rgbd_signed_attribution_RESULT.md"
+                                                  - "ara/evidence/tables/tum_rgbd_signed_attribution.md"
+                                                status: resolved
+                                              - id: N53
+                                                type: dead_end
+                                                title: "Pooled dense T visibility as sufficient tail attribution"
+                                                provenance: ai-executed
+                                                timestamp: "2026-07-15T18:02+02:00"
+                                                hypothesis: >
+                                                  Densifying the construction-only T z-buffer
+                                                  would explain a large enough target-balanced
+                                                  share of behind-observed residuals to pass the
+                                                  sitting gate and authorize a fast-motion
+                                                  confirmation.
+                                                failure_mode: >
+                                                  Density removed a sign-selective subset and
+                                                  improved p90, but positive rate fell only 12.2
+                                                  percent relative versus the 15 percent floor and
+                                                  target-balanced removed/retained risk ratio was
+                                                  1.7195 versus 2.0.
+                                                lesson: >
+                                                  Do not tune stride, tolerance, or effect floors.
+                                                  Pooled density captures some occlusion-like
+                                                  pairs but does not sufficiently explain the
+                                                  target-balanced tail under this protocol.
+                                                evidence:
+                                                  - N52
+                                                  - "benchmarks/results/20260715_tum_rgbd_signed_attribution_RESULT.md"
+                                                status: resolved
+                                              - id: N54
+                                                type: decision
+                                                title: "Stop before walking and withhold utility"
+                                                provenance: ai-executed
+                                                timestamp: "2026-07-15T18:02+02:00"
+                                                choice: >
+                                                  Preserve the unopened fr3/walking_xyz archive,
+                                                  create no confirmatory-attempt seal, run no
+                                                  motion-regime contrast or utility arm, and retain
+                                                  the signed harness only as benchmark research
+                                                  infrastructure.
+                                                alternatives:
+                                                  - "Relax the failed 2x or 15 percent floors"
+                                                  - "Decode walking despite failed development"
+                                                  - "Tune density or visibility tolerance on sitting"
+                                                  - "Run plane/normal or ordinary-depth utility"
+                                                evidence: [N52, N53, "benchmarks/results/20260715_tum_rgbd_signed_attribution_DECISION.json"]
+                                                status: resolved
+                                              - id: N55
+                                                type: pivot
+                                                title: "Pivot from pooled density to time-local visibility"
+                                                provenance: ai-executed
+                                                timestamp: "2026-07-15T18:06+02:00"
+                                                from: "Pooled whole-capture dense T-only visibility"
+                                                to: >
+                                                  A new-sequence comparison of pooled versus
+                                                  time-local or source-conditioned T-only
+                                                  construction at matched pose baselines.
+                                                trigger: >
+                                                  N52/N53 failed the density-attribution gate while
+                                                  dense-visible far-minus-near contradiction rose
+                                                  11.19 percentage points and remained +10.01
+                                                  points in the pose-conditioned sensitivity.
+                                                evidence: [N52, N53, "benchmarks/results/20260715_tum_rgbd_signed_attribution_RESULT.md"]
+                                                status: resolved
+                                                children:
+                                                  - id: N56
+                                                    type: question
+                                                    title: "Time-local construction visibility attribution"
+                                                    provenance: ai-suggested
+                                                    timestamp: "2026-07-15T18:06+02:00"
+                                                    description: >
+                                                      On new captures, does limiting T-only
+                                                      occluders to a preregistered temporal/source
+                                                      neighborhood reduce signed contradictions
+                                                      beyond a pooled dense cloud at matched pose
+                                                      baselines, without validation-depth filtering?
+                                                    status: open
+  - id: N12
+    type: question
+    title: "Cross-view depth-prior consensus"
+    provenance: ai-suggested
+    timestamp: "2026-07-14T22:59+02:00"
+    description: >
+      Can calibrated cross-view reprojection residuals robustly filter or correct independently
+      aligned monocular depth observations before lifting, reducing outlier geometry and primitive
+      count without consuming held-out views?
+    status: open
+  - id: N13
+    type: question
+    title: "Provenance-aware merge versus keep-all"
+    provenance: ai-suggested
+    timestamp: "2026-07-14T22:59+02:00"
+    description: >
+      At matched refinement budget, does moment merging improve time-to-quality over keep-all plus
+      pruning, and does restricting fusion to distinct-view-supported components avoid same-view
+      blur while preserving the speed benefit?
+    status: open
+  - id: N14
+    type: question
+    title: "Robust photometric carving"
+    provenance: ai-suggested
+    timestamp: "2026-07-14T22:59+02:00"
+    description: >
+      Do robust exposure-normalized or subset-consensus color statistics improve carving geometry
+      under per-view gain, bias, and occlusion perturbations without regressing clean CPU scenes?
+    status: open
+  - id: N15
+    type: question
+    title: "Hierarchical sparse carving"
+    provenance: ai-suggested
+    timestamp: "2026-07-14T22:59+02:00"
+    description: >
+      Can a coarse-to-fine active-voxel volume match a dense high-resolution carve initializer's
+      held-out quality and geometry while materially reducing CPU lift time and peak allocation?
+    status: open
+  - id: N16
+    type: experiment
+    title: "CPU baseline and replay integrity audit"
+    provenance: ai-executed
+    timestamp: "2026-07-14T23:00+02:00"
+    result: >
+      CPU-hidden verification passed 95 tests with five CUDA skips in 20.88 seconds wall. A
+      no-write smoke completed in 2.66 seconds; depth initialized/finalized at 21.220/21.713 dB
+      while privileged synthetic SfM reached 23.535/28.763 dB. Every replay manifest hash
+      matched, and the patch both reversed from the worktree and applied against the clean index.
+    evidence:
+      - "ara/evidence/tables/cpu_baseline_audit.md"
+      - "benchmarks/results/20260714_depth_covariance_REPLAY.md"
+    status: resolved
+  - id: N17
+    type: question
+    title: "Confidence-weighted bounded-ray anchoring"
+    provenance: ai-suggested
+    timestamp: "2026-07-14T23:04+02:00"
+    description: >
+      Does weighting the bounded-ray depth anchor by valid backend confidence, anchoring to the
+      unjittered normalized ray fraction, and using a robust loss improve corrupted-prior geometry
+      and held-out quality over uniform anchoring without weakening reliable priors?
+    status: resolved
+    children:
+      - id: N18
+        type: experiment
+        title: "Uniform anchor confidence-invariance baseline"
+        provenance: ai-executed
+        timestamp: "2026-07-15T00:38+02:00"
+        result: >
+          With merging disabled, confidence 1.0 versus 0.01 on the same 1.12x corrupted depth
+          prior produced bit-identical GradientLifter means, covariances, and 40-step loss
+          histories; a 12-step HybridLifter check was also identical. Across three tiny-scene
+          seeds, removing the uniform anchor improved held-out PSNR by 0.138 ± 0.085 dB and SSIM
+          by 0.0293 ± 0.0102 while permitting 0.114 ± 0.019 more median movement from the bad
+          initialization.
+        evidence:
+          - "ara/evidence/tables/depth_anchor_baseline.md"
+          - "benchmarks/results/20260715_depth_anchor_PREREG.md"
+        status: resolved
+      - id: N19
+        type: experiment
+        title: "Preregistered confidence-anchor ablation"
+        provenance: ai-executed
+        timestamp: "2026-07-15T01:02+02:00"
+        result: >
+          Across seeds 0/1/2 and strict held-out views, confidence versus legacy on corrupted
+          priors changed initialization PSNR by -0.0577 dB with one of three seed wins, worsened
+          low-confidence source-depth p90 by 1.63 percent, and changed post-refinement PSNR by
+          -0.0417 dB. The clean regression was -0.0900 dB. The preregistered primary rule failed.
+        evidence:
+          - "benchmarks/results/20260714T224800Z_cpu_depth_anchor.json"
+          - "ara/evidence/tables/depth_anchor_ablation.md"
+          - "docs/EXPERIMENTS.md"
+        status: resolved
+      - id: N20
+        type: dead_end
+        title: "Synthetic confidence anchor as a utility improvement"
+        provenance: ai-executed
+        timestamp: "2026-07-15T01:02+02:00"
+        hypothesis: >
+          Confidence-weighted unjittered normalized anchoring would materially improve corrupted
+          depth geometry and held-out quality over the legacy uniform jittered-logit anchor.
+        failure_mode: >
+          It missed every preregistered benefit threshold: initialization/final PSNR were lower,
+          only one seed won, and low-confidence p90 error increased rather than falling.
+        lesson: >
+          Do not switch the default or tune another anchor lambda from this result; first isolate
+          valid-prior gating and sampled-confidence location under an exact control.
+        evidence:
+          - "benchmarks/results/20260714T224800Z_cpu_depth_anchor.json"
+          - "benchmarks/results/20260715_depth_anchor_AUDIT.md"
+        status: resolved
+      - id: N21
+        type: dead_end
+        title: "Pixel-space shuffle as a confidence-location control"
+        provenance: ai-executed
+        timestamp: "2026-07-15T01:02+02:00"
+        hypothesis: >
+          Shuffling confidence pixels within each view would preserve confidence weights while
+          changing only their spatial correspondence to corrupted depth.
+        failure_mode: >
+          Bilinear sampling after the shuffle changed the retained-ray weight distribution; the
+          low-confidence group fell from 730 to 351 observations. Normalized also anchors invalid
+          fallbacks that confidence excludes, so the contrast is not location-only.
+        lesson: >
+          Permute confidence only after sampling at retained valid rays, within each source view,
+          and compare against a valid-prior-uniform arm.
+        evidence:
+          - "benchmarks/results/20260715_depth_anchor_AUDIT.md"
+          - "ara/evidence/tables/depth_anchor_ablation.md"
+        status: resolved
+      - id: N22
+        type: decision
+        title: "Keep legacy bounded-ray anchoring as default"
+        provenance: ai-executed
+        timestamp: "2026-07-15T01:02+02:00"
+        choice: >
+          Preserve legacy raw-logit L2 as the production default and retain normalized,
+          confidence, and thresholded modes only as opt-in research controls.
+        alternatives:
+          - "Switch the default to continuous confidence weighting"
+          - "Switch the default to hard confidence thresholding"
+          - "Remove all new modes after the negative result"
+        evidence: [N19, N20, N21]
+        status: resolved
+      - id: N23
+        type: question
+        title: "Exact sampled-confidence attribution repair"
+        provenance: ai-suggested
+        timestamp: "2026-07-15T01:02+02:00"
+        description: >
+          At the frozen lambda and corruption, does continuous confidence beat a valid-prior-uniform
+          anchor when the negative control permutes already sampled retained-ray weights within
+          each view and preserves their exact multiset?
+        status: resolved
+        children:
+          - id: N24
+            type: experiment
+            title: "Preregistered exact sampled-confidence attribution run"
+            provenance: ai-executed
+            timestamp: "2026-07-15T07:34+02:00"
+            result: >
+              Across seeds 0/1/2, confidence versus valid-uniform reduced held-out depth RMSE
+              from 0.151705 to 0.149962 (1.149 percent, three of three wins), below the frozen
+              2 percent floor. Corrupted-source p90 changed from 0.204933 to 0.206519
+              (0.774 percent worse, one of three wins), missing the required 15 percent
+              reduction. PSNR changed by -0.0008 dB. All step-0, exact sampled-weight
+              permutation, invalid-zero, stiffness, count, and lambda-zero RNG invariants passed.
+            evidence:
+              - "benchmarks/results/20260715T052539Z_cpu_depth_anchor_attribution.json"
+              - "benchmarks/results/20260715_depth_anchor_attribution_PREREG.md"
+              - "benchmarks/results/20260715_depth_anchor_attribution_RESULT.md"
+              - "ara/evidence/tables/depth_anchor_attribution.md"
+            status: resolved
+          - id: N25
+            type: dead_end
+            title: "Sampled confidence location as a robust anchor improvement"
+            provenance: ai-executed
+            timestamp: "2026-07-15T07:34+02:00"
+            hypothesis: >
+              Correctly located sampled confidence weights would materially improve both
+              held-out depth RMSE and corrupted-source tail error over a valid-prior-uniform
+              anchor while preserving image quality.
+            failure_mode: >
+              The 1.149 percent RMSE gain was below the 2 percent floor, corrupted-source p90
+              worsened by 0.774 percent, and only the PSNR safety guard passed. The exact shuffle
+              contrast did not satisfy the corrupted-tail attribution condition.
+            lesson: >
+              Treat the consistent RMSE direction as a small mechanistic signal only. Stop
+              confidence-anchor loss, lambda, threshold, and weighting sweeps on this setup;
+              retain legacy as default and do not promote synthetic confidence to production.
+            evidence:
+              - "benchmarks/results/20260715T052539Z_cpu_depth_anchor_attribution.json"
+              - "benchmarks/results/20260715_depth_anchor_attribution_RESULT.md"
+            status: resolved
+          - id: N26
+            type: pivot
+            title: "Pivot from anchor weighting to cross-view identifiability"
+            provenance: ai-executed
+            timestamp: "2026-07-15T07:34+02:00"
+            from: "Synthetic bounded-ray confidence weighting"
+            to: >
+              Leave-one-source-view-out photometric supervision, followed if necessary by direct
+              train-view geometric or correspondence consistency.
+            trigger: >
+              N24/N25 fired the preregistered stopping rule; the 2026-07-15 Scholar Inbox digest
+              also highlighted MAC-Splat's diagnosis that photometric-only sparse supervision can
+              leave depth and correspondence ambiguous.
+            evidence:
+              - N24
+              - N25
+              - "docs/RESEARCH.md#42-scholar-inbox-update-2026-07-15"
+            also_depends_on: [N11, N12]
+            status: resolved
+  - id: N57
+    type: question
+    title: "Is realtime-gs near an improvement ceiling?"
+    provenance: user
+    timestamp: "2026-07-15T19:11+02:00"
+    description: >
+      Do repeated preregistered negative or sub-threshold experiments mean the existing
+      realtime-gs baseline is already so capable that meaningful improvement is intrinsically
+      difficult?
+    status: resolved
+  - id: N58
+    type: experiment
+    title: "Results-audit forward check of the confidence-anchor claim"
+    provenance: ai-executed
+    timestamp: "2026-07-15T19:13+02:00"
+    also_depends_on: [N19, N20, N21, N24, N25]
+    evidence:
+      - ".claude/skills/realtime-gs-results-audit/SKILL.md"
+      - "benchmarks/results/20260715_depth_anchor_AUDIT.md"
+      - "benchmarks/results/20260715T052539Z_cpu_depth_anchor_attribution.json"
+    result: >
+      A bounded independent recomputation matched the saved samples: confidence versus
+      legacy changed PSNR by -0.0576657 dB at initialization and -0.0416620 dB after
+      refinement, won one of three seeds, and changed the low-confidence p90 by
+      -1.63135%. This confirms C03's negative disposition while leaving causal
+      attribution incomplete because the shuffled arm does not preserve the sampled
+      weight multiset and no valid-uniform arm was run.
+    status: resolved
+  - id: N59
+    type: question
+    title: "Could smoother learned-path activations unlock improvement?"
+    provenance: user
+    timestamp: "2026-07-15T19:22+02:00"
+    description: >
+      Does realtime-gs optimize through any hard min, max, clamp, or saturating activation whose
+      smooth replacement is a plausible source of materially better learning?
+    status: resolved
+    children:
+      - id: N60
+        type: experiment
+        title: "Hard SH-floor incidence audit"
+        provenance: ai-executed
+        timestamp: "2026-07-15T19:21+02:00"
+        result: >
+          In all three view-dependent seeds and the raw pool, negative-channel incidence,
+          recoverable blocked-gradient mass, and fixed SMU-1 recovered mass failed their frozen
+          materiality gates. Pooled values were 0.336527%, 0.090828%, and 0.025266%; Phase B was
+          forbidden and neither candidate trained.
+        evidence:
+          - "benchmarks/results/20260715T192112Z_cpu_sh_activation_iter2_audit.json"
+          - "benchmarks/results/20260715T192112Z_cpu_sh_activation_iter2_audit_AUDIT.md"
+        status: resolved
+      - id: N61
+        type: dead_end
+        title: "Hard SH floor as a material synthetic bottleneck"
+        provenance: ai-executed
+        timestamp: "2026-07-15T19:21+02:00"
+        hypothesis: >
+          Blocked negative SH-color preactivations carry enough recoverable loss gradient to
+          justify SMU-1 or a hard-forward SMU-1-gradient control.
+        failure_mode: >
+          Every seed and the pool failed all three preregistered incidence/gradient gates.
+        lesson: >
+          Close SMU parameter and schedule tuning on this setup; a code-level dead zone is not
+          evidence of a material optimization bottleneck.
+        evidence: [N60, "docs/EXPERIMENTS.md"]
+        status: resolved
+      - id: N62
+        type: experiment
+        title: "Hard kernel-support C1 taper ablation"
+        provenance: ai-executed
+        timestamp: "2026-07-15T20:29+02:00"
+        result: >
+          The q=[12,16) annulus passed the frozen gradient-mechanism screen, but the C1 taper and
+          hard-forward gradient control changed diffuse common-hard foreground PSNR by -0.014483
+          and -0.018470 dB on average, each with 0/3 wins; all safety guardrails passed.
+        evidence:
+          - "benchmarks/results/20260715T202218Z_cpu_kernel_support_taper_iter2_audit.json"
+          - "benchmarks/results/20260715T202917Z_cpu_kernel_support_taper_iter2_ablation.json"
+          - "benchmarks/results/20260715T202917Z_cpu_kernel_support_taper_iter2_ablation_AUDIT.md"
+        status: resolved
+      - id: N63
+        type: dead_end
+        title: "Fixed C1 support tail as a quality improvement"
+        provenance: ai-executed
+        timestamp: "2026-07-15T20:29+02:00"
+        hypothesis: >
+          Exposing the adjacent hard-support annulus with the frozen C=12, W=4 taper or its
+          gradient-only attribution control improves fixed-topology refinement.
+        failure_mode: >
+          Both arms lost PSNR in every diffuse seed despite a positive local mechanism screen.
+        lesson: >
+          Do not tune width, cutoff, shape, schedule, or seed from this result; retain the hard
+          kernel default and separate visibility-set truncation from kernel smoothing.
+        evidence: [N62, "docs/EXPERIMENTS.md"]
+        status: resolved
+      - id: N64
+        type: experiment
+        title: "Coarse visibility-margin incidence audit"
+        provenance: ai-executed
+        timestamp: "2026-07-15T23:44+02:00"
+        result: >
+          After a fail-closed exact-depth ordering retry, all target, support, ordering, finite,
+          view, and count validity checks passed. The diffuse pool missed 4 of 2,480,463 q<12
+          pairs, mass fraction 1.646359e-8 and render-delta/residual 3.986964e-8; all material
+          gates failed and Phase B was forbidden.
+        evidence:
+          - "benchmarks/results/20260715T213132Z_cpu_visibility_margin_iter2_audit.json"
+          - "benchmarks/results/20260715T213132Z_cpu_visibility_margin_iter2_audit_AUDIT.md"
+        status: resolved
+      - id: N65
+        type: dead_end
+        title: "Three-sigma culling as a material support bottleneck"
+        provenance: ai-executed
+        timestamp: "2026-07-15T23:44+02:00"
+        hypothesis: >
+          The detached 3-sigma image cull omits enough genuine q<12 support to justify
+          support-safe sqrt(12) training.
+        failure_mode: >
+          Only four pooled diffuse pairs across two Gaussian/view exposures were omitted; every
+          materiality gate failed by orders of magnitude.
+        lesson: >
+          Keep 3 sigma and close visibility-margin tuning on this setup; no candidate arm ran.
+        evidence: [N64, "docs/EXPERIMENTS.md"]
+        status: resolved
+      - id: N66
+        type: pivot
+        title: "Pivot from smooth gates to Carve merge attribution"
+        provenance: ai-executed
+        timestamp: "2026-07-15T23:55+02:00"
+        from: "SH-floor, kernel-tail, and visibility-margin smoothing branches"
+        to: "Exact-count Carve moment-merge versus representative and global-prune controls"
+        trigger: >
+          Three scoped smooth-boundary studies produced a failed incidence gate or failed utility,
+          while merge-versus-prune remains a central unresolved roadmap question.
+        evidence: [N60, N62, N64, "benchmarks/results/20260715_carve_merge_controls_PREREG.md"]
+        status: resolved
+        children:
+          - id: N67
+            type: question
+            title: "Does Carve moment merging add value beyond count reduction?"
+            provenance: ai-suggested
+            timestamp: "2026-07-15T23:55+02:00"
+            description: >
+              At identical primitive count and from one shared unmerged Carve tensor, does current
+              voxel moment matching improve held-out checkpoint PSNR AUC over a per-voxel
+              representative and global importance-prune control?
+            evidence:
+              - "benchmarks/results/20260715_carve_merge_controls_PREREG.md"
+            status: open
+            children:
+              - id: N71
+                type: experiment
+                title: "Carve exact-count Phase-A materiality audit"
+                provenance: ai-executed
+                timestamp: "2026-07-16T01:25+02:00"
+                result: >
+                  Retry-2 passed construction/parity checks, but production grouping merged only
+                  2.34%-2.68% of primitives; multi-member cells and exposed mass also missed every
+                  frozen materiality floor in all seeds. Phase B was forbidden, so moment-versus-
+                  prune utility remains untested.
+                evidence:
+                  - "benchmarks/results/20260715T232244Z_cpu_carve_merge_controls_iter2_audit.json"
+                  - "benchmarks/results/20260715T232244Z_cpu_carve_merge_controls_iter2_audit_AUDIT.md"
+                  - "ara/evidence/tables/20260716_stage1_carve_multiscale_quaternion.md"
+                status: resolved
+              - id: N72
+                type: dead_end
+                title: "Production Carve collisions are insufficient for the frozen utility test"
+                provenance: ai-executed
+                timestamp: "2026-07-16T01:25+02:00"
+                hypothesis: >
+                  Production-scale voxel grouping creates enough collisions and representation
+                  change to support an equal-count moment-versus-prune refinement comparison.
+                failure_mode: >
+                  Compression, multi-member cells, and exposed mass all failed the prospectively
+                  frozen materiality floors; no candidate refinement arm ran.
+                lesson: >
+                  Do not tune the consumed grid scale to force collisions and do not interpret the
+                  stop as evidence that moment merging is worse than pruning.
+                evidence: [N71, "docs/EXPERIMENTS.md"]
+                status: resolved
+  - id: N68
+    type: question
+    title: "Coarse-to-fine refinement image pyramid"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T00:37+02:00"
+    description: >
+      With one shared fixed-topology depth initialization and frozen view schedule, does a
+      40-step 12x12, 40-step 24x24, 40-step 48x48 refinement schedule improve common-48x48
+      held-out checkpoint PSNR AUC or wall-clock time-to-quality over 120 full-resolution steps?
+    status: open
+    children:
+      - id: N73
+        type: decision
+        title: "Freeze a bounded 24-to-48 multiscale test"
+        provenance: ai-executed
+        timestamp: "2026-07-16T02:14+02:00"
+        choice: >
+          Test one 60/60 24-to-48 schedule with camera, loss-pyramid, and exposure-matched
+          interleaving controls; leave the literal 12-to-24-to-48 proposal unanswered.
+        alternatives:
+          - "Run the originally suggested three-level schedule"
+          - "Tune scale boundaries or schedules after a pilot"
+        evidence:
+          - "benchmarks/results/20260716_multiscale_refinement_PREREG.md"
+        status: resolved
+      - id: N74
+        type: experiment
+        title: "Fixed-topology 24-to-48 refinement ablation"
+        provenance: ai-executed
+        timestamp: "2026-07-16T02:45+02:00"
+        result: >
+          Camera-blocked, loss-pyramid-blocked, and camera-interleaved arms lost foreground-PSNR
+          AUC in every seed, with mean deltas -0.338645, -0.088758, and -0.345927 dB. Camera arms
+          used 62.5% of full raster-pixel exposure but failed quality noninferiority; blocked-order
+          attribution also failed.
+        evidence:
+          - "benchmarks/results/20260716T003735Z_cpu_multiscale_refinement.json"
+          - "benchmarks/results/20260716T003735Z_cpu_multiscale_refinement_AUDIT.md"
+          - "ara/evidence/tables/20260716_stage1_carve_multiscale_quaternion.md"
+        status: resolved
+      - id: N75
+        type: dead_end
+        title: "Exact 24-to-48 fixed-topology schedule"
+        provenance: ai-executed
+        timestamp: "2026-07-16T02:45+02:00"
+        hypothesis: >
+          A frozen two-level coarse-to-fine schedule improves held-out quality or preserves it with
+          fewer optimization raster pixels, with blocked ordering outperforming interleaving.
+        failure_mode: >
+          Every candidate lost AUC and final PSNR in every seed; reduced exposure did not satisfy
+          quality noninferiority and blocked ordering missed its attribution gate.
+        lesson: >
+          Close only this exact 24-to-48 schedule without boundary, scale, or seed tuning; it does
+          not answer the literal three-level N68 question or reject parameter-specific schedules.
+        evidence: [N74, "docs/EXPERIMENTS.md"]
+        status: resolved
+  - id: N69
+    type: question
+    title: "Renderer-consistent appearance equilibration"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T00:37+02:00"
+    description: >
+      Does updating only opacity and degree-zero appearance during the first 30 post-lift
+      refinement steps, then returning to joint refinement, improve cross-view geometry-gradient
+      agreement and held-out checkpoint AUC over both ordinary joint and geometry-first controls?
+    status: open
+  - id: N70
+    type: question
+    title: "Covariance-frame mean-gradient preconditioning"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T00:37+02:00"
+    description: >
+      Does a detached, trace-normalized and condition-capped Gaussian-covariance preconditioner on
+      mean gradients improve fixed-topology refinement over identity and a per-Gaussian cyclic-axis
+      permutation control at identical initialization, views, renders, and optimizer schedules?
+    status: open
+  - id: N76
+    type: experiment
+    title: "Stage-1 weight/color gauge contract audit"
+    provenance: ai-executed
+    timestamp: "2026-07-16T02:32+02:00"
+    result: >
+      All 54 product-preserving source renders remained equivalent, while unit-weight and
+      peak-color representatives materially changed downstream coverage, retention, unmerged
+      Depth, and unmerged Carve decisions in 3/3 seeds and the pool. The scientist verdict is
+      qualified because raw tensors are not retained; no representative or default is selected.
+    evidence:
+      - "benchmarks/results/20260716T003140Z_cpu_stage1_weight_gauge_audit.json"
+      - "benchmarks/results/20260716T003140Z_cpu_stage1_weight_gauge_audit_AUDIT.md"
+      - "ara/evidence/tables/20260716_stage1_carve_multiscale_quaternion.md"
+    status: resolved
+  - id: N77
+    type: question
+    title: "Gauge-invariant Stage-1-to-lifter semantic factorial"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T03:18+02:00"
+    description: >
+      At exact matched capacity, does separating invariant scalar amplitude from sampled observed
+      color remove downstream gauge dependence and improve held-out utility, and which scalar/color
+      factor is causally responsible?
+    evidence:
+      - "benchmarks/results/20260716_stage1_semantic_factorial_PREREG.md"
+      - "benchmarks/results/20260716_stage1_semantic_factorial_PREREG_REVIEW.md"
+    status: open
+    children:
+      - id: N89
+        type: decision
+        title: "Authorize outcome-free N77 implementation sealing"
+        provenance: ai-executed
+        timestamp: "2026-07-16T08:16+02:00"
+        choice: >
+          Accept the completed semantic-factorial harness and tests for a fresh outcome-free seal
+          after adversarial source, ordering, evidence, authorization, interruption, offline-guard,
+          and default-fit parity review. Keep both scientific phases unopened.
+        alternatives:
+          - "Withhold PASS while a protocol or fail-closed blocker remains."
+          - "Run an official seed before independent implementation clearance."
+        evidence:
+          - "benchmarks/results/20260716_stage1_semantic_factorial_IMPLEMENTATION_REVIEW.md"
+          - "benchmarks/stage1_semantic_factorial.py"
+          - "tests/test_stage1_semantic_factorial.py"
+          - "tests/test_stage1_fit_seam.py"
+        status: resolved
+  - id: N78
+    type: question
+    title: "Stage-1 fit-time nine- versus eight-parameter appearance"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T03:56+02:00"
+    description: >
+      Does removing the redundant learned scalar weight and directly optimizing bounded RGB
+      amplitude improve appearance-only curves or joint held-out Stage-1 utility at fixed primitive
+      count, common forward initialization, and disjoint mechanism/utility seeds?
+    evidence:
+      - "benchmarks/results/20260716_stage1_fit_parameterization_PREREG.md"
+    status: resolved
+    children:
+      - id: N90
+        type: experiment
+        title: "Sealed Stage-1 nine- versus eight-parameter fit comparison"
+        provenance: ai-executed
+        timestamp: "2026-07-16T12:49+02:00"
+        result: >
+          The once-only deterministic CPU-synthetic artifact passed independent review and raw
+          recomputation. The bounded 8p arm lost all appearance-only and joint seeds: mean final
+          PSNR deltas were -1.796120 dB and -1.501525 dB. Current 9p Adam nevertheless had a
+          0.122921 pooled null-energy ratio and 0.929508 null-large fraction; saturation passed,
+          but appearance improvement, interference consistency, joint non-inferiority, and joint
+          material improvement all failed.
+        evidence:
+          - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization.json"
+          - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_AUDIT.md"
+          - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_SCIENTIST_REVIEW.json"
+          - "ara/evidence/tables/20260716_stage1_fit_parameterization.md"
+        status: resolved
+      - id: N91
+        type: dead_end
+        title: "Bounded unit-weight 8p Adam as a cleaner Stage-1 replacement"
+        provenance: ai-executed
+        timestamp: "2026-07-16T12:49+02:00"
+        hypothesis: >
+          Removing the exact local weight/color null coordinate will reduce harmful optimizer
+          interference enough to improve the frozen-geometry appearance curve while preserving
+          joint Stage-1 quality with one fewer learned scalar per component.
+        failure_mode: >
+          Although material local null-direction motion and the saturation guard passed, the 8p
+          arm lost every seed in both blocks and failed the frozen appearance and joint
+          non-inferiority gates.
+        lesson: >
+          Local gauge motion is not evidence that its removal improves a finite nonlinear Adam
+          path. Retain the current default and close only this exact bounded candidate in the
+          tested CPU-synthetic fixed-count/fixed-budget scope; do not tune from the revealed result.
+        evidence: [N90, C17, "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_AUDIT.md"]
+        status: resolved
+      - id: N92
+        type: decision
+        title: "Retain current Stage-1 fit and release N79 source work"
+        provenance: ai-executed
+        timestamp: "2026-07-16T12:49+02:00"
+        choice: >
+          Keep `weight_color_9p` as the production default, make no downstream or efficiency
+          claim, close the consumed bounded-8p candidate without tuning, and proceed next to the
+          independently frozen residual-responsibility density protocol N79.
+        alternatives:
+          - "Promote the one-scalar reduction despite failed quality and non-inferiority gates."
+          - "Tune the bounded arm or select variable projection from the revealed N78 outcome."
+          - "Continue holding renderer-source edits after the N78 seal has been consumed."
+        evidence: [N90, N91, N79, N87, "docs/ROADMAP.md"]
+        status: resolved
+  - id: N79
+    type: question
+    title: "Residual-responsibility density allocation"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T03:03+02:00"
+    description: >
+      At an identical stratum-balanced birth budget, does native-compositing-weighted residual
+      responsibility select more useful split parents than gradient ranking or a within-stratum
+      shuffle, first at a mechanism gate and then in held-out refinement?
+    evidence:
+      - "benchmarks/results/20260716_residual_responsibility_density_PREREG.md"
+      - "benchmarks/results/20260716_residual_responsibility_density_PREREG_REVIEW.md"
+    status: open
+  - id: N80
+    type: question
+    title: "Quaternion radial-gauge optimizer dependence"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T01:10+02:00"
+    description: >
+      Does ambient Adam turn the positive radial gauge of normalized quaternions into a material
+      optimization effect, and only if so do unit or tangent-displacement retractions improve
+      joint refinement?
+    status: open
+    children:
+      - id: N81
+        type: experiment
+        title: "Two fail-closed Quaternion Phase-A attempts"
+        provenance: ai-executed
+        timestamp: "2026-07-16T05:09+02:00"
+        result: >
+          The first attempt exposed only a removed-gradient producer/validator precision-order
+          mismatch. Retry-2 repaired that diagnostic but failed construction validity: native
+          float32 canonicalization changed direction by 1.08e-8 to 2.06e-8 and covariance by
+          6.13e-10 to 2.05e-9, above the inherited 2e-12 gate. Both artifacts strip arms,
+          trajectories, AUC, and materiality decisions; Phase B never ran.
+        evidence:
+          - "benchmarks/results/20260716T015517Z_cpu_quaternion_gauge_invalid_AUDIT.md"
+          - "benchmarks/results/20260716T030759Z_cpu_quaternion_gauge_iter2_invalid_AUDIT.md"
+          - "ara/evidence/tables/20260716_stage1_carve_multiscale_quaternion.md"
+        status: resolved
+      - id: N82
+        type: dead_end
+        title: "Float64-exact covariance gate for native float32 canonicalization"
+        provenance: ai-executed
+        timestamp: "2026-07-16T05:09+02:00"
+        hypothesis: >
+          Native float32 quaternion canonicalization can satisfy the inherited 2e-12 absolute and
+          relative float64 covariance-equivalence contract before optimizer comparison.
+        failure_mode: >
+          A second float32 normalization is not direction-idempotent; retained step-zero fields
+          deterministically exceed the gate in all seeds and scales.
+        lesson: >
+          A future attempt needs a fresh namespace, analytically justified precision-aware
+          construction contract, and a pre-optimizer feasibility check. No optimizer-policy
+          ranking or default conclusion is available.
+        evidence: [N81, "benchmarks/results/20260716T030759Z_cpu_quaternion_gauge_iter2_invalid_AUDIT.md"]
+        status: resolved
+  - id: N83
+    type: pivot
+    title: "Pivot from local coordinate validity to end-to-end representation and allocation"
+    provenance: ai-executed
+    timestamp: "2026-07-16T05:24+02:00"
+    from: "Repeated local smooth-gate and quaternion-coordinate validity repairs"
+    to: "Stage-1 fit parameterization, gauge-invariant lifter semantics, and residual-responsibility density allocation"
+    trigger: >
+      Stage-1 gauge dependence is material, while the exact multiscale schedule is negative,
+      Carve lacks collisions, and Quaternion produced no valid optimizer outcome after two
+      fail-closed attempts.
+    evidence: [N71, N74, N76, N81, N77, N78, N79]
+    status: resolved
+  - id: N84
+    type: decision
+    title: "Implement the Stage-1 parameterization seam without consuming scientific evidence"
+    provenance: ai-executed
+    timestamp: "2026-07-16T06:02+02:00"
+    decision: >
+      Land a native-only, opt-in bounded unit-weight appearance path, paired-initialization helper,
+      disabled geometry-freeze control, and detached diagnostics while retaining the current
+      weight-times-color path as the bit-exact default. Keep the confirmatory runner guarded until
+      every raw-evidence and independent-recomputation clause is complete.
+    rationale: >
+      Focused masked and unmasked tests and an outcome-blind audit clear the production seam, but
+      the much larger preregistered harness still lists eight implementation gaps. A partial runner
+      would consume the once-only marker without supporting a scientific decision.
+    evidence:
+      - "src/rtgs/image2gs/fit.py"
+      - "tests/test_stage1_fit_seam.py"
+      - "benchmarks/stage1_fit_parameterization.py"
+      - "tests/test_stage1_fit_parameterization.py"
+    status: resolved
+  - id: N85
+    type: question
+    title: "Renderer-Jacobian leverage-responsibility allocation"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T06:10+02:00"
+    description: >
+      After the frozen residual-responsibility mechanism gate, does combining compositing-weighted
+      residual responsibility with renderer-Jacobian leverage, inverse-propensity correction, and
+      prospective curvature strata improve fixed-budget allocation without sacrificing rank or
+      biasing the reconstruction objective?
+    evidence:
+      - "https://arxiv.org/abs/2607.13382"
+      - "https://arxiv.org/abs/2607.13492"
+      - "https://arxiv.org/abs/2607.13808"
+      - "docs/RESEARCH.md"
+    status: open
+  - id: N86
+    type: decision
+    title: "Sequence semantic boundary before fit coordinates before density"
+    provenance: ai-executed
+    timestamp: "2026-07-16T06:18+02:00"
+    decision: "Run N77, then complete N78, then implement N79."
+    rationale: >
+      N77 most directly addresses the demonstrated downstream gauge dependence and is harness-only.
+      N78 is the strongest partially implemented continuation but cannot authorize downstream use.
+      N79 must edit renderer sources frozen by N78, so running it first would invalidate N78's
+      prospective binding and force a fresh preregistration.
+    evidence: [N77, N78, N79, "benchmarks/results/20260716_stage1_fit_parameterization_PREREG.md"]
+    status: resolved
+  - id: N87
+    type: question
+    title: "Variable-projection Stage-1 appearance solve"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T06:18+02:00"
+    description: >
+      With geometry fixed and additive rendering linear in RGB amplitude, does box-constrained
+      least squares or variable projection solve appearance faster or more accurately than either
+      redundant 9p Adam or identifiable 8p Adam at matched render/operator work?
+    evidence: [N76, N78, "docs/RESEARCH.md"]
+    status: open
+  - id: N88
+    type: decision
+    title: "Keep the Stage-1 runner locked after adversarial primitive review"
+    provenance: ai-executed
+    timestamp: "2026-07-16T06:18+02:00"
+    decision: >
+      Do not lift IMPLEMENTATION_COMPLETE until invalid-NaN sidecars, strict decision cardinality
+      and validity, metric shape/finite checks, seal/runtime state binding, marker validation, and
+      the already-listed orchestration/archive gaps are repaired and tested.
+    evidence:
+      - "benchmarks/stage1_fit_parameterization.py"
+      - "tests/test_stage1_fit_parameterization.py"
+      - "docs/EXPERIMENTS.md"
+    status: resolved
+  - id: N93
+    type: experiment
+    title: "Audited 2D gsplat visualization replay of N78 terminal fits"
+    provenance: ai-executed
+    timestamp: "2026-07-16T13:47+02:00"
+    result: >
+      Replayed all 108 saved terminal fits through the installed GaussianImage gsplat 1.1.3
+      additive 2D CUDA kernel without refitting. An independent fresh replay reproduced every
+      frame metric, all 192 declared figure tiles, and both PNG hashes exactly. Display-clamped
+      native agreement was at least 66.369 dB, and current 9p exceeded candidate 8p in all 54
+      paired source images. This is a host-install-bound visualization result, not evidence for
+      the repository's 3D alpha-compositing gsplat backend.
+    evidence:
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY.json"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY.md"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY_OVERVIEW.png"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY_ALL_VIEWS.png"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY_AUDIT.md"
+    also_depends_on: [N78, N90]
+    status: resolved
+  - id: N94
+    type: decision
+    title: "Require local calibrated-data testing and viewer handoff"
+    provenance: user
+    timestamp: "2026-07-16T14:15+02:00"
+    choice: >
+      Exercise every results-bearing research branch on calibrated data under `dataset/` and show
+      its saved initial/final reconstruction in the interactive viewer before handoff. Retain tiny
+      synthetic scenes for deterministic unit and mechanism tests, but do not close a pipeline or
+      default question with synthetic-only evidence.
+    alternatives:
+      - "Use synthetic-only testing for research handoffs."
+      - "Save reconstruction files without launching the viewer."
+    evidence:
+      - "CLAUDE.md"
+      - ".claude/skills/experiment/SKILL.md"
+      - "docs/RESEARCH_LOOP.md"
+    status: resolved
+  - id: N95
+    type: experiment
+    title: "Audited local calibrated-data to live-viewer integration smoke"
+    provenance: ai-executed
+    timestamp: "2026-07-16T14:15+02:00"
+    result: >
+      A deliberately tiny Torch/CPU run on frame_00008 selected seven train cameras and held out
+      C1004, saved finite 129-splat initial/final PLYs plus calibrated previews, and launched Viser
+      at 127.0.0.1:8080. Independent rerendering reproduced every metric within 2.8e-7 and the CPU
+      verification gate passed. This confirms integration only: the run is not replay-complete,
+      its elapsed time is non-decisional, and the shadowed GaussianImage gsplat install leaves the
+      repository's modern 3D CUDA path unverified.
+    evidence:
+      - "docs/EXPERIMENTS.md"
+      - "runs/dataset_viewer_smoke_20260716/metrics.json"
+      - "runs/dataset_viewer_smoke_20260716/gaussians.ply"
+      - "runs/dataset_viewer_smoke_20260716/reconstruction_contact_sheet.png"
+      - "src/rtgs/data/calibrated.py"
+      - "tests/test_calibrated.py"
+    also_depends_on: [N94]
+    status: resolved
+  - id: N96
+    type: decision
+    title: "Use native-resolution images for the calibrated viewer handoff"
+    provenance: user
+    timestamp: "2026-07-16T14:53+02:00"
+    choice: >
+      Replace the 1/64 calibrated viewer smoke with a fit that consumes the supplied 5328x4608
+      image tensors at native scale and present that saved initialization in the live viewer.
+    alternatives:
+      - "Keep the 1/64 viewer smoke as the presentation result."
+      - "Load full-resolution references around a model still fitted at 1/64 scale."
+    evidence: [N94, "docs/EXPERIMENTS.md"]
+    status: resolved
+  - id: N97
+    type: dead_end
+    title: "Native Stage-1 full-resolution fitting on the shared 8 GB GPU"
+    provenance: ai-executed
+    timestamp: "2026-07-16T14:53+02:00"
+    hypothesis: >
+      The repository's pure-Torch native Stage-1 path can fit one masked 5328x4608 training image
+      with 60 Gaussians on the shared RTX 3050.
+    failure_mode: >
+      The first update on the largest selected crop exhausted CUDA memory after about 5.02 GiB of
+      PyTorch allocation. Out-of-place full-image `index_add` accumulation retains large output
+      states and support tensors across backward; full-resolution Torch 3D refinement has the same
+      graph-scale boundary.
+    lesson: >
+      Stream views through a tiled backend or redesign native fitting around incremental tiled
+      losses. Do not call a downscaled fallback full-resolution, and do not attempt Torch 3D
+      refinement until a memory-bounded backend is available.
+    evidence:
+      - "src/rtgs/image2gs/renderer2d.py"
+      - "docs/EXPERIMENTS.md"
+      - "runs/dataset_viewer_fullres_20260716/AUDIT.md"
+    status: resolved
+  - id: N98
+    type: experiment
+    title: "Audited native-resolution Stage-1 and live-viewer integration"
+    provenance: ai-executed
+    timestamp: "2026-07-16T14:53+02:00"
+    result: >
+      Streamed seven training cameras through StructSplat `cuda_tiled` at native 5328x4608 input
+      scale using 640 fixed Gaussians and 100 updates, while holding out C1004. Recorded masked
+      train-fit PSNR averaged 20.593 dB; default grid-48 Carve produced two byte-identical finite
+      835-splat initialization PLYs. The independently audited Viser process serves the exact
+      `--downscale 1` scene at 127.0.0.1:8080. Capacity was selected post-outcome, the temporary
+      streaming driver is unarchived, and no 3D refinement or held-out 3D metric ran, so this is
+      integration evidence only.
+    evidence:
+      - "runs/dataset_viewer_fullres_20260716/fit_manifest.json"
+      - "runs/dataset_viewer_fullres_20260716/AUDIT.md"
+      - "runs/dataset_viewer_fullres_20260716/gaussians.ply"
+      - "docs/EXPERIMENTS.md"
+    also_depends_on: [N94, N96, N97]
+    status: resolved
+  - id: N99
+    type: question
+    title: "Compact StructSplat observation fields for native-resolution 3D refinement"
+    provenance: user
+    timestamp: "2026-07-16T15:19+02:00"
+    description: >
+      Can the 835-splat Carve initialization undergo ordinary 3DGS refinement while replacing
+      resident full-resolution training RGB with the per-view StructSplat 2D Gaussian fields, and
+      does the intended replacement mean lazy pixel/patch supervision or direct projected-primitive
+      matching?
+    evidence:
+      - "src/rtgs/pipeline.py"
+      - "src/rtgs/lift/carve.py"
+      - "src/rtgs/optim/trainer.py"
+      - "runs/dataset_viewer_fullres_20260716/fit_manifest.json"
+      - "https://arxiv.org/abs/2607.13365"
+      - "https://arxiv.org/abs/2607.13808"
+    also_depends_on: [N98]
+    status: open
+  - id: N100
+    type: question
+    title: "Point-sampled Gaussian-field supervision for compact refinement"
+    provenance: user
+    timestamp: "2026-07-16T16:15+02:00"
+    description: >
+      Can a recent Scholar Inbox method that reconstructs values by querying Gaussian fields at
+      sampled points be adapted to obtain native-resolution StructSplat colors for sparse 3DGS
+      refinement without decoding the source images?
+    evidence:
+      - "https://arxiv.org/abs/2607.01164"
+      - "https://arxiv.org/pdf/2607.01164"
+    also_depends_on: [N99]
+    status: open
+  - id: N101
+    type: question
+    title: "Gaussian Point Splatting as compact StructSplat supervision"
+    provenance: user
+    timestamp: "2026-07-16T16:38+02:00"
+    description: >
+      Does Gaussian Point Splatting's opacity-corrected stochastic point sampling fit the
+      native-resolution compact-observation problem better than W-VEG, either as the trainable
+      3D renderer or as a way to draw colored supervision samples from frozen per-view
+      StructSplat fields?
+    evidence:
+      - "https://jorisar.nl/gaussian_point_splatting/"
+      - "https://jorisar.nl/gaussian_point_splatting/gaussian_point_splatting.pdf"
+      - "https://github.com/JorisAR/gaussian-point-splatting"
+    also_depends_on: [N99, N100]
+    status: resolved
+  - id: N102
+    type: decision
+    title: "Adopt GPS-inspired compact teacher sampling"
+    provenance: user
+    timestamp: "2026-07-16T16:45+02:00"
+    choice: >
+      Use Gaussian Point Splatting's point-sampling insight where it matches the repository:
+      draw native-coordinate supervision from frozen per-view StructSplat components, prefer exact
+      normalized field colors for the first low-variance arm, and test direct parent-component
+      colors under MSE as a follow-up. Keep the trainable 3D side as an exact differentiable sparse
+      depth-sorted alpha compositor rather than transplant GPS's stochastic z-buffer.
+    alternatives:
+      - "Use GPS's forward-only stochastic z-buffer for Stage-3 optimization."
+      - "Use only uniform teacher queries and omit Gaussian-informed sampling."
+      - "Treat fitted 2D and projected 3D Gaussians as one-to-one correspondences."
+    evidence: [N99, N101, O78, O79]
+    status: resolved
+  - id: N103
+    type: question
+    title: "Compact-refinement data contract and correspondence semantics"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T16:45+02:00"
+    description: >
+      During 3D refinement, are source RGB images completely unavailable or merely prohibited from
+      simultaneous residency, and should independently fitted per-view StructSplat components be
+      treated only as camera-ray observations with no cross-view primitive identity?
+    evidence: [N99, N102]
+    also_depends_on: [N99]
+    status: resolved
+  - id: N104
+    type: decision
+    title: "Prohibit RGB access during compact refinement"
+    provenance: user
+    timestamp: "2026-07-16T16:59+02:00"
+    choice: >
+      After the compact StructSplat observations are available, refinement must not load source
+      RGB. Preserve the original files in the dataset for isolated post-training evaluation and
+      viewer diagnostics; a separate evaluator may reload selected references lazily, one view at
+      a time, without exposing tensors or paths to the trainer or using RGB for model selection.
+    alternatives:
+      - "Stream one original RGB image per refinement step."
+      - "Keep all original RGB resident during refinement."
+      - "Delete the original RGB after StructSplat fitting and forgo truth evaluation."
+    evidence: [N99, N103]
+    status: resolved
+  - id: N105
+    type: question
+    title: "Initial lineage versus global sparse-ray credit assignment"
+    provenance: user
+    timestamp: "2026-07-16T16:59+02:00"
+    description: >
+      Does lift-time correspondence between a per-view 2D component and its raw 3D candidate
+      improve RGB-free compact refinement when used as an annealed soft credit-assignment prior,
+      compared with ordinary global all-overlap compositing, and how badly does a hard parent-only
+      restriction bias the result after Carve merging?
+    evidence:
+      - "src/rtgs/lift/carve.py"
+      - "src/rtgs/lift/merge.py"
+      - "src/rtgs/render/torch_ref.py"
+      - "src/rtgs/optim/density.py"
+    also_depends_on: [N99, N102, N104]
+    status: open
+  - id: N106
+    type: decision
+    title: "Begin RGB isolation immediately after Stage 1"
+    provenance: user
+    timestamp: "2026-07-16T17:17+02:00"
+    choice: >
+      Once StructSplat fitting has produced the compact per-view observations, every later stage,
+      including Carve initialization and 3D refinement, must operate without source RGB. Existing
+      RGB-dependent 835-splat output remains an integration artifact; a compliant research branch
+      must rerun Carve through exact compact-field queries.
+    alternatives:
+      - "Permit RGB in Stage 2 but prohibit it only in Stage 3."
+      - "Grandfather the RGB-dependent 835 initialization as scientific compact-pipeline evidence."
+    evidence: [N98, N104, "src/rtgs/lift/carve.py"]
+    status: resolved
+  - id: N107
+    type: decision
+    title: "Decouple 2D teacher, initialization, and refined 3D cardinalities"
+    provenance: user
+    timestamp: "2026-07-16T17:17+02:00"
+    choice: >
+      Allow StructSplat to grow each view to its own convergence-selected 2D count, independently
+      choose all or a budgeted subset for 3D initialization, and allow 3D density control to grow
+      or prune the student according to quality. The full frozen 2D field remains the teacher even
+      when only a coreset initializes 3D, and no fixed one-to-one cardinality or identity is part
+      of the loss definition.
+    alternatives:
+      - "Create exactly one persistent 3D Gaussian for every 2D component."
+      - "Discard unselected 2D components from both initialization and supervision."
+      - "Force final 3D cardinality to equal the initial lifted count."
+    evidence: [N99, N102, N105]
+    status: resolved
+  - id: N108
+    type: question
+    title: "Cardinality-invariant indexed compact supervision"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T17:17+02:00"
+    description: >
+      Can a lossless per-view StructSplat field store, fixed ray-space risk with recorded proposal
+      probabilities, static teacher support index, and sparse differentiable student compositor
+      preserve target/loss/gradient semantics under exact component splitting while scaling with
+      local support intersections rather than ray-count times N2D or N3D?
+    evidence:
+      - "src/rtgs/image2gs/structsplat_backend.py"
+      - "src/rtgs/image2gs/adapters.py"
+      - "src/rtgs/render/torch_ref.py"
+      - "https://jorisar.nl/gaussian_point_splatting/gaussian_point_splatting.pdf"
+    also_depends_on: [N102, N106, N107]
+    status: open
+  - id: N109
+    type: decision
+    title: "Canonical k-to-mi-to-N-to-Nopt compact pipeline"
+    provenance: user-revised
+    timestamp: "2026-07-16T17:24+02:00"
+    choice: >
+      For image i, RGB-to-Gaussian fitting begins from k components and may finish at a
+      view-specific m_i. The complete frozen set of per-view fields supplies RGB-free ray/volume
+      evidence, while all or a selected coreset initializes N 3D Gaussians and missing depth is
+      inferred along calibrated pixel rays. Standard 3DGS parameter and density refinement then
+      compares globally composited 3D samples or patches against the frozen 2D Gaussian fields,
+      producing an independently sized N_opt model for novel-view rendering.
+    alternatives:
+      - "Require every m_i to be equal and lift every component one-to-one."
+      - "Return to dense source RGB for final 3D refinement."
+      - "Freeze the initial N and disable ordinary 3D density control."
+    evidence: [N106, N107, A10, A11]
+    status: resolved
+  - id: N110
+    type: question
+    title: "Efficiency and quality of compact 3D-to-2D-field refinement"
+    provenance: user
+    timestamp: "2026-07-16T17:24+02:00"
+    description: >
+      Relative to ordinary dense-RGB 3DGS fitting, does sampled or patchwise refinement of a
+      globally composited 3D student against compact per-view Gaussian teachers reduce peak memory
+      and time-to-quality, improve convergence, or change held-out original-RGB quality once
+      teacher fidelity, ray exposure, optimizer work, and final N_opt are controlled?
+    evidence: [N99, N102, N108, N109]
+    also_depends_on: [N108, N109]
+    status: open
+  - id: N111
+    type: decision
+    title: "Use domain-qualified init and opt count subscripts"
+    provenance: user-revised
+    timestamp: "2026-07-16T17:28+02:00"
+    choice: >
+      Replace the temporary k, m_i, N, and N_opt shorthand with count symbols whose subscripts
+      identify initialization versus optimized cardinality and whose superscripts identify the
+      domain: N_init,i^2D and N_opt,i^2D for view i, and N_init^3D and N_opt^3D for the initial and
+      final 3D populations. Omit view i only when a 2D count is explicitly shared across views.
+    alternatives:
+      - "Reuse N_init and N_opt without distinguishing 2D from 3D."
+      - "Keep unrelated k, m_i, N, and N_opt symbols for the four counts."
+    evidence: [N107, N109]
+    status: resolved
+  - id: N112
+    type: decision
+    title: "Begin implementation of the compact RGB-free pipeline"
+    provenance: user
+    timestamp: "2026-07-16T18:44+02:00"
+    choice: >
+      Proceed with the accepted compact-field architecture now, beginning with the lossless
+      post-Stage-1 teacher/data contract and an independently budgeted RGB-free 3D initializer
+      before attempting sampled 3D refinement or density control.
+    alternatives:
+      - "Continue refining the legacy RGB-backed 835-splat path."
+      - "Jump directly to a sampled optimizer without freezing teacher/query semantics."
+      - "Defer implementation pending another design round."
+    evidence: [N102, N104, N106, N107, N109, N111]
+    status: resolved
+  - id: N113
+    type: experiment
+    title: "Lossless compact-teacher and serialized reconstruction-input mechanism"
+    provenance: ai-executed
+    timestamp: "2026-07-16T18:44+02:00"
+    result: >
+      Implemented frozen StructSplat field capture, CPU dense/tile point queries, a continuous
+      null-thinned proposal, integrity-checked archives, and slotted camera/teacher bundles. All
+      22 focused tests passed. An independent scientist audit accepted only CPU fixture pixel-grid
+      parity and a typed/serialized no-RGB data contract; CUDA/arbitrary-coordinate parity,
+      process erasure, replay-complete provenance, performance, and reconstruction quality remain
+      unestablished.
+    evidence:
+      - "src/rtgs/core/observation2d.py"
+      - "src/rtgs/data/reconstruction_inputs.py"
+      - "src/rtgs/image2gs/structsplat_backend.py"
+      - "tests/test_observation2d.py"
+      - "tests/test_structsplat_observation.py"
+      - "tests/test_reconstruction_inputs.py"
+      - "docs/EXPERIMENTS.md"
+    also_depends_on: [N102, N104, N106, N107, N108, N112]
+    status: resolved
+  - id: N114
+    type: experiment
+    title: "Independent-budget compact Carve CPU mechanism"
+    provenance: ai-executed
+    timestamp: "2026-07-16T18:44+02:00"
+    result: >
+      Implemented CompactCarveInitializer over serialized compact teachers. It returns the
+      requested N_init^3D on sufficient support, scores every source-proposed depth against every
+      teacher, preserves tested geometry under an exact co-located identical amplitude split,
+      and runs with image decoding disabled. Audit exposed and repair verified an off-axis
+      camera-depth-to-Euclidean-ray sigma mismatch and an unbounded point-component temporary;
+      the corrected 23-case focused suite and the full CPU verification gate pass. Runtime,
+      tile-overlap memory, strict held-out geometry provenance, calibrated quality, CUDA, viewer,
+      refinement, and production integration remain open.
+    evidence:
+      - "src/rtgs/lift/compact_carve.py"
+      - "src/rtgs/lift/base.py"
+      - "tests/test_compact_carve.py"
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+    also_depends_on: [N106, N107, N108, N112, N113]
+    status: resolved
+  - id: N115
+    type: question
+    title: "Sparse point-rasterizer parity before compact refinement"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T18:44+02:00"
+    description: >
+      Can a pluggable CPU PointRasterizer reproduce the dense reference renderer's selected-pixel
+      color, alpha, depth, parameter gradients, and screen-space gradients while globally
+      compositing all visible 3D Gaussians and retaining bounded point-component temporaries, so a
+      bundle-only fixed-topology compact trainer can be tested before density control?
+    evidence:
+      - "src/rtgs/render/torch_ref.py"
+      - "src/rtgs/render/base.py"
+      - "src/rtgs/core/observation2d.py"
+      - "src/rtgs/lift/compact_carve.py"
+    also_depends_on: [N99, N102, N105, N108, N110, N114]
+    status: resolved
+  - id: N116
+    type: experiment
+    title: "Sealed sparse point-rasterizer and discrete-pixel risk parity"
+    provenance: ai-executed
+    timestamp: "2026-07-16T20:29+02:00"
+    result: >
+      Implemented a separate CPU PointRasterizer and an O(component)-state discrete-pixel
+      Gaussian/rejection proposal. The sealed one-shot synthetic mechanism passed 108 forward and
+      27 gradient arms with worst absolute discrepancies 2.3841858e-07 and 1.8626451e-09; its
+      exact finite-pixel expectation equaled 55/96 and all Monte Carlo/microchunk gates passed.
+      An independently authorized no-RGB C0001 interaction matched dense rendering on 4,096
+      frozen downscale-16 replacement draws from the existing 835-Gaussian PLY, with worst
+      absolute discrepancy 4.7683716e-07. A separate RGB-loading Viser smoke saved a decodable
+      333x288 Torch/CPU snapshot for C0000. Independent audits authorize only these CPU mechanism
+      and integration claims; optimization, quality, memory, speed, density, full-image calibrated
+      parity, and CUDA/gsplat parity remain untested.
+    evidence:
+      - "benchmarks/results/20260716_point_rasterizer_parity_PREREG.md"
+      - "benchmarks/results/20260716_point_rasterizer_parity_RESULT.json"
+      - "benchmarks/results/20260716_point_rasterizer_parity_AUDIT.md"
+      - "runs/point_rasterizer_parity_20260716/calibrated_parity.json"
+      - "runs/point_rasterizer_parity_20260716/viewer.log"
+      - "ara/evidence/tables/20260716_point_rasterizer_parity.md"
+    also_depends_on: [N99, N102, N108, N110, N114, N115]
+    status: resolved
+  - id: N117
+    type: question
+    title: "Fixed-topology compact teacher refinement"
+    provenance: ai-suggested
+    timestamp: "2026-07-16T20:29+02:00"
+    description: >
+      Can an RGB-free bundle-only CompactTrainer improve a fixed N_init^3D student by globally
+      compositing selected coordinates against independently queried compact teachers, and how do
+      uniform pixels, importance-corrected discrete-Gaussian pixels, and continuous-area proposals
+      compare under matched attempts before any split, merge, clone, or prune operation is enabled?
+      A nonzero off-grid derivative fixture is required before relying on continuous coordinates.
+    evidence:
+      - "src/rtgs/render/point_base.py"
+      - "src/rtgs/render/torch_points.py"
+      - "src/rtgs/core/observation2d.py"
+      - "benchmarks/results/20260716_point_rasterizer_parity_AUDIT.md"
+    also_depends_on: [N99, N105, N108, N110, N115, N116]
+    status: resolved
+  - id: N118
+    type: experiment
+    title: "Outcome-blind compact core scale and cap audit"
+    provenance: ai-executed
+    timestamp: "2026-07-16T22:38+02:00"
+    result: >
+      A source-and-test-only audit of the compact observation, strict bundle, CompactCarve, and
+      fixed-topology CompactTrainer path used no official seed, calibrated RGB, or outcome
+      artifact. It exposed a late generic-backend diagnostics failure and silent derived-scale
+      overflow/underflow in GaussianObservationField; both were repaired with focused regressions.
+      No remaining blocker was found for the frozen seven-view, 640-component-per-view,
+      N_init^3D=835 CPU protocol. Aggregate uncompressed/component/index budgets, allocation-safe
+      candidate caps, preflight-before-device-transfer, indexed CUDA teachers, training-graph
+      point-by-Gaussian memory, exhaustive-risk work, and dynamic N_opt^3D remain unimplemented
+      production-scale requirements rather than evidence against the bounded mechanism test.
+    evidence:
+      - "src/rtgs/core/observation2d.py"
+      - "src/rtgs/data/reconstruction_inputs.py"
+      - "src/rtgs/lift/compact_carve.py"
+      - "src/rtgs/optim/compact_trainer.py"
+      - "tests/test_observation2d.py"
+      - "tests/test_compact_carve.py"
+    also_depends_on: [N108, N110, N117]
+    status: resolved
+  - id: N119
+    type: experiment
+    title: "Fixed-topology compact-teacher sampling comparison"
+    provenance: ai-executed
+    timestamp: "2026-07-16T23:06+02:00"
+    result: >
+      The sealed three-seed, four-arm CPU synthetic experiment completed all 120 updates and
+      15,360 fixed attempts per seed--arm without topology, teacher, optimizer-clock, or RGB-access
+      failure. Independent RAW recomputation returned NO_GLOBAL_SAMPLING_WIN. For discrete pixel
+      risk, the Gaussian mixture was worse in normalized log-AUC in all three seeds
+      (G_AUC=1.0245665262, G_final=1.0681355694; NEUTRAL_OR_NEGATIVE). For continuous area risk,
+      all three AUC directions favored the mixture but missed the 0.95 materiality floor
+      (G_AUC=0.9910818462, G_final=0.9873547158; NONINFERIOR). The PASS scientist audit authorizes
+      only the separately frozen non-decision-bearing calibrated integration; no quality, scale,
+      speed, memory, CUDA, density, novel-view, or default claim follows.
+    evidence:
+      - "benchmarks/results/20260716_compact_point_training_PREREG.md"
+      - "benchmarks/results/20260716_compact_point_training_RAW.json"
+      - "benchmarks/results/20260716_compact_point_training_RESULT.json"
+      - "benchmarks/results/20260716_compact_point_training_AUDIT.md"
+    also_depends_on: [N108, N110, N116, N117, N118]
+    status: resolved
+  - id: N120
+    type: experiment
+    title: "Full-resolution RGB-free compact refinement interaction"
+    provenance: ai-executed
+    timestamp: "2026-07-17T00:23+02:00"
+    result: >
+      The bounded calibrated interaction fitted seven 5328x4608 StructSplat teachers with 640
+      components per view, serialized 4,480 components, selected 835 of 1,433 eligible candidates
+      from a 3,340-candidate CompactCarve pool, and completed 40 RGB-denied fixed-topology updates.
+      Equal-view compact-teacher MSE fell 20.32%, and post-freeze C1004 sampled RGB MSE fell 12.86%
+      overall and 8.40% on foreground samples. The once-only lifecycle is nevertheless terminal
+      FAIL: its first exact render reached gsplat import with the already-loaded Miniconda
+      libstdc++, saved no authorized snapshot, and never reached HTTP smoke. These values are
+      phase-local diagnostics only; separately labelled later snapshots show a coarse, blurry
+      fixed-835 reconstruction and cannot repair the result.
+    evidence:
+      - "runs/compact_point_training_20260716/calibrated_result.json"
+      - "runs/compact_point_training_20260716/CALIBRATED_FAILURE_AUDIT.md"
+      - "runs/compact_point_training_20260716/postfailure_exact_snapshots/manifest.json"
+      - "ara/evidence/tables/20260716_compact_point_training.md"
+    also_depends_on: [N106, N107, N113, N114, N116, N119]
+    status: resolved
+  - id: N121
+    type: experiment
+    title: "Outcome-free compact replay and working-set hardening"
+    provenance: ai-executed
+    timestamp: "2026-07-17T00:23+02:00"
+    result: >
+      Future calibrated plans now bind the requested/resolved preload library, SHA-256, and
+      __cxa_call_terminate@CXXABI_1.3.15; a spawned worker verifies default-namespace resolution
+      through dlvsym, dladdr, and /proc/self/maps, while viewer smoke requires the launched PID to
+      own the target socket. CompactTrainer now preflights before working-set/init transfer,
+      omits optional global geometry from the device-tensor working set, and counts non-CPU tile
+      overlaps in bounded native-device chunks. Fifty-one focused scientist-pass tests, actual
+      CUDA overlap parity, fresh-process ABI diagnostics, live viewer rebinding, and the complete
+      repository verification passed. No exact-snapshot-worker-v2 artifact or repaired calibrated
+      lifecycle was run.
+    evidence:
+      - "benchmarks/compact_point_training.py"
+      - "src/rtgs/optim/compact_trainer.py"
+      - "tests/test_compact_point_training.py"
+      - "tests/test_compact_trainer.py"
+      - "runs/compact_point_training_20260716/postfailure_abi_diagnostic.json"
+      - "runs/compact_point_training_20260716/postfailure_viewer_diagnostic.json"
+    also_depends_on: [N118, N120]
+    status: resolved
+  - id: N122
+    type: decision
+    title: "Advance compact refinement from proposal choice to density control"
+    provenance: ai-executed
+    timestamp: "2026-07-17T00:23+02:00"
+    choice: >
+      Keep uniform sampling as the matched comparison baseline, do not promote either Gaussian
+      proposal, and make the next decision-bearing experiment variable N_opt^3D density control:
+      compare residual/responsibility allocation with a matched uniform birth/death control before
+      any CLI or production integration. A fresh calibrated namespace is separately required to
+      validate the repaired snapshot/viewer lifecycle.
+    alternatives:
+      - "Tune or repeat the discrete Gaussian proposal after its three-seed loss."
+      - "Promote continuous-area sampling because all three AUC directions were favorable despite missing materiality."
+      - "Continue fixed-topology steps on the visibly coarse 835-splat model without testing capacity."
+    evidence:
+      - N79
+      - N119
+      - N120
+      - "benchmarks/results/20260716_compact_point_training_AUDIT.md"
+      - "docs/ROADMAP.md"
+    status: resolved
+  - id: N123
+    type: experiment
+    title: "Isolated full-resolution Stage-1 teacher fidelity audit"
+    provenance: ai-executed
+    timestamp: "2026-07-17T00:48+02:00"
+    result: >
+      A post-failure, non-decision-bearing evaluation reconstructed all seven frozen 640-component
+      StructSplat fields at 5328x4608 with the exact source-bound cuda_tiled renderer. Archive
+      point queries matched random native raster samples within 2.772e-6 absolute error and
+      reproduced acquisition PSNR within 3.104e-6 dB, excluding crop, half-pixel, RS covariance,
+      amplitude, and color-export mismatches. The teachers themselves were visibly broad, blocky,
+      and hole-prone: mean full/foreground PSNR was 19.485666/18.826633 dB. Masks occupied 6.0882%
+      of pixels while only 9.1071% of component centers landed on foreground, because acquisition
+      intentionally fitted the whole frame without masks. The diagnostic isolates an inadequate
+      640-Gaussian, 100-step teacher regime; it does not bound StructSplat, masked fitting,
+      variable N_opt^2D, or other producers.
+    evidence:
+      - "ara/evidence/tables/20260717_stage1_teacher_fidelity.md"
+      - "runs/compact_point_training_20260716/stage1_teacher_audit/all_views_metrics.json"
+      - "runs/compact_point_training_20260716/stage1_teacher_audit/all_views_target_vs_teacher.png"
+      - "runs/compact_point_training_20260716/stage1_teacher_audit/C0001_metrics.json"
+      - "runs/compact_point_training_20260716/stage1_teacher_audit/C0001_teacher_audit_panel.png"
+    also_depends_on: [N113, N114, N120]
+    status: resolved
+  - id: N124
+    type: experiment
+    title: "Masked/cropped C0001 Stage-1 screen and independent audit"
+    provenance: ai-executed
+    timestamp: "2026-07-17T01:10+02:00"
+    result: >
+      A one-view exploratory screen compared the frozen full-frame 640/100 teacher with
+      masked/cropped 640/100 and fixed-growth 640-to-1280/200 fits. Independent recomputation
+      qualified the result: masked 640 improved foreground PSNR by 3.120893 dB officially and
+      3.094124 dB in a fresh replay, while the tested growth schedule was 0.451135 and 0.488699
+      dB worse than masked 640. The same source/input/plan/seed did not reproduce fitted archive
+      bytes or exact metrics, so the evidence is replicated ordering rather than deterministic
+      output. Strict archive loading and sampled CUDA parity passed; single-view capacity,
+      downstream 3D quality, performance, and memory claims remain forbidden.
+    evidence:
+      - "runs/compact_stage1_mask_screen_20260717/plan.json"
+      - "runs/compact_stage1_mask_screen_20260717/result.json"
+      - "runs/compact_stage1_mask_screen_20260717/AUDIT.md"
+      - "runs/compact_stage1_mask_screen_20260717/full_target_vs_teachers.png"
+      - "runs/compact_stage1_mask_screen_20260717/mask_crop_target_vs_teachers.png"
+    also_depends_on: [N113, N120, N123]
+    status: resolved
+  - id: N125
+    type: experiment
+    title: "Seven-view masked 640/100 compact-teacher acquisition"
+    provenance: ai-executed
+    timestamp: "2026-07-17T01:41+02:00"
+    result: >
+      Seven fresh native-resolution workers acquired masked/cropped StructSplat teachers for the
+      ordered training views C0001,C0008,C0014,C0021,C0026,C0031,C0039 with passed seeds 0--6,
+      640 initial/optimized components per view, and 100 updates. The atomic strict
+      ReconstructionInputs bundle contains 4,480 compact components, no geometry, and no dense
+      source-raster/path fields. The original parent lifecycle remains FAIL because a post-save
+      substring check mistook `masked` in the required bundle name for a forbidden field; a
+      separate no-refit verifier qualified the immutable bundle as exploratory input. Independent
+      rerenders reproduced equal-view mean training-foreground PSNR 20.813050 dB and sampled
+      query/raster parity within 6.855e-7. The audit found incorrect descriptive provenance:
+      effective_structsplat.init.seed is recorded as 0 for all views although the bound worker
+      passed 0--6, and the fit digest does not cover InitConfig.
+    evidence:
+      - "runs/compact_masked_bundle_640_20260717/plan.json"
+      - "runs/compact_masked_bundle_640_20260717/failure.json"
+      - "runs/compact_masked_bundle_640_20260717/teacher_acquisition.json"
+      - "runs/compact_masked_bundle_640_20260717/recovery_result.json"
+      - "runs/compact_masked_bundle_640_20260717/AUDIT.md"
+      - "ara/evidence/tables/20260717_masked_bundle_acquisition.md"
+    also_depends_on: [N113, N120, N123, N124]
+    status: resolved
+  - id: N126
+    type: dead_end
+    title: "Manifest-wide forbidden-substring postcondition"
+    provenance: ai-executed
+    timestamp: "2026-07-17T01:41+02:00"
+    hypothesis: >
+      Searching every serialized manifest value for raster/path substrings would prove the compact
+      payload contains no prohibited source data.
+    failure_mode: >
+      The required identifier compact_masked_bundle_640_20260717 contains `mask`, so the check
+      failed after all seven fits, atomic bundle creation, and strict reload had succeeded. The
+      consumed lifecycle remains FAIL even though post-hoc structured verification validates the
+      immutable payload.
+    lesson: >
+      Validate exact structured field keys plus strict archive/member schemas rather than arbitrary
+      identifier values. Preserve terminal failures and use separately source-bound, no-overwrite
+      recovery verification for already-written content.
+    evidence:
+      - "runs/compact_masked_bundle_640_20260717/failure.json"
+      - "benchmarks/compact_masked_bundle_recovery.py"
+      - "runs/compact_masked_bundle_640_20260717/recovery_result.json"
+      - "runs/compact_masked_bundle_640_20260717/AUDIT.md"
+    also_depends_on: [N125]
+    status: resolved
+  - id: N127
+    type: experiment
+    title: "Compact occupancy-scalar aggregation ablation and independent audit"
+    provenance: ai-executed
+    timestamp: "2026-07-17T02:42+02:00"
+    result: >
+      The sealed CPU experiment replayed exactly and passed its lifecycle, binding, selector,
+      center-proxy, frozen-bounds, RGB-boundary, and metric-arithmetic checks. LSE beta=2 was the
+      only smooth-max arm to pass the tuning precision guard, but it traded four extra tuning true
+      positives for 28 false positives and five extra report true positives for 358 false
+      positives. Relative to center aggregation, report precision/IoU changed by -11.2875/-6.9621
+      percentage points; in the fixed-835 Stage-B lift, foreground-at-least-six-view coverage
+      changed by -2.7545 points and compact-teacher foreground MSE worsened 0.5181%. Mean
+      aggregation also lost both coverage and MSE. The authoritative verdict is QUALIFIED PASS:
+      protocol execution is valid, while the positive smooth-aggregation hypothesis is rejected.
+    evidence:
+      - "runs/compact_occupancy_scalar_ablation_20260717/plan.json"
+      - "runs/compact_occupancy_scalar_ablation_20260717/result.json"
+      - "runs/compact_occupancy_scalar_ablation_20260717/AUDIT.md"
+      - "benchmarks/results/20260717_compact_occupancy_scalar_PREREG.md"
+    also_depends_on: [N125]
+    status: resolved
+  - id: N128
+    type: experiment
+    title: "Official compact occupancy-refinement factorial fails before all banks"
+    provenance: ai-executed
+    timestamp: "2026-07-17T04:15+02:00"
+    result: >
+      The exclusive sealed attempt stopped while constructing evaluation seed 76503's uniform
+      bank, after publishing complete banks for 76501 and 76502 but before publishing the bank
+      manifest or launching any of twelve arm workers. The immutable terminal status is FAIL.
+      Independent failure audit retires NO_REFINEMENT_TARGET_PROMOTION as a scientific decision;
+      it remains only the fail-closed fact that the consumed attempt authorizes no promotion.
+    evidence:
+      - "benchmarks/results/20260717_compact_occupancy_refinement_factorial_SEAL.json"
+      - "benchmarks/results/20260717_compact_occupancy_refinement_factorial_ATTEMPT.json"
+      - "benchmarks/results/20260717_compact_occupancy_refinement_factorial_RESULT.json"
+      - "benchmarks/results/20260717_compact_occupancy_refinement_factorial_FAILURE_AUDIT.md"
+      - "runs/compact_occupancy_refinement_factorial_20260717/banks/banks_76501.npz"
+      - "runs/compact_occupancy_refinement_factorial_20260717/banks/banks_76502.npz"
+    also_depends_on: [N125, N127]
+    status: resolved
+  - id: N129
+    type: dead_end
+    title: "Naive float32 affine sampling for a half-open fitted window"
+    provenance: ai-executed
+    timestamp: "2026-07-17T04:15+02:00"
+    hypothesis: >
+      Multiplying a float32 uniform deviate below one by an integer fitted-window size and adding
+      its origin always produces a coordinate strictly below the exclusive upper bound.
+    failure_mode: >
+      At native resolution, the largest float32 below one maps through the C0039 x window to
+      4881.0, exactly its exclusive right edge. The bank's fully-inside invariant correctly fails;
+      no optimizer arm executes and no scientific comparison is available.
+    lesson: >
+      Construct continuous coordinates with an explicit dtype-safe exclusive-upper clamp, test
+      forced endpoint values on translated native-scale windows, keep focused-test and official
+      RNG domains disjoint, and use a fresh append-only lifecycle rather than retrying the
+      consumed attempt.
+    evidence:
+      - "src/rtgs/core/observation2d.py"
+      - "benchmarks/results/20260717_compact_occupancy_refinement_factorial_RESULT.json"
+      - "benchmarks/results/20260717_compact_occupancy_refinement_factorial_FAILURE_AUDIT.md"
+    also_depends_on: [N128]
+    status: resolved
+  - id: N130
+    type: experiment
+    title: "Fresh responsibility-birth iter2 implementation and structural CUDA review"
+    provenance: ai-executed
+    timestamp: "2026-07-17T07:46+02:00"
+    result: >
+      Independent review returned PASS with no unresolved findings for the frozen 44-file
+      implementation aggregate
+      79c8f374e416a93a6572d262a09dfa41b4bd851d15596f49c5ac80e3ffa5b5de. The exact four-suite
+      source closure passed 141 tests plus Ruff, formatting, compilation, and diff checks.
+      A focused real-input CUDA structural smoke used only roots 994001/994201/994301, stopped
+      after the preregistered step-35 surgery, and changed N from 835 to 867 with exactly 16
+      clone and 16 split commands, 48 newborn lineages, intact six-parameter optimizer clocks,
+      unique persistent IDs, unchanged compact teachers, exact source/input/runtime entry-exit
+      binding, and all RGB-denial counters clean. The first reviewer-only smoke was discarded
+      after its wrapper compared a tuple shape with an equivalent JSON list; the corrected fresh
+      process passed. No official seed, decision metric, seal, attempt, result, or run directory
+      was consumed, so this authorizes implementation readiness only and no scientific outcome.
+    evidence:
+      - "benchmarks/results/20260717_compact_responsibility_birth_allocation_iter2_IMPLEMENTATION_REVIEW.md"
+      - "benchmarks/results/20260717_compact_responsibility_birth_allocation_iter2_PREREG.md"
+      - "benchmarks/compact_responsibility_birth_allocation_iter2.py"
+      - "tests/test_compact_responsibility_birth_allocation_iter2.py"
+    also_depends_on: [N79, N122, N128, N129]
+    status: resolved
+  - id: N131
+    type: experiment
+    title: "Responsibility-birth iter2 seal verification failure"
+    provenance: ai-executed
+    timestamp: "2026-07-17T07:52+02:00"
+    result: >
+      The exact preregistered public iter2 seal command returned nonzero during pre-publication
+      verification because the full scripts/verify.sh collection encountered ambient/order-
+      sensitive test behavior. The harness raised `seal verification failed` before creating its
+      executed-source archive or seal. No Phase-A/Phase-B marker, run directory, official-root
+      generator use, score, bank, arm, metric, or scientific decision exists. The once-only iter2
+      lifecycle is permanently consumed and its scientific disposition is UNAVAILABLE; a test-
+      order correction cannot reopen it.
+    evidence:
+      - "benchmarks/results/20260717_compact_responsibility_birth_allocation_iter2_FAILURE_AUDIT.md"
+      - "benchmarks/results/20260717_compact_responsibility_birth_allocation_iter2_PREREG.md"
+      - "benchmarks/compact_responsibility_birth_allocation_iter2.py"
+    also_depends_on: [N130]
+    status: resolved
+  - id: N132
+    type: question
+    title: "Does G²SR duplicate the compact 2D-to-3D Gaussian objective?"
+    provenance: user
+    timestamp: "2026-07-17T09:38+02:00"
+    description: >
+      Primary-paper review resolves the high-level answer as close but not identical. G²SR
+      detects reference-view 2D splats, tracks those same splats into target views with optical
+      flow and five deterministic sigma points, triangulates centers with DLT, and minimizes
+      per-track projected-Gaussian Hellinger distance. The current realtime-gs branch instead
+      fits independent per-view compact fields, searches source rays through all teacher fields,
+      and refines a globally composited 3D set without explicit one-to-one cross-view tracks.
+      G²SR targets fast few-view surface geometry at 384x512; this project additionally targets
+      RGB-free post-Stage-1 supervision, variable per-view and 3D cardinalities, density
+      refinement, full-resolution data, and novel-view rendering.
+    evidence:
+      - "https://arxiv.org/pdf/2607.14470"
+      - "src/rtgs/lift/compact_carve.py"
+      - "src/rtgs/optim/compact_trainer.py"
+    status: resolved
+  - id: N133
+    type: experiment
+    title: "Exact inverse-projection fiber and correspondence mechanism"
+    provenance: ai-executed
+    timestamp: "2026-07-18T04:56+02:00"
+    result: >
+      Implemented an exact four-DOF inverse-projection fiber, full-covariance projected-Gaussian
+      costs, hardmin/row-dust/unbalanced-transport correspondence, and an exact source-direction
+      SH preactivation constraint. Eighty-four focused CPU tests passed, including exact source
+      center/covariance preservation, transport-mass accounting, dust routing, finite/SPD/domain
+      rejection, and source-SH equality. The mechanism was preregistered and independently
+      reviewed before the final synthetic execution; it is not registered as a production lifter.
+    evidence:
+      - "src/rtgs/lift/inverse_projection_fiber.py"
+      - "src/rtgs/lift/fiber_correspondence.py"
+      - "src/rtgs/lift/source_anchored_sh.py"
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_IMPLEMENTATION_REVIEW.md"
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_PREREG.md"
+    also_depends_on: [N132]
+    status: resolved
+  - id: N134
+    type: experiment
+    title: "Consumed final inverse-projection-fiber synthetic execution"
+    provenance: ai-executed
+    timestamp: "2026-07-18T04:56+02:00"
+    result: >
+      The exclusive official transaction completed root 0, began root 1, then stopped when a
+      supported projection left the valid camera domain during an M-step. The fail-closed harness
+      published only an immutable ATTEMPT and root-local evidence: no top-level synthetic RESULT,
+      no three-root aggregate, and no real-data namespace or rendering result exists. Independent
+      recomputation from root 0's NPZ matched every audited operand. Because root 0 alone rejects
+      both real-release candidates under the frozen all-root rule, omitted roots cannot restore
+      authorization for the calibrated interaction.
+    evidence:
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_SYNTHETIC_ATTEMPT.json"
+      - "runs/inverse_projection_fiber_iter3_synthetic_20260717/root_0/ROOT_RESULT.json"
+      - "runs/inverse_projection_fiber_iter3_synthetic_20260717/root_0/evidence.npz"
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_FAILURE_AUDIT.md"
+    also_depends_on: [N133]
+    status: resolved
+  - id: N135
+    type: dead_end
+    title: "Treating every independently split 2D fragment as an exact source-fiber track"
+    provenance: ai-executed
+    timestamp: "2026-07-18T04:56+02:00"
+    hypothesis: >
+      Exact source fibers plus capacity-aware unbalanced transport can resolve duplicate and
+      unequal-cardinality raw 2D fragments into the latent 3D Gaussian tracks needed for release.
+    failure_mode: >
+      In completed root 0, area-capacity UOT reached 0.5468 purity, 0.25 completeness, and only
+      0.2730/0.0560 outlier-track/outlier-observation dust recall; uniform-capacity UOT also failed
+      every applicable acceptance floor. Moreover, 83.75% of inlier moment-split child centers
+      differed from their latent parent's projected center, showing that an exact fiber attached
+      to each child freezes a decomposition artifact rather than a guaranteed physical track.
+    lesson: >
+      Preserve the exact ray/fiber constraint for a stable track or dynamically moment-merged
+      source aggregate, but do not assign physical identity to every independently fitted child.
+      Solve topology before or jointly with fiber optimization, and calibrate an explicit null
+      model instead of asking area capacity alone to identify outliers.
+    evidence:
+      - N134
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_FAILURE_AUDIT.json"
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_FAILURE_AUDIT.md"
+    status: resolved
+  - id: N136
+    type: pivot
+    title: "Pivot from raw-fragment fibers to topology-aware source aggregates"
+    provenance: ai-executed
+    timestamp: "2026-07-18T04:56+02:00"
+    from: "One exact source fiber per independently fitted or moment-split 2D fragment"
+    to: >
+      Stable or dynamically moment-merged source-track aggregates with birth/death/merge topology,
+      transactional geometry updates, and an explicit outlier likelihood plus sparse calibrated
+      candidate gating; retain exact source projection and source-direction SH constraints only at
+      that track granularity.
+    trigger: >
+      N135 rejected both capacity-aware transport candidates, while N134 exposed a non-transactional
+      M-step validity failure and the root-0 audit showed that most outlier capacity remained outside
+      dust despite internally consistent transport accounting.
+    evidence: [N134, N135, C22]
+    status: resolved
+  - id: N137
+    type: decision
+    title: "Close the three-iteration fiber loop and withhold the real-data fit"
+    provenance: ai-executed
+    timestamp: "2026-07-18T04:56+02:00"
+    choice: >
+      End the bounded three-iteration investigation, publish the scoped negative synthetic finding,
+      and do not consume the calibrated C1004 fit, appearance evaluation, GPU benchmark, or viewer
+      handoff. Any continuation is a fresh topology-aware research question that must first pass an
+      oracle-topology feasibility gate and a new preregistered synthetic release protocol.
+    alternatives:
+      - "Rerun or resume the consumed official roots after repairing the M-step."
+      - "Ignore the failed root-0 acceptance operands and proceed to the real dataset."
+      - "Generalize the result into a rejection of exact pixel-ray constraints at every granularity."
+    evidence:
+      - N134
+      - N135
+      - "docs/EXPERIMENTS.md"
+      - "docs/ROADMAP.md"
+    status: resolved
+  - id: N138
+    type: experiment
+    title: "EWA covariance projection rank audit"
+    provenance: ai-executed
+    timestamp: "2026-07-18T10:11+02:00"
+    result: >
+      Algebraic review and the existing focused CPU sentinel confirmed that the stacked symmetric-
+      covariance projection design has generic rank five for two calibrated views and rank six for
+      three generic views. For two ray directions d1 and d2, the nonzero symmetric mode
+      d1*d2^T+d2*d1^T is annihilated by both EWA projection Jacobians. Consequently, two consistent
+      view fibers intersect in a one-dimensional covariance family after center triangulation; they
+      do not identify a unique general 3D Gaussian covariance.
+    evidence:
+      - "src/rtgs/lift/inverse_projection_fiber.py"
+      - "tests/test_inverse_projection_fiber.py::test_covariance_projection_design_has_rank_five_then_six"
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter1_PREREG.md"
+    also_depends_on: [N133]
+    status: resolved
+  - id: N139
+    type: question
+    title: "Can an oracle moment-aggregate rank-aware lift recover latent geometry?"
+    provenance: ai-suggested
+    timestamp: "2026-07-18T10:11+02:00"
+    description: >
+      With synthetic parent membership fixed before fitting, moment-merge all child fragments per
+      parent and view, triangulate aggregate centers, then solve the covariance system using at least
+      three well-conditioned rays—or expose and regularize the one-dimensional null coordinate for
+      two views. Compare raw-child, aggregate, and nonlinear-refinement geometry before reintroducing
+      learned correspondence. This isolates topology, observability, and optimizer failure.
+    also_depends_on: [N135, N137, N138]
+    status: open
+  - id: N140
+    type: experiment
+    title: "Mask-gated StructSplat C0014 under a strict 168,000-byte cap"
+    provenance: ai-executed
+    timestamp: "2026-07-18T11:25+02:00"
+    result: >
+      A preregistered fixed-5,000 native StructSplat fit used calibrated mask-gated density,
+      foreground-only L1 plus mask-normalized SSIM, and a hard rounded-center foreground
+      constraint. The strict archive is 150,492 bytes, 17,508 below the decimal cap, contains no
+      RGB or mask arrays, and independently rerenders at 36.8788 dB foreground PSNR and 0.901959
+      weighted SSIM with zero outside rounded centers. Raw no-mask playback does not preserve the
+      cutout: full masked-crop quality is 17.8756 dB/0.729800 SSIM, support IoU is 0.6032, and
+      31.18% of outside-mask crop pixels exceed one 8-bit RGB code. Independent audit accepts only
+      one-view archive-integrity and cap feasibility; visual acceptance and all-view conversion
+      remain open.
+    evidence:
+      - "benchmarks/results/20260718_structsplat_masked_168kb_example_PREREG.md"
+      - "benchmarks/results/20260718_structsplat_masked_168kb_example_RESULT.md"
+      - "benchmarks/results/20260718_structsplat_masked_168kb_example_AUDIT.md"
+      - "runs/structsplat_masked_168kb_example_20260718/result.json"
+      - "ara/evidence/tables/20260718_structsplat_masked_168kb_example.md"
+    also_depends_on: [N113, N124, N125]
+    status: resolved
+  - id: N141
+    type: dead_end
+    title: "Discarding mask information while expecting an exact RGB-splat silhouette"
+    provenance: ai-executed
+    timestamp: "2026-07-18T11:25+02:00"
+    hypothesis: >
+      Applying the binary mask before fitting and constraining every Gaussian center to
+      foreground is sufficient for a normalized RGB StructSplat field to replace both the image
+      and mask during exact cutout playback.
+    failure_mode: >
+      On C0014, all 5,000 rounded centers stayed on foreground and foreground reconstruction was
+      strong, but finite Gaussian support crossed the boundary: support IoU was 0.6032 and 31.18%
+      of outside-mask crop pixels exceeded one 8-bit RGB code. Center membership is not support or
+      alpha containment.
+    lesson: >
+      A lifting-only foreground-token contract may discard the mask, but exact cutout playback
+      needs a separately encoded alpha/coverage signal or an explicitly validated support/coverage
+      objective. Do not infer mask removal from foreground PSNR or center counts.
+    evidence:
+      - N140
+      - "benchmarks/results/20260718_structsplat_masked_168kb_example_AUDIT.md"
+    status: resolved
+  - id: N142
+    type: question
+    title: "Should compact dataset views target lifting-only foreground or exact cutout playback?"
+    provenance: ai-suggested
+    timestamp: "2026-07-18T11:25+02:00"
+    description: >
+      The next converter depends on a user-level contract choice. A lifting-only package can use
+      the current mask-gated RGB field and treat its support leakage as irrelevant to token
+      selection. Exact cutout playback should package lossless alpha/coverage; for C0014 a
+      bit-packed binary crop mask compressed to 7,226 zlib bytes and the raw teacher-plus-mask sum
+      remained below 168,000 bytes, but no production wrapper or all-view result exists.
+    also_depends_on: [N140, N141]
+    status: resolved
+  - id: N143
+    type: decision
+    title: "Adopt capped Gaussian-view datasets with optional exact alpha"
+    provenance: user
+    timestamp: "2026-07-18T22:33+02:00"
+    choice: >
+      Replace every checked-in dataset RGB image with a per-view StructSplat observation capped at
+      168,000 decimal bytes. Where an authoritative mask exists, include its exact lossless packed
+      alpha in the same compact view; where no mask exists, omit alpha. Remove the original RGB and
+      mask directories only after the complete converted dataset verifies.
+    alternatives:
+      - "Keep the original RGB and mask files beside compact observations."
+      - "Discard mask information after applying it during fitting."
+      - "Convert only the single example view."
+    evidence: [N140, N141, N142]
+    status: resolved
+  - id: N144
+    type: experiment
+    title: "Repository-wide capped StructSplat dataset conversion"
+    provenance: ai-executed
+    timestamp: "2026-07-18T22:33+02:00"
+    result: >
+      The transactional converter produced and strict-reloaded 114 compact views across four
+      frames: 26+26 masked stage views with exact alpha and 30+32 unmasked karate views without
+      alpha. Every view retained 5,000 Gaussians; complete container sizes ranged from 145,924 to
+      163,083 bytes, below the 168,000-byte cap. The verified dataset occupies 17 MiB by du, all
+      original dataset JPEG/PNG files and RGB/mask directories were removed, the converter's
+      independent verify command passed all 114 views, and the full CPU repository verification
+      completed successfully.
+    evidence:
+      - "scripts/convert_datasets_to_gaussians2d.py"
+      - "src/rtgs/data/compact_views.py"
+      - "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json"
+      - "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json"
+      - "dataset/karate/frame_00005/gaussians2d/manifest.json"
+      - "dataset/karate/frame_00060/gaussians2d/manifest.json"
+      - "tests/test_compact_views.py"
+      - "tests/test_convert_datasets_to_gaussians2d.py"
+    also_depends_on: [N140, N141, N143]
+    status: resolved
+  - id: N145
+    type: decision
+    title: "Implement the topology-aware field-lift design"
+    provenance: user
+    timestamp: "2026-07-19T01:34+02:00"
+    choice: >
+      Implement `docs/DESIGN_field_lift.md` as a native image-free research path over the compact
+      Gaussian-view datasets, preserving exact source fibers while making the continuous objective
+      field-level and topology changes explicit.
+    alternatives:
+      - "Leave the design as documentation only."
+      - "Extend the legacy per-fragment GradientLifter without a new observation boundary."
+      - "Implement correspondence matching without the field loss, observability, and topology pieces."
+    evidence: [N136, N138, N139, N143, N144, "docs/DESIGN_field_lift.md"]
+    status: resolved
+  - id: N146
+    type: experiment
+    title: "Native image-free field-lift mechanism and calibrated CLI smokes"
+    provenance: ai-executed
+    timestamp: "2026-07-19T01:34+02:00"
+    result: >
+      Implemented and registered the research-only field path from strict `SceneFits` through
+      source-fiber placement, additive density/RGB-numerator refit, detached visibility and gains,
+      rank-aware covariance gating, transactional topology proposals, sampled frozen-teacher
+      validation, and post-hoc all-view correspondences. The complete field-focused CPU test slice,
+      repository verification, docs synchronization, and CPU benchmark smoke passed. Bounded CLI
+      smokes on the 26-view masked frame_00008 and 30-view maskless frame_00005 each emitted three
+      finite Gaussians plus field/diagnostic sidecars while fitting only two training views. These
+      are mechanism and integration checks; no calibrated quality, topology-utility, performance,
+      or default conclusion was produced.
+    evidence:
+      - "src/rtgs/data/field_inputs.py"
+      - "src/rtgs/lift/field_lifter.py"
+      - "src/rtgs/lift/field_loss.py"
+      - "src/rtgs/lift/field_observability.py"
+      - "src/rtgs/lift/field_refit.py"
+      - "src/rtgs/lift/field_topology.py"
+      - "src/rtgs/lift/field_validation.py"
+      - "src/rtgs/lift/field_visibility.py"
+      - "tests/test_field_lifter.py"
+      - "tests/test_field_cli_integration.py"
+      - "scripts/verify.sh"
+    also_depends_on: [N136, N138, N139, N145]
+    status: resolved
+  - id: N147
+    type: experiment
+    title: "Calibrated 96-track field fit and viewer handoff"
+    provenance: ai-executed
+    timestamp: "2026-07-19T08:30+02:00"
+    result: >
+      Ran the image-free field lift on all 26 compact views of masked frame_00008 with four
+      stride-held-out cameras, six selected fitting cameras, 96 tracks, 24 depth samples, twelve
+      continuous refit steps, degree-one SH, and topology disabled. The fit emitted a standard PLY,
+      a field-state sidecar, and sampled semantic diagnostics. All 96 covariance systems had rank
+      six; maximum reported condition number was 3.49496; the objective moved from -0.310972 to
+      -158.392; internal source projection and color maximum errors were 1.82e-11 and 2.22e-16.
+      Sampled normalized-teacher RGB MSE was 0.03320 on 22 training views and 0.03328 on four
+      held-out views. Independent artifact checks found finite parameters, positive-definite
+      covariances, valid correspondence arrays, and only float32 PLY serialization drift. The
+      standard PLY loaded in the CPU free-orbit viewer at 127.0.0.1:8080 and returned HTTP 200.
+      This is an exploratory coarse integration/viewer run: topology recovery, visual quality,
+      speed, production readiness, and any default conclusion remain untested.
+    evidence:
+      - "runs/field_lift_frame_00008_20260719/gaussians_init.ply"
+      - "runs/field_lift_frame_00008_20260719/gaussians_init.field.npz"
+      - "runs/field_lift_frame_00008_20260719/gaussians_init.diagnostics.json"
+      - "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json"
+    also_depends_on: [N144, N145, N146]
+    status: resolved
+  - id: N148
+    type: decision
+    title: "Run the full compact all-view reconstruction to a high-resolution plateau"
+    provenance: user
+    timestamp: "2026-07-20T02:47+02:00"
+    choice: >
+      Replace the bounded 96-track inspection with the full benchmark: use all 130,000 input 2D
+      Gaussian components across all 26 compact views, retain high-resolution targets, fit the 3D
+      model until the declared stopping rule is met, and inspect both the true initialization and
+      optimized result in the viewer.
+    alternatives:
+      - "Treat the bounded 96-track field-lift smoke as the quality result."
+      - "Reduce view count, compact components, target resolution, or depth samples for speed."
+      - "Judge only compact 2D playback without completing a 3D refinement."
+    evidence: [N144, N147, "benchmarks/results/20260720T002059Z_full_compact_all_view_development.json"]
+    status: resolved
+  - id: N149
+    type: experiment
+    title: "Full compact all-view reconstruction and fitted-view evaluation"
+    provenance: ai-executed
+    timestamp: "2026-07-20T02:47+02:00"
+    result: >
+      The single-scene development run used all 26 compact frame_00008 views and all 130,000
+      components. Exact CPU placement evaluated 4.16M depth samples through 108.16M point/view
+      projections in 14,547.616 seconds and retained 5,000 initial Gaussians. A non-exact 4k
+      recovery followed by four non-exact fixed-topology optimizer restarts produced 36,816
+      Gaussians; the compact-only selector chose step 70,000, where the settle segment met its
+      local plateau rule. Across all fitted source views, compact playback measured 35.5733 dB
+      foreground PSNR, 40.5409 dB crop PSNR, and 0.970498 crop SSIM; the final 3D model measured
+      33.4500 dB, 38.4176 dB, 0.966955, and 0.974411 mean alpha IoU. The user judged the final
+      viewer result very good but the true 5,000-Gaussian initialization disappointing. The
+      initializer judgment has no saved standalone metric. Independent audit verified artifact
+      hashes and chronology but classified the result as fitted-view, single-scene, dirty-source,
+      non-replay-complete development evidence rather than held-out, novel-view, or global-
+      convergence evidence. The final and initial PLYs were smoke-tested together in the gsplat
+      viewer at http://127.0.0.1:8080.
+    evidence:
+      - "benchmarks/results/20260720T002059Z_full_compact_all_view_development.json"
+      - "docs/EXPERIMENTS.md"
+      - "runs/full_compact_reconstruction_all_20260719/placement.json"
+      - "runs/full_compact_reconstruction_all_20260719_settle_60000_70000/model_selection.json"
+      - "runs/full_compact_reconstruction_all_20260719_settle_60000_70000/original_metrics.json"
+      - "runs/full_compact_reconstruction_all_20260719_settle_60000_70000/gaussians_final.ply"
+    also_depends_on: [N144, N148]
+    status: resolved
+  - id: N150
+    type: decision
+    title: "Accelerate exact compact placement with a CPU CSR query path first"
+    provenance: user-revised
+    timestamp: "2026-07-20T02:47+02:00"
+    choice: >
+      Implement a flattened exact CSR observation index, vectorized bounded pair evaluation,
+      deterministic reductions, progress receipts, and identity-preserving production benchmarks
+      before considering a CUDA scorer. Test a quadtree or multilevel hierarchy only if the
+      post-CSR profile shows that memory or candidate rejection remains material. Acceleration
+      must preserve the current placement exactly and must report the weak initialization
+      separately rather than presenting speed as an initializer-quality fix.
+    alternatives:
+      - "Move the complete initialization to CUDA first."
+      - "Build a quadtree before removing Python tile fragmentation."
+      - "Reduce inputs, views, depth samples, or resolution."
+    evidence: [N149, "docs/TASK_COMPACT_PLACEMENT_CSR_ACCELERATION.md"]
+    status: resolved

@@ -1,0 +1,54 @@
+{
+  "schema": "inverse_projection_fiber_development_verification_v1",
+  "namespace": "rtgs.inverse-projection-fiber.development.v1",
+  "status": "PASS",
+  "official_roots_used": false,
+  "development_roots_used": [77, 78, 79, 80, 91, 92, 93, 94, 95, 96],
+  "commands": [
+    {
+      "command": ".venv/bin/python -m py_compile benchmarks/inverse_projection_fiber_iter1c.py",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/python -m ruff check benchmarks/inverse_projection_fiber_iter1c.py tests/test_inverse_projection_fiber.py src/rtgs/lift/inverse_projection_fiber.py src/rtgs/render/projection.py src/rtgs/render/torch_ref.py src/rtgs/render/torch_points.py src/rtgs/render/__init__.py src/rtgs/lift/__init__.py",
+      "exit_code": 0,
+      "note": "Import ordering was mechanically fixed and this command is rerun after receipt creation."
+    },
+    {
+      "command": ".venv/bin/python -m ruff format --check benchmarks/inverse_projection_fiber_iter1c.py tests/test_inverse_projection_fiber.py src/rtgs/lift/inverse_projection_fiber.py src/rtgs/render/projection.py src/rtgs/render/torch_ref.py src/rtgs/render/torch_points.py src/rtgs/render/__init__.py src/rtgs/lift/__init__.py",
+      "exit_code": 0
+    },
+    {
+      "command": "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33 .venv/bin/python -m pytest -q tests/test_inverse_projection_fiber.py tests/test_render.py tests/test_point_render.py tests/test_point_rasterizer_parity.py",
+      "exit_code": 0,
+      "tests_passed": 84
+    },
+    {
+      "command": "git diff --check -- benchmarks/inverse_projection_fiber_iter1c.py tests/test_inverse_projection_fiber.py src/rtgs/lift/inverse_projection_fiber.py src/rtgs/render/projection.py src/rtgs/render/torch_ref.py src/rtgs/render/torch_points.py src/rtgs/render/__init__.py src/rtgs/lift/__init__.py benchmarks/results/20260717_inverse_projection_fiber_iter1c_PREREG.md benchmarks/results/20260717_inverse_projection_fiber_iter1c_PREREG_REVIEW.md benchmarks/results/20260717_inverse_projection_fiber_iter1c_VERIFICATION.json benchmarks/results/20260717_inverse_projection_fiber_iter1c_IMPLEMENTATION_REVIEW_FAIL.md",
+      "exit_code": 0
+    }
+  ],
+  "development_sentinels": {
+    "construction": "PASS",
+    "finite_difference_maximum_relative_error": 1.3012900345045877e-08,
+    "colocated_duplicate_invariance": "PASS",
+    "six_arm_two_update_smoke": "PASS",
+    "six_arm_receipt_namespace": "rtgs.inverse-projection-fiber.development.v1",
+    "maximum_realized_initial_covariance_relative_error": 4.965602901176831e-16,
+    "ambient_dtype_fail_closed": "PASS",
+    "start_end_source_closure_45_files": "PASS",
+    "one_update_training_source_closure_45_files": "PASS",
+    "nested_output_fail_closed": "PASS",
+    "durable_invalid_receipt_unit_test": "PASS",
+    "bound_historical_digest_mismatch_fail_closed": "PASS",
+    "fiber_one_ulp_byte_identity_rejection": "PASS",
+    "ambient_default_device_fail_closed": "PASS",
+    "development_verification_metadata_conformance": "PASS",
+    "durable_per_scene_input_receipt": "PASS",
+    "false_combined_sentinel_rejection": "PASS",
+    "unowned_late_collision_preservation": "PASS",
+    "same_content_new_inode_rejection": "PASS",
+    "parent_directory_fsync_event_coverage": "PASS",
+    "bounded_publication_state_inspection_error": "PASS"
+  }
+}

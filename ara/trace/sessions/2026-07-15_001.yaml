@@ -1,0 +1,850 @@
+session:
+  id: "2026-07-15_001"
+  date: "2026-07-15"
+  started: "2026-07-15T00:39+02:00"
+  last_turn: "2026-07-15T23:58+02:00"
+  turn_count: 13
+  summary: "Closed three scoped smooth-boundary branches with audited evidence and froze an exact-count Carve merge-attribution protocol as the next experiment."
+
+events_logged:
+  - turn: 1
+    type: observation
+    id: O15
+    routing: staged
+    provenance: ai-suggested
+    summary: "A single opt-in anchor mode can preserve the legacy default and backend abstractions."
+  - turn: 1
+    type: observation
+    id: O16
+    routing: staged
+    provenance: ai-suggested
+    summary: "Normalized-fraction and raw-logit losses require different stiffness calibration."
+  - turn: 1
+    type: observation
+    id: O17
+    routing: staged
+    provenance: ai-suggested
+    summary: "Anchor confidence must remain separate from merge confidence."
+  - turn: 1
+    type: observation
+    id: O18
+    routing: staged
+    provenance: ai-suggested
+    summary: "Retain jitter draws and the camera-depth ray convention for paired determinism."
+  - turn: 1
+    type: observation
+    id: O19
+    routing: staged
+    provenance: ai-suggested
+    summary: "Detach prior state before making raw depth an optimizer leaf."
+  - turn: 1
+    type: observation
+    id: O20
+    routing: staged
+    provenance: ai-suggested
+    summary: "Current production and mock depth backends do not exercise confidence weighting."
+  - turn: 1
+    type: observation
+    id: O21
+    routing: staged
+    provenance: ai-suggested
+    summary: "Live patch needs confidence NaN sanitation and a validity-safe zero threshold."
+  - turn: 1
+    type: observation
+    id: O22
+    routing: staged
+    provenance: ai-suggested
+    summary: "Smooth-L1 anchor stiffness remains strongly position dependent near ray bounds."
+  - turn: 2
+    type: experiment
+    id: N18
+    routing: direct
+    provenance: ai-executed
+    summary: "Uniform legacy anchoring was confidence-invariant; removing it gained only 0.138 dB in the tiny proxy."
+  - turn: 2
+    type: observation
+    id: O23
+    routing: staged
+    provenance: ai-suggested
+    summary: "The no-anchor proxy gain was below threshold and did not identify a useful confidence formulation."
+  - turn: 2
+    type: experiment
+    id: N19
+    routing: direct
+    provenance: ai-executed
+    summary: "The preregistered three-seed confidence-anchor primary rule failed."
+  - turn: 2
+    type: dead_end
+    id: N20
+    routing: direct
+    provenance: ai-executed
+    summary: "Confidence weighting did not improve corrupted-prior PSNR or low-confidence p90."
+  - turn: 2
+    type: dead_end
+    id: N21
+    routing: direct
+    provenance: ai-executed
+    summary: "Pixel-space shuffling failed to preserve sampled retained-ray confidence weights."
+  - turn: 2
+    type: decision
+    id: N22
+    routing: direct
+    provenance: ai-executed
+    summary: "Kept legacy anchor semantics as default and retained new modes as opt-in controls."
+  - turn: 2
+    type: question
+    id: N23
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test valid-uniform versus confidence with an exact sampled-weight permutation."
+  - turn: 2
+    type: constraint
+    id: R02
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Confidence-location controls must permute weights after retained-ray sampling."
+  - turn: 2
+    type: architecture
+    id: A01
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Committed pluggable bounded-ray anchor semantics while preserving the legacy default."
+  - turn: 3
+    type: experiment
+    id: N24
+    routing: direct
+    provenance: ai-executed
+    summary: "Exact sampled confidence improved held-out depth RMSE by 1.149% but worsened corrupted-source p90 by 0.774%."
+  - turn: 3
+    type: dead_end
+    id: N25
+    routing: direct
+    provenance: ai-executed
+    summary: "Sampled confidence location failed the preregistered material and robust anchor gates."
+  - turn: 3
+    type: pivot
+    id: N26
+    routing: direct
+    provenance: ai-executed
+    summary: "Closed anchor-weight sweeps and pivoted to leave-one-source-out or direct cross-view consistency."
+  - turn: 3
+    type: claim
+    id: C03
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "The exact synthetic confidence effect is small and seed-consistent, not materially robust."
+  - turn: 3
+    type: constraint
+    id: R03
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Scope the stopping rule to the frozen anchor-weighting protocol."
+  - turn: 4
+    type: experiment
+    id: N27
+    routing: direct
+    provenance: ai-executed
+    summary: "Gradient LOSO missed both geometry floors; corrupted-depth Hybrid worsened all three primary geometry metrics."
+  - turn: 4
+    type: dead_end
+    id: N28
+    routing: direct
+    provenance: ai-executed
+    summary: "Own-source exclusion failed as a material robust geometry improvement under the frozen protocol."
+  - turn: 4
+    type: decision
+    id: N29
+    routing: direct
+    provenance: ai-executed
+    summary: "Kept inclusive supervision as default and closed further LOSO/dropout schedule sweeps on this setup."
+  - turn: 4
+    type: pivot
+    id: N30
+    routing: direct
+    provenance: ai-executed
+    summary: "Pivoted from photometric exclusion to one direct robust world-frame position-consistency term."
+  - turn: 4
+    type: question
+    id: N31
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test fixed correct cross-view position matches against a pair-count and graph-degree-preserving shuffle."
+  - turn: 4
+    type: claim
+    id: C04
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Target-own exclusion is not a material geometry improvement in the frozen synthetic Gradient/Hybrid protocols."
+  - turn: 4
+    type: constraint
+    id: R04
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Matched source dropout must balance per-target count/opacity and exactly-once global primitive exposure."
+  - turn: 4
+    type: architecture
+    id: A02
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Committed source-aware training-render modes behind an inclusive-default lifter interface."
+  - turn: 5
+    type: experiment
+    id: N32
+    routing: direct
+    provenance: ai-executed
+    summary: "Correct fixed edges localized represented primitives by 82%-91%, but all global utility gains missed frozen floors."
+  - turn: 5
+    type: dead_end
+    id: N33
+    routing: direct
+    provenance: ai-executed
+    summary: "The sparse oracle graph failed as a material whole-scene position-consistency improvement."
+  - turn: 5
+    type: decision
+    id: N34
+    routing: direct
+    provenance: ai-executed
+    summary: "Kept zero position weight as default and stopped coefficient/delta/norm/schedule sweeps."
+  - turn: 5
+    type: pivot
+    id: N35
+    routing: direct
+    provenance: ai-executed
+    summary: "Pivoted from sparse privileged edges to one denser train-only correspondence graph."
+  - turn: 5
+    type: question
+    id: N36
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test whether a precise train-only matcher can materially exceed 8.4% node coverage."
+  - turn: 5
+    type: claim
+    id: C05
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Sparse fixed-pair consistency succeeds locally but misses global utility in both frozen families."
+  - turn: 5
+    type: constraint
+    id: R05
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Allow one denser matcher follow-up without a position-loss hyperparameter sweep."
+  - turn: 5
+    type: constraint
+    id: R06
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Degree-matched shuffled topology does not match feasibility or force magnitude."
+  - turn: 5
+    type: architecture
+    id: A03
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Committed explicit fixed-pair position consistency behind a zero-default lifter API."
+  - turn: 6
+    type: experiment
+    id: N37
+    routing: direct
+    provenance: ai-executed
+    summary: "Dense train-only graphs passed 18%-19% coverage floors but failed strict precision at 9%-12%, withholding every optimization arm."
+  - turn: 6
+    type: dead_end
+    id: N38
+    routing: direct
+    provenance: ai-executed
+    summary: "Raw RGB patches plus calibrated geometry failed as a valid fitted-primitive correspondence source."
+  - turn: 6
+    type: decision
+    id: N39
+    routing: direct
+    provenance: ai-executed
+    summary: "Retained the matcher boundary as rejected CPU research infrastructure and stopped threshold/position sweeps."
+  - turn: 6
+    type: pivot
+    id: N40
+    routing: direct
+    provenance: ai-executed
+    summary: "Pivoted from raw matching to depth-backed local plane pulling and shortest-axis normal alignment."
+  - turn: 6
+    type: question
+    id: N41
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test whether detached train-depth oriented points improve corrupted-depth Hybrid geometry."
+  - turn: 6
+    type: claim
+    id: C06
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Raw patch/epipolar matching broadens coverage but fails strict semantic validity."
+  - turn: 6
+    type: constraint
+    id: R07
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "A failed matcher gate withholds arms and permits no matcher or position-loss threshold tuning."
+  - turn: 6
+    type: constraint
+    id: R08
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Semantic precision must count low-contribution and unlabeled endpoints as false."
+  - turn: 6
+    type: architecture
+    id: A04
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Committed a train-only PositionMatcher boundary with a deterministic rejected CPU backend."
+  - turn: 7
+    type: experiment
+    id: N42
+    routing: direct
+    provenance: ai-executed
+    summary: "All three surface target sets passed structural floors but failed clean plane validity, withholding all five Hybrid arms."
+  - turn: 7
+    type: dead_end
+    id: N43
+    routing: direct
+    provenance: ai-executed
+    summary: "Four-neighbor corrupted-depth PCA failed as a valid oriented-point source despite plausible structural diagnostics."
+  - turn: 7
+    type: decision
+    id: N44
+    routing: direct
+    provenance: ai-executed
+    summary: "Retained the zero-default surface-loss API, rejected the constructor, and made no utility or production claim."
+  - turn: 7
+    type: pivot
+    id: N45
+    routing: direct
+    provenance: ai-executed
+    summary: "Pivoted from synthetic nearest-neighbor planes to an independently justified calibrated oriented-point backend."
+  - turn: 7
+    type: question
+    id: N46
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test target validity and Hybrid utility using actual calibrated metric-depth/RGB-D points and normals."
+  - turn: 7
+    type: claim
+    id: C07
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Structurally plausible corrupted-depth planes can fail clean target validity in every seed."
+  - turn: 7
+    type: constraint
+    id: R09
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "A failed target gate withholds surface arms and permits no outcome-driven constructor or loss tuning."
+  - turn: 7
+    type: architecture
+    id: A05
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Committed retained-indexed oriented points and zero-default plane/selected-axis losses."
+  - turn: 8
+    type: experiment
+    id: N47
+    routing: direct
+    provenance: ai-executed
+    summary: "TUM desk passed six coverage/support/free-space gates but failed surface p90, depth p90, and p10 normal cosine."
+  - turn: 8
+    type: dead_end
+    id: N48
+    routing: direct
+    provenance: ai-executed
+    summary: "Registered-depth targets failed as a transferable Phase-B prerequisite because supported desk residuals were heavy-tailed."
+  - turn: 8
+    type: decision
+    id: N49
+    routing: direct
+    provenance: ai-executed
+    summary: "Retained the backend boundary and zero-default losses, kept TUM harness-local, and withheld all Phase-B utility."
+  - turn: 8
+    type: pivot
+    id: N50
+    routing: direct
+    provenance: ai-executed
+    summary: "Pivoted from oriented-loss utility to signed occlusion/rigidity attribution on new sequences."
+  - turn: 8
+    type: question
+    id: N51
+    routing: direct
+    provenance: ai-suggested
+    summary: "Identify construction-only causes of oriented-target tails on unseen sequences before a depth-controlled utility test."
+  - turn: 8
+    type: claim
+    id: C08
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Registered RGB-D local normals provide broad support but fail confirmatory cross-view tail transfer."
+  - turn: 8
+    type: architecture
+    id: A06
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Committed explicit view-keyed oriented predictions and detached world-map canonicalization."
+  - turn: 8
+    type: constraint
+    id: R10
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "The failed one-shot desk gate withholds utility and permits no outcome-driven desk tuning."
+  - turn: 8
+    type: constraint
+    id: R11
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Same-pixel sensor-plane utility requires an ordinary extra-depth attribution control."
+  - turn: 9
+    type: experiment
+    id: N52
+    routing: direct
+    provenance: ai-executed
+    summary: "Dense T-only visibility was sign-selective but failed positive-reduction and 2x risk-ratio gates on fr3/sitting."
+  - turn: 9
+    type: dead_end
+    id: N53
+    routing: direct
+    provenance: ai-executed
+    summary: "Pooled construction density was insufficient to attribute the target-balanced tail."
+  - turn: 9
+    type: decision
+    id: N54
+    routing: direct
+    provenance: ai-executed
+    summary: "Stopped before walking, preserved its unopened archive, and withheld all utility."
+  - turn: 9
+    type: pivot
+    id: N55
+    routing: direct
+    provenance: ai-executed
+    summary: "Pivoted from pooled density to time-local/source-conditioned visibility on new captures."
+  - turn: 9
+    type: question
+    id: N56
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test time-local T-only construction against pooled density at matched pose baselines."
+  - turn: 9
+    type: claim
+    id: C09
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Dense T-only visibility provides real but sub-threshold occlusion-like attribution."
+  - turn: 9
+    type: claim
+    id: C10
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Dense-visible sitting contradictions increase with time separation after pose sensitivity."
+  - turn: 9
+    type: constraint
+    id: R12
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Failed development forbids walking decode, tuning, confirmation, and utility."
+  - turn: 9
+    type: architecture
+    id: A07
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Committed a sealed nested T-only visibility harness with fail-closed confirmation."
+  - turn: 9
+    type: observation
+    id: O49
+    routing: staged
+    provenance: ai-suggested
+    summary: "Time-local/source-conditioned construction is the next untested visibility heuristic."
+  - turn: 10
+    type: question
+    id: N57
+    routing: direct
+    provenance: user
+    summary: "Asked whether repeated hard-to-improve results mean realtime-gs is already near a ceiling."
+  - turn: 10
+    type: observation
+    id: O50
+    routing: staged
+    provenance: ai-suggested
+    summary: "Current evidence indicates a supervision coverage/validity bottleneck, not proven system saturation."
+  - turn: 11
+    type: experiment
+    id: N58
+    routing: direct
+    provenance: ai-executed
+    summary: "Forward-tested the new audit rubric and independently reconfirmed C03's negative confidence-anchor arithmetic and attribution limits."
+  - turn: 12
+    type: question
+    id: N59
+    routing: direct
+    provenance: user
+    summary: "Asked whether hard or saturating learned-path operations have promising smooth substitutes."
+  - turn: 12
+    type: observation
+    id: O51
+    routing: staged
+    provenance: ai-suggested
+    summary: "Hard SH color flooring is the leading true gradient dead zone; hard Gaussian support ranks second."
+  - turn: 12
+    type: observation
+    id: O52
+    routing: staged
+    provenance: ai-suggested
+    summary: "Measure SH floor incidence and lost-gradient mass before any smooth-ReLU ablation."
+  - turn: 13
+    type: experiment
+    id: N60
+    routing: direct
+    provenance: ai-executed
+    summary: "The SH-floor incidence audit failed every materiality gate, so no SMU candidate trained."
+  - turn: 13
+    type: dead_end
+    id: N61
+    routing: direct
+    provenance: ai-executed
+    summary: "Closed SMU parameter and schedule tuning on the frozen synthetic setup."
+  - turn: 13
+    type: experiment
+    id: N62
+    routing: direct
+    provenance: ai-executed
+    summary: "The C1 kernel-tail mechanism passed locally, but both candidate arms lost held-out PSNR in every seed."
+  - turn: 13
+    type: dead_end
+    id: N63
+    routing: direct
+    provenance: ai-executed
+    summary: "Closed fixed-tail tuning and retained hard q<12 support as the default."
+  - turn: 13
+    type: experiment
+    id: N64
+    routing: direct
+    provenance: ai-executed
+    summary: "The order-preserving visibility retry found only four missed q<12 pairs in 2.48 million."
+  - turn: 13
+    type: dead_end
+    id: N65
+    routing: direct
+    provenance: ai-executed
+    summary: "Three-sigma culling was immaterial by every frozen gate, so no support-safe arm ran."
+  - turn: 13
+    type: pivot
+    id: N66
+    routing: direct
+    provenance: ai-executed
+    summary: "Pivoted from smooth gates to exact-count Carve moment-merge attribution."
+  - turn: 13
+    type: question
+    id: N67
+    routing: direct
+    provenance: ai-suggested
+    summary: "Does Carve moment merging add held-out value beyond primitive-count reduction?"
+  - turn: 13
+    type: claim
+    id: C11
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "The hard SH floor is not a material bottleneck in the frozen CPU protocol."
+  - turn: 13
+    type: claim
+    id: C12
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "A material kernel-tail gradient mechanism produced no held-out utility."
+  - turn: 13
+    type: claim
+    id: C13
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Three-sigma visibility truncation is immaterial in the frozen CPU protocol."
+  - turn: 13
+    type: heuristic
+    id: H02
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Gate smooth-boundary candidates on incidence and recoverable mass before training."
+  - turn: 13
+    type: constraint
+    id: R13
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Visibility expansion must preserve baseline compositing order, including exact-depth ties."
+  - turn: 13
+    type: observation
+    id: O57
+    routing: staged
+    provenance: ai-suggested
+    summary: "Carve merging needs shared-raw exact-count representative and global-prune controls."
+
+ai_actions:
+  - turn: 1
+    action: "Audited GradientLifter, HybridLifter, depth-prior producers, camera-ray conventions, CLI forwarding, and relevant tests read-only."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 1
+    action: "Quantified normalized-loss curvature, reproduced the differentiable-prior non-leaf optimizer failure, and passed 28 targeted lifting tests plus docs-sync."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 1
+    action: "Re-audited a concurrent GradientLifter implementation and ran updated edge probes and 28 targeted tests."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 2
+    action: "Preregistered four paired anchor modes, three seeds, strict held-out cameras, a shuffled condition, and fixed utility thresholds."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_depth_anchor_PREREG.md"]
+  - turn: 2
+    action: "Implemented pluggable bounded-ray anchor modes, legacy-preserving defaults, confidence sanitation, detachment, and deterministic tests."
+    provenance: ai-executed
+    files_changed: ["src/rtgs/lift/gradient.py", "src/rtgs/lift/hybrid.py", "tests/test_lift.py"]
+  - turn: 2
+    action: "Ran the complete three-seed CPU anchor ablation and preserved its machine-readable result."
+    provenance: ai-executed
+    files_changed: ["benchmarks/depth_anchor_ablation.py", "benchmarks/results/20260714T224800Z_cpu_depth_anchor.json"]
+  - turn: 2
+    action: "Audited the negative result, rejected causal interpretation of the pixel shuffle, and updated experiment/research/roadmap/architecture records."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_depth_anchor_AUDIT.md", "docs/EXPERIMENTS.md", "docs/RESEARCH.md", "docs/ROADMAP.md", "docs/ARCHITECTURE.md"]
+  - turn: 2
+    action: "Ran complete CPU verification: lint, format, tests, and docs-sync passed."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 3
+    action: "Queried the 2026-07-14 to 2026-07-15 Scholar Inbox digest and froze an exact valid-uniform/sampled-shuffle attribution protocol."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_depth_anchor_attribution_PREREG.md"]
+  - turn: 3
+    action: "Implemented valid-uniform and within-view sampled-confidence shuffle controls with separate RNG and exact diagnostics."
+    provenance: ai-executed
+    files_changed: ["src/rtgs/lift/gradient.py", "tests/test_lift.py"]
+  - turn: 3
+    action: "Ran the one allowed three-seed CPU attribution experiment and independently audited its decision math, intervention, invariants, and provenance."
+    provenance: ai-executed
+    files_changed: ["benchmarks/depth_anchor_attribution.py", "benchmarks/results/20260715T052539Z_cpu_depth_anchor_attribution.json", "benchmarks/results/20260715_depth_anchor_attribution_RESULT.md"]
+  - turn: 3
+    action: "Documented the negative result and cross-view pivot, then passed full CPU verification and source-hash checks."
+    provenance: ai-executed
+    files_changed: ["docs/EXPERIMENTS.md", "docs/RESEARCH.md", "docs/ROADMAP.md", "docs/ARCHITECTURE.md"]
+  - turn: 4
+    action: "Queried the 2026-07-14 to 2026-07-15 Scholar Inbox digest and froze the six-arm source-aware supervision protocol before implementation."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_cross_view_supervision_PREREG.md"]
+  - turn: 4
+    action: "Implemented compact LOSO exclusions, globally balanced matched non-self dropout, Hybrid forwarding, deterministic diagnostics, and focused tests."
+    provenance: ai-executed
+    files_changed: ["src/rtgs/lift/gradient.py", "src/rtgs/lift/hybrid.py", "tests/test_lift.py"]
+  - turn: 4
+    action: "Ran the one allowed six-arm three-seed CPU experiment and obtained three independent audits of decision math, masks, schedules, invariants, and provenance."
+    provenance: ai-executed
+    files_changed: ["benchmarks/cross_view_supervision_ablation.py", "benchmarks/results/20260715T062601Z_cpu_cross_view_supervision.json", "benchmarks/results/20260715_cross_view_supervision_RESULT.md"]
+  - turn: 4
+    action: "Documented the negative result and direct-position pivot, then passed full CPU verification, JSON parsing, diff checks, and all embedded source-hash checks."
+    provenance: ai-executed
+    files_changed: ["docs/EXPERIMENTS.md", "docs/RESEARCH.md", "docs/ROADMAP.md", "docs/ARCHITECTURE.md"]
+  - turn: 5
+    action: "Grounded the fixed-position design in Scholar Inbox and primary MAC-Splat/EDGS evidence, then preregistered the six-arm oracle/derangement protocol before the official run."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_world_position_consistency_PREREG.md"]
+  - turn: 5
+    action: "Implemented the optional position loss, Hybrid forwarding, strict pair validation, ray/graph provenance diagnostics, stopping logic, and deterministic tests."
+    provenance: ai-executed
+    files_changed: ["src/rtgs/lift/gradient.py", "src/rtgs/lift/hybrid.py", "tests/test_lift.py", "benchmarks/world_position_consistency_ablation.py"]
+  - turn: 5
+    action: "Ran the sole official three-seed CPU experiment and obtained three independent audits reproducing source hashes, graphs, all 120 summary cells, and the complete decision."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715T084557Z_cpu_world_position_consistency.json", "benchmarks/results/20260715_world_position_consistency_RESULT.md"]
+  - turn: 5
+    action: "Documented the local-success/global-failure result and denser-matcher pivot, then passed full CPU lint, formatting, tests, docs-sync, and source-bound JSON audits."
+    provenance: ai-executed
+    files_changed: ["docs/EXPERIMENTS.md", "docs/RESEARCH.md", "docs/ROADMAP.md", "docs/ARCHITECTURE.md", "docs/BENCHMARKS.md"]
+  - turn: 6
+    action: "Queried Scholar Inbox and primary MAC-Splat, EDGS, RoMa, and Incremental Gaussian Triangulation sources; froze the train-only matcher, strict semantic gate, controls, and stopping rule."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_dense_train_position_PREREG.md"]
+  - turn: 6
+    action: "Implemented the pluggable CPU patch/epipolar matcher, exact cyclic control, seven deterministic tests, and the leakage-gated benchmark harness."
+    provenance: ai-executed
+    files_changed: ["src/rtgs/lift/matching.py", "tests/test_matching.py", "benchmarks/dense_train_position_ablation.py"]
+  - turn: 6
+    action: "Ran the sole tracked three-seed matcher experiment; all topology floors passed, all strict precision gates failed, and the harness withheld every position-optimization arm."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715T094311Z_cpu_dense_train_position.json", "benchmarks/results/20260715_dense_train_position_RESULT.md"]
+  - turn: 6
+    action: "Documented the rejected matcher and plane/normal pivot, obtained an independent no-blocker audit, and passed the complete CUDA-hidden CPU verification plus docs sync."
+    provenance: ai-executed
+    files_changed: ["docs/EXPERIMENTS.md", "docs/RESEARCH.md", "docs/ROADMAP.md", "docs/ARCHITECTURE.md", "docs/BENCHMARKS.md"]
+  - turn: 7
+    action: "Grounded the Hybrid-only plane/normal adaptation in Scholar Inbox and primary Incremental Gaussian Triangulation evidence, then froze target, clean-audit, control, utility, and stopping gates before outcome access."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_surface_plane_normal_PREREG.md"]
+  - turn: 7
+    action: "Implemented detached oriented-point validation, point-to-plane and selected-axis losses, zero-default Gradient/Hybrid wiring, deterministic tests, and the five-arm gated benchmark harness."
+    provenance: ai-executed
+    files_changed: ["src/rtgs/lift/surface.py", "src/rtgs/lift/gradient.py", "src/rtgs/lift/hybrid.py", "tests/test_surface.py", "tests/test_lift.py", "benchmarks/surface_plane_normal_ablation.py"]
+  - turn: 7
+    action: "Ran the sole official three-seed CPU target gate; every structural floor passed, every clean plane gate failed, and zero optimization arms executed."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715T110342Z_cpu_surface_plane_normal.json", "benchmarks/results/20260715_surface_plane_normal_RESULT.md"]
+  - turn: 7
+    action: "Obtained independent preregistration and artifact audits, documented the constructor rejection and calibrated-input pivot, and passed full CUDA-hidden verification plus docs sync."
+    provenance: ai-executed
+    files_changed: ["docs/EXPERIMENTS.md", "docs/RESEARCH.md", "docs/ROADMAP.md", "docs/ARCHITECTURE.md", "docs/BENCHMARKS.md"]
+  - turn: 8
+    action: "Grounded a real-RGB-D follow-up in Scholar Inbox/IGT and official TUM source contracts, then froze sources, split, metrics, transfer formulas, payload isolation, and stopping logic before PNG decode."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_tum_rgbd_oriented_validity_PREREG.md", "benchmarks/results/20260715_tum_rgbd_ACQUISITION.json"]
+  - turn: 8
+    action: "Implemented the public oriented-point backend/canonicalization/normal API, fail-closed two-phase TUM harness, exact-byte seals, and deterministic synthetic tests with independent predecode audits."
+    provenance: ai-executed
+    files_changed: ["src/rtgs/lift/surface.py", "tests/test_surface.py", "benchmarks/tum_rgbd_oriented_validity.py", "tests/test_tum_rgbd_oriented_validity.py"]
+  - turn: 8
+    action: "Ran the sole fr1/xyz development audit and sole sealed fr1/desk confirmation; mechanically reproduced all gates and stopped before Phase B."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715T143959Z_cpu_tum_rgbd_oriented_validity_xyz.json", "benchmarks/results/20260715T144052Z_cpu_tum_rgbd_oriented_validity_desk.json", "benchmarks/results/20260715_tum_rgbd_oriented_validity_THRESHOLDS.json", "benchmarks/results/20260715_tum_rgbd_oriented_validity_CONFIRMATORY_SEAL.json"]
+  - turn: 8
+    action: "Documented the heavy-tail rejection and new-sequence attribution boundary, obtained an independent exact reconciliation, and passed full CUDA-hidden verification plus docs sync."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_tum_rgbd_oriented_validity_RESULT.md", "docs/ARCHITECTURE.md", "docs/BENCHMARKS.md", "docs/EXPERIMENTS.md", "docs/RESEARCH.md", "docs/ROADMAP.md"]
+  - turn: 9
+    action: "Queried Scholar Inbox and official TUM sources, selected the slow/fast fr3 xyz pair, and froze signed residual, nested visibility, bootstrap, temporal/pose, and stopping rules before PNG access."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_tum_rgbd_signed_attribution_PREREG.md", "benchmarks/results/20260715_tum_rgbd_signed_attribution_ACQUISITION.json", "benchmarks/results/20260715_tum_rgbd_signed_attribution_PREDECODE_SEAL.json"]
+  - turn: 9
+    action: "Implemented the standalone fail-closed signed-attribution harness and eight synthetic tests without modifying the sealed oriented-validity implementation."
+    provenance: ai-executed
+    files_changed: ["benchmarks/tum_rgbd_signed_attribution.py", "tests/test_tum_rgbd_signed_attribution.py"]
+  - turn: 9
+    action: "Ran the sole sitting development audit; ten gates passed, positive reduction and risk ratio failed, and the decision withheld walking before any archive member was opened."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715T160300Z_cpu_tum_rgbd_signed_attribution_sitting.json", "benchmarks/results/20260715_tum_rgbd_signed_attribution_DECISION.json"]
+  - turn: 9
+    action: "Documented the partial mechanism/rejected gate, recorded the time-local pivot, and passed full CUDA-hidden lint, formatting, tests, and docs sync."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_tum_rgbd_signed_attribution_RESULT.md", "docs/BENCHMARKS.md", "docs/EXPERIMENTS.md", "docs/RESEARCH.md"]
+  - turn: 10
+    action: "Synthesized local-versus-global gains, matcher/target validity failures, and strict gate behavior to distinguish baseline strength from an improvement ceiling."
+    provenance: ai-executed
+    files_changed: []
+
+  - turn: 11
+    action: "Adapted the latest results-audit pattern to realtime-gs with preregistration, split/seal, metric-scope, replay, and CPU/CUDA environment checks; added native routing and the Codex discovery symlink."
+    provenance: ai-executed
+    files_changed: [".claude/skills/realtime-gs-results-audit/SKILL.md", ".agents/skills/realtime-gs-results-audit", "CLAUDE.md", "docs/ARCHITECTURE.md"]
+  - turn: 11
+    action: "Validated the skill schema and docs sync, passed the full CUDA-hidden verification suite, and isolated the CUDA-visible failure to a sibling gsplat package shadowing this repository's expected install."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 12
+    action: "Audited native 2D fitting, bounded-ray lifting, stage-3 refinement, CPU rendering, and CUDA delegation to classify hard, saturating, structural, and numerical operations."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 12
+    action: "Queried the 2026-07-15 Scholar Inbox digest; it contained no paper directly supporting a smooth-activation replacement for this pipeline."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 13
+    action: "Queried Scholar Inbox for current Gaussian-splatting work and used the absence of direct smooth-boundary evidence to keep all candidates mechanism-gated."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 13
+    action: "Completed and independently audited the SH-floor, C1 kernel-tail, and order-preserving visibility-margin branches under frozen stopping rules."
+    provenance: ai-executed
+    files_changed: ["benchmarks/sh_activation_ablation.py", "benchmarks/kernel_support_taper_ablation.py", "benchmarks/visibility_margin_ablation.py", "src/rtgs/core/sh.py", "src/rtgs/render/torch_ref.py", "tests/test_sh_activation_ablation.py", "tests/test_kernel_support_taper.py", "tests/test_kernel_support_taper_ablation.py", "tests/test_visibility_margin.py", "tests/test_visibility_margin_ablation.py"]
+  - turn: 13
+    action: "Recorded exact outcomes, failure chronology, retained defaults, and independent result audits in the synchronized research documentation."
+    provenance: ai-executed
+    files_changed: ["docs/ARCHITECTURE.md", "docs/EXPERIMENTS.md", "docs/RESEARCH.md", "docs/ROADMAP.md"]
+  - turn: 13
+    action: "Froze and independently reviewed a shared-raw exact-count Carve moment-versus-representative-versus-prune protocol without implementing or running it."
+    provenance: ai-executed
+    files_changed: ["benchmarks/results/20260715_carve_merge_controls_PREREG.md"]
+
+claims_touched:
+  - id: C03
+    action: crystallized
+    turn: 3
+  - id: C04
+    action: crystallized
+    turn: 4
+  - id: C05
+    action: crystallized
+    turn: 5
+  - id: C06
+    action: crystallized
+    turn: 6
+  - id: C07
+    action: crystallized
+    turn: 7
+  - id: C08
+    action: crystallized
+    turn: 8
+  - id: C09
+    action: crystallized
+    turn: 9
+  - id: C10
+    action: crystallized
+    turn: 9
+  - id: C03
+    action: confirmed
+    turn: 11
+  - id: C11
+    action: crystallized
+    turn: 13
+  - id: C12
+    action: crystallized
+    turn: 13
+  - id: C13
+    action: crystallized
+    turn: 13
+  - id: H02
+    action: crystallized
+    turn: 13
+  - id: R13
+    action: crystallized
+    turn: 13
+
+key_context:
+  - turn: 1
+    excerpt: "Unjittered anchoring should change the regularizer target, not initialization or the paired random schedule."
+  - turn: 2
+    excerpt: "Confidence versus legacy was -0.058 dB at initialization, -0.042 dB after refinement, and 1.63 percent worse on low-confidence p90."
+  - turn: 2
+    excerpt: "The shuffled arm changed the sampled confidence distribution, so its causal flag is not attribution-clean."
+  - turn: 3
+    excerpt: "Confidence improved held-out depth RMSE by 1.149 percent across all seeds but worsened the preregistered corrupted-source tail metric."
+  - turn: 4
+    excerpt: "Gradient LOSO improved held-out RMSE by only 0.149 percent and worsened source p90; Hybrid worsened held-out RMSE and both source-tail metrics."
+  - turn: 5
+    excerpt: "Correct edges improved local matched and assigned-GT p90 by 82%-91% in every seed, but global geometry gains of 0.90%-6.50% missed all frozen floors."
+  - turn: 6
+    excerpt: "The graph reached 17.99%-19.10% node coverage, but strict semantic precision was only 9.04%-11.76%; the frozen gate stopped before optimization."
+  - turn: 7
+    excerpt: "All 983 targets were labelable and every structural floor passed, yet all-target plane p90 was 0.160-0.175 and corrupted-target p90 0.239-0.271 versus the frozen 0.10 ceiling; no arm ran."
+  - turn: 8
+    excerpt: "Desk retained 80.36% two-view oriented support but surface p90 rose to 202.11 mm and relative-depth p90 to 25.19%; three frozen gates failed and Phase B was withheld."
+  - turn: 9
+    excerpt: "Dense T-only visibility recalled 32.48% of positive versus 5.52% of negative contradictions, but target-balanced reduction was 1.424 points and risk ratio 1.7195; walking remained unopened."
+  - turn: 11
+    excerpt: "User requested adapting the two latest results-audit skills into realtime-gs and three peer repositories."
+  - turn: 10
+    excerpt: "The baseline is strong enough to reject weak improvements, but large local gains and poor real-data tails show that the repository is not demonstrably saturated."
+  - turn: 12
+    excerpt: "The SH nonnegative color clamp is a real learned-path dead zone, but a material gain from smoothing it remains an untested hypothesis."
+  - turn: 13
+    excerpt: "SH blocked mass was too rare, the active C1 kernel tail lost utility, and the 3-sigma cull missed only four of 2,480,463 q<12 pairs; all hard defaults remain."
+
+open_threads:
+  - "Preregister pooled versus time-local/source-conditioned T-only visibility on new development and confirmatory captures before utility."
+  - "Repeat covariance comparison with actual monocular depth on calibrated held-out views."
+  - "Defer train-derived confidence until cross-view supervision shows a material geometry signal."
+  - "Commit or otherwise preserve a replay-complete source snapshot for the dirty-worktree run."
+  - "Track alignment uncertainty separately from backend pixel confidence in a later experiment."
+  - "Implement and independently audit the frozen shared-raw exact-count Carve merge-versus-representative-versus-prune protocol before one official run."
+
+ai_suggestions_pending:
+  - "Do not evaluate the zero-default plane/normal API until a new-sequence oriented target protocol passes and include an ordinary extra-depth control."
+  - "Test capture-state aggregation with a time-local T-only control rather than another density or threshold sweep."
+  - "Treat reliable broad geometric supervision as the primary bottleneck hypothesis; do not infer near-optimality from strict-gate failures alone."
+  - "Do not tune SMU, kernel-tail, or visibility-margin parameters on the revealed synthetic outcomes; test Carve moment preservation against exact-count controls next."

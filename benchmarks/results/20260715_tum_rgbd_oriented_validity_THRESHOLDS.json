@@ -1,0 +1,33 @@
+{
+  "config_id": "f0ab6b4cbc92d1ee10ca5eb1a4f14bdee3683e761fbb814c2855a9dd2f03da56",
+  "development_archive_sha256": "a0236d97b8c30cd93b653656d2b6c293ff7c982a4130ef2a1a8beecdb124ef98",
+  "development_artifact": "/home/alex/Documents/realtime-gs/benchmarks/results/20260715T143959Z_cpu_tum_rgbd_oriented_validity_xyz.json",
+  "development_artifact_sha256": "384bc416bcd9c8539aa85a16da533fd2d024124bd549e80f337d6951eb206834",
+  "development_metrics": {
+    "A": 0.7003645833333333,
+    "A_min": 0.6441666666666667,
+    "C10": 0.671965172229181,
+    "C50": 0.9151575122280724,
+    "D90": 0.03103566260351065,
+    "F": 0.04503077701764984,
+    "R90": 0.024968854615860393,
+    "S": 0.8668600183436206,
+    "S_10": 0.7319781634637161
+  },
+  "experiment": "tum-rgbd-oriented-validity-phase-a",
+  "frozen_utc": "2026-07-15T14:40:24.483693+00:00",
+  "implementation_aggregate_sha256": "119d3c07e0910c538b8e19a7d7c8ab299a992b54a0a1b71c434b6d8a81136c67",
+  "preregistration_sha256": "419d90edc748bcf0858a6cb9ac472d64866ac8eeadfd633e1f1a061634bf64e2",
+  "schema_version": 1,
+  "thresholds": {
+    "A": 0.49025520833333325,
+    "A_min": 0.32208333333333333,
+    "C10": 0.5219651722291809,
+    "C50": 0.7651575122280724,
+    "D90": 0.05,
+    "F": 0.07754616552647475,
+    "R90": 0.04245328192379059,
+    "S": 0.5201160110061723,
+    "S_10": 0.36598908173185807
+  }
+}

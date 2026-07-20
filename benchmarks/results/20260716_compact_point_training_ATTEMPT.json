@@ -1,0 +1,39 @@
+{
+  "artifact_type": "compact_point_training_once_only_attempt_v1",
+  "timestamp_utc": "2026-07-16T20:52:08+00:00",
+  "preregistration_sha256": "865f86d35805c265d27caf4b5f6e02b99e4679f53162dbdd23c17681354065ea",
+  "seal_file_sha256": "b04875a86d16aae00a656b7dd5bb28c482f9f18654139dcd5938bae1ddb85f4b",
+  "seal_payload_sha256": "5376b3a9650cf46750ca9994bc12f5ab20c0c5774b8fc4b179db5ef87782be16",
+  "source_aggregate": "345fcf71e80655878e93ec274d7ac58eff46773e64eeb75ea8e80783bad0a95a",
+  "environment_fingerprint": {
+    "python": "3.12.9 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 18:56:27) [GCC 11.2.0]",
+    "executable": "/home/alex/miniconda3/bin/python3.12",
+    "prefix": "/home/alex/Documents/realtime-gs/.venv",
+    "torch": "2.9.0+cu128",
+    "numpy": "2.1.3",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "torch_num_threads": 4,
+    "torch_num_interop_threads": 1,
+    "deterministic_algorithms": true,
+    "cuda_visible_devices": "",
+    "device": "cpu"
+  },
+  "seeds": [
+    74101,
+    74102,
+    74103
+  ],
+  "arms": [
+    "pixel_uniform",
+    "pixel_gaussian",
+    "area_uniform",
+    "area_gaussian"
+  ],
+  "raw_path": "benchmarks/results/20260716_compact_point_training_RAW.json",
+  "result_path": "benchmarks/results/20260716_compact_point_training_RESULT.json",
+  "command": [
+    "/home/alex/Documents/realtime-gs/.venv/bin/python",
+    "benchmarks/compact_point_training.py",
+    "run"
+  ]
+}

@@ -59,6 +59,15 @@ class ViewerApp:
         self.server.stop()
 
 
+@dataclass(frozen=True)
+class ExactSnapshotResult:
+    """Exact rasterizer output and the concrete backend that produced it."""
+
+    color: torch.Tensor
+    backend: str
+    device: str
+
+
 def prepare_viewer_data(
     gaussians: Gaussians3D, max_gaussians: int | None = None
 ) -> ViewerSplatData:
@@ -178,6 +187,36 @@ def _require_viser():
             "the interactive viewer is optional; install it with `pip install -e '.[viewer]'`"
         ) from exc
     return viser
+
+
+def render_exact_snapshot(
+    gaussians: Gaussians3D,
+    camera: Camera,
+    *,
+    device: torch.device | str,
+    rasterizer: str = "auto",
+    packed: bool = False,
+    antialiased: bool = False,
+) -> ExactSnapshotResult:
+    """Render the same exact calibrated snapshot used by the viewer button."""
+    from rtgs.render.base import get_rasterizer
+
+    target = torch.device(device)
+    selected = gaussians.to(target)
+    camera = camera.to(target)
+    renderer = get_rasterizer(
+        rasterizer,
+        device=target,
+        packed=packed,
+        antialiased=antialiased,
+    )
+    with torch.no_grad():
+        color = renderer.render(selected, camera).color.clamp(0.0, 1.0)
+    return ExactSnapshotResult(
+        color=color,
+        backend=f"{type(renderer).__module__}.{type(renderer).__qualname__}",
+        device=str(color.device),
+    )
 
 
 def create_viewer(
@@ -467,25 +506,22 @@ def create_viewer(
             try:
                 from PIL import Image as PILImage
 
-                from rtgs.render.base import get_rasterizer
-
                 snapshot_status.content = (
                     f"Rendering `{name}` camera {index} with `{snapshot_rasterizer}`…"
                 )
                 data = prepared[name]
                 selected = selected_gaussians(
                     models[name], data, int(count_control.value), float(opacity_control.value)
-                ).to(device)
-                camera = scene.cameras[index].to(device)
-                renderer = get_rasterizer(
-                    snapshot_rasterizer,
+                )
+                snapshot = render_exact_snapshot(
+                    selected,
+                    scene.cameras[index],
                     device=device,
+                    rasterizer=snapshot_rasterizer,
                     packed=snapshot_packed,
                     antialiased=snapshot_antialiased,
                 )
-                with torch.no_grad():
-                    output = renderer.render(selected, camera).color.clamp(0.0, 1.0)
-                image = _image_uint8(output)
+                image = _image_uint8(snapshot.color)
                 snapshot_handle.image = image
                 saved = ""
                 if snapshot_dir is not None:

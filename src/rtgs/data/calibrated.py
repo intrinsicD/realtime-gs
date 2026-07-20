@@ -184,7 +184,9 @@ def load_calibrated_scene(
     paths = [
         path
         for path in rgb_dir.iterdir()
-        if path.suffix.lower() in _IMAGE_SUFFIXES and _camera_id(path) in records
+        if path.suffix.lower() in _IMAGE_SUFFIXES
+        and not path.stem.lower().startswith("mask_")
+        and _camera_id(path) in records
     ]
     paths = _sample_evenly(sorted(paths, key=lambda path: _camera_id(path) or ""), max_images)
     if not paths:

@@ -1,0 +1,29 @@
+{
+  "created_utc": "2026-07-15T15:56:00+00:00",
+  "evidence_limit": "Downloader request timestamps were not logged. Filesystem birth and modification times are local acquisition proxies, not server-observed retrieval timestamps.",
+  "schema_version": 1,
+  "sources": {
+    "confirmatory": {
+      "archive_path": "/home/alex/.cache/rtgs/tum-rgbd/rgbd_dataset_freiburg3_walking_xyz.tgz",
+      "content_length": 527550055,
+      "etag": "\"1f71c667-4c6b17936fb00\"",
+      "filesystem_birth_utc_proxy": "2026-07-15T15:41:19.397622049+00:00",
+      "filesystem_mtime_utc_completion_proxy": "2026-07-15T15:50:35.582055111+00:00",
+      "last_modified": "Tue, 07 Aug 2012 18:50:52 GMT",
+      "sequence": "rgbd_dataset_freiburg3_walking_xyz",
+      "sha256": "1459e9488ac0e61a2ec80dfbc35cfb77942f6d8eabded1c8d26a70be650d0e1d",
+      "url": "https://cvg.cit.tum.de/rgbd/dataset/freiburg3/rgbd_dataset_freiburg3_walking_xyz.tgz"
+    },
+    "development": {
+      "archive_path": "/home/alex/.cache/rtgs/tum-rgbd/rgbd_dataset_freiburg3_sitting_xyz.tgz",
+      "content_length": 775406859,
+      "etag": "\"2e37c50b-4c6b1a7e29cc0\"",
+      "filesystem_birth_utc_proxy": "2026-07-15T15:41:19.422621334+00:00",
+      "filesystem_mtime_utc_completion_proxy": "2026-07-15T15:54:38.209209686+00:00",
+      "last_modified": "Tue, 07 Aug 2012 19:03:55 GMT",
+      "sequence": "rgbd_dataset_freiburg3_sitting_xyz",
+      "sha256": "05c071672cda22a668860a935124737a4eb4fa772cbad372e73d5a99ce4be205",
+      "url": "https://cvg.cit.tum.de/rgbd/dataset/freiburg3/rgbd_dataset_freiburg3_sitting_xyz.tgz"
+    }
+  }
+}

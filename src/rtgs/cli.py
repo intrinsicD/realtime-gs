@@ -1,13 +1,15 @@
 """rtgs command-line interface (argparse; see docs/ARCHITECTURE.md §CLI).
 
-Commands: fit-images, lift, refine, run, render, view, bench. `--scene synthetic[:key=val,..]`
-builds a procedural test scene; calibrated frame directories and COLMAP datasets are detected.
+Commands: fit-images, lift, lift-field, refine, run, render, view, bench.
+`--scene synthetic[:key=val,..]` builds a procedural test scene; calibrated frame directories
+and COLMAP datasets are detected.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -83,6 +85,9 @@ def _cmd_fit_images(args: argparse.Namespace) -> int:
         relocate_fraction=args.relocate_fraction,
         structsplat_renderer=args.structsplat_renderer,
     )
+    if args.save_observation_teachers and cfg.backend != "structsplat":
+        print("--save-observation-teachers requires --fit-backend structsplat", file=sys.stderr)
+        return 2
     paths = sorted(
         p for p in Path(args.images).iterdir() if p.suffix.lower() in (".png", ".jpg", ".jpeg")
     )
@@ -93,8 +98,17 @@ def _cmd_fit_images(args: argparse.Namespace) -> int:
         img = torch.from_numpy(
             np.asarray(PILImage.open(p).convert("RGB"), dtype=np.float32) / 255.0
         )
-        g, hist = fit_image(img.to(device), cfg, seed=args.seed + i)
+        observations = []
+        g, hist = fit_image(
+            img.to(device),
+            cfg,
+            seed=args.seed + i,
+            observation_callback=(observations.append if args.save_observation_teachers else None),
+            observation_view_id=(p.stem if args.save_observation_teachers else None),
+        )
         g.save_npz(out_dir / f"{p.stem}.npz")
+        if observations:
+            observations[0].save_npz(out_dir / f"{p.stem}.teacher.npz")
         print(f"{p.name}: {g.n} gaussians, PSNR {hist['final_psnr']:.2f} dB")
     return 0
 
@@ -119,6 +133,127 @@ def _cmd_lift(args: argparse.Namespace) -> int:
     lifter = get_lifter(args.lifter, **json.loads(args.lifter_args))
     g3d = lifter.lift([g.to(device) for g in g2ds], scene.to(device))
     _save_gaussians(g3d, Path(args.out))
+    return 0
+
+
+def _field_split(n_views: int, heldout_stride: int) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Return an explicit deterministic train/held-out partition for compact fields."""
+
+    if heldout_stride < 2:
+        raise ValueError("heldout stride must be at least 2")
+    heldout = () if n_views < 3 else tuple(range(0, n_views, heldout_stride))
+    train = tuple(index for index in range(n_views) if index not in set(heldout))
+    if not train:
+        raise ValueError("heldout split must leave at least one training view")
+    return train, heldout
+
+
+def _field_lift_config(payload: str):
+    """Parse field-lift JSON, including its nested continuous-refit controls."""
+
+    from rtgs.lift.field_lifter import FieldLiftConfig
+    from rtgs.lift.field_refit import FieldRefitConfig
+
+    values = json.loads(payload)
+    if not isinstance(values, dict):
+        raise ValueError("--field-args must decode to a JSON object")
+    values = dict(values)
+    refit_values = values.pop("refit", None)
+    if refit_values is not None:
+        if not isinstance(refit_values, dict):
+            raise ValueError("--field-args refit must be a JSON object")
+        values["refit"] = FieldRefitConfig(**refit_values)
+    return FieldLiftConfig(**values)
+
+
+def _json_safe(value):
+    """Convert diagnostics to strict JSON without non-finite numeric extensions."""
+
+    if torch.is_tensor(value):
+        return _json_safe(value.detach().cpu().tolist())
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    return value
+
+
+def _save_field_state(result, out: Path) -> Path:
+    """Persist field semantics that are not representable in a standard 3DGS PLY/NPZ."""
+
+    import numpy as np
+
+    fiber = result.refit.fiber
+    payload = {
+        "field_masses": result.refit.field_masses.detach().cpu().numpy(),
+        "render_opacity": result.refit.render_opacity.detach().cpu().numpy(),
+        "source_global_view_indices": (
+            result.placement.source_global_view_indices.detach().cpu().numpy()
+        ),
+        "source_local_view_indices": fiber.source_view_indices.detach().cpu().numpy(),
+        "source_component_indices": fiber.source_component_indices.detach().cpu().numpy(),
+        "source_means2d": fiber.source_means2d.detach().cpu().numpy(),
+        "source_covariances2d": fiber.source_covariances2d.detach().cpu().numpy(),
+        "depths": fiber.depths().detach().cpu().numpy(),
+        "cross": fiber.cross.detach().cpu().numpy(),
+        "log_ray_scale": fiber.log_ray_scale.detach().cpu().numpy(),
+        "fitting_visibility": result.refit.visibility.weights.detach().cpu().numpy(),
+        "correspondence_visibility": (result.correspondence_visibility.detach().cpu().numpy()),
+        "gains": result.refit.gains.detach().cpu().numpy(),
+        "covariance_free_mask": result.refit.covariance_free_mask.detach().cpu().numpy(),
+        "optimized_view_indices": np.asarray(result.optimized_view_indices, dtype=np.int64),
+        "heldout_view_indices": np.asarray(result.heldout_view_indices, dtype=np.int64),
+    }
+    for view, correspondence in enumerate(result.correspondences):
+        payload[f"correspondence_{view:04d}"] = correspondence.detach().cpu().numpy()
+    state_path = out.with_suffix(".field.npz")
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(state_path, **payload)
+    return state_path
+
+
+def _cmd_lift_field(args: argparse.Namespace) -> int:
+    """Lift a compact dataset without loading any reference image or mask file."""
+
+    from rtgs.data.compact_views import CompactDataset
+    from rtgs.data.field_inputs import SceneFits
+    from rtgs.pipeline import run_field_pipeline
+
+    dataset = CompactDataset.load(Path(args.dataset).expanduser(), device="cpu")
+    train, heldout = _field_split(dataset.n_views, args.heldout_stride)
+    fits = SceneFits.from_compact_dataset(
+        dataset,
+        train_view_indices=train,
+        heldout_view_indices=heldout,
+    )
+    result = run_field_pipeline(fits, _field_lift_config(args.field_args))
+    out = Path(args.out).expanduser()
+    _save_gaussians(result.gaussians, out)
+    state_path = _save_field_state(result, out)
+    from dataclasses import asdict
+
+    diagnostics = {
+        "dataset": dataset.name,
+        "train_view_indices": list(train),
+        "heldout_view_indices": list(heldout),
+        "field_state": str(state_path),
+        "diagnostics": result.diagnostics,
+        "semantic_validation": {
+            "train": asdict(result.semantic_validation.train),
+            "heldout": (
+                None
+                if result.semantic_validation.heldout is None
+                else asdict(result.semantic_validation.heldout)
+            ),
+            "per_view": [asdict(metrics) for metrics in result.semantic_validation.per_view],
+        },
+    }
+    diagnostics_path = out.with_suffix(".diagnostics.json")
+    diagnostics_path.write_text(json.dumps(_json_safe(diagnostics), indent=2, allow_nan=False))
+    print(f"field-lift state -> {state_path}")
+    print(f"field-lift diagnostics -> {diagnostics_path}")
     return 0
 
 
@@ -376,6 +511,10 @@ def _split_metrics(scene, gaussians, config) -> dict:
         device=gaussians.means.device,
         packed=config.packed,
         antialiased=config.antialiased,
+        sh_color_activation=config.sh_color_activation,
+        sh_smu1_mu=config.sh_smu1_mu,
+        kernel_support_mode=config.kernel_support_mode,
+        visibility_margin_sigma=config.visibility_margin_sigma,
     )
 
     if not scene.testing_views:
@@ -488,6 +627,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--iterations", type=int, default=300)
     _add_fit_backend_args(p)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument(
+        "--save-observation-teachers",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="also save lossless RGB-free .teacher.npz fields (StructSplat only)",
+    )
     p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.set_defaults(func=_cmd_fit_images)
 
@@ -504,6 +649,29 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--device", default="auto", help="auto, cpu, cuda, or cuda:N")
     p.add_argument("--out", required=True, help="output .npz or .ply")
     p.set_defaults(func=_cmd_lift)
+
+    p = sub.add_parser(
+        "lift-field",
+        help="stage 2: lift a compact Gaussian field dataset without source images",
+    )
+    p.add_argument(
+        "--dataset",
+        required=True,
+        help="compact frame directory or its gaussians2d directory",
+    )
+    p.add_argument(
+        "--heldout-stride",
+        type=int,
+        default=8,
+        help="hold out views 0, N, 2N, ... when at least three views exist (N >= 2)",
+    )
+    p.add_argument(
+        "--field-args",
+        default="{}",
+        help="JSON FieldLiftConfig controls; nested refit config is supported",
+    )
+    p.add_argument("--out", required=True, help="output .npz or .ply")
+    p.set_defaults(func=_cmd_lift_field)
 
     p = sub.add_parser("refine", help="stage 3: 3DGS optimization from an initialization")
     _add_scene_args(p)

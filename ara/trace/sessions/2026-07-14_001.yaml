@@ -1,0 +1,310 @@
+session:
+  id: "2026-07-14_001"
+  date: "2026-07-14"
+  started: "2026-07-14T21:55+02:00"
+  last_turn: "2026-07-14T23:04+02:00"
+  turn_count: 5
+  summary: "Completed the covariance loop, grounded follow-ups in Scholar Inbox, and verified replay/CPU integrity."
+
+events_logged:
+  - turn: 1
+    type: question
+    id: N01
+    routing: direct
+    provenance: user
+    summary: "Compare surface, footprint, and global isotropic depth covariance under controls."
+  - turn: 1
+    type: experiment
+    id: N02
+    routing: direct
+    provenance: ai-executed
+    summary: "Tiny held-out probe exposed poor surface conditioning and small final-quality gaps."
+  - turn: 1
+    type: experiment
+    id: N03
+    routing: direct
+    provenance: ai-executed
+    summary: "One-seed canonical pilot favored train-selected global sigma at initialization."
+  - turn: 1
+    type: observation
+    id: O01
+    routing: staged
+    provenance: ai-suggested
+    summary: "Invalid-boundary depth derivatives likely destabilize surface covariance."
+  - turn: 1
+    type: observation
+    id: O02
+    routing: staged
+    provenance: ai-suggested
+    summary: "Global isotropic and per-footprint no-gradient controls are distinct."
+  - turn: 1
+    type: observation
+    id: O03
+    routing: staged
+    provenance: ai-suggested
+    summary: "Volume-weighted merging confounds a covariance-only comparison."
+  - turn: 2
+    type: experiment
+    id: N04
+    routing: direct
+    provenance: ai-executed
+    summary: "Three raw seeds replicated the surface scale/conditioning failure."
+  - turn: 2
+    type: experiment
+    id: N05
+    routing: direct
+    provenance: ai-executed
+    summary: "Validity-aware derivatives repaired surface initialization; final clean gaps converged."
+  - turn: 2
+    type: experiment
+    id: N06
+    routing: direct
+    provenance: ai-executed
+    summary: "Perturbed depth reversed the small initialization/refinement ordering."
+  - turn: 2
+    type: dead_end
+    id: N07
+    routing: direct
+    provenance: ai-executed
+    summary: "Rejected evaluation immediately after final-step density surgery."
+  - turn: 2
+    type: experiment
+    id: N08
+    routing: direct
+    provenance: ai-executed
+    summary: "Corrected recovery run favored train-tuned isotropic after merge+density."
+  - turn: 2
+    type: decision
+    id: N09
+    routing: direct
+    provenance: ai-executed
+    summary: "Made validity-aware depth gradients the default."
+  - turn: 2
+    type: decision
+    id: N10
+    routing: direct
+    provenance: ai-executed
+    summary: "Retained surface, footprint, and isotropic covariance modes pending real data."
+  - turn: 2
+    type: claim
+    id: C01
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Invalid-boundary derivative repair is supported and committed to code."
+  - turn: 2
+    type: concept
+    id: K01
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Global isotropic sigma distinguished from heterogeneous footprint floor."
+  - turn: 2
+    type: constraint
+    id: R01
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Primary covariance comparisons must disable volume-weighted merging."
+  - turn: 2
+    type: claim
+    id: C02
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Synthetic covariance rankings are protocol-dependent."
+  - turn: 2
+    type: observation
+    id: O05
+    routing: staged
+    provenance: ai-suggested
+    summary: "Real monocular-depth mode ranking remains unresolved."
+  - turn: 3
+    type: question
+    id: N11
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test leave-one-source-view-out ray optimization."
+  - turn: 3
+    type: question
+    id: N12
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test cross-view consensus over aligned depth priors."
+  - turn: 3
+    type: question
+    id: N13
+    routing: direct
+    provenance: ai-suggested
+    summary: "Compare keep-all with provenance-aware moment merging."
+  - turn: 3
+    type: question
+    id: N14
+    routing: direct
+    provenance: ai-suggested
+    summary: "Stress robust photometric carving under appearance perturbations."
+  - turn: 3
+    type: question
+    id: N15
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test coarse-to-fine active-voxel carving."
+  - turn: 3
+    type: observation
+    id: O06
+    routing: staged
+    provenance: ai-suggested
+    summary: "Own-view splats may suppress GradientLifter's cross-view depth signal."
+  - turn: 3
+    type: observation
+    id: O07
+    routing: staged
+    provenance: ai-suggested
+    summary: "Canonical synthetic benchmark lacks a held-out split."
+  - turn: 3
+    type: observation
+    id: O08
+    routing: staged
+    provenance: ai-suggested
+    summary: "Voxel merge cannot distinguish same-view from repeated-view observations."
+  - turn: 3
+    type: observation
+    id: O09
+    routing: staged
+    provenance: ai-suggested
+    summary: "Carving uses raw all-view RGB statistics without robust appearance handling."
+  - turn: 3
+    type: observation
+    id: O10
+    routing: staged
+    provenance: ai-suggested
+    summary: "Dense carving scales with the full cubic voxel grid."
+  - turn: 4
+    type: experiment
+    id: N16
+    routing: direct
+    provenance: ai-executed
+    summary: "CPU verification/smoke passed and replay hashes/application checks matched."
+  - turn: 4
+    type: observation
+    id: O11
+    routing: staged
+    provenance: ai-suggested
+    summary: "Canonical dirty-worktree and environment provenance is incomplete."
+  - turn: 5
+    type: question
+    id: N17
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test confidence-weighted, unjittered bounded-ray depth anchoring."
+  - turn: 5
+    type: observation
+    id: O12
+    routing: staged
+    provenance: ai-suggested
+    summary: "Depth confidence currently affects merging but not the uniform jittered anchor loss."
+  - turn: 5
+    type: observation
+    id: O13
+    routing: staged
+    provenance: ai-suggested
+    summary: "Recent anchor/confidence papers motivate adaptations but do not resolve covariance ranking."
+  - turn: 5
+    type: heuristic
+    id: H01
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Committed the executed three-pass falsification workflow as a reusable prompt."
+
+ai_actions:
+  - turn: 1
+    action: "Read repository guide, experiment skill, roadmap, research log, lifting code, and tests."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 1
+    action: "Ran two read-only CPU covariance probes and targeted tests."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 1
+    action: "Initialized the required research-manager trace artifact."
+    provenance: ai-executed
+    files_changed: ["ara/"]
+  - turn: 2
+    action: "Implemented selectable depth-covariance modes and validity-aware finite differences."
+    provenance: ai-executed
+    files_changed: ["src/rtgs/lift/base.py", "src/rtgs/lift/depth.py", "tests/test_lift.py"]
+  - turn: 2
+    action: "Ran three controlled prompt/experiment iterations across clean, perturbed, and production-interaction protocols."
+    provenance: ai-executed
+    files_changed: ["benchmarks/depth_covariance_ablation.py", "benchmarks/results/"]
+  - turn: 2
+    action: "Logged findings, prompt revisions, roadmap resolution, replay provenance, and canonical CPU regression."
+    provenance: ai-executed
+    files_changed: ["docs/", "benchmarks/results/20260714_depth_covariance_REPLAY.md"]
+  - turn: 2
+    action: "Ran the complete repository verification successfully."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 3
+    action: "Audited lifting, depth, merge, carving, pipeline, benchmark, documentation, and test code read-only."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 3
+    action: "Ran 29 targeted lifting/pipeline tests, docs-sync, and diff whitespace validation successfully."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 4
+    action: "Audited CPU environment, benchmark history, smoke metrics, and exact test counts."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 4
+    action: "Validated replay hashes, reverse application, and clean-index application."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 4
+    action: "Recorded the audit through the mandatory research-manager epilogue."
+    provenance: ai-executed
+    files_changed: ["ara/"]
+  - turn: 5
+    action: "Queried Scholar Inbox and inspected primary arXiv sources for depth confidence, ray coupling, local anchors, and planar Gaussian constraints."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 5
+    action: "Added the reusable controller prompt, dated literature grounding, and two bounded follow-up questions."
+    provenance: ai-executed
+    files_changed: ["docs/RESEARCH_LOOP.md", "docs/RESEARCH.md", "docs/ROADMAP.md"]
+  - turn: 5
+    action: "Ran full CPU-hidden repository verification after documentation updates."
+    provenance: ai-executed
+    files_changed: []
+
+claims_touched:
+  - id: C01
+    action: crystallized
+    turn: 2
+  - id: C02
+    action: crystallized
+    turn: 2
+
+key_context:
+  - turn: 1
+    excerpt: "The requested ablation must distinguish a global isotropic sigma from a per-footprint no-gradient floor."
+  - turn: 2
+    excerpt: "No universal covariance winner was supported; validity-aware invalid-boundary handling was the replicated mechanism-level fix."
+  - turn: 3
+    excerpt: "Source-view provenance is the clearest missing control in the ray-optimization path."
+  - turn: 5
+    excerpt: "Recent papers support confidence/local-anchor hypotheses, but the completed synthetic loop only supports validity-aware depth boundaries."
+
+open_threads:
+  - "Repeat covariance modes on calibrated held-out views using actual monocular depth."
+  - "Select or predict global isotropic sigma without held-out leakage on real scenes."
+  - "Ablate leave-one-source-view-out GradientLifter supervision across three CPU seeds."
+  - "Test cross-view depth-prior consensus under deterministic depth corruption."
+  - "Compare keep-all, current voxel merge, and provenance-aware merge at matched budget."
+  - "Stress carving under exposure and occlusion perturbations."
+  - "Benchmark dense versus hierarchical active-voxel carving."
+  - "Record dirty state, source hashes, CPU/thread metadata, and an environment fingerprint."
+  - "Ablate uniform versus confidence-weighted unjittered bounded-ray anchoring."
+
+ai_suggestions_pending:
+  - "Test a confidence-aware slope clamp on noisy real depth if surface conditioning remains high."
+  - "Prioritize leave-one-source-view-out supervision as the next mechanism-finding iteration."
+  - "Require explicit held-out splits for all new focused benchmark claims."
+  - "Adapt confidence-weighted normalized-ray SmoothL1 before attempting normal propagation."

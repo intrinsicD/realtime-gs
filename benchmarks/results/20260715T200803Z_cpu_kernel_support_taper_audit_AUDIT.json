@@ -1,0 +1,8 @@
+{
+  "artifact_type": "kernel_support_taper_phase_a_scientist_review",
+  "verdict": "pass",
+  "phase_b_execution_clearance": true,
+  "audit_sha256": "6380dc0b92043db608f6ba056c1cbaa2509e4eeba62a7b20e3f0fb7eacdde59c",
+  "seal_sha256": "f35827d362318d4eb55d637cdadb77c5a97deb68fd62e6f04e231e9c39702184",
+  "source_aggregate": "03e5fee097a32af425852416b2da1313b91dd0914de471c6c35f51ba416e466c"
+}

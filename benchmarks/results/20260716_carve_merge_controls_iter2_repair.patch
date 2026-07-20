@@ -1,0 +1,659 @@
+diff --git a/benchmarks/carve_merge_controls_ablation.py b/benchmarks/carve_merge_controls_ablation.py
+--- a/benchmarks/carve_merge_controls_ablation.py
++++ b/benchmarks/carve_merge_controls_ablation.py
+@@ -14,6 +14,7 @@
+ import subprocess
+ import sys
+ import time
++from collections.abc import Iterable
+ from dataclasses import asdict
+ from datetime import datetime, timezone
+ from pathlib import Path
+@@ -33,10 +34,35 @@
+ from rtgs.render.torch_ref import TorchRasterizer
+ 
+ ROOT = Path(__file__).resolve().parent.parent
+-PREREGISTRATION = Path("benchmarks/results/20260715_carve_merge_controls_PREREG.md")
+-DEFAULT_SEAL = Path("benchmarks/results/20260715_carve_merge_controls_SEAL.json")
+-PHASE_A_ATTEMPT = ROOT / "benchmarks/results/20260715_carve_merge_controls_PHASE_A_ATTEMPT.json"
+-PHASE_B_ATTEMPT = ROOT / "benchmarks/results/20260715_carve_merge_controls_PHASE_B_ATTEMPT.json"
++BASE_PREREGISTRATION = Path("benchmarks/results/20260715_carve_merge_controls_PREREG.md")
++BASE_PREREGISTRATION_SHA256 = "4eda7a69442bddc25cd5edce85125942f91adc52f3d62806f050a64b854b3efe"
++PREREGISTRATION = Path("benchmarks/results/20260716_carve_merge_controls_iter2_PREREG.md")
++PREREGISTRATION_SHA256 = "fd4361ab1a53a22760db72e99614abb04206c1b639602e0015d8debde91c1203"
++FAILED_SEAL = Path("benchmarks/results/20260715_carve_merge_controls_SEAL.json")
++FAILED_SEAL_SHA256 = "a802d14170944944e2cee0b766a44f635aad59bdf2412bd771629b06e4d0d923"
++FAILED_SOURCE_AGGREGATE = "21ca5d47a4cad54c8cdf446339f174febc48018f6cee45b193569aebd40694cf"
++FAILED_PHASE_A_ATTEMPT = Path(
++    "benchmarks/results/20260715_carve_merge_controls_PHASE_A_ATTEMPT.json"
++)
++FAILED_PHASE_A_ATTEMPT_SHA256 = "4e784e9626bf9d3025be1e8ed2c362ba75471538a02b2babae93257af3cf7b5c"
++FAILURE_AUDIT = Path(
++    "benchmarks/results/20260715T225457Z_cpu_carve_merge_controls_FAILURE_AUDIT.md"
++)
++FAILURE_AUDIT_SHA256 = "861535cd6a99bca7ce4f49ddd66aefe3dd4965bcb40de3ed93d309363c5b7c5c"
++FAILED_PHASE_A_OUTPUT = Path(
++    "benchmarks/results/20260715T225457Z_cpu_carve_merge_controls_audit.json"
++)
++FAILED_PHASE_A_NOTE = Path(
++    "benchmarks/results/20260715T225457Z_cpu_carve_merge_controls_audit_RESULT.md"
++)
++REPAIR_PATCH = Path("benchmarks/results/20260716_carve_merge_controls_iter2_repair.patch")
++DEFAULT_SEAL = Path("benchmarks/results/20260716_carve_merge_controls_iter2_SEAL.json")
++PHASE_A_ATTEMPT = (
++    ROOT / "benchmarks/results/20260716_carve_merge_controls_iter2_PHASE_A_ATTEMPT.json"
++)
++PHASE_B_ATTEMPT = (
++    ROOT / "benchmarks/results/20260716_carve_merge_controls_iter2_PHASE_B_ATTEMPT.json"
++)
+ SEEDS = [0, 1, 2]
+ TRAIN_INDICES = [0, 1, 2, 4, 5, 6, 8, 9, 10]
+ TEST_INDICES = [3, 7, 11]
+@@ -60,7 +86,12 @@
+ SEALED_PATHS = tuple(
+     sorted(
+         {
++            BASE_PREREGISTRATION,
+             PREREGISTRATION,
++            FAILED_SEAL,
++            FAILED_PHASE_A_ATTEMPT,
++            FAILURE_AUDIT,
++            REPAIR_PATCH,
+             Path("benchmarks/carve_merge_controls_ablation.py"),
+             Path("pyproject.toml"),
+             *(path.relative_to(ROOT) for path in (ROOT / "src" / "rtgs").rglob("*.py")),
+@@ -79,12 +110,72 @@
+     return sha256_bytes(path.read_bytes())
+ 
+ 
++def left_fold_float64(values: Iterable[float]) -> float:
++    """Reproduce the frozen ordered Python-float materiality reduction exactly."""
++    total = 0.0
++    for value in values:
++        total = total + float(value)
++    return total
++
++
+ def canonical_json_hash(value: Any) -> str:
+     return sha256_bytes(
+         json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+     )
+ 
+ 
++def preregistration_bindings() -> list[dict[str, str]]:
++    return [
++        {"path": str(BASE_PREREGISTRATION), "sha256": BASE_PREREGISTRATION_SHA256},
++        {"path": str(PREREGISTRATION), "sha256": PREREGISTRATION_SHA256},
++    ]
++
++
++def verify_retry_provenance() -> dict[str, Any]:
++    fixed_hashes = {
++        BASE_PREREGISTRATION: BASE_PREREGISTRATION_SHA256,
++        PREREGISTRATION: PREREGISTRATION_SHA256,
++        FAILED_SEAL: FAILED_SEAL_SHA256,
++        FAILED_PHASE_A_ATTEMPT: FAILED_PHASE_A_ATTEMPT_SHA256,
++        FAILURE_AUDIT: FAILURE_AUDIT_SHA256,
++    }
++    missing = [str(path) for path in fixed_hashes if not (ROOT / path).is_file()]
++    if missing:
++        raise RuntimeError(f"Retry-2 provenance files are missing: {missing}")
++    actual_hashes = {path: sha256_file(ROOT / path) for path in fixed_hashes}
++    mismatches = {
++        str(path): {"expected": fixed_hashes[path], "actual": actual_hashes[path]}
++        for path in fixed_hashes
++        if actual_hashes[path] != fixed_hashes[path]
++    }
++    if mismatches:
++        raise RuntimeError(f"Retry-2 fixed provenance hashes differ: {mismatches}")
++    failed_seal = json.loads((ROOT / FAILED_SEAL).read_text(encoding="utf-8"))
++    if failed_seal.get("source_aggregate") != FAILED_SOURCE_AGGREGATE:
++        raise RuntimeError("failed implementation-seal source aggregate differs")
++    absent_targets = (FAILED_PHASE_A_OUTPUT, FAILED_PHASE_A_NOTE)
++    existing = [str(path) for path in absent_targets if (ROOT / path).exists()]
++    if existing:
++        raise RuntimeError(f"failed-attempt targets must remain absent: {existing}")
++    return {
++        "fixed_hashes": {str(path): fixed_hashes[path] for path in fixed_hashes},
++        "failed_source_aggregate": FAILED_SOURCE_AGGREGATE,
++        "failed_targets_absent": [str(path) for path in absent_targets],
++    }
++
++
++def retry_attempt_bindings() -> dict[str, str]:
++    verify_retry_provenance()
++    return {
++        "base_preregistration_sha256": BASE_PREREGISTRATION_SHA256,
++        "retry_preregistration_sha256": PREREGISTRATION_SHA256,
++        "failed_seal_sha256": FAILED_SEAL_SHA256,
++        "failed_source_aggregate": FAILED_SOURCE_AGGREGATE,
++        "failed_phase_a_attempt_sha256": FAILED_PHASE_A_ATTEMPT_SHA256,
++        "failure_audit_sha256": FAILURE_AUDIT_SHA256,
++    }
++
++
+ def tensor_collection_hash(items: list[tuple[str, torch.Tensor]]) -> str:
+     digest = hashlib.sha256()
+     for name, value in items:
+@@ -329,6 +420,7 @@
+         relative = path.relative_to(ROOT)
+         if relative.parts and relative.parts[0] != ".venv":
+             paths.add(path)
++    paths.add((ROOT / BASE_PREREGISTRATION).resolve())
+     paths.add((ROOT / PREREGISTRATION).resolve())
+     paths.add((ROOT / "pyproject.toml").resolve())
+     hashes = {str(path.relative_to(ROOT)): sha256_file(path) for path in sorted(paths)}
+@@ -804,10 +896,19 @@
+     return result
+ 
+ 
++def materiality_totals_from_views(
++    views: list[dict[str, Any]],
++) -> tuple[float, dict[str, float]]:
++    denominator = left_fold_float64(view["raw_residual_l1"] for view in views)
++    numerators = {
++        control: left_fold_float64(view["moment_control_color_l1"][control] for view in views)
++        for control in ("voxel_representative", "global_budget_prune")
++    }
++    return denominator, numerators
++
++
+ def materiality_render_audit(scene: SceneData, arms: dict[str, Gaussians3D]) -> dict[str, Any]:
+     renderer = TorchRasterizer()
+-    denominator = 0.0
+-    numerators = {control: 0.0 for control in ARMS if control != "moment"}
+     views = []
+     with torch.no_grad():
+         for index in TRAIN_INDICES:
+@@ -816,13 +917,11 @@
+             target = scene.images[index]
+             residual = float((raw_output.color - target).abs().double().sum())
+             control_values = {}
+-            denominator += residual
+-            for control in numerators:
++            for control in ("voxel_representative", "global_budget_prune"):
+                 control_output = renderer.render(arms[control], scene.cameras[index])
+                 difference = float(
+                     (moment_output.color - control_output.color).abs().double().sum()
+                 )
+-                numerators[control] += difference
+                 control_values[control] = difference
+             views.append(
+                 {
+@@ -831,6 +930,7 @@
+                     "moment_control_color_l1": control_values,
+                 }
+             )
++    denominator, numerators = materiality_totals_from_views(views)
+     if not math.isfinite(denominator) or denominator <= 0.0:
+         raise AssertionError("raw render residual denominator is non-finite or zero")
+     ratios = {control: numerator / denominator for control, numerator in numerators.items()}
+@@ -944,13 +1044,9 @@
+     views = record["render_materiality"]["views"]
+     if [int(view.get("view", -1)) for view in views] != TRAIN_INDICES:
+         raise RuntimeError("Phase-A render materiality does not cover ordered training views")
+-    residual = sum(float(view["raw_residual_l1"]) for view in views)
++    residual, numerators = materiality_totals_from_views(views)
+     if not math.isfinite(residual) or residual <= 0.0:
+         raise RuntimeError("Phase-A raw render residual is non-finite or zero")
+-    numerators = {
+-        control: sum(float(view["moment_control_color_l1"][control]) for view in views)
+-        for control in ("voxel_representative", "global_budget_prune")
+-    }
+     ratios = {control: numerator / residual for control, numerator in numerators.items()}
+     reported = record["render_materiality"]
+     if float(reported["raw_residual_l1"]) != residual:
+@@ -1317,7 +1413,8 @@
+         "trainer_checkpoint_callback_default_is_none": True,
+         "kernel_support_mode": config.kernel_support_mode,
+         "visibility_margin_sigma": config.visibility_margin_sigma,
+-        "preregistration_sha256": sha256_file(ROOT / PREREGISTRATION),
++        "base_preregistration_sha256": sha256_file(ROOT / BASE_PREREGISTRATION),
++        "retry_preregistration_sha256": sha256_file(ROOT / PREREGISTRATION),
+     }
+ 
+ 
+@@ -1356,21 +1453,22 @@
+ 
+ 
+ def create_seal() -> dict[str, Any]:
++    retry_provenance = verify_retry_provenance()
+     environment = environment_metadata()
+     assert_official_environment(environment)
+     verification = run_verification()
++    if verify_retry_provenance() != retry_provenance:
++        raise RuntimeError("Retry-2 provenance changed during seal verification")
+     hashes, aggregate = source_hashes()
+     return {
+-        "artifact_type": "carve_merge_controls_implementation_seal",
++        "artifact_type": "carve_merge_controls_iter2_implementation_seal",
+         "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+         "git": git_metadata(),
+         "sealed_paths": [str(path) for path in SEALED_PATHS],
+         "source_hashes": hashes,
+         "source_aggregate": aggregate,
+-        "preregistration": {
+-            "path": str(PREREGISTRATION),
+-            "sha256": sha256_file(ROOT / PREREGISTRATION),
+-        },
++        "preregistrations": preregistration_bindings(),
++        "retry_provenance": retry_provenance,
+         "verification": verification,
+         "default_semantics": verify_default_semantics(),
+         "environment": environment,
+@@ -1379,9 +1477,10 @@
+ 
+ 
+ def load_and_verify_seal(path: Path) -> dict[str, Any]:
++    retry_provenance = verify_retry_provenance()
+     payload = strict_json_load(path)
+-    if payload.get("artifact_type") != "carve_merge_controls_implementation_seal":
+-        raise ValueError(f"{path} is not a Carve merge-controls implementation seal")
++    if payload.get("artifact_type") != "carve_merge_controls_iter2_implementation_seal":
++        raise ValueError(f"{path} is not a Carve merge-controls Retry-2 implementation seal")
+     expected_paths = [str(item) for item in SEALED_PATHS]
+     if payload.get("sealed_paths") != expected_paths:
+         raise RuntimeError("implementation seal path set differs from repository set")
+@@ -1390,12 +1489,10 @@
+         raise RuntimeError("implementation/protocol differs from sealed source aggregate")
+     if not payload.get("verification", {}).get("passed"):
+         raise RuntimeError("implementation seal lacks passing verification")
+-    expected_preregistration = {
+-        "path": str(PREREGISTRATION),
+-        "sha256": sha256_file(ROOT / PREREGISTRATION),
+-    }
+-    if payload.get("preregistration") != expected_preregistration:
+-        raise RuntimeError("implementation seal preregistration binding differs")
++    if payload.get("preregistrations") != preregistration_bindings():
++        raise RuntimeError("implementation seal preregistration bindings differ")
++    if payload.get("retry_provenance") != retry_provenance:
++        raise RuntimeError("implementation seal Retry-2 provenance binding differs")
+     current_environment = environment_metadata()
+     assert_official_environment(current_environment)
+     if environment_fingerprint(payload["environment"]) != environment_fingerprint(
+@@ -1410,6 +1507,7 @@
+         "source_aggregate": aggregate,
+         "verification_sha256": canonical_json_hash(payload["verification"]),
+         "environment_fingerprint": environment_fingerprint(payload["environment"]),
++        "retry_provenance_sha256": canonical_json_hash(retry_provenance),
+     }
+ 
+ 
+@@ -1439,7 +1537,11 @@
+         PHASE_A_ATTEMPT,
+         phase="phase_a",
+         output=output,
+-        inputs={"seal_sha256": seal["sha256"]},
++        inputs={
++            "seal_sha256": seal["sha256"],
++            "source_aggregate": seal["source_aggregate"],
++            **retry_attempt_bindings(),
++        },
+     )
+     started = time.perf_counter()
+     runs = []
+@@ -1451,14 +1553,11 @@
+     if load_and_verify_seal(seal_path) != seal:
+         raise RuntimeError("implementation seal changed during Phase A")
+     return {
+-        "artifact_type": "carve_merge_controls_phase_a_audit",
++        "artifact_type": "carve_merge_controls_iter2_phase_a_audit",
+         "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+         "git": git_metadata(),
+         "seal": seal,
+-        "preregistration": {
+-            "path": str(PREREGISTRATION),
+-            "sha256": sha256_file(ROOT / PREREGISTRATION),
+-        },
++        "preregistrations": preregistration_bindings(),
+         "command": [sys.executable, *sys.argv],
+         "environment": environment_metadata(),
+         "default_semantics": verify_default_semantics(),
+@@ -1513,18 +1612,14 @@
+ 
+ 
+ def validate_phase_a_audit(audit: dict[str, Any], seal: dict[str, Any]) -> None:
+-    if audit.get("artifact_type") != "carve_merge_controls_phase_a_audit":
+-        raise ValueError("Phase-B input is not a Carve merge-controls Phase-A audit")
++    if audit.get("artifact_type") != "carve_merge_controls_iter2_phase_a_audit":
++        raise ValueError("Phase-B input is not a Carve merge-controls Retry-2 Phase-A audit")
+     if audit.get("split") != {"train": TRAIN_INDICES, "held_out": TEST_INDICES}:
+         raise RuntimeError("Phase-A split differs from preregistration")
+     if audit.get("seal") != seal:
+         raise RuntimeError("Phase-A seal binding differs from current seal")
+-    expected_preregistration = {
+-        "path": str(PREREGISTRATION),
+-        "sha256": sha256_file(ROOT / PREREGISTRATION),
+-    }
+-    if audit.get("preregistration") != expected_preregistration:
+-        raise RuntimeError("Phase-A preregistration binding differs")
++    if audit.get("preregistrations") != preregistration_bindings():
++        raise RuntimeError("Phase-A preregistration bindings differ")
+     if environment_fingerprint(audit["environment"]) != seal["environment_fingerprint"]:
+         raise RuntimeError("Phase-A environment differs from implementation seal")
+     runs = audit.get("runs")
+@@ -1551,7 +1646,7 @@
+ def verify_phase_a_review(path: Path, *, audit_path: Path, seal: dict[str, Any]) -> dict[str, str]:
+     review = strict_json_load(path)
+     expected = {
+-        "artifact_type": "carve_merge_controls_phase_a_scientist_review",
++        "artifact_type": "carve_merge_controls_iter2_phase_a_scientist_review",
+         "verdict": "pass",
+         "phase_b_execution_clearance": True,
+         "audit_sha256": sha256_file(audit_path),
+@@ -1587,8 +1682,10 @@
+         output=output,
+         inputs={
+             "seal_sha256": seal["sha256"],
++            "source_aggregate": seal["source_aggregate"],
+             "audit_sha256": audit_sha256,
+             "review_sha256": review["sha256"],
++            **retry_attempt_bindings(),
+         },
+     )
+     phase_a_lookup = {int(run["seed"]): run for run in audit["runs"]}
+@@ -1675,16 +1772,13 @@
+     if sha256_file(review_path) != review["sha256"]:
+         raise RuntimeError("Phase-A scientist review changed during Phase B")
+     return {
+-        "artifact_type": "carve_merge_controls_phase_b_ablation",
++        "artifact_type": "carve_merge_controls_iter2_phase_b_ablation",
+         "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+         "git": git_metadata(),
+         "seal": seal,
+         "phase_a": {"path": str(audit_path), "sha256": audit_sha256},
+         "phase_a_scientist_review": review,
+-        "preregistration": {
+-            "path": str(PREREGISTRATION),
+-            "sha256": sha256_file(ROOT / PREREGISTRATION),
+-        },
++        "preregistrations": preregistration_bindings(),
+         "command": [sys.executable, *sys.argv],
+         "environment": environment_metadata(),
+         "loaded_source_hashes": loaded_hashes,
+@@ -1712,7 +1806,7 @@
+ def claim_attempt(path: Path, *, phase: str, output: Path, inputs: dict[str, str]) -> None:
+     path.parent.mkdir(parents=True, exist_ok=True)
+     payload = {
+-        "artifact_type": "carve_merge_controls_once_only_attempt",
++        "artifact_type": "carve_merge_controls_iter2_once_only_attempt",
+         "phase": phase,
+         "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+         "output": str(output),
+@@ -1741,7 +1835,7 @@
+     ]
+     if "seal" in payload:
+         lines.append(f"- Implementation seal: `{payload['seal']['source_aggregate']}`")
+-    if payload["artifact_type"] == "carve_merge_controls_phase_a_audit":
++    if payload["artifact_type"] == "carve_merge_controls_iter2_phase_a_audit":
+         decision = payload["decision"]
+         disposition = (
+             "Phase B remains blocked until an independent scientist review binds and clears "
+@@ -1760,7 +1854,7 @@
+                 disposition,
+             ]
+         )
+-    elif payload["artifact_type"] == "carve_merge_controls_phase_b_ablation":
++    elif payload["artifact_type"] == "carve_merge_controls_iter2_phase_b_ablation":
+         decision = payload["decision"]
+         lines.extend(
+             [
+@@ -1810,8 +1904,8 @@
+     torch.set_num_threads(4)
+     torch.use_deterministic_algorithms(True)
+     expected_suffix = {
+-        "audit": "_cpu_carve_merge_controls_audit.json",
+-        "ablate": "_cpu_carve_merge_controls_ablation.json",
++        "audit": "_cpu_carve_merge_controls_iter2_audit.json",
++        "ablate": "_cpu_carve_merge_controls_iter2_ablation.json",
+     }
+     if args.command_name in expected_suffix and not args.output.name.endswith(
+         expected_suffix[args.command_name]
+diff --git a/tests/test_carve_merge_controls_ablation.py b/tests/test_carve_merge_controls_ablation.py
+--- a/tests/test_carve_merge_controls_ablation.py
++++ b/tests/test_carve_merge_controls_ablation.py
+@@ -34,6 +34,49 @@
+     )
+ 
+ 
++def _small_phase_a_record() -> dict:
++    raw = _raw_with_scales(
++        torch.tensor(
++            [
++                [-0.9, 0.0, 0.0],
++                [-0.1, 0.0, 0.0],
++                [0.1, 0.0, 0.0],
++                [0.2, 0.0, 0.0],
++                [1.1, 0.0, 0.0],
++                [1.2, 0.0, 0.0],
++            ]
++        ),
++        torch.tensor([0.1, 0.1, 0.4, 0.2, 0.3, 0.5]),
++    )
++    arms, construction = bench.construct_arms(raw, 1.0)
++    audit = bench.audit_arm_construction(raw, arms, construction, parity=arms["moment"].detach())
++    views = [
++        {
++            "view": view,
++            "raw_residual_l1": 100.0,
++            "moment_control_color_l1": {
++                "voxel_representative": 1.0,
++                "global_budget_prune": 1.0,
++            },
++        }
++        for view in bench.TRAIN_INDICES
++    ]
++    denominator, numerators = bench.materiality_totals_from_views(views)
++    return {
++        "preparation": {"raw_count": raw.n},
++        "construction": construction,
++        "construction_audit": audit,
++        "render_materiality": {
++            "views": views,
++            "raw_residual_l1": denominator,
++            "moment_control_color_l1": numerators,
++            "ratios": {
++                control: numerator / denominator for control, numerator in numerators.items()
++            },
++        },
++    }
++
++
+ def test_harness_supports_preregistered_direct_cli_invocation():
+     completed = subprocess.run(
+         [sys.executable, str(_PATH), "--help"],
+@@ -121,72 +164,92 @@
+ 
+ 
+ def test_structural_size_floors_become_serializable_gate_failures_not_abortions():
+-    raw = _raw_with_scales(
+-        torch.tensor(
+-            [
+-                [-0.9, 0.0, 0.0],
+-                [-0.1, 0.0, 0.0],
+-                [0.1, 0.0, 0.0],
+-                [0.2, 0.0, 0.0],
+-                [1.1, 0.0, 0.0],
+-                [1.2, 0.0, 0.0],
+-            ]
+-        ),
+-        torch.tensor([0.1, 0.1, 0.4, 0.2, 0.3, 0.5]),
++    record = _small_phase_a_record()
++    gate = bench.phase_a_seed_gate_from_raw_evidence(record)
++    assert not gate["pass"]
++    assert not gate["criteria"]["raw_count_at_least_500"]
++    assert not gate["criteria"]["group_count_at_least_100"]
++    assert gate["criteria"]["structural_and_moment_identities_pass"]
++
++    for view in record["render_materiality"]["views"]:
++        view["moment_control_color_l1"]["global_budget_prune"] = 0.4
++    denominator, numerators = bench.materiality_totals_from_views(
++        record["render_materiality"]["views"]
+     )
+-    arms, construction = bench.construct_arms(raw, 1.0)
+-    audit = bench.audit_arm_construction(raw, arms, construction, parity=arms["moment"].detach())
++    record["render_materiality"]["moment_control_color_l1"] = numerators
++    record["render_materiality"]["ratios"] = {
++        control: numerator / denominator for control, numerator in numerators.items()
++    }
++    failed_materiality = bench.phase_a_seed_gate_from_raw_evidence(record)
++    assert not failed_materiality["criteria"][
++        "moment_vs_global_budget_prune_render_ratio_at_least_0_005"
++    ]
++
++
++def test_positive_left_fold_discriminator_reproduces_all_materiality_reductions_exactly():
++    values = [0.1] * len(bench.TRAIN_INDICES)
++    folded = bench.left_fold_float64(values)
++    assert folded == 0.8999999999999999
++    if sys.version_info[:2] == (3, 12):
++        assert sum(values) == 0.9
++        assert sum(values) != folded
++
+     views = [
+         {
+             "view": view,
+-            "raw_residual_l1": 100.0,
++            "raw_residual_l1": value,
+             "moment_control_color_l1": {
+-                "voxel_representative": 1.0,
+-                "global_budget_prune": 1.0,
++                "voxel_representative": value,
++                "global_budget_prune": value,
+             },
+         }
+-        for view in bench.TRAIN_INDICES
++        for view, value in zip(bench.TRAIN_INDICES, values)
+     ]
+-    record = {
+-        "preparation": {"raw_count": raw.n},
+-        "construction": construction,
+-        "construction_audit": audit,
+-        "render_materiality": {
+-            "views": views,
+-            "raw_residual_l1": 900.0,
+-            "moment_control_color_l1": {
+-                "voxel_representative": 9.0,
+-                "global_budget_prune": 9.0,
+-            },
+-            "ratios": {
+-                "voxel_representative": 0.01,
+-                "global_budget_prune": 0.01,
+-            },
+-        },
++    denominator, numerators = bench.materiality_totals_from_views(views)
++    assert denominator == folded
++    assert numerators == {
++        "voxel_representative": folded,
++        "global_budget_prune": folded,
++    }
++
++    record = _small_phase_a_record()
++    record["render_materiality"] = {
++        "views": views,
++        "raw_residual_l1": denominator,
++        "moment_control_color_l1": numerators,
++        "ratios": {control: numerator / denominator for control, numerator in numerators.items()},
+     }
+     gate = bench.phase_a_seed_gate_from_raw_evidence(record)
+-    assert not gate["pass"]
+-    assert not gate["criteria"]["raw_count_at_least_500"]
+-    assert not gate["criteria"]["group_count_at_least_100"]
+-    assert gate["criteria"]["structural_and_moment_identities_pass"]
++    assert gate["criteria"]["moment_vs_voxel_representative_render_ratio_at_least_0_005"]
++    assert gate["criteria"]["moment_vs_global_budget_prune_render_ratio_at_least_0_005"]
++
+ 
+-    record["gate"] = gate
++def test_phase_a_materiality_rejects_changed_per_view_numerator():
++    record = _small_phase_a_record()
+     record["render_materiality"]["views"][0]["moment_control_color_l1"]["global_budget_prune"] = 0.0
+     with pytest.raises(RuntimeError, match="control numerator differs"):
+         bench.phase_a_seed_gate_from_raw_evidence(record)
+ 
+-    for view in record["render_materiality"]["views"]:
+-        view["moment_control_color_l1"]["global_budget_prune"] = 0.4
+-    global_total = sum(
+-        view["moment_control_color_l1"]["global_budget_prune"]
+-        for view in record["render_materiality"]["views"]
+-    )
+-    record["render_materiality"]["moment_control_color_l1"]["global_budget_prune"] = global_total
+-    record["render_materiality"]["ratios"]["global_budget_prune"] = global_total / 900.0
+-    failed_materiality = bench.phase_a_seed_gate_from_raw_evidence(record)
+-    assert not failed_materiality["criteria"][
+-        "moment_vs_global_budget_prune_render_ratio_at_least_0_005"
+-    ]
++
++def test_phase_a_materiality_rejects_changed_reported_denominator_aggregate():
++    record = _small_phase_a_record()
++    record["render_materiality"]["raw_residual_l1"] += 1.0
++    with pytest.raises(RuntimeError, match="reported residual differs"):
++        bench.phase_a_seed_gate_from_raw_evidence(record)
++
++
++def test_phase_a_materiality_rejects_changed_reported_control_aggregate():
++    record = _small_phase_a_record()
++    record["render_materiality"]["moment_control_color_l1"]["voxel_representative"] += 1.0
++    with pytest.raises(RuntimeError, match="control numerator differs"):
++        bench.phase_a_seed_gate_from_raw_evidence(record)
++
++
++def test_phase_a_materiality_rejects_changed_reported_ratio():
++    record = _small_phase_a_record()
++    record["render_materiality"]["ratios"]["voxel_representative"] += 1.0
++    with pytest.raises(RuntimeError, match="render ratio differs"):
++        bench.phase_a_seed_gate_from_raw_evidence(record)
+ 
+ 
+ def test_checkpoint_auc_uses_frozen_zero_through_120_trapezoid():
+@@ -300,7 +363,7 @@
+     seal = {"sha256": "a" * 64, "source_aggregate": "b" * 64}
+     review_path = tmp_path / "review.json"
+     payload = {
+-        "artifact_type": "carve_merge_controls_phase_a_scientist_review",
++        "artifact_type": "carve_merge_controls_iter2_phase_a_scientist_review",
+         "verdict": "pass",
+         "phase_b_execution_clearance": True,
+         "audit_sha256": bench.sha256_file(audit_path),
+@@ -317,6 +380,9 @@
+     marker = tmp_path / "attempt.json"
+     output = tmp_path / "result.json"
+     bench.claim_attempt(marker, phase="phase_a", output=output, inputs={"seal_sha256": "c" * 64})
++    assert json.loads(marker.read_text(encoding="utf-8"))["artifact_type"] == (
++        "carve_merge_controls_iter2_once_only_attempt"
++    )
+     with pytest.raises(RuntimeError, match="already been claimed"):
+         bench.claim_attempt(
+             marker, phase="phase_a", output=output, inputs={"seal_sha256": "c" * 64}
+@@ -327,6 +393,11 @@
+     sealed = {str(path) for path in bench.SEALED_PATHS}
+     assert "benchmarks/carve_merge_controls_ablation.py" in sealed
+     assert "benchmarks/results/20260715_carve_merge_controls_PREREG.md" in sealed
++    assert "benchmarks/results/20260716_carve_merge_controls_iter2_PREREG.md" in sealed
++    assert "benchmarks/results/20260715_carve_merge_controls_SEAL.json" in sealed
++    assert "benchmarks/results/20260715_carve_merge_controls_PHASE_A_ATTEMPT.json" in sealed
++    assert "benchmarks/results/20260715T225457Z_cpu_carve_merge_controls_FAILURE_AUDIT.md" in sealed
++    assert "benchmarks/results/20260716_carve_merge_controls_iter2_repair.patch" in sealed
+     assert "src/rtgs/optim/trainer.py" in sealed
+     assert "tests/test_carve_merge_controls_ablation.py" in sealed
+     assert str(bench.PHASE_A_ATTEMPT.relative_to(bench.ROOT)) not in sealed
+@@ -334,6 +405,19 @@
+     assert all(path.is_file() for path in (bench.ROOT / item for item in bench.SEALED_PATHS))
+ 
+ 
++def test_retry_provenance_is_hash_bound_and_failed_targets_remain_absent():
++    provenance = bench.verify_retry_provenance()
++    assert provenance["fixed_hashes"][str(bench.PREREGISTRATION)] == (bench.PREREGISTRATION_SHA256)
++    assert provenance["fixed_hashes"][str(bench.FAILURE_AUDIT)] == bench.FAILURE_AUDIT_SHA256
++    assert provenance["failed_targets_absent"] == [
++        str(bench.FAILED_PHASE_A_OUTPUT),
++        str(bench.FAILED_PHASE_A_NOTE),
++    ]
++    assert not (bench.ROOT / bench.FAILED_PHASE_A_OUTPUT).exists()
++    assert not (bench.ROOT / bench.FAILED_PHASE_A_NOTE).exists()
++    assert bench.DEFAULT_SEAL.name == "20260716_carve_merge_controls_iter2_SEAL.json"
++
++
+ def test_training_orders_are_exactly_counterbalanced():
+     flat_positions = {
+         arm: [bench.TRAINING_ORDER[seed].index(arm) for seed in bench.SEEDS] for arm in bench.ARMS

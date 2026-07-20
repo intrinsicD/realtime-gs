@@ -1,0 +1,50 @@
+sessions:
+  - id: "2026-07-14_001"
+    date: "2026-07-14"
+    summary: "Completed the covariance loop, grounded follow-ups in Scholar Inbox, and verified replay/CPU integrity."
+    turn_count: 5
+    events_count: 34
+    claims_touched: [C01, C02]
+    open_threads: 9
+  - id: "2026-07-15_001"
+    date: "2026-07-15"
+    summary: "Closed three scoped smooth-boundary branches and froze exact-count Carve merge attribution as the next experiment."
+    turn_count: 13
+    events_count: 95
+    claims_touched: [C03, C04, C05, C06, C07, C08, C09, C10, C11, C12, C13]
+    open_threads: 6
+  - id: "2026-07-16_001"
+    date: "2026-07-16"
+    summary: "Completed fixed-topology compact training with no global synthetic sampling win and repaired future preload-bound gsplat snapshots; calibrated evidence and production scaling remain open."
+    turn_count: 20
+    events_count: 108
+    claims_touched: [C14, C15, C16, C17, C18, C19]
+    open_threads: 15
+  - id: "2026-07-17_001"
+    date: "2026-07-17"
+    summary: "Qualified compact inputs and froze bounded G²SR and teacher-capacity diagnostics without consuming either official run."
+    turn_count: 12
+    events_count: 32
+    claims_touched: [C20, C21]
+    open_threads: 14
+  - id: "2026-07-18_001"
+    date: "2026-07-18"
+    summary: "Closed raw-fragment fitting, corrected covariance observability, and replaced repository rasters with capped compact Gaussian views plus optional exact alpha."
+    turn_count: 4
+    events_count: 25
+    claims_touched: [C22, C23]
+    open_threads: 7
+  - id: "2026-07-19_001"
+    date: "2026-07-19"
+    summary: "Implemented the image-free field lift and completed an exploratory calibrated 96-track fit with a live free-orbit viewer; utility remains open."
+    turn_count: 2
+    events_count: 8
+    claims_touched: []
+    open_threads: 7
+  - id: "2026-07-20_001"
+    date: "2026-07-20"
+    summary: "Completed and audited the full compact all-view 70k development fit, exposed the weak 5k initializer, and committed an exact CPU CSR acceleration task."
+    turn_count: 1
+    events_count: 4
+    claims_touched: []
+    open_threads: 4

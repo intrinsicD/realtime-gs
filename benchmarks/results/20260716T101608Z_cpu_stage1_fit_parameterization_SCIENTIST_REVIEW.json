@@ -1,0 +1,19 @@
+{
+  "artifact_type": "stage1_fit_parameterization_scientist_review",
+  "verdict": "pass",
+  "reviewer_identity": "Codex independent N78 result scientist (/root/n78_result_scientist)",
+  "reviewed_at_utc": "2026-07-16T10:41:26Z",
+  "preregistration_sha256": "d1440fde596667fd59e996113dd4ffa4414e23e8c783a401343d7476f00afb22",
+  "seal_sha256": "6aeee81f97409f0dfdfdd6af84f7e26970a09f1b79b35eaaa0acfbfcf25a33a0",
+  "attempt_sha256": "edaf0f8a05ea8677ebf077004e1e231de126e27e7fd90a699dbaa92dce17d867",
+  "implementation_review_sha256": "fd3721787296768beb866b73fe603c66351cb934b27ecbfb8dc30498cb96145d",
+  "harness_sha256": "687dac366147968616e2888266282869a0a25ef9e9b656b3264743cfae8c67c7",
+  "tests_sha256": "8ea7f74ad13270a0acd11358292ca0a114e43efd578405dde3ca6714f8a4e3bd",
+  "result_sha256": "041873c09c949a47d12c6ae05553d9722a9756050c12478855d55dd45f9c4315",
+  "raw_sha256": "028c93f350b30b61debebd5bf0706ff128f2c54faaee04614d1ee12191a3aeb7",
+  "result_note_sha256": "6d48340a17e8dd655d4983904a5bce0faf04fcc5efea015cd058865ebc6f1d4b",
+  "human_audit_sha256": "cab58480120a965b8dfaeafb5eb2273a93ccd43f0c686752f6e7c296fdf2d99c",
+  "runtime_source_aggregate_sha256": "d7eae633b5ff3a0f8566752fa61ee584f756d877a4faa19738b5ef8af68f34c6",
+  "decisions_recomputed": true,
+  "default_change_authorized": false
+}

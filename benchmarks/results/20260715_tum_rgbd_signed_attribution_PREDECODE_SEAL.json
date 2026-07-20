@@ -1,0 +1,25 @@
+{
+  "config_id": "76c59f31529c0948cb7824c0e477d30c4f7fa5eee27119ef9ab70fbe10c806c4",
+  "created_utc": "2026-07-15T16:01:54+00:00",
+  "experiment": "tum-rgbd-signed-occlusion-rigidity-attribution",
+  "implementation": {
+    "aggregate_sha256": "75b0dbb6a84548852dd6de4c5623557c78168ccc305d93ff1a4664f4f4347f3d",
+    "files": {
+      "benchmarks/results/20260715_tum_rgbd_signed_attribution_ACQUISITION.json": "5ddcddb5b50e0143be91277b216308d1307072036a494bf404e796220ce36fb0",
+      "benchmarks/results/20260715_tum_rgbd_signed_attribution_PREREG.md": "b6944e3d2862bc88c1d2184a0143a78dcbd2cf5ce3c6be4582b4c2bb43065700",
+      "benchmarks/tum_rgbd_oriented_validity.py": "2cefa99171d67894540e43c47ced197b0815237ca093ef8705b7e5a5d366b83f",
+      "benchmarks/tum_rgbd_signed_attribution.py": "77f7def1865bd40b6704705a6409297342d5a1c39b3dcabe77591b984f3efbcf",
+      "pyproject.toml": "7426f166742203b907c992abc24c0d7503a0da7783eb59ccb2515c51e5735b2c",
+      "src/rtgs/core/camera.py": "1e6a42c7cd9fa14b2ffff19808e6e88c106df4562d30fc18b0ca107c00072ac2",
+      "src/rtgs/lift/surface.py": "52e2a5a018c5ffe03e0fa78aad3d791e749dff3a42a8974d52d79d8d3a7ace16",
+      "tests/test_tum_rgbd_signed_attribution.py": "b461f283ced5938a10b4fa7229f5be2fd9550832ed0548b2a00059f0509236af"
+    }
+  },
+  "schema_version": 1,
+  "source_sha256": {
+    "confirmatory": "1459e9488ac0e61a2ec80dfbc35cfb77942f6d8eabded1c8d26a70be650d0e1d",
+    "development": "05c071672cda22a668860a935124737a4eb4fa772cbad372e73d5a99ce4be205"
+  },
+  "synthetic_test_command": "CUDA_VISIBLE_DEVICES='' PYTHONPATH=.:src .venv/bin/python -m pytest -q tests/test_tum_rgbd_signed_attribution.py tests/test_tum_rgbd_oriented_validity.py",
+  "synthetic_test_status": "21 passed"
+}

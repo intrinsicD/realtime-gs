@@ -1,0 +1,51 @@
+{
+  "namespace": "rtgs.inverse-projection-fiber.iter3.implementation-review.v1",
+  "date": "2026-07-18",
+  "stage": "prospective_pre_outcome",
+  "disposition": "PASS",
+  "official_execution_authorized": "synthetic_only",
+  "official_outcome_paths_absent_at_review": true,
+  "protocol_sha256": {
+    "base": "59f0de21da20bb5785e2c5f14c89fc82114fed2d5945c704115d64b9fb3c27c8",
+    "addendum_1": "f4ef57320edf1e099c24033753bf3e939d2c87fcf6b927b65bd5d6af213c91fc",
+    "addendum_2": "2fbb29d2bdea86018009d1b3913820edda38de9f3881ae503eca9041c2c2eddc",
+    "addendum_3": "69e55637cd97b88d40826daf3a18629a1de61b9efa328487f61c498411c98205"
+  },
+  "source_sha256": {
+    "src/rtgs/lift/inverse_projection_fiber.py": "4e9bd0c62954b2361d2cb79491d97cdfbad29c7c2dd23be0e5f5bff7e75cdd8b",
+    "src/rtgs/lift/fiber_correspondence.py": "0e0605e1ecea00fd3ccfe6c9585e23594f1b114f9d4135ce1a9bae21de744453",
+    "src/rtgs/lift/source_anchored_sh.py": "c38424bcb46fd0cbd883a1fe179e359c0388bec8ceb3380ea9d9dff35f06c6d3",
+    "benchmarks/inverse_projection_fiber_iter3.py": "42f5c96fbc596158be41dff554e323e849ffb2be5eb5630c527455d17f6f9670",
+    "benchmarks/inverse_projection_fiber_iter3_real.py": "a8973db5fde14d9595ebe45b4bab8c6a1b82e628a059f59486233af2d3ee1240"
+  },
+  "test_sha256": {
+    "tests/test_inverse_projection_fiber.py": "3b5e1b724c42392d12fb28f5785912f711502c68e0414a24b816cb4034704ebb",
+    "tests/test_fiber_correspondence.py": "f4d0ef134b5aed99f9e44e1f7e0fc48a0e327dc9cedee7e12a4dc77dd091ea02",
+    "tests/test_source_anchored_sh.py": "e1fe7a4728697e7a3bcff27df910133febf4638f4a8921a67afc080d8996a671",
+    "tests/test_inverse_projection_fiber_iter3.py": "a8a43bffe6cd14c14aac22cf2c0eb7ca2578583ec1066ab06f64b79c150d0fdb",
+    "tests/test_inverse_projection_fiber_iter3_real.py": "f2bddb98b75d6d1c6dd49043976e344bdaf788e46cd70cfa417dd066607a1726"
+  },
+  "verification": {
+    "focused_cpu_tests": 84,
+    "focused_cpu_tests_passed": 84,
+    "ruff_check": "PASS",
+    "ruff_format_check": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "independent_review": {
+    "reviewer": "/root/iter3_final_implementation_audit",
+    "method": "independent static, hash, transaction, and adversarial-test review",
+    "finding": "No remaining severity-ranked blocker",
+    "closed_findings": [
+      "formerly unfrozen completeness, dust, UOT-validity, and release semantics",
+      "source-view capacity leakage",
+      "synthetic executed-source instability",
+      "real once-only and source transaction",
+      "incomplete preregistration receipt chain",
+      "forged accepted primary arm",
+      "trusted instead of recomputed synthetic validity summary"
+    ],
+    "official_paths_or_bundle_accessed_by_reviewer": false
+  },
+  "claim": "This receipt authorizes only the exact one-shot official synthetic execution. Real-data access remains conditional on the signed synthetic release."
+}

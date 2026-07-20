@@ -9,6 +9,7 @@ configuration and writes nothing (CI).
 from __future__ import annotations
 
 import json
+import math
 import platform
 import subprocess
 import time
@@ -21,6 +22,7 @@ import torch
 from rtgs.data.synthetic import make_synthetic_scene
 from rtgs.image2gs.fit import FitConfig, fit_image
 from rtgs.lift import lifter_names
+from rtgs.lift.field_loss import AnalyticGaussianField2D, field_l2
 from rtgs.optim.density import DensityConfig
 from rtgs.optim.trainer import TrainConfig
 from rtgs.pipeline import PipelineConfig, compare_lifters
@@ -41,6 +43,9 @@ class BenchConfig:
     fit_iterations: int = 120
     refine_iterations: int = 150
     render_repeats: int = 3
+    field_components: int = 96
+    field_repeats: int = 3
+    field_chunk_size: int = 64
 
     @staticmethod
     def quick() -> BenchConfig:
@@ -56,6 +61,9 @@ class BenchConfig:
             fit_iterations=300,
             refine_iterations=600,
             render_repeats=10,
+            field_components=256,
+            field_repeats=10,
+            field_chunk_size=128,
         )
 
     @staticmethod
@@ -68,6 +76,9 @@ class BenchConfig:
             fit_iterations=25,
             refine_iterations=15,
             render_repeats=1,
+            field_components=16,
+            field_repeats=1,
+            field_chunk_size=16,
         )
 
 
@@ -84,6 +95,60 @@ def _git_rev(root: Path) -> str:
         return "unknown"
 
 
+def run_field_product_kernel_benchmark(
+    *,
+    components: int,
+    repeats: int,
+    chunk_size: int,
+) -> dict[str, float | int]:
+    """Time the deterministic CPU analytic density/RGB-numerator field discrepancy."""
+
+    for name, value in (
+        ("components", components),
+        ("repeats", repeats),
+        ("chunk_size", chunk_size),
+    ):
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise ValueError(f"{name} must be a positive integer")
+
+    generator = torch.Generator(device="cpu").manual_seed(0)
+    dtype = torch.float64
+
+    def make_field(offset: float) -> AnalyticGaussianField2D:
+        means = torch.randn(components, 2, generator=generator, dtype=dtype)
+        means[:, 0] += offset
+        raw = torch.randn(components, 2, 2, generator=generator, dtype=dtype)
+        covariance = raw @ raw.transpose(-1, -2)
+        covariance = covariance + 0.2 * torch.eye(2, dtype=dtype)
+        density = 0.1 + torch.rand(components, generator=generator, dtype=dtype)
+        color = torch.rand(components, 3, generator=generator, dtype=dtype)
+        return AnalyticGaussianField2D(
+            means=means,
+            covariances=covariance,
+            density_amplitudes=density,
+            rgb_amplitudes=density[:, None] * color,
+        )
+
+    first = make_field(0.0)
+    second = make_field(0.25)
+    field_l2(first, second, chunk_size=chunk_size)
+    started = time.perf_counter()
+    value = first.means.new_zeros(())
+    for _ in range(repeats):
+        value = field_l2(first, second, chunk_size=chunk_size).total
+    seconds = time.perf_counter() - started
+    if not bool(torch.isfinite(value)) or not math.isfinite(seconds) or seconds <= 0.0:
+        raise RuntimeError("field product-kernel benchmark produced a non-finite result")
+    return {
+        "components_per_field": components,
+        "field_l2_evaluations": repeats,
+        "component_pair_terms": 6 * components * components * repeats,
+        "seconds": seconds,
+        "evaluations_per_s": repeats / seconds,
+        "l2_total": float(value),
+    }
+
+
 def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
     """Execute all benchmarks; returns {'meta': ..., 'results': ...}."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -95,6 +160,12 @@ def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
         seed=0,
     )
     results: dict = {}
+
+    results["field_product_kernel_cpu"] = run_field_product_kernel_benchmark(
+        components=config.field_components,
+        repeats=config.field_repeats,
+        chunk_size=config.field_chunk_size,
+    )
 
     # Stage-1 fitting speed/quality.
     fit_cfg = FitConfig(n_gaussians=config.fit_gaussians, iterations=config.fit_iterations)

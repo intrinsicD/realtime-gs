@@ -1,0 +1,245 @@
+{
+  "artifact_type": "stage1_semantic_factorial_phase_a_scientist_review",
+  "verdict": "PASS",
+  "phase_b_authorized": true,
+  "recomputed_phase_a_pass": true,
+  "reviewer_identity": "Codex independent N77 Phase-A results auditor (/root/n77_phase_a_audit)",
+  "reviewed_at_utc": "2026-07-16T06:31:50Z",
+  "bindings": {
+    "preregistration_sha256": "f53146f12894d5e804baf699b0ba0df51d5768ef708884f5a0343c523d96e1ce",
+    "seal_sha256": "d07131a90357627e0589016bf9b10c88a804af689482e29ba7576a200b7d8adb",
+    "phase_a_json_sha256": "cfb8b522e7ebf42bbf560227f46419d2bc09d19447e799778ab7ca152ce48d14",
+    "phase_a_raw_sha256": "fb2b26f2c2da87555e61e90a89a2dd20a4a92ed9499d2b2c7c5731f9a3393310",
+    "harness_sha256": "6baf5455da4f3901ff97e305ba498ea91c956157baf74392c7c1c1622d27e4a7",
+    "focused_tests_sha256": "28841fb5e4bd482647dfd68b6f0328613211b30f5f76c86e650349cb9d2953e6",
+    "audit_markdown_sha256": "bbc23ffe47de08ff6ca148d2bc4896750179aa852f3e7fe9922bd06f0fdd6308"
+  },
+  "raw_archive_recomputation": {
+    "loaded_with_allow_pickle_false": true,
+    "npz_sha256_recomputed": true,
+    "semantic_manifest_recomputed": true,
+    "collection_sha256_recomputed": true,
+    "all_raw_floating_arrays_finite": true,
+    "array_count": 12849,
+    "floating_array_count": 8417,
+    "uncompressed_array_bytes": 398993861,
+    "collection_sha256": "017e9665c912a879c8fd6bd467f60fb870302d739f4f1914b059f5cf3b1fd584",
+    "zip_members_unique": true,
+    "zip_members_uncompressed": true,
+    "numeric_or_boolean_only": true,
+    "manifest_matches_json_exactly": true
+  },
+  "decisive_gate_recomputation": {
+    "raw_archive_manifest_and_finiteness": {
+      "recomputed": true,
+      "passed": true,
+      "evidence": {
+        "npz_sha256": "fb2b26f2c2da87555e61e90a89a2dd20a4a92ed9499d2b2c7c5731f9a3393310",
+        "array_count": 12849,
+        "floating_array_count": 8417,
+        "all_floating_arrays_finite": true,
+        "object_arrays": 0,
+        "duplicate_names": 0,
+        "uncompressed_array_bytes": 398993861,
+        "collection_sha256": "017e9665c912a879c8fd6bd467f60fb870302d739f4f1914b059f5cf3b1fd584",
+        "all_per_array_digests_match_manifest": true
+      }
+    },
+    "preparation_and_fit_contract": {
+      "recomputed": true,
+      "passed": true,
+      "evidence": {
+        "seeds": [
+          1103,
+          2203,
+          3301
+        ],
+        "training_indices": [
+          0,
+          1,
+          2,
+          4,
+          5,
+          6,
+          8,
+          9,
+          10
+        ],
+        "held_out_indices_absent_from_scientific_arrays": [
+          3,
+          7,
+          11
+        ],
+        "fit_views": 27,
+        "components_per_view": 150,
+        "total_fitted_components": 4050,
+        "fit_iterations": 120,
+        "all_fitted_shapes_ranges_and_cholesky_diagonals_valid": true,
+        "all_source_keys_exact": true,
+        "all_fit_histories_complete": true,
+        "fit_config_matches_frozen_protocol": true,
+        "phase_a_has_no_held_out_or_refinement_namespace": true
+      }
+    },
+    "source_equivalence": {
+      "recomputed": true,
+      "passed": true,
+      "evidence": {
+        "completed_transformed_view_checks": 54,
+        "expected_transformed_view_checks": 54,
+        "maximum_absolute_rgb_error": 1.7881393432617188e-07,
+        "maximum_delta_over_identity_l1": 2.9695985512593094e-08,
+        "minimum_diagnostic_psnr_db": 120.0,
+        "maximum_independent_dense_render_replay_error": 2.384185791015625e-07,
+        "maximum_gauge_amplitude_absolute_error": 1.4901161193847656e-08,
+        "maximum_gauge_amplitude_relative_error": 1.127048463445135e-07,
+        "limits": {
+          "maximum_absolute_rgb_error": 5e-06,
+          "delta_over_identity_l1": 1e-06,
+          "minimum_diagnostic_psnr_db": 100.0
+        }
+      }
+    },
+    "candidate_and_factorial_integrity": {
+      "recomputed": true,
+      "passed": true,
+      "evidence": {
+        "candidate_rows": 81,
+        "transformed_candidate_comparisons": 54,
+        "maximum_m_absolute_error": 0.0,
+        "maximum_m_relative_error": 0.0,
+        "maximum_h_absolute_error": 0.0,
+        "maximum_h_relative_error": 0.0,
+        "maximum_product_absolute_error": 1.4901161193847656e-08,
+        "maximum_product_relative_error": 1.127048463445135e-07,
+        "bilinear_observation_replay_maximum_error": 0.0,
+        "geometry_bit_exact": true,
+        "zero_handling_and_bounds_valid": true,
+        "factorial_field_identities_exact": true,
+        "scalar_changed_fraction_per_seed": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "color_changed_fraction_per_seed": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "pooled_component_count": 4050
+      }
+    },
+    "coverage_and_retention_invariance": {
+      "recomputed": true,
+      "passed": true,
+      "evidence": {
+        "coverage_maps": 243,
+        "coverage_comparisons": 162,
+        "maximum_independent_coverage_replay_error": 1.7881393432617188e-07,
+        "maximum_absolute_coverage_error": 0.0,
+        "maximum_coverage_delta_over_identity_l1": 0.0,
+        "coverage_threshold_crossings": 0,
+        "retention_threshold_crossings": 0,
+        "retained_component_arrays_exact": true,
+        "common_carve_coverage_references": 243,
+        "common_carve_coverage_digest_matches": 243,
+        "common_coverage_mismatches": 0
+      }
+    },
+    "production_independent_lift_parity": {
+      "recomputed": true,
+      "passed": true,
+      "evidence": {
+        "ordinary_production_lifts": 54,
+        "depth_lifts": 27,
+        "carve_lifts": 27,
+        "nonempty_output_count_minimum": 356,
+        "nonempty_output_count_maximum": 1293,
+        "source_key_reconstructions": 54,
+        "ordered_source_key_mismatches": 0,
+        "maximum_production_independent_errors": {
+          "means": 0.0,
+          "covariance": 0.0,
+          "opacity": 0.0,
+          "sh": 0.0
+        },
+        "maximum_covariance_replay_error": 3.725290298461914e-08,
+        "maximum_depth_sample_replay_error": 0.0,
+        "maximum_carve_volume_formula_error": 1.1920928955078125e-07,
+        "maximum_carve_score_formula_error": 2.384185791015625e-07,
+        "parity_tolerances": {
+          "atol": 2e-06,
+          "rtol": 2e-05
+        }
+      }
+    },
+    "mechanism_lift_field_and_source_key_invariance": {
+      "recomputed": true,
+      "passed": true,
+      "evidence": {
+        "transformed_lift_comparisons": 36,
+        "ordered_source_keys_exact": true,
+        "counts_exact": true,
+        "maximum_field_errors": {
+          "means": 0.0,
+          "covariance": 5.122274160385132e-09,
+          "opacity": 0.0,
+          "sh": 1.1920928955078125e-07
+        },
+        "field_tolerances": {
+          "atol": 2e-06,
+          "rtol": 2e-05
+        },
+        "carve_volume_sidecars_bit_exact_across_gauges": true
+      }
+    },
+    "mechanism_lift_render_invariance": {
+      "recomputed": true,
+      "passed": true,
+      "evidence": {
+        "transformed_lift_comparisons": 36,
+        "train_render_view_comparisons": 324,
+        "all_color_alpha_and_depth_arrays_finite": true,
+        "maximum_absolute_color_error": 2.9802322387695312e-08,
+        "maximum_color_delta_over_identity_l1": 4.666844380538406e-09,
+        "maximum_absolute_color_limit": 5e-06,
+        "color_delta_over_identity_l1_limit": 1e-06,
+        "archived_render_deltas_match_direct_subtraction": true,
+        "coverage_threshold_crossings": 0,
+        "retention_threshold_crossings": 0
+      }
+    },
+    "completion_accounting_and_global_decision": {
+      "recomputed": true,
+      "passed": true,
+      "evidence": {
+        "completion_phase_code": 11,
+        "completed_seeds": 3,
+        "completed_lifts": 54,
+        "completed_models": 0,
+        "source_checks": 54,
+        "candidate_rows": 81,
+        "coverage_retention_checks": 162,
+        "production_independent_lift_cells": 54,
+        "lift_invariance_comparisons": 36,
+        "lift_render_view_comparisons": 324,
+        "serialized_json_summary_reconciled_to_raw": true,
+        "all_decisive_conjuncts_pass": true,
+        "recomputed_phase_a_pass": true,
+        "backend_rescue_or_averaging_used": false
+      }
+    }
+  },
+  "claim_scope": {
+    "confirmed": "Operational gauge invariance of the three frozen routed Stage-1 boundary representations on the frozen three-seed CPU synthetic mechanism protocol under ordinary unmerged Depth and Carve lifts.",
+    "not_claimed": [
+      "held-out utility or quality improvement",
+      "physical opacity, occupancy, visibility, confidence, or albedo semantics",
+      "real-data transfer",
+      "CUDA or gsplat behavior",
+      "speed, memory, or realtime performance",
+      "upstream GaussianImage training equivalence",
+      "production or default authorization"
+    ]
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "artifact_type": "gaussianimage_plus_provider_parity_implementation_seal",
+  "timestamp_utc": "2026-07-17T01:05:09+00:00",
+  "preregistration": {
+    "path": "benchmarks/results/20260717_gaussianimage_plus_provider_parity_PREREG.md",
+    "sha256": "8b8494bebd3829abdffaf00e7ed905137fc928b1d081e1ae567fb61b267bdae3"
+  },
+  "implementation_reviews": [
+    {
+      "path": "benchmarks/results/20260717_gaussianimage_plus_provider_parity_IMPLEMENTATION_REVIEW.md",
+      "sha256": "f15e6e4553d2bea5f919ca03fa0b1621a03b2fb8ca0a96e7053feaa757376752",
+      "verdict": "FAIL"
+    },
+    {
+      "path": "benchmarks/results/20260717_gaussianimage_plus_provider_parity_IMPLEMENTATION_REVIEW_ADDENDUM_1.md",
+      "sha256": "ee043292fc6bb97c3f72b7e40564289959fa415f2c56cc49edc3a698ac2edfe6",
+      "verdict": "PASS"
+    }
+  ],
+  "source_hashes": {
+    "benchmarks/gaussianimage_plus_provider_parity.py": "dc0780c44faec093784d60c3bcf684648ea005c66bfaa04297b814d8862d6daa",
+    "benchmarks/gaussianimage_plus_native_worker.py": "c715b58fa04c09173a5bb755f13a0aa1796ba89deb034d3c7feafb95a08ee2d7",
+    "tests/test_gaussianimage_plus_provider_parity.py": "2bd9073c87caab79b5136a3f9e63e410d78da590f6fd0bd3a4bdbe7d76031207",
+    "benchmarks/results/20260717_gaussianimage_plus_provider_parity_PREREG.md": "8b8494bebd3829abdffaf00e7ed905137fc928b1d081e1ae567fb61b267bdae3",
+    "benchmarks/results/20260717_gaussianimage_plus_provider_parity_IMPLEMENTATION_REVIEW.md": "f15e6e4553d2bea5f919ca03fa0b1621a03b2fb8ca0a96e7053feaa757376752",
+    "benchmarks/results/20260717_gaussianimage_plus_provider_parity_IMPLEMENTATION_REVIEW_ADDENDUM_1.md": "ee043292fc6bb97c3f72b7e40564289959fa415f2c56cc49edc3a698ac2edfe6"
+  },
+  "source_aggregate_sha256": "b7dec8eb1c742c9e99f1670e2610c5060c3a6e45fc83c1789bf986d394189215",
+  "external_bindings": {
+    "static": {
+      "repo": "/home/alex/Documents/GaussianImage_plus",
+      "commit": "549cfaab2b400248f685c12782a180f3cfc038b0",
+      "status": [],
+      "source_hashes": {
+        "models/gaussianimage_covariance.py": "c3a14856e8939bc5c42a48ddbed3ea7f1d5efb01b837f51886a7ebfce0d4ec18",
+        "train.py": "33e6eb9a40ad1c549171feb3b1bfc9211fe1ad38ca83602aed069b943494cbab",
+        "gsplat/gsplat/project_gaussians_2d_covariance.py": "bbfcacac8e3cec552e1b930122aa0a1bae3a72d6d3a4c25b7ea0165321f668c5",
+        "gsplat/gsplat/rasterize_sum_plus.py": "44a72f97128e22700087ea9002a44330ad1aea303d82729a030b01479a3bca80",
+        "gsplat/gsplat/utils.py": "89e49653e5f184e8600ba06fe4001b94daff7947591aabecde7e243ce1cf7472",
+        "gsplat/gsplat/cuda/csrc/config.h": "ef4cb25f4b3e008901b06170ce8ab3a2d112e59fa914cfa67db6790adfaeb01d",
+        "gsplat/gsplat/cuda/csrc/helpers.cuh": "292f5f60fcdf79a59bf1b92400bd97b87b8b07c826af7c2e719f451b2576a792",
+        "gsplat/gsplat/cuda/csrc/foward2d.cu": "fa69684a48c8e7a931977e6aa3b9ec0e05a91f87626e508b54b87e12dd909a04",
+        "gsplat/gsplat/cuda/csrc/forward.cu": "2e64ebb100fc71b008546761db01a8e8b2b2baf556838195be5d7d288fc48162"
+      },
+      "csrc": "/home/alex/Documents/GaussianImage_plus/gsplat/gsplat/csrc.so",
+      "csrc_sha256": "9b57b7e0531a50d87c529d3541fbf370f9d85455836ac0cf5414c01ce48ac222",
+      "python": "/home/alex/Documents/structsplat/results/native_envs/image_gs/bin/python",
+      "python_prefix": "/home/alex/Documents/structsplat/results/native_envs/image_gs",
+      "preload": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6",
+      "preload_sha256": "1fd75fe70354a416d75aef22bcae68c47bd25d20e2d0568c30b1a9838cf62f11",
+      "aggregate_sha256": "341b3bf71472064d4133cdd60ffd067d3f11803b2c1ea13cfa4a11cf4d7a1003"
+    },
+    "checkpoint": {
+      "path": "/home/alex/Documents/structsplat/results/native_gaussianimage_plus_matched_proxy/cells/COCO_train2014_000000000009/s160_n640_seed0/native_logs/COCO_train2014_000000000009_s160/gaussian_model.pth.tar",
+      "sha256": "ad611facd72e813dece1b95c3268dbfd82f8af01cdb5ad67e1c7675cc670794b"
+    },
+    "aggregate_sha256": "b797c34cba616509d51e22d649dc753ac1f906da4cb4739993a0bac53d7fd0b4"
+  },
+  "verification": {
+    "passed": true,
+    "commands": [
+      {
+        "command": [
+          "/home/alex/Documents/realtime-gs/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/test_gaussianimage_plus_provider_parity.py"
+        ],
+        "returncode": 0,
+        "output_sha256": "e2289c230135b682d66e48107f8caab30f5b37878e8daf2e9fb92df9aebb1375",
+        "output": "......................                                                   [100%]\n"
+      },
+      {
+        "command": [
+          "/home/alex/Documents/realtime-gs/.venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "benchmarks/gaussianimage_plus_provider_parity.py",
+          "benchmarks/gaussianimage_plus_native_worker.py",
+          "tests/test_gaussianimage_plus_provider_parity.py"
+        ],
+        "returncode": 0,
+        "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "output": "All checks passed!\n"
+      },
+      {
+        "command": [
+          "/home/alex/Documents/realtime-gs/.venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "benchmarks/gaussianimage_plus_provider_parity.py",
+          "benchmarks/gaussianimage_plus_native_worker.py",
+          "tests/test_gaussianimage_plus_provider_parity.py"
+        ],
+        "returncode": 0,
+        "output_sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+        "output": "3 files already formatted\n"
+      }
+    ]
+  },
+  "repository_revision": "2dddca4aff59702341af9faceefa76ad2505dd83",
+  "command": [
+    "/home/alex/Documents/realtime-gs/.venv/bin/python",
+    "benchmarks/gaussianimage_plus_provider_parity.py",
+    "seal"
+  ],
+  "payload_sha256": "77445ede1d67aaef9a3ac1540aa21e249b773ba9c8d485d80e02875dc8a2b1e6"
+}

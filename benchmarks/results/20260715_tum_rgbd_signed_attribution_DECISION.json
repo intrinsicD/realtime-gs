@@ -1,0 +1,32 @@
+{
+  "config_id": "76c59f31529c0948cb7824c0e477d30c4f7fa5eee27119ef9ab70fbe10c806c4",
+  "confirmation_authorized": false,
+  "confirmatory_archive_sha256": "1459e9488ac0e61a2ec80dfbc35cfb77942f6d8eabded1c8d26a70be650d0e1d",
+  "confirmatory_predicates_sha256": "9f8b1b1a994acac77234cb48a67dfbf07f84d607fadb18f042dbc94f8559e61a",
+  "development_archive_sha256": "05c071672cda22a668860a935124737a4eb4fa772cbad372e73d5a99ce4be205",
+  "development_artifact": "/home/alex/Documents/realtime-gs/benchmarks/results/20260715T160300Z_cpu_tum_rgbd_signed_attribution_sitting.json",
+  "development_artifact_sha256": "ca62497b71cef78bf046d5d4b463a2a71652ac1fc80ca4ce41e3b85b17cb5dfb",
+  "development_occlusion_gate": {
+    "comparisons": {
+      "D90_safeguard": true,
+      "E_plus": true,
+      "P_minus_nonincrease": true,
+      "P_plus_reduction": false,
+      "all": false,
+      "bootstrap_signs": true,
+      "minimum_dense_retention": true,
+      "minimum_dense_supported_targets": true,
+      "minimum_paired_targets": true,
+      "minimum_removed_pairs": true,
+      "minimum_sparse_pairs": true,
+      "positive_risk_ratio": false,
+      "positive_selectivity": true
+    },
+    "minimum_removed_pairs_effective": 1770
+  },
+  "experiment": "tum-rgbd-signed-occlusion-rigidity-attribution",
+  "implementation_aggregate_sha256": "75b0dbb6a84548852dd6de4c5623557c78168ccc305d93ff1a4664f4f4347f3d",
+  "preregistration_sha256": "b6944e3d2862bc88c1d2184a0143a78dcbd2cf5ce3c6be4582b4c2bb43065700",
+  "schema_version": 1,
+  "status": "development_stopped"
+}

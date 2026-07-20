@@ -9,7 +9,15 @@ from rtgs.core.camera import Camera
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.gaussians3d import Gaussians3D, quat_to_rotmat, rotmat_to_quat
 from rtgs.core.metrics import image_metrics, masked_psnr, psnr, ssim
-from rtgs.core.sh import eval_sh, num_sh_bases, rgb_to_sh, sh_to_rgb
+from rtgs.core.sh import (
+    DEFAULT_SMU1_MU,
+    activate_sh_color,
+    eval_sh,
+    eval_sh_preactivation,
+    num_sh_bases,
+    rgb_to_sh,
+    sh_to_rgb,
+)
 
 
 def test_sh_roundtrip_degree0():
@@ -29,6 +37,49 @@ def test_sh_higher_degree_view_dependence():
     d1 = torch.tensor([[1.0, 0.0, 0.0]])
     d2 = torch.tensor([[-1.0, 0.0, 0.0]])
     assert not torch.allclose(eval_sh(2, sh, d1), eval_sh(2, sh, d2))
+
+
+def test_default_sh_activation_matches_explicit_hard_floor():
+    sh = torch.randn(7, num_sh_bases(3), 3)
+    dirs = torch.nn.functional.normalize(torch.randn(7, 3), dim=-1)
+    preactivation = eval_sh_preactivation(3, sh, dirs)
+    assert torch.equal(eval_sh(3, sh, dirs), preactivation.clamp_min(0.0))
+    assert torch.equal(eval_sh(3, sh, dirs, activation="hard"), preactivation.clamp_min(0.0))
+
+
+def test_smu1_is_nonnegative_smooth_and_one_level_bounded():
+    x = torch.linspace(-2.0, 2.0, 1001, dtype=torch.float64, requires_grad=True)
+    hard = activate_sh_color(x, "hard")
+    smooth = activate_sh_color(x, "smu1")
+    difference = smooth - hard
+    assert bool((smooth > 0.0).all())
+    assert float(difference.detach().min()) >= 0.0
+    assert float(difference.detach().max()) <= DEFAULT_SMU1_MU / 2.0 + 1e-12
+    smooth.sum().backward()
+    assert x.grad is not None
+    assert bool((x.grad > 0.0).all())
+    assert bool((x.grad < 1.0).all())
+
+
+def test_smu1_negative_only_straight_through_control():
+    x = torch.tensor([-0.2, -0.01, 0.01, 0.2], dtype=torch.float64, requires_grad=True)
+    output = activate_sh_color(x, "hard_forward_smu1_negative_gradient")
+    hard = x.detach().clamp_min(0.0)
+    assert torch.equal(output.detach(), hard)
+    output.sum().backward()
+    expected_negative = 0.5 * (
+        1.0 + x.detach()[:2] / torch.sqrt(x.detach()[:2].square() + DEFAULT_SMU1_MU**2)
+    )
+    assert torch.allclose(x.grad[:2], expected_negative, atol=1e-12, rtol=0.0)
+    assert torch.equal(x.grad[2:], torch.ones_like(x.grad[2:]))
+
+
+def test_unknown_or_invalid_sh_activation_is_rejected():
+    x = torch.zeros(1)
+    with pytest.raises(ValueError, match="unknown SH color activation"):
+        activate_sh_color(x, "mystery")
+    with pytest.raises(ValueError, match="finite and positive"):
+        activate_sh_color(x, "smu1", smu1_mu=0.0)
 
 
 def test_camera_project_unproject_roundtrip():

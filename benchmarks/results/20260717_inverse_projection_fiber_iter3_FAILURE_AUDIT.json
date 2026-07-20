@@ -1,0 +1,173 @@
+{
+  "namespace": "rtgs.inverse-projection-fiber.iter3.failure-audit.v1",
+  "date": "2026-07-18",
+  "status": "CONSUMED_INCOMPLETE_FAILED_EXECUTION",
+  "official_result_published": false,
+  "rerun_or_resume_permitted": false,
+  "transaction": {
+    "completed_root_indices": [0],
+    "partial_root_indices": [1],
+    "unstarted_root_indices": [2],
+    "real_namespace_untouched": true,
+    "real_interaction_permitted": false
+  },
+  "evidence": {
+    "attempt": {
+      "path": "benchmarks/results/20260717_inverse_projection_fiber_iter3_SYNTHETIC_ATTEMPT.json",
+      "sha256": "3a2b3cdb33e4e68574c1adeb3e44a3a59dfd1f6a22bbd5c980ebf2eafaf07bd1"
+    },
+    "root_0_result": {
+      "path": "runs/inverse_projection_fiber_iter3_synthetic_20260717/root_0/ROOT_RESULT.json",
+      "sha256": "3119fcf8c01b72ade316e3f9af00d7c8e31d10e34f47a10bf5a79cce0450b56b"
+    },
+    "root_0_evidence": {
+      "path": "runs/inverse_projection_fiber_iter3_synthetic_20260717/root_0/evidence.npz",
+      "sha256": "a86c7e7c1624edcf55a26a3f4ed1988122cb5d59a4fb252bb14cae9b4b1ff2bd"
+    },
+    "root_1_initial": {
+      "path": "runs/inverse_projection_fiber_iter3_synthetic_20260717/root_1/gaussians_init.ply",
+      "sha256": "0a79e2e206f8885c4e0645f8f895436b2b94a212388ad333657cf8693272e336"
+    },
+    "audit_script": {
+      "path": "benchmarks/inverse_projection_fiber_iter3_failure_audit.py",
+      "sha256": "10d8f05ade7f3876ba4da18636930afdb912b3ac33bc41219daa5a3c42bb7db6"
+    }
+  },
+  "executed_source_sha256": {
+    "benchmarks/inverse_projection_fiber_iter3.py": "42f5c96fbc596158be41dff554e323e849ffb2be5eb5630c527455d17f6f9670",
+    "src/rtgs/lift/fiber_correspondence.py": "0e0605e1ecea00fd3ccfe6c9585e23594f1b114f9d4135ce1a9bae21de744453",
+    "src/rtgs/lift/inverse_projection_fiber.py": "4e9bd0c62954b2361d2cb79491d97cdfbad29c7c2dd23be0e5f5bff7e75cdd8b"
+  },
+  "terminal_only_context": {
+    "artifact_grade": false,
+    "exception": "RuntimeError: a supported projection left the valid camera domain during M-step",
+    "source_location": "src/rtgs/lift/fiber_correspondence.py:939",
+    "durably_known_scope": "root 1 after initialization and before completed per-arm artifacts",
+    "unknown": ["arm", "outer step", "geometry substep", "camera view", "track"]
+  },
+  "root_0_independent_recomputation": {
+    "all_checked_reported_metrics_match": true,
+    "uot_area": {
+      "parent_purity": 0.5467653169486322,
+      "parent_completeness": 0.25,
+      "outlier_track_dust_recall": 0.2730223843330079,
+      "outlier_observation_dust_recall": 0.056016618452409586,
+      "inlier_track_dust_false_positive_rate": 0.05991938583705705,
+      "inlier_observation_dust_false_positive_rate": 9.537241687198198e-12,
+      "center_error_p90": 1.0810960610118114,
+      "heldout_parent_assignment_accuracy": 0.475,
+      "transport_mass_diagnostics_pass": true,
+      "accepted": false
+    },
+    "uot_uniform": {
+      "parent_purity": 0.5258616417682196,
+      "parent_completeness": 0.25,
+      "outlier_track_dust_recall": 0.20681853899630614,
+      "outlier_observation_dust_recall": 0.034913598836056846,
+      "inlier_track_dust_false_positive_rate": 0.06076308814476539,
+      "inlier_observation_dust_false_positive_rate": 2.182048783244722e-11,
+      "center_error_p90": 1.1268277525299941,
+      "heldout_parent_assignment_accuracy": 0.46875,
+      "transport_mass_diagnostics_pass": true,
+      "accepted": false
+    },
+    "hardmin": {
+      "parent_purity": 0.4247878510378511,
+      "parent_completeness": 0.75,
+      "center_error_p90": 1.065869396041132,
+      "heldout_parent_assignment_accuracy": 0.5
+    },
+    "row": {
+      "parent_purity": 0.466461105052527,
+      "parent_completeness": 0.5,
+      "outlier_track_dust_recall": 0.6284967144550322,
+      "center_error_p90": 1.0572918436512977,
+      "heldout_parent_assignment_accuracy": 0.5125
+    },
+    "oracle": {
+      "parent_purity": 1.0,
+      "parent_completeness": 1.0,
+      "center_error_p90": 1.0592630974118353,
+      "heldout_parent_assignment_accuracy": 0.6125
+    },
+    "shuffled_view": {
+      "parent_purity": 0.4342426215312162,
+      "parent_completeness": 0.125,
+      "center_error_p90": 1.1333384195001575,
+      "heldout_parent_assignment_accuracy": 0.46875
+    },
+    "effects": {
+      "area_minus_hard_purity": 0.12197746591078107,
+      "area_minus_row_purity": 0.08030421189610515,
+      "area_minus_uniform_purity": 0.020903675180412584,
+      "area_minus_shuffled_purity": 0.112522695417416
+    },
+    "source_invariants": {
+      "maximum_center_error_px_across_arms": 1.0048591735576161e-14,
+      "maximum_covariance_relative_error_across_arms": 9.270663807033093e-16,
+      "all_finite_spd": true,
+      "all_depth_bound_incidence": 0
+    },
+    "decomposition_granularity": {
+      "definition": "inlier split-child center distance to its view/parent moment mean",
+      "count": 80,
+      "nonzero_fraction": 0.8375,
+      "median_px": 0.521629993637571,
+      "p90_px": 0.8431089485464724,
+      "maximum_px": 1.1140522814985057
+    }
+  },
+  "claim_disposition": {
+    "refuted": [
+      "D uot-area satisfies the frozen all-root absolute mechanism gate",
+      "C uot-uniform is eligible as the frozen real-data fallback",
+      "the implemented correspondence layer is sufficient to authorize the calibrated fit"
+    ],
+    "withheld": [
+      "calibrated compact-bundle fit",
+      "appearance fit",
+      "C1004 report release",
+      "viewer interaction",
+      "backend or default promotion",
+      "utility and performance claims"
+    ],
+    "unresolved": [
+      "three-root mean effects",
+      "capacity attribution",
+      "negative-control aggregate",
+      "exact crash arm and step",
+      "real-data behavior"
+    ]
+  },
+  "interpretation": [
+    "Two-sided area UOT showed a root-local purity signal but missed the absolute threshold, completeness, and both outlier-recall gates.",
+    "Exact source-fiber equalities were preserved, so the failure is not source-projection drift.",
+    "The oracle labels did not recover good geometry or held-out assignment, showing that association labels alone are insufficient under the current raw-fragment track construction and optimizer.",
+    "Most split-child centers differ from their parent moment center, so the exact fiber is structurally appropriate for a stable track aggregate but not automatically for every independently fitted decomposition fragment."
+  ],
+  "recommended_repairs": [
+    "Use transactional M-steps: tentatively update, validate every plan-supported projection, and roll back parameters plus optimizer state with backtracking on failure.",
+    "Write exclusive failure receipts with root, arm, outer step, geometry substep, view/track incidence, exception, and source/protocol hashes.",
+    "Move the exact source fiber to a dynamically moment-merged source-side track aggregate, or introduce track birth/death/merge before treating raw 2D fragments as physical primitives.",
+    "Calibrate an explicit outlier likelihood or dust cost and add sparse epipolar/visibility candidate gating; area capacity alone does not make outliers unmatched.",
+    "Use an oracle-topology feasibility gate before testing learned association: if oracle associations plus proposed topology cannot recover geometry, do not advance to transport or real data."
+  ],
+  "verification": {
+    "focused_fiber_transport_harness_tests": "84/84 PASS",
+    "cpu_isolated_command": "CUDA_VISIBLE_DEVICES='' ./scripts/verify.sh",
+    "cpu_isolated_result": "PASS including Ruff, non-slow pytest, and docs_sync",
+    "visible_cuda_command": "./scripts/verify.sh",
+    "visible_cuda_result": "FAIL with 21 environmental CUDA failures",
+    "visible_cuda_failure_classes": [
+      "deterministic-algorithm state combined with later CuBLAS operations without CUBLAS_WORKSPACE_CONFIG",
+      "local gsplat extension host libstdc++ missing CXXABI_1.3.15"
+    ],
+    "gpu_or_performance_claim": false
+  },
+  "independent_review": {
+    "reviewer": "/root/iter3_final_implementation_audit",
+    "verdict": "consumed and incomplete; fail-closed behavior correct; root 0 rejects both transport arms and real release",
+    "official_roots_reexecuted_or_reconstructed": false,
+    "real_data_accessed": false
+  }
+}

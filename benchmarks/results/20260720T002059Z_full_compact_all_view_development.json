@@ -1,0 +1,208 @@
+{
+  "schema": "rtgs.full_compact_all_view_development.v1",
+  "classification": "development",
+  "created_at_utc": "2026-07-20T00:20:59Z",
+  "summary": "Single-scene, all-view compact-input reconstruction used to diagnose initialization cost and inspect fitted-view reconstruction quality.",
+  "source_state": {
+    "git_revision_at_start": "1dd449f5fc28391da532182b1ad054ec69acfd6d",
+    "replay_complete": false,
+    "dirty_worktree_at_start": true,
+    "source_isolation": {
+      "input_bundles_immutable": true,
+      "lineage_receipts_present": true,
+      "script_hashes_recorded": true,
+      "imported_dependency_source_fully_frozen": false
+    }
+  },
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_record_kind": "post-run session observation, not receipt-bound",
+    "python": "3.12.9",
+    "torch": "2.9.0+cu128",
+    "cuda_runtime": "12.8",
+    "gsplat": "1.5.3",
+    "structsplat": "0.1.0"
+  },
+  "input": {
+    "scene": "Janelle frame_00008, all available compact views",
+    "view_count": 26,
+    "component_count": 130000,
+    "bundle_total_bytes": 4152383,
+    "bundle_min_bytes": 158025,
+    "bundle_max_bytes": 162657,
+    "bundle_limit_bytes_decimal": 168000,
+    "all_bundles_have_alpha": true,
+    "scope_note": "The size-cap observation applies to these 26 bundles, not to every converted dataset in the repository."
+  },
+  "placement": {
+    "depth_samples_per_component": 32,
+    "sampled_3d_points": 4160000,
+    "point_view_projections": 108160000,
+    "batch_count": 1016,
+    "valid_sparse_entries": 13942595,
+    "selected_seed_count": 5000,
+    "duration_seconds": 14547.61623289896,
+    "duration_hms": "04:02:27.616",
+    "timing_scope": "one observed CPU placement run",
+    "timing_caveat": "No repeated timing distribution, CPU model/thread-control receipt, or system-load receipt was preserved; do not treat this as a general benchmark.",
+    "qualitative_observation": "The user judged the true 5k initialization substantially weaker than the later fitted result. No init-only metric artifact was saved."
+  },
+  "optimization": {
+    "lineage": [
+      {
+        "run": "runs/full_compact_reconstruction_all_20260719",
+        "range": "initialization to 30000",
+        "initial_script_sha256": "d86087543a697ddb243b1a9f188a64a8d196cf47cef823f87bda690f5b49502f",
+        "recovery_script_sha256": "be1f98f4f9df2c69f73b3bbc50d8424cd7599a120dc0f3d202d4381375a80c4f",
+        "recovery": "non-exact recovery after interruption; continued from a deterministic reconstructed target"
+      },
+      {
+        "run": "runs/full_compact_reconstruction_all_20260719_polish_30000_40000",
+        "range": "30000 to 40000",
+        "script_sha256": "fb471de627a0e2111fea13df3352ff2830bed5c25348ba6012095aa651637ee2",
+        "restart": "non-exact segmented restart"
+      },
+      {
+        "run": "runs/full_compact_reconstruction_all_20260719_tail_40000_50000",
+        "range": "40000 to 50000",
+        "script_sha256": "1fcbbfc07751b4573ac1b69c264c1c90550d4ad791b3185d6109dd1b50905be9",
+        "restart": "non-exact segmented restart"
+      },
+      {
+        "run": "runs/full_compact_reconstruction_all_20260719_cooldown_50000_60000",
+        "range": "50000 to 60000",
+        "script_sha256": "7869672060722a3dbb4f0137048b6a578ca3c43cc3ea63f9ff0731390f9b452a",
+        "learning_rate_factor_relative_to_previous_segment": 0.25,
+        "restart": "non-exact segmented restart"
+      },
+      {
+        "run": "runs/full_compact_reconstruction_all_20260719_settle_60000_70000",
+        "range": "60000 to 70000",
+        "script_sha256": "eae4afe41c2d79d1c30792494143c1f13afcd653c5f73a0c57f18509ff90632e",
+        "learning_rate_factor_relative_to_previous_segment": 0.25,
+        "restart": "non-exact segmented restart"
+      }
+    ],
+    "fixed_topology_after_iteration": 30000,
+    "final_gaussian_count": 36816,
+    "restart_effects": {
+      "optimizer_state_reset": true,
+      "rng_state_reset": true,
+      "maximum_observed_opacity_roundtrip_absolute_error": 5.96e-8
+    }
+  },
+  "selection": {
+    "selected_iteration": 70000,
+    "selected_run": "runs/full_compact_reconstruction_all_20260719_settle_60000_70000",
+    "gaussians_final_sha256": "078ecabec2568f873352dcf52ed89e4cf6c2b5346db0f7da80328e522c576cbd",
+    "model_selection_receipt_sha256": "7d11ea7d2fc8e2d18098c6918454309fd969fb205f578376f8854ec53427540b",
+    "fit_complete_receipt_sha256": "44ce70022f9f254532a69a09aa5de0ae0a4901018490402c6265ab033c9f9966",
+    "compact_training_metrics": {
+      "objective": 0.0028448881482920395,
+      "foreground_psnr_db": 37.071324861966644,
+      "crop_psnr_db": 42.0389207693,
+      "crop_ssim": 0.9947992288,
+      "alpha_iou": 0.9744114853
+    },
+    "V_label_fitted_view_diagnostic": {
+      "foreground_psnr_db": 35.3865146637,
+      "crop_psnr_db": 41.1153081258,
+      "crop_ssim": 0.9947740833,
+      "alpha_iou": 0.9767272075
+    },
+    "change_from_30000_to_70000": {
+      "compact_objective_reduction_percent": 8.6368,
+      "compact_foreground_psnr_gain_db": 0.5892
+    },
+    "plateau_rule": {
+      "scope": "settle segment compact-training objective only",
+      "psnr_theil_sen_slope_db_per_1000": 0.0022124510544969667,
+      "recent3_minus_previous3_db": 0.009821158189033952,
+      "median_per_view_objective_improvement_percent": 0.14881087129176285,
+      "views_improving_more_than_1_percent": 2,
+      "view_count": 26,
+      "trailing_nonmaterial_transitions": 10,
+      "regression_detected": false,
+      "met": true,
+      "interpretation": "This is a segment-local stopping condition, not proof of a global or mathematical optimum."
+    }
+  },
+  "original_reference_evaluation": {
+    "all_views_were_used_for_fitting": true,
+    "held_out_views": 0,
+    "novel_view_claim": false,
+    "view_count": 26,
+    "metrics_sha256": "b36573daa54d5cac2f8fedc56b5fea74b993d5274a09bc298991469bdc8d0a39",
+    "evaluation_request_sha256": "0ca40e0c51a58b7bc8e1cf27085181f3081896d4319fbb7371dde42b8824230b",
+    "compact_playback": {
+      "foreground_psnr_db": 35.5732979408,
+      "crop_psnr_db": 40.540893408,
+      "crop_ssim": 0.9704977503
+    },
+    "final_3d_model": {
+      "foreground_psnr_db": 33.4499898324,
+      "crop_psnr_db": 38.4175858131,
+      "crop_ssim": 0.9669554761,
+      "alpha_iou": 0.9744114853,
+      "mean_alpha_outside": 0.01074521564
+    },
+    "compact_to_3d_foreground_psnr_gap_db": 2.1233081084,
+    "role_breakdown_final_3d": {
+      "T_label": {
+        "foreground_psnr_db": 33.635616684,
+        "crop_psnr_db": 38.455034828,
+        "crop_ssim": 0.9660522
+      },
+      "H_label": {
+        "foreground_psnr_db": 33.250641505,
+        "crop_psnr_db": 38.444891612,
+        "crop_ssim": 0.96891858
+      },
+      "V_label": {
+        "foreground_psnr_db": 32.411825816,
+        "crop_psnr_db": 38.140619914,
+        "crop_ssim": 0.97101406
+      }
+    },
+    "role_label_warning": "Every role was fitted. These labels retain dataset bookkeeping only and do not imply held-out evaluation."
+  },
+  "claim_dispositions": {
+    "supported": [
+      "All 26 compact bundles in this scene were used by the reconstruction.",
+      "The selected 70k checkpoint met the declared settle-segment compact-training plateau rule.",
+      "The original-reference figures are fitted-view diagnostics for this one scene.",
+      "The observed placement stage took 14547.616 seconds in this run."
+    ],
+    "not_supported": [
+      "held-out or novel-view generalization",
+      "global convergence",
+      "an uninterrupted exact 70k optimization trajectory",
+      "a general four-hour runtime claim",
+      "a preserved quantitative initialization-quality claim",
+      "replay-complete reproducibility"
+    ]
+  },
+  "commands": {
+    "fit_and_continuation_commands_preserved": false,
+    "fit_command_note": "Exact initial, recovery, and continuation shell invocations were not frozen. Phase configuration and script hashes are bound by each run receipt; the common entrypoint was `.venv/bin/python benchmarks/full_compact_reconstruction.py`.",
+    "viewer_smoke_tested": ".venv/bin/rtgs view --gaussians runs/full_compact_reconstruction_all_20260719_settle_60000_70000/gaussians_final.ply --initial runs/full_compact_reconstruction_all_20260719/gaussians_init.ply --scene /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 8 --rasterizer gsplat --device cuda --packed --antialiased --snapshot-dir runs/full_compact_reconstruction_all_20260719_settle_60000_70000/viewer_snapshots --host 127.0.0.1 --port 8080 --no-open",
+    "viewer_url": "http://127.0.0.1:8080",
+    "verification": [
+      "env CUDA_VISIBLE_DEVICES= PYTHONHASHSEED=0 ./scripts/verify.sh",
+      "env CUDA_VISIBLE_DEVICES= PYTHONHASHSEED=0 .venv/bin/python -m pytest -q"
+    ]
+  },
+  "verification": {
+    "mandatory_verify_passed": true,
+    "full_pytest_passed": true,
+    "independent_results_audit": "Valid exploratory single-scene all-view development evidence with the limitations recorded here."
+  },
+  "limitations": [
+    "All reported image-quality views participated in fitting.",
+    "The trajectory contains non-exact recoveries and segmented restarts that reset optimizer and RNG state.",
+    "The run began from a dirty source tree; script hashes and artifact bindings were retained, but dependency source was not fully frozen.",
+    "Placement timing lacks repeated trials and a complete host-load/thread-control receipt.",
+    "Initialization quality was inspected qualitatively only.",
+    "The exploratory acceleration profile and prototype speed estimates were not preserved as benchmark artifacts and remain hypotheses."
+  ]
+}

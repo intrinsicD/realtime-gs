@@ -1,0 +1,1961 @@
+observations:
+  - id: O01
+    timestamp: "2026-07-14T21:55+02:00"
+    provenance: ai-suggested
+    content: >
+      The current surface-Jacobian path differentiates across invalid zero-valued synthetic
+      depths without validity-aware differences or a slope clamp; this likely explains its
+      extreme covariance conditioning in the two seed-0 probes.
+    context: "Inspection of surface_covariance_from_depth plus CPU covariance probes."
+    potential_type: claim
+    bound_to: [N02, N03]
+    promoted: true
+    promoted_to: "logic/claims.md:C01"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O02
+    timestamp: "2026-07-14T21:55+02:00"
+    provenance: ai-suggested
+    content: >
+      A global isotropic sigma must be tuned using training views only and held constant across
+      observations; z/f times each Gaussian's minor footprint is instead a heterogeneous
+      no-gradient diagnostic and does not answer the roadmap's global-sigma control question.
+    context: "Disambiguation of the three requested covariance arms."
+    potential_type: concept
+    bound_to: [N01]
+    promoted: true
+    promoted_to: "logic/concepts.md:K01"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O03
+    timestamp: "2026-07-14T21:55+02:00"
+    provenance: ai-suggested
+    content: >
+      Disabling voxel merging is necessary for the primary covariance ablation because merge
+      weights multiply Gaussian volume, so changing covariance can otherwise change merged means,
+      colors, and opacity rather than shape alone.
+    context: "Control design derived from merge_by_voxel implementation."
+    potential_type: constraint
+    bound_to: [N01]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R01"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O04
+    timestamp: "2026-07-14T22:18+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the tested three-seed synthetic protocols, no covariance mode is a universal
+      winner: robust surface slightly leads initialization, clean short refinement converges,
+      and train-tuned isotropic leads after perturbed-depth merge+density refinement.
+    context: "Empirical resolution of the three-iteration covariance ablation."
+    potential_type: claim
+    bound_to: [N04, N05, N06, N08]
+    promoted: true
+    promoted_to: "logic/claims.md:C02"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O05
+    timestamp: "2026-07-14T22:18+02:00"
+    provenance: ai-suggested
+    content: >
+      Synthetic GT and perturbed depth do not establish which covariance mode is best for
+      calibrated scenes using actual monocular predictions.
+    context: "Scope boundary retained after resolving the synthetic roadmap question."
+    potential_type: constraint
+    bound_to: [N10]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O06
+    timestamp: "2026-07-14T22:59+02:00"
+    provenance: ai-suggested
+    content: >
+      GradientLifter discards source-view provenance and renders all fitted splats into each
+      sampled target view; because source-ray means and depth-scaled footprints approximately
+      preserve the source projection, own-view splats may suppress the cross-view depth signal.
+    context: "Read-only audit of GradientLifter against its stated cross-view objective."
+    potential_type: claim
+    bound_to: [N11]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O07
+    timestamp: "2026-07-14T22:59+02:00"
+    provenance: ai-suggested
+    content: >
+      The canonical benchmark constructs no synthetic train/test split, so pipeline evaluation
+      falls back to training views; new research comparisons need an explicit strict split or a
+      focused harness like the covariance ablation.
+    context: "Audit of src/rtgs/bench.py and pipeline evaluation fallback."
+    potential_type: constraint
+    bound_to: [N11, N12, N13, N14, N15]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O08
+    timestamp: "2026-07-14T22:59+02:00"
+    provenance: ai-suggested
+    content: >
+      merge_by_voxel has no source-view IDs and therefore merges every component sharing a hash,
+      including overlaps from one fitted view, although lifting documentation describes fusing
+      repeated observations from different views.
+    context: "Audit of merge implementation and lifter call sites."
+    potential_type: claim
+    bound_to: [N13]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O09
+    timestamp: "2026-07-14T22:59+02:00"
+    provenance: ai-suggested
+    content: >
+      CarveLifter scores raw RGB variance across every camera that sees a voxel and raw RGB match
+      to each 2D primitive, with no exposure normalization, robust subset, or occlusion-aware
+      visibility selection.
+    context: "Audit of CarveLifter photometric consistency construction."
+    potential_type: claim
+    bound_to: [N14]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O10
+    timestamp: "2026-07-14T22:59+02:00"
+    provenance: ai-suggested
+    content: >
+      CarveLifter materializes all grid_res cubed voxel centers and projects them through every
+      view before per-ray sampling, making dense-volume work the dominant scaling risk at higher
+      spatial resolution.
+    context: "Audit of CarveLifter allocation and loop structure."
+    potential_type: architecture
+    bound_to: [N15]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O11
+    timestamp: "2026-07-14T23:00+02:00"
+    provenance: ai-suggested
+    content: >
+      Canonical benchmark provenance is incomplete when the worktree is dirty or the Python
+      environment is non-hermetic because its metadata records a revision and torch/platform,
+      but not dirty state, source hashes, CPU model, thread counts, or dependency resolution.
+    context: "Replay and environment audit on the current source-bound CPU result."
+    potential_type: constraint
+    bound_to: [N16]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O12
+    timestamp: "2026-07-14T23:04+02:00"
+    provenance: ai-suggested
+    content: >
+      GradientLifter currently uses sampled depth confidence for post-optimization merge weights,
+      while its depth-anchor penalty weights every ray uniformly and anchors to the jittered initial
+      parameter rather than the unjittered prior fraction.
+    context: "Scholar-grounded audit of DP-GS/NoDrift3R ideas against GradientLifter semantics."
+    potential_type: claim
+    bound_to: [N17]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O13
+    timestamp: "2026-07-14T23:04+02:00"
+    provenance: ai-suggested
+    content: >
+      DP-GS, NoDrift3R, AnchorSplat, and Incremental Gaussian Triangulation converge on confidence
+      gating or local geometric anchoring, but none establishes a universal covariance construction
+      for fitted 2D Gaussians; their mechanisms should seed controlled adaptations, not direct claims.
+    context: "Scholar Inbox digest plus primary-source review recorded in docs/RESEARCH.md."
+    potential_type: constraint
+    bound_to: [N11, N17]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O14
+    timestamp: "2026-07-14T23:04+02:00"
+    provenance: ai-suggested
+    content: >
+      A three-iteration research loop should predeclare controls and effect thresholds, revise the
+      next prompt from observed mechanisms, replicate suspected failures, and finish by attempting
+      falsification under perturbation plus a production-path interaction.
+    context: "Reusable controller prompt committed to docs/RESEARCH_LOOP.md after execution."
+    potential_type: heuristic
+    bound_to: [N01]
+    promoted: true
+    promoted_to: "logic/solution/heuristics.md:H01"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O15
+    timestamp: "2026-07-15T00:39+02:00"
+    provenance: ai-suggested
+    content: >
+      One opt-in GradientLifter mode string can preserve the exact legacy jittered-logit default
+      while selecting confidence-weighted anchoring to the pre-jitter bounded-ray fraction; the
+      existing HybridLifter keyword forwarding and JSON lifter arguments require no pipeline fork.
+    context: "Read-only implementation audit for confidence-weighted normalized-ray anchoring."
+    potential_type: architecture
+    bound_to: [N17]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A01"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O16
+    timestamp: "2026-07-15T00:39+02:00"
+    provenance: ai-suggested
+    content: >
+      Replacing raw-logit squared error with squared bounded-ray-fraction error changes local
+      curvature with respect to the optimized raw parameter by [q(1-q)] squared: the same lambda
+      is 16 times weaker at q=0.5 and about 443 times weaker at q=0.05 or 0.95.
+    context: "Analytic and numeric gradient-scale check against GradientLifter parameterization."
+    potential_type: constraint
+    bound_to: [N17]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O17
+    timestamp: "2026-07-15T00:39+02:00"
+    provenance: ai-suggested
+    content: >
+      Anchor confidence must be stored separately from existing merge confidence: changing or
+      zeroing the latter would confound the anchor ablation through confidence-weighted voxel
+      moments, while invalid fallback depths should receive no backend-prior anchor weight.
+    context: "Audit of prior sampling, anchor loss, and merge component weights."
+    potential_type: constraint
+    bound_to: [N17]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O18
+    timestamp: "2026-07-15T00:39+02:00"
+    provenance: ai-suggested
+    content: >
+      Unjittered anchoring must not remove jittered initialization or its random draw, because the
+      same generator controls later target-view sampling and zero jitter can reintroduce depth-sort
+      ties; normalized ray denotes the scalar AABB-segment fraction, not a unit direction vector.
+    context: "Determinism and camera-ray convention audit."
+    potential_type: constraint
+    bound_to: [N17]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O19
+    timestamp: "2026-07-15T00:39+02:00"
+    provenance: ai-suggested
+    content: >
+      Prior-derived initialization, anchor fractions, and confidence weights should be detached
+      before optimization; a custom differentiable backend currently makes raw_t non-leaf and
+      causes Adam construction to fail, and reused prior graphs could fail on later backward calls.
+    context: "Gradient ownership audit plus a minimal non-leaf Adam probe."
+    potential_type: constraint
+    bound_to: [N17]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O20
+    timestamp: "2026-07-15T00:39+02:00"
+    provenance: ai-suggested
+    content: >
+      Depth Anything V2 Small and current mock backends emit no confidence, and aligned priors do
+      not retain alignment-fit uncertainty; the new confidence behavior therefore needs a
+      deterministic confidence-producing test backend before any real-backend claim.
+    context: "Audit of DepthPrediction producers and aligned-prior metadata."
+    potential_type: constraint
+    bound_to: [N17]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O21
+    timestamp: "2026-07-15T00:42+02:00"
+    provenance: ai-suggested
+    content: >
+      The concurrent anchor implementation leaves sampled confidence NaNs unsanitized, which makes
+      confidence loss and merge weights NaN, and threshold zero selects invalid zero-weight priors
+      because the hard gate uses greater-than-or-equal without an explicit validity condition.
+    context: "Read-only review and edge probe of the live GradientLifter anchor patch."
+    potential_type: constraint
+    bound_to: [N17]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O22
+    timestamp: "2026-07-15T00:42+02:00"
+    provenance: ai-suggested
+    content: >
+      With Smooth L1 beta 0.05, the implemented normalized anchor has 0.625 times the legacy
+      raw-parameter curvature at ray fraction 0.5 and about 0.0226 times at 0.05 or 0.95, so a
+      single unchanged lambda does not provide position-independent matched stiffness.
+    context: "Curvature audit of the live Smooth-L1 normalized anchor implementation."
+    potential_type: constraint
+    bound_to: [N17]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O23
+    timestamp: "2026-07-15T00:38+02:00"
+    provenance: ai-suggested
+    content: >
+      On three tiny corrupted-depth scenes, the uniform anchor constrained ray correction enough
+      that a no-anchor proxy improved held-out PSNR in every seed, but its 0.138 dB mean advantage
+      remains below the preregistered 0.25 dB threshold and does not establish that a particular
+      confidence-aware formulation will pass the larger controlled experiment.
+    context: "Read-only pre-implementation anchor baseline and harness sizing probe."
+    potential_type: claim
+    bound_to: [N17, N18]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O24
+    timestamp: "2026-07-15T01:02+02:00"
+    provenance: ai-suggested
+    content: >
+      A confidence-location negative control must permute already sampled weights among retained
+      valid rays within each source view; shuffling pixels before bilinear sampling does not
+      preserve the optimized-ray weight multiset and cannot isolate spatial correspondence.
+    context: "Post-run protocol audit of the preregistered confidence-anchor experiment."
+    potential_type: constraint
+    bound_to: [N21, N23]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R02"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O25
+    timestamp: "2026-07-15T07:34+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the frozen three-seed synthetic protocol, exact sampled confidence produces a small,
+      seed-consistent held-out depth-RMSE direction but not a material or robust bounded-ray anchor
+      benefit: the 1.149 percent gain misses the 2 percent floor and corrupted-source p90 worsens.
+    context: "Empirical resolution and independent audit of the exact attribution repair."
+    potential_type: claim
+    bound_to: [N24, N25]
+    promoted: true
+    promoted_to: "logic/claims.md:C03"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O26
+    timestamp: "2026-07-15T07:34+02:00"
+    provenance: ai-suggested
+    content: >
+      The stopping conclusion is scoped to synthetic confidence-anchor loss, lambda, threshold,
+      and weighting sweeps under the frozen protocol; it does not reject confidence derived from
+      real observation uncertainty or direct cross-view consistency mechanisms universally.
+    context: "Scope boundary committed in the result audit, experiment log, and roadmap pivot."
+    potential_type: constraint
+    bound_to: [N25, N26]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R03"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O27
+    timestamp: "2026-07-15T08:34+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the frozen three-seed synthetic protocols, target-own-source exclusion does not
+      provide a material or robust geometry benefit over inclusive photometric supervision:
+      Gradient's 0.149 percent held-out RMSE gain missed the 2 percent floor and its source p90
+      worsened, while corrupted-depth Hybrid worsened all three primary geometry metrics.
+    context: "Empirical resolution and three independent audits of the official LOSO experiment."
+    potential_type: claim
+    bound_to: [N27, N28]
+    promoted: true
+    promoted_to: "logic/claims.md:C04"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O28
+    timestamp: "2026-07-15T08:34+02:00"
+    provenance: ai-suggested
+    content: >
+      A matched non-self dropout control for LOSO attribution must match each target's removed
+      primitive count and frozen scalar-opacity sum while assigning every primitive to exactly one
+      non-own target globally; count matching alone can change per-primitive exposure. Even this
+      control does not equalize coherent topology, visibility, projected alpha, color, or coverage.
+    context: "Protocol design, exhaustive assignment checks, and post-run attribution audit."
+    potential_type: constraint
+    bound_to: [N27, N29]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R04"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O29
+    timestamp: "2026-07-15T08:34+02:00"
+    provenance: ai-suggested
+    content: >
+      GradientLifter can select inclusive, leave-one-source-out, or globally balanced matched
+      non-self photometric supervision inside the training render only, while HybridLifter forwards
+      the same option and final construction, anchors, scale logic, merging, and output remain full.
+    context: "Source-aware supervision implementation committed behind a legacy-preserving mode."
+    potential_type: architecture
+    bound_to: [N27, N29]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A02"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O30
+    timestamp: "2026-07-15T10:58+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the frozen three-seed Gradient and corrupted-depth Hybrid protocols, correct fixed
+      position edges strongly localize represented ray-bounded primitives but the sparse graph does
+      not meet whole-scene materiality gates: matched-edge p90 improves 86 to 91 percent and
+      assigned-GT p90 82 to 90 percent, while held-out and source-tail gains remain sub-threshold.
+    context: "Empirical resolution, three independent audits, and committed result documentation."
+    potential_type: claim
+    bound_to: [N32, N33]
+    promoted: true
+    promoted_to: "logic/claims.md:C05"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O31
+    timestamp: "2026-07-15T10:58+02:00"
+    provenance: ai-suggested
+    content: >
+      The sparse-oracle result authorizes no production default, deployability claim, or
+      coefficient/delta/norm/schedule sweep; the only position-branch follow-up is one denser
+      train-only matcher with the same frozen loss before a plane/normal pivot.
+    context: "Preregistered stopping rule committed to result audit, research decisions, and roadmap."
+    potential_type: constraint
+    bound_to: [N32, N34, N35]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R05"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O32
+    timestamp: "2026-07-15T10:58+02:00"
+    provenance: ai-suggested
+    content: >
+      GradientLifter accepts detached validated cross-source pair tensors through
+      lift_with_position_pairs and applies an optional extent-normalized Huber-after-L1 world
+      position loss; HybridLifter forwards the same control and a zero default preserves legacy
+      output and random schedules.
+    context: "Implemented and tested fixed-pair research API committed to architecture documentation."
+    potential_type: architecture
+    bound_to: [N32, N34]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A03"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O33
+    timestamp: "2026-07-15T10:58+02:00"
+    provenance: ai-suggested
+    content: >
+      A degree-, endpoint-, view-pair-, and baseline-matched correspondence derangement does not
+      match geometric feasibility or initial residual magnitude; positive topology claims must
+      remain scoped to that control unless a later control also matches force-relevant geometry.
+    context: "Post-run control audit committed as an explicit result limitation."
+    potential_type: constraint
+    bound_to: [N32]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R06"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O34
+    timestamp: "2026-07-15T11:50+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the frozen three-seed protocol, the raw-patch/epipolar matcher materially broadened
+      represented-node coverage but failed as a valid correspondence source: 17.99 to 19.10
+      percent coverage passed every structural floor, while strict semantic precision was only
+      9.04 to 11.76 percent versus the 60 percent gate.
+    context: "Empirical resolution and committed audit of the stopped dense-matcher experiment."
+    potential_type: claim
+    bound_to: [N37, N38]
+    promoted: true
+    promoted_to: "logic/claims.md:C06"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O35
+    timestamp: "2026-07-15T11:50+02:00"
+    provenance: ai-suggested
+    content: >
+      The precision-gate failure authorizes neither the withheld position arms nor patch, ratio,
+      epipolar, reprojection, confidence, coefficient, delta, norm, or schedule tuning. It rejects
+      this raw-patch graph, not learned matching universally, and triggers the depth-backed
+      plane/normal pivot.
+    context: "Frozen stopping rule committed to the result audit, experiment log, and roadmap."
+    potential_type: constraint
+    bound_to: [N37, N38, N39, N40]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R07"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O36
+    timestamp: "2026-07-15T11:50+02:00"
+    provenance: ai-suggested
+    content: >
+      A separate PositionMatcher protocol can build a fixed positive graph and exact-degree cyclic
+      control from train RGB, calibrated cameras, and detached retained centers without exposing
+      SceneData, depth, sparse points, scene bounds, corruption, or held-out inputs.
+    context: "Matcher API, factory, tests, architecture docs, and harness committed."
+    potential_type: architecture
+    bound_to: [N37, N39]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A04"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O37
+    timestamp: "2026-07-15T11:50+02:00"
+    provenance: ai-suggested
+    content: >
+      Dense fitted-primitive matcher validity must count edges with low-contribution or unlabeled
+      endpoints as false rather than report precision only among labeled pairs; otherwise broad
+      background coverage can appear 71 to 80 percent precise while strict usable precision is
+      only 9 to 12 percent.
+    context: "Difference between the frozen strict gate and post-hoc labeled-pair diagnostic."
+    potential_type: constraint
+    bound_to: [N37, N38]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R08"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O38
+    timestamp: "2026-07-15T13:09+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the frozen three-seed protocol, four-neighbor corrupted-depth PCA targets can pass
+      every structural locality, coverage, planarity, incidence, reachability, and control floor
+      yet fail clean plane validity in every seed; structural plausibility is not sufficient
+      evidence that they represent the correct surface plane.
+    context: "Empirical resolution and committed audit of the stopped surface-target experiment."
+    potential_type: claim
+    bound_to: [N42, N43]
+    promoted: true
+    promoted_to: "logic/claims.md:C07"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O39
+    timestamp: "2026-07-15T13:09+02:00"
+    provenance: ai-suggested
+    content: >
+      Failure of the post-freeze clean target gate withholds all plane/normal optimization arms
+      and authorizes no neighbor, radius, planarity, incidence, audit-threshold, loss-weight, or
+      schedule tuning. The rejection applies to this constructor, not to valid oriented-point
+      losses; the next evidence needs an independent calibrated metric-depth/RGB-D source.
+    context: "Frozen stopping and scope rule committed to result, research, and roadmap artifacts."
+    potential_type: constraint
+    bound_to: [N42, N43, N44, N45]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R09"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O40
+    timestamp: "2026-07-15T13:09+02:00"
+    provenance: ai-suggested
+    content: >
+      A retained-indexed oriented-point API can keep plane normals distinct from alignment-control
+      normals, apply extent-normalized absolute point-to-plane and sign-invariant selected-axis
+      losses, freeze the selected scale axis at step zero, and preserve legacy behavior with zero
+      default coefficients in Gradient and Hybrid lifters.
+    context: "Implemented, tested, and documented surface-loss research interface."
+    potential_type: architecture
+    bound_to: [N42, N44]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A05"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O41
+    timestamp: "2026-07-15T16:51+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the frozen two-sequence TUM protocol, registered metric depth and deterministic local
+      normals produce broad eligible/support populations but do not provide transferable
+      cross-view tail validity: fr1/desk fails surface p90, relative-depth p90, and p10 normal
+      cosine despite passing six coverage/support/median/free-space gates.
+    context: "Empirical resolution, sealed artifacts, and independent reconciliation of Phase A."
+    potential_type: claim
+    bound_to: [N47, N48]
+    promoted: true
+    promoted_to: "logic/claims.md:C08"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O42
+    timestamp: "2026-07-15T16:51+02:00"
+    provenance: ai-suggested
+    content: >
+      A view-keyed oriented-point boundary can require explicit geometry/normal frames, validity,
+      confidence, and immutable provenance, canonicalize detached predictions into world space,
+      and keep a data-specific backend outside production lifter selection.
+    context: "Implemented public surface API, deterministic tests, architecture docs, and harness isolation."
+    potential_type: architecture
+    bound_to: [N47, N49]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A06"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O43
+    timestamp: "2026-07-15T16:51+02:00"
+    provenance: ai-suggested
+    content: >
+      A failed one-shot real-RGB-D target transfer gate withholds all plane/normal utility and
+      authorizes no desk threshold relaxation, difficult-view deletion, V-depth residual
+      filtering, target-grid densification, or backend promotion from the revealed outcome.
+    context: "Frozen stopping rule committed to result, experiment log, research record, and roadmap."
+    potential_type: constraint
+    bound_to: [N47, N48, N49, N50]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R10"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O44
+    timestamp: "2026-07-15T16:51+02:00"
+    provenance: ai-suggested
+    content: >
+      For a bounded source ray and a same-pixel registered depth point, absolute point-to-plane
+      distance equals absolute ray-depth error multiplied by normal-ray incidence. Any later
+      sensor-plane utility test is therefore incidence-weighted depth regularization and must
+      include an ordinary extra-depth anchor control rather than claim unrestricted 3D pulling.
+    context: "Exact scalar-ray attribution identity committed in preregistration and research docs."
+    potential_type: constraint
+    bound_to: [N46, N49, N50]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R11"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O45
+    timestamp: "2026-07-15T18:06+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the frozen fr3/sitting_xyz protocol, a denser T-only z-buffer identifies a real
+      sign-selective occlusion-like subset and improves depth p90, but fails the preregistered
+      target-balanced attribution magnitude: positive reduction is 1.424 points versus 1.751
+      required and risk ratio is 1.7195 with its interval below 2x.
+    context: "Empirical resolution and committed audit of the stopped signed-attribution experiment."
+    potential_type: claim
+    bound_to: [N52, N53]
+    promoted: true
+    promoted_to: "logic/claims.md:C09"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O46
+    timestamp: "2026-07-15T18:06+02:00"
+    provenance: ai-suggested
+    content: >
+      Failure of the signed-attribution development gate authorizes no walking decode,
+      confirmation attempt, density/tolerance/threshold tuning, or plane/normal/depth utility;
+      the untouched confirmation source must remain unopened under this protocol.
+    context: "Frozen stop committed to the decision manifest, result audit, and experiment log."
+    potential_type: constraint
+    bound_to: [N52, N53, N54]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R12"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O47
+    timestamp: "2026-07-15T18:06+02:00"
+    provenance: ai-suggested
+    content: >
+      In fr3/sitting_xyz after dense T-only visibility, target-balanced far-minus-near
+      contradiction increases 11.19 percentage points with a positive bootstrap interval; a
+      preregistered four-cell pose-conditioned sensitivity remains +10.01 points.
+    context: "Resolved secondary temporal audit recorded in the signed-attribution artifact."
+    potential_type: claim
+    bound_to: [N52, N55]
+    promoted: true
+    promoted_to: "logic/claims.md:C10"
+    crystallized_via: empirical-resolution
+    stale: false
+  - id: O48
+    timestamp: "2026-07-15T18:06+02:00"
+    provenance: ai-suggested
+    content: >
+      A standalone benchmark can bind a predecode implementation/source seal, reuse the sealed
+      oriented target constructor, build nested sparse/dense T-only visibility masks without V
+      depth, label signed residuals afterward, and atomically block confirmation after a failed
+      development decision without changing production lifters.
+    context: "Implemented harness, deterministic tests, append-only artifacts, and docs commitment."
+    potential_type: architecture
+    bound_to: [N52, N54]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A07"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O49
+    timestamp: "2026-07-15T18:06+02:00"
+    provenance: ai-suggested
+    content: >
+      The next attribution control should compare a pooled dense T cloud with a preregistered
+      time-local or source-conditioned T-only cloud on new captures while matching pose baselines;
+      this tests capture-state aggregation rather than performing another density sweep.
+    context: "Evidence-driven next-experiment proposal after the sitting development stop."
+    potential_type: heuristic
+    bound_to: [N55, N56]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O50
+    timestamp: "2026-07-15T19:11+02:00"
+    provenance: ai-suggested
+    content: >
+      The accumulated failures do not establish that realtime-gs is near a quality ceiling.
+      They show that its baseline and evaluation are strong enough to reject weak or confounded
+      interventions, while the recurring bottleneck is trustworthy, broad cross-view geometric
+      supervision: several mechanisms produce large local gains but fail coverage, target
+      validity, or whole-scene materiality.
+    context: "Synthesis answering the researcher's question after nine controlled experiment turns."
+    potential_type: claim
+    bound_to: [N32, N37, N47, N52, N57]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: true
+  - id: O51
+    timestamp: "2026-07-15T19:22+02:00"
+    provenance: ai-suggested
+    content: >
+      The strongest true learned-path smoothness candidate is the hard nonnegative spherical-
+      harmonic color clamp: negative preactivations receive zero SH-coefficient gradient. Hard
+      Mahalanobis support is a second dead zone, whereas bounded depth, scale, opacity, 2D color,
+      weight, and position maps already use smooth sigmoid, tanh, or softplus activations. A code
+      audit alone does not establish that smoothing either hard operation will materially improve
+      quality.
+    context: "Read-only audit of differentiable fitting, lifting, refinement, and renderer paths."
+    potential_type: claim
+    bound_to: [N59]
+    promoted: true
+    promoted_to: "trace/exploration_tree.yaml:N61"
+    crystallized_via: empirical-resolution
+    stale: false
+  - id: O52
+    timestamp: "2026-07-15T19:22+02:00"
+    provenance: ai-suggested
+    content: >
+      Before changing color semantics, measure per-view Gaussian/channel incidence below the hard
+      SH floor and its lost-gradient mass; run a calibrated smooth-ReLU ablation only if incidence
+      is material. Treat a support-taper ablation as second priority and expand detached support
+      bounds, because smoothing only the q-threshold cannot restore gradients outside culling.
+    context: "Proposed falsifiable next diagnostic after the learned-path nonsmoothness audit."
+    potential_type: heuristic
+    bound_to: [N59]
+    promoted: true
+    promoted_to: "logic/solution/heuristics.md:H02"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O53
+    timestamp: "2026-07-15T23:44+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the frozen CPU synthetic fixed-topology protocol, the hard SH color floor is not a
+      material optimization bottleneck: every seed and pool failed the incidence and recoverable
+      gradient gates, so no SMU candidate trained.
+    context: "Independently audited SH-floor Phase-A result and documented stopping decision."
+    potential_type: claim
+    bound_to: [N60, N61]
+    promoted: true
+    promoted_to: "logic/claims.md:C11"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O54
+    timestamp: "2026-07-15T23:44+02:00"
+    provenance: ai-suggested
+    content: >
+      The adjacent hard-kernel annulus carries material loss-directed gradient in the frozen CPU
+      setup, but the fixed C=12, W=4 C1 tail and its hard-forward gradient control provide no
+      held-out quality utility under the preregistered comparison.
+    context: "Completed and independently audited support-tail Phase A and Phase B."
+    potential_type: claim
+    bound_to: [N62, N63]
+    promoted: true
+    promoted_to: "logic/claims.md:C12"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O55
+    timestamp: "2026-07-15T23:44+02:00"
+    provenance: ai-suggested
+    content: >
+      In the frozen CPU synthetic fixed-topology setup, the detached 3-sigma cull omits genuine
+      q<12 support at immaterial incidence and mass, so support-safe training is not authorized.
+    context: "Sealed iter2 visibility audit, independent recomputation, and docs commitment."
+    potential_type: claim
+    bound_to: [N64, N65]
+    promoted: true
+    promoted_to: "logic/claims.md:C13"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O56
+    timestamp: "2026-07-15T23:44+02:00"
+    provenance: ai-suggested
+    content: >
+      Expanding a renderer visibility set must preserve the established relative compositing order,
+      including exact-depth ties, or set-incidence effects are confounded with reordering effects.
+    context: "First visibility attempt failed closed; retry code/protocol committed an order-preserving extension."
+    potential_type: constraint
+    bound_to: [N64]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R13"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O57
+    timestamp: "2026-07-15T23:55+02:00"
+    provenance: ai-suggested
+    content: >
+      Carve moment merging may preserve information beyond primitive-count reduction; this requires
+      a shared-raw, exact-count comparison against voxel representatives and global importance
+      pruning before any default claim.
+    context: "Scholar-grounded next-experiment scout and frozen Carve controls preregistration."
+    potential_type: claim
+    bound_to: [N67]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O58
+    timestamp: "2026-07-16T00:37+02:00"
+    provenance: ai-suggested
+    content: >
+      Native stage 1 independently fits each train view with additive, order-independent Gaussian
+      accumulation, while stages 2 and 3 render depth-sorted alpha transmittance and initialize
+      conservative 3D opacity independently of the learned 2D amplitude. Merge then changes the
+      representation again before joint refinement, and no feedback revisits the 2D fits.
+    context: "Read-only end-to-end mathematical audit after the smooth-boundary branches closed."
+    potential_type: architecture
+    bound_to: [N59, N68, N69]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A08"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O59
+    timestamp: "2026-07-16T00:37+02:00"
+    provenance: ai-suggested
+    content: >
+      The repository has no image-resolution pyramid, geometry/appearance block schedule, or
+      covariance-frame mean preconditioner in fitting, lifting, or refinement. These are distinct
+      from the stopped SMU, kernel-tail, visibility, anchor, correspondence, and local-plane
+      branches and can be tested with fixed-topology CPU controls.
+    context: "Cross-check of source code, experiment ledger, roadmap, and current Scholar Inbox analogies."
+    potential_type: claim
+    bound_to: [N68, N69, N70]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O60
+    timestamp: "2026-07-16T00:37+02:00"
+    provenance: ai-suggested
+    content: >
+      A new mixture-reduction utility run should wait for the already frozen Carve moment-versus-
+      exact-count experiment, and a robust-loss intervention should first demonstrate a material
+      residual-tail or outlier-gradient mechanism because refinement already uses pixelwise L1.
+    context: "Adversarial prioritization intended to avoid repeating open or empirically stopped branches."
+    potential_type: heuristic
+    bound_to: [N67, N68, N69, N70]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O61
+    timestamp: "2026-07-16T05:24+02:00"
+    provenance: ai-suggested
+    content: >
+      In the frozen production-scale Carve setup, voxel grouping merges only 2.34%-2.68% of raw
+      primitives and fails every seed's collision/exposure/compression materiality gate; this
+      withholds equal-count utility and does not show that moment merging is worse than pruning.
+    context: "Independently audited Carve Retry-2 Phase-A result and stopping decision."
+    potential_type: claim
+    bound_to: [N67, N71, N72]
+    promoted: true
+    promoted_to: "logic/claims.md:C14"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O62
+    timestamp: "2026-07-16T05:24+02:00"
+    provenance: ai-suggested
+    content: >
+      The native Stage-1-to-lifter boundary is materially dependent on a non-identifiable
+      weight/color representative: product-preserving source renders remain equivalent while
+      coverage, retention, unmerged Depth, and unmerged Carve outputs change. The evidence is
+      qualified and selects no canonical representative.
+    context: "Sealed Stage-1 gauge audit, independent scientist review, and documentation commitment."
+    potential_type: claim
+    bound_to: [N76, N77, N78]
+    promoted: true
+    promoted_to: "logic/claims.md:C15"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O63
+    timestamp: "2026-07-16T05:24+02:00"
+    provenance: ai-suggested
+    content: >
+      The exact frozen 24-to-48 fixed-topology schedule is neither a quality improvement nor
+      exposure-efficient: every candidate loses AUC/final PSNR in every seed, and reduced raster
+      exposure fails quality noninferiority. This does not reject the literal three-level N68
+      proposal or parameter-specific/adaptive schedules.
+    context: "Sealed multiscale result, independent audit, and stopping decision."
+    potential_type: claim
+    bound_to: [N68, N73, N74, N75]
+    promoted: true
+    promoted_to: "logic/claims.md:C16"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O64
+    timestamp: "2026-07-16T05:24+02:00"
+    provenance: ai-suggested
+    content: >
+      A representation-equivalence gate must be feasible at the intervention's native precision
+      before optimizer arms run. An algebraically exact gauge does not justify float64-exact
+      thresholds after a non-idempotent float32 canonicalization; any amendment must be prospective
+      and analytically justified rather than relaxed from hidden outcomes.
+    context: "Two fail-closed Quaternion attempts and an independently audited step-zero diagnosis."
+    potential_type: constraint
+    bound_to: [N80, N81, N82]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R14"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O65
+    timestamp: "2026-07-16T05:24+02:00"
+    provenance: ai-suggested
+    content: >
+      Replacing the repository's bounded nine-parameter weight-times-color appearance with a
+      bounded unit-weight eight-parameter amplitude removes one exact local null coordinate and
+      may reduce Adam motion without changing the open bounded RGB family. Optimization or utility
+      benefit remains untested.
+    context: "GaussianImage source comparison, local Jacobian analysis, and frozen fit-time protocol."
+    potential_type: claim
+    bound_to: [N76, N78]
+    promoted: true
+    promoted_to: "trace/exploration_tree.yaml:N91"
+    crystallized_via: empirical-resolution
+    stale: false
+  - id: O66
+    timestamp: "2026-07-16T05:24+02:00"
+    provenance: ai-suggested
+    content: >
+      Native compositing responsibility weighted by image residual may allocate a fixed split
+      budget better than gradient magnitude because it localizes underfit to contributing parents;
+      distinctness, attribution, and held-out utility remain untested.
+    context: "Scholar-grounded residual allocation design and independently reviewed preregistration."
+    potential_type: claim
+    bound_to: [N79]
+    promoted: true
+    promoted_to: "logic/claims.md:C21"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O67
+    timestamp: "2026-07-16T05:24+02:00"
+    provenance: ai-suggested
+    content: >
+      A gauge-invariant Stage-1-to-lifter boundary should separate scalar amplitude semantics from
+      observed color semantics and compare their factorial effects at exact matched capacity before
+      choosing a representative. Held-out benefit remains untested.
+    context: "Qualified Stage-1 gauge result and independently reviewed semantic-factorial protocol."
+    potential_type: architecture
+    bound_to: [N76, N77]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O68
+    timestamp: "2026-07-16T06:02+02:00"
+    provenance: ai-suggested
+    content: >
+      Stage-1 fit-time appearance is now an explicit native research seam: the current
+      weight-color factorization remains the bit-exact default, while an opt-in bounded
+      unit-weight RGB amplitude can share initialization, freeze geometry, and emit detached
+      diagnostics. The guarded harness is incomplete, so this architecture implies no
+      conditioning, quality, efficiency, or default conclusion.
+    context: "Default-parity tests, outcome-blind seam audit, synchronized architecture docs, and a fail-closed incomplete harness."
+    potential_type: architecture
+    bound_to: [N78, N84]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A09"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O69
+    timestamp: "2026-07-16T06:10+02:00"
+    provenance: ai-suggested
+    content: >
+      Residual-Christoffel sampling suggests that raw residual magnitude is only one part of a
+      stable allocation rule: renderer-Jacobian leverage, inverse-propensity weighting, and local
+      whitening may preserve informative directions better. Curvature can define prospective
+      strata, while geometry/appearance decoupling argues against mixing texture error directly
+      into geometric capacity. Transfer to Gaussian splatting remains untested.
+    context: "2026-07-16 Scholar Inbox digest and comparison with frozen N79/N70 questions."
+    potential_type: heuristic
+    bound_to: [N70, N79, N85]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O70
+    timestamp: "2026-07-16T06:18+02:00"
+    provenance: ai-suggested
+    content: >
+      Frozen-geometry Stage-1 appearance is a box-constrained linear least-squares subproblem.
+      Variable projection could eliminate the gauge and expose whether Adam-coordinate effects are
+      merely incomplete conditional optimization; matched operator work and joint geometry utility
+      remain untested.
+    context: "End-to-end mathematical review of the additive renderer and N78 intervention."
+    potential_type: heuristic
+    bound_to: [N76, N78, N87]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O71
+    timestamp: "2026-07-16T06:18+02:00"
+    provenance: ai-suggested
+    content: >
+      A completeness flag is necessary but not sufficient: evidence primitives must reject NaN
+      invalid archives, malformed decision populations, broadcast metric inputs, contradictory
+      reviews, and incomplete runtime bindings before a Stage-1 scientific seal is credible.
+    context: "Outcome-blind adversarial review of the guarded Stage-1 harness skeleton."
+    potential_type: constraint
+    bound_to: [N78, N88]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R15"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O72
+    timestamp: "2026-07-16T12:49+02:00"
+    provenance: ai-suggested
+    content: >
+      In the deterministic CPU-synthetic, 150-component, 120-update N78 scope, current 9p Adam
+      exhibits material local null-direction motion, but the bounded unit-weight 8p arm loses every
+      appearance-only and joint seed and fails joint non-inferiority. Local projected motion is not
+      sufficient evidence that removing the redundant coordinate improves this fit.
+    context: "Sealed once-only N78 result plus independent raw and scientist audits."
+    potential_type: claim
+    bound_to: [N78, N90, N91]
+    promoted: true
+    promoted_to: "logic/claims.md:C17"
+    crystallized_via: empirical-resolution
+    stale: false
+  - id: O73
+    timestamp: "2026-07-16T15:19+02:00"
+    provenance: ai-suggested
+    content: >
+      The 835 Gaussian parameters are not the native-resolution refinement bottleneck. Current
+      failure is caused by eager transfer of every RGB/mask to CUDA, full-frame Torch-reference
+      autograd with O(pixels times visible Gaussians) work, and a shadowing GaussianImage gsplat
+      fork without the repository's modern 3D rasterization API. A tiled modern-gsplat path with
+      one-view streaming can in principle refine this initialization; host feasibility remains
+      untested.
+    context: "Code/dataflow audit of the unrefined full-resolution 835-splat viewer artifact."
+    potential_type: claim
+    bound_to: [N98, N99]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O74
+    timestamp: "2026-07-16T15:19+02:00"
+    provenance: ai-suggested
+    content: >
+      A compact-observation architecture should retain exact per-view StructSplat fields as
+      normalized queryable teachers, sample native-coordinate patches or pixels, render the 3D
+      student with depth-sorted alpha compositing only over the same regions, supervise RGB plus a
+      separately encoded coverage/mask signal, and reserve original held-out RGB for truth
+      evaluation. Fixed topology should establish equivalence before density control is enabled.
+    context: "Proposed end-to-end interpretation of the user's StructSplat memory motivation."
+    potential_type: architecture
+    bound_to: [N99]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O75
+    timestamp: "2026-07-16T15:19+02:00"
+    provenance: ai-suggested
+    content: >
+      Direct one-to-one matching between projected 3D Gaussians and independently fitted per-view
+      StructSplat components is unsafe as the sole objective: normalized 2D blending differs from
+      depth-ordered 3D transmittance, components have no cross-view physical identity, and the
+      current 20.593 dB training teachers omit source detail. Parameter-set or analytic-overlap
+      losses are therefore auxiliary hypotheses unless correspondence and visibility semantics
+      are supplied.
+    context: "Mathematical comparison of compressed teacher supervision and primitive-space losses."
+    potential_type: constraint
+    bound_to: [N98, N99]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O76
+    timestamp: "2026-07-16T16:15+02:00"
+    provenance: ai-suggested
+    content: >
+      W-VEG (arXiv:2607.01164), delivered in the 2026-07-02 Scholar Inbox digest, is the strongest
+      match to the recalled paper. It evaluates an explicit Gaussian field at arbitrary sample
+      positions by normalized Gaussian kernel regression, culls Gaussian-sample intersections
+      with grid blocks or a BVH, backpropagates sample losses, randomizes within cells to discourage
+      point-grid overfit, and adds capacity at high-error sample locations. This grounds sparse
+      StructSplat teacher queries but does not itself establish image-plane 3DGS refinement.
+    context: "Scholar Inbox search across 200 recent personalized papers and primary-paper method review."
+    potential_type: architecture
+    bound_to: [N99, N100]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O77
+    timestamp: "2026-07-16T16:15+02:00"
+    provenance: ai-suggested
+    content: >
+      A W-VEG-style adaptation can query normalized StructSplat RGB at sampled 2D coordinates and
+      query the 3D student at the same coordinates through exact depth-sorted sparse compositing.
+      Its error-placement rule does not transfer directly: a high-error image point identifies a
+      camera ray, not a 3D position, so student densification still requires projected-Gaussian
+      responsibility, depth, triangulation, or another placement rule. Uniform/background samples
+      are also required alongside Gaussian-density samples to constrain empty space.
+    context: "Transfer analysis from world-space scalar-field sampling to image-plane compact supervision."
+    potential_type: constraint
+    bound_to: [N99, N100]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O78
+    timestamp: "2026-07-16T16:38+02:00"
+    provenance: ai-suggested
+    content: >
+      Gaussian Point Splatting is not a drop-in Stage-3 refinement renderer: its Poisson point
+      counts, pixel rounding, stochastic transparency, and atomic nearest-winner visibility are
+      a forward-only Monte Carlo construction, and the paper explicitly leaves differentiable
+      rendering and scene optimization unresolved. Its opacity-corrected z-buffer semantics also
+      differ from StructSplat's normalized weighted RGB field, whose saved weights are amplitudes
+      rather than alpha-compositing opacities.
+    context: "Primary GPS paper, released CUDA renderer, and comparison with current StructSplat and Stage-3 semantics."
+    potential_type: constraint
+    bound_to: [N99, N101]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O79
+    timestamp: "2026-07-16T16:38+02:00"
+    provenance: ai-suggested
+    content: >
+      GPS is a strong proposal distribution for the frozen StructSplat teacher. If component i
+      is selected proportional to its in-image weighted Gaussian mass, x is sampled from that
+      component, and its color c_i is used with squared error, then conditional expected c_i at x
+      equals the normalized StructSplat color and the expected student gradient targets that
+      color. Querying the exact normalized field at the same sampled x is the lower-variance first
+      arm; direct component-color labels are an O(samples) follow-up, with uniform foreground,
+      boundary, and background strata required to constrain empty space.
+    context: "Transfer derivation for colored teacher samples and a controlled fixed-topology ablation."
+    potential_type: architecture
+    bound_to: [N99, N101]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A10"
+    crystallized_via: verbal-affirmation
+    stale: false
+  - id: O80
+    timestamp: "2026-07-16T16:59+02:00"
+    provenance: user
+    content: >
+      Compact refinement must have no source-RGB tensor or path in its data model. Original images
+      remain unchanged on disk and may be reloaded lazily only by a physically separate evaluator
+      or viewer after configurations are frozen, so they retain their role as truth evidence
+      without becoming optimization or model-selection inputs.
+    context: "User clarification of the original StructSplat memory and training-data contract."
+    potential_type: constraint
+    bound_to: [N99, N103, N104]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R16"
+    crystallized_via: verbal-affirmation
+    stale: false
+  - id: O81
+    timestamp: "2026-07-16T16:59+02:00"
+    provenance: ai-suggested
+    content: >
+      Current Carve creates one raw 3D candidate per retained 2D component but then performs
+      many-to-one voxel merging and returns only standard Gaussian parameters. Neither merge-group
+      membership nor source component IDs survive in Gaussians3D, the 835-splat PLY, or density
+      control. Exact correspondence therefore requires a newly bound lineage sidecar, and the
+      current 835 artifact cannot recover it retrospectively.
+    context: "Read-only lineage audit across Carve, voxel merge, Gaussians3D serialization, and density surgery."
+    potential_type: constraint
+    bound_to: [N98, N105]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O82
+    timestamp: "2026-07-16T16:59+02:00"
+    provenance: ai-suggested
+    content: >
+      Standard global depth-sorted compositing over all overlapping 3D splats is the valid primary
+      sparse-ray objective. Initial lineage may improve early credit assignment if used as a weak
+      annealed prior and propagated through topology changes, whereas parent-only rendering omits
+      occlusion and overlapping basis interactions and is suitable only as a diagnostic control.
+      A fixed-topology matched-ray comparison should precede any densification transfer.
+    context: "Mathematical supervision analysis and proposed N105 mechanism experiment."
+    potential_type: heuristic
+    bound_to: [N99, N105]
+    promoted: true
+    promoted_to: "logic/solution/heuristics.md:H03"
+    crystallized_via: verbal-affirmation
+    stale: false
+  - id: O83
+    timestamp: "2026-07-16T17:17+02:00"
+    provenance: user
+    content: >
+      Compact supervision must decouple four cardinalities: the full per-view 2D teacher count,
+      the explicitly selected 3D initialization budget, the independently dynamic 3D population,
+      and the ray or patch batch size. Every converged 2D component remains eligible to supervise
+      the student even if it was not selected for initialization; 3D split, clone, and prune may
+      subsequently create more or fewer splats without changing the observation objective.
+    context: "User scalability requirement for future high-density StructSplat and adaptive 3D refinement."
+    potential_type: architecture
+    bound_to: [N99, N105, N107]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A11"
+    crystallized_via: verbal-affirmation
+    stale: false
+  - id: O84
+    timestamp: "2026-07-16T17:17+02:00"
+    provenance: ai-suggested
+    content: >
+      Training risk must be defined in image/ray space rather than by component count. Raw
+      Gaussian-mass sampling has marginal proposal q_G(x)=D(x)/Z and can change when an equivalent
+      normalized field is fragmented into more unscaled components; mixing it with a fixed pixel
+      proposal and weighting by the recorded target/proposal ratio preserves the same expected
+      objective. Exact opacity-mass splits should preserve B, D, target, proposal, loss, and
+      gradient and serve as an invariance test.
+    context: "Cardinality-invariance derivation for GPS-inspired teacher sampling."
+    potential_type: constraint
+    bound_to: [N102, N107, N108]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O85
+    timestamp: "2026-07-16T17:17+02:00"
+    provenance: ai-suggested
+    content: >
+      A scalable implementation should shard immutable teachers by view, build an O(N2D) mass
+      alias table and static tile-CSR or multilevel support index, and group sampled points into
+      small crops or selected tiles rendered by a pluggable differentiable student backend. The
+      target is O(N2D) one-time indexing plus local teacher intersections and O(N3D) per-view
+      projection plus local student intersections, never materializing samples-by-all-components,
+      full-resolution images, or a dense N2D-by-N3D correspondence matrix.
+    context: "Read-only scaling audit of StructSplat tiled rendering, dense Trainer contracts, and density surgery."
+    potential_type: architecture
+    bound_to: [N105, N107, N108]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O86
+    timestamp: "2026-07-16T17:17+02:00"
+    provenance: ai-suggested
+    content: >
+      The generic Gaussians2D adapter is suitable for bounded initialization but not as an exact
+      scalable supervision source: it clamps StructSplat colors and omits renderer epsilon,
+      support/fade, effective/filter covariance, and future affine-color semantics. Compact
+      refinement therefore needs a lossless self-describing native field contract and may project
+      a separate bounded coreset through the existing adapter for initialization.
+    context: "Audit of realtime-gs StructSplat conversion against the native normalized renderer contract."
+    potential_type: constraint
+    bound_to: [N99, N107, N108]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R17"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O87
+    timestamp: "2026-07-16T17:24+02:00"
+    provenance: user-revised
+    content: >
+      The canonical end-to-end notation is k to m_i to N to N_opt: adaptive RGB-to-2D fitting may
+      return a different m_i per view; the full set of compact fields provides RGB-free geometric
+      and appearance evidence while an independently chosen all-or-coreset policy creates N
+      initial 3D splats; sampled global 3D-to-2D-field refinement then performs ordinary parameter
+      and topology optimization to an independent N_opt viewer model.
+    context: "User-authored restatement confirming the intended compact pipeline."
+    potential_type: architecture
+    bound_to: [N99, N106, N107, N109]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A11"
+    crystallized_via: definition-usage
+    stale: false
+  - id: O88
+    timestamp: "2026-07-16T17:24+02:00"
+    provenance: ai-suggested
+    content: >
+      RGB-free indexed sampling changes the memory scaling target, but faster optimization, better
+      convergence, and higher held-out quality are separate hypotheses. Compact teachers are
+      lossy, Monte Carlo labels add variance, sparse exposure can miss residuals, and final N_opt
+      can confound comparisons; N110 therefore requires matched ray/renderer/optimizer work,
+      teacher-fidelity reporting, original-RGB evaluation only after freezing, and time-to-quality
+      plus peak-memory curves rather than a single terminal score.
+    context: "Scope boundary for the expected benefits of the confirmed compact pipeline."
+    potential_type: constraint
+    bound_to: [N108, N109, N110]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O89
+    timestamp: "2026-07-16T17:28+02:00"
+    provenance: user-revised
+    content: >
+      Cardinality notation uses init and opt as semantic subscripts in both domains:
+      N_init,i^2D maps to N_opt,i^2D for each view's adaptive 2D fit, and the combined compact
+      observations initialize N_init^3D before sampled refinement produces N_opt^3D. A missing view
+      index means the relevant 2D count is deliberately shared, not that per-view variation was
+      forgotten.
+    context: "User correction to the canonical compact-pipeline notation."
+    potential_type: concept
+    bound_to: [N107, N109, N111]
+    promoted: true
+    promoted_to: "logic/concepts.md:K02"
+    crystallized_via: definition-usage
+    stale: false
+  - id: O90
+    timestamp: "2026-07-16T18:44+02:00"
+    provenance: ai-suggested
+    content: >
+      CompactCarve is now a separate CPU CompactInitializer over ReconstructionInputs. A fixed
+      candidate pool proposes source-component rays and covariances, while coverage-weighted
+      scoring queries every teacher and returns exactly N_init^3D on sufficient support. Lineage
+      is hard for proposal/covariance but never selects supervision. Exact co-located identical
+      amplitude splitting preserves the tested scores and geometry; broader fragmentation is not
+      covered.
+    context: "Implemented and independently audited Phase-1 compact initialization mechanism."
+    potential_type: architecture
+    bound_to: [N106, N107, N108, N112, N113, N114]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A12"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O91
+    timestamp: "2026-07-16T18:44+02:00"
+    provenance: ai-suggested
+    content: >
+      ReconstructionInputs.from_scene does not establish strict held-out isolation for optional
+      sparse points or bounds_hint: points can precede the selected-view filter and calibrated
+      bounds can be derived from all masks/cameras before splitting. Before a calibrated compact
+      run, filter points through selected-view visibility and provenance-bind or recompute bounds
+      from training-only information.
+    context: "Independent audit of the compact data and initializer path."
+    potential_type: constraint
+    bound_to: [N94, N104, N106, N108, N110, N114]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O92
+    timestamp: "2026-07-16T18:44+02:00"
+    provenance: ai-suggested
+    content: >
+      The first sampled-refinement seam should be a separate PointRasterizer and CompactTrainer,
+      not an adaptation of RGB-bearing SceneData/Trainer. Prove selected pixel-center forward and
+      gradient parity against the dense Torch rasterizer, then optimize fixed topology with iid
+      discrete pixels before comparing the distinct continuous-area proposal. Global compositing
+      must include every overlapping 3D Gaussian; lineage remains diagnostic.
+    context: "Post-CompactCarve design of the next mechanism experiment."
+    potential_type: architecture
+    bound_to: [N99, N102, N104, N105, N108, N110, N115]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A13"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O93
+    timestamp: "2026-07-16T18:44+02:00"
+    provenance: ai-suggested
+    content: >
+      Incremental Online Scene Reconstruction by 3D Gaussian Triangulation suggests protecting
+      already optimized historical regions while admitting new geometry. This may later motivate
+      a freeze/active-region topology schedule, but the repository's earlier plane-construction
+      target failed and the idea supplies no present CompactCarve or refinement evidence.
+    context: "Scholar Inbox digest used to ground post-initializer research directions."
+    potential_type: heuristic
+    bound_to: [N110, N115]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O94
+    timestamp: "2026-07-16T18:44+02:00"
+    provenance: ai-suggested
+    content: >
+      Bake It Till You Make It separates lower-frequency geometry/view appearance from
+      high-frequency texture-atlas detail and applies sparsity pressure. It motivates treating
+      compact-teacher fidelity and missing high-frequency appearance as a later residual/appearance
+      question rather than changing CompactCarve geometry, but no texture transfer is implemented.
+    context: "Scholar Inbox digest used to ground alternative end-to-end perspectives."
+    potential_type: architecture
+    bound_to: [N99, N110]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O95
+    timestamp: "2026-07-16T20:29+02:00"
+    provenance: ai-suggested
+    content: >
+      In the sealed CPU scope, sparse point rendering preserves the dense reference renderer's
+      complete frozen-synthetic pixel-center forward outputs, parameter/screen-space gradients,
+      camera-global visible set, and depth compositor; the authorized calibrated interaction also
+      matches 4,096 frozen C0001 pixel-center draws from the 835-Gaussian PLY. This does not imply
+      full-image calibrated, arbitrary-coordinate active-gradient, optimization, or CUDA parity.
+    context: "One-shot N116 result plus independent Phase-A and calibrated audits."
+    potential_type: claim
+    bound_to: [N115, N116]
+    promoted: true
+    promoted_to: "logic/claims.md:C18"
+    crystallized_via: empirical-resolution
+    stale: false
+  - id: O96
+    timestamp: "2026-07-16T20:29+02:00"
+    provenance: ai-suggested
+    content: >
+      The implemented discrete Gaussian/rejection mixture, including rejected zero-loss attempts
+      in the fixed denominator, is an unbiased estimator of uniform finite-pixel risk on the exact
+      fixture and is invariant to attempt microchunking within numerical tolerance. This proves an
+      estimator identity, not real-teacher optimization variance or convergence utility.
+    context: "Exact enumeration and 64-seed Monte Carlo component of sealed N116."
+    potential_type: claim
+    bound_to: [N108, N115, N116]
+    promoted: true
+    promoted_to: "logic/claims.md:C19"
+    crystallized_via: empirical-resolution
+    stale: false
+  - id: O97
+    timestamp: "2026-07-16T22:38+02:00"
+    provenance: ai-suggested
+    content: >
+      The current fixed-topology CPU mechanism is bounded at its frozen small cardinalities but
+      does not yet satisfy A11's production scaling boundary. Strict loading records but does not
+      cap aggregate uncompressed bytes or total components; trainer preflight follows whole-input
+      device transfer and estimates a CPU tile index even for other backends; index entry and
+      candidate caps are per view and the candidate cap fires after Python tile-list allocation;
+      CUDA teacher fallback scans all m_i components; autograd retains point-by-visible-Gaussian
+      chunk graphs until backward; exact checkpoint risk costs five full fitted-window passes; and
+      CompactTrainer enforces N_opt^3D=N_init^3D with no split, clone, merge, or prune phase.
+    context: "Outcome-blind source audit separating the frozen N117 experiment from later variable-cardinality production scaling."
+    potential_type: constraint
+    bound_to: [N108, N110, N117, N118]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+    # STATE UPDATE: N121/O102 resolve the preflight-before-transfer and optional-geometry
+    # device-residency subpoints. Aggregate device/index budgets, indexed CUDA queries,
+    # backward activation scaling, exhaustive checkpoint work, and dynamic topology remain open.
+  - id: O98
+    timestamp: "2026-07-16T23:06+02:00"
+    provenance: ai-suggested
+    content: >
+      Under the exact three-seed CPU synthetic fixed-topology protocol, importance-corrected
+      Gaussian proposals do not yield a global convergence win: the discrete-pixel mixture is
+      neutral/negative against uniform sampling, while the continuous-area mixture is only
+      noninferior and misses the frozen materiality floor. This does not answer calibrated or
+      density-enabled behavior and does not support a production default.
+    context: "One-shot N119 result and independent digest-bound scientist audit."
+    potential_type: claim
+    bound_to: [N117, N119]
+    promoted: true
+    promoted_to: "logic/claims.md:C20"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O99
+    timestamp: "2026-07-17T00:23+02:00"
+    provenance: ai-suggested
+    content: >
+      The calibrated fixed-topology interaction contains bound phase-local evidence that compact-
+      teacher and isolated held-out sampled MSE improved, but its terminal exact-render failure
+      prevents an overall integration or capability claim. Post-failure snapshots and a live
+      viewer are diagnostics only.
+    context: "N120 calibrated failure audit and separately labelled post-failure diagnostics."
+    potential_type: claim
+    bound_to: [N120]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O100
+    timestamp: "2026-07-17T00:23+02:00"
+    provenance: ai-suggested
+    content: >
+      CompactTrainer now completes the separate compact-training side of A13: it consumes
+      ReconstructionInputs plus a fixed 3D initialization, queries independently sampled compact
+      teachers, globally composites every eligible 3D Gaussian through PointRasterizer, and keeps
+      RGB and lineage out of supervision. Topology remains fixed and the path is not wired into
+      the CLI/pipeline.
+    context: "Implemented, tested, audited, and documented fixed-topology compact refinement."
+    potential_type: architecture
+    bound_to: [N116, N119, N120, N121]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A13"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O101
+    timestamp: "2026-07-17T00:23+02:00"
+    provenance: ai-suggested
+    content: >
+      A consumed calibrated lifecycle cannot be repaired by later snapshots or harness changes.
+      Future success requires a new preregistered namespace whose actual spawned v2 worker renders
+      with gsplat/CUDA and completes the process-owned HTTP viewer smoke; separately bound ABI and
+      live-viewer diagnostics establish prerequisites only.
+    context: "Terminal N120 failure, outcome-free N121 repair, and independent scientist pass."
+    potential_type: constraint
+    bound_to: [N120, N121]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R18"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O102
+    timestamp: "2026-07-17T00:23+02:00"
+    provenance: ai-suggested
+    content: >
+      Preflight-before-working-set transfer, geometry omission, and bounded non-CPU overlap counts
+      remove specific avoidable allocation hazards but do not establish production scale. All
+      teachers remain resident, CUDA teacher fallback remains unindexed, Python index state is
+      eager, and Torch backward retains approximately outer_microbatch times visible-Gaussian
+      saved state until each immediate backward.
+    context: "N121 scalability hardening plus independent code and CUDA diagnostic audit."
+    potential_type: constraint
+    bound_to: [N118, N121]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R19"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O103
+    timestamp: "2026-07-17T00:48+02:00"
+    provenance: ai-suggested
+    content: >
+      The frozen real-data GaussianObservationField archives preserve the exact StructSplat
+      normalized field semantics at native pixel centers: all seven source-bound CUDA rasters and
+      random point queries agree to low floating-point error, with no detected fit-window,
+      half-pixel, covariance, amplitude, or raw-color export mismatch.
+    context: "Post-failure isolated Stage-1 fidelity and semantic audit N123."
+    potential_type: claim
+    bound_to: [N113, N120, N123]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O104
+    timestamp: "2026-07-17T00:48+02:00"
+    provenance: ai-suggested
+    content: >
+      The coarse current 3D result is bounded upstream by low-fidelity teachers: fitting only 640
+      Gaussians for 100 steps over each 24.55-million-pixel unmasked studio frame yields about
+      19.49 dB mean full-image and 18.83 dB mean foreground PSNR, with only tens of component
+      centers on the person. Teacher fidelity and allocation must be screened before attributing
+      the visual failure solely to 2D-to-3D lifting or compact optimization.
+    context: "N123 separates Stage-1 representation loss from downstream sampling and lifting."
+    potential_type: constraint
+    bound_to: [N120, N123]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O105
+    timestamp: "2026-07-17T00:48+02:00"
+    provenance: ai-suggested
+    content: >
+      StructSplat acquisition provenance binds the actual external FitConfig digest, but the
+      calibrated human-facing plan also reports generic native-backend controls (`lr`,
+      `grad_init_mix`, `row_chunk`, and appearance fields) that the StructSplat adapter does not
+      forward. Future plans should report effective external controls explicitly to avoid
+      misleading hyperparameter interpretation.
+    context: "Source/config audit performed alongside N123; reproducibility remains intact."
+    potential_type: constraint
+    bound_to: [N113, N123]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O106
+    timestamp: "2026-07-17T01:10+02:00"
+    provenance: ai-suggested
+    content: >
+      On C0001 in two exploratory executions, concentrating a 640-component StructSplat fit on
+      the masked/cropped target improves foreground PSNR by about 3.1 dB over the frozen
+      full-frame teacher. This combines masking, cropping, initialization-domain changes, and
+      budget concentration and therefore does not identify any one causal mechanism or establish
+      multi-view, held-out, downstream, or capacity behavior.
+    context: "N124 screen and QUALIFIED independent audit."
+    potential_type: claim
+    bound_to: [N123, N124]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O107
+    timestamp: "2026-07-17T01:10+02:00"
+    provenance: ai-suggested
+    content: >
+      Current CUDA StructSplat fitting is not bitwise replay-deterministic under the recorded seed:
+      a fresh process preserved arm ordering but changed fitted archive hashes and PSNR slightly.
+      Exact output archives must remain content-bound, and future confirmatory protocols must
+      either enforce deterministic execution or define statistical repeated-run decisions.
+    context: "Fresh replay and independent audit of N124."
+    potential_type: constraint
+    bound_to: [N124]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O108
+    timestamp: "2026-07-17T01:41+02:00"
+    provenance: ai-suggested
+    content: >
+      Effective per-view acquisition provenance must construct and digest the actual external
+      InitConfig with the executed seed. Reusing a single-view descriptor can silently record a
+      wrong initialization seed even when the requested seed, bound worker source, and resulting
+      teacher archives remain content-bound; FitConfig digests do not cover InitConfig.
+    context: "QUALIFIED audit of recovered seven-view masked acquisition N125."
+    potential_type: constraint
+    bound_to: [N125, N126]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O109
+    timestamp: "2026-07-17T02:42+02:00"
+    provenance: ai-suggested
+    content: >
+      For the sealed seven-view masked-bundle protocol, replacing center-amplitude occupancy with
+      mean or the selected LSE beta=2 scalar does not improve the fixed-835 lift. LSE beta=2
+      slightly increases true-positive occupancy recall but admits many more false positives and
+      worsens both multiview foreground coverage and compact-teacher MSE; the center scalar should
+      remain only the local comparison baseline, not a universal default.
+    context: "Independent QUALIFIED PASS audit and exact replay of N127."
+    potential_type: claim
+    bound_to: [N127]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O110
+    timestamp: "2026-07-17T02:42+02:00"
+    provenance: ai-suggested
+    content: >
+      The N127 report views are isolated from the scalar selector but are not novel or fully
+      design-unseen: earlier disclosed all-view sizing diagnostics and Stage-1 acquisition saw the
+      same views, and Stage B consumes all seven. Claims must therefore say selector-held-out and
+      remain local to the frozen masks, teachers, candidate pool, and fixed 835-output lift.
+    context: "Chronology and data-flow qualification from the authoritative N127 audit."
+    potential_type: constraint
+    bound_to: [N125, N127]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O111
+    timestamp: "2026-07-17T09:38+02:00"
+    provenance: ai-suggested
+    content: >
+      A G²SR-inspired correspondence branch can preserve the no-RGB-after-Stage-1 contract:
+      while RGB is still authorized, track each reference 2D Gaussian's center and four
+      principal-axis sigma points with forward/backward optical flow, serialize only the accepted
+      per-view Gaussian targets and track provenance, then triangulate and projection-match those
+      compact targets downstream. This supplies the cross-view identity that independent
+      StructSplat sets and one-center-ray carving currently lack.
+    context: "Primary-paper comparison requested in N132; no repository implementation or result yet."
+    potential_type: architecture
+    bound_to: [N103, N105, N107, N132]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O112
+    timestamp: "2026-07-17T09:38+02:00"
+    provenance: ai-suggested
+    content: >
+      G²SR is evidence for correspondence-based geometric initialization, not for the complete
+      realtime-gs quality/scaling objective. It is evaluated primarily for two- or three-view
+      surface/depth reconstruction at 384x512, reports rendering metrics only over opacity-valid
+      pixels, has 73.1--85.8% rendering coverage, and explicitly trails fine-texture baselines.
+      Full-resolution photorealism, independently fitted variable-cardinality 2D sets, compact
+      RGB-free density optimization, and N_opt^3D split/merge behavior therefore remain open.
+    context: "Scope qualification from G²SR Sections IV-A and IV-D during N132."
+    potential_type: constraint
+    bound_to: [N110, N132]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O113
+    timestamp: "2026-07-17T11:53+02:00"
+    provenance: ai-suggested
+    content: >
+      The current G²SR-inspired repository implementation is a mechanism diagnostic, not a
+      reproduction or complete lifting backend. It implements five-sigma-point flow sampling,
+      local affine covariance transport, forward/backward checks, and calibrated DLT center
+      triangulation, but not G²SR's affine-derived normal initialization, conservative multi-view
+      scale initialization, or projected-Gaussian Hellinger Gauss--Newton refinement. A successful
+      diagnostic would therefore establish only that useful tracked center geometry exists on the
+      calibrated capture.
+    context: >
+      Reinspection of the repaired correspondence harness and geometry core while answering N132;
+      the official flow acquisition and real-data analysis have not run.
+    potential_type: constraint
+    bound_to: [N132]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O114
+    timestamp: "2026-07-17T12:24+02:00"
+    provenance: ai-suggested
+    content: >
+      The planned fixed-835 old-640 versus new-2000 crossover is a teacher-package comparison,
+      not a pure cardinality ablation: cameras, fit windows, mask-derived bounds, all-component
+      center-ray policy, depth samples, 3D count, and refinement sampling are paired, but the
+      historical 640 fields lack exact mean residuals and bind a different fit configuration.
+      Any later delta must therefore be attributed to the higher-capacity/new-semantics teacher
+      package unless a separately regenerated matched-semantics 640 control is run.
+    context: >
+      Outcome-free implementation and actual-input validation of the teacher-capacity crossover;
+      no official plan, selection, evaluation, or viewer phase ran.
+    potential_type: constraint
+    bound_to: [N123, N125]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O115
+    timestamp: "2026-07-18T04:56+02:00"
+    provenance: ai-executed
+    content: >
+      Exact source projection is a valid per-track constraint, but independently fitted or
+      moment-split 2D fragments are not guaranteed to be tracks. In the completed synthetic root,
+      83.75% of inlier child centers differed from the latent parent's projected center and both
+      capacity-aware transport arms missed the frozen release floors. The negative conclusion is
+      therefore scoped to raw-fragment track identity, not to exact pixel-ray fibers for stable or
+      dynamically moment-merged source aggregates.
+    context: "Independent root-0 recomputation and decomposition-granularity audit in N134/N135."
+    potential_type: claim
+    bound_to: [N134, N135]
+    promoted: true
+    promoted_to: "logic/claims.md:C22"
+    crystallized_via: empirical-resolution
+    stale: false
+  - id: O116
+    timestamp: "2026-07-18T04:56+02:00"
+    provenance: ai-suggested
+    content: >
+      A future fiber M-step should be transactional: apply a tentative update, validate every
+      supported projection, and roll back both parameters and optimizer state while backtracking
+      when any projection leaves the calibrated camera domain. Failure receipts should identify
+      root, arm, outer step, geometry substep, view, track, exception, and exact source hashes.
+    context: >
+      N134 stopped on a valid-domain exception after publishing no exact arm/substep receipt; this
+      is a proposed lifecycle repair, not an executed or validated optimizer.
+    potential_type: heuristic
+    bound_to: [N134]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O117
+    timestamp: "2026-07-18T04:56+02:00"
+    provenance: ai-suggested
+    content: >
+      Area or uniform transport capacity is insufficient as an outlier model: the completed
+      area-UOT arm left 72.7% of outlier-track capacity and 94.4% of outlier-observation capacity
+      outside dust. A successor should calibrate an explicit null likelihood or dust cost and use
+      sparse epipolar, visibility, and valid-domain candidate gating while keeping capacity,
+      association confidence, existence, opacity, and appearance as separate quantities.
+    context: "Root-0 dust-capacity diagnosis from the independent N134 failure audit."
+    potential_type: heuristic
+    bound_to: [N134, N135]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O118
+    timestamp: "2026-07-18T04:56+02:00"
+    provenance: ai-suggested
+    content: >
+      The next scientific gate should freeze correct topology first: fit the fiber parameters with
+      oracle latent-parent assignments and dynamic moment-merged source aggregates. Only if that
+      oracle-topology arm recovers geometry should learned or transport-based correspondence be
+      compared. This separates an optimizer/fiber feasibility failure from an association failure.
+    context: >
+      Root-0 oracle labels were perfect by construction but its recovered geometry remained poor,
+      with an optimizer confound, so association quality alone cannot validate the current fitter.
+    potential_type: experiment
+    bound_to: [N135, N136, N137]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O119
+    timestamp: "2026-07-18T10:11+02:00"
+    provenance: ai-executed
+    content: >
+      Under the repository's EWA covariance equation, two generic calibrated views constrain only
+      five of the six symmetric 3D covariance coordinates. After their centers triangulate the 3D
+      mean, one covariance mode remains invisible; a third generic view or an explicit scalar prior
+      is required for a unique covariance. The naive 9-5V count is invalid because the per-view
+      constraints are not mutually independent.
+    context: >
+      Adversarial check of a supplied comment claiming a unique two-view 6x6 covariance solve;
+      verified by the existing rank-design implementation and focused CPU sentinel N138.
+    potential_type: claim
+    bound_to: [N133, N138]
+    promoted: true
+    promoted_to: "logic/claims.md:C23"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O120
+    timestamp: "2026-07-18T10:11+02:00"
+    provenance: ai-suggested
+    content: >
+      A rank-K CP association tensor is exact bookkeeping only when latent tracks generate
+      conditionally independent per-view membership distributions. Near-one-hot factors fit
+      one-observation-per-track data, but unequal splits, simultaneous multiple fragments,
+      compositing, unknown K, and non-conserved fitted mass require group membership, visibility,
+      unbalanced mass, and birth/death/merge topology. Tensor or multi-marginal-OT language does not
+      by itself repair raw-fragment identity.
+    context: "Scope audit of the supplied tensor-factorization interpretation against N135."
+    potential_type: constraint
+    bound_to: [N135, N136]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R20"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O121
+    timestamp: "2026-07-18T10:11+02:00"
+    provenance: ai-suggested
+    content: >
+      A useful direct-lift baseline should first moment-merge oracle child membership per parent and
+      view, triangulate the aggregate mean, subtract known EWA dilation, report covariance-design
+      rank and condition number, and solve weighted PSD-constrained least squares from at least
+      three generic views. A two-view arm must expose its null scalar and select it only through a
+      declared prior. This baseline can isolate geometry and optimizer feasibility but cannot infer
+      the missing topology itself.
+    context: >
+      Corrected form of the useful linear-solver suggestion in N139; implemented as separate
+      oracle-aggregation, triangulation, and prior-aware covariance controls.
+    potential_type: heuristic
+    bound_to: [N138, N139]
+    promoted: true
+    promoted_to: "logic/solution/heuristics.md:H04"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O122
+    timestamp: "2026-07-18T11:25+02:00"
+    provenance: ai-executed
+    content: >
+      On masked calibrated view C0014, a strict native 5,000-component StructSplat archive can fit
+      below 168,000 bytes while keeping every rounded center on foreground and retaining 36.8788 dB
+      foreground PSNR/0.901959 weighted SSIM. The same archive does not replace the silhouette:
+      raw support IoU is 0.6032 and outside-mask leakage is material. This is one-view evidence,
+      not an all-view capacity or subjective-quality result.
+    context: "Preregistered CUDA experiment N140 plus independent strict-load/rerender audit."
+    potential_type: claim
+    bound_to: [N140, N141]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O123
+    timestamp: "2026-07-18T11:25+02:00"
+    provenance: ai-suggested
+    content: >
+      A strict byte cap must be enforced on each staged serialized teacher after fitting; a fixed
+      Gaussian count is not a byte guarantee because compressed NPZ size depends on parameter
+      entropy and optional fields. A dataset converter should strict-reload and native-rerender
+      every candidate, then reduce count and refit when the exact artifact exceeds 168,000 bytes.
+    context: "Cap-enforcement boundary exposed by the single-view N140 feasibility result."
+    potential_type: constraint
+    bound_to: [N140]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O124
+    timestamp: "2026-07-18T11:25+02:00"
+    provenance: ai-suggested
+    content: >
+      Exact cutout playback may remain under the per-view cap by packaging lossless binary alpha
+      beside the Gaussian teacher instead of representing the mask as RGB Gaussians. For C0014,
+      bit-packed crop alpha compressed to 7,226 zlib bytes and teacher plus compressed alpha totaled
+      157,718 bytes before wrapper overhead. This is a post-run storage diagnostic, not a validated
+      bundle format or all-view result.
+    context: "Outcome-informed alternative after N141 exposed mask-free support leakage."
+    potential_type: architecture
+    bound_to: [N140, N141, N142]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A14"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O125
+    timestamp: "2026-07-19T01:34+02:00"
+    provenance: ai-suggested
+    content: >
+      The field-lift path should keep continuous reconstruction decomposition-invariant: source
+      components seed exact four-DOF fibers, projected mixtures are optimized as whole fields,
+      observability decides which covariance coordinates may move, and immutable prune/merge/split/
+      birth proposals alter topology only through explicit objective transactions. Component
+      correspondences are visibility-gated outputs, not optimization identities.
+    context: "Architecture implemented and documented through the native FieldLifter path."
+    potential_type: architecture
+    bound_to: [N135, N136, N138, N145, N146]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A15"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O126
+    timestamp: "2026-07-19T01:34+02:00"
+    provenance: ai-suggested
+    content: >
+      Field fitting requires a complete explicit train/held-out partition. Optional sparse points
+      and bounds may influence fitting with held-out views only when provenance explicitly attests
+      that they are train-only; otherwise placement derives bounds from training cameras and keeps
+      held-out compact teachers for semantic reporting and correspondence output only.
+    context: "Train-only provenance boundary implemented in SceneFits and FieldLifter."
+    potential_type: constraint
+    bound_to: [N94, N104, N145, N146]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R21"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O127
+    timestamp: "2026-07-19T01:34+02:00"
+    provenance: ai-suggested
+    content: >
+      Closed-form whole-plane product-kernel loss is exact only for additive peak-Gaussian density
+      and RGB numerator. Normalized finite-support/fade/affine StructSplat behavior must remain an
+      immutable teacher semantic evaluated separately with bounded deterministic samples; analytic
+      proxy improvement cannot be reported as normalized-renderer improvement.
+    context: "Field optimizer and semantic validator implemented as separate modules and outputs."
+    potential_type: constraint
+    bound_to: [N113, N145, N146]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R22"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O128
+    timestamp: "2026-07-20T02:47+02:00"
+    provenance: ai-suggested
+    content: >
+      The current full compact placement may be dominated by Python-fragmented per-tile Gaussian
+      evaluation rather than projection arithmetic or excessive local candidate counts. A
+      flattened exact CSR pair stream could therefore reduce CPU placement by orders of magnitude
+      without a hierarchy or CUDA, while preserving candidate identity. The supporting 47,127-call
+      profile, 83.04% attribution, 108--120x prototype ratio, and 2.5--3 minute extrapolation were
+      session-local and unpreserved; they remain hypotheses until Phase 0 remeasurement and the
+      tracked production parity benchmark.
+    context: >
+      Runtime diagnosis after N149 observed a 4:02:27.6 CPU placement and before N150 committed an
+      exact CSR implementation task with explicit falsification and parity gates.
+    potential_type: heuristic
+    bound_to: [N149, N150]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false

@@ -1,10 +1,11 @@
 """Differentiable sparse 2D gaussian splatting with accumulated blending.
 
-Follows GaussianImage (ECCV 2024): pixel color = sum_i weight_i * color_i * exp(-0.5 d^T
-Sigma_i^-1 d). No depth sorting, no transmittance — order-independent and fast. Pure
-PyTorch. Each Gaussian is evaluated only inside its detached cutoff bounding box; this keeps
-the reference implementation practical for high-resolution images without changing the
-mathematical support used by the previous dense ``pixels x gaussians`` implementation.
+Uses GaussianImage's accumulated-summation rendering, with this repository's additional
+factorization of each accumulated RGB vector into ``weight_i * color_i``: pixel color is
+``sum_i weight_i * color_i * exp(-0.5 d^T Sigma_i^-1 d)``. There is no depth sorting or
+transmittance, so the result is order-independent. Each Gaussian is evaluated only inside its
+detached cutoff bounding box; this keeps the pure-PyTorch reference practical without changing
+the support of the previous dense ``pixels x gaussians`` implementation.
 """
 
 from __future__ import annotations

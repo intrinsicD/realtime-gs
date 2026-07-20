@@ -12,7 +12,12 @@ max(W, H)/2 to express them in NDC-like units so the classic 2e-4 threshold appl
 
 from __future__ import annotations
 
+import hashlib
+import json
+import math
+from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Literal
 
 import torch
 
@@ -39,6 +44,55 @@ class DensityConfig:
     opacity_reset_value: float = 0.011
     revised_opacity: bool = True
     mcmc_noise_lr: float = 500_000.0
+
+
+@dataclass(frozen=True)
+class SelectedBirthNewborn:
+    """Immutable physical-row lineage for one explicitly selected newborn."""
+
+    new_row: int
+    parent_row: int
+    operator: Literal["clone", "split"]
+    child_ordinal: int
+
+
+@dataclass(frozen=True)
+class SelectedBirthReceipt:
+    """Immutable evidence returned by :func:`apply_selected_birth_surgery`.
+
+    Raw split normals are represented as nested tuples so the frozen receipt contains no
+    mutable tensor aliases.  ``raw_split_dtype`` and ``raw_split_shape`` make their exact
+    tensor representation explicit, while the hashes bind dtype, shape, and native bytes.
+    """
+
+    schema: str
+    n_before: int
+    n_after: int
+    net_growth: int
+    max_gaussians: int
+    scale_boundary: float
+    split_scale_frac: float
+    split_factor: float
+    revised_opacity: bool
+    selected_parent_rows: tuple[int, ...]
+    clone_parent_rows: tuple[int, ...]
+    split_parent_rows: tuple[int, ...]
+    survivor_old_rows: tuple[int, ...]
+    removed_parent_rows: tuple[int, ...]
+    old_row_to_new_row: tuple[int, ...]
+    new_row_to_old_row: tuple[int, ...]
+    clone_new_rows: tuple[int, ...]
+    split_child0_new_rows: tuple[int, ...]
+    split_child1_new_rows: tuple[int, ...]
+    newborns: tuple[SelectedBirthNewborn, ...]
+    raw_split_dtype: str
+    raw_split_shape: tuple[int, int]
+    raw_split_child0_standard_normals: tuple[tuple[float, float, float], ...]
+    raw_split_child1_standard_normals: tuple[tuple[float, float, float], ...]
+    raw_split_child0_sha256: str
+    raw_split_child1_sha256: str
+    generator_state_before_sha256: str
+    generator_state_after_sha256: str
 
 
 class DensityController:
@@ -191,6 +245,309 @@ class DensityController:
                 cap = torch.logit(new_params[opacity_key].new_tensor(cfg.opacity_reset_value))
                 new_params[opacity_key].clamp_max_(cap)
         return new_params
+
+
+def apply_selected_birth_surgery(
+    params: dict[str, torch.Tensor],
+    optimizer: torch.optim.Adam | dict[str, torch.optim.Optimizer],
+    parent_rows: Sequence[int] | torch.Tensor,
+    *,
+    scene_extent: float,
+    generator: torch.Generator,
+    split_scale_frac: float = 0.01,
+    split_factor: float = 1.6,
+    revised_opacity: bool = True,
+    max_gaussians: int = 100_000,
+) -> tuple[dict[str, torch.Tensor], SelectedBirthReceipt]:
+    """Apply one exact birth wave to an ordered, unique set of parent rows.
+
+    Selected rows at or below the current scale boundary are cloned.  Rows above it are
+    replaced by two split children.  Physical output order is survivors, clones in the
+    caller's order, split child zero in the caller's order, then split child one in the
+    caller's order.  The supplied generator is the only random source and is consumed by
+    exactly two complete split-normal draws (child zero, then child one).
+
+    This is an explicit research seam; the classic controller does not call it, so all
+    established density-control defaults remain unchanged.
+    """
+
+    if not isinstance(generator, torch.Generator):
+        raise TypeError("generator must be an isolated torch.Generator")
+    if isinstance(max_gaussians, bool) or not isinstance(max_gaussians, int):
+        raise TypeError("max_gaussians must be an integer")
+    if max_gaussians <= 0:
+        raise ValueError("max_gaussians must be positive")
+    for name, value in (
+        ("scene_extent", scene_extent),
+        ("split_scale_frac", split_scale_frac),
+        ("split_factor", split_factor),
+    ):
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise TypeError(f"{name} must be a real scalar")
+        if not math.isfinite(float(value)) or float(value) <= 0.0:
+            raise ValueError(f"{name} must be finite and positive")
+    if not isinstance(revised_opacity, bool):
+        raise TypeError("revised_opacity must be bool")
+
+    n, scale_key, opacity_key = _validate_selected_birth_params(params)
+    ordered_rows = _ordered_parent_rows(parent_rows, n)
+    n_after = n + len(ordered_rows)
+    if n_after > max_gaussians:
+        raise ValueError(
+            "selected birth surgery exceeds max_gaussians: "
+            f"{n} + {len(ordered_rows)} > {max_gaussians}"
+        )
+    _validate_selected_birth_optimizer(optimizer, params)
+
+    device = params["means"].device
+    if torch.device(generator.device) != device:
+        raise ValueError(
+            "generator device must match selected-birth parameter device: "
+            f"{generator.device} != {device}"
+        )
+    selected = torch.tensor(ordered_rows, dtype=torch.long, device=device)
+    selected_scale_max = params[scale_key].detach()[selected].exp().max(dim=-1).values
+    scale_boundary = float(split_scale_frac) * float(scene_extent)
+    selected_is_split = selected_scale_max > scale_boundary
+    clone_rows = selected[~selected_is_split]
+    split_rows = selected[selected_is_split]
+    clone_parent_rows = tuple(int(row) for row in clone_rows.detach().cpu().tolist())
+    split_parent_rows = tuple(int(row) for row in split_rows.detach().cpu().tolist())
+
+    split_set = set(split_parent_rows)
+    survivor_old_rows = tuple(row for row in range(n) if row not in split_set)
+    keep_mask = torch.ones(n, dtype=torch.bool, device=device)
+    if split_rows.numel():
+        keep_mask[split_rows] = False
+
+    generator_state_before = generator.get_state().detach().clone()
+    split_shape = (len(split_parent_rows), 3)
+    raw_child0 = torch.randn(
+        split_shape,
+        generator=generator,
+        device=device,
+        dtype=params[scale_key].dtype,
+    )
+    raw_child1 = torch.randn(
+        split_shape,
+        generator=generator,
+        device=device,
+        dtype=params[scale_key].dtype,
+    )
+    generator_state_after = generator.get_state().detach().clone()
+
+    extras: list[dict[str, torch.Tensor]] = []
+    if clone_rows.numel():
+        extras.append({name: value.detach()[clone_rows].clone() for name, value in params.items()})
+    if split_rows.numel():
+        split_base = {name: value.detach()[split_rows].clone() for name, value in params.items()}
+        for raw_standard_normal in (raw_child0, raw_child1):
+            child = {name: value.clone() for name, value in split_base.items()}
+            from rtgs.core.gaussians3d import quat_to_rotmat
+
+            rotation = quat_to_rotmat(child["quats"])
+            native_scale = child[scale_key].exp()
+            native_noise = raw_standard_normal * native_scale
+            child["means"] = child["means"] + (rotation @ native_noise[..., None])[..., 0]
+            child[scale_key] = child[scale_key] - torch.log(
+                child[scale_key].new_tensor(split_factor)
+            )
+            if revised_opacity:
+                child_opacity = 1.0 - torch.sqrt(
+                    1.0 - torch.sigmoid(child[opacity_key]).clamp(max=1.0 - 1e-6)
+                )
+                child[opacity_key] = torch.logit(child_opacity.clamp_min(1e-6))
+            extras.append(child)
+
+    new_params = _edit_params(optimizer, params, keep_mask, extras)
+    actual_n_after = int(new_params["means"].shape[0])
+    if actual_n_after != n_after:
+        raise RuntimeError(f"selected birth count invariant failed: {actual_n_after} != {n_after}")
+
+    old_row_to_new_row = [-1] * n
+    for new_row, old_row in enumerate(survivor_old_rows):
+        old_row_to_new_row[old_row] = new_row
+    clone_start = len(survivor_old_rows)
+    split_child0_start = clone_start + len(clone_parent_rows)
+    split_child1_start = split_child0_start + len(split_parent_rows)
+    clone_new_rows = tuple(range(clone_start, split_child0_start))
+    split_child0_new_rows = tuple(range(split_child0_start, split_child1_start))
+    split_child1_new_rows = tuple(range(split_child1_start, n_after))
+    new_row_to_old_row = (
+        survivor_old_rows + clone_parent_rows + split_parent_rows + split_parent_rows
+    )
+    newborns = tuple(
+        SelectedBirthNewborn(new_row, parent_row, "clone", 0)
+        for new_row, parent_row in zip(clone_new_rows, clone_parent_rows, strict=True)
+    ) + tuple(
+        SelectedBirthNewborn(new_row, parent_row, "split", child_ordinal)
+        for child_ordinal, new_rows in (
+            (0, split_child0_new_rows),
+            (1, split_child1_new_rows),
+        )
+        for new_row, parent_row in zip(new_rows, split_parent_rows, strict=True)
+    )
+
+    return new_params, SelectedBirthReceipt(
+        schema="rtgs.selected_birth_receipt.v1",
+        n_before=n,
+        n_after=n_after,
+        net_growth=len(ordered_rows),
+        max_gaussians=max_gaussians,
+        scale_boundary=scale_boundary,
+        split_scale_frac=float(split_scale_frac),
+        split_factor=float(split_factor),
+        revised_opacity=revised_opacity,
+        selected_parent_rows=ordered_rows,
+        clone_parent_rows=clone_parent_rows,
+        split_parent_rows=split_parent_rows,
+        survivor_old_rows=survivor_old_rows,
+        removed_parent_rows=split_parent_rows,
+        old_row_to_new_row=tuple(old_row_to_new_row),
+        new_row_to_old_row=new_row_to_old_row,
+        clone_new_rows=clone_new_rows,
+        split_child0_new_rows=split_child0_new_rows,
+        split_child1_new_rows=split_child1_new_rows,
+        newborns=newborns,
+        raw_split_dtype=str(raw_child0.dtype),
+        raw_split_shape=split_shape,
+        raw_split_child0_standard_normals=_standard_normal_rows(raw_child0),
+        raw_split_child1_standard_normals=_standard_normal_rows(raw_child1),
+        raw_split_child0_sha256=_tensor_sha256(raw_child0),
+        raw_split_child1_sha256=_tensor_sha256(raw_child1),
+        generator_state_before_sha256=_tensor_sha256(generator_state_before),
+        generator_state_after_sha256=_tensor_sha256(generator_state_after),
+    )
+
+
+def _validate_selected_birth_params(params: dict[str, torch.Tensor]) -> tuple[int, str, str]:
+    if not isinstance(params, dict) or not params:
+        raise ValueError("params must be a non-empty dictionary")
+    for required in ("means", "quats"):
+        if required not in params:
+            raise ValueError(f"params is missing required field {required}")
+    scale_keys = [name for name in ("scales", "log_scales") if name in params]
+    opacity_keys = [name for name in ("opacities", "opacity_logit") if name in params]
+    if len(scale_keys) != 1:
+        raise ValueError("params must contain exactly one scales/log_scales field")
+    if len(opacity_keys) != 1:
+        raise ValueError("params must contain exactly one opacities/opacity_logit field")
+    scale_key = scale_keys[0]
+    opacity_key = opacity_keys[0]
+    means = params["means"]
+    if means.ndim != 2 or means.shape[1] != 3:
+        raise ValueError("means must have shape (N,3)")
+    n = int(means.shape[0])
+    if n <= 0:
+        raise ValueError("selected birth surgery requires at least one Gaussian")
+    if params["quats"].shape != (n, 4):
+        raise ValueError("quats must have shape (N,4)")
+    if params[scale_key].shape != (n, 3):
+        raise ValueError(f"{scale_key} must have shape (N,3)")
+    device = means.device
+    for name, value in params.items():
+        if not isinstance(value, torch.Tensor):
+            raise TypeError(f"parameter {name} must be a tensor")
+        if value.ndim == 0 or value.shape[0] != n:
+            raise ValueError(f"parameter {name} has an inconsistent leading dimension")
+        if value.device != device:
+            raise ValueError("all selected-birth parameters must share one device")
+        if not value.is_floating_point():
+            raise TypeError(f"parameter {name} must be floating point")
+        if not bool(torch.isfinite(value.detach()).all()):
+            raise ValueError(f"parameter {name} contains non-finite values")
+    return n, scale_key, opacity_key
+
+
+def _ordered_parent_rows(
+    parent_rows: Sequence[int] | torch.Tensor,
+    n: int,
+) -> tuple[int, ...]:
+    if isinstance(parent_rows, torch.Tensor):
+        if parent_rows.ndim != 1:
+            raise ValueError("parent_rows must be a one-dimensional sequence")
+        if parent_rows.dtype not in (
+            torch.int8,
+            torch.int16,
+            torch.int32,
+            torch.int64,
+            torch.uint8,
+        ):
+            raise TypeError("parent_rows tensor must have integer dtype")
+        rows = tuple(int(row) for row in parent_rows.detach().cpu().tolist())
+    else:
+        if isinstance(parent_rows, (str, bytes)) or not isinstance(parent_rows, Sequence):
+            raise TypeError("parent_rows must be a sequence of integers")
+        if any(isinstance(row, bool) or not isinstance(row, int) for row in parent_rows):
+            raise TypeError("parent_rows must contain only integers")
+        rows = tuple(parent_rows)
+    if not rows:
+        raise ValueError("parent_rows must be non-empty")
+    if len(set(rows)) != len(rows):
+        raise ValueError("parent_rows must be unique")
+    if any(row < 0 or row >= n for row in rows):
+        raise IndexError("parent_rows contains an out-of-range row")
+    return rows
+
+
+def _validate_selected_birth_optimizer(
+    optimizer: torch.optim.Adam | dict[str, torch.optim.Optimizer],
+    params: dict[str, torch.Tensor],
+) -> None:
+    if isinstance(optimizer, dict):
+        if set(optimizer) != set(params):
+            raise ValueError("optimizer dictionary keys must exactly match params")
+        entries = [(name, optimizer[name], optimizer[name].param_groups) for name in params]
+    elif isinstance(optimizer, torch.optim.Adam):
+        entries = [("<joint>", optimizer, optimizer.param_groups)]
+        group_names = [group.get("name") for group in optimizer.param_groups]
+        if len(group_names) != len(set(group_names)) or set(group_names) != set(params):
+            raise ValueError("Adam param-group names must exactly match params")
+    else:
+        raise TypeError("optimizer must be Adam or a dictionary of Adam optimizers")
+
+    for entry_name, parameter_optimizer, groups in entries:
+        if not isinstance(parameter_optimizer, torch.optim.Adam):
+            raise TypeError(f"optimizer {entry_name} must be torch.optim.Adam")
+        if isinstance(optimizer, dict):
+            if len(groups) != 1 or groups[0].get("name") != entry_name:
+                raise ValueError(f"optimizer {entry_name} must have one same-named parameter group")
+            groups_to_check = groups
+        else:
+            groups_to_check = groups
+        for group in groups_to_check:
+            name = group.get("name")
+            if name not in params:
+                raise ValueError("optimizer group has an unknown or missing name")
+            if len(group["params"]) != 1 or group["params"][0] is not params[name]:
+                raise ValueError(f"optimizer group {name} does not reference params[{name!r}]")
+            if bool(group.get("amsgrad", False)):
+                raise ValueError("selected birth surgery requires amsgrad=False")
+            parameter = params[name]
+            state = parameter_optimizer.state.get(parameter)
+            if not state:
+                continue
+            if "exp_avg" not in state or "exp_avg_sq" not in state:
+                raise ValueError(f"optimizer state for {name} is incomplete")
+            for moment_name in ("exp_avg", "exp_avg_sq"):
+                if state[moment_name].shape != parameter.shape:
+                    raise ValueError(f"optimizer {moment_name} for {name} has the wrong shape")
+
+
+def _standard_normal_rows(
+    tensor: torch.Tensor,
+) -> tuple[tuple[float, float, float], ...]:
+    rows = tensor.detach().cpu().tolist()
+    return tuple((float(row[0]), float(row[1]), float(row[2])) for row in rows)
+
+
+def _tensor_sha256(tensor: torch.Tensor) -> str:
+    value = tensor.detach().cpu().contiguous()
+    digest = hashlib.sha256()
+    digest.update(str(value.dtype).encode())
+    digest.update(json.dumps(list(value.shape), separators=(",", ":")).encode())
+    digest.update(value.numpy().tobytes(order="C"))
+    return digest.hexdigest()
 
 
 def _edit_params(

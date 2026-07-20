@@ -1,0 +1,11 @@
+{
+  "artifact_type": "gaussianimage_plus_provider_parity_attempt",
+  "timestamp_utc": "2026-07-17T01:06:25+00:00",
+  "seal_file_sha256": "c37ec5c4229d49e3b78d6f030f7b4293beb18f1e519e42f4a251b1146196d13b",
+  "preregistration_sha256": "8b8494bebd3829abdffaf00e7ed905137fc928b1d081e1ae567fb61b267bdae3",
+  "command": [
+    "/home/alex/Documents/realtime-gs/.venv/bin/python",
+    "benchmarks/gaussianimage_plus_provider_parity.py",
+    "run"
+  ]
+}

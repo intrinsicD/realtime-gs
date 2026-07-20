@@ -8,6 +8,9 @@ from __future__ import annotations
 
 import torch
 
+DEFAULT_SMU1_MU = 2.0 / 255.0
+SH_COLOR_ACTIVATIONS = ("hard", "smu1", "hard_forward_smu1_negative_gradient")
+
 C0 = 0.28209479177387814
 C1 = 0.4886025119029199
 C2 = (
@@ -51,8 +54,8 @@ def sh_to_rgb(sh_dc: torch.Tensor) -> torch.Tensor:
     return (sh_dc * C0 + 0.5).clamp(0.0, 1.0)
 
 
-def eval_sh(degree: int, sh: torch.Tensor, dirs: torch.Tensor) -> torch.Tensor:
-    """Evaluate SH colors.
+def eval_sh_preactivation(degree: int, sh: torch.Tensor, dirs: torch.Tensor) -> torch.Tensor:
+    """Evaluate SH color before the final nonnegative activation.
 
     Args:
         degree: SH degree to evaluate (0..3); ``sh`` may carry more bases, extras ignored.
@@ -60,7 +63,7 @@ def eval_sh(degree: int, sh: torch.Tensor, dirs: torch.Tensor) -> torch.Tensor:
         dirs: unit view directions, shape (N, 3).
 
     Returns:
-        RGB colors, shape (N, 3), clamped to be non-negative after the +0.5 shift.
+        Shifted SH color, shape (N, 3), before the nonnegative activation.
     """
     if sh.shape[1] < num_sh_bases(degree):
         raise ValueError(
@@ -92,4 +95,52 @@ def eval_sh(degree: int, sh: torch.Tensor, dirs: torch.Tensor) -> torch.Tensor:
             + C3[5] * z * (xx - yy) * sh[:, 14]
             + C3[6] * x * (xx - 3.0 * yy) * sh[:, 15]
         )
-    return (result + 0.5).clamp_min(0.0)
+    return result + 0.5
+
+
+def activate_sh_color(
+    preactivation: torch.Tensor,
+    activation: str = "hard",
+    *,
+    smu1_mu: float = DEFAULT_SMU1_MU,
+) -> torch.Tensor:
+    """Apply the renderer's nonnegative SH-color activation.
+
+    ``hard`` is the standard 3DGS floor and remains the default. ``smu1`` is the
+    square-root Smooth Maximum Unit variant with ``alpha=0``. The straight-through
+    research control keeps the hard forward value while restoring only SMU-1's
+    negative-side gradient.
+    """
+    if activation not in SH_COLOR_ACTIVATIONS:
+        choices = ", ".join(SH_COLOR_ACTIVATIONS)
+        raise ValueError(f"unknown SH color activation '{activation}' (expected {choices})")
+    if not torch.isfinite(torch.tensor(smu1_mu)) or smu1_mu <= 0:
+        raise ValueError("smu1_mu must be finite and positive")
+
+    hard = preactivation.clamp_min(0.0)
+    if activation == "hard":
+        return hard
+
+    smooth = 0.5 * (preactivation + torch.sqrt(preactivation.square() + float(smu1_mu) ** 2))
+    if activation == "smu1":
+        return smooth
+
+    surrogate = torch.where(preactivation < 0.0, smooth, preactivation)
+    return hard.detach() + (surrogate - surrogate.detach())
+
+
+def eval_sh(
+    degree: int,
+    sh: torch.Tensor,
+    dirs: torch.Tensor,
+    *,
+    activation: str = "hard",
+    smu1_mu: float = DEFAULT_SMU1_MU,
+) -> torch.Tensor:
+    """Evaluate SH colors and apply the configured nonnegative activation.
+
+    The default remains the standard 3DGS hard floor. Non-hard modes are opt-in
+    research controls.
+    """
+    preactivation = eval_sh_preactivation(degree, sh, dirs)
+    return activate_sh_color(preactivation, activation, smu1_mu=smu1_mu)

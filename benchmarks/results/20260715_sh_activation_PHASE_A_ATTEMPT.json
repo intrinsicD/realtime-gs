@@ -1,0 +1,32 @@
+{
+  "artifact_type": "sh_activation_once_only_attempt",
+  "phase": "phase_a",
+  "timestamp_utc": "2026-07-15T19:14:37+00:00",
+  "output": "benchmarks/results/20260715T191424Z_cpu_sh_activation_audit.json",
+  "inputs": {
+    "seal_sha256": "c35ea7fc4d151495dedb0d203562650f43b41f6f547974d9462d425b0bf9b5d4"
+  },
+  "command": [
+    "/home/alex/Documents/realtime-gs/.venv/bin/python",
+    "benchmarks/sh_activation_ablation.py",
+    "audit",
+    "--seal",
+    "benchmarks/results/20260715_sh_activation_SEAL.json",
+    "--output",
+    "benchmarks/results/20260715T191424Z_cpu_sh_activation_audit.json"
+  ],
+  "environment": {
+    "python": "3.12.9 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 18:56:27) [GCC 11.2.0]",
+    "torch": "2.9.0+cu128",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "cpu_count": 16,
+    "torch_num_threads": 4,
+    "torch_num_interop_threads": 8,
+    "deterministic_algorithms": true,
+    "cuda_visible_devices": "",
+    "omp_num_threads": "4",
+    "mkl_num_threads": "4",
+    "device": "cpu"
+  }
+}

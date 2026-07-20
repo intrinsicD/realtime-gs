@@ -8,7 +8,13 @@ stalls or a configurable maximum is reached.  A fixed-budget schedule can reprod
 
 from __future__ import annotations
 
+import hashlib
+import importlib.metadata
+import json
 import math
+from collections.abc import Callable
+from dataclasses import asdict
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -16,6 +22,7 @@ import torch
 
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.metrics import masked_psnr
+from rtgs.core.observation2d import GaussianObservationField
 
 if TYPE_CHECKING:
     from rtgs.image2gs.fit import FitConfig as RTGSFitConfig
@@ -26,6 +33,9 @@ def fit_image_structsplat(
     config: RTGSFitConfig,
     seed: int | None = None,
     mask: torch.Tensor | None = None,
+    *,
+    observation_callback: Callable[[GaussianObservationField], None] | None = None,
+    observation_view_id: str | None = None,
 ) -> tuple[Gaussians2D, dict]:
     """Fit one image using StructSplat's progressive compact representation."""
     try:
@@ -45,6 +55,7 @@ def fit_image_structsplat(
     if not 0.0 <= config.relocate_fraction <= 1.0:
         raise ValueError("StructSplat relocate_fraction must be in [0, 1]")
 
+    canvas_height, canvas_width = image.shape[:2]
     xy_offset = image.new_zeros(2)
     if mask is not None:
         from rtgs.image2gs.fit import _crop_to_mask
@@ -113,6 +124,45 @@ def fit_image_structsplat(
     result = fit(field, target, fit_cfg, verbose=False)
     g2d = field_to_gaussians2d(result["field"])
     g2d.xy += xy_offset
+    if observation_callback is not None:
+        normalized_renderers = {
+            "normalized",
+            "cuda",
+            "cuda_normalized",
+            "cuda_block_reduce",
+            "cuda_tiled",
+            "cuda_tiled_normalized",
+        }
+        if renderer not in normalized_renderers:
+            raise ValueError(
+                f"cannot export observation for unmapped StructSplat renderer {renderer!r}"
+            )
+        fit_height, fit_width = image.shape[:2]
+        fit_window = (
+            int(xy_offset[0].item()),
+            int(xy_offset[1].item()),
+            fit_width,
+            fit_height,
+        )
+        producer_version, producer_source_digest, fit_config_digest = _structsplat_provenance(
+            fit_cfg
+        )
+        observation_callback(
+            field_to_observation(
+                result["field"],
+                canvas_size=(canvas_height, canvas_width),
+                fit_window=fit_window,
+                blend_mode="normalized",
+                sigma_cutoff=float(fit_cfg.sigma_cutoff),
+                support_fade_alpha=1.0 if fit_cfg.support_fade else 0.0,
+                aa_dilation=float(fit_cfg.aa_dilation),
+                view_id=observation_view_id,
+                n_init=start_budget,
+                producer_version=producer_version,
+                producer_source_digest=producer_source_digest,
+                fit_config_digest=fit_config_digest,
+            )
+        )
     foreground_psnr = (
         float(result["psnr"])
         if mask is None
@@ -131,6 +181,7 @@ def fit_image_structsplat(
         "relocate_events": result["history"]["relocate_events"],
         "fit_seconds": float(result["fit_seconds"]),
         "backend": "structsplat",
+        "observation_exported": observation_callback is not None,
     }
     return g2d, history
 
@@ -161,3 +212,88 @@ def field_to_gaussians2d(field) -> Gaussians2D:
         color=field.colors.detach().clamp(0, 1),
         weight=weight.clamp(0, 1),
     )
+
+
+def field_to_observation(
+    field,
+    *,
+    canvas_size: tuple[int, int],
+    fit_window: tuple[int, int, int, int] | None = None,
+    blend_mode: str = "normalized",
+    epsilon: float = 1e-8,
+    sigma_cutoff: float = 3.0,
+    support_fade_alpha: float = 0.0,
+    aa_dilation: float = 0.0,
+    view_id: str | None = None,
+    n_init: int | None = None,
+    producer_version: str | None = None,
+    producer_source_digest: str | None = None,
+    fit_config_digest: str | None = None,
+) -> GaussianObservationField:
+    """Freeze a live StructSplat field without clamping or materializing its semantics.
+
+    ``canvas_size`` is ``(height, width)`` in the calibrated source view. ``fit_window`` is
+    ``(x, y, width, height)`` in that canvas and binds masked/cropped fits to their actual
+    renderer domain. The optional StructSplat dependency remains outside the core contract: this
+    adapter uses only the live object's public tensor attributes.
+    """
+    canvas_height, canvas_width = canvas_size
+    if fit_window is None:
+        fit_window = (0, 0, canvas_width, canvas_height)
+    fit_x, fit_y, _, _ = fit_window
+    offset = field.means.new_tensor([fit_x + 0.5, fit_y + 0.5])
+    native_means = field.means + offset
+    mean_residuals = None
+    if field.means.dtype == torch.float32:
+        # Adding a native-resolution crop offset in float32 can erase low-order mean bits. Store
+        # the exact correction in crop-local coordinates while retaining schema-v1 native means.
+        mean_residuals = field.means - (native_means - offset)
+    opacity = field.opacity_values() if hasattr(field, "opacity_values") else None
+    amplitudes = field.means.new_ones(field.means.shape[0]) if opacity is None else opacity
+    return GaussianObservationField(
+        width=canvas_width,
+        height=canvas_height,
+        means=native_means,
+        log_scales=field.log_scales,
+        rotations=field.rotations.reshape(-1),
+        colors=field.colors,
+        amplitudes=amplitudes,
+        mean_residuals=mean_residuals,
+        color_grads=getattr(field, "color_grads", None),
+        filter_variance=getattr(field, "filter_variance", None),
+        blend_mode=blend_mode,
+        epsilon=epsilon,
+        sigma_cutoff=sigma_cutoff,
+        support_fade_alpha=support_fade_alpha,
+        aa_dilation=aa_dilation,
+        view_id=view_id,
+        fit_window=fit_window,
+        n_init=n_init,
+        producer_version=producer_version,
+        producer_source_digest=producer_source_digest,
+        fit_config_digest=fit_config_digest,
+    )
+
+
+def _structsplat_provenance(config) -> tuple[str | None, str, str]:
+    """Hash the exact optional dependency sources and effective fit configuration."""
+    import structsplat
+
+    try:
+        version = importlib.metadata.version("structsplat")
+    except importlib.metadata.PackageNotFoundError:
+        version = None
+    source_root = Path(structsplat.__file__).resolve().parent
+    source_hash = hashlib.sha256()
+    suffixes = {".py", ".c", ".cc", ".cpp", ".cu", ".cuh", ".h", ".hpp"}
+    for path in sorted(
+        candidate
+        for candidate in source_root.rglob("*")
+        if candidate.is_file() and candidate.suffix in suffixes
+    ):
+        source_hash.update(path.relative_to(source_root).as_posix().encode("utf-8"))
+        source_hash.update(b"\0")
+        source_hash.update(path.read_bytes())
+        source_hash.update(b"\0")
+    config_bytes = json.dumps(asdict(config), sort_keys=True, separators=(",", ":")).encode()
+    return version, source_hash.hexdigest(), hashlib.sha256(config_bytes).hexdigest()

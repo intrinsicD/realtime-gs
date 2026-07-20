@@ -1,0 +1,39 @@
+{
+  "artifact_type": "carve_merge_controls_iter2_once_only_attempt",
+  "phase": "phase_a",
+  "timestamp_utc": "2026-07-15T23:22:53+00:00",
+  "output": "benchmarks/results/20260715T232244Z_cpu_carve_merge_controls_iter2_audit.json",
+  "inputs": {
+    "seal_sha256": "8d59df3310ad67e9e21e2979d491ab740894a6a923175c959c5bd687a91e92f8",
+    "source_aggregate": "d7752cc39fc2f1bacf5e28cb75215cff95639bf5f80e74a9b9fa74fe7f0269d4",
+    "base_preregistration_sha256": "4eda7a69442bddc25cd5edce85125942f91adc52f3d62806f050a64b854b3efe",
+    "retry_preregistration_sha256": "fd4361ab1a53a22760db72e99614abb04206c1b639602e0015d8debde91c1203",
+    "failed_seal_sha256": "a802d14170944944e2cee0b766a44f635aad59bdf2412bd771629b06e4d0d923",
+    "failed_source_aggregate": "21ca5d47a4cad54c8cdf446339f174febc48018f6cee45b193569aebd40694cf",
+    "failed_phase_a_attempt_sha256": "4e784e9626bf9d3025be1e8ed2c362ba75471538a02b2babae93257af3cf7b5c",
+    "failure_audit_sha256": "861535cd6a99bca7ce4f49ddd66aefe3dd4965bcb40de3ed93d309363c5b7c5c"
+  },
+  "command": [
+    "/home/alex/Documents/realtime-gs/.venv/bin/python",
+    "benchmarks/carve_merge_controls_ablation.py",
+    "audit",
+    "--seal",
+    "benchmarks/results/20260716_carve_merge_controls_iter2_SEAL.json",
+    "--output",
+    "benchmarks/results/20260715T232244Z_cpu_carve_merge_controls_iter2_audit.json"
+  ],
+  "environment": {
+    "python": "3.12.9 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 18:56:27) [GCC 11.2.0]",
+    "torch": "2.9.0+cu128",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "cpu_count": 16,
+    "torch_num_threads": 4,
+    "torch_num_interop_threads": 8,
+    "deterministic_algorithms": true,
+    "cuda_visible_devices": "",
+    "omp_num_threads": "4",
+    "mkl_num_threads": "4",
+    "device": "cpu"
+  }
+}

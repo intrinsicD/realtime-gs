@@ -1,12 +1,27 @@
 """Stage 3: trainer and density control."""
 
+import hashlib
+import json
+
 import pytest
 import torch
 
+from rtgs.core.gaussians3d import quat_to_rotmat
 from rtgs.data.synthetic import make_gt_gaussians, make_synthetic_scene
-from rtgs.optim.density import DensityConfig, DensityController
+from rtgs.optim.density import (
+    DensityConfig,
+    DensityController,
+    apply_selected_birth_surgery,
+)
 from rtgs.optim.strategies import enforce_budget, validate_strategy_name
-from rtgs.optim.trainer import TrainConfig, Trainer, _resolve_sh_interval
+from rtgs.optim.trainer import (
+    TrainConfig,
+    Trainer,
+    _resolve_means_lr_final_factor,
+    _resolve_opacity_logit_epsilon,
+    _resolve_schedule_iterations,
+    _resolve_sh_interval,
+)
 
 
 def test_trainer_improves_perturbed_gt():
@@ -46,11 +61,271 @@ def test_short_training_activates_and_optimizes_all_sh_bands():
     assert bool((refined.sh[:, 1:].abs() > 0).any())
 
 
+def test_trainer_records_reproducible_view_and_hard_floor_diagnostics():
+    scene = make_synthetic_scene(n_gaussians=6, n_cameras=4, image_size=16, seed=21)
+    init = scene.gt_gaussians.detach()
+    init.sh[:, 0] -= 4.0
+    config = TrainConfig(
+        iterations=4,
+        rasterizer="torch",
+        device="cpu",
+        densify=False,
+        target_sh_degree=1,
+        sh_degree_interval=2,
+        ssim_lambda=0.0,
+        use_masks=False,
+        random_background=False,
+        collect_sh_color_diagnostics=True,
+        eval_every=4,
+        seed=3,
+    )
+    _, history = Trainer(config).train(scene, init)
+    assert len(history["sampled_train_views"]) == config.iterations
+    assert len(history["sh_color_diagnostics"]) == config.iterations
+    populated = [
+        entry for entry in history["sh_color_diagnostics"] if entry["observation_count"] > 0
+    ]
+    assert populated
+    assert sum(entry["negative_count"] for entry in populated) > 0
+    assert all(entry["negative_raw_gradient_nonzero_count"] == 0 for entry in populated)
+    assert all(entry["negative_raw_gradient_max_abs"] == 0.0 for entry in populated)
+    assert all(entry["positive_raw_upstream_max_abs_error"] == 0.0 for entry in populated)
+    assert all(entry["upstream_l1"] > 0.0 for entry in populated)
+
+
+def test_checkpoint_callback_is_isolated_and_none_preserves_default_exactly():
+    scene = make_synthetic_scene(n_gaussians=6, n_cameras=4, image_size=12, seed=22)
+    init = scene.gt_gaussians.detach()
+    init.means += 0.03
+    config = TrainConfig(
+        iterations=4,
+        rasterizer="torch",
+        device="cpu",
+        densify=False,
+        target_sh_degree=1,
+        sh_degree_interval=2,
+        ssim_lambda=0.0,
+        use_masks=False,
+        random_background=False,
+        eval_every=2,
+        seed=5,
+    )
+
+    default_final, default_history = Trainer(config).train(scene, init.detach())
+    none_final, none_history = Trainer(config).train(scene, init.detach(), checkpoint_callback=None)
+    callback_steps = []
+
+    def mutate_snapshot(snapshot, step):
+        assert not torch.is_grad_enabled()
+        assert all(
+            not getattr(snapshot, field).requires_grad
+            for field in ("means", "quats", "log_scales", "opacity", "sh")
+        )
+        callback_steps.append(step)
+        snapshot.means.fill_(float("nan"))
+        snapshot.sh.zero_()
+
+    observed_final, observed_history = Trainer(config).train(
+        scene, init.detach(), checkpoint_callback=mutate_snapshot
+    )
+
+    for field in ("means", "quats", "log_scales", "opacity", "sh"):
+        assert torch.equal(getattr(default_final, field), getattr(none_final, field))
+        assert torch.equal(getattr(default_final, field), getattr(observed_final, field))
+    for history in (none_history, observed_history):
+        assert {key: value for key, value in history.items() if key != "elapsed"} == {
+            key: value for key, value in default_history.items() if key != "elapsed"
+        }
+    assert callback_steps == [2, 4]
+
+
+def test_segmented_training_uses_global_callbacks_sh_and_means_lr_schedule():
+    scene = make_synthetic_scene(n_gaussians=6, n_cameras=3, image_size=12, seed=23)
+    init = scene.gt_gaussians.detach()
+    init.means += 0.03
+    config = TrainConfig(
+        iterations=4,
+        iteration_offset=4,
+        schedule_iterations=8,
+        rasterizer="torch",
+        device="cpu",
+        densify=False,
+        target_sh_degree=3,
+        ssim_lambda=0.0,
+        use_masks=False,
+        random_background=False,
+        eval_every=2,
+        seed=5,
+    )
+    callback_steps = []
+
+    _, history = Trainer(config).train(
+        scene,
+        init,
+        checkpoint_callback=lambda _snapshot, step: callback_steps.append(step),
+    )
+
+    gamma = 0.01 ** (1.0 / 8)
+    assert callback_steps == [6, 8]
+    assert history["active_sh_degree"] == [(6, 2), (8, 3)]
+    assert history["iteration_offset"] == 4
+    assert history["segment_iterations"] == 4
+    assert history["schedule_iterations"] == 8
+    assert history["means_lr_final"] == pytest.approx(
+        history["means_lr_initial"] * gamma**4,
+        rel=1e-12,
+    )
+    assert history["means_lr_final_factor"] == 0.01
+    assert history["means_lr_gamma"] == pytest.approx(gamma, rel=1e-12)
+
+
+def test_constant_means_lr_polish_factor_is_cpu_testable():
+    scene = make_synthetic_scene(n_gaussians=4, n_cameras=2, image_size=8, seed=25)
+    config = TrainConfig(
+        iterations=2,
+        iteration_offset=4,
+        schedule_iterations=6,
+        means_lr_final_factor=1.0,
+        rasterizer="torch",
+        device="cpu",
+        densify=False,
+        target_sh_degree=3,
+        sh_degree_interval=1,
+        ssim_lambda=0.0,
+        use_masks=False,
+        random_background=False,
+        eval_every=1,
+        seed=7,
+    )
+
+    _, history = Trainer(config).train(scene, scene.gt_gaussians.detach())
+
+    assert history["active_sh_degree"] == [(5, 3), (6, 3)]
+    assert history["means_lr_gamma"] == 1.0
+    assert history["means_lr_initial"] == history["means_lr_final"]
+
+
+def test_means_lr_final_factor_default_and_validation():
+    assert _resolve_means_lr_final_factor(TrainConfig()) == 0.01
+    assert _resolve_means_lr_final_factor(TrainConfig(means_lr_final_factor=1)) == 1.0
+    with pytest.raises(TypeError, match="finite positive"):
+        _resolve_means_lr_final_factor(TrainConfig(means_lr_final_factor=True))
+    for value in (0.0, -1.0, float("inf"), float("nan")):
+        with pytest.raises(ValueError, match="finite positive"):
+            _resolve_means_lr_final_factor(TrainConfig(means_lr_final_factor=value))
+
+
+def test_opacity_logit_epsilon_preserves_polish_entry_values_on_cpu():
+    scene = make_synthetic_scene(n_gaussians=4, n_cameras=2, image_size=8, seed=26)
+    init = scene.gt_gaussians.detach()
+    init.opacity = torch.tensor([0.99995, 0.9999995, 0.25, 0.0000005])
+    entries = {}
+
+    for label, epsilon in (("default", 1e-4), ("polish", 1e-6)):
+        Trainer(
+            TrainConfig(
+                iterations=0,
+                rasterizer="torch",
+                device="cpu",
+                densify=False,
+                target_sh_degree=0,
+                opacity_logit_epsilon=epsilon,
+            )
+        ).train(
+            scene,
+            init.detach(),
+            initialization_callback=lambda snapshot, key=label: entries.__setitem__(
+                key, snapshot.opacity.clone()
+            ),
+        )
+
+    default_expected = init.opacity.clamp(1e-4, 1.0 - 1e-4)
+    polish_expected = init.opacity.clamp(1e-6, 1.0 - 1e-6)
+    torch.testing.assert_close(entries["default"], default_expected, rtol=1e-6, atol=1e-7)
+    torch.testing.assert_close(entries["polish"], polish_expected, rtol=1e-6, atol=1e-7)
+    assert entries["polish"][0] > entries["default"][0]
+    assert entries["polish"][2] == entries["default"][2]
+
+
+def test_opacity_logit_epsilon_validation():
+    assert _resolve_opacity_logit_epsilon(TrainConfig()) == 1e-4
+    assert _resolve_opacity_logit_epsilon(TrainConfig(opacity_logit_epsilon=1e-6)) == 1e-6
+    with pytest.raises(TypeError, match="finite number"):
+        _resolve_opacity_logit_epsilon(TrainConfig(opacity_logit_epsilon=True))
+    for value in (0.0, -1.0, 0.5, 1.0, float("inf"), float("nan")):
+        with pytest.raises(ValueError, match="finite number"):
+            _resolve_opacity_logit_epsilon(TrainConfig(opacity_logit_epsilon=value))
+
+
+def test_segmented_training_uses_global_classic_density_schedule():
+    scene = make_synthetic_scene(n_gaussians=5, n_cameras=3, image_size=12, seed=24)
+    config = TrainConfig(
+        iterations=2,
+        iteration_offset=6,
+        schedule_iterations=8,
+        rasterizer="torch",
+        device="cpu",
+        densify=True,
+        density_strategy="classic",
+        density=DensityConfig(
+            start_iter=7,
+            stop_iter=7,
+            every=1,
+            grad_threshold=float("inf"),
+            split_scale_frac=100.0,
+            prune_scale_frac=100.0,
+            max_gaussians=32,
+        ),
+        ssim_lambda=0.0,
+        use_masks=False,
+        random_background=False,
+        eval_every=2,
+        seed=6,
+    )
+
+    _, history = Trainer(config).train(scene, scene.gt_gaussians.detach())
+
+    assert [record["iteration"] for record in history["density_stats"]] == [7]
+
+
 def test_sh_schedule_validation_and_long_run_default():
     assert _resolve_sh_interval(TrainConfig(iterations=30_000, target_sh_degree=3)) == 1_000
     assert _resolve_sh_interval(TrainConfig(iterations=1_000, target_sh_degree=3)) == 250
+    assert (
+        _resolve_sh_interval(
+            TrainConfig(
+                iterations=4,
+                iteration_offset=4,
+                schedule_iterations=8,
+                target_sh_degree=3,
+            )
+        )
+        == 2
+    )
+    assert _resolve_schedule_iterations(TrainConfig(iterations=0)) == 1
     with pytest.raises(ValueError, match="positive"):
         _resolve_sh_interval(TrainConfig(sh_degree_interval=0))
+    with pytest.raises(ValueError, match="nonnegative"):
+        _resolve_schedule_iterations(TrainConfig(iterations=-1))
+    with pytest.raises(ValueError, match="nonnegative"):
+        _resolve_schedule_iterations(TrainConfig(iteration_offset=-1))
+    with pytest.raises(ValueError, match="segmented-run iterations must be positive"):
+        _resolve_schedule_iterations(TrainConfig(iterations=0, schedule_iterations=1))
+    with pytest.raises(ValueError, match="must not exceed"):
+        _resolve_schedule_iterations(
+            TrainConfig(iterations=4, iteration_offset=5, schedule_iterations=8)
+        )
+
+
+def test_segmented_fields_preserve_train_config_positional_compatibility():
+    config = TrainConfig(7, 3.2e-4)
+
+    assert config.iterations == 7
+    assert config.lr_means == 3.2e-4
+    assert config.iteration_offset == 0
+    assert config.schedule_iterations is None
+    assert config.means_lr_final_factor == 0.01
+    assert config.opacity_logit_epsilon == 1e-4
 
 
 def test_strategy_names_validate_without_importing_gsplat():
@@ -179,6 +454,310 @@ def test_density_pruned_rows_are_never_split_past_budget():
     assert new_params["means"].shape[0] <= 4
     assert controller.stats[-1]["pruned"] == 2
     assert controller.stats[-1]["split"] == 2
+
+
+def _selected_birth_fixture():
+    n = 40
+    generator = torch.Generator().manual_seed(8401)
+    raw_quats = torch.randn(n, 4, generator=generator)
+    params = {
+        "means": torch.nn.Parameter(torch.arange(n * 3, dtype=torch.float32).reshape(n, 3) / 100.0),
+        "quats": torch.nn.Parameter(torch.nn.functional.normalize(raw_quats, dim=-1)),
+        "scales": torch.nn.Parameter(
+            torch.log(
+                torch.cat(
+                    (
+                        torch.full((20, 3), 0.005),
+                        torch.full((20, 3), 0.02),
+                    )
+                )
+            )
+        ),
+        "opacities": torch.nn.Parameter(torch.linspace(-2.0, 2.0, n)),
+        "sh0": torch.nn.Parameter(torch.randn(n, 1, 3, generator=generator)),
+        # Degree-zero compact training has this exact zero-width optimizer group.
+        "shN": torch.nn.Parameter(torch.empty(n, 0, 3)),
+    }
+    optimizers = {
+        name: torch.optim.Adam(
+            [
+                {
+                    "params": [parameter],
+                    "lr": 1e-3 * (index + 1),
+                    "name": name,
+                    "research_marker": ("selected-birth", index),
+                }
+            ],
+            betas=(0.8, 0.95),
+            eps=1e-12,
+            weight_decay=0.0,
+            amsgrad=False,
+            maximize=False,
+            foreach=False,
+            fused=False,
+        )
+        for index, (name, parameter) in enumerate(params.items())
+    }
+    sum(
+        (index + 1) * parameter.square().sum() for index, parameter in enumerate(params.values())
+    ).backward()
+    for optimizer in optimizers.values():
+        optimizer.step()
+        optimizer.zero_grad(set_to_none=True)
+    # Match the preregistered surgery boundary without spending 35 fixture updates.
+    for name, parameter in params.items():
+        optimizers[name].state[parameter]["step"].fill_(35)
+    return params, optimizers
+
+
+def _test_tensor_sha256(tensor):
+    value = tensor.detach().cpu().contiguous()
+    digest = hashlib.sha256()
+    digest.update(str(value.dtype).encode())
+    digest.update(json.dumps(list(value.shape), separators=(",", ":")).encode())
+    digest.update(value.numpy().tobytes(order="C"))
+    return digest.hexdigest()
+
+
+def test_selected_birth_surgery_exact_mixed_16_16_order_draws_and_adam_state():
+    params, optimizers = _selected_birth_fixture()
+    small = (15, 0, 19, 3, 18, 4, 17, 5, 16, 6, 14, 7, 13, 8, 12, 9)
+    large = (39, 20, 35, 24, 38, 21, 34, 25, 37, 22, 33, 26, 36, 23, 32, 27)
+    selected = tuple(row for pair in zip(small, large, strict=True) for row in pair)
+    old_params = {name: parameter.detach().clone() for name, parameter in params.items()}
+    old_parameters = dict(params)
+    old_states = {
+        name: {
+            key: value.detach().clone() if isinstance(value, torch.Tensor) else value
+            for key, value in optimizers[name].state[params[name]].items()
+        }
+        for name in params
+    }
+    old_group_fields = {
+        name: {
+            key: value for key, value in optimizers[name].param_groups[0].items() if key != "params"
+        }
+        for name in params
+    }
+
+    # Development-only: official experiment roots must never reach a generator in tests.
+    split_seed = 63892
+    expected_generator = torch.Generator().manual_seed(split_seed)
+    expected_state_before = expected_generator.get_state().clone()
+    expected_child0 = torch.randn((16, 3), generator=expected_generator)
+    expected_child1 = torch.randn((16, 3), generator=expected_generator)
+    expected_state_after = expected_generator.get_state().clone()
+    split_generator = torch.Generator().manual_seed(split_seed)
+    torch.manual_seed(123456)
+    global_state_before = torch.random.get_rng_state().clone()
+
+    new_params, receipt = apply_selected_birth_surgery(
+        params,
+        optimizers,
+        selected,
+        scene_extent=1.0,
+        generator=split_generator,
+        max_gaussians=72,
+    )
+
+    assert torch.equal(torch.random.get_rng_state(), global_state_before)
+    assert receipt.n_before == 40
+    assert receipt.n_after == 72
+    assert receipt.net_growth == len(selected) == 32
+    assert receipt.selected_parent_rows == selected
+    assert receipt.clone_parent_rows == small
+    assert receipt.split_parent_rows == large
+    survivors = tuple(row for row in range(40) if row not in set(large))
+    assert receipt.survivor_old_rows == survivors
+    assert receipt.removed_parent_rows == large
+    assert receipt.new_row_to_old_row == survivors + small + large + large
+    assert receipt.clone_new_rows == tuple(range(24, 40))
+    assert receipt.split_child0_new_rows == tuple(range(40, 56))
+    assert receipt.split_child1_new_rows == tuple(range(56, 72))
+    assert tuple(item.new_row for item in receipt.newborns) == tuple(range(24, 72))
+    assert tuple(item.parent_row for item in receipt.newborns) == small + large + large
+    assert tuple(item.operator for item in receipt.newborns) == (("clone",) * 16 + ("split",) * 32)
+    assert tuple(item.child_ordinal for item in receipt.newborns) == ((0,) * 32 + (1,) * 16)
+    assert all(
+        receipt.old_row_to_new_row[old_row] == new_row for new_row, old_row in enumerate(survivors)
+    )
+    assert all(receipt.old_row_to_new_row[row] == -1 for row in large)
+
+    receipt_child0 = torch.tensor(receipt.raw_split_child0_standard_normals)
+    receipt_child1 = torch.tensor(receipt.raw_split_child1_standard_normals)
+    assert torch.equal(receipt_child0, expected_child0)
+    assert torch.equal(receipt_child1, expected_child1)
+    assert receipt.raw_split_child0_sha256 == _test_tensor_sha256(expected_child0)
+    assert receipt.raw_split_child1_sha256 == _test_tensor_sha256(expected_child1)
+    assert receipt.generator_state_before_sha256 == _test_tensor_sha256(expected_state_before)
+    assert receipt.generator_state_after_sha256 == _test_tensor_sha256(expected_state_after)
+    assert torch.equal(split_generator.get_state(), expected_state_after)
+    with pytest.raises(AttributeError):
+        receipt.n_after = 0
+
+    survivor_index = torch.tensor(survivors)
+    small_index = torch.tensor(small)
+    large_index = torch.tensor(large)
+    for name in params:
+        assert torch.equal(new_params[name][:24], old_params[name][survivor_index])
+        assert torch.equal(new_params[name][24:40], old_params[name][small_index])
+    split_rotation = quat_to_rotmat(old_params["quats"][large_index])
+    native_scale = old_params["scales"][large_index].exp()
+    expected_means0 = (
+        old_params["means"][large_index]
+        + (split_rotation @ (expected_child0 * native_scale)[..., None])[..., 0]
+    )
+    expected_means1 = (
+        old_params["means"][large_index]
+        + (split_rotation @ (expected_child1 * native_scale)[..., None])[..., 0]
+    )
+    assert torch.equal(new_params["means"][40:56], expected_means0)
+    assert torch.equal(new_params["means"][56:72], expected_means1)
+    expected_split_scales = old_params["scales"][large_index] - torch.log(
+        old_params["scales"].new_tensor(1.6)
+    )
+    assert torch.equal(new_params["scales"][40:56], expected_split_scales)
+    assert torch.equal(new_params["scales"][56:72], expected_split_scales)
+    source_opacity = torch.sigmoid(old_params["opacities"][large_index])
+    child_opacity = 1.0 - torch.sqrt(1.0 - source_opacity.clamp(max=1.0 - 1e-6))
+    expected_opacity_logits = torch.logit(child_opacity.clamp_min(1e-6))
+    assert torch.equal(new_params["opacities"][40:56], expected_opacity_logits)
+    assert torch.equal(new_params["opacities"][56:72], expected_opacity_logits)
+    for name in ("quats", "sh0", "shN"):
+        assert torch.equal(new_params[name][40:56], old_params[name][large_index])
+        assert torch.equal(new_params[name][56:72], old_params[name][large_index])
+    assert new_params["shN"].shape == (72, 0, 3)
+
+    for name, optimizer in optimizers.items():
+        new_parameter = new_params[name]
+        state = optimizer.state[new_parameter]
+        assert optimizer.param_groups[0]["params"] == [new_parameter]
+        assert old_parameters[name] not in optimizer.state
+        assert {
+            key: value for key, value in optimizer.param_groups[0].items() if key != "params"
+        } == old_group_fields[name]
+        assert torch.equal(state["step"], old_states[name]["step"])
+        for moment_name in ("exp_avg", "exp_avg_sq"):
+            assert torch.equal(
+                state[moment_name][:24],
+                old_states[name][moment_name][survivor_index],
+            )
+            assert torch.equal(
+                state[moment_name][24:],
+                torch.zeros_like(state[moment_name][24:]),
+            )
+            assert state[moment_name].shape == new_parameter.shape
+
+
+@pytest.mark.parametrize(
+    ("parent_rows", "error"),
+    [
+        ([], ValueError),
+        ([1, 1], ValueError),
+        ([40], IndexError),
+        ([-1], IndexError),
+        ([True], TypeError),
+        ([1.0], TypeError),
+        (torch.tensor([[1]], dtype=torch.long), ValueError),
+        (torch.tensor([1.0]), TypeError),
+    ],
+)
+def test_selected_birth_surgery_rejects_invalid_parent_rows_without_mutation(parent_rows, error):
+    params, optimizers = _selected_birth_fixture()
+    old_parameters = dict(params)
+    split_generator = torch.Generator().manual_seed(7)
+    generator_state = split_generator.get_state().clone()
+    with pytest.raises(error):
+        apply_selected_birth_surgery(
+            params,
+            optimizers,
+            parent_rows,
+            scene_extent=1.0,
+            generator=split_generator,
+            max_gaussians=100,
+        )
+    assert torch.equal(split_generator.get_state(), generator_state)
+    assert all(
+        optimizers[name].param_groups[0]["params"][0] is old_parameters[name] for name in params
+    )
+
+
+def test_selected_birth_surgery_rejects_cap_before_rng_or_optimizer_mutation():
+    params, optimizers = _selected_birth_fixture()
+    old_parameters = dict(params)
+    old_state_keys = {name: tuple(optimizers[name].state.keys()) for name in params}
+    split_generator = torch.Generator().manual_seed(8)
+    generator_state = split_generator.get_state().clone()
+    with pytest.raises(ValueError, match="exceeds max_gaussians"):
+        apply_selected_birth_surgery(
+            params,
+            optimizers,
+            [0],
+            scene_extent=1.0,
+            generator=split_generator,
+            max_gaussians=40,
+        )
+    assert torch.equal(split_generator.get_state(), generator_state)
+    assert all(
+        optimizers[name].param_groups[0]["params"][0] is old_parameters[name] for name in params
+    )
+    assert all(tuple(optimizers[name].state.keys()) == old_state_keys[name] for name in params)
+
+
+@pytest.mark.cuda
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="needs CUDA")
+def test_selected_birth_surgery_uses_matching_cuda_generator_without_gsplat():
+    device = torch.device("cuda:0")
+    params = {
+        "means": torch.nn.Parameter(torch.zeros(2, 3, device=device)),
+        "quats": torch.nn.Parameter(
+            torch.tensor(
+                [[1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]],
+                device=device,
+            )
+        ),
+        "scales": torch.nn.Parameter(
+            torch.log(
+                torch.tensor(
+                    [[0.005, 0.005, 0.005], [0.02, 0.02, 0.02]],
+                    device=device,
+                )
+            )
+        ),
+        "opacities": torch.nn.Parameter(torch.zeros(2, device=device)),
+        "sh0": torch.nn.Parameter(torch.zeros(2, 1, 3, device=device)),
+        "shN": torch.nn.Parameter(torch.empty(2, 0, 3, device=device)),
+    }
+    optimizers = {
+        name: torch.optim.Adam([{"params": [parameter], "name": name}], lr=1e-3)
+        for name, parameter in params.items()
+    }
+    sum(parameter.square().sum() for parameter in params.values()).backward()
+    for optimizer in optimizers.values():
+        optimizer.step()
+
+    with pytest.raises(ValueError, match="generator device"):
+        apply_selected_birth_surgery(
+            params,
+            optimizers,
+            [0, 1],
+            scene_extent=1.0,
+            generator=torch.Generator().manual_seed(9),
+            max_gaussians=4,
+        )
+    new_params, receipt = apply_selected_birth_surgery(
+        params,
+        optimizers,
+        [0, 1],
+        scene_extent=1.0,
+        generator=torch.Generator(device=device).manual_seed(9),
+        max_gaussians=4,
+    )
+    assert new_params["means"].device == device
+    assert receipt.clone_parent_rows == (0,)
+    assert receipt.split_parent_rows == (1,)
+    assert receipt.raw_split_shape == (1, 3)
+    assert receipt.n_after == 4
 
 
 def test_budget_enforcement_preserves_per_parameter_adam_state():

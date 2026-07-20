@@ -1,0 +1,111 @@
+{
+  "advisory_findings": [
+    "The final development rehearsal is a valid scientific FAIL, not an implementation or protocol failure: Gate 1 passed on all three roots, while Gates 2-4 failed and proposed representative counts were [8, 8, 9]."
+  ],
+  "blocking_findings": [],
+  "development_rehearsal": {
+    "gate_1_root_pass": [
+      true,
+      true,
+      true
+    ],
+    "gate_statuses": {
+      "gate_1_validity": "PASS",
+      "gate_2_selection_contraction": "FAIL",
+      "gate_3_correspondence_geometry": "FAIL",
+      "gate_4_negative_control": "FAIL"
+    },
+    "overall_status": "FAIL",
+    "proposed_representative_counts": [
+      8,
+      8,
+      9
+    ],
+    "protocol_integrity_pass": true,
+    "rederived_false_checks_per_root": [
+      [],
+      [],
+      []
+    ],
+    "sha256": "b07b82db1363d68d69b8d3fd128717f8ec2a57eaf28f998ad623529fc18716f1",
+    "source_stable": true
+  },
+  "independent_review": true,
+  "iter1_result_sha256": "2601a45d19d1d8a636d3c0db5ef8b14adf5f4137baaf718c86e1f80a84cecf9e",
+  "namespace": "rtgs.inverse-projection-fiber.iter2.v1",
+  "preregistration_review_sha256": "9b6b8ab313355f6a03373436fae0c2200f557fed53d3da897dbc96adbde2b1ff",
+  "preregistration_sha256": "95adcf0f9d03761ca57bb36444a051f5c581e21e06eb399a355437bda9f6d28e",
+  "recommendation": "PASS_FOR_ONE_SHOT_OFFICIAL_EXECUTION",
+  "review_scope": "Independent adversarial audit of the frozen algorithm, exact evidence rederivation, input provenance, launcher bootstrap, sealed source archive, transaction lifecycle, and one-shot failure handling",
+  "reviewed_source_count": 44,
+  "schema": "inverse_projection_fiber_iter2_implementation_review_v1",
+  "source_hashes": {
+    "benchmarks/inverse_projection_fiber_iter1e.py": "7cf0e956b90451349e7f4cb34c561cf3b7c74072a477df71d0d2cbc3131bcaf9",
+    "benchmarks/inverse_projection_fiber_iter2.py": "356d74bcbc490a61c3d15ceb21113f7752d9a9e5648616579f37118c2dab2c9f",
+    "benchmarks/inverse_projection_fiber_iter2_launcher.py": "d2a2eef01596d742bb7e554c3b97dc55aa5c0e8089d131d6893e966752333229",
+    "benchmarks/inverse_projection_fiber_iter2_transaction.py": "fcd5f07f17f5deed96822a074aa84b365fd2312b371ddaccd01df6d0feabaf73",
+    "benchmarks/inverse_projection_fiber_protocol.py": "4ee40e8113338d33f2befc4175152550cecdc6b8d4dc03d0fbb234fcc3fd38e0",
+    "benchmarks/inverse_projection_fiber_sealed_archive.py": "a270f673e597792efac7bef50386f2a23f3f8b89753e2ed2722105d4c02d0d37",
+    "benchmarks/inverse_projection_fiber_transaction.py": "13eb857523585207250458b63312e9fb3a1ca85b7fc4432ac88ae0fbaa0a3ec8",
+    "src/rtgs/__init__.py": "7e3d25ccd12b37ba7852e94952448655bfd95232ab1135a290e150ac66442f5c",
+    "src/rtgs/core/__init__.py": "e2a9d856747aa5d36f3167ea5f6c24ccea58b09caa6e9cf4b58cbf3eb91e8b4c",
+    "src/rtgs/core/camera.py": "1e6a42c7cd9fa14b2ffff19808e6e88c106df4562d30fc18b0ca107c00072ac2",
+    "src/rtgs/core/gaussians2d.py": "390c6940bea8f4f1c80df19396a38ee29585dfd3127c8a3823654ffe09098351",
+    "src/rtgs/core/gaussians3d.py": "d417a4a103ae7ea1e3f4a7799c2b709597014b8966acb0e72b2bd447a0ad0ba5",
+    "src/rtgs/core/metrics.py": "d489c07c65ac4c74f0f927d41c62b887724cf3216f2ef28a116ff169d08272d4",
+    "src/rtgs/core/observation2d.py": "ea4ff81cb48b1ac826f83d08f427d508e2f177108641a33bbd91e7b6a3f92364",
+    "src/rtgs/core/sh.py": "554f3a25e25c7312248a98c15685e9bf805c85a81a96f56e13e1481619eb4687",
+    "src/rtgs/data/__init__.py": "7168fafe0edcf1c97172b3d4bec3b5db18cf6db752a5d1ce6136cb5376bf4f09",
+    "src/rtgs/data/reconstruction_inputs.py": "e4f3f75d9ae75996e7157b3acc9d7ec884157bf42800f5538c7aeec811812a09",
+    "src/rtgs/data/scene.py": "3fa557f03bab5eb7666476968e0a70ff3e5639d6e24251807905691df36004c3",
+    "src/rtgs/data/synthetic.py": "8d7ee14f9450f44c9786c56c279131890cded075eac434838593203a66c4019a",
+    "src/rtgs/depth/__init__.py": "cd2344e4795915b2dd336860d52df699103dc17096d4f799f8b1dc6ec4556ad5",
+    "src/rtgs/depth/align.py": "d09eedbd90d07d380cfa6ac076f5ba85742b2bf4db4318fd162f5d497e2a0d9a",
+    "src/rtgs/depth/base.py": "2f88dc2c71333318ddea68983b898f7ae7509c6d5b43b359b32bb9043d8e0c14",
+    "src/rtgs/image2gs/__init__.py": "e39c19fa20f8b993d3f826bca80c51a23e2e43c7d3a1e86c025c84ed4d91af29",
+    "src/rtgs/image2gs/adapters.py": "c1952fd8cfce0fc7ba87a31e70c5e2b333bf1745573fe5290bbecaa6be709fbb",
+    "src/rtgs/image2gs/fit.py": "414c51342c2aa567b9216f0f91a7d4590313838c1bd0e00a8db0d80b8ecb8d66",
+    "src/rtgs/image2gs/renderer2d.py": "d0bd6b90b8a690a2ebb36cbc55c8cceb56c3fc33c04fd3895a123e0abb660144",
+    "src/rtgs/lift/__init__.py": "b53a534484bf63e645d583d840dabf76d22045d0f7432016f6b7bb10886b8879",
+    "src/rtgs/lift/base.py": "e2cf23e0433332e59cc8e6c513f9ab60990b2854ecbf787245858c339d6252a0",
+    "src/rtgs/lift/baselines.py": "ec293cdc7c60bdeddb1dd8392eba89d068285bd5a86188d2821da5c1057aacdc",
+    "src/rtgs/lift/carve.py": "35135d6c93de3a836c9f9843fdfc63e3c08d973a080a9743372d3ee057a829eb",
+    "src/rtgs/lift/compact_carve.py": "6c85b4dd4d678bc4ac63fb0424d43a06fdcc7df6f2added98a9fce4283c4fea9",
+    "src/rtgs/lift/depth.py": "19e2e59d8c8a32d1dcc1b86b79364c09f845c493956cb12ea94597fadd874021",
+    "src/rtgs/lift/gradient.py": "d756b56e4b542818e1850d9b9a3fa35bde82a5e91c2a09c80988f81426db2b38",
+    "src/rtgs/lift/hybrid.py": "fe11a1e3fd444aa0c3cfb8f480a880318ffd661e5fb94f5395448b103bcbf151",
+    "src/rtgs/lift/inverse_projection_fiber.py": "4e9bd0c62954b2361d2cb79491d97cdfbad29c7c2dd23be0e5f5bff7e75cdd8b",
+    "src/rtgs/lift/merge.py": "97b3f1494932195a11a988ada57a9f259b4414c5e8ee5ca3feac2d4028e61d43",
+    "src/rtgs/lift/surface.py": "52e2a5a018c5ffe03e0fa78aad3d791e749dff3a42a8974d52d79d8d3a7ace16",
+    "src/rtgs/lift/topology.py": "f8553cecb66d0cb1e4840fff324633c62984da1c49bd6521195e36a22f19d456",
+    "src/rtgs/render/__init__.py": "c80f0489b3bb682200b42138430557e598c6b76ace24a99088faee9e040033d0",
+    "src/rtgs/render/base.py": "1175cf359e2800ff3a518849b43c4d9a6fd6dccc3dfb7c24459f13e9f81ca0b9",
+    "src/rtgs/render/point_base.py": "45668f0043d08213fc912c931dbd126c15137aa0a301310624ef04b11fdaf250",
+    "src/rtgs/render/projection.py": "58f7f4a30bea36ec001664cb279f0f0d8194715afc5e6523cb6077cc5f2499a0",
+    "src/rtgs/render/torch_points.py": "3bddec6a96e496619e930cb5db4cc1cf3cf581831e63e6a50059e36f55d2c24e",
+    "src/rtgs/render/torch_ref.py": "d8a67ffd5d6345ed8df42c01ddd949fc62f1064d35bc18fda3fdb6baa5307884"
+  },
+  "verdict": "PASS",
+  "verification": {
+    "focused_test_count": 123,
+    "focused_tests_pass": true,
+    "git_diff_check_pass": true,
+    "py_compile_pass": true,
+    "ruff_check_pass": true,
+    "ruff_format_pass": true,
+    "support_source_hashes": {
+      "scripts/verify_iter1e_development_tree.py": "3b7ff769a92322798dd2c84bcbf716cb2cd9159dee5e2886d8783803ba6d356b",
+      "scripts/write_iter1e_verification_receipt.py": "2aff3d2c5a4ee1e0ee49d6111ab5a5272dcebf14b9c2b20f5fd86efb874f5886"
+    },
+    "test_source_hashes": {
+      "tests/test_inverse_projection_fiber.py": "3b5e1b724c42392d12fb28f5785912f711502c68e0414a24b816cb4034704ebb",
+      "tests/test_inverse_projection_fiber_iter2.py": "1193c3567424cb3a29a70046a3e86d2f8431d4733778c42a5c7ddc8117f49134",
+      "tests/test_inverse_projection_fiber_iter2_launcher.py": "7a5149958a05bbd7b5852249534705b66324fa705ad96edf5d72f7f9d8d6f324",
+      "tests/test_inverse_projection_fiber_iter2_transaction.py": "da6aaa64e38fe2d163e1234afd8daf3213cc5c3bde5045407c7451e864b4e0f6",
+      "tests/test_inverse_projection_fiber_sealed_archive.py": "6a38d75c1a4d289af7ef9e6130dbec1be0db84ef088c02ea5b581c8ac19f6ca1",
+      "tests/test_inverse_projection_topology.py": "57311fba9ae9e0a55a74382fdb94230800f1520ab1c0cfecffb3b66d6fa616a7",
+      "tests/test_inverse_projection_transaction.py": "d5added73bbd03c32fcfaf5006c219901420b1f8000d59f6f88361f4b586a18e",
+      "tests/test_iter1e_development_tree_scan.py": "aa1047ace74e36df0cda58e6c48a417c3d5a5f1ac6f6f148caedaceae0cd3e7d"
+    }
+  }
+}

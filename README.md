@@ -8,7 +8,7 @@ primitives, we:
 1. **Fit every input image with 2D gaussians** (GaussianImage-style accumulated splatting —
    seconds per image, embarrassingly parallel across images).
 2. **Lift the 2D gaussians into 3D** — each 2D gaussian already carries position, anisotropic
-   shape, and color; only its depth (and the covariance along the ray) is missing. Three
+   shape, and color; only its depth (and the covariance along the ray) is missing. Five
    competing variants supply it:
    - **A · `gradient`** — keep each gaussian on its camera ray and optimize per-gaussian
      depth by rendering into *other* views (multi-view photometric gradient descent).
@@ -20,6 +20,9 @@ primitives, we:
      by moment matching.
    - **D · `hybrid`** — aligned monocular depth initializes each bounded ray, then a short
      multi-view photometric optimization corrects depth before confidence/color-aware fusion.
+   - **E · `field`** — an image-free research path places source-anchored fibers from compact
+     frozen 2D fields, refits an additive density/RGB-numerator proxy, and applies transactional
+     topology proposals. Frozen StructSplat renderer semantics are validated separately.
 3. **Refine with standard 3DGS optimization** from this dense, structured initialization.
    CUDA runs can select gsplat's Default (AbsGS/revised opacity) or MCMC
    (relocation/teleportation + noise) strategy under a hard configurable primitive budget.
@@ -38,6 +41,53 @@ python3 -m venv .venv
 .venv/bin/rtgs bench --quick                          # compare all lifting variants
 ./scripts/verify.sh                                   # lint + tests + docs-sync
 ```
+
+The repository's checked-in captures are stored after Stage 1 rather than as RGB. Each
+`frame_*/gaussians2d/` directory contains an ordered manifest and one self-contained `.rtgsv`
+per camera; each file is capped at 168,000 decimal bytes and may include exact bit-packed alpha.
+Load them without an image decoder or StructSplat runtime:
+
+```python
+from rtgs.data import CompactDataset
+
+compact = CompactDataset.load(
+    "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d"
+)
+inputs = compact.to_reconstruction_inputs()
+```
+
+Run the native field lift directly from the same compact directory. The command loads no source
+image, preserves optional packed alpha, creates an explicit deterministic held-out split, and
+safely ignores pre-split bounds/points unless they are explicitly marked train-only. It saves the
+3D initialization. `Path(--out).with_suffix(".field.npz")` contains field masses,
+render opacity, fiber/source state, fitting/all-view correspondence visibility, gains, split
+indices, and correspondences; strict
+`Path(--out).with_suffix(".diagnostics.json")` contains semantic validation and diagnostics:
+
+```bash
+.venv/bin/rtgs lift-field \
+  --dataset dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d \
+  --heldout-stride 8 --field-args '{"max_tracks":128}' \
+  --out runs/field-frame-00008/gaussians_init.ply
+```
+
+`field` is an implemented CPU-tested research path, not a reconstruction-quality, performance,
+or production-default claim. Its analytic whole-plane loss is exact for additive peak-mixture
+density and RGB numerator only; normalized finite-support/fade/affine StructSplat teachers are
+evaluated by separate bounded deterministic sampled validation with train/held-out aggregates.
+
+The migration is resumable and deletes RGB/mask directories only after every bundle and source
+hash verifies:
+
+```bash
+LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 \
+  .venv/bin/python scripts/convert_datasets_to_gaussians2d.py convert --remove-sources
+.venv/bin/python scripts/convert_datasets_to_gaussians2d.py verify
+```
+
+The established `rtgs run --scene ...` path still expects an external RGB dataset. The separate
+`rtgs lift-field` command consumes checked-in compact captures image-free and stops after Stage 2;
+RGB-backed Stage-3 refinement remains a separate path.
 
 For the calibrated object captures in the Janelle dataset, point `--scene` at one frame.
 The loader finds `calibration_dome.json`, undistorts RGB and masks, uses every eighth camera as
@@ -110,6 +160,7 @@ names are rejected unless their code and weights have been explicitly license-ve
 | --- | --- |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Module map, dataflow, backend abstractions, CLI |
 | [`docs/RESEARCH.md`](docs/RESEARCH.md) | State-of-the-art survey and what we reuse from where |
+| [`docs/RESEARCH_LOOP.md`](docs/RESEARCH_LOOP.md) | Reusable three-iteration R&D prompt and execution record |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Milestones and open questions |
 | [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) | How to benchmark + tracked results |
 | [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) | Dated experiment log (positive and negative results) |

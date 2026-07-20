@@ -1,0 +1,56 @@
+{
+  "artifact_type": "stage1_semantic_factorial_once_only_attempt",
+  "phase": "utility",
+  "claimed_at_utc": "2026-07-16T06:36:51+00:00",
+  "seal_path": "/home/alex/Documents/realtime-gs/benchmarks/results/20260716_stage1_semantic_factorial_SEAL.json",
+  "seal_sha256": "d07131a90357627e0589016bf9b10c88a804af689482e29ba7576a200b7d8adb",
+  "sealed_source_collection_sha256": "bea80b126dc1caad55f61e05bd52a07c0d8ed32aea85fe8cf6d37c9bfb34b8e2",
+  "phase_a_authorization_paths": {
+    "json": "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T061754Z_cpu_stage1_semantic_factorial_mechanism.json",
+    "raw": "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T061754Z_cpu_stage1_semantic_factorial_mechanism_RAW.npz",
+    "audit": "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T061754Z_cpu_stage1_semantic_factorial_mechanism_AUDIT.md",
+    "review": "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T061754Z_cpu_stage1_semantic_factorial_mechanism_SCIENTIST_REVIEW.json"
+  },
+  "phase_a_authorization_sha256": {
+    "phase_a_json": "cfb8b522e7ebf42bbf560227f46419d2bc09d19447e799778ab7ca152ce48d14",
+    "phase_a_raw": "fb2b26f2c2da87555e61e90a89a2dd20a4a92ed9499d2b2c7c5731f9a3393310",
+    "phase_a_review": "9308694bd3a34145a4d08ef1360ddbbd954a6e6a8fe3f4608aa96c2f4ace9cef",
+    "audit_markdown": "bbc23ffe47de08ff6ca148d2bc4896750179aa852f3e7fe9922bd06f0fdd6308"
+  },
+  "command": [
+    "/home/alex/Documents/realtime-gs/.venv/bin/python",
+    "benchmarks/stage1_semantic_factorial.py",
+    "utility",
+    "--seal",
+    "benchmarks/results/20260716_stage1_semantic_factorial_SEAL.json",
+    "--phase-a",
+    "benchmarks/results/20260716T061754Z_cpu_stage1_semantic_factorial_mechanism.json",
+    "--phase-a-raw",
+    "benchmarks/results/20260716T061754Z_cpu_stage1_semantic_factorial_mechanism_RAW.npz",
+    "--phase-a-review",
+    "benchmarks/results/20260716T061754Z_cpu_stage1_semantic_factorial_mechanism_SCIENTIST_REVIEW.json",
+    "--output",
+    "benchmarks/results/20260716T063637Z_cpu_stage1_semantic_factorial_utility.json"
+  ],
+  "environment": {
+    "python": "3.12.9 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 18:56:27) [GCC 11.2.0]",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "torch": "2.9.0+cu128",
+    "numpy": "2.1.3",
+    "cuda_visible_devices": "",
+    "omp_num_threads": "4",
+    "mkl_num_threads": "4",
+    "torch_num_threads": 4,
+    "deterministic_algorithms": true
+  },
+  "prospective_paths": [
+    "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T063637Z_cpu_stage1_semantic_factorial_utility.json",
+    "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T063637Z_cpu_stage1_semantic_factorial_utility_RAW.npz",
+    "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T063637Z_cpu_stage1_semantic_factorial_utility_RESULT.md",
+    "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T063637Z_cpu_stage1_semantic_factorial_utility_invalid.json",
+    "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T063637Z_cpu_stage1_semantic_factorial_utility_invalid_RAW.npz",
+    "/home/alex/Documents/realtime-gs/benchmarks/results/20260716T063637Z_cpu_stage1_semantic_factorial_utility_invalid_RESULT.md"
+  ],
+  "resume_permitted": false
+}

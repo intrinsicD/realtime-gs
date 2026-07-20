@@ -12,7 +12,7 @@ docs/RESEARCH.md §"Missing-dimension covariance".
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 import torch
 
@@ -21,12 +21,24 @@ from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.data.scene import SceneData
 
+if TYPE_CHECKING:
+    from rtgs.data.reconstruction_inputs import ReconstructionInputs
+    from rtgs.lift.compact_carve import CompactInitializationResult
+
 
 class Lifter(Protocol):
     """Turns per-view 2D gaussians into one 3D gaussian set."""
 
     def lift(self, gaussians2d: list[Gaussians2D], scene: SceneData) -> Gaussians3D:
         """Lift all views into a single world-space gaussian set."""
+        ...
+
+
+class CompactInitializer(Protocol):
+    """Pluggable initializer over serialized RGB-free reconstruction inputs."""
+
+    def initialize(self, inputs: ReconstructionInputs) -> CompactInitializationResult:
+        """Create an independently budgeted 3D initialization."""
         ...
 
 
@@ -102,7 +114,7 @@ def lift_covariance(
     m[:, :2, :2] = cov_tangent
     m[:, 2, 2] = sigma_ray**2
     cov_cam = basis @ m @ basis.transpose(-1, -2)
-    r_c2w = camera.R.T.to(uv.device)
+    r_c2w = camera.R.T.to(uv)
     return r_c2w @ cov_cam @ r_c2w.T
 
 
@@ -112,6 +124,7 @@ def surface_covariance_from_depth(
     depth_map: torch.Tensor,
     depth_at_center: torch.Tensor,
     normal_thickness: float = 0.15,
+    robust_depth_gradients: bool = True,
 ) -> torch.Tensor:
     """Lift image covariance through the local depth surface Jacobian.
 
@@ -119,10 +132,7 @@ def surface_covariance_from_depth(
     the reconstructed surface. A small normal variance makes it positive definite without
     turning surface slope into artificial ray thickness.
     """
-    gx = torch.zeros_like(depth_map)
-    gy = torch.zeros_like(depth_map)
-    gx[:, 1:-1] = 0.5 * (depth_map[:, 2:] - depth_map[:, :-2])
-    gy[1:-1, :] = 0.5 * (depth_map[2:, :] - depth_map[:-2, :])
+    gx, gy = depth_map_gradients(depth_map, validity_aware=robust_depth_gradients)
     du = bilinear_sample(gx, g2d.xy)
     dv = bilinear_sample(gy, g2d.xy)
     q = torch.stack(
@@ -159,6 +169,7 @@ def footprint_sigma_ray(
     g2d: Gaussians2D,
     depth_map: torch.Tensor,
     depth_at_center: torch.Tensor,
+    robust_depth_gradients: bool = True,
 ) -> torch.Tensor:
     """Along-ray std from the depth spread across each gaussian's footprint.
 
@@ -167,10 +178,7 @@ def footprint_sigma_ray(
     2D minor-axis std (a one-footprint thickness floor). Clamped against the lateral
     extent for stability.
     """
-    gx = torch.zeros_like(depth_map)
-    gy = torch.zeros_like(depth_map)
-    gx[:, 1:-1] = (depth_map[:, 2:] - depth_map[:, :-2]) * 0.5
-    gy[1:-1, :] = (depth_map[2:, :] - depth_map[:-2, :]) * 0.5
+    gx, gy = depth_map_gradients(depth_map, validity_aware=robust_depth_gradients)
     grad = torch.stack([bilinear_sample(gx, g2d.xy), bilinear_sample(gy, g2d.xy)], dim=-1)  # (N,2)
     cov = g2d.covariance()
     slant_var = (grad.unsqueeze(1) @ cov @ grad.unsqueeze(-1)).reshape(-1)
@@ -185,6 +193,81 @@ def footprint_sigma_ray(
     lat_min = depth_at_center / f_mean * s_min
     lat_max = depth_at_center / f_mean * s_max
     return sigma.clamp(0.1 * lat_min, 3.0 * lat_max)
+
+
+def depth_map_gradients(
+    depth_map: torch.Tensor,
+    validity_aware: bool = True,
+    min_depth: float = 0.05,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Finite-difference depth gradients, optionally avoiding invalid-depth boundaries.
+
+    The legacy central difference treats a transition from a valid surface to zero/NaN
+    background as a steep surface. The validity-aware form uses central differences only
+    when both neighbors and the center are valid, falls back to a valid one-sided
+    difference, and otherwise returns zero.
+    """
+    gx = torch.zeros_like(depth_map)
+    gy = torch.zeros_like(depth_map)
+    if not validity_aware:
+        gx[:, 1:-1] = 0.5 * (depth_map[:, 2:] - depth_map[:, :-2])
+        gy[1:-1, :] = 0.5 * (depth_map[2:, :] - depth_map[:-2, :])
+        return gx, gy
+
+    valid = torch.isfinite(depth_map) & (depth_map > min_depth)
+    if depth_map.shape[1] > 1:
+        pair = valid[:, 0] & valid[:, 1]
+        gx[:, 0] = torch.where(pair, depth_map[:, 1] - depth_map[:, 0], 0.0)
+        pair = valid[:, -1] & valid[:, -2]
+        gx[:, -1] = torch.where(pair, depth_map[:, -1] - depth_map[:, -2], 0.0)
+    if depth_map.shape[1] > 2:
+        center = depth_map[:, 1:-1]
+        center_valid = valid[:, 1:-1]
+        left_valid = center_valid & valid[:, :-2]
+        right_valid = center_valid & valid[:, 2:]
+        central = 0.5 * (depth_map[:, 2:] - depth_map[:, :-2])
+        forward = depth_map[:, 2:] - center
+        backward = center - depth_map[:, :-2]
+        gx[:, 1:-1] = torch.where(
+            left_valid & right_valid,
+            central,
+            torch.where(right_valid, forward, torch.where(left_valid, backward, 0.0)),
+        )
+    if depth_map.shape[0] > 1:
+        pair = valid[0, :] & valid[1, :]
+        gy[0, :] = torch.where(pair, depth_map[1, :] - depth_map[0, :], 0.0)
+        pair = valid[-1, :] & valid[-2, :]
+        gy[-1, :] = torch.where(pair, depth_map[-1, :] - depth_map[-2, :], 0.0)
+    if depth_map.shape[0] > 2:
+        center = depth_map[1:-1, :]
+        center_valid = valid[1:-1, :]
+        upper_valid = center_valid & valid[:-2, :]
+        lower_valid = center_valid & valid[2:, :]
+        central = 0.5 * (depth_map[2:, :] - depth_map[:-2, :])
+        forward = depth_map[2:, :] - center
+        backward = center - depth_map[:-2, :]
+        gy[1:-1, :] = torch.where(
+            upper_valid & lower_valid,
+            central,
+            torch.where(lower_valid, forward, torch.where(upper_valid, backward, 0.0)),
+        )
+    return gx, gy
+
+
+def minor_axis_sigma_ray(
+    camera: Camera,
+    g2d: Gaussians2D,
+    depth_at_center: torch.Tensor,
+) -> torch.Tensor:
+    """Match ray thickness to each gaussian's minor lateral footprint.
+
+    This is the no-gradient floor used by :func:`footprint_sigma_ray`. Unlike a
+    globally isotropic control, it remains depth- and gaussian-size-dependent.
+    """
+    evals = eigvals_2x2(g2d.covariance())
+    s_min = evals[:, 0].clamp_min(1e-8).sqrt()
+    f_mean = 0.5 * (camera.fx + camera.fy)
+    return depth_at_center / f_mean * s_min
 
 
 def eigvals_2x2(cov: torch.Tensor) -> torch.Tensor:
@@ -223,11 +306,17 @@ def lift_view_from_depth_map(
     sh_degree: int = 0,
     opacity: torch.Tensor | None = None,
     normal_thickness: float = 0.15,
+    robust_depth_gradients: bool = True,
 ) -> Gaussians3D:
     """Lift one view using a local depth surface for both means and covariances."""
     means = camera.unproject(g2d.xy, depth)
     covs = surface_covariance_from_depth(
-        camera, g2d, depth_map, depth, normal_thickness=normal_thickness
+        camera,
+        g2d,
+        depth_map,
+        depth,
+        normal_thickness=normal_thickness,
+        robust_depth_gradients=robust_depth_gradients,
     )
     return Gaussians3D.from_means_covs(
         means=means,

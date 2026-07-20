@@ -25,9 +25,15 @@ def make_gt_gaussians(
     radius: float = 0.6,
     scale_range: tuple[float, float] = (0.04, 0.12),
     sh_degree: int = 0,
+    *,
+    generator: torch.Generator | None = None,
 ) -> Gaussians3D:
-    """Random anisotropic gaussians inside a sphere of the given radius."""
-    gen = torch.Generator().manual_seed(seed)
+    """Random anisotropic gaussians inside a sphere of the given radius.
+
+    Passing a generator lets evidence-sensitive callers record its state before and after scene
+    construction.  The default path deliberately preserves the historical ``seed`` behaviour.
+    """
+    gen = generator if generator is not None else torch.Generator().manual_seed(seed)
     means = torch.randn(n, 3, generator=gen)
     means = (
         means

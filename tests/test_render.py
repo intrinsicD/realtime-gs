@@ -1,12 +1,18 @@
 """Reference rasterizer semantics + gsplat parity (parity requires CUDA)."""
 
+import sys
+from types import SimpleNamespace
+
 import pytest
 import torch
 
 from rtgs.core.camera import Camera
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.render.base import get_rasterizer
-from rtgs.render.gsplat_backend import _visible_indices
+from rtgs.render.gsplat_backend import (
+    _remove_shadowed_gsplat_editable_finders,
+    _visible_indices,
+)
 from rtgs.render.torch_ref import TorchRasterizer
 
 
@@ -80,6 +86,39 @@ def test_gradients_flow_through_render():
     assert out.means2d is not None and out.means2d.grad is not None
 
 
+def test_sh_color_diagnostics_expose_hard_floor_gradient_suppression():
+    g = _one_gaussian(color=(-0.2, 0.4, 0.6))
+    g.sh.requires_grad_(True)
+    renderer = TorchRasterizer(collect_sh_color_diagnostics=True)
+    out = renderer.render(g, _front_camera(size=17))
+    assert out.sh_color_diagnostics is not None
+    diagnostics = out.sh_color_diagnostics
+    loss = (out.color - 1.0).square().mean()
+    loss.backward()
+    assert diagnostics.preactivation.grad is not None
+    assert diagnostics.activated.grad is not None
+    negative = diagnostics.preactivation.detach() < 0.0
+    assert bool(negative.any())
+    assert torch.equal(
+        diagnostics.preactivation.grad[negative],
+        torch.zeros_like(diagnostics.preactivation.grad[negative]),
+    )
+    assert bool((diagnostics.activated.grad[negative] < 0.0).all())
+
+
+def test_opt_in_smu1_and_straight_through_renderer_semantics():
+    g = _one_gaussian(color=(-0.2, 0.4, 0.6))
+    cam = _front_camera(size=17)
+    hard = TorchRasterizer().render(g, cam)
+    smooth = TorchRasterizer(sh_color_activation="smu1").render(g, cam)
+    straight_through = TorchRasterizer(
+        sh_color_activation="hard_forward_smu1_negative_gradient"
+    ).render(g, cam)
+    assert torch.equal(straight_through.color, hard.color)
+    assert bool((smooth.color[..., 0] > hard.color[..., 0]).any())
+    assert float((smooth.color - hard.color).abs().max()) <= 1.0 / 255.0 + 1e-6
+
+
 def test_offcenter_gaussian_projects_correctly():
     cam = _front_camera(size=33)
     g = _one_gaussian(mean=(0.3, 0.2, 0.0), scale=0.05)
@@ -101,6 +140,9 @@ def test_empty_and_behind_camera():
 def test_registry():
     assert isinstance(get_rasterizer("torch"), TorchRasterizer)
     assert isinstance(get_rasterizer("auto", device="cpu"), TorchRasterizer)
+    smooth = get_rasterizer("torch", sh_color_activation="smu1")
+    assert isinstance(smooth, TorchRasterizer)
+    assert smooth.sh_color_activation == "smu1"
     with pytest.raises(ValueError):
         get_rasterizer("nonsense")
 
@@ -111,6 +153,36 @@ def test_gsplat_radius_layouts_map_visibility():
     expected = torch.tensor([0, 2])
     assert torch.equal(_visible_indices(scalar), expected)
     assert torch.equal(_visible_indices(axes), expected)
+
+
+def test_shadowed_gsplat_editable_submodule_is_removed(monkeypatch, tmp_path):
+    package_root = tmp_path / "current" / "gsplat"
+    package_root.mkdir(parents=True)
+    shadow = tmp_path / "stale" / "gsplat" / "csrc.so"
+    matching = package_root / "csrc.so"
+
+    class ShadowFinder:
+        def find_spec(self, fullname, path):
+            del fullname, path
+            return SimpleNamespace(origin=str(shadow))
+
+    class MatchingFinder:
+        def find_spec(self, fullname, path):
+            del fullname, path
+            return SimpleNamespace(origin=str(matching))
+
+    ShadowFinder.__module__ = "__editable___gsplat_1_1_3_finder"
+    MatchingFinder.__module__ = "__editable___gsplat_current_finder"
+    shadow_finder = ShadowFinder()
+    matching_finder = MatchingFinder()
+    monkeypatch.setattr(sys, "meta_path", [shadow_finder, matching_finder])
+    module = SimpleNamespace(
+        __file__=str(package_root / "__init__.py"),
+        __path__=[str(package_root)],
+    )
+
+    assert _remove_shadowed_gsplat_editable_finders(module) == (str(shadow.resolve()),)
+    assert sys.meta_path == [matching_finder]
 
 
 @pytest.mark.cuda
@@ -133,3 +205,22 @@ def test_gsplat_parity(tiny_scene):
     )
     diff = (ref.color - fast.color.cpu()).abs().mean()
     assert diff < 0.02, f"mean abs difference {diff}"
+
+
+@pytest.mark.cuda
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="needs CUDA")
+def test_gsplat_smu1_precomputed_color_parity_and_gradient(tiny_scene):
+    """The opt-in RGB path must match SMU-1 reference semantics and backpropagate."""
+    pytest.importorskip("gsplat")
+    source = tiny_scene.gt_gaussians.with_sh_degree(1)
+    source.sh[:, 3] = 0.4
+    cam = tiny_scene.cameras[0]
+    reference = TorchRasterizer(sh_color_activation="smu1").render(source, cam)
+    cuda_source = source.to("cuda")
+    cuda_source.sh.requires_grad_(True)
+    fast = get_rasterizer("gsplat", sh_color_activation="smu1").render(cuda_source, cam)
+    difference = (reference.color - fast.color.cpu()).abs().mean()
+    assert difference < 0.02, f"mean abs difference {difference}"
+    fast.color.mean().backward()
+    assert cuda_source.sh.grad is not None
+    assert torch.isfinite(cuda_source.sh.grad).all()

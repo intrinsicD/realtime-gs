@@ -1,0 +1,277 @@
+session:
+  id: "2026-07-18_001"
+  date: "2026-07-18"
+  started: "2026-07-18T04:56+02:00"
+  last_turn: "2026-07-18T22:33+02:00"
+  turn_count: 4
+  summary: "Closed raw-fragment fitting, corrected covariance observability, and replaced repository rasters with capped compact Gaussian views plus optional exact alpha."
+
+events_logged:
+  - turn: 1
+    type: experiment
+    id: N133
+    routing: direct
+    provenance: ai-executed
+    summary: "Implemented and verified the exact four-DOF fiber, correspondence solvers, and source-direction SH constraint."
+  - turn: 1
+    type: experiment
+    id: N134
+    routing: direct
+    provenance: ai-executed
+    summary: "The official synthetic transaction completed root 0, crashed during root 1, and correctly withheld every top-level and real-data result."
+  - turn: 1
+    type: dead_end
+    id: N135
+    routing: direct
+    provenance: ai-executed
+    summary: "Raw 2D fragments anchored to exact fibers failed correspondence, dust, and geometry acceptance in the completed root."
+  - turn: 1
+    type: pivot
+    id: N136
+    routing: direct
+    provenance: ai-executed
+    summary: "Move exact fibers to stable or dynamically moment-merged source tracks with topology and null-model inference."
+  - turn: 1
+    type: decision
+    id: N137
+    routing: direct
+    provenance: ai-executed
+    summary: "Close the bounded loop and withhold the calibrated fit until a fresh oracle-topology protocol passes."
+  - turn: 1
+    type: claim
+    id: C22
+    routing: crystallized
+    provenance: ai-executed
+    summary: "Raw-fragment exact fibers plus capacity-aware transport do not pass the synthetic release gate."
+  - turn: 1
+    type: observation
+    id: O115
+    routing: crystallized
+    provenance: ai-executed
+    summary: "Exact fibers remain sound at stable-track granularity; independently split fragments are not guaranteed tracks."
+  - turn: 1
+    type: heuristic
+    id: O116
+    routing: staged
+    provenance: ai-suggested
+    summary: "Make future M-steps transactional and publish precise failure receipts."
+  - turn: 1
+    type: heuristic
+    id: O117
+    routing: staged
+    provenance: ai-suggested
+    summary: "Use an explicit null likelihood and sparse gating instead of capacity alone for outliers."
+  - turn: 1
+    type: experiment
+    id: O118
+    routing: staged
+    provenance: ai-suggested
+    summary: "Require oracle-topology geometry recovery before retesting learned correspondence or real data."
+  - turn: 2
+    type: experiment
+    id: N138
+    routing: direct
+    provenance: ai-executed
+    summary: "The EWA covariance design is generically rank five for two views and rank six for three."
+  - turn: 2
+    type: question
+    id: N139
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test oracle moment-aggregated, rank-aware direct lifting before correspondence inference."
+  - turn: 2
+    type: observation
+    id: O119
+    routing: crystallized
+    provenance: ai-executed
+    summary: "Two consistent view fibers retain one covariance null coordinate after mean triangulation."
+  - turn: 2
+    type: claim
+    id: C23
+    routing: crystallized
+    provenance: ai-executed
+    summary: "Two ordinary EWA views do not uniquely determine a general 3D covariance."
+  - turn: 2
+    type: constraint
+    id: O120
+    routing: staged
+    provenance: ai-suggested
+    summary: "CP tensor bookkeeping does not identify unequal raw-fragment topology by itself."
+  - turn: 2
+    type: heuristic
+    id: O121
+    routing: staged
+    provenance: ai-suggested
+    summary: "Use oracle moment aggregates and at least three generic views for a direct covariance baseline."
+  - turn: 3
+    type: experiment
+    id: N140
+    routing: direct
+    provenance: ai-executed
+    summary: "A mask-gated C0014 StructSplat teacher passed the 168,000-byte and exact-playback gates with strong foreground metrics."
+  - turn: 3
+    type: dead_end
+    id: N141
+    routing: direct
+    provenance: ai-executed
+    summary: "Foreground-only RGB splats with foreground centers did not preserve the exact mask silhouette."
+  - turn: 3
+    type: question
+    id: N142
+    routing: direct
+    provenance: ai-suggested
+    summary: "Choose lifting-only foreground observations or an exact-cutout package with alpha."
+  - turn: 3
+    type: claim
+    id: O122
+    routing: staged
+    provenance: ai-executed
+    summary: "One 5,000-component masked view fits the cap and foreground quality target numerically, but leaks beyond its silhouette."
+  - turn: 3
+    type: constraint
+    id: O123
+    routing: staged
+    provenance: ai-suggested
+    summary: "Enforce the cap on every serialized archive; fixed component count is not a byte guarantee."
+  - turn: 3
+    type: architecture
+    id: O124
+    routing: staged
+    provenance: ai-suggested
+    summary: "A compact lossless binary-alpha sidecar fits C0014's remaining budget but lacks a validated wrapper and all-view evidence."
+  - turn: 4
+    type: decision
+    id: N143
+    routing: direct
+    provenance: user
+    summary: "Replace dataset rasters with capped Gaussian views and retain exact alpha only where masks exist."
+  - turn: 4
+    type: experiment
+    id: N144
+    routing: direct
+    provenance: ai-executed
+    summary: "Converted and strict-verified all 114 views under the cap, then removed every source RGB and mask file."
+  - turn: 4
+    type: architecture
+    id: A14
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Integrity-bound compact view containers now carry fitted observations, cameras, provenance, and optional exact alpha."
+
+ai_actions:
+  - turn: 1
+    action: "Implemented the exact fiber, correspondence, source-anchored appearance core, CPU tests, and three bounded experimental iterations."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/lift/inverse_projection_fiber.py"
+      - "src/rtgs/lift/fiber_correspondence.py"
+      - "src/rtgs/lift/source_anchored_sh.py"
+      - "tests/test_inverse_projection_fiber.py"
+      - "tests/test_fiber_correspondence.py"
+      - "tests/test_source_anchored_sh.py"
+      - "benchmarks/inverse_projection_fiber_iter3.py"
+  - turn: 1
+    action: "Executed the sealed synthetic attempt once, preserved its fail-closed partial state, and independently recomputed root-0 metrics without importing the generator."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_SYNTHETIC_ATTEMPT.json"
+      - "benchmarks/inverse_projection_fiber_iter3_failure_audit.py"
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_FAILURE_AUDIT.json"
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_FAILURE_AUDIT.md"
+  - turn: 1
+    action: "Synchronized the experiment, research, roadmap, architecture, and ARA ledgers with the negative scope and future prerequisites."
+    provenance: ai-executed
+    files_changed:
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+      - "docs/ROADMAP.md"
+      - "docs/ARCHITECTURE.md"
+      - "ara/"
+  - turn: 1
+    action: "Ran 84 focused tests and the canonical CPU-isolated verification; recorded the visible-CUDA environment failures without making GPU claims."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_FAILURE_AUDIT.json"
+      - "benchmarks/results/20260717_inverse_projection_fiber_iter3_FAILURE_AUDIT.md"
+  - turn: 2
+    action: "Audited the supplied fiber-intersection and tensor claims against the EWA algebra, current code, and completed experiment evidence; independently re-ran the focused covariance-rank sentinel."
+    provenance: ai-executed
+    files_changed:
+      - "ara/"
+  - turn: 3
+    action: "Implemented and preregistered a true mask-gated fixed-count StructSplat fitting harness with foreground-normalized SSIM, hard center projection, strict byte enforcement, and raw leakage diagnostics."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/structsplat_masked_168kb_example.py"
+      - "benchmarks/results/20260718_structsplat_masked_168kb_example_PREREG.md"
+  - turn: 3
+    action: "Executed the native CUDA example, strict-reloaded and independently rerendered the archive, audited every quantitative claim, and synchronized the result ledger."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260718_structsplat_masked_168kb_example_RESULT.md"
+      - "benchmarks/results/20260718_structsplat_masked_168kb_example_AUDIT.md"
+      - "docs/EXPERIMENTS.md"
+      - "ara/evidence/tables/20260718_structsplat_masked_168kb_example.md"
+  - turn: 3
+    action: "Ran the full CPU-isolated repository verification, focused archive/adapter tests, and independent current-source native CUDA playback."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 4
+    action: "Implemented the strict compact-view container, resumable dataset converter with cap backoff and transactional deletion, lazy data exports, documentation, and CPU safety tests."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/data/compact_views.py"
+      - "src/rtgs/data/__init__.py"
+      - "scripts/convert_datasets_to_gaussians2d.py"
+      - "tests/test_compact_views.py"
+      - "tests/test_convert_datasets_to_gaussians2d.py"
+      - "README.md"
+      - "docs/ARCHITECTURE.md"
+      - "CLAUDE.md"
+  - turn: 4
+    action: "Executed the 114-view CUDA conversion, strict-verified all four manifests and archives, removed source RGB/mask directories, rebound stale diagnostic inventory paths, and passed full CPU verification."
+    provenance: ai-executed
+    files_changed:
+      - "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/"
+      - "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/"
+      - "dataset/karate/frame_00005/gaussians2d/"
+      - "dataset/karate/frame_00060/gaussians2d/"
+      - "benchmarks/g2sr_correspondence_diagnostic.py"
+      - "tests/test_g2sr_correspondence_diagnostic.py"
+
+claims_touched:
+  - id: C22
+    action: crystallized
+    turn: 1
+  - id: C23
+    action: crystallized
+    turn: 2
+
+key_context:
+  - turn: 1
+    excerpt: "The pixel-ray constraint is retained; the failed assumption was that every independently fitted 2D fragment already has stable 3D track identity."
+  - turn: 1
+    excerpt: "The real dataset was intentionally withheld by the preregistered synthetic gate, not omitted for lack of implementation."
+  - turn: 2
+    excerpt: "The supplied direct-solver idea is useful only after correcting two-view covariance rank and resolving raw-fragment topology."
+  - turn: 3
+    excerpt: "The user requested one masked StructSplat example below 168 kB before authorizing dataset-wide conversion."
+  - turn: 3
+    excerpt: "The archive meets the cap and reconstructs foreground well, but raw RGB splats alone do not preserve the hard silhouette."
+  - turn: 4
+    excerpt: "The user selected optional lossless alpha where masks exist and authorized conversion and removal of every original dataset raster."
+
+open_threads:
+  - "Implement transactional M-step backtracking plus precise root/arm/step/view/track failure receipts in a fresh namespace."
+  - "Construct stable or dynamic moment-merged source tracks with explicit birth/death/merge topology before exact-fiber fitting."
+  - "Calibrate an explicit outlier likelihood and sparse epipolar/visibility/domain gating while separating capacity, confidence, existence, opacity, and appearance."
+  - "Pass an oracle-topology synthetic feasibility gate before any new correspondence comparison or calibrated real-data fit."
+  - "Implement the oracle moment-aggregate rank-aware direct solver with a three-view arm and an explicit two-view null-coordinate control."
+  - "Wire CompactDataset/CompactView directly into the production 3D fitting entrypoint."
+  - "Add an independent post-serialization native playback gate if future conversions require renderer-level replay validation beyond strict semantic reload."
+
+ai_suggestions_pending:
+  - "Retain exact source center/covariance and source-direction SH constraints at stable-track granularity."
+  - "Do not rerun, resume, or post-hoc complete the consumed iter3 official roots."
+  - "Treat the next design as a fresh topology-aware research question, not a retry of the failed raw-fragment formulation."
+  - "Use the supplied tensor framing for cycle-consistent bookkeeping only after defining group membership, visibility, and mass semantics."

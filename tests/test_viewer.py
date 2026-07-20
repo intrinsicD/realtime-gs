@@ -14,6 +14,7 @@ from rtgs.viewer import (
     _view_dependent_rgbs,
     camera_to_viewer_pose,
     prepare_viewer_data,
+    render_exact_snapshot,
     selected_gaussians,
 )
 
@@ -77,6 +78,25 @@ def test_viewer_image_conversion_resizes_on_cpu():
     converted = _image_uint8(image, max_side=10)
     assert converted.shape == (10, 5, 3)
     assert converted.dtype == np.uint8
+
+
+def test_exact_snapshot_helper_matches_direct_cpu_rasterizer():
+    from rtgs.render.base import get_rasterizer
+
+    model = Gaussians3D(
+        means=torch.tensor([[0.0, 0.0, 2.0]]),
+        quats=torch.tensor([[1.0, 0.0, 0.0, 0.0]]),
+        log_scales=torch.tensor([[-2.0, -2.0, -2.0]]),
+        opacity=torch.tensor([0.7]),
+        sh=rgb_to_sh(torch.tensor([[0.2, 0.4, 0.6]]))[:, None],
+    )
+    camera = Camera(8.0, 8.0, 3.5, 2.5, 7, 5, torch.eye(3), torch.zeros(3))
+    snapshot = render_exact_snapshot(model, camera, device="cpu", rasterizer="torch")
+    direct = get_rasterizer("torch", device="cpu").render(model, camera).color.clamp(0.0, 1.0)
+    assert snapshot.color.shape == (camera.height, camera.width, 3)
+    assert torch.equal(snapshot.color, direct)
+    assert snapshot.backend == "rtgs.render.torch_ref.TorchRasterizer"
+    assert snapshot.device == "cpu"
 
 
 def test_cli_view_auto_detects_initial_without_importing_viser(tmp_path, monkeypatch):

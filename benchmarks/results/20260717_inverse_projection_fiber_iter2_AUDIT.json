@@ -1,0 +1,52 @@
+{
+  "claim_dispositions": {
+    "appearance_or_sh_correspondence": "NOT_TESTED",
+    "exact_source_fiber_invariant": "CONFIRM_SYNTHETIC_ONLY",
+    "fixed_residual_topology_reliably_solves_correspondence": "RETIRE_FOR_THIS_PROTOCOL",
+    "gpu_or_performance": "NOT_TESTED",
+    "real_data_correspondence": "NOT_TESTED",
+    "residual_topology_recovers_exact_tracks": "NARROW_TO_TWO_OF_THREE_ACCEPTED_SYNTHETIC_ROOTS",
+    "shuffled_control_establishes_residual_identity": "RETIRE"
+  },
+  "cuda_or_gpu_work_performed": false,
+  "executed_source_archive_sha256": "373545e0da7e05e2a78d8d83118a0cbb898dcfc40190ba4729ee08bfc7a90cec",
+  "findings": [
+    "Root 0 reached eight pure components and exact final tracks but failed the frozen survivor-precision floor at 0.904762.",
+    "Root 2 retained seven components with 0.875 hidden-mode coverage and no candidate for hidden mode 2, so topology was correctly rejected.",
+    "The shuffled control failed all roots but matched proposed mean hidden-mode coverage at 0.958333; track separation alone cannot rescue Gate 4.",
+    "The result field relative_center_reduction is not reportable because rejected-root placeholder geometry is zero and biases the aggregate.",
+    "An initial executable-archive packaging attempt failed before result reservation, artifact-directory creation, transaction creation, or root access; the successful transaction is the only consumed attempt."
+  ],
+  "implementation_review_sha256": "d4655faec8711d5f3a2e29b07f08e11fa0a5c9bc5c3de512123f37cf32179fae",
+  "independent_checks": {
+    "all_archive_members_match_attempt_manifest": true,
+    "all_reviewed_source_hashes_match_archive": true,
+    "canonical_official_receipts": true,
+    "conditional_acceptance_exact": true,
+    "gate_rederivation_from_raw_npz": true,
+    "learned_state_unchanged_after_heldout": true,
+    "one_root_construction_each": true,
+    "one_transaction_id_across_receipts": true,
+    "one_heldout_release": true,
+    "publication_and_lifecycle_consistent": true,
+    "scalar_summary_mismatches": 0,
+    "worker_clean_exit": true
+  },
+  "official_roots_rerun": false,
+  "preregistration_sha256": "95adcf0f9d03761ca57bb36444a051f5c581e21e06eb399a355437bda9f6d28e",
+  "result_sha256": "d153706a5534a5f1d319d18b2961c944842bb01cd1573992b280c5ce096a2dfd",
+  "schema": "inverse_projection_fiber_iter2_independent_results_audit_v1",
+  "scientific_gates": {
+    "gate_1_validity": "PASS",
+    "gate_2_selection_contraction": "FAIL",
+    "gate_3_correspondence_geometry": "FAIL",
+    "gate_4_negative_control": "FAIL",
+    "overall": "FAIL"
+  },
+  "scientific_status": "FAIL",
+  "terminal_sha256": "058517596d1692d32aa12c91a46d817bedbff6c3d0e4054b9cf0d035e71267d7",
+  "lifecycle_sha256": "99fc26034e3bf447bfda64eaf23740c95e4cda19b9d76b68af3c1da28603f1aa",
+  "transaction_committed": true,
+  "transaction_id": "05b9478e90b04d0b9c17f8ba5202c085",
+  "verdict": "ACCEPT_VALID_NEGATIVE"
+}

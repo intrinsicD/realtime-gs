@@ -1,0 +1,492 @@
+{
+  "artifact_type": "compact_point_training_result_v1",
+  "status": "PASS",
+  "decision": "NO_GLOBAL_SAMPLING_WIN",
+  "timestamp_utc": "2026-07-16T20:53:23+00:00",
+  "claim_boundary": "CPU synthetic fixed-topology point-training mechanism only; continuous and discrete pairs retain distinct risks; no quality, density, speed, memory, CUDA, or default claim",
+  "preregistration_sha256": "865f86d35805c265d27caf4b5f6e02b99e4679f53162dbdd23c17681354065ea",
+  "seal_file_sha256": "b04875a86d16aae00a656b7dd5bb28c482f9f18654139dcd5938bae1ddb85f4b",
+  "seal_payload_sha256": "5376b3a9650cf46750ca9994bc12f5ab20c0c5774b8fc4b179db5ef87782be16",
+  "source_aggregate": "345fcf71e80655878e93ec274d7ac58eff46773e64eeb75ea8e80783bad0a95a",
+  "attempt_sha256": "130fa471c57d90efd366261d47acf75ed848ad630cfb8b5a3f2484af37ff687f",
+  "raw_sha256": "077024a732d4d77ce2b9f1444043e0616af25b571d6336dcb49579c76b2a8a2e",
+  "domains": {
+    "pixel": {
+      "risk": "pixel",
+      "G_init": 0.553771443557587,
+      "G_final": 1.0681355693664827,
+      "G_AUC": 1.0245665261609864,
+      "label": "NEUTRAL_OR_NEGATIVE",
+      "per_seed": [
+        {
+          "seed": 74101,
+          "uniform_auc": -0.2740618187138796,
+          "mixture_auc": -0.2592286931873998,
+          "delta_auc": 0.014833125526479807,
+          "q_init": 0.5484386543516225,
+          "q_final": 1.0490540428928696,
+          "direction": "uniform_better"
+        },
+        {
+          "seed": 74102,
+          "uniform_auc": -0.27859421023172387,
+          "mixture_auc": -0.24859232780566337,
+          "delta_auc": 0.0300018824260605,
+          "q_init": 0.5406202310943219,
+          "q_final": 1.0809862211855066,
+          "direction": "uniform_better"
+        },
+        {
+          "seed": 74103,
+          "uniform_auc": -0.2542393127030127,
+          "mixture_auc": -0.2262654551474328,
+          "delta_auc": 0.027973857555579906,
+          "q_init": 0.5727582051749491,
+          "q_final": 1.0746353250148568,
+          "direction": "uniform_better"
+        }
+      ]
+    },
+    "area": {
+      "risk": "area",
+      "G_init": 0.5079419542254233,
+      "G_final": 0.98735471583772,
+      "G_AUC": 0.9910818461570763,
+      "label": "NONINFERIOR",
+      "per_seed": [
+        {
+          "seed": 74101,
+          "uniform_auc": -0.3199178938632361,
+          "mixture_auc": -0.3319903824397059,
+          "delta_auc": -0.012072488576469809,
+          "q_init": 0.5013838325499742,
+          "q_final": 0.9808940487172818,
+          "direction": "mixture_better"
+        },
+        {
+          "seed": 74102,
+          "uniform_auc": -0.32248999706901926,
+          "mixture_auc": -0.32303534119735233,
+          "delta_auc": -0.0005453441283330696,
+          "q_init": 0.49481821927881003,
+          "q_final": 1.0152011368117053,
+          "direction": "mixture_better"
+        },
+        {
+          "seed": 74103,
+          "uniform_auc": -0.29034696488619793,
+          "mixture_auc": -0.3046036079820985,
+          "delta_auc": -0.014256643095900579,
+          "q_init": 0.5282338752645251,
+          "q_final": 0.9665969477334918,
+          "direction": "mixture_better"
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "seed": 74101,
+      "arm": "pixel_uniform",
+      "active_fraction": 1.0,
+      "importance_ess_per_attempt": 1.0,
+      "wall_seconds": 4.75847381199128,
+      "peak_rss_kib": 650820,
+      "parameter_motion": {
+        "means": 0.00319865345954895,
+        "quaternions": 0.08581599593162537,
+        "log_scales": 0.6571639776229858,
+        "opacity_logits": 3.3556065559387207,
+        "sh0": 0.2904953360557556
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.06992272006551337
+        },
+        {
+          "step": 30,
+          "risk": 0.06174385564934798
+        },
+        {
+          "step": 60,
+          "risk": 0.05459504491159172
+        },
+        {
+          "step": 120,
+          "risk": 0.03834832250088379
+        }
+      ]
+    },
+    {
+      "seed": 74101,
+      "arm": "pixel_gaussian",
+      "active_fraction": 0.31959635416666665,
+      "importance_ess_per_attempt": 0.27480246751990683,
+      "wall_seconds": 5.284107633982785,
+      "peak_rss_kib": 650592,
+      "parameter_motion": {
+        "means": 0.0030556321144104004,
+        "quaternions": 0.08264634013175964,
+        "log_scales": 0.6169567108154297,
+        "opacity_logits": 3.277369499206543,
+        "sh0": 0.29878127574920654
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.06992272006551337
+        },
+        {
+          "step": 30,
+          "risk": 0.06201473438483839
+        },
+        {
+          "step": 60,
+          "risk": 0.054852834842683405
+        },
+        {
+          "step": 120,
+          "risk": 0.0402294627577608
+        }
+      ]
+    },
+    {
+      "seed": 74101,
+      "arm": "area_uniform",
+      "active_fraction": 1.0,
+      "importance_ess_per_attempt": 1.0,
+      "wall_seconds": 4.861689485987881,
+      "peak_rss_kib": 650648,
+      "parameter_motion": {
+        "means": 0.003368377685546875,
+        "quaternions": 0.0886213481426239,
+        "log_scales": 0.6494671106338501,
+        "opacity_logits": 3.233447551727295,
+        "sh0": 0.28498566150665283
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.06992272006551337
+        },
+        {
+          "step": 30,
+          "risk": 0.06181537167347568
+        },
+        {
+          "step": 60,
+          "risk": 0.05417707719646656
+        },
+        {
+          "step": 120,
+          "risk": 0.03852298733550973
+        }
+      ]
+    },
+    {
+      "seed": 74101,
+      "arm": "area_gaussian",
+      "active_fraction": 0.9997395833333333,
+      "importance_ess_per_attempt": 0.29617889595159086,
+      "wall_seconds": 4.655817290011328,
+      "peak_rss_kib": 650656,
+      "parameter_motion": {
+        "means": 0.003572613000869751,
+        "quaternions": 0.08675302565097809,
+        "log_scales": 0.6415770053863525,
+        "opacity_logits": 3.4005281925201416,
+        "sh0": 0.31569015979766846
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.06992272006551337
+        },
+        {
+          "step": 30,
+          "risk": 0.061249457630174496
+        },
+        {
+          "step": 60,
+          "risk": 0.053624017334867435
+        },
+        {
+          "step": 120,
+          "risk": 0.0378861159631181
+        }
+      ]
+    },
+    {
+      "seed": 74102,
+      "arm": "pixel_uniform",
+      "active_fraction": 1.0,
+      "importance_ess_per_attempt": 1.0,
+      "wall_seconds": 4.908995820005657,
+      "peak_rss_kib": 650264,
+      "parameter_motion": {
+        "means": 0.0033972859382629395,
+        "quaternions": 0.1012389063835144,
+        "log_scales": 0.639182448387146,
+        "opacity_logits": 3.3002209663391113,
+        "sh0": 0.30892956256866455
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.06944157378952402
+        },
+        {
+          "step": 30,
+          "risk": 0.061291651455845336
+        },
+        {
+          "step": 60,
+          "risk": 0.05409930737740635
+        },
+        {
+          "step": 120,
+          "risk": 0.03754151966918651
+        }
+      ]
+    },
+    {
+      "seed": 74102,
+      "arm": "pixel_gaussian",
+      "active_fraction": 0.314453125,
+      "importance_ess_per_attempt": 0.26947338596169046,
+      "wall_seconds": 4.867699202004587,
+      "peak_rss_kib": 650756,
+      "parameter_motion": {
+        "means": 0.0028752386569976807,
+        "quaternions": 0.08305222541093826,
+        "log_scales": 0.5681226253509521,
+        "opacity_logits": 3.2111759185791016,
+        "sh0": 0.28912466764450073
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.06944157378952402
+        },
+        {
+          "step": 30,
+          "risk": 0.06188724600691855
+        },
+        {
+          "step": 60,
+          "risk": 0.055282895587481444
+        },
+        {
+          "step": 120,
+          "risk": 0.04058186548483628
+        }
+      ]
+    },
+    {
+      "seed": 74102,
+      "arm": "area_uniform",
+      "active_fraction": 1.0,
+      "importance_ess_per_attempt": 1.0,
+      "wall_seconds": 4.806183559005149,
+      "peak_rss_kib": 650084,
+      "parameter_motion": {
+        "means": 0.0033136308193206787,
+        "quaternions": 0.09741252660751343,
+        "log_scales": 0.6384198665618896,
+        "opacity_logits": 3.3150668144226074,
+        "sh0": 0.30731290578842163
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.06944157378952402
+        },
+        {
+          "step": 30,
+          "risk": 0.0613498399000055
+        },
+        {
+          "step": 60,
+          "risk": 0.05382171410731268
+        },
+        {
+          "step": 120,
+          "risk": 0.037431571528421095
+        }
+      ]
+    },
+    {
+      "seed": 74102,
+      "arm": "area_gaussian",
+      "active_fraction": 0.9996744791666666,
+      "importance_ess_per_attempt": 0.29368964881511034,
+      "wall_seconds": 4.7890273009834345,
+      "peak_rss_kib": 651052,
+      "parameter_motion": {
+        "means": 0.004139840602874756,
+        "quaternions": 0.09391418099403381,
+        "log_scales": 0.6462838649749756,
+        "opacity_logits": 3.415085792541504,
+        "sh0": 0.32176417112350464
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.06944157378952402
+        },
+        {
+          "step": 30,
+          "risk": 0.060934455829339124
+        },
+        {
+          "step": 60,
+          "risk": 0.053531388605873316
+        },
+        {
+          "step": 120,
+          "risk": 0.037970270774471966
+        }
+      ]
+    },
+    {
+      "seed": 74103,
+      "arm": "pixel_uniform",
+      "active_fraction": 1.0,
+      "importance_ess_per_attempt": 1.0,
+      "wall_seconds": 5.097455812996486,
+      "peak_rss_kib": 650708,
+      "parameter_motion": {
+        "means": 0.0032308101654052734,
+        "quaternions": 0.0951804518699646,
+        "log_scales": 0.680881142616272,
+        "opacity_logits": 3.4434354305267334,
+        "sh0": 0.3103024363517761
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.07082486951752304
+        },
+        {
+          "step": 30,
+          "risk": 0.06299700232087692
+        },
+        {
+          "step": 60,
+          "risk": 0.05636500558727515
+        },
+        {
+          "step": 120,
+          "risk": 0.04056552514617923
+        }
+      ]
+    },
+    {
+      "seed": 74103,
+      "arm": "pixel_gaussian",
+      "active_fraction": 0.314453125,
+      "importance_ess_per_attempt": 0.2698992701951924,
+      "wall_seconds": 4.890215490013361,
+      "peak_rss_kib": 650628,
+      "parameter_motion": {
+        "means": 0.002915114164352417,
+        "quaternions": 0.07968752086162567,
+        "log_scales": 0.6506818532943726,
+        "opacity_logits": 3.4231061935424805,
+        "sh0": 0.31259703636169434
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.07082486951752304
+        },
+        {
+          "step": 30,
+          "risk": 0.06352023961029855
+        },
+        {
+          "step": 60,
+          "risk": 0.057566659542408395
+        },
+        {
+          "step": 120,
+          "risk": 0.043593146299937297
+        }
+      ]
+    },
+    {
+      "seed": 74103,
+      "arm": "area_uniform",
+      "active_fraction": 1.0,
+      "importance_ess_per_attempt": 1.0,
+      "wall_seconds": 4.973326489998726,
+      "peak_rss_kib": 650516,
+      "parameter_motion": {
+        "means": 0.0031198859214782715,
+        "quaternions": 0.0995882898569107,
+        "log_scales": 0.6913179159164429,
+        "opacity_logits": 3.5351052284240723,
+        "sh0": 0.31694716215133667
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.07082486951752304
+        },
+        {
+          "step": 30,
+          "risk": 0.06315214755549362
+        },
+        {
+          "step": 60,
+          "risk": 0.05662404006500613
+        },
+        {
+          "step": 120,
+          "risk": 0.04087884801724533
+        }
+      ]
+    },
+    {
+      "seed": 74103,
+      "arm": "area_gaussian",
+      "active_fraction": 0.9997395833333333,
+      "importance_ess_per_attempt": 0.2922315429592768,
+      "wall_seconds": 4.548694622004405,
+      "peak_rss_kib": 650724,
+      "parameter_motion": {
+        "means": 0.0039833784103393555,
+        "quaternions": 0.101170614361763,
+        "log_scales": 0.7131704092025757,
+        "opacity_logits": 3.655590057373047,
+        "sh0": 0.3409249186515808
+      },
+      "common_pixel_checkpoints": [
+        {
+          "step": 0,
+          "risk": 0.07082486951752304
+        },
+        {
+          "step": 30,
+          "risk": 0.06284020312444184
+        },
+        {
+          "step": 60,
+          "risk": 0.05607257868013773
+        },
+        {
+          "step": 120,
+          "risk": 0.03965508115313987
+        }
+      ]
+    }
+  ],
+  "thresholds": {
+    "material_auc": 0.95,
+    "noninferior_auc": 1.05,
+    "final_geometric": 1.05,
+    "maximum_seed_final": 1.2,
+    "trainer_reduction": 0.9
+  }
+}

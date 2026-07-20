@@ -1,0 +1,1065 @@
+session:
+  id: "2026-07-16_001"
+  date: "2026-07-16"
+  started: "2026-07-16T00:37+02:00"
+  last_turn: "2026-07-16T23:42+02:00"
+  turn_count: 20
+  summary: "Completed fixed-topology compact training with no global synthetic sampling win and repaired the future calibrated gsplat snapshot startup path; calibrated evidence and dynamic cardinality remain open."
+
+events_logged:
+  - turn: 1
+    type: question
+    id: N68
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test 12-to-24-to-48 fixed-topology refinement against a full-resolution control."
+  - turn: 1
+    type: question
+    id: N69
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test appearance-first equilibration against joint and geometry-first refinement."
+  - turn: 1
+    type: question
+    id: N70
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test covariance-frame mean preconditioning with identity and axis-permuted controls."
+  - turn: 1
+    type: observation
+    id: O58
+    routing: staged
+    provenance: ai-suggested
+    summary: "Stage-1 additive rendering and downstream alpha compositing are not representation-consistent."
+  - turn: 1
+    type: observation
+    id: O59
+    routing: staged
+    provenance: ai-suggested
+    summary: "Pyramids, block schedules, and covariance-frame preconditioning are absent and non-duplicative."
+  - turn: 1
+    type: observation
+    id: O60
+    routing: staged
+    provenance: ai-suggested
+    summary: "Defer new merge and robust-loss runs behind existing or mechanism-gated questions."
+  - turn: 2
+    type: experiment
+    id: N71
+    routing: direct
+    provenance: ai-executed
+    summary: "Carve Retry-2 passed validity but failed every production-collision materiality gate."
+  - turn: 2
+    type: dead_end
+    id: N72
+    routing: direct
+    provenance: ai-executed
+    summary: "Production grouping was too sparse for the frozen equal-count utility comparison."
+  - turn: 2
+    type: decision
+    id: N73
+    routing: direct
+    provenance: ai-executed
+    summary: "Froze a bounded 24-to-48 schedule without claiming to test literal 12-to-24-to-48."
+  - turn: 2
+    type: experiment
+    id: N74
+    routing: direct
+    provenance: ai-executed
+    summary: "All fixed-topology multiscale candidates lost AUC and final PSNR in every seed."
+  - turn: 2
+    type: dead_end
+    id: N75
+    routing: direct
+    provenance: ai-executed
+    summary: "Closed the exact 24-to-48 schedule without scale or boundary tuning."
+  - turn: 2
+    type: experiment
+    id: N76
+    routing: direct
+    provenance: ai-executed
+    summary: "Stage-1 source RGB stayed equivalent while downstream Depth/Carve semantics changed materially."
+  - turn: 2
+    type: question
+    id: N77
+    routing: direct
+    provenance: ai-suggested
+    summary: "Freeze a gauge-invariant scalar/color semantic factorial at matched capacity."
+  - turn: 2
+    type: question
+    id: N78
+    routing: direct
+    provenance: ai-suggested
+    summary: "Compare current nine-parameter Stage-1 appearance with bounded unit-weight eight-parameter fitting."
+  - turn: 2
+    type: question
+    id: N79
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test residual-responsibility density allocation against gradient and shuffled controls."
+  - turn: 2
+    type: question
+    id: N80
+    routing: direct
+    provenance: ai-suggested
+    summary: "Test whether normalized-quaternion radial gauge materially affects ambient Adam."
+  - turn: 2
+    type: experiment
+    id: N81
+    routing: direct
+    provenance: ai-executed
+    summary: "Two Quaternion attempts failed closed and exposed no optimizer/materiality outcome."
+  - turn: 2
+    type: dead_end
+    id: N82
+    routing: direct
+    provenance: ai-executed
+    summary: "Inherited float64-exact covariance gate is infeasible after native float32 canonicalization."
+  - turn: 2
+    type: pivot
+    id: N83
+    routing: direct
+    provenance: ai-executed
+    summary: "Prioritized end-to-end representation and allocation over another local-coordinate retry."
+  - turn: 2
+    type: decision
+    id: N84
+    routing: direct
+    provenance: ai-executed
+    summary: "Landed the default-preserving Stage-1 parameterization seam but withheld a partial scientific runner."
+  - turn: 2
+    type: question
+    id: N85
+    routing: direct
+    provenance: ai-suggested
+    summary: "After N79, test residual responsibility jointly with renderer-Jacobian leverage, inverse-propensity correction, and prospective curvature strata."
+  - turn: 2
+    type: decision
+    id: N86
+    routing: direct
+    provenance: ai-executed
+    summary: "Sequence N77 then N78 then N79 to maximize scientific relevance and preserve frozen source bindings."
+  - turn: 2
+    type: question
+    id: N87
+    routing: direct
+    provenance: ai-suggested
+    summary: "Compare bounded linear variable projection with 9p/8p Adam for the frozen-geometry appearance subproblem."
+  - turn: 2
+    type: decision
+    id: N88
+    routing: direct
+    provenance: ai-executed
+    summary: "Kept the Stage-1 runner locked after adversarial review found validation and binding defects in draft primitives."
+  - turn: 2
+    type: architecture
+    id: A08
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Made Stage-1 scalar amplitude and observed-color semantics an explicit interface boundary."
+  - turn: 2
+    type: architecture
+    id: A09
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Made fit-time appearance coordinates pluggable behind a bit-exact current default and guarded evidence boundary."
+  - turn: 2
+    type: claim
+    id: C14
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Production-scale Carve grouping is insufficient for the frozen utility test."
+  - turn: 2
+    type: claim
+    id: C15
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Current downstream Stage-1 semantics depend on the non-identifiable weight/color gauge."
+  - turn: 2
+    type: claim
+    id: C16
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "The exact 24-to-48 schedule fails quality and exposure efficiency."
+  - turn: 2
+    type: constraint
+    id: R14
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Prove representation feasibility at native precision before optimizer arms."
+  - turn: 2
+    type: observation
+    id: O65
+    routing: staged
+    provenance: ai-suggested
+    summary: "An eight-parameter Stage-1 amplitude removes one exact null coordinate; utility is untested."
+  - turn: 2
+    type: observation
+    id: O66
+    routing: staged
+    provenance: ai-suggested
+    summary: "Residual responsibility may improve fixed-budget parent allocation; attribution is untested."
+  - turn: 2
+    type: observation
+    id: O67
+    routing: staged
+    provenance: ai-suggested
+    summary: "Separate scalar amplitude from observed color before choosing a Stage-1 representative."
+  - turn: 2
+    type: observation
+    id: O68
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "The native fit seam now supports paired 9p/8p research while the scientific harness remains incomplete."
+  - turn: 2
+    type: observation
+    id: O69
+    routing: staged
+    provenance: ai-suggested
+    summary: "Residual allocation may need leverage correction and local whitening; transfer to Gaussian splatting is untested."
+  - turn: 2
+    type: observation
+    id: O70
+    routing: staged
+    provenance: ai-suggested
+    summary: "Frozen-geometry appearance admits a bounded linear solve; comparative benefit is untested."
+  - turn: 2
+    type: observation
+    id: O71
+    routing: staged
+    provenance: ai-suggested
+    summary: "Guarded evidence primitives still need adversarial malformed-input and binding validation."
+  - turn: 3
+    type: decision
+    id: N89
+    routing: direct
+    provenance: ai-executed
+    summary: "Cleared the completed N77 harness for outcome-free sealing after an adversarial implementation audit."
+  - turn: 4
+    type: experiment
+    id: N90
+    routing: direct
+    provenance: ai-executed
+    summary: "The sealed N78 run passed independent audit; the bounded 8p arm lost every appearance-only and joint seed."
+  - turn: 4
+    type: dead_end
+    id: N91
+    routing: direct
+    provenance: ai-executed
+    summary: "Closed bounded unit-weight 8p Adam as a cleaner replacement in the exact frozen CPU-synthetic scope."
+  - turn: 4
+    type: decision
+    id: N92
+    routing: direct
+    provenance: ai-executed
+    summary: "Retained the current 9p default and released the frozen N79 source work without selecting variable projection."
+  - turn: 4
+    type: claim
+    id: C17
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Material local null motion did not translate into a benefit from removing the coordinate in N78."
+  - turn: 4
+    type: constraint
+    id: R15
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "A completeness flag cannot replace strict evidence, lifecycle, source, and independent-recomputation bindings."
+  - turn: 5
+    type: experiment
+    id: N93
+    routing: direct
+    provenance: ai-executed
+    summary: "All 108 terminal N78 fits were replayed and independently audited through the installed additive 2D gsplat CUDA kernel."
+  - turn: 6
+    type: decision
+    id: N94
+    routing: direct
+    provenance: user
+    summary: "Require calibrated dataset interaction and a live viewer handoff for every results-bearing research branch."
+  - turn: 6
+    type: experiment
+    id: N95
+    routing: direct
+    provenance: ai-executed
+    summary: "Audited a strict-split frame_00008 Torch smoke from saved finite PLYs through a live calibrated Viser handoff."
+  - turn: 7
+    type: decision
+    id: N96
+    routing: direct
+    provenance: user
+    summary: "Replace the downscaled presentation smoke with a native-resolution calibrated-data viewer handoff."
+  - turn: 7
+    type: dead_end
+    id: N97
+    routing: direct
+    provenance: ai-executed
+    summary: "Native Torch Stage 1 exhausted the 8 GB GPU on the first full-resolution update."
+  - turn: 7
+    type: experiment
+    id: N98
+    routing: direct
+    provenance: ai-executed
+    summary: "Streamed and audited native-resolution tiled fits, grid-48 Carve initialization, and a live 835-splat viewer handoff."
+  - turn: 8
+    type: question
+    id: N99
+    routing: direct
+    provenance: user
+    summary: "Determine whether compact per-view StructSplat fields should replace dense RGB during native-resolution lift and refinement."
+  - turn: 8
+    type: observation
+    id: O73
+    routing: staged
+    provenance: ai-suggested
+    summary: "The 835 splats are not the bottleneck; current refinement is blocked by eager dense residency, the reference renderer, and the shadowed 3D gsplat API."
+  - turn: 8
+    type: observation
+    id: O74
+    routing: staged
+    provenance: ai-suggested
+    summary: "Use exact StructSplat fields as sparse native-coordinate RGB teachers with separate compact coverage and held-out RGB truth evaluation."
+  - turn: 8
+    type: observation
+    id: O75
+    routing: staged
+    provenance: ai-suggested
+    summary: "Treat direct 2D-to-projected-3D primitive matching as auxiliary because blending, identity, visibility, and teacher-detail semantics differ."
+  - turn: 9
+    type: question
+    id: N100
+    routing: direct
+    provenance: user
+    summary: "Identify and adapt the recent point-sampled Gaussian-field paper for compact color supervision."
+  - turn: 9
+    type: observation
+    id: O76
+    routing: staged
+    provenance: ai-suggested
+    summary: "W-VEG is the strongest Scholar Inbox match and uses normalized arbitrary-point Gaussian-field queries with intersection culling and sample-error densification."
+  - turn: 9
+    type: observation
+    id: O77
+    routing: staged
+    provenance: ai-suggested
+    summary: "Sparse teacher/student point queries transfer, but 2D error samples do not directly determine 3D densification positions."
+  - turn: 10
+    type: question
+    id: N101
+    routing: direct
+    provenance: user
+    summary: "Compare Gaussian Point Splatting with W-VEG and the compact StructSplat refinement design."
+  - turn: 10
+    type: observation
+    id: O78
+    routing: staged
+    provenance: ai-suggested
+    summary: "GPS is forward-only and has opacity/visibility semantics that cannot replace the differentiable Stage-3 renderer."
+  - turn: 10
+    type: observation
+    id: O79
+    routing: staged
+    provenance: ai-suggested
+    summary: "GPS-inspired component sampling gives an unbiased MSE color-gradient estimator, while exact field queries are lower variance."
+  - turn: 11
+    type: decision
+    id: N102
+    routing: direct
+    provenance: user
+    summary: "Adopt GPS-inspired sampling on the StructSplat teacher side while retaining differentiable 3D alpha compositing."
+  - turn: 11
+    type: question
+    id: N103
+    routing: direct
+    provenance: ai-suggested
+    summary: "Clarify source-RGB access and whether per-view 2D components have any intended cross-view identity."
+  - turn: 11
+    type: architecture
+    id: A10
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Use mixed Gaussian/uniform compact teacher samples, exact targets first, and direct component-color MSE as an ablation."
+  - turn: 12
+    type: decision
+    id: N104
+    routing: direct
+    provenance: user
+    summary: "Prohibit source-RGB access during refinement while preserving lazy isolated truth evaluation."
+  - turn: 12
+    type: question
+    id: N105
+    routing: direct
+    provenance: user
+    summary: "Test global, parent-only, and soft-lineage credit assignment under RGB-free compact supervision."
+  - turn: 12
+    type: constraint
+    id: R16
+    routing: crystallized
+    provenance: user
+    summary: "Physically separate compact training inputs from lazily reloaded source-RGB evaluation."
+  - turn: 12
+    type: observation
+    id: O80
+    routing: crystallized
+    provenance: user
+    summary: "Original images remain on disk for evaluation but are absent from refinement and model selection."
+  - turn: 12
+    type: observation
+    id: O81
+    routing: staged
+    provenance: ai-suggested
+    summary: "Carve's raw one-to-one construction becomes unarchived many-to-one lineage after voxel merging."
+  - turn: 12
+    type: observation
+    id: O82
+    routing: staged
+    provenance: ai-suggested
+    summary: "Use global compositing as the baseline, soft lineage as a prior, and parent-only as a diagnostic."
+  - turn: 13
+    type: decision
+    id: N106
+    routing: direct
+    provenance: user
+    summary: "Begin the no-RGB boundary immediately after Stage 1, including compact-query Carve."
+  - turn: 13
+    type: decision
+    id: N107
+    routing: direct
+    provenance: user
+    summary: "Decouple full 2D teacher density, initialization coreset size, dynamic 3D population, and supervision batch size."
+  - turn: 13
+    type: question
+    id: N108
+    routing: direct
+    provenance: ai-suggested
+    summary: "Validate representation-invariant sampling and indexed local-support scaling across independent count axes."
+  - turn: 13
+    type: heuristic
+    id: H03
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Keep global compositing normative and use lineage only as an annealed auxiliary."
+  - turn: 13
+    type: architecture
+    id: A11
+    routing: crystallized
+    provenance: user
+    summary: "Keep N2D, initialization budget, dynamic N3D, and ray/patch batch independent."
+  - turn: 13
+    type: observation
+    id: O82
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Global compositing is primary; soft lineage and parent-only are auxiliary and control arms."
+  - turn: 13
+    type: observation
+    id: O83
+    routing: crystallized
+    provenance: user
+    summary: "All converged 2D components supervise even when initialization uses a coreset and 3D density later changes count."
+  - turn: 13
+    type: observation
+    id: O84
+    routing: staged
+    provenance: ai-suggested
+    summary: "Freeze image-space risk and importance-correct Gaussian proposals so component fragmentation cannot change the objective."
+  - turn: 13
+    type: observation
+    id: O85
+    routing: staged
+    provenance: ai-suggested
+    summary: "Use per-view static support indexes and sparse crop/sample rendering instead of samples-times-all-components work."
+  - turn: 13
+    type: observation
+    id: O86
+    routing: staged
+    provenance: ai-suggested
+    summary: "Use a lossless native StructSplat field for supervision and reserve the clamped generic adapter for initialization."
+  - turn: 14
+    type: decision
+    id: N109
+    routing: direct
+    provenance: user-revised
+    summary: "Formalize adaptive per-view m_i fields, independent N initialization, and sampled refinement to N_opt."
+  - turn: 14
+    type: question
+    id: N110
+    routing: direct
+    provenance: user
+    summary: "Test memory, speed, convergence, and held-out quality of compact-field refinement against ordinary dense-RGB fitting."
+  - turn: 14
+    type: observation
+    id: O87
+    routing: crystallized
+    provenance: user-revised
+    summary: "The canonical stage notation is k to m_i to N to N_opt with independent cardinalities."
+  - turn: 14
+    type: observation
+    id: O88
+    routing: staged
+    provenance: ai-suggested
+    summary: "Separate structural memory scaling from untested speed, convergence, and quality hypotheses."
+  - turn: 15
+    type: decision
+    id: N111
+    routing: direct
+    provenance: user-revised
+    summary: "Use init/opt subscripts and 2D/3D domain superscripts for every Gaussian population count."
+  - turn: 15
+    type: concept
+    id: K02
+    routing: crystallized
+    provenance: user-revised
+    summary: "Distinguish per-view 2D and global 3D initialization/optimized cardinalities in notation."
+  - turn: 15
+    type: observation
+    id: O89
+    routing: crystallized
+    provenance: user-revised
+    summary: "The canonical counts are N_init,i^2D, N_opt,i^2D, N_init^3D, and N_opt^3D."
+  - turn: 16
+    type: decision
+    id: N112
+    routing: direct
+    provenance: user
+    summary: "Begin implementing the accepted compact RGB-free pipeline now."
+  - turn: 16
+    type: experiment
+    id: N113
+    routing: direct
+    provenance: ai-executed
+    summary: "Lossless compact teachers and serialized reconstruction inputs passed 22 focused tests and independent scope audit."
+  - turn: 16
+    type: experiment
+    id: N114
+    routing: direct
+    provenance: ai-executed
+    summary: "CompactCarve passed 23 focused cases and the full CPU gate after audit-found query-memory and ray-sigma repairs."
+  - turn: 16
+    type: question
+    id: N115
+    routing: direct
+    provenance: ai-suggested
+    summary: "Prove sparse point-renderer forward/gradient parity before compact training."
+  - turn: 16
+    type: constraint
+    id: R17
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Compact supervision must preserve captured field semantics rather than converted initialization semantics."
+  - turn: 16
+    type: architecture
+    id: A12
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "CompactCarve uses source-proposed rays with coverage-weighted all-view teacher scoring."
+  - turn: 16
+    type: observation
+    id: O86
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "The lossless self-describing native-field requirement is now artifact-committed as R17."
+  - turn: 16
+    type: observation
+    id: O90
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "The independently budgeted compact initializer is now artifact-committed as A12."
+  - turn: 16
+    type: observation
+    id: O91
+    routing: staged
+    provenance: ai-suggested
+    summary: "Sparse points and bounds still require train-only provenance before calibrated claims."
+  - turn: 16
+    type: observation
+    id: O92
+    routing: staged
+    provenance: ai-suggested
+    summary: "Use a separate PointRasterizer/CompactTrainer and discrete fixed-topology gate first."
+  - turn: 16
+    type: observation
+    id: O93
+    routing: staged
+    provenance: ai-suggested
+    summary: "Incremental triangulation motivates a later frozen-history active-region schedule only."
+  - turn: 16
+    type: observation
+    id: O94
+    routing: staged
+    provenance: ai-suggested
+    summary: "Texture-atlas decoupling motivates a later compact-teacher appearance-residual question."
+  - turn: 17
+    type: experiment
+    id: N116
+    routing: direct
+    provenance: ai-executed
+    summary: "Sealed sparse CPU point rendering and discrete-pixel risk passed synthetic, calibrated, and viewer integration gates within narrow audited scope."
+  - turn: 17
+    type: question
+    id: N117
+    routing: direct
+    provenance: ai-suggested
+    summary: "Compare fixed-topology RGB-free compact training under matched uniform, discrete-Gaussian, and continuous-area attempts."
+  - turn: 17
+    type: architecture
+    id: A13
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Separate sparse PointRasterizer semantics from teacher sampling and the still-missing CompactTrainer."
+  - turn: 17
+    type: claim
+    id: C18
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Sparse CPU point rendering matches the frozen dense-reference synthetic and sampled calibrated scope."
+  - turn: 17
+    type: claim
+    id: C19
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Fixed-attempt discrete Gaussian proposals preserve uniform finite-pixel risk on the exact fixture."
+  - turn: 17
+    type: observation
+    id: O95
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Empirical point-renderer parity scope crystallized as C18."
+  - turn: 17
+    type: observation
+    id: O96
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Empirical discrete-risk identity crystallized as C19."
+  - turn: 18
+    type: experiment
+    id: N118
+    routing: direct
+    provenance: ai-executed
+    summary: "Outcome-blind core audit repaired two bounded correctness failures and isolated production-scale gaps."
+  - turn: 18
+    type: observation
+    id: O97
+    routing: staged
+    provenance: ai-suggested
+    summary: "Global resource budgets, indexed CUDA queries, bounded training graphs, and dynamic N_opt remain open."
+  - turn: 19
+    type: experiment
+    id: N119
+    routing: direct
+    provenance: ai-executed
+    summary: "Sealed fixed-topology compact training returned pixel neutral/negative, area noninferior, and no global sampling win."
+  - turn: 19
+    type: observation
+    id: O98
+    routing: staged
+    provenance: ai-suggested
+    summary: "Gaussian proposals did not materially improve the exact synthetic fixed-topology convergence comparison."
+
+ai_actions:
+  - turn: 1
+    action: "Read source, architecture, roadmap, experiment stops, preregistrations, and the 2026-07-12 through 2026-07-16 Scholar Inbox digest; performed no experiment."
+    provenance: ai-executed
+    files_changed:
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 2
+    action: "Implemented, sealed, executed, and independently audited Carve, Stage-1 gauge, and multiscale CPU protocols."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/"
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+      - "docs/ROADMAP.md"
+  - turn: 2
+    action: "Froze independently reviewed semantic-factorial, fit-parameterization, and residual-responsibility protocols."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260716_stage1_semantic_factorial_PREREG.md"
+      - "benchmarks/results/20260716_stage1_fit_parameterization_PREREG.md"
+      - "benchmarks/results/20260716_residual_responsibility_density_PREREG.md"
+  - turn: 2
+    action: "Implemented and sealed Quaternion gauge diagnostics; consumed two fail-closed Phase-A attempts and independently audited both invalid dispositions."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/quaternion_gauge_ablation.py"
+      - "tests/test_quaternion_gauge_ablation.py"
+      - "benchmarks/results/20260716T015517Z_cpu_quaternion_gauge_invalid_AUDIT.md"
+      - "benchmarks/results/20260716T030759Z_cpu_quaternion_gauge_iter2_invalid_AUDIT.md"
+  - turn: 2
+    action: "Reconciled audited outcomes and open questions into public docs and the ARA."
+    provenance: ai-executed
+    files_changed:
+      - "docs/ARCHITECTURE.md"
+      - "ara/logic/"
+      - "ara/trace/"
+      - "ara/evidence/"
+      - "ara/staging/observations.yaml"
+  - turn: 2
+    action: "Implemented and independently audited the default-preserving Stage-1 fit-time appearance seam; added a fail-closed protocol skeleton without sealing or consuming an attempt."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/image2gs/fit.py"
+      - "tests/test_stage1_fit_seam.py"
+      - "benchmarks/stage1_fit_parameterization.py"
+      - "tests/test_stage1_fit_parameterization.py"
+      - "docs/ARCHITECTURE.md"
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+      - "docs/ROADMAP.md"
+  - turn: 2
+    action: "Re-queried the 2026-07-16 Scholar Inbox digest and grounded a prospective leverage-corrected residual-allocation question without changing the frozen N79 protocol."
+    provenance: ai-executed
+    files_changed:
+      - "docs/RESEARCH.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+  - turn: 2
+    action: "Adversarially reviewed the incomplete Stage-1 protocol primitives, ranked open experiments, and derived a separate variable-projection question without modifying a frozen arm."
+    provenance: ai-executed
+    files_changed:
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+      - "docs/ROADMAP.md"
+  - turn: 3
+    action: "Re-audited the final semantic-factorial harness, repaired a direct-fork guard gap through the producing session, ran the exact frozen CPU verification sequence, and authored the outcome-blind PASS review without an official action."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260716_stage1_semantic_factorial_IMPLEMENTATION_REVIEW.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 4
+    action: "Completed the N78 evidence harness, passed independent implementation and mathematical audits, created the exact seal, consumed the sole official CPU run, and independently audited the 360-array result."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/image2gs/fit.py"
+      - "tests/test_stage1_fit_seam.py"
+      - "benchmarks/stage1_fit_parameterization.py"
+      - "tests/test_stage1_fit_parameterization.py"
+      - "benchmarks/results/20260716_stage1_fit_parameterization_IMPLEMENTATION_REVIEW.md"
+      - "benchmarks/results/20260716_stage1_fit_parameterization_SEAL.json"
+      - "benchmarks/results/20260716_stage1_fit_parameterization_ATTEMPT.json"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization.json"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_RAW.npz"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_RESULT.md"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_AUDIT.md"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_SCIENTIST_REVIEW.json"
+  - turn: 4
+    action: "Published the scoped negative N78 disposition and synchronized the result ledger, architecture, research narrative, roadmap, and ARA evidence/knowledge/trace layers."
+    provenance: ai-executed
+    files_changed:
+      - "docs/ARCHITECTURE.md"
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+      - "docs/ROADMAP.md"
+      - "ara/evidence/README.md"
+      - "ara/evidence/tables/20260716_stage1_fit_parameterization.md"
+      - "ara/logic/claims.md"
+      - "ara/logic/solution/architecture.md"
+      - "ara/logic/solution/constraints.md"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 4
+    action: "Refreshed the 2026-07-16 Scholar Inbox digest; the texture-atlas/sparsity and adaptive-density papers did not amend frozen N78 or justify selecting a post-hoc arm."
+    provenance: ai-executed
+    files_changed: []
+  - turn: 5
+    action: "Created and independently audited compact and exhaustive post-hoc gsplat visualizations from the saved N78 terminal states without rerunning either fit arm."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/visualize_stage1_fit_parameterization.py"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY.json"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY.md"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY_OVERVIEW.png"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY_ALL_VIEWS.png"
+      - "benchmarks/results/20260716T101608Z_cpu_stage1_fit_parameterization_GSPLAT_REPLAY_AUDIT.md"
+      - "ara/evidence/README.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 6
+    action: "Encoded the dataset/viewer standing rule, fixed stray mask discovery, ran and independently audited a local calibrated-data viewer smoke, and passed the canonical CPU verification gate."
+    provenance: ai-executed
+    files_changed:
+      - "CLAUDE.md"
+      - ".claude/skills/experiment/SKILL.md"
+      - "docs/RESEARCH_LOOP.md"
+      - "docs/EXPERIMENTS.md"
+      - "src/rtgs/data/calibrated.py"
+      - "tests/test_calibrated.py"
+      - "runs/dataset_viewer_smoke_20260716/"
+      - "ara/evidence/README.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 7
+    action: "Measured the native full-resolution memory boundary, streamed higher-capacity native-scale training fits through the supported tiled backend, lifted and served the result, independently audited every saved artifact, and passed the canonical CPU verification gate."
+    provenance: ai-executed
+    files_changed:
+      - "runs/dataset_viewer_fullres_20260716/"
+      - "docs/EXPERIMENTS.md"
+      - "ara/evidence/README.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 8
+    action: "Audited the Stage-2/Stage-3 dataflow, quantified dense-image and reference-renderer costs, checked exact StructSplat normalized semantics and the shadowed gsplat install, and compared compact-teacher architectures against the current Scholar Inbox."
+    provenance: ai-executed
+    files_changed:
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 9
+    action: "Searched 200 recent personalized Scholar Inbox papers, isolated three sampling candidates, and reviewed the primary W-VEG paper's point-query equation, CUDA intersection scheme, loss, random sampling, and error-based densification."
+    provenance: ai-executed
+    files_changed:
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 10
+    action: "Reviewed the primary Gaussian Point Splatting paper and released CUDA renderer, derived its exact transfer to normalized StructSplat color sampling, and designed a fixed-topology sparse-supervision comparison."
+    provenance: ai-executed
+    files_changed:
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 11
+    action: "Recorded the user's adoption of GPS-inspired compact teacher sampling and isolated the two remaining semantic clarifications before implementation."
+    provenance: ai-executed
+    files_changed:
+      - "ara/logic/solution/architecture.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 12
+    action: "Audited Carve/merge/density lineage, identified the current RGB and provenance leaks, and designed an RGB-free fixed-topology global-versus-lineage mechanism comparison."
+    provenance: ai-executed
+    files_changed:
+      - "ara/logic/solution/architecture.md"
+      - "ara/logic/solution/constraints.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 13
+    action: "Derived cardinality-invariant GPS sampling, audited large-N2D/N3D data structures and dense-work traps, and committed independent teacher/init/student/batch cardinalities."
+    provenance: ai-executed
+    files_changed:
+      - "ara/logic/solution/architecture.md"
+      - "ara/logic/solution/constraints.md"
+      - "ara/logic/solution/heuristics.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 14
+    action: "Reconciled the user's k-to-mi-to-N-to-Nopt formulation with the compact teacher, RGB-free lifting, global sparse refinement, independent density, and viewer boundaries."
+    provenance: ai-executed
+    files_changed:
+      - "ara/logic/solution/architecture.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 15
+    action: "Replaced the temporary k/mi/N/Nopt shorthand with user-requested domain-qualified initialization and optimized count notation throughout the canonical ARA architecture."
+    provenance: ai-executed
+    files_changed:
+      - "ara/logic/concepts.md"
+      - "ara/logic/solution/architecture.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 16
+    action: "Implemented lossless StructSplat teacher capture, exact CPU point queries/proposals, integrity-checked field archives, and slotted camera/teacher reconstruction bundles; narrowed all claims through an independent scientist audit."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/core/observation2d.py"
+      - "src/rtgs/data/reconstruction_inputs.py"
+      - "src/rtgs/image2gs/structsplat_backend.py"
+      - "src/rtgs/image2gs/fit.py"
+      - "src/rtgs/cli.py"
+      - "tests/test_observation2d.py"
+      - "tests/test_structsplat_observation.py"
+      - "tests/test_reconstruction_inputs.py"
+  - turn: 16
+    action: "Implemented and independently audited CompactCarve; repaired pair-temporary scaling and off-axis ray-covariance defects, added 23 focused mechanism cases, and passed the complete CPU verification gate."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/lift/compact_carve.py"
+      - "src/rtgs/lift/base.py"
+      - "src/rtgs/lift/__init__.py"
+      - "tests/test_compact_carve.py"
+      - "CLAUDE.md"
+      - "docs/ARCHITECTURE.md"
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+      - "docs/ROADMAP.md"
+  - turn: 16
+    action: "Queried the current Scholar Inbox, preserved incremental-freezing and texture-decoupling ideas as unadopted follow-ups, and designed sparse point-renderer parity as the next fixed-topology experiment."
+    provenance: ai-executed
+    files_changed:
+      - "ara/logic/solution/architecture.md"
+      - "ara/logic/solution/constraints.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 17
+    action: "Preregistered, implemented, sealed, executed, and independently audited sparse CPU point-renderer parity and an exact discrete-pixel proposal; ran the authorized 835-Gaussian calibrated interaction, saved a viewer snapshot, synchronized docs, and passed the complete CPU verification gate."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/render/point_base.py"
+      - "src/rtgs/render/torch_points.py"
+      - "src/rtgs/render/__init__.py"
+      - "src/rtgs/core/observation2d.py"
+      - "src/rtgs/core/__init__.py"
+      - "tests/test_point_render.py"
+      - "tests/test_point_rasterizer_parity.py"
+      - "tests/test_observation2d.py"
+      - "benchmarks/point_rasterizer_parity.py"
+      - "benchmarks/results/20260716_point_rasterizer_parity_RESULT.json"
+      - "benchmarks/results/20260716_point_rasterizer_parity_AUDIT.md"
+      - "runs/point_rasterizer_parity_20260716/"
+      - "CLAUDE.md"
+      - "docs/ARCHITECTURE.md"
+      - "docs/EXPERIMENTS.md"
+      - "docs/RESEARCH.md"
+      - "docs/ROADMAP.md"
+      - "ara/"
+  - turn: 18
+    action: "Performed an outcome-blind compact-core scale/cap audit; demonstrated and prompted repairs for generic-backend diagnostics and derived-scale overflow/underflow, then separated bounded-protocol safety from production-scale follow-ups."
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/core/observation2d.py"
+      - "src/rtgs/lift/compact_carve.py"
+      - "tests/test_observation2d.py"
+      - "tests/test_compact_carve.py"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 19
+    action: "Independently recomputed the one-shot compact-training lifecycle, checkpoint reducers, normalized log-AUCs, labels, decision, fixed-attempt accounting, RNG mappings, and source bindings; authored a PASS scientist audit without replaying the fixture or accessing calibrated RGB."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260716_compact_point_training_AUDIT.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-16_001.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+  - turn: 20
+    action: "Moved exact native gsplat snapshots into a fresh preload-bound spawn worker, added strict scratch-result and binary/PLY/PNG bindings, and passed 26 focused CPU tests plus Ruff checks without replaying the consumed calibrated interaction."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/compact_point_training.py"
+      - "tests/test_compact_point_training.py"
+
+claims_touched:
+  - id: C14
+    action: crystallized
+    turn: 2
+  - id: C15
+    action: crystallized
+    turn: 2
+  - id: C16
+    action: crystallized
+    turn: 2
+  - id: C17
+    action: crystallized
+    turn: 4
+  - id: C18
+    action: crystallized
+    turn: 17
+  - id: C19
+    action: crystallized
+    turn: 17
+
+key_context:
+  - turn: 1
+    excerpt: "Continue autonomous research while avoiding repeats and grounding directions in Scholar Inbox."
+  - turn: 2
+    excerpt: "Take end-to-end, multiscale, and mathematical perspectives; try known ideas and combinations while the researcher is away."
+  - turn: 3
+    excerpt: "Complete the outcome-blind N77 implementation review only after final hashes and the full frozen CPU verification pass."
+  - turn: 4
+    excerpt: "Continue with the proposed next experiment; complete the frozen Stage-1 fit-time parameterization comparison without retrying a consumed attempt."
+  - turn: 5
+    excerpt: "Show the N78 fitting results visually with gsplat."
+  - turn: 6
+    excerpt: "Use the data in the dataset folder for testing and always show the results in the viewer."
+  - turn: 7
+    excerpt: "Use the images in full resolution for this."
+  - turn: 8
+    excerpt: "StructSplat was intended so later fitting could load per-view 2D Gaussians instead of all full-resolution images."
+  - turn: 9
+    excerpt: "A recent Scholar Inbox paper may use point samples to query Gaussians for the color information needed during refinement."
+  - turn: 10
+    excerpt: "Check whether Gaussian Point Splatting fits the compact-observation refinement idea as well as or better than the earlier paper."
+  - turn: 11
+    excerpt: "Use the GPS finding where possible, then return to the remaining design questions."
+  - turn: 12
+    excerpt: "RGB is not allowed during refinement; preserve it for evaluation, and experimentally compare known initial correspondence with independent-ray/global explanations."
+  - turn: 13
+    excerpt: "Ensure the design scales when StructSplat converges to many more 2D components, initialization optionally subsamples them, and 3D density control independently grows or shrinks the student."
+  - turn: 14
+    excerpt: "Confirm the intended k-to-mi-to-N-to-Nopt pipeline: RGB-to-variable-2D fitting, ray/volume initialization, and sampled 3D-to-2D-field refinement for novel views."
+  - turn: 15
+    excerpt: "Use init and opt as subscripts for initialization budgets and optimized counts; the exact variable letters need not follow the user's temporary shorthand."
+  - turn: 16
+    excerpt: "Proceed with the accepted compact RGB-free pipeline and determine the concrete first implementation steps."
+  - turn: 17
+    excerpt: "Continue and do the proposed sparse point-rasterizer/discrete-risk experiment."
+
+open_threads:
+  - "Implement the frozen residual-responsibility mechanism gate N79 before any utility arm."
+  - "Leave Carve merge utility N67 unanswered unless an independently motivated regime creates material collisions."
+  - "The literal three-level multiscale question N68 remains open; do not tune it from N74."
+  - "Renderer-consistent appearance equilibration N69 and covariance preconditioning N70 remain untested."
+  - "Any Quaternion retry N80 requires a fresh precision-aware preregistration and is deprioritized."
+  - "Design N85 only after N79 Phase A; do not add leverage or curvature arms retrospectively to the frozen protocol."
+  - "Preregister N87 separately if pursued; N78 does not answer variable projection."
+  - "Persist exact train/held-out viewer snapshots and a complete provenance manifest for future durable dataset handoffs."
+  - "Add a tested streaming calibrated-fit CLI and an isolated modern 3D gsplat environment before native-resolution refinement or held-out 3D evaluation."
+  - "Use N119's negative synthetic result to constrain follow-ups; run only the separately authorized bounded calibrated integration before proposing density-enabled arms."
+  - "Filter or provenance-bind compact sparse points and bounds to selected training views before calibrated or held-out claims."
+  - "Use the new CompactLineage sidecar only after a global fixed-topology point-render baseline; keep parent-only rendering diagnostic."
+  - "Continue N108 with student point-render parity, count-axis/index-overlap benchmarks, and a calibrated independent N_init^3D experiment."
+  - "Resolve N110 only after matching compute/exposure, reporting teacher fidelity, and evaluating frozen outputs against isolated original RGB."
+  - "Before a production-scale claim, add aggregate teacher/index/N budgets, allocation-safe index construction, preflight-before-transfer, indexed CUDA queries, and dynamic N_opt^3D control."
+
+ai_suggestions_pending:
+  - "Proceed to N79 now that N78's source freeze is consumed; do not spend another official attempt on Quaternion validity first."
+  - "Keep all held-out utility, exact-budget, and attribution gates separate from mechanism screens."
+  - "Treat leverage-corrected residual allocation N85 as a prospective follow-up, not evidence that raw responsibility already works."
+  - "Do not promote Gaussian teacher proposals from N119; treat discrete uniform sampling as the stronger synthetic control and any density-enabled proposal as a fresh preregistration."
+  - "Treat GPS direct colors, initialization coreset policy, and lineage-soft credit as separate orthogonal ablations after the global baseline."
+  - "Treat lower memory as an implementation target and speed, convergence, and quality as separately falsifiable N110 outcomes."
+  - "Keep the frozen 835-Gaussian mechanism decision separate from O97's production-scale hardening and topology work."

@@ -1,0 +1,15 @@
+{
+  "config_id": "f0ab6b4cbc92d1ee10ca5eb1a4f14bdee3683e761fbb814c2855a9dd2f03da56",
+  "confirmatory_archive_path": "/home/alex/.cache/rtgs/tum-rgbd/rgbd_dataset_freiburg1_desk.tgz",
+  "confirmatory_archive_sha256": "e983d6830916e66dc4a46a71368046b149b283de87769690e7aa4e0b9483530c",
+  "experiment": "tum-rgbd-oriented-validity-phase-a",
+  "git_status_sha256": "a8ba2dc7e787692726f8838c73de5cdb8754fe084a8849a8c11b580e01b5592a",
+  "implementation_aggregate_sha256": "119d3c07e0910c538b8e19a7d7c8ab299a992b54a0a1b71c434b6d8a81136c67",
+  "preregistration_sha256": "419d90edc748bcf0858a6cb9ac472d64866ac8eeadfd633e1f1a061634bf64e2",
+  "requested_output": "/home/alex/Documents/realtime-gs/benchmarks/results/20260715T144052Z_cpu_tum_rgbd_oriented_validity_desk.json",
+  "schema_version": 1,
+  "started_utc": "2026-07-15T14:41:01.067869+00:00",
+  "status": "started",
+  "threshold_manifest_path": "/home/alex/Documents/realtime-gs/benchmarks/results/20260715_tum_rgbd_oriented_validity_THRESHOLDS.json",
+  "threshold_manifest_sha256": "e3ad0adfcd7909bcf64dabaa829dee87dab57b5cb52da7d0ae2f5ff5f9264324"
+}
