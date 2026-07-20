@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import math
 import platform
+import statistics
 import subprocess
 import time
 from dataclasses import dataclass
@@ -19,6 +20,11 @@ from pathlib import Path
 
 import torch
 
+from rtgs.core.observation2d import (
+    GaussianObservationField,
+    GaussianObservationIndex,
+    _GroupedObservationIndexReference,
+)
 from rtgs.data.synthetic import make_synthetic_scene
 from rtgs.image2gs.fit import FitConfig, fit_image
 from rtgs.lift import lifter_names
@@ -46,6 +52,11 @@ class BenchConfig:
     field_components: int = 96
     field_repeats: int = 3
     field_chunk_size: int = 64
+    csr_components: int = 600
+    csr_query_points: int = 2048
+    csr_canvas: int = 256
+    csr_tile_size: int = 16
+    csr_repeats: int = 5
 
     @staticmethod
     def quick() -> BenchConfig:
@@ -64,6 +75,10 @@ class BenchConfig:
             field_components=256,
             field_repeats=10,
             field_chunk_size=128,
+            csr_components=2000,
+            csr_query_points=4096,
+            csr_canvas=384,
+            csr_repeats=5,
         )
 
     @staticmethod
@@ -79,6 +94,10 @@ class BenchConfig:
             field_components=16,
             field_repeats=1,
             field_chunk_size=16,
+            csr_components=60,
+            csr_query_points=256,
+            csr_canvas=64,
+            csr_repeats=1,
         )
 
 
@@ -149,6 +168,97 @@ def run_field_product_kernel_benchmark(
     }
 
 
+def run_compact_placement_csr_benchmark(
+    *,
+    components: int,
+    query_points: int,
+    canvas: int,
+    tile_size: int,
+    repeats: int,
+) -> dict[str, float | int | bool]:
+    """Time the flattened CSR observation query against the frozen grouped reference.
+
+    This is the tracked stand-in for the exact image-free compact-placement hot path: it builds one
+    representative frozen field, indexes it both ways, and times a fixed all-point batch query. It
+    reports the CSR/grouped speedup and the exact numerical agreement, so a regression in either
+    speed or parity is caught in CI. The absolute production gate (26 views, 130k components) is a
+    separate confirmatory run recorded in docs/EXPERIMENTS.md, not this micro-case.
+    """
+    for name, value in (
+        ("components", components),
+        ("query_points", query_points),
+        ("canvas", canvas),
+        ("tile_size", tile_size),
+        ("repeats", repeats),
+    ):
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise ValueError(f"{name} must be a positive integer")
+
+    generator = torch.Generator(device="cpu").manual_seed(0)
+    means = torch.rand(components, 2, generator=generator) * (canvas - 2.0) + 1.0
+    # Anisotropic multi-tile footprints so candidate lists resemble the production distribution.
+    log_scales = torch.log(torch.rand(components, 2, generator=generator) * 5.5 + 1.5)
+    field = GaussianObservationField(
+        width=canvas,
+        height=canvas,
+        means=means,
+        log_scales=log_scales,
+        rotations=(torch.rand(components, generator=generator) - 0.5) * 2.0,
+        colors=torch.rand(components, 3, generator=generator) * 1.4 - 0.2,
+        amplitudes=torch.rand(components, generator=generator) * 0.9 + 0.1,
+        color_grads=torch.randn(components, 2, 3, generator=generator) / 8.0,
+        support_fade_alpha=0.4,
+        fit_window=(1, 1, canvas - 2, canvas - 2),
+    )
+    points = torch.rand(query_points, 2, generator=generator) * (canvas - 2.0) + 1.0
+
+    build_start = time.perf_counter()
+    index = GaussianObservationIndex(field, tile_size=tile_size)
+    csr_build_seconds = time.perf_counter() - build_start
+    grouped = _GroupedObservationIndexReference(field, tile_size=tile_size)
+
+    csr_result = index.query(points)  # warm-up + reference for parity
+    grouped_result = grouped.query(points)
+
+    csr_times: list[float] = []
+    for _ in range(repeats):
+        started = time.perf_counter()
+        index.query(points)
+        csr_times.append(time.perf_counter() - started)
+    csr_seconds = statistics.median(csr_times)
+
+    grouped_times: list[float] = []
+    for _ in range(max(1, min(repeats, 3))):
+        started = time.perf_counter()
+        grouped.query(points)
+        grouped_times.append(time.perf_counter() - started)
+    grouped_seconds = statistics.median(grouped_times)
+
+    max_color_err = float((csr_result.color - grouped_result.color).abs().max())
+    max_weight_err = float((csr_result.weight_sum - grouped_result.weight_sum).abs().max())
+    if not math.isfinite(csr_seconds) or csr_seconds <= 0.0:
+        raise RuntimeError("compact CSR benchmark produced a non-finite CSR time")
+    return {
+        "components": components,
+        "query_points": query_points,
+        "tile_size": tile_size,
+        "nonempty_tiles": index.n_tiles,
+        "total_entries": index.n_entries,
+        "max_candidates": index.max_candidates,
+        "retained_payload_bytes": index.payload_bytes,
+        "component_id_dtype": index.stats.component_id_dtype,
+        "evaluated_pairs": index.total_pairs_evaluated,
+        "peak_pair_chunk": index.peak_pair_chunk,
+        "csr_build_seconds": csr_build_seconds,
+        "grouped_seconds": grouped_seconds,
+        "csr_seconds": csr_seconds,
+        "speedup": grouped_seconds / csr_seconds,
+        "max_color_err": max_color_err,
+        "max_weight_sum_err": max_weight_err,
+        "within_contract": int(max_color_err <= 2e-6 and max_weight_err <= 2e-6),
+    }
+
+
 def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
     """Execute all benchmarks; returns {'meta': ..., 'results': ...}."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -165,6 +275,14 @@ def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
         components=config.field_components,
         repeats=config.field_repeats,
         chunk_size=config.field_chunk_size,
+    )
+
+    results["compact_placement_csr_cpu"] = run_compact_placement_csr_benchmark(
+        components=config.csr_components,
+        query_points=config.csr_query_points,
+        canvas=config.csr_canvas,
+        tile_size=config.csr_tile_size,
+        repeats=config.csr_repeats,
     )
 
     # Stage-1 fitting speed/quality.

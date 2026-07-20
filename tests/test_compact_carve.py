@@ -8,7 +8,11 @@ import pytest
 import torch
 
 from rtgs.core.camera import Camera
-from rtgs.core.observation2d import GaussianObservationField, GaussianObservationIndex
+from rtgs.core.observation2d import (
+    GaussianObservationField,
+    GaussianObservationIndex,
+    _GroupedObservationIndexReference,
+)
 from rtgs.core.sh import sh_to_rgb
 from rtgs.data.reconstruction_inputs import ReconstructionInputs
 from rtgs.lift.compact_carve import (
@@ -663,18 +667,20 @@ def test_sparse_batches_match_and_never_exceed_query_limit(monkeypatch):
     observed_batch_sizes: list[int] = []
     observed_pair_counts: list[int] = []
     original_query = GaussianObservationIndex.query
-    original_cross_values = GaussianObservationField._cross_values
+    original_paired_values = GaussianObservationField._paired_values
 
     def tracked_query(self, xy, component_chunk=4096):
         observed_batch_sizes.append(xy.shape[0])
         return original_query(self, xy, component_chunk=component_chunk)
 
-    def tracked_cross_values(self, xy, component_ids):
-        observed_pair_counts.append(xy.shape[0] * component_ids.numel())
-        return original_cross_values(self, xy, component_ids)
+    def tracked_paired_values(self, xy, component_ids):
+        observed_pair_counts.append(component_ids.numel())
+        return original_paired_values(self, xy, component_ids)
 
+    # The CSR query streams bounded (point, component) pairs through paired evaluation, so the
+    # per-call pair budget is enforced there, not in the old per-tile Cartesian product.
     monkeypatch.setattr(GaussianObservationIndex, "query", tracked_query)
-    monkeypatch.setattr(GaussianObservationField, "_cross_values", tracked_cross_values)
+    monkeypatch.setattr(GaussianObservationField, "_paired_values", tracked_paired_values)
     small_config = replace(
         _config(query_batch_size=64),
         query_component_chunk=2,
@@ -846,3 +852,93 @@ def test_candidate_budget_may_be_smaller_than_view_count():
 def test_config_rejects_unknown_anchor_mode():
     with pytest.raises(ValueError, match="anchor_mode"):
         replace(_config(), anchor_mode="unknown")
+
+
+def test_score_world_points_csr_matches_grouped_reference_every_field():
+    inputs = _inputs()
+    config = _config()
+    points = torch.cat([_TARGETS, torch.tensor([[0.0, 0.0, 0.35], [0.05, -0.1, -0.2]])])
+    csr = score_world_points(inputs, points, config)
+    grouped_backends = [
+        _GroupedObservationIndexReference(field, tile_size=config.tile_size)
+        for field in inputs.observations
+    ]
+    grouped = score_world_points(inputs, points, config, backends=grouped_backends)
+
+    # Discrete consensus statistics must be exactly equal; continuous fields within the contract.
+    assert torch.equal(csr.n_seen, grouped.n_seen)
+    assert torch.equal(csr.n_covered, grouped.n_covered)
+    torch.testing.assert_close(csr.score, grouped.score, atol=1e-6, rtol=2e-6)
+    torch.testing.assert_close(csr.consensus_color, grouped.consensus_color, atol=2e-6, rtol=2e-6)
+    torch.testing.assert_close(csr.color_variance, grouped.color_variance, atol=2e-6, rtol=2e-6)
+    torch.testing.assert_close(csr.coverage, grouped.coverage, atol=2e-6, rtol=2e-6)
+
+
+def test_initializer_csr_preserves_grouped_reference_selection_and_geometry():
+    inputs = _inputs()
+    config = _config()
+    csr_audits: list[CompactCandidateAudit] = []
+    grouped_audits: list[CompactCandidateAudit] = []
+
+    csr = CompactCarveInitializer(config).initialize(
+        inputs, candidate_audit_callback=csr_audits.append
+    )
+    grouped_backends = [
+        _GroupedObservationIndexReference(field, tile_size=config.tile_size)
+        for field in inputs.observations
+    ]
+    grouped = CompactCarveInitializer(config).initialize(
+        inputs,
+        backends=grouped_backends,
+        candidate_audit_callback=grouped_audits.append,
+    )
+
+    # Exact discrete selection identity: winning depth, selected candidate indices, lineage.
+    assert torch.equal(
+        csr_audits[0].candidate_best_depth_indices,
+        grouped_audits[0].candidate_best_depth_indices,
+    )
+    assert torch.equal(
+        csr_audits[0].selected_candidate_indices,
+        grouped_audits[0].selected_candidate_indices,
+    )
+    assert torch.equal(csr.lineage.source_view_indices, grouped.lineage.source_view_indices)
+    assert torch.equal(
+        csr.lineage.source_component_indices, grouped.lineage.source_component_indices
+    )
+    assert torch.equal(
+        csr_audits[0].candidate_eligible_mask, grouped_audits[0].candidate_eligible_mask
+    )
+
+    # Lifted geometry and scores agree within the float32 numerical contract.
+    torch.testing.assert_close(csr.gaussians.means, grouped.gaussians.means, atol=1e-6, rtol=2e-6)
+    torch.testing.assert_close(
+        csr.gaussians.covariance(), grouped.gaussians.covariance(), atol=1e-6, rtol=2e-6
+    )
+    torch.testing.assert_close(csr.depths, grouped.depths, atol=1e-6, rtol=2e-6)
+    torch.testing.assert_close(csr.scores, grouped.scores, atol=1e-6, rtol=2e-6)
+
+
+def test_placement_progress_is_silent_by_default_and_persists_counters():
+    inputs = _inputs()
+    config = _config()
+    records: list[object] = []
+    result = CompactCarveInitializer(config).initialize(inputs, progress_callback=records.append)
+    phases = [record.phase for record in records]
+    assert phases[0] == "index_built"
+    assert phases[-1] == "complete"
+    assert "ray_batch" in phases
+    # Every emitted chunk respected the configured pair cap.
+    assert all(record.peak_pair_chunk <= config.max_query_pairs for record in records)
+
+    diagnostics = result.diagnostics
+    assert diagnostics["placement_evaluated_pairs"] == records[-1].evaluated_pairs
+    assert diagnostics["placement_evaluated_pairs"] > 0
+    assert diagnostics["placement_peak_pair_chunk"] == records[-1].peak_pair_chunk
+    assert diagnostics["placement_sampled_points"] == records[-1].sampled_points
+    assert len(diagnostics["placement_index_payload_bytes"]) == inputs.n_views
+    assert diagnostics["teacher_component_id_dtypes"] == ["int32", "int32"]
+
+    # Silent by default: no callback means no progress side effects, identical result.
+    silent = CompactCarveInitializer(config).initialize(inputs)
+    assert silent.diagnostics == diagnostics

@@ -789,6 +789,34 @@ class GaussianObservationField:
             * self.amplitudes[component_ids][None, :]
         )
 
+    def _paired_weights(self, xy: torch.Tensor, component_ids: torch.Tensor) -> torch.Tensor:
+        """Weight-only paired evaluation, sharing exact support semantics with paired values.
+
+        This is the weight half of :meth:`_paired_values`.  ``query_weight_sum`` uses it so the
+        indexed denominator path never materializes color, while still streaming the identical
+        ``(point, component)`` pairs the color path evaluates.
+        """
+        dx = self._paired_displacements(xy, component_ids)
+        conics = self.conics()[component_ids]
+        q = (
+            conics[:, 0] * dx[:, 0].square()
+            + 2.0 * conics[:, 1] * dx[:, 0] * dx[:, 1]
+            + conics[:, 2] * dx[:, 1].square()
+        )
+        weights = torch.exp(-0.5 * q)
+        if self.support_fade_alpha > 0.0:
+            floor = self.support_fade_alpha * math.exp(-0.5 * self.sigma_cutoff**2)
+            weights = (weights - floor).clamp_min(0.0)
+        support_centers = self.support_centers(component_ids)
+        radii = self.radii()[component_ids]
+        inside_support = (
+            (xy[:, 0] >= support_centers[:, 0] - radii[:, 0])
+            & (xy[:, 0] <= support_centers[:, 0] + radii[:, 0])
+            & (xy[:, 1] >= support_centers[:, 1] - radii[:, 1])
+            & (xy[:, 1] <= support_centers[:, 1] + radii[:, 1])
+        )
+        return weights * inside_support * self.valid_domain(xy) * self.amplitudes[component_ids]
+
     def _paired_values(
         self, xy: torch.Tensor, component_ids: torch.Tensor
     ) -> tuple[torch.Tensor, torch.Tensor]:
@@ -861,18 +889,38 @@ class GaussianObservationIndexStats:
     nonempty_tiles: int
     total_entries: int
     max_candidates: int
+    retained_bytes: int = 0
+    component_id_dtype: str = "int64"
+    max_query_pairs: int | None = None
+
+
+DEFAULT_MAX_QUERY_PAIRS = 1_048_576
 
 
 class GaussianObservationIndex:
     """Exact CPU tile-overlap index for local point queries on a frozen field.
 
-    Only non-empty tiles are stored. Index state therefore scales with component/tile overlap,
-    not canvas pixels, and query work scales with local candidates rather than every component.
-    A future CUDA backend can implement this same ``query``/``query_weight_sum`` interface.
+    Only non-empty tiles are stored, in three contiguous CSR arrays rather than one tensor per
+    tile::
+
+        tile_keys     int64 [T]      sorted linear tile IDs for non-empty tiles
+        tile_offsets  int64 [T + 1]  CSR offsets into component_ids
+        component_ids int32|int64 [E] component IDs, ascending within each tile row
+
+    Index state therefore scales with component/tile overlap, not canvas pixels, and query work
+    scales with local candidates rather than every component.  Queries stream a bounded
+    ``(point, component)`` pair sequence in canonical (point-major, ascending-component) order and
+    evaluate the exact paired field, so no per-tile Python loop or Cartesian product is
+    materialized.  A future CUDA backend can implement this same
+    ``query``/``query_weight_sum`` interface.
     """
 
     DEFAULT_MAX_ENTRIES = 16_000_000
     DEFAULT_MAX_CANDIDATES = 200_000
+    DEFAULT_MAX_QUERY_PAIRS = DEFAULT_MAX_QUERY_PAIRS
+    # Largest ``field.n - 1`` that is retained as int32; a test seam forces the int64 fallback
+    # without allocating a giant real field.
+    _int32_component_limit = 2**31 - 1
 
     def __init__(
         self,
@@ -881,63 +929,107 @@ class GaussianObservationIndex:
         *,
         max_entries: int | None = DEFAULT_MAX_ENTRIES,
         max_candidates: int | None = DEFAULT_MAX_CANDIDATES,
+        max_query_pairs: int | None = DEFAULT_MAX_QUERY_PAIRS,
     ):
         if field.device.type != "cpu":
             raise ValueError("GaussianObservationIndex is the CPU reference backend")
-        self._validate_limits(tile_size, max_entries, max_candidates)
+        self._validate_limits(tile_size, max_entries, max_candidates, max_query_pairs)
         self.field = field
         self.tile_size = int(tile_size)
+        self.max_query_pairs = None if max_query_pairs is None else int(max_query_pairs)
         self.tiles_x = math.ceil(field.width / self.tile_size)
         self.tiles_y = math.ceil(field.height / self.tile_size)
-        self.estimated_entries = self.estimate_entries(field, tile_size=self.tile_size)
+
+        ids, tile_x0, tile_x1, tile_y0, tile_y1 = self._component_tile_ranges(field, self.tile_size)
+        widths = tile_x1 - tile_x0 + 1
+        heights = tile_y1 - tile_y0 + 1
+        counts = widths * heights
+        self.estimated_entries = int(counts.sum())
         if max_entries is not None and self.estimated_entries > max_entries:
             raise ValueError(
                 "Gaussian observation index entry cap exceeded before allocation: "
                 f"estimated={self.estimated_entries}, max_entries={max_entries}"
             )
 
-        tile_lists: dict[int, list[int]] = {}
-        built_entries = 0
-        for component_id, tile_x0, tile_x1, tile_y0, tile_y1 in self._tile_bounds(
-            field, self.tile_size
-        ):
-            for tile_y in range(tile_y0, tile_y1 + 1):
-                for tile_x in range(tile_x0, tile_x1 + 1):
-                    key = tile_y * self.tiles_x + tile_x
-                    tile_lists.setdefault(key, []).append(component_id)
-                    built_entries += 1
-                    if max_entries is not None and built_entries > max_entries:
-                        raise ValueError(
-                            "Gaussian observation index entry cap exceeded while building: "
-                            f"entries={built_entries}, max_entries={max_entries}"
-                        )
-        max_tile_candidates = max((len(ids) for ids in tile_lists.values()), default=0)
-        if max_candidates is not None and max_tile_candidates > max_candidates:
+        component_dtype = torch.int32 if field.n - 1 <= self._int32_component_limit else torch.int64
+        self.component_id_dtype = component_dtype
+        (
+            self.tile_keys,
+            self.tile_offsets,
+            self.component_ids,
+            self.max_candidates,
+        ) = self._build_csr(ids, tile_x0, tile_y0, widths, counts, component_dtype)
+        self.n_entries = int(self.component_ids.numel())
+
+        if max_candidates is not None and self.max_candidates > max_candidates:
             raise ValueError(
                 "Gaussian observation index candidate cap exceeded: "
-                f"max_candidates_observed={max_tile_candidates}, "
+                f"max_candidates_observed={self.max_candidates}, "
                 f"max_candidates={max_candidates}"
             )
-        self._tiles = {
-            key: torch.tensor(ids, dtype=torch.long, device=field.device)
-            for key, ids in tile_lists.items()
-        }
-        self.n_entries = sum(ids.numel() for ids in self._tiles.values())
-        self.max_candidates = max_tile_candidates
         if self.n_entries != self.estimated_entries:
             raise RuntimeError("Gaussian observation index preflight/build entry mismatch")
+
+        # Progress counters, updated in place by streamed queries.
+        self.total_pairs_evaluated = 0
+        self.total_query_points = 0
+        self.peak_pair_chunk = 0
+        self.last_pair_chunk = 0
+
+    def _build_csr(
+        self,
+        ids: torch.Tensor,
+        tile_x0: torch.Tensor,
+        tile_y0: torch.Tensor,
+        widths: torch.Tensor,
+        counts: torch.Tensor,
+        component_dtype: torch.dtype,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, int]:
+        """Direct two-pass CSR build in canonical component-ID order without a tile dictionary."""
+        if ids.numel() == 0:
+            return (
+                torch.empty(0, dtype=torch.long),
+                torch.zeros(1, dtype=torch.long),
+                torch.empty(0, dtype=component_dtype),
+                0,
+            )
+        total = int(counts.sum())
+        block_starts = torch.cumsum(counts, 0) - counts
+        entry_owner = torch.repeat_interleave(torch.arange(ids.numel()), counts)
+        within = torch.arange(total, dtype=torch.long) - block_starts[entry_owner]
+        width_per_entry = widths[entry_owner]
+        row = torch.div(within, width_per_entry, rounding_mode="floor")
+        col = within - row * width_per_entry
+        tile_key = (tile_y0[entry_owner] + row) * self.tiles_x + (tile_x0[entry_owner] + col)
+        entry_component = ids[entry_owner]
+        # Stable sort keeps ascending component order within each tile row, matching the frozen
+        # grouped reference whose per-tile lists were appended in component order.
+        order = torch.argsort(tile_key, stable=True)
+        sorted_keys = tile_key[order]
+        sorted_components = entry_component[order]
+        unique_keys, tile_counts = torch.unique_consecutive(sorted_keys, return_counts=True)
+        offsets = torch.zeros(unique_keys.numel() + 1, dtype=torch.long)
+        torch.cumsum(tile_counts, 0, out=offsets[1:])
+        return (
+            unique_keys.contiguous(),
+            offsets,
+            sorted_components.to(component_dtype).contiguous(),
+            int(tile_counts.max()),
+        )
 
     @staticmethod
     def _validate_limits(
         tile_size: int,
         max_entries: int | None,
         max_candidates: int | None,
+        max_query_pairs: int | None = None,
     ) -> None:
         if not isinstance(tile_size, int) or isinstance(tile_size, bool) or tile_size <= 0:
             raise ValueError("tile_size must be a positive integer")
         for name, value in (
             ("max_entries", max_entries),
             ("max_candidates", max_candidates),
+            ("max_query_pairs", max_query_pairs),
         ):
             if value is not None and (
                 not isinstance(value, int) or isinstance(value, bool) or value <= 0
@@ -946,7 +1038,12 @@ class GaussianObservationIndex:
 
     @staticmethod
     def _tile_bounds(field: GaussianObservationField, tile_size: int):
-        """Yield exact clipped inclusive tile bounds without allocating index state."""
+        """Yield exact clipped inclusive tile bounds without allocating index state.
+
+        This scalar Python generator is retained as the frozen membership oracle for the private
+        grouped reference and its equivalence test; the production build uses the vectorized
+        :meth:`_component_tile_ranges`, which is tested to reproduce it exactly.
+        """
         tiles_x = math.ceil(field.width / tile_size)
         tiles_y = math.ceil(field.height / tile_size)
         fit_x, fit_y, fit_width, fit_height = field.fit_window
@@ -973,21 +1070,64 @@ class GaussianObservationIndex:
             tile_y1 = min(tiles_y - 1, math.floor(bottom / tile_size))
             yield component_id, tile_x0, tile_x1, tile_y0, tile_y1
 
+    @staticmethod
+    def _component_tile_ranges(
+        field: GaussianObservationField,
+        tile_size: int,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Vectorized exact clipped inclusive tile ranges for every overlapping component.
+
+        Returns ``(component_ids, tile_x0, tile_x1, tile_y0, tile_y1)`` in ascending component
+        order.  The clipped-rectangle arithmetic mirrors :meth:`_tile_bounds` exactly, computed in
+        float64 so the ``float(...)`` upcast in the scalar oracle is reproduced bit-for-bit.
+        """
+        tiles_x = math.ceil(field.width / tile_size)
+        tiles_y = math.ceil(field.height / tile_size)
+        fit_x, fit_y, fit_width, fit_height = field.fit_window
+        fit_right = fit_x + fit_width
+        fit_bottom = fit_y + fit_height
+        centers = field.support_centers().to(torch.float64)
+        radii = field.radii().to(torch.float64)
+        left = torch.clamp(centers[:, 0] - radii[:, 0], min=float(fit_x))
+        right = torch.clamp(centers[:, 0] + radii[:, 0], max=float(fit_right))
+        top = torch.clamp(centers[:, 1] - radii[:, 1], min=float(fit_y))
+        bottom = torch.clamp(centers[:, 1] + radii[:, 1], max=float(fit_bottom))
+        overlap = (
+            (field.amplitudes > 0.0)
+            & (left < fit_right)
+            & (right >= fit_x)
+            & (top < fit_bottom)
+            & (bottom >= fit_y)
+        )
+        ids = overlap.nonzero(as_tuple=True)[0]
+        scale = float(tile_size)
+        tile_x0 = torch.clamp(torch.floor(left[ids] / scale).long(), min=0)
+        tile_x1 = torch.clamp(torch.floor(right[ids] / scale).long(), max=tiles_x - 1)
+        tile_y0 = torch.clamp(torch.floor(top[ids] / scale).long(), min=0)
+        tile_y1 = torch.clamp(torch.floor(bottom[ids] / scale).long(), max=tiles_y - 1)
+        return ids, tile_x0, tile_x1, tile_y0, tile_y1
+
     @classmethod
     def estimate_entries(cls, field: GaussianObservationField, tile_size: int = 16) -> int:
-        """Exactly count component--tile overlaps before any tile list/tensor allocation."""
+        """Exactly count component--tile overlaps before any CSR allocation."""
         if field.device.type != "cpu":
             raise ValueError("GaussianObservationIndex is the CPU reference backend")
         cls._validate_limits(tile_size, None, None)
-        return sum(
-            (tile_x1 - tile_x0 + 1) * (tile_y1 - tile_y0 + 1)
-            for _, tile_x0, tile_x1, tile_y0, tile_y1 in cls._tile_bounds(field, tile_size)
-        )
+        _, tile_x0, tile_x1, tile_y0, tile_y1 = cls._component_tile_ranges(field, tile_size)
+        return int(((tile_x1 - tile_x0 + 1) * (tile_y1 - tile_y0 + 1)).sum())
 
     @property
     def n_tiles(self) -> int:
         """Number of non-empty indexed tiles."""
-        return len(self._tiles)
+        return int(self.tile_keys.numel())
+
+    @property
+    def payload_bytes(self) -> int:
+        """Bytes retained by the three CSR arrays (excludes the shared field)."""
+        return sum(
+            tensor.element_size() * tensor.numel()
+            for tensor in (self.tile_keys, self.tile_offsets, self.component_ids)
+        )
 
     @property
     def stats(self) -> GaussianObservationIndexStats:
@@ -999,10 +1139,147 @@ class GaussianObservationIndex:
             nonempty_tiles=self.n_tiles,
             total_entries=self.n_entries,
             max_candidates=self.max_candidates,
+            retained_bytes=self.payload_bytes,
+            component_id_dtype=str(self.component_id_dtype).removeprefix("torch."),
+            max_query_pairs=self.max_query_pairs,
         )
 
+    def _effective_pair_chunk(self, point_count: int, component_chunk: int) -> int:
+        """Cap the transient pair chunk by both the hard cap and the caller-implied budget."""
+        budget = max(1, point_count * component_chunk)
+        if self.max_query_pairs is not None:
+            budget = min(budget, self.max_query_pairs)
+        return max(1, budget)
+
+    def _iter_pair_chunks(self, xy: torch.Tensor, component_chunk: int):
+        """Yield bounded ``(point_index, component_id)`` chunks in canonical order.
+
+        Points keep their original order; components stream ascending within each point's CSR row.
+        A single row may cross a chunk boundary — the reduction stays deterministic because chunks
+        are contiguous slices of one global canonical pair sequence.
+        """
+        field = self.field
+        count = xy.shape[0]
+        valid_indices = field.valid_domain(xy).nonzero(as_tuple=True)[0]
+        if not self.tile_keys.numel() or not valid_indices.numel():
+            return
+        valid_xy = xy[valid_indices]
+        tile_x = torch.floor(valid_xy[:, 0] / self.tile_size).long()
+        tile_y = torch.floor(valid_xy[:, 1] / self.tile_size).long()
+        keys = tile_y * self.tiles_x + tile_x
+        position = torch.searchsorted(self.tile_keys, keys)
+        clamped = position.clamp_max(self.tile_keys.numel() - 1)
+        found = (position < self.tile_keys.numel()) & (self.tile_keys[clamped] == keys)
+        rows = position[found]
+        point_index = valid_indices[found]
+        if not rows.numel():
+            return
+        row_start = self.tile_offsets[rows]
+        row_len = self.tile_offsets[rows + 1] - row_start
+        self.total_query_points += int(point_index.numel())
+        pair_offsets = torch.zeros(row_len.numel() + 1, dtype=torch.long)
+        torch.cumsum(row_len, 0, out=pair_offsets[1:])
+        total_pairs = int(pair_offsets[-1])
+        effective = self._effective_pair_chunk(count, component_chunk)
+        for start in range(0, total_pairs, effective):
+            stop = min(start + effective, total_pairs)
+            positions = torch.arange(start, stop, dtype=torch.long)
+            owner = torch.searchsorted(pair_offsets, positions, right=True) - 1
+            csr_index = row_start[owner] + (positions - pair_offsets[owner])
+            chunk = int(positions.numel())
+            self.last_pair_chunk = chunk
+            self.peak_pair_chunk = max(self.peak_pair_chunk, chunk)
+            self.total_pairs_evaluated += chunk
+            yield point_index[owner], self.component_ids[csr_index].long()
+
+    def _accumulate(self, buffer: torch.Tensor, point_index: torch.Tensor, values: torch.Tensor):
+        if buffer.requires_grad or values.requires_grad:
+            return buffer.index_add(0, point_index, values)
+        buffer.index_add_(0, point_index, values)
+        return buffer
+
     def query(self, xy: torch.Tensor, component_chunk: int = 4096) -> ObservationQuery:
-        """Query colors through exact local overlap lists."""
+        """Query colors through the exact CSR pair stream."""
+        xy = self.field._validate_xy(xy)
+        if component_chunk <= 0:
+            raise ValueError("component_chunk must be positive")
+        numerator = torch.zeros(xy.shape[0], 3, dtype=self.field.dtype)
+        denominator = torch.zeros(xy.shape[0], dtype=self.field.dtype)
+        for point_index, component_ids in self._iter_pair_chunks(xy, component_chunk):
+            weights, colors = self.field._paired_values(xy[point_index], component_ids)
+            denominator = self._accumulate(denominator, point_index, weights)
+            numerator = self._accumulate(numerator, point_index, weights[:, None] * colors)
+        if self.field.blend_mode == "normalized":
+            color = numerator / (denominator[:, None] + self.field.epsilon)
+        else:
+            color = numerator
+        return ObservationQuery(
+            color=color,
+            numerator=numerator,
+            weight_sum=denominator,
+            valid=self.field.valid_domain(xy),
+        )
+
+    def query_weight_sum(self, xy: torch.Tensor, component_chunk: int = 4096) -> torch.Tensor:
+        """Query only the exact CSR denominator, sharing the pair stream but skipping color."""
+        xy = self.field._validate_xy(xy)
+        if component_chunk <= 0:
+            raise ValueError("component_chunk must be positive")
+        denominator = torch.zeros(xy.shape[0], dtype=self.field.dtype)
+        for point_index, component_ids in self._iter_pair_chunks(xy, component_chunk):
+            weights = self.field._paired_weights(xy[point_index], component_ids)
+            denominator = self._accumulate(denominator, point_index, weights)
+        return denominator
+
+
+class _GroupedObservationIndexReference:
+    """Frozen pre-CSR grouped tile index, retained only as a parity/benchmark oracle.
+
+    This reproduces the original dictionary-of-per-tile-tensors build and per-tile
+    ``_cross_values`` query.  It is deliberately private: the CSR
+    :class:`GaussianObservationIndex` is the production default, and this class exists so tests and
+    the placement benchmark can compare the accelerated path against the exact behavior it
+    replaced.
+    """
+
+    def __init__(
+        self,
+        field: GaussianObservationField,
+        tile_size: int = 16,
+        *,
+        max_entries: int | None = GaussianObservationIndex.DEFAULT_MAX_ENTRIES,
+        max_candidates: int | None = GaussianObservationIndex.DEFAULT_MAX_CANDIDATES,
+    ):
+        if field.device.type != "cpu":
+            raise ValueError("grouped observation index is the CPU reference backend")
+        GaussianObservationIndex._validate_limits(tile_size, max_entries, max_candidates)
+        self.field = field
+        self.tile_size = int(tile_size)
+        self.tiles_x = math.ceil(field.width / self.tile_size)
+        self.tiles_y = math.ceil(field.height / self.tile_size)
+        tile_lists: dict[int, list[int]] = {}
+        for (
+            component_id,
+            tile_x0,
+            tile_x1,
+            tile_y0,
+            tile_y1,
+        ) in GaussianObservationIndex._tile_bounds(field, self.tile_size):
+            for tile_y in range(tile_y0, tile_y1 + 1):
+                for tile_x in range(tile_x0, tile_x1 + 1):
+                    tile_lists.setdefault(tile_y * self.tiles_x + tile_x, []).append(component_id)
+        self._tiles = {
+            key: torch.tensor(component_ids, dtype=torch.long, device=field.device)
+            for key, component_ids in tile_lists.items()
+        }
+        self.n_entries = sum(ids.numel() for ids in self._tiles.values())
+        self.max_candidates = max((len(ids) for ids in tile_lists.values()), default=0)
+
+    @property
+    def n_tiles(self) -> int:
+        return len(self._tiles)
+
+    def query(self, xy: torch.Tensor, component_chunk: int = 4096) -> ObservationQuery:
         xy = self.field._validate_xy(xy)
         if component_chunk <= 0:
             raise ValueError("component_chunk must be positive")
@@ -1031,7 +1308,6 @@ class GaussianObservationIndex:
         )
 
     def query_weight_sum(self, xy: torch.Tensor, component_chunk: int = 4096) -> torch.Tensor:
-        """Query only exact local denominator values."""
         xy = self.field._validate_xy(xy)
         if component_chunk <= 0:
             raise ValueError("component_chunk must be positive")
