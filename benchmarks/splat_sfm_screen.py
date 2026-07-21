@@ -25,6 +25,7 @@ if __package__ in (None, ""):  # direct script execution: make the repo root imp
 from benchmarks.compact_init_eval import _build_indexes, _synthetic_inputs
 
 from rtgs.data.reconstruction_inputs import ReconstructionInputs
+from rtgs.lift.beam_fusion import BeamFusionConfig, fuse_gaussian_beams
 from rtgs.lift.compact_carve import CompactCarveConfig, CompactCarveInitializer
 from rtgs.lift.compact_init_eval import (
     evaluate_initialization,
@@ -42,6 +43,7 @@ def run(
     out_dir: Path,
     seed: int = 0,
     sfm_config: SplatSfMConfig | None = None,
+    fusion_config: BeamFusionConfig | None = None,
 ) -> dict:
     shared = dict(
         candidate_multiplier=4,
@@ -74,10 +76,15 @@ def run(
     sfm = structure_from_splats(inputs, sfm_config)
     sfm_seconds = perf_counter() - started
 
+    started = perf_counter()
+    fused = fuse_gaussian_beams(inputs, fusion_config)
+    fusion_seconds = perf_counter() - started
+
     arms = {
         "topk": (topk.gaussians, topk_seconds),
         "dense_merged": (dense_merged, dense_seconds),
         "splat_sfm": (sfm.gaussians, sfm_seconds),
+        "beam_fusion": (fused.gaussians, fusion_seconds),
     }
     out_dir.mkdir(parents=True, exist_ok=True)
     report: dict = {
@@ -86,6 +93,7 @@ def run(
         "n_opt_2d_total": int(sum(inputs.n_opt_2d)),
         "arms": {},
         "splat_sfm_diagnostics": sfm.diagnostics,
+        "beam_fusion_diagnostics": fused.diagnostics,
     }
     for name, (gaussians, seconds) in arms.items():
         evaluation = evaluate_initialization(inputs, gaussians, targets=targets)
@@ -140,6 +148,10 @@ def main(argv: list[str] | None = None) -> int:
             max_reprojection_px=args.max_reprojection_px,
             init_opacity=0.5,  # match the carve arms so photometrics compare placements
         ),
+        fusion_config=BeamFusionConfig(
+            min_views=args.min_track_views,
+            init_opacity=0.5,
+        ),
     )
     print(json.dumps(report, indent=2))
     print()
@@ -155,6 +167,12 @@ def main(argv: list[str] | None = None) -> int:
         f"(lengths {diagnostics['track_length_histogram']}), "
         f"mean reproj {diagnostics['mean_reprojection_px']:.3f}px, "
         f"unmatched/view {diagnostics['unmatched_per_view']}"
+    )
+    fusion = report["beam_fusion_diagnostics"]
+    print(
+        f"beam-fusion: {fusion['n_components']} components "
+        f"(views {fusion['component_view_histogram']}), "
+        f"unmatched/view {fusion['unmatched_per_view']}"
     )
     print("viewer:", report["viewer_command"])
     return 0

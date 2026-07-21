@@ -287,10 +287,11 @@ def test_screen_harness_writes_metrics_and_plys(tmp_path):
         merge_voxel_size=0.06,
         out_dir=tmp_path,
     )
-    assert set(report["arms"]) == {"topk", "dense_merged", "splat_sfm"}
+    assert set(report["arms"]) == {"topk", "dense_merged", "splat_sfm", "beam_fusion"}
     for name, arm in report["arms"].items():
         assert math.isfinite(arm["mean_foreground_psnr"])
         assert (tmp_path / f"init_{name}.ply").exists()
     assert report["splat_sfm_diagnostics"]["n_tracks"] >= 1
+    assert report["beam_fusion_diagnostics"]["n_components"] >= 1
     assert (tmp_path / "splat_sfm_screen.json").exists()
     assert report["viewer_command"].startswith("rtgs view --gaussians")

@@ -17,6 +17,48 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-21 — Tomographic Gaussian beam fusion: density-based initializer (mechanism)
+
+- **Question**: Setting aside correspondence search entirely, can 3D initialization be posed as
+  reconstruction-from-projections — back-project every 2D Gaussian as an analytic 3D beam and let
+  closed-form Gaussian products localize density at ray intersections?
+- **Setup**: New `rtgs.lift.beam_fusion` (CPU-first, deterministic, RGB-free). Each splat's 2D
+  covariance lifts to the ray-orthogonal tangent plane at its implied depth (the fiber's exact
+  construction) plus a long along-ray variance; pair seeding uses closed-form ray–ray closest
+  points gated by transverse footprint distance and color; fusion uses **covariance intersection**
+  (`Lambda = mean_k Lambda_k`) rather than the naive Gaussian product (`sum_k`), because the views
+  are correlated observations of one splat and the product double-counts every shared axis;
+  remaining views fold in greedily by projected-pixel gating; reduction is exact
+  contributor-signature dedupe plus per-voxel weight NMS (selection, not moment matching).
+  Association emerges from density overlap — no mutual/ratio matching, no union-find, no DLT.
+  Forward oracle: `project_covariances_ewa(dilation=0)`; 19 CPU tests
+  (`tests/test_beam_fusion.py`).
+- **Result** (mechanism, idealized fixture): centers are exact (**max error ~2e-7** world units;
+  the CI mean of beams through the true point is the true point), all ground-truth Gaussians
+  return as full-view components with zero unmatched, identical-color twins produce no ghosts at
+  `min_views=3`, and single-view decoys are excluded and counted. The covariance contract was
+  **verified in both directions**: CI eigen-ratios vs truth were `[1.004, 1.053, 18.1]` on an
+  isotropic blob — exact on directions all views observe, conservative (never overconfident) on
+  the weakly-shared depth axis — while the rejected naive product measured `[0.20, 0.21, ...]`,
+  i.e. ~1/K overconfident with K=5 views, confirming the design backtrack numerically. On the
+  shared four-arm synthetic screen (opacity-matched): top-K 6.45 / splat-SfM 6.56 /
+  **beam-fusion 6.74** dB init-only mean foreground PSNR at the same count, dense+merge 7.49 at
+  2× count.
+- **Conclusion**: The tomographic family works and is a genuinely different mechanism from both
+  consensus scoring and discrete matching: exact centers, provably-never-overconfident (but
+  deliberately conservative) covariances, correspondences as a byproduct of density overlap. Its
+  covariance is approximate where splat-SfM's least-squares triangulation is exact; its
+  association is soft-gated where splat-SfM's is discrete — complementary tools. High confidence
+  in the mechanism; **no claim** about segmentation-mismatched real fields or downstream utility,
+  and absolute synthetic numbers are relative-only.
+- **Follow-ups**: Run the four-arm `benchmarks/splat_sfm_screen.py --bundle` on the calibrated
+  seven-view bundle (yield/ghost/unmatched profiles for both new arms vs the E1 histogram); if
+  exact covariances matter downstream, compose the two methods (beam-fusion association → linear
+  covariance triangulation on its contributor sets); include both as arms in the next
+  preregistered matched-budget downstream experiment.
+
+---
+
 ## 2026-07-21 — Structure-from-splats: calibrated SfM analog on 2D Gaussians (mechanism)
 
 - **Question**: With calibrated cameras, can classical SfM's structure half — epipolar matching,
