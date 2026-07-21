@@ -9,6 +9,7 @@ venv/
 build/
 dist/
 runs/
+/external/
 *.ply
 *.npz
 !tests/fixtures/**

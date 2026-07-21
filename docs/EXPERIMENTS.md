@@ -17,6 +17,57 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-21 — Full compact StructSplat 2D reconstruction gallery
+
+- **Question**: Do all 52 compact 5,000-component 2D teachers in
+  `dataset/2025_03_07_stage_with_fabric` reconstruct their calibrated source foregrounds well
+  enough for direct visual inspection, and can the result be handed off as one browser gallery?
+- **Setup**: CPU-only diagnostic at revision `e9e98b07edc41c2c7a229ce2110539a1493a4591`
+  with PyTorch 2.12.1+cpu, 16 Torch threads, and an AMD Ryzen 9 7950X. The exact command was
+  `.venv/bin/python scripts/render_compact_structsplat_gallery.py --out
+  runs/structsplat_teacher_gallery_20260721`; executed script SHA-256
+  `884421b536e933bc3887ccbb106f618da7a4ceac9e0684b3e2d13cc966f83ec0`. Each strict `.rtgsv`
+  archive was decoded and rendered over its native fit window by the normalized CPU reference in
+  `external/structsplat` revision `e9206cdfa1a2ebd4d44301569f63d0fa10ba82fb`, while the matching
+  JPEG from `external/dataset` received the converter's calibrated bilinear undistortion. Metrics
+  use float tensors before display clamping/JPEG encoding and the stored mask limits the primary
+  comparison to foreground. Compact frame-manifest SHA-256 values are
+  `b1c8e256d73e2c05f3cb4797a615bdbb2639a637f12908a5c96a2a9a9f912847` and
+  `c31f976e016b3f681ac7aed528bae660ae77f315f37cf2128024fdef5a413262`.
+- **Result**: All **52/52** views rendered and all source/archive hashes and native output
+  dimensions revalidated. Mean per-view clamped foreground PSNR was **35.5733 dB** for
+  `frame_00008` (range 33.9638--38.5182) and **35.5626 dB** for `frame_00009` (range
+  34.0489--38.1443), or **35.5679 dB** across all views. Across 256 deterministic pixels/view,
+  the largest archive-query versus independent StructSplat-raster difference was
+  `5.5522e-5`; a separate CSR full-image recomputation of the minimum/maximum-quality view from
+  each frame changed PSNR by at most `8.99e-7` dB. The independent render calls took 135.69 s and
+  the full decode/undistort/render/JPEG run took 205.69 s, but this unrepeated mixed-resolution
+  pass is diagnostic timing, not a benchmark. The 91 MiB, 315-file artifact includes 52 native
+  original crops, 52 native reconstructions, 156 gallery previews, per-view JSON, a manifest, and
+  `index.html`.
+- **Conclusion**: The compact teachers provide visually close 2D foreground reconstructions;
+  residuals concentrate around high-frequency lace, hair, and thin fabric boundaries. This says
+  nothing by itself about compact 3D placement or refined 3DGS quality, and it does not resolve the
+  sparse-initialization concern in `TASK_COMPACT_PLACEMENT_CSR_ACCELERATION.md`. The current
+  StructSplat source digest `e186bb4e...` differs from the producer digest `f468ff32...` stored in
+  the archives, so this is an equation-checked render with the requested current checkout, **not**
+  a bit-exact replay of the historical producer. No default or capability claim changes.
+- **Viewer handoff**: `runs/structsplat_teacher_gallery_20260721/index.html`; from the repository
+  root run `.venv/bin/python -m http.server 8766 --bind 127.0.0.1` and open
+  `http://127.0.0.1:8766/runs/structsplat_teacher_gallery_20260721/index.html`. The index and a
+  representative lazy-loaded image returned HTTP 200 and the original/reconstruction/error panels
+  were visually inspected. This is a purpose-built 2D teacher viewer, so `rtgs view` (which accepts
+  3D Gaussian PLY/NPZ files) is not applicable.
+- **Independent audit**: `runs/structsplat_teacher_gallery_20260721/AUDIT.md` disposes the result as
+  a valid diagnostic with narrowed source and timing scope. Focused StructSplat observation,
+  compact-view, and compact-init-evaluation tests passed (26/26).
+- **Follow-ups**: Use the gallery to separate Stage-1 appearance errors from later 3D placement
+  failures, but require a controlled 3D experiment before attributing any final-view artifact to
+  either stage. Recover the exact historical StructSplat source tree before claiming producer-level
+  bit identity; use repeated warm runs if renderer performance becomes a decision question.
+
+---
+
 ## 2026-07-21 — Tomographic Gaussian beam fusion: density-based initializer (mechanism)
 
 - **Question**: Setting aside correspondence search entirely, can 3D initialization be posed as
