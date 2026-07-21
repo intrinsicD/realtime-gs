@@ -140,6 +140,10 @@ def test_default_fit_config_is_the_frozen_default_preserving_9p_path() -> None:
         "growth_waves": 5,
         "relocate_fraction": 0.0,
         "structsplat_renderer": "auto",
+        # Stage-1 acceleration seams stay off in the frozen harness: the exact serial
+        # torch path is the preregistered semantics.
+        "native_renderer": "torch",
+        "batch_views": False,
         "lr": 0.01,
         "grad_init_mix": 0.7,
         "row_chunk": 64,
