@@ -17,6 +17,34 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-21 — Fused batch_views stage-1 fitting + CUDA extension skeleton (mechanism)
+
+- **Question**: Can stage-1 fitting run as one fused multi-view optimization (the prerequisite
+  for the ROADMAP M4 batched CUDA kernel) without changing per-view results?
+- **Setup**: New opt-in `FitConfig.batch_views` path (`rtgs.image2gs.batched`) and batched
+  renderer entry (`render_gaussians_2d_batched`) sharing the serial scatter core; new JIT CUDA
+  extension for the native additive compositor (`rtgs.image2gs.cuda_backend` +
+  `rtgs/image2gs/cuda/`, modeled on StructSplat's exact CUDA renderer) behind
+  `FitConfig.native_renderer` (default `torch`). Commands: `./scripts/verify.sh`;
+  `.venv/bin/python benchmarks/run.py --quick --update-docs` on a CPU-only cloud container
+  (shared host, single trial, torch 2.13.0+cpu). The run executed the dirty working tree that
+  is committed together with this entry; the JSON meta records base rev `892f448`.
+- **Result**: Parity — batched step-0 PSNR equals serial (asserted < 1e-3 dB in
+  `tests/test_image2gs_batched.py`), final per-view PSNR within a 1 dB proximity floor, and the
+  tracked quick run's 12-view mean final PSNR agrees to seven digits (28.2822013 batched vs
+  28.2822014 serial). Timing is an indication only (single trial, shared container, no
+  repeats): batched 7.58 s vs 11.18 s serial (1.48x) at quick config, 2.57x at smoke config.
+  JSON: `benchmarks/results/20260721T191424Z_cpu.json`.
+- **Conclusion**: The fused path reproduces serial fits on CPU (high confidence at mechanism
+  level; float summation order is the only divergence source). CPU timing is not a performance
+  claim. The CUDA extension is written and guarded but **unverified on GPU hardware** — its
+  parity tests (`tests/test_renderer2d_cuda.py`) self-skip on CPU; no correctness or speed
+  claim is made for it, and `torch` remains the default renderer.
+- **Follow-ups**: On a GPU box: run the `cuda`-marked parity tests; rerun
+  `benchmarks/run.py --update-docs` (full config, idle GPU, repeats) for serial-vs-batched and
+  torch-vs-cuda stage-1 numbers; exercise a calibrated `dataset/` frame with `--batch-views`
+  before any default change (see the ROADMAP M4 note).
+
 ## 2026-07-21 — Tomographic Gaussian beam fusion: density-based initializer (mechanism)
 
 - **Question**: Setting aside correspondence search entirely, can 3D initialization be posed as

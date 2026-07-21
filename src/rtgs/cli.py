@@ -84,6 +84,7 @@ def _cmd_fit_images(args: argparse.Namespace) -> int:
         growth_waves=args.growth_waves,
         relocate_fraction=args.relocate_fraction,
         structsplat_renderer=args.structsplat_renderer,
+        native_renderer=args.native_renderer,
     )
     if args.save_observation_teachers and cfg.backend != "structsplat":
         print("--save-observation-teachers requires --fit-backend structsplat", file=sys.stderr)
@@ -332,6 +333,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
             growth_waves=args.growth_waves,
             relocate_fraction=args.relocate_fraction,
             structsplat_renderer=args.structsplat_renderer,
+            native_renderer=args.native_renderer,
+            batch_views=args.batch_views,
         ),
         lifter=args.lifter,
         lifter_kwargs=json.loads(args.lifter_args),
@@ -746,6 +749,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     p.add_argument("--fit-iterations", type=int, default=300)
     _add_fit_backend_args(p)
+    p.add_argument(
+        "--batch-views",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="fit all training views jointly in one fused stage-1 optimization (native only)",
+    )
     p.add_argument("--refine-iters", type=int, default=200)
     p.add_argument("--rasterizer", default="auto")
     _add_density_args(p)
@@ -865,6 +874,12 @@ def _add_fit_backend_args(p: argparse.ArgumentParser) -> None:
         "--structsplat-renderer",
         choices=["auto", "normalized", "cuda", "cuda_tiled"],
         default="auto",
+    )
+    p.add_argument(
+        "--native-renderer",
+        choices=["torch", "cuda", "auto"],
+        default="torch",
+        help="native-backend renderer; 'cuda' is the experimental stage-1 extension",
     )
 
 

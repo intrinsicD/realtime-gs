@@ -67,7 +67,8 @@ python3 -m venv .venv && .venv/bin/pip install -e '.[dev]' \
 ```
 src/rtgs/
   core/        gaussians2d/3d, observation2d, camera, sh, metrics — shared math & containers
-  image2gs/    stage 1: differentiable 2D splatting, native/StructSplat fitting, adapters
+  image2gs/    stage 1: differentiable 2D splatting (serial + fused batch_views),
+               native/StructSplat fitting, adapters; experimental CUDA ext in cuda_backend.py
   lift/        stage 2: gradient/depth/hybrid/carve/field, compact_carve, field_* and merge
   depth/       DepthBackend protocol, mock (tests), depth_anything (lazy), align (scale/shift)
   render/      dense Rasterizer (torch CPU ref, gsplat CUDA); sparse PointRasterizer (torch CPU)

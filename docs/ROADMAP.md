@@ -211,5 +211,11 @@
 
 ## M4 — Real-time ambitions
 - [ ] CUDA kernel for stage-1 fitting (batched per-image, GaussianImage reports ~2k it/s)
+  - 2026-07-21: opt-in seams landed — fused `batch_views` multi-view fitting
+    (`rtgs.image2gs.batched`, CPU-verified against serial) and a JIT-compiled CUDA extension
+    for the native compositor (`rtgs.image2gs.cuda_backend`, modeled on StructSplat's exact
+    renderer) with self-skipping GPU parity tests. The kernel is not yet verified on GPU
+    hardware; `torch` stays the default until the parity tests and a tracked GPU benchmark
+    pass on a GPU box.
 - [ ] Streaming/incremental mode: add images to an existing scene without full re-fit
 - [ ] Investigate skipping stage 3 entirely for preview-quality output

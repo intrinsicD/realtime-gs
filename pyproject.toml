@@ -33,6 +33,10 @@ rtgs = "rtgs.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+# JIT-compiled CUDA sources for the batched stage-1 renderer (rtgs.image2gs.cuda_backend).
+"rtgs.image2gs.cuda" = ["*.cpp", "*.cu"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"

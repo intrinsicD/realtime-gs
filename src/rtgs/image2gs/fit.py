@@ -42,6 +42,13 @@ class FitConfig:
     growth_waves: int = 5
     relocate_fraction: float = 0.0
     structsplat_renderer: str = "auto"
+    # Renderer for the native backend: "torch" (reference), "cuda" (experimental extension,
+    # CUDA tensors only), or "auto" (cuda when the images are on a CUDA device).
+    native_renderer: str = "torch"
+    # Fit all views of a scene jointly in one fused optimization (native backend only; same
+    # per-view initialization seeds and loss as the serial path, batched renders). Opt-in:
+    # serial per-view fitting remains the default and the preregistered-harness semantics.
+    batch_views: bool = False
     lr: float = 1e-2
     # Fraction of position-sampling probability taken from the gradient magnitude; the
     # rest is uniform (Image-GS uses a 0.3 uniform floor).
@@ -338,7 +345,9 @@ def _fit_native_from_initialization(
     requested_steps = frozenset(int(step) for step in diagnostic_steps)
     if diagnostic_callback is not None:
         initial = build()
-        initial_render = render_gaussians_2d(initial, h, w, row_chunk=config.row_chunk)
+        initial_render = render_gaussians_2d(
+            initial, h, w, row_chunk=config.row_chunk, renderer=config.native_renderer
+        )
         initial_loss = _fit_loss(initial_render, target, mask)
         _emit_diagnostic(
             diagnostic_callback,
@@ -363,7 +372,9 @@ def _fit_native_from_initialization(
     stale_checks = 0
     for it in range(config.iterations):
         opt.zero_grad()
-        rendered = render_gaussians_2d(build(), h, w, row_chunk=config.row_chunk)
+        rendered = render_gaussians_2d(
+            build(), h, w, row_chunk=config.row_chunk, renderer=config.native_renderer
+        )
         loss = _fit_loss(rendered, target, mask)
         loss.backward()
         lr_used = float(opt.param_groups[0]["lr"])
@@ -409,7 +420,9 @@ def _fit_native_from_initialization(
                 lr_used=lr_used,
             )
             if it + 1 in requested_steps:
-                checkpoint_render = render_gaussians_2d(post, h, w, row_chunk=config.row_chunk)
+                checkpoint_render = render_gaussians_2d(
+                    post, h, w, row_chunk=config.row_chunk, renderer=config.native_renderer
+                )
                 checkpoint_loss = _fit_loss(checkpoint_render, target, mask)
                 _emit_diagnostic(
                     diagnostic_callback,
@@ -447,7 +460,9 @@ def _fit_native_from_initialization(
 
     result = build().detach()
     with torch.no_grad():
-        final = render_gaussians_2d(result, h, w, row_chunk=config.row_chunk)
+        final = render_gaussians_2d(
+            result, h, w, row_chunk=config.row_chunk, renderer=config.native_renderer
+        )
         history["final_psnr_full"] = psnr(final.clamp(0, 1), target)
         history["final_psnr"] = (
             history["final_psnr_full"]
@@ -475,6 +490,8 @@ def _validate_fit_controls(
     if config.appearance_parameterization not in _APPEARANCE_PARAMETERIZATIONS:
         choices = ", ".join(sorted(_APPEARANCE_PARAMETERIZATIONS))
         raise ValueError(f"appearance_parameterization must be one of: {choices}")
+    if config.native_renderer not in ("torch", "cuda", "auto"):
+        raise ValueError("native_renderer must be 'torch', 'cuda', or 'auto'")
     steps = tuple(diagnostic_steps)
     if diagnostic_callback is None and steps:
         raise ValueError("diagnostic_steps require diagnostic_callback")
@@ -633,7 +650,15 @@ def fit_views(
     seed: int = 0,
     masks: list[torch.Tensor] | None = None,
 ) -> tuple[list[Gaussians2D], list[dict]]:
-    """Fit every view of a scene independently (embarrassingly parallel across images)."""
+    """Fit every view of a scene independently (embarrassingly parallel across images).
+
+    With ``config.batch_views`` every view is fitted jointly in one fused optimization
+    (identical per-view initialization seeds and loss; see ``rtgs.image2gs.batched``).
+    """
+    if config is not None and config.batch_views:
+        from rtgs.image2gs.batched import fit_views_batched
+
+        return fit_views_batched(images, config, seed=seed, masks=masks)
     results, histories = [], []
     for i, image in enumerate(images):
         mask = None if masks is None else masks[i]
