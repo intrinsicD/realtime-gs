@@ -18,6 +18,32 @@ import numpy as np
 import torch
 
 
+def chol_matrix(chol: torch.Tensor) -> torch.Tensor:
+    """(..., 2, 2) lower-triangular factors from packed ``(..., 3)`` (l11, l21, l22)."""
+    l11, l21, l22 = chol[..., 0], chol[..., 1], chol[..., 2]
+    zero = torch.zeros_like(l11)
+    return torch.stack([torch.stack([l11, zero], -1), torch.stack([l21, l22], -1)], dim=-2)
+
+
+def chol_covariance(chol: torch.Tensor) -> torch.Tensor:
+    """(..., 2, 2) covariances Sigma = L @ L^T from packed ``(..., 3)`` factors."""
+    lmat = chol_matrix(chol)
+    return lmat @ lmat.transpose(-1, -2)
+
+
+def chol_inverse_covariance(chol: torch.Tensor) -> torch.Tensor:
+    """(..., 2, 2) inverse covariances, analytic, from packed ``(..., 3)`` factors."""
+    l11, l21, l22 = chol[..., 0], chol[..., 1], chol[..., 2]
+    # L^-1 = [[1/l11, 0], [-l21/(l11 l22), 1/l22]]; Sigma^-1 = L^-T L^-1
+    a = 1.0 / l11
+    b = -l21 / (l11 * l22)
+    c = 1.0 / l22
+    i00 = a * a + b * b
+    i01 = b * c
+    i11 = c * c
+    return torch.stack([torch.stack([i00, i01], -1), torch.stack([i01, i11], -1)], dim=-2)
+
+
 @dataclass
 class Gaussians2D:
     """N 2D gaussians in pixel coordinates of one image."""
@@ -39,26 +65,15 @@ class Gaussians2D:
 
     def cholesky_matrix(self) -> torch.Tensor:
         """(N,2,2) lower-triangular Cholesky factors."""
-        l11, l21, l22 = self.chol[:, 0], self.chol[:, 1], self.chol[:, 2]
-        zero = torch.zeros_like(l11)
-        return torch.stack([torch.stack([l11, zero], -1), torch.stack([l21, l22], -1)], dim=-2)
+        return chol_matrix(self.chol)
 
     def covariance(self) -> torch.Tensor:
         """(N,2,2) covariance matrices Sigma = L @ L^T."""
-        lmat = self.cholesky_matrix()
-        return lmat @ lmat.transpose(-1, -2)
+        return chol_covariance(self.chol)
 
     def inverse_covariance(self) -> torch.Tensor:
         """(N,2,2) inverse covariances, computed analytically from the Cholesky factor."""
-        l11, l21, l22 = self.chol[:, 0], self.chol[:, 1], self.chol[:, 2]
-        # L^-1 = [[1/l11, 0], [-l21/(l11 l22), 1/l22]]; Sigma^-1 = L^-T L^-1
-        a = 1.0 / l11
-        b = -l21 / (l11 * l22)
-        c = 1.0 / l22
-        i00 = a * a + b * b
-        i01 = b * c
-        i11 = c * c
-        return torch.stack([torch.stack([i00, i01], -1), torch.stack([i01, i11], -1)], dim=-2)
+        return chol_inverse_covariance(self.chol)
 
     def detach(self) -> Gaussians2D:
         """Detached copy (no autograd history)."""

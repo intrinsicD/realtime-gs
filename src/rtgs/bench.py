@@ -14,7 +14,7 @@ import platform
 import statistics
 import subprocess
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -26,7 +26,7 @@ from rtgs.core.observation2d import (
     _GroupedObservationIndexReference,
 )
 from rtgs.data.synthetic import make_synthetic_scene
-from rtgs.image2gs.fit import FitConfig, fit_image
+from rtgs.image2gs.fit import FitConfig, fit_image, fit_views
 from rtgs.lift import lifter_names
 from rtgs.lift.field_loss import AnalyticGaussianField2D, field_l2
 from rtgs.optim.density import DensityConfig
@@ -296,6 +296,28 @@ def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
         "iters_per_s": (hist["stopped_iter"] + 1) / dt,
         "psnr": hist["final_psnr"],
         "seconds": dt,
+    }
+
+    # Stage-1 fused multi-view fitting (opt-in batch_views path) over the whole scene,
+    # against the serial loop on the same images/config/seeds.
+    batch_images = [image.to(bench_device) for image in scene.images]
+    t0 = time.perf_counter()
+    _, serial_hists = fit_views(batch_images, fit_cfg, seed=0)
+    if bench_device.type == "cuda":
+        torch.cuda.synchronize()
+    serial_dt = time.perf_counter() - t0
+    t0 = time.perf_counter()
+    _, batched_hists = fit_views(batch_images, replace(fit_cfg, batch_views=True), seed=0)
+    if bench_device.type == "cuda":
+        torch.cuda.synchronize()
+    batched_dt = time.perf_counter() - t0
+    results["image2gs_fit_batched"] = {
+        "views": len(batch_images),
+        "seconds": batched_dt,
+        "serial_seconds": serial_dt,
+        "speedup_vs_serial": serial_dt / batched_dt,
+        "psnr_mean": sum(h["final_psnr"] for h in batched_hists) / len(batched_hists),
+        "serial_psnr_mean": sum(h["final_psnr"] for h in serial_hists) / len(serial_hists),
     }
 
     # Reference renderer throughput.
