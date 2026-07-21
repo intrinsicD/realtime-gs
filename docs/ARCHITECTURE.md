@@ -88,6 +88,7 @@ path establishes a reconstruction-quality, performance, density-control, or defa
 | `rtgs/pipeline` | `pipeline.py` orchestrates the RGB-backed stages 1–3 with timing and strict train-only initialization; held-out RGB is used only for reporting. `compare_lifters` shares train-view fits across variants. The separate `run_field_pipeline(SceneFits, FieldLiftConfig)` entry runs the image-free field lift and leaves held-out compact teachers for semantic reporting only. |
 | `rtgs/visualize` | Writes sampled calibrated-camera reference/init/final/error comparisons, a contact sheet, a calibrated-camera animation, an interpolated object orbit, and an elevation-varying novel path (bounded to 48 frames each). |
 | `rtgs/viewer` | Optional, lazily imported Viser WebGL viewer for orbit navigation, initialization/final comparison, splat controls, calibrated train/test cameras, and exact snapshots through the pluggable rasterizer. |
+| `rtgs/live` | Optional, lazily imported bridge to the external igsv WebGPU viewer (interactive-gs-viewer repo): streams `Gaussians3D` snapshots over igsv's binary WebSocket during stage-3 training via the trainer's `checkpoint_callback` seam (`rtgs refine --live`). Diagnostic view; quantitative decisions stay on the exact rasterizer. |
 | `rtgs/cli` | `cli.py`, argparse-based. |
 
 Registered lifters: `gradient`, `depth`, `hybrid`, `carve`, and research variant `field` (plus
@@ -113,8 +114,10 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
 | `rtgs fit-images ...` | Stage 1 only: fit 2D gaussians, optionally growing StructSplat from `--initial-gaussians` to `--max-gaussians`; save initialization `.npz` files and, with `--save-observation-teachers`, lossless `.teacher.npz` files for captured field semantics (tested against CPU-reference fixture pixel grids). |
 | `rtgs lift ...` | Stage 2 only: lift fitted 2D gaussians into a 3D gaussian set. |
 | `rtgs lift-field --dataset ... --heldout-stride ... --field-args ... --out ...` | Image-free Stage 2 research path: strictly load a compact dataset on CPU, create an explicit deterministic train/held-out partition, ignore pre-split points/bounds unless explicitly attested train-only, and run `FieldLifter` without reference images. It saves the requested standard PLY/NPZ; `Path(--out).with_suffix(".field.npz")` stores masses, render opacity, fiber/source state, fitting/all-view correspondence visibility, gains, split indices, and correspondences; strict `Path(--out).with_suffix(".diagnostics.json")` stores isolated train/held-out semantic validation and diagnostics. |
-| `rtgs refine ...` | Stage 3 only: run 3DGS optimization from an initialization; select `classic`, `gsplat-default`, or `gsplat-mcmc` density control and save metrics/history/previews. |
+
+| `rtgs refine ...` | Stage 3 only: run 3DGS optimization from an initialization; select `classic`, `gsplat-default`, or `gsplat-mcmc` density control and save metrics/history/previews. `--live` streams checkpoints to the igsv browser viewer (optional dependency). |
 | `rtgs run ...` | End-to-end on synthetic, COLMAP, or calibrated-frame data; `--fits` skips stage 1 using native/StructSplat/GaussianImage NPZ files; `--batch-views` fuses stage-1 fitting across training views and `--native-renderer` selects the torch/CUDA stage-1 renderer. `--out` also saves initialization/final PLY and visual previews. |
+
 | `rtgs render ...` | Render a saved gaussian set from a camera path / dataset cameras. |
 | `rtgs view ...` | Interactively inspect saved PLY/NPZ gaussians in a browser; optionally load a scene for reference images, train/test camera frusta, and exact torch/gsplat snapshots. |
 | `rtgs bench ...` | Delegates to `benchmarks/run.py` (variant comparison + micro-benchmarks). |

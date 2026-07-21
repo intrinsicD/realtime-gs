@@ -264,7 +264,22 @@ def _cmd_refine(args: argparse.Namespace) -> int:
     scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
     init = _load_gaussians(Path(args.init))
     cfg = _train_config(args, args.iterations, TrainConfig)
-    refined, history = Trainer(cfg).train(scene, init)
+    viewer = None
+    if args.live:
+        from rtgs.live import LiveViewer
+
+        viewer = LiveViewer(
+            host=args.live_host,
+            port=args.live_port,
+            token=args.live_token,
+            name=Path(args.init).stem,
+        )
+        viewer.start()
+        print(f"live viewer: {viewer.url}")
+        viewer.publish(init, step=0)
+    refined, history = Trainer(cfg).train(
+        scene, init, checkpoint_callback=viewer.checkpoint_callback if viewer else None
+    )
     metrics = _split_metrics(scene, refined, cfg)
     print(json.dumps({"metrics": metrics, "training": _history_summary(history)}, indent=2))
     out = Path(args.out)
@@ -287,6 +302,18 @@ def _cmd_refine(args: argparse.Namespace) -> int:
             packed=args.packed,
             antialiased=args.antialiased,
         )
+    if viewer is not None:
+        import time
+
+        viewer.publish(refined, step=args.iterations)
+        print("live viewer still serving the final state; Ctrl-C to exit")
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            viewer.stop()
     return 0
 
 
@@ -691,6 +718,15 @@ def main(argv: list[str] | None = None) -> int:
         default=True,
         help="save calibrated and novel-view visual diagnostics beside the output",
     )
+    p.add_argument(
+        "--live",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="stream training snapshots to the igsv browser viewer (optional dependency)",
+    )
+    p.add_argument("--live-host", default="127.0.0.1", help="igsv bind address (0.0.0.0 for LAN)")
+    p.add_argument("--live-port", type=int, default=8890)
+    p.add_argument("--live-token", default=None, help="require ?token=... on the viewer WebSocket")
     p.set_defaults(func=_cmd_refine)
 
     p = sub.add_parser("run", help="end-to-end: fit -> lift -> refine")

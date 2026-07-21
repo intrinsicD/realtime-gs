@@ -77,7 +77,7 @@ src/rtgs/
   data/        scenes/loaders plus compact_views.py capped view bundles; field_inputs.py
                explicit compact train/heldout seam; reconstruction_inputs.py fixed-topology seam
   pipeline.py  strict-split orchestration + image-free run_field_pipeline; visualize.py previews;
-               viewer.py browser UI; cli.py CLI including lift-field
+               viewer.py browser UI; live.py igsv live-training bridge; cli.py CLI including lift-field
 tests/         CPU-only pytest suite; conftest.py has seeding + tiny-scene fixtures
 benchmarks/    run.py harness + results/*.json
 docs/          ARCHITECTURE, RESEARCH (SOTA survey), ROADMAP, BENCHMARKS, EXPERIMENTS
