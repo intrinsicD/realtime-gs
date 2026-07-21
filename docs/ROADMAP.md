@@ -185,7 +185,10 @@
       because the aggregate deficit was not localized to hard-dropped regions; any longer
       budget-filling or localization test needs a fresh preregistration. Full chain and records:
       `docs/TASK_DENSE_CONFIDENCE_GATED_INIT.md`
-- [ ] Evaluate structure-from-splats (`rtgs.lift.splat_sfm`): the calibrated RGB-free SfM analog
+- [ ] Evaluate the two new correspondence-family initializers — structure-from-splats
+      (`rtgs.lift.splat_sfm`, discrete epipolar matching + exact covariance triangulation) and
+      tomographic beam fusion (`rtgs.lift.beam_fusion`, covariance-intersection Gaussian products
+      with exact centers and conservative covariances) — the calibrated RGB-free SfM analog
       with exact mechanism recovery on the EWA fixture (centers ~1e-7, covariances ~6e-7 relative,
       identical-color twins disambiguated by geometry). Run
       `benchmarks/splat_sfm_screen.py --bundle` on the calibrated seven-view bundle to measure real
