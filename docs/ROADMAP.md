@@ -185,6 +185,14 @@
       because the aggregate deficit was not localized to hard-dropped regions; any longer
       budget-filling or localization test needs a fresh preregistration. Full chain and records:
       `docs/TASK_DENSE_CONFIDENCE_GATED_INIT.md`
+- [ ] Evaluate structure-from-splats (`rtgs.lift.splat_sfm`): the calibrated RGB-free SfM analog
+      with exact mechanism recovery on the EWA fixture (centers ~1e-7, covariances ~6e-7 relative,
+      identical-color twins disambiguated by geometry). Run
+      `benchmarks/splat_sfm_screen.py --bundle` on the calibrated seven-view bundle to measure real
+      track yield/reprojection/unmatched fractions, then include it as an arm in the next
+      preregistered matched-budget downstream experiment (count-matched, budget-filling growth,
+      longer horizon; E2's short matched-cap schedule is not reusable). Segmentation-mismatched
+      match rates and downstream utility are unmeasured; no default change
 - [x] Implement depth-seeded bounded-ray hybrid B→A; evaluate uncertainty and shorter schedules
 - [x] Initial density ablation: a short 15k-capped schedule beats no-density and unrestricted
       growth on Janelle; repeat across scenes and compare gsplat MCMC/teleportation
