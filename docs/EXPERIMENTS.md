@@ -17,6 +17,49 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-21 — Structure-from-splats: calibrated SfM analog on 2D Gaussians (mechanism)
+
+- **Question**: With calibrated cameras, can classical SfM's structure half — epipolar matching,
+  track building, triangulation — be re-derived for 2D Gaussian primitives (RGB-free, no
+  keypoints) to produce a well-defined 3D Gaussian initialization, including full covariances?
+- **Setup**: New `rtgs.lift.splat_sfm` (CPU-first, deterministic). Matching solves closed-form
+  ray–ray closest points per candidate pair and gates on epipolar residual normalized by the
+  candidate's pixel sigma, color distance, and metric size consistency `sigma_px * z / f`;
+  mutual-best + SIFT-style ratio test; union-find tracks with a strict one-splat-per-view
+  invariant; centers via the existing batched calibrated DLT
+  (`triangulate_centers_dlt`) with cheirality/reprojection/angle gates; covariances via the
+  stacked linear system `vech(Sigma2D_v) = A_v vech(Sigma3D)` (3 equations per view, 6 unknowns,
+  least squares + bounded-eigenvalue SPD projection); colors amplitude-weighted; unmatched splats
+  reported for densification. Forward oracle for tests:
+  `project_covariances_ewa(dilation=0)` — ground-truth 3D Gaussians are projected into 5–6 views
+  to build exact 2D fields, and the module must invert that construction blind
+  (`tests/test_splat_sfm.py`, 18 CPU tests).
+- **Result** (mechanism, idealized fixture): recovery is near-exact — all ground-truth Gaussians
+  come back as full-length tracks with **max center error ~1e-7** world units, **covariance
+  relative error ~6e-7**, reprojection ~2e-6 px, zero unmatched. **Identical-color twins** (color
+  totally uninformative) are correctly disambiguated by epipolar geometry + multi-view
+  consistency — the case where the correspondence-free consensus refine drifted. A single-view
+  decoy is excluded and surfaced in `unmatched_per_view`. On the shared synthetic screen
+  (`benchmarks/splat_sfm_screen.py --synthetic`, opacity-matched arms): top-K 6.45 dB /
+  dense+merge 7.49 dB (2× count) / splat-SfM **6.56 dB** init-only mean foreground PSNR at the
+  top-K count, with splat-SfM the only arm at ~0 px mean reprojection and the fastest placement
+  (0.01 s vs 0.02 s). Init-only photometrics remain mass-dominated (the E2 lesson), so the
+  geometric advantage does not show in this metric.
+- **Conclusion**: The SfM analog is mathematically sound and implemented end-to-end: with known
+  cameras, correspondence is the only hard problem, and epipolar + multi-view verification solves
+  it exactly on consistent inputs — including full 3D covariance triangulation, which neither
+  carve nor merge provides. High confidence in the mechanism; **no claim** yet about
+  segmentation-mismatched real fields (2D fits are per-view segmentations, so partial match rates
+  are expected by design) or downstream utility. Absolute synthetic numbers are relative-only.
+- **Follow-ups**: Run `benchmarks/splat_sfm_screen.py --bundle` on the calibrated seven-view
+  bundle (one command on the workstation) to measure real track yield, reprojection distribution,
+  and unmatched fractions vs the E1 cluster histogram (78.44% monocular); then add splat-SfM as a
+  fourth arm to the next matched-budget downstream experiment (count-matched, budget-filling
+  MCMC growth, longer horizon) where its exact geometry should matter; consider union with
+  dense-carve for unmatched regions.
+
+---
+
 ## 2026-07-20 — Calibrated dense confidence-gated initialization chain (E1/I1/E2)
 
 - **Question**: Can dense all-Gaussian compact placement improve calibrated initialization, can a
