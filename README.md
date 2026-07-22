@@ -129,8 +129,75 @@ growth, and position noise. `classic` remains the CPU-compatible reference strat
 strategy uses the published AbsGS-compatible gradient threshold automatically; the threshold,
 opacity-reset interval, density window, and final budget remain explicit CLI controls.
 
-Open the saved result in the interactive browser viewer (Viser is an optional Apache-2.0
-dependency):
+## Watch Stage-3 refinement live with `igsv`
+
+The external `interactive-gs-viewer` bridge is activated by `rtgs refine --live`.
+Install its Python server into the same environment as `rtgs`, and build the
+WebGPU client once. With the three repositories checked out as siblings:
+
+```bash
+# Run from the realtime-gs checkout.
+.venv/bin/python -m pip install -e '../interactive-gs-viewer/server'
+(
+  cd ../interactive-gs-viewer/web
+  npm ci
+  npm run build
+)
+```
+
+The following short command is suitable for checking a saved initialization on
+the local calibrated `frame_00008` dataset. It assumes the earlier `rtgs run`
+example has created `runs/janelle-carve/gaussians_init.ply`; otherwise replace
+`--init` with an existing compatible `.ply` or `.npz`. `--eval-every 10` is also
+the live snapshot cadence. Port 8891 is used so a StructSplat viewer can remain
+open on the default port 8890:
+
+```bash
+mkdir -p runs/live-viewer-frame-00008
+RTGS_SYSTEM_LIBSTDCPP=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+LD_PRELOAD="$RTGS_SYSTEM_LIBSTDCPP" .venv/bin/rtgs refine \
+  --scene ../datasets/2025_03_07_stage_with_fabric/frame_00008 \
+  --downscale 16 --max-images 8 \
+  --init runs/janelle-carve/gaussians_init.ply \
+  --iterations 50 --rasterizer gsplat --device cuda --no-densify \
+  --target-sh-degree 0 --eval-every 10 --no-preview \
+  --live --live-port 8891 \
+  --out runs/live-viewer-frame-00008/gaussians.ply
+```
+
+Open `http://127.0.0.1:8891/` while refinement runs. The command publishes the
+input at step 0, publishes evaluation checkpoints, and keeps serving the final
+field until `Ctrl-C`. Because this smoke command uses `--no-densify` and only 50
+steps, a sparse initialization stays sparse; use the longer density-enabled run
+above for reconstruction quality.
+
+On this Ubuntu/NVIDIA workspace, start hardware-backed Chrome with:
+
+```bash
+google-chrome \
+  --user-data-dir=/tmp/igsv-chrome-webgpu \
+  --enable-unsafe-webgpu \
+  --enable-features=Vulkan,DefaultANGLEVulkan,VulkanFromANGLE \
+  --use-angle=vulkan \
+  http://127.0.0.1:8891/
+```
+
+For Firefox, set `dom.webgpu.enabled` to `true` in `about:config`, then fully
+restart it. Firefox 153 otherwise leaves WebGPU disabled on this Linux install;
+the blocklist override is not needed. The system `libstdc++` preload is needed
+when a Conda environment reports a missing `CXXABI_*` while loading gsplat; omit
+the prefix when gsplat loads normally. For LAN access, add
+`--live-host 0.0.0.0 --live-token <secret>` and open
+`http://<host>:8891/?token=<secret>`.
+
+This `igsv` view is a diagnostic alpha-composited WebGPU view. Metrics and
+quality decisions still come from the exact selected `--rasterizer` backend.
+
+## Inspect a saved result with the Viser viewer
+
+`rtgs view` is the separate, server-rendered Viser interface for inspecting a
+saved result and exact snapshots; it is not the `igsv` live-training stream.
+Viser is an optional Apache-2.0 dependency:
 
 ```bash
 .venv-cuda/bin/rtgs view \
