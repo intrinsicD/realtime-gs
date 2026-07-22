@@ -17,8 +17,8 @@
 
 ## M2 — GPU validation
 - [x] gsplat backend parity test green on RTX 4090; auto backend respects explicit CPU devices
-- [x] Interactive Viser viewer with initialization/final controls, calibrated cameras, and exact
-      gsplat snapshots
+- [x] Interactive Viser viewer with initialization/final controls, strict synchronized
+      multi-method comparison manifests, calibrated cameras, and exact gsplat snapshots
 - [x] Depth Anything V2 Small smoke test and bounds alignment on a calibrated Janelle capture
 - [x] Optional StructSplat CUDA stage-1 backend with configurable progressive density growth
 - [x] Wire gsplat Default and MCMC/relocation strategies as alternatives to
@@ -198,17 +198,22 @@
       because the aggregate deficit was not localized to hard-dropped regions; any longer
       budget-filling or localization test needs a fresh preregistration. Full chain and records:
       `docs/TASK_DENSE_CONFIDENCE_GATED_INIT.md`
-- [ ] Evaluate the two new correspondence-family initializers — structure-from-splats
-      (`rtgs.lift.splat_sfm`, discrete epipolar matching + exact covariance triangulation) and
-      tomographic beam fusion (`rtgs.lift.beam_fusion`, covariance-intersection Gaussian products
-      with exact centers and conservative covariances) — the calibrated RGB-free SfM analog
-      with exact mechanism recovery on the EWA fixture (centers ~1e-7, covariances ~6e-7 relative,
-      identical-color twins disambiguated by geometry). Run
-      `benchmarks/splat_sfm_screen.py --bundle` on the calibrated seven-view bundle to measure real
-      track yield/reprojection/unmatched fractions, then include it as an arm in the next
-      preregistered matched-budget downstream experiment (count-matched, budget-filling growth,
-      longer horizon; E2's short matched-cap schedule is not reusable). Segmentation-mismatched
-      match rates and downstream utility are unmeasured; no default change
+- [x] Execute and independently audit one full compact-compatible initializer convergence suite,
+      including the correspondence-family splat-SfM and beam-fusion arms. On 26-view
+      `frame_00008`, splat-SfM yielded 943 real tracks and finished at 37.7063 dB fitted-view
+      foreground PSNR; beam initialized 5,000 and finished at 37.8874 dB. Dense+merge led PSNR at
+      38.2480 dB but had a 4.4003% worse objective than beam, so no arm passed both frozen
+      materiality gates. Random finished fourth after density growth. Close the scoped all-view
+      development comparison as `NO_MATERIALLY_SUPERIOR_CONVERGED_INITIALIZER`; keep balanced
+      top-K as the default. Full native counts, parameters, applicability inventory, and the field
+      move-receipt defect are in
+      `benchmarks/results/20260721_all_initializers_frame00008_{PREREG,RESULT,AUDIT}.{md,json}`
+      (where present)
+- [ ] If initializer default selection is revisited, use a fresh preregistered multi-scene,
+      multi-seed protocol with train-only checkpoint selection, genuinely held-out cameras, and
+      matched or explicitly modeled capacity/budget effects. Do not tune the consumed all-view
+      frame or treat RGB/depth/SfM-dependent methods as losers by omission; run those methods only
+      in a separate cohort with their required inputs
 - [x] Implement depth-seeded bounded-ray hybrid B→A; evaluate uncertainty and shorter schedules
 - [x] Initial density ablation: a short 15k-capped schedule beats no-density and unrestricted
       growth on Janelle; repeat across scenes and compare gsplat MCMC/teleportation

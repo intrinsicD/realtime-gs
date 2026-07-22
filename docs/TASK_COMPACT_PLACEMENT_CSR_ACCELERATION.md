@@ -1,6 +1,6 @@
 # Task: Accelerate full compact placement with exact CSR queries
 
-Status: ready for implementation
+Status: flattened CSR implementation landed; acceptance evidence incomplete
 Priority: P0 runtime blocker
 Primary path: `GaussianObservationIndex` → `score_world_points` →
 `CompactCarveInitializer.initialize`
@@ -20,6 +20,30 @@ bottleneck after the CSR fix.
 This task must not reintroduce RGB images. It operates on the compact 2D Gaussian fields already
 stored in the datasets.
 
+## 2026-07-21 status update
+
+The production CPU query now uses flattened CSR storage and bounded canonical pair streaming, and
+the grouped implementation remains as a private parity oracle. The full-frame beam experiment's
+independently audited top-K diagnostic exercised all 26 views, 130,000 component-center rays, 32
+depth samples, and 5,000 selected Gaussians in **91.665 seconds**, clearing both numeric wall-time
+targets once. It also saved the missing initialization-only artifact and measured 11.8629 dB
+all-fitted-view foreground PSNR, confirming quantitatively that runtime and initialization quality
+are separate questions.
+
+That diagnostic does **not** close this task. The frozen grouped-reference candidate audit and
+full discrete-winner/geometry identity comparison were not run; retained CSR payload, peak RSS,
+integer path, warm repetitions, tracked `benchmarks/run.py` table, control/control downstream
+envelope, and complete task-specific verification bundle remain missing. Treat the observed
+91.665 seconds as a successful production-scale timing diagnostic, not the Phase-1 confirmatory
+acceptance result. The all-initializer convergence suite is a separate quality study and cannot
+substitute for these exact-parity gates. That suite is now complete and independently audited:
+top-K initialized 5,000, grew to 43,288, and reached 37.2992 dB fitted-view foreground PSNR at the
+70k selection. Dense+merge led fitted PSNR while beam led objective, so the quality study found no
+materially superior converged initializer. See
+`benchmarks/results/20260721_all_initializers_frame00008_{RESULT,AUDIT}.md`; none of those quality
+numbers supplies the missing grouped-reference parity, CSR-memory, or repeated CPU benchmark
+evidence required here.
+
 The user's qualitative 2026-07-19 viewer inspection judged the retained 5,000-Gaussian
 initialization visibly weaker than the optimized 36,816-Gaussian result, despite all 130,000
 compact components participating in its scoring. No initialization-only metrics were saved, so
@@ -28,6 +52,13 @@ accelerating the current top-K placer does not solve its sparse initial-state qu
 initialization-only metrics and viewer artifacts so a later fiber/correspondence initializer can
 be compared directly, without attributing quality recovered by photometric densification to
 placement.
+
+The 2026-07-22 post-result handoff now preserves a strict seven-method initial/final viewer manifest
+at `benchmarks/results/20260721_all_initializers_frame00008_VIEWER.json`. It loads the exact top-K,
+beam, dense+merge, easy-only, splat-SfM, field, and random endpoints into one unchanged orbit camera.
+That closes the visualization handoff for the separate quality suite only; it does not supply this
+runtime task's missing grouped-reference parity, repeated timing, memory, or downstream-control
+acceptance evidence.
 
 ## Why this is the right bottleneck
 

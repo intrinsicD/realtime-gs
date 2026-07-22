@@ -50,7 +50,7 @@ def _established_history(history: dict) -> dict:
     return {
         key: value
         for key, value in history.items()
-        if key not in {"elapsed", "step_control_metadata"}
+        if key not in {"elapsed", "step_control_metadata", "checkpoint_callback_seconds"}
     }
 
 
@@ -245,6 +245,8 @@ def test_resolution_transition_keeps_optimizer_state_and_full_resolution_observe
     )
     _assert_gaussians_bit_exact(baseline_final, observed_final)
     assert _established_history(baseline_history) == _established_history(observed_history)
+    assert baseline_history["checkpoint_callback_seconds"] == 0.0
+    assert observed_history["checkpoint_callback_seconds"] == 200.0
     assert callback_steps == [2, 4]
     assert observed_history["elapsed"] == [(2, 0.0), (4, 0.0)]
     assert len(optimizers) == 6

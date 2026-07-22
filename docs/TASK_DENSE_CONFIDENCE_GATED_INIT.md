@@ -31,6 +31,20 @@ Canonical records:
 [`E2 result`](../benchmarks/results/20260720_dense_confidence_gated_init_e2_RESULT.md), and
 [`E2 audit`](../benchmarks/results/20260720_dense_confidence_gated_init_e2_AUDIT.md).
 
+### Longer all-view development context (2026-07-21)
+
+A separately preregistered full 26-view suite retained native counts and let the same ordinary
+adaptive-density schedule run to the 70k plateau assessment. Dense+merge initialized 2,088
+Gaussians and led initialization foreground PSNR at 20.7546 dB; it also led terminal fitted-view
+foreground PSNR at 38.2480 dB with 49,177 Gaussians. Easy-only kept only 7 clusters, grew to
+35,644, and finished last at 36.9587 dB. This confirms the earlier direction under a much longer
+all-fitted-view schedule, but does **not** supersede E2's held-out matched-cap decision: native
+counts and final capacities differ, every camera was fit, and dense's selected objective was 4.40%
+worse than beam fusion's. The audited suite therefore found no materially superior converged
+initializer and made no default change. Records:
+[`suite result`](../benchmarks/results/20260721_all_initializers_frame00008_RESULT.md) and
+[`suite audit`](../benchmarks/results/20260721_all_initializers_frame00008_AUDIT.md).
+
 ## Why this exists
 
 Two 2026-07-20 pre-execution findings motivated this chain:

@@ -1,0 +1,270 @@
+{
+  "schema": "rtgs.beam_fusion_full_frame00008_result.v1",
+  "created_utc": "2026-07-21T10:59:51Z",
+  "scientific_status": "FEASIBLE_AND_CONVERGED_BUT_INITIALIZATION_PRIMARY_LOSES_TO_TOPK",
+  "scope": {
+    "scene": "frame_00008",
+    "development_only": true,
+    "all_views_were_fit": true,
+    "heldout_evidence": false,
+    "novel_view_evidence": false,
+    "default_change_authorized": false
+  },
+  "protocol": {
+    "preregistration": {
+      "path": "benchmarks/results/20260721_beam_fusion_full_frame00008_PREREG.md",
+      "sha256": "1fa29697ccc729e4caab4a0dff4e8528d244cced13c32da53d73f24aa7c7a126"
+    },
+    "continuation_addendum": {
+      "path": "benchmarks/results/20260721_beam_fusion_full_frame00008_PREREG_ADDENDUM_1.md",
+      "sha256": "19d4f643f02beb47fd7abc7cdd8171ff01d52e67444949ae4763f7fa52bf237b"
+    }
+  },
+  "input": {
+    "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d",
+    "manifest_sha256": "b1c8e256d73e2c05f3cb4797a615bdbb2639a637f12908a5c96a2a9a9f912847",
+    "manifest_semantic_digest": "0f86429b4cf503df3ad46ca84a9346c9ab1ada51509d90e13ae9fb241d2a8ef5",
+    "calibration_sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091",
+    "views": 26,
+    "gaussians_2d_per_view": 5000,
+    "gaussians_2d_total": 130000,
+    "bounds_center": [0.3415684700012207, 0.1410396844148636, 2.7468976974487305],
+    "bounds_extent": 2.236157178878784
+  },
+  "environment": {
+    "git_revision": "d74c9a623cba8af4694e0112753927407c7fdab5",
+    "working_tree_was_dirty": true,
+    "executed_source_manifest": {
+      "path": "runs/beam_fusion_full_frame00008_fit_20260721/executed_sources/manifest.json",
+      "sha256": "9a1129cd2cd237a7aacc4ec0757ed0a42145286879bbfad6065a6d43ce7c7ae9",
+      "files": 55
+    },
+    "python": "3.11.15",
+    "torch": "2.12.0+cu132",
+    "cuda_runtime": "13.2",
+    "gsplat": "1.5.3",
+    "structsplat": "0.1.0",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "gpu_memory_mib": 24564,
+    "driver": "580.159.04",
+    "cpu": "AMD Ryzen 9 7950X 16-Core Processor",
+    "logical_cpus": 32,
+    "torch_threads_observed_post_run": 16,
+    "torch_interop_threads_observed_post_run": 32
+  },
+  "initializers": {
+    "topk_control": {
+      "parameters": {
+        "requested_components": 5000,
+        "depth_samples": 32,
+        "min_views": 2,
+        "robust_view_fraction": 0.6,
+        "min_placement_score": 0.01,
+        "init_opacity": 0.1,
+        "seed": 0
+      },
+      "initialized_gaussians_3d": 5000,
+      "placement_seconds": 91.66474462952465,
+      "metrics_all_26_fitted_views": {
+        "foreground_psnr_db": 11.862928170424242,
+        "crop_psnr_db": 16.830524041102482,
+        "crop_ssim": 0.7715513729132139,
+        "alpha_iou": 0.2674023159421407,
+        "alpha_inside": 0.30401785442462337,
+        "alpha_outside": 0.03444156219036533
+      },
+      "artifacts": {
+        "placement": "runs/beam_fusion_full_frame00008_topk_init_20260721/placement.json",
+        "placement_sha256": "04cf5c23e494e77f95409a0220797430b3857283d257627df3dcc5d460aed3e2",
+        "metrics": "runs/beam_fusion_full_frame00008_topk_init_20260721/initial_compact_metrics.json",
+        "metrics_sha256": "c17db7315fcd120e175ef43653a0cbc2e22713a43b8cb3260759bb904133d9ca",
+        "gaussians_init_sha256": "7226bbc135eb5ced07a6a881cb38158c6bf90ca581ac49cf8c3687cecd5a8e4c"
+      }
+    },
+    "beam_fusion": {
+      "parameters": {
+        "requested_components": 5000,
+        "min_views": 3,
+        "transverse_gate_sigma": 3.0,
+        "max_color_distance": 0.35,
+        "color_sigma": 0.25,
+        "fold_in_gate_sigma": 3.0,
+        "near": 0.05,
+        "bounds_scale": 0.5,
+        "min_sigma_world": 0.0001,
+        "max_sigma_world": 1.118078589439392,
+        "init_opacity": 0.1,
+        "source_chunk": 256,
+        "fold_in_chunk": 512,
+        "nms_voxel_size": 0.02236157178878784,
+        "seed_budget_multiplier": 4,
+        "seed_budget": 20000,
+        "max_seed_voxels": 2000000,
+        "view_pair_limit": null
+      },
+      "initialized_gaussians_3d": 5000,
+      "placement_seconds": 138.32554258126765,
+      "view_pairs": 325,
+      "evaluated_ray_pairs": 8125000000,
+      "gated_pair_seeds": 345109938,
+      "occupied_seed_voxels": 743844,
+      "retained_seed_candidates": 20000,
+      "components_before_final_reduction": 19583,
+      "peak_pair_matrix": 1280000,
+      "contributor_links": 108361,
+      "mean_contributing_views_per_output": 21.6722,
+      "min_contributing_views": 18,
+      "max_contributing_views": 26,
+      "unique_input_components_used_by_final_outputs": 44928,
+      "unique_input_component_coverage_fraction": 0.3456,
+      "metrics_all_26_fitted_views": {
+        "foreground_psnr_db": 11.582614055046669,
+        "crop_psnr_db": 16.550209999084473,
+        "crop_ssim": 0.7296715883108286,
+        "alpha_iou": 0.001987853293450406,
+        "alpha_inside": 0.12820624388181245,
+        "alpha_outside": 0.0013243140766952331
+      },
+      "beam_minus_topk_initialization": {
+        "foreground_psnr_db": -0.280314115377573,
+        "crop_psnr_db": -0.28031404201800925,
+        "crop_ssim": -0.041879784602385284,
+        "alpha_iou": -0.2654144626486903
+      },
+      "artifacts": {
+        "placement": "runs/beam_fusion_full_frame00008_fit_20260721/placement.json",
+        "placement_sha256": "64a11828b2156c1f7e68f0fc5daa94058f9944a8712d28ba7c3fa5d64589a5db",
+        "metrics": "runs/beam_fusion_full_frame00008_fit_20260721/initial_compact_metrics.json",
+        "metrics_sha256": "96d9dc4c84d5d89aa3e2b8f5bfb172914d83b45b03bbf8e0b3b62c35e1eff00c",
+        "gaussians_init": "runs/beam_fusion_full_frame00008_fit_20260721/gaussians_init.ply",
+        "gaussians_init_sha256": "e9dfa78760861ffa5ca1119f98d8e23e7e1415ed64b607ab345689a504157290"
+      }
+    }
+  },
+  "downstream_fit": {
+    "initializer": "beam_fusion",
+    "parent_steps": 30000,
+    "maximum_steps_executed": 70000,
+    "selected_global_step": 69000,
+    "continuation_exact": false,
+    "continuation_reason": "PLY boundaries preserve Gaussian parameters but not Adam moments, per-parameter step counters, or RNG streams.",
+    "density": {
+      "strategy": "gsplat-default",
+      "start_step": 500,
+      "stop_step": 15000,
+      "interval": 100,
+      "gradient_threshold": 0.0008,
+      "prune_opacity": 0.005,
+      "prune_scale_fraction": 0.1,
+      "hard_cap": 100000
+    },
+    "rendering": {
+      "rasterizer": "gsplat",
+      "packed": true,
+      "antialiased": true,
+      "target_sh_degree": 3,
+      "sh_interval": 1000,
+      "eval_interval": 1000,
+      "background": "black"
+    },
+    "gaussian_count": {
+      "initialized": 5000,
+      "at_density_stop_15000": 44222,
+      "selected_final": 44222,
+      "cap_respected": true
+    },
+    "selected_compact_metrics_all_26_fitted_views": {
+      "foreground_psnr_db": 37.88737487792969,
+      "crop_psnr_db": 42.85497063856859,
+      "crop_ssim": 0.9958214117930486,
+      "alpha_iou": 0.9760614931583405,
+      "alpha_inside": 0.9939264150766226,
+      "alpha_outside": 0.009964251819138344
+    },
+    "selected_original_rgb_diagnostic_all_26_fitted_views": {
+      "foreground_psnr_db": 33.65862905062162,
+      "interpretation": "Reporting-only source-RGB diagnostic opened after compact-target model selection; not held-out evidence."
+    },
+    "convergence": {
+      "joint_status": "plateau",
+      "selected_checkpoint": 69000,
+      "assessed_endpoint": 70000,
+      "material_rule_status": "plateau",
+      "trailing_nonmaterial_transitions": 10,
+      "last_six_rule_status": "plateau",
+      "theil_sen_psnr_slope_db_per_1000": 0.0033427751981278675,
+      "last3_minus_previous3_median_psnr_db": 0.010219427255485414,
+      "median_per_view_objective_improvement_percent": 0.1677002448796911,
+      "fraction_views_improving_over_one_percent": 0.11538461538461539,
+      "regression": false
+    },
+    "optimizer_elapsed_seconds": {
+      "parent_0_30000": 963.8633206272498,
+      "polish_30000_40000": 301.84100448619574,
+      "tail_40000_50000": 296.19613667950034,
+      "cooldown_50000_60000": 287.9549831273034,
+      "settle_60000_70000": 313.793082324788,
+      "total": 2163.6485272450373
+    },
+    "peak_vram_gib_max": 3.788217067718506,
+    "checkpoint_callback_seconds_total": 0.8960291100665927,
+    "checkpoint_callback_fraction_of_optimizer_elapsed": 0.0004141287731272611,
+    "artifacts": {
+      "selected_model": "runs/beam_fusion_full_frame00008_settle_60000_70000_20260721/gaussians_final.ply",
+      "selected_model_sha256": "733843ae79e4464bb5c43d2174a17d329ebaf31ee45bf03cec4d1ada70699c63",
+      "model_selection": "runs/beam_fusion_full_frame00008_settle_60000_70000_20260721/model_selection.json",
+      "model_selection_sha256": "203155f863f302d73cdf98fd51ce889bf3bc3161764d8ffa8211b11d84ba55ea",
+      "compact_metrics": "runs/beam_fusion_full_frame00008_settle_60000_70000_20260721/compact_metrics.json",
+      "compact_metrics_sha256": "df0783f526a72700367aa7803435259664cb482026e223404cc10cb35c4e15c5",
+      "original_metrics": "runs/beam_fusion_full_frame00008_settle_60000_70000_20260721/original_metrics.json",
+      "original_metrics_sha256": "b70a1f83f98d1bbca757e72f0aae4e9738c0d5fc777213255d98411c0f5ec469"
+    }
+  },
+  "shell_accounting": {
+    "classification": "operator-captured diagnostic; watcher-contended segments are not performance evidence",
+    "topk_init_only": {"wall_seconds": 102.2, "max_rss_kib": 3590080},
+    "beam_parent": {"wall_seconds": 1114.59, "max_rss_kib": 4016216},
+    "polish": {"wall_seconds": 328.77, "max_rss_kib": 3764132},
+    "tail": {"wall_seconds": 322.02, "max_rss_kib": 3758672},
+    "cooldown": {"wall_seconds": 312.51, "max_rss_kib": 3758420},
+    "settle": {"wall_seconds": 339.49, "max_rss_kib": 3759048},
+    "source_rgb_evaluation": {"wall_seconds": 71.04, "max_rss_kib": 11714928}
+  },
+  "viewer": {
+    "live_final_url": "http://127.0.0.1:8780",
+    "http_status": 200,
+    "http_response_bytes": 2888259,
+    "viewer_device": "cpu",
+    "viewer_cuda_allocation_observed": false,
+    "checkpoint_watch_was_active_during_training": true,
+    "formal_watcher_default_display_count_during_growth": 5000,
+    "formal_watcher_manual_slider_could_show_new_maximum": true,
+    "postrun_display_count_fix": "When the user is showing the full current model, the final code now follows a growing checkpoint count automatically.",
+    "postrun_fixed_code_http_smoke": {"status": 200, "response_bytes": 2888259},
+    "watcher_process_sample": {"cpu_percent_of_one_logical_cpu": 11.4, "rss_kib": 680532},
+    "final_viewer_process_sample": {"cpu_percent_of_one_logical_cpu": 3.4, "rss_kib": 603872},
+    "controlled_ab_overhead_measurement": false,
+    "zero_overhead_claim": false,
+    "interpretation": "The formal CPU watcher avoided CUDA contention and training-side checkpoint callbacks consumed 0.896 s across 70 saves, but it retained the initial 5,000-splat display count unless the slider was expanded. A post-run UX fix makes the full-count setting follow growth and passed a separate existing-checkpoint HTTP smoke. CPU scheduling, host RAM, filesystem I/O, and the final code's overhead remain nonzero; no viewer-on/off speed claim is authorized."
+  },
+  "commands": [
+    ".venv-cuda/bin/python benchmarks/full_compact_reconstruction.py --phase fit --initializer topk --init-only --out runs/beam_fusion_full_frame00008_topk_init_20260721 --preregistration benchmarks/results/20260721_beam_fusion_full_frame00008_PREREG.md --fit-mode all --max-tracks 5000 --depth-samples 32 --min-views 2 --robust-view-fraction 0.60 --min-placement-score 0.01 --init-opacity 0.10 --seed 0",
+    ".venv-cuda/bin/python benchmarks/full_compact_reconstruction.py --phase fit --initializer beam-fusion --out runs/beam_fusion_full_frame00008_fit_20260721 --preregistration benchmarks/results/20260721_beam_fusion_full_frame00008_PREREG.md --fit-mode all --max-tracks 5000 --beam-min-views 3 --beam-transverse-gate-sigma 3.0 --beam-max-color-distance 0.35 --beam-color-sigma 0.25 --beam-fold-in-gate-sigma 3.0 --beam-source-chunk 256 --beam-seed-budget-multiplier 4 --init-opacity 0.10 --iterations 30000 --eval-every 1000 --density-strategy gsplat-default --densify-start 500 --densify-stop 15000 --densify-every 100 --max-gaussians 100000 --prune-opacity 0.005 --prune-scale-frac 0.1 --seed 0",
+    ".venv-cuda/bin/python benchmarks/full_compact_reconstruction.py --phase polish --parent-out runs/beam_fusion_full_frame00008_fit_20260721 --out runs/beam_fusion_full_frame00008_polish_30000_40000_20260721 --protocol-amendment benchmarks/results/20260721_beam_fusion_full_frame00008_PREREG_ADDENDUM_1.md",
+    ".venv-cuda/bin/python benchmarks/full_compact_reconstruction.py --phase tail --parent-out runs/beam_fusion_full_frame00008_polish_30000_40000_20260721 --out runs/beam_fusion_full_frame00008_tail_40000_50000_20260721",
+    ".venv-cuda/bin/python benchmarks/full_compact_reconstruction.py --phase cooldown --parent-out runs/beam_fusion_full_frame00008_tail_40000_50000_20260721 --out runs/beam_fusion_full_frame00008_cooldown_50000_60000_20260721",
+    ".venv-cuda/bin/python benchmarks/full_compact_reconstruction.py --phase settle --parent-out runs/beam_fusion_full_frame00008_cooldown_50000_60000_20260721 --out runs/beam_fusion_full_frame00008_settle_60000_70000_20260721",
+    ".venv-cuda/bin/python benchmarks/full_compact_reconstruction.py --phase evaluate --out runs/beam_fusion_full_frame00008_settle_60000_70000_20260721",
+    ".venv-cuda/bin/rtgs view --gaussians runs/beam_fusion_full_frame00008_fit_20260721/gaussians_init.ply --watch-checkpoints runs/beam_fusion_full_frame00008_fit_20260721/checkpoints --max-viewer-gaussians 50000 --device cpu --host 127.0.0.1 --port 8780 --no-open"
+  ],
+  "disposition": {
+    "bounded_beam_fusion_scales_to_this_input": "CONFIRM_SINGLE_SCENE",
+    "beam_fusion_beats_topk_initialization": "RETIRE_FOR_THIS_SCENE",
+    "beam_initialized_fit_reaches_frozen_plateau": "CONFIRM_FITTED_COMPACT_TARGETS_ONLY",
+    "beam_fusion_causes_better_downstream_quality": "NOT_TESTED",
+    "generalization_or_novel_view_quality": "NOT_TESTED",
+    "viewer_has_zero_performance_impact": "RETIRE",
+    "viewer_avoids_cuda_contention": "CONFIRM_OBSERVED_PROCESS_ALLOCATION",
+    "compact_csr_task_is_complete": "NOT_ESTABLISHED_BY_THIS_EXPERIMENT"
+  }
+}

@@ -87,7 +87,7 @@ path establishes a reconstruction-quality, performance, density-control, or defa
 | `rtgs/data` | `synthetic` builds ground-truthed tests; `colmap` parses text/binary reconstructions and observation tracks; `calibrated` loads the object-capture JSON format, applies OpenCV distortion correction to RGB/masks, preserves view ids, estimates object bounds, and creates an every-eighth train/test split. `compact_views` strictly loads complete capped `.rtgsv` camera/teacher/optional-alpha files and ordered frame manifests without Pillow, StructSplat, or CUDA. `field_inputs.SceneFits` preserves those teachers, cameras, optional `PackedAlpha`, depth/geometry hints, and an explicit complete disjoint train/held-out partition for native field lifting. `reconstruction_inputs` remains the fixed-topology post-Stage-1 typed/serialized seam and intentionally does not carry packed alpha. Strict loading requires exact nested key sets, identifiers matching `[A-Za-z0-9][A-Za-z0-9_.-]{0,127}`, bounded ZIP metadata before array loading, ordinary files, no symlinks, and resolved containment. The caller remains responsible for dropping any separately retained `SceneData`; `from_scene` also does not yet prove that optional points or `bounds_hint` were derived only from selected training views. |
 | `rtgs/pipeline` | `pipeline.py` orchestrates the RGB-backed stages 1–3 with timing and strict train-only initialization; held-out RGB is used only for reporting. `compare_lifters` shares train-view fits across variants. The separate `run_field_pipeline(SceneFits, FieldLiftConfig)` entry runs the image-free field lift and leaves held-out compact teachers for semantic reporting only. |
 | `rtgs/visualize` | Writes sampled calibrated-camera reference/init/final/error comparisons, a contact sheet, a calibrated-camera animation, an interpolated object orbit, and an elevation-varying novel path (bounded to 48 frames each). |
-| `rtgs/viewer` | Optional, lazily imported Viser WebGL viewer for orbit navigation, initialization/final comparison, splat controls, calibrated train/test cameras, and exact snapshots through the pluggable rasterizer. |
+| `rtgs/viewer` | Optional, lazily imported Viser WebGL viewer for orbit navigation, synchronized named-model and initialization/final comparison, splat controls, calibrated train/test cameras, exact snapshots through the pluggable rasterizer, and CPU-only polling of training-checkpoint PLYs with partial-write retry. |
 | `rtgs/live` | Optional, lazily imported bridge to the external igsv WebGPU viewer (interactive-gs-viewer repo): streams `Gaussians3D` snapshots over igsv's binary WebSocket during stage-3 training via the trainer's `checkpoint_callback` seam (`rtgs refine --live`). Diagnostic view; quantitative decisions stay on the exact rasterizer. |
 | `rtgs/cli` | `cli.py`, argparse-based. |
 
@@ -114,12 +114,10 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
 | `rtgs fit-images ...` | Stage 1 only: fit 2D gaussians, optionally growing StructSplat from `--initial-gaussians` to `--max-gaussians`; save initialization `.npz` files and, with `--save-observation-teachers`, lossless `.teacher.npz` files for captured field semantics (tested against CPU-reference fixture pixel grids). |
 | `rtgs lift ...` | Stage 2 only: lift fitted 2D gaussians into a 3D gaussian set. |
 | `rtgs lift-field --dataset ... --heldout-stride ... --field-args ... --out ...` | Image-free Stage 2 research path: strictly load a compact dataset on CPU, create an explicit deterministic train/held-out partition, ignore pre-split points/bounds unless explicitly attested train-only, and run `FieldLifter` without reference images. It saves the requested standard PLY/NPZ; `Path(--out).with_suffix(".field.npz")` stores masses, render opacity, fiber/source state, fitting/all-view correspondence visibility, gains, split indices, and correspondences; strict `Path(--out).with_suffix(".diagnostics.json")` stores isolated train/held-out semantic validation and diagnostics. |
-
 | `rtgs refine ...` | Stage 3 only: run 3DGS optimization from an initialization; select `classic`, `gsplat-default`, or `gsplat-mcmc` density control and save metrics/history/previews. `--live` streams checkpoints to the igsv browser viewer (optional dependency). |
 | `rtgs run ...` | End-to-end on synthetic, COLMAP, or calibrated-frame data; `--fits` skips stage 1 using native/StructSplat/GaussianImage NPZ files; `--batch-views` fuses stage-1 fitting across training views and `--native-renderer` selects the torch/CUDA stage-1 renderer. `--out` also saves initialization/final PLY and visual previews. |
-
 | `rtgs render ...` | Render a saved gaussian set from a camera path / dataset cameras. |
-| `rtgs view ...` | Interactively inspect saved PLY/NPZ gaussians in a browser; optionally load a scene for reference images, train/test camera frusta, and exact torch/gsplat snapshots. |
+| `rtgs view ...` | Interactively inspect saved PLY/NPZ gaussians in a browser; optionally load a strict `rtgs.viewer-comparison.v1` manifest of named initial/final pairs, a scene for reference images/train/test camera frusta/exact torch or gsplat snapshots, or a CPU-polled directory of completed training checkpoints. Comparison manifests and checkpoint watching are intentionally separate modes. |
 | `rtgs bench ...` | Delegates to `benchmarks/run.py` (variant comparison + micro-benchmarks). |
 
 ## Backend abstractions (hard rule: pluggable, CPU-first)
@@ -171,6 +169,20 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
   held-out gate; balanced top-K therefore remains the default. `rtgs.lift.compact_refine` remains an
   off-by-default correspondence-free prototype: it can optimize consensus while drifting toward
   the density core, so it does not authorize a geometry claim.
+  `benchmarks/full_compact_reconstruction.py` exposes the common downstream seam for seven
+  compact-suite arms: `topk`, `beam-fusion`, `dense-merge`, `easy-only`, `splat-sfm`, complete
+  `field`, and bounds-only `random`. Native variable counts are retained and reported; the harness
+  does not manufacture a nominally matched method by post-hoc pruning. The resume-safe
+  `benchmarks/run_compact_initializer_suite.py` operator advances successful arms through the same
+  30k density parent and 10k fixed-topology convergence segments, never invokes the source-RGB
+  evaluation phase, and stops at the common plateau rule or 70k ceiling. This compact cohort is
+  intentionally distinct from registered `gradient`, legacy `carve`, `depth`, `hybrid`, and
+  classic `sfm`, whose documented inputs include dense RGB, depth, or sparse points unavailable in
+  a checked-in compact-only bundle. The audited single-scene run completed all six prospective
+  arms plus the historical beam anchor and found no arm that improved both fitted-view foreground
+  PSNR and the equal-view training objective by the frozen material margins. Dense+merge led PSNR,
+  beam led objective, and adaptive density grew every topology substantially; the harness remains
+  a research comparison seam rather than a default selector.
 - **Structure-from-splats** (`rtgs.lift.splat_sfm`): the calibrated SfM analog operating on 2D
   Gaussian primitives instead of keypoints, entirely RGB-free. Pairwise matching solves closed-form
   ray–ray closest points per candidate, gating on epipolar residual (normalized by the candidate's
@@ -181,9 +193,11 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
   `vech(Sigma2D_v) = A_v vech(Sigma3D)` (three equations per view, six unknowns) by least squares
   with bounded-eigenvalue SPD projection. Every output Gaussian carries its full track lineage and
   unmatched splats are reported for downstream densification. On the EWA-projected fixture the
-  inversion is near-exact (centers ~1e-7, covariances ~1e-6 relative); segmentation-mismatched
-  real fields and downstream utility are unmeasured, so it is a screen arm
-  (`benchmarks/splat_sfm_screen.py`), not a default.
+  inversion is near-exact (centers ~1e-7, covariances ~1e-6 relative). In the audited full compact
+  suite it produced 943 tracks (930 two-view, 13 three-view), mean/max reprojection error
+  0.87195/2.98633 px, and converged to 37.7063 dB on the same fitted views after density growth to
+  39,987 Gaussians. High unmatched coverage, native-count confounding, and the absence of held-out
+  views prevent a correspondence-quality, generalization, or default claim.
 - **Tomographic beam fusion** (`rtgs.lift.beam_fusion`): the density-family alternative to both
   consensus scoring and discrete matching. Every 2D splat back-projects to an analytic 3D beam
   (tangent-plane covariance at its implied depth plus a long along-ray variance); closed-form
@@ -194,7 +208,14 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
   projected-pixel gating, and reduction is signature dedupe plus per-voxel weight NMS.
   Association emerges from density overlap and contributor lineage is returned. Centers are exact
   on the EWA fixture; covariances are approximate-by-construction (compose with the splat-SfM
-  linear covariance triangulation when exactness matters). Screen arm only; no default change.
+  linear covariance triangulation when exactness matters). With `max_components=None`, the
+  implementation retains the exhaustive reference path used by the mechanism tests. A bounded
+  full-dataset path still evaluates every cross-view ray pair, but deterministically keeps the
+  strongest seed per 3D voxel, caps that seed pool, and folds the retained seeds through all views
+  in vectorized chunks before the same final reduction. The full 26-view historical arm initialized
+  5,000 and converged to 37.8874 dB with the suite's best selected objective, but dense+merge led
+  foreground PSNR by 0.3607 dB; neither dominates both frozen gates. Research arm only; no default
+  change.
 
 No module imports CUDA-only or heavyweight optional dependencies at import time; they are
 imported inside functions and failures produce actionable error messages.
@@ -203,7 +224,18 @@ Viser's WebGL preview consumes explicit centers, covariances, RGB, and opacity; 
 format has no SH fields, the viewer evaluates all active SH bands on CPU and refreshes RGB as the
 browser camera moves. Exact viewer snapshots still go through `Rasterizer`, so gsplat/CUDA
 snapshots retain authoritative sorting/rasterization and the same backend parity contract as
-training and `rtgs render`.
+training and `rtgs render`. `rtgs view --comparison-manifest FILE` resolves each ordered method's
+initial/final PLY or NPZ paths relative to the manifest, labels entries with their loaded counts,
+prepares every model in host memory, and replaces only the selected WebGL splat set without moving
+the client camera. It is mutually exclusive with the live checkpoint watcher. `rtgs view
+--watch-checkpoints DIR` is deliberately decoupled from the
+optimizer: a daemon thread polls for the newest `gaussians_step_*.ply`, retains the last loadable
+model if a direct writer is still producing that file, and retries on its next bounded poll. This
+keeps a `--device cpu` viewer server off CUDA, but checkpoint serialization, filesystem I/O, CPU
+time, and host RAM are still nonzero. The browser-side orbit preview is WebGL and may use the
+display GPU when the browser shares the training workstation; a remote browser moves that client
+load elsewhere. Neither arrangement may be described as zero-cost without a controlled on/off
+measurement.
 
 ## Conventions
 

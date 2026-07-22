@@ -24,6 +24,7 @@ import dataclasses
 import datetime as dt
 import hashlib
 import importlib.metadata
+import importlib.util
 import json
 import math
 import os
@@ -44,8 +45,23 @@ from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.core.metrics import image_metrics, masked_crop, masked_psnr, ssim
 from rtgs.data.compact_views import CompactDataset, CompactView
 from rtgs.data.field_inputs import SceneFits
+from rtgs.data.reconstruction_inputs import ReconstructionInputs
 from rtgs.data.scene import SceneData
-from rtgs.lift.field_lifter import FieldLiftConfig, _place
+from rtgs.lift.baselines import _isotropic
+from rtgs.lift.beam_fusion import BeamFusionConfig, BeamFusionProgress, fuse_gaussian_beams
+from rtgs.lift.compact_carve import (
+    CompactCandidateAudit,
+    CompactCarveConfig,
+    CompactCarveInitializer,
+    make_placement_progress_printer,
+)
+from rtgs.lift.compact_confidence_gate import (
+    ClusterConfidenceConfig,
+    gate_merged_initialization,
+)
+from rtgs.lift.compact_init_eval import merge_initialization
+from rtgs.lift.field_lifter import FieldLiftConfig, FieldLifter, _place
+from rtgs.lift.splat_sfm import SplatSfMConfig, structure_from_splats
 from rtgs.optim.density import DensityConfig
 from rtgs.optim.trainer import (
     TrainConfig,
@@ -503,6 +519,97 @@ def _copy_file_new(source: Path, destination: Path) -> None:
             output_stream.write(chunk)
     if _sha256_file(source) != _sha256_file(destination):
         raise RuntimeError(f"copied artifact hash differs: {destination}")
+
+
+def _preserve_execution_sources(out: Path, config: dict[str, Any]) -> dict[str, Any]:
+    """Preserve the dirty-run implementation bytes before any result is produced."""
+    snapshot = out / "executed_sources"
+    snapshot.mkdir()
+    internal = (
+        Path(__file__).resolve(),
+        ROOT / "src/rtgs/lift/beam_fusion.py",
+        ROOT / "src/rtgs/lift/baselines.py",
+        ROOT / "src/rtgs/lift/compact_confidence_gate.py",
+        ROOT / "src/rtgs/lift/compact_init_eval.py",
+        ROOT / "src/rtgs/lift/field_lifter.py",
+        ROOT / "src/rtgs/lift/field_refit.py",
+        ROOT / "src/rtgs/lift/compact_carve.py",
+        ROOT / "src/rtgs/lift/splat_sfm.py",
+        ROOT / "src/rtgs/core/gaussians3d.py",
+        ROOT / "src/rtgs/core/observation2d.py",
+        ROOT / "src/rtgs/data/compact_views.py",
+        ROOT / "src/rtgs/optim/trainer.py",
+        ROOT / "src/rtgs/optim/strategies.py",
+        ROOT / "src/rtgs/render/gsplat_backend.py",
+        ROOT / "src/rtgs/render/projection.py",
+    )
+    sources: list[tuple[str, Path]] = [
+        (f"repository/{path.relative_to(ROOT)}", path) for path in internal
+    ]
+    preregistration = config.get("preregistration")
+    if isinstance(preregistration, dict):
+        path = Path(preregistration["path"])
+        sources.append((f"protocol/{path.name}", path))
+    for package_name in ("structsplat", "gsplat"):
+        spec = importlib.util.find_spec(package_name)
+        if spec is None or spec.origin is None:
+            continue
+        package_root = Path(spec.origin).resolve().parent
+        for path in sorted(package_root.rglob("*.py")):
+            sources.append((f"external/{package_name}/{path.relative_to(package_root)}", path))
+
+    records = []
+    seen_destinations: set[str] = set()
+    for relative, source in sources:
+        if relative in seen_destinations:
+            continue
+        seen_destinations.add(relative)
+        destination = snapshot / relative
+        _copy_file_new(source, destination)
+        records.append(
+            {
+                "source": str(source),
+                "snapshot": str(destination.relative_to(out)),
+                "sha256": _sha256_file(destination),
+                "bytes": destination.stat().st_size,
+            }
+        )
+
+    diff = subprocess.run(
+        ["git", "diff", "--binary", "HEAD"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    ).stdout
+    diff_path = snapshot / "working_tree.patch"
+    with diff_path.open("xb") as stream:
+        stream.write(diff)
+    status = subprocess.run(
+        ["git", "status", "--short"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.splitlines()
+    manifest = {
+        "schema": "rtgs.full_compact_reconstruction.executed_sources.v1",
+        "created_utc": _utc_now(),
+        "git_revision": _git_revision(),
+        "git_status": status,
+        "working_tree_patch": {
+            "path": str(diff_path.relative_to(out)),
+            "sha256": _sha256_file(diff_path),
+            "bytes": diff_path.stat().st_size,
+        },
+        "files": records,
+    }
+    manifest_path = snapshot / "manifest.json"
+    _write_json_new(manifest_path, manifest)
+    return {
+        "path": str(manifest_path.relative_to(out)),
+        "sha256": _sha256_file(manifest_path),
+        "file_count": len(records),
+    }
 
 
 def _history_last_step(history: dict[str, Any], key: str) -> int:
@@ -1279,6 +1386,7 @@ def _polish_parent_preflight(parent: Path, out: Path) -> dict[str, Any]:
         raise RuntimeError("parent recovery receipt did not verify deterministic target replay")
 
     return {
+        "parent_kind": "recovered",
         "parent": parent,
         "out": out,
         "config": config,
@@ -1291,6 +1399,129 @@ def _polish_parent_preflight(parent: Path, out: Path) -> dict[str, Any]:
         "recovery_sha256": recovery_sha256,
         "recovery": recovery,
         "recovery_trainer_config": recovery_trainer_config,
+        "parent_trainer_config": recovery_trainer_config,
+        "final_path": final_path,
+        "final_sha256": final_sha256,
+        "n_final": n_final,
+        "artifacts": {
+            name: {
+                "path": str((parent / name).resolve()),
+                "sha256": _sha256_file(parent / name),
+                "bytes": (parent / name).stat().st_size,
+            }
+            for name in POLISH_PARENT_ARTIFACTS
+        },
+    }
+
+
+def _clean_polish_parent_preflight(parent: Path, out: Path) -> dict[str, Any]:
+    """Bind a completed uninterrupted 0-to-30k parent without inventing recovery lineage."""
+    parent = parent.resolve()
+    out = out.resolve()
+    if not parent.is_dir():
+        raise RuntimeError(f"polish requires an existing parent run: {parent}")
+    if out == parent or out.parent != parent.parent:
+        raise RuntimeError("polish output must be a sibling distinct from the parent run")
+    if out.exists():
+        raise FileExistsError(f"refusing to overwrite polish output: {out}")
+    missing = [name for name in POLISH_PARENT_ARTIFACTS if not (parent / name).is_file()]
+    if missing:
+        raise RuntimeError(f"clean polish parent is missing completed-fit artifacts: {missing}")
+
+    config = _load_json_object(parent / "config.json", label="clean parent config")
+    provenance = _load_json_object(parent / "provenance.json", label="clean parent provenance")
+    targets = _load_json_object(parent / "compact_targets.json", label="clean parent targets")
+    history = _load_json_object(parent / "training_history.json", label="clean parent history")
+    fit_receipt = _load_json_object(parent / "fit_complete.json", label="clean parent fit receipt")
+    trainer_config = _load_train_config(parent / "training_config.json")
+
+    if config.get("schema") != "rtgs.full_compact_reconstruction.config.v1":
+        raise RuntimeError("clean polish parent has an unsupported config schema")
+    if config.get("fit_mode") != "all" or config.get("smoke") is not False:
+        raise RuntimeError("clean polish requires the full all-view non-smoke parent")
+    if config.get("iterations") != POLISH_PARENT_ITERATIONS or config.get("seed") != 0:
+        raise RuntimeError("clean polish parent does not preserve the frozen 30k config")
+    if tuple(config.get("view_names", ())) != EXPECTED_VIEW_NAMES or tuple(
+        config.get("fit_indices", ())
+    ) != tuple(range(len(EXPECTED_VIEW_NAMES))):
+        raise RuntimeError("clean polish parent does not preserve the frozen all-view order")
+
+    if provenance.get("schema") != "rtgs.full_compact_reconstruction.provenance.v1":
+        raise RuntimeError("clean polish parent has an unsupported provenance schema")
+    _provenance_identity(provenance)
+    if tuple(provenance.get("fit_indices", ())) != tuple(config["fit_indices"]):
+        raise RuntimeError("clean polish parent provenance/config fit indices differ")
+
+    if (
+        targets.get("schema") != DETERMINISTIC_TARGET_SCHEMA
+        or targets.get("deterministic_algorithms") is not True
+    ):
+        raise RuntimeError("clean polish requires deterministic-v2 parent targets")
+    target_views = targets.get("views")
+    if not isinstance(target_views, list) or [
+        (record.get("global_index"), record.get("view_id"))
+        for record in target_views
+        if isinstance(record, dict)
+    ] != list(enumerate(EXPECTED_VIEW_NAMES)):
+        raise RuntimeError("clean polish target receipt differs from the frozen all-view order")
+
+    if trainer_config.iterations != POLISH_PARENT_ITERATIONS:
+        raise RuntimeError("clean parent training config is not a 30,000-step invocation")
+    if trainer_config.iteration_offset != 0:
+        raise RuntimeError("clean parent training config does not begin at global step zero")
+    if _resolve_schedule_iterations(trainer_config) != POLISH_PARENT_ITERATIONS:
+        raise RuntimeError("clean parent schedule does not terminate at step 30,000")
+    if trainer_config.eval_every != 1_000 or trainer_config.target_sh_degree != 3:
+        raise RuntimeError("clean parent does not preserve the frozen checkpoint/SH schedule")
+    if _resolve_sh_interval(trainer_config) != 1_000:
+        raise RuntimeError("clean parent SH interval differs from the frozen schedule")
+    if not math.isclose(
+        float(trainer_config.means_lr_final_factor), 0.01, rel_tol=0.0, abs_tol=0.0
+    ):
+        raise RuntimeError("clean parent means LR does not have the frozen 1% terminal factor")
+    if not math.isclose(
+        float(trainer_config.opacity_logit_epsilon), 1e-4, rel_tol=0.0, abs_tol=0.0
+    ):
+        raise RuntimeError("clean parent opacity entry clamp differs from the frozen default")
+
+    final_path = parent / "gaussians_final.ply"
+    final_sha256 = _sha256_file(final_path)
+    if fit_receipt.get("schema") != "rtgs.full_compact_reconstruction.fit_complete.v1":
+        raise RuntimeError("clean polish parent has an unsupported fit receipt schema")
+    if "recovery" in fit_receipt or "resume_exact" in fit_receipt:
+        raise RuntimeError("clean polish parent unexpectedly declares recovery lineage")
+    if fit_receipt.get("final_ply_sha256") != final_sha256:
+        raise RuntimeError("clean parent final PLY differs from its fit receipt")
+    n_final = fit_receipt.get("n_final_gaussians")
+    if isinstance(n_final, bool) or not isinstance(n_final, int) or n_final <= 0:
+        raise RuntimeError("clean parent fit receipt has an invalid Gaussian count")
+
+    if history.get("iteration_offset") != 0:
+        raise RuntimeError("clean parent history does not start at global step zero")
+    if history.get("segment_iterations") != POLISH_PARENT_ITERATIONS:
+        raise RuntimeError("clean parent history is not a complete 30,000-step segment")
+    if history.get("schedule_iterations") != POLISH_PARENT_ITERATIONS:
+        raise RuntimeError("clean parent history has a different global schedule length")
+    losses = history.get("loss")
+    if not isinstance(losses, list) or len(losses) != POLISH_PARENT_ITERATIONS:
+        raise RuntimeError("clean parent history does not contain all 30,000 losses")
+    for key in ("psnr", "elapsed", "n_gaussians", "active_sh_degree"):
+        if _history_last_step(history, key) != POLISH_PARENT_ITERATIONS:
+            raise RuntimeError(f"clean parent {key} history does not end at global step 30,000")
+    if history["n_gaussians"][-1][1] != n_final:
+        raise RuntimeError("clean parent history and fit receipt Gaussian counts differ")
+
+    return {
+        "parent_kind": "uninterrupted",
+        "parent": parent,
+        "out": out,
+        "config": config,
+        "provenance": provenance,
+        "targets": targets,
+        "history": history,
+        "fit_receipt": fit_receipt,
+        "trainer_config": trainer_config,
+        "parent_trainer_config": trainer_config,
         "final_path": final_path,
         "final_sha256": final_sha256,
         "n_final": n_final,
@@ -1955,6 +2186,13 @@ def _effective_config(args: argparse.Namespace, dataset: CompactDataset) -> dict
         densify = not args.no_densify
         max_gaussians = args.max_gaussians
     expected_candidates = sum(dataset.views[index].observation.n for index in fit_indices)
+    preregistration = None
+    if args.preregistration is not None:
+        preregistration_path = args.preregistration.resolve(strict=True)
+        preregistration = {
+            "path": str(preregistration_path),
+            "sha256": _sha256_file(preregistration_path),
+        }
     return {
         "schema": "rtgs.full_compact_reconstruction.config.v1",
         "created_utc": _utc_now(),
@@ -1962,6 +2200,7 @@ def _effective_config(args: argparse.Namespace, dataset: CompactDataset) -> dict
         "git_revision": _git_revision(),
         "script": str(Path(__file__).resolve()),
         "script_sha256": _sha256_file(Path(__file__).resolve()),
+        "preregistration": preregistration,
         "dataset": str(dataset.path),
         "dataset_name": dataset.name,
         "fit_mode": args.fit_mode,
@@ -1973,12 +2212,28 @@ def _effective_config(args: argparse.Namespace, dataset: CompactDataset) -> dict
         "H_indices": H_INDICES,
         "view_names": tuple(view.view_id for view in dataset.views),
         "expected_component_center_candidates": expected_candidates,
+        "initializer": args.initializer,
         "max_tracks": max_tracks,
         "depth_samples": depth_samples,
         "min_views": min(args.min_views, len(fit_indices)),
+        "beam_min_views": min(args.beam_min_views, len(fit_indices)),
         "robust_view_fraction": args.robust_view_fraction,
         "min_placement_score": args.min_placement_score,
         "init_opacity": args.init_opacity,
+        "beam_transverse_gate_sigma": args.beam_transverse_gate_sigma,
+        "beam_max_color_distance": args.beam_max_color_distance,
+        "beam_color_sigma": args.beam_color_sigma,
+        "beam_fold_in_gate_sigma": args.beam_fold_in_gate_sigma,
+        "beam_nms_voxel_size": args.beam_nms_voxel,
+        "beam_source_chunk": args.beam_source_chunk,
+        "beam_seed_budget_multiplier": args.beam_seed_budget_multiplier,
+        "beam_pair_limit": (1 if args.smoke else args.beam_pair_limit),
+        "dense_merge_voxel_size": args.dense_merge_voxel,
+        "sfm_min_views": min(args.sfm_min_views, len(fit_indices)),
+        "sfm_source_chunk": args.sfm_source_chunk,
+        "sfm_seed_pair_limit": (1 if args.smoke else args.sfm_seed_pair_limit),
+        "field_max_tracks": (32 if args.smoke else args.field_max_tracks),
+        "field_max_train_views": min(args.field_max_train_views, len(fit_indices)),
         "iterations": iterations,
         "eval_every": eval_every,
         "device": args.device,
@@ -1998,14 +2253,11 @@ def _effective_config(args: argparse.Namespace, dataset: CompactDataset) -> dict
         "prune_scale_frac": args.prune_scale_frac,
         "seed": args.seed,
         "smoke": bool(args.smoke),
+        "init_only": bool(args.init_only),
         "original_frame": str(ORIGINAL_FRAME),
         "original_calibration": str(ORIGINAL_CALIBRATION),
         "expected_calibration_sha256": EXPECTED_CALIBRATION_SHA256,
-        "interpretation": (
-            "All selected compact components contribute placement candidates and all selected "
-            "teacher crops supervise training. max_tracks bounds the latent 3D representation; "
-            "it does not subsample compact evidence."
-        ),
+        "interpretation": _initializer_interpretation(args.initializer),
         "validation_interpretation": (
             "V is fitted-view validation, not held-out evidence."
             if args.fit_mode == "all"
@@ -2058,6 +2310,17 @@ def _place_initial_gaussians(
     dataset: CompactDataset,
     config: dict[str, Any],
 ) -> tuple[Gaussians3D, dict[str, Any]]:
+    if config["initializer"] == "beam-fusion":
+        return _place_beam_fusion_gaussians(dataset, config)
+    if config["initializer"] in {"dense-merge", "easy-only"}:
+        return _place_dense_gaussians(dataset, config)
+    if config["initializer"] == "splat-sfm":
+        return _place_splat_sfm_gaussians(dataset, config)
+    if config["initializer"] == "field":
+        return _place_field_gaussians(dataset, config)
+    if config["initializer"] == "random":
+        return _place_random_gaussians(dataset, config)
+
     fit_indices = tuple(config["fit_indices"])
     heldout = tuple(index for index in range(dataset.n_views) if index not in fit_indices)
     fits = SceneFits.from_compact_dataset(
@@ -2105,6 +2368,7 @@ def _place_initial_gaussians(
     )
     receipt = {
         "schema": "rtgs.full_compact_reconstruction.placement.v1",
+        "initializer": "component-center-topk",
         "elapsed_seconds": time.perf_counter() - started,
         "field_lift_config": dataclasses.asdict(placement_config),
         "diagnostics": placement.diagnostics,
@@ -2127,6 +2391,353 @@ def _place_initial_gaussians(
             "opacity": _tensor_sha256(gaussians.opacity),
             "sh": _tensor_sha256(gaussians.sh),
         },
+    }
+    return gaussians, receipt
+
+
+def _initializer_interpretation(initializer: str) -> str:
+    descriptions = {
+        "topk": (
+            "All selected compact components contribute component-center candidates; balanced "
+            "score ranking returns at most max_tracks source-projection fibers."
+        ),
+        "beam-fusion": (
+            "Every cross-view component pair is evaluated by bounded beam seeding and every "
+            "selected compact view participates in vectorized fold-in. max_tracks caps the "
+            "retained components after seed-voxel NMS."
+        ),
+        "dense-merge": (
+            "Every eligible component-center ray survives score filtering before fixed 0.06-unit "
+            "voxel moment merging; no post-merge count matching is applied."
+        ),
+        "easy-only": (
+            "The native dense-merge result is filtered by the frozen correspondence-confidence "
+            "gate; no post-gate count matching is applied."
+        ),
+        "splat-sfm": (
+            "All selected view pairs enter calibrated splat matching; only verified multi-view "
+            "tracks that pass triangulation gates become 3D Gaussians."
+        ),
+        "field": (
+            "The complete field lifter uses its separately bounded track budget, analytic refit, "
+            "and one transactional topology round before ordinary 3DGS training."
+        ),
+        "random": (
+            "Exactly max_tracks gray isotropic Gaussians are sampled uniformly in the same "
+            "camera-derived scene-bound sphere; compact fields affect only later supervision."
+        ),
+    }
+    try:
+        return descriptions[initializer]
+    except KeyError as error:
+        raise ValueError(f"unknown initializer {initializer!r}") from error
+
+
+def _fit_reconstruction_inputs(
+    dataset: CompactDataset,
+    config: dict[str, Any],
+    *,
+    suffix: str,
+) -> ReconstructionInputs:
+    fit_indices = tuple(config["fit_indices"])
+    complete = dataset.to_reconstruction_inputs()
+    return ReconstructionInputs(
+        observations=[complete.observations[index] for index in fit_indices],
+        cameras=[complete.cameras[index] for index in fit_indices],
+        view_names=[complete.view_names[index] for index in fit_indices],
+        bounds_hint=complete.bounds_hint,
+        name=f"{complete.name}-{suffix}-fit",
+    )
+
+
+def _float_gaussians(gaussians: Gaussians3D) -> Gaussians3D:
+    detached = gaussians.detach()
+    return Gaussians3D(
+        means=detached.means.float(),
+        quats=detached.quats.float(),
+        log_scales=detached.log_scales.float(),
+        opacity=detached.opacity.float(),
+        sh=detached.sh.float(),
+    )
+
+
+def _gaussian_hashes(gaussians: Gaussians3D) -> dict[str, str]:
+    return {
+        "means": _tensor_sha256(gaussians.means),
+        "quats": _tensor_sha256(gaussians.quats),
+        "log_scales": _tensor_sha256(gaussians.log_scales),
+        "opacity": _tensor_sha256(gaussians.opacity),
+        "sh": _tensor_sha256(gaussians.sh),
+    }
+
+
+def _cluster_histograms(
+    group: torch.Tensor,
+    source_views: torch.Tensor,
+    *,
+    n_clusters: int,
+    n_views: int,
+) -> dict[str, dict[str, int]]:
+    member_counts = torch.bincount(group.cpu(), minlength=n_clusters)
+    pairs = group.cpu() * n_views + source_views.cpu()
+    unique_pairs = torch.unique(pairs)
+    view_counts = torch.bincount(unique_pairs // n_views, minlength=n_clusters)
+
+    def histogram(values: torch.Tensor) -> dict[str, int]:
+        unique, counts = values.unique(sorted=True, return_counts=True)
+        return {str(int(value)): int(count) for value, count in zip(unique, counts, strict=True)}
+
+    return {
+        "member_count": histogram(member_counts),
+        "distinct_source_views": histogram(view_counts),
+    }
+
+
+def _place_dense_gaussians(
+    dataset: CompactDataset,
+    config: dict[str, Any],
+) -> tuple[Gaussians3D, dict[str, Any]]:
+    inputs = _fit_reconstruction_inputs(dataset, config, suffix=str(config["initializer"]))
+    carve_config = CompactCarveConfig(
+        n_init_3d=1,
+        candidate_multiplier=3,
+        anchor_mode="component_centers",
+        samples_per_ray=int(config["depth_samples"]),
+        query_batch_size=max(int(config["depth_samples"]), 4096),
+        min_views=int(config["min_views"]),
+        hull_fraction=float(config["robust_view_fraction"]),
+        min_score=float(config["min_placement_score"]),
+        init_opacity=float(config["init_opacity"]),
+        seed=int(config["seed"]),
+        select_all_eligible=True,
+    )
+    audits: list[CompactCandidateAudit] = []
+    started = time.perf_counter()
+    dense = CompactCarveInitializer(carve_config).initialize(
+        inputs,
+        candidate_audit_callback=(audits.append if config["initializer"] == "easy-only" else None),
+        progress_callback=make_placement_progress_printer(
+            printer=lambda line: print(line, flush=True)
+        ),
+    )
+    merged, group = merge_initialization(
+        dense,
+        float(config["dense_merge_voxel_size"]),
+    )
+    gate_summary = None
+    gaussians = merged
+    if config["initializer"] == "easy-only":
+        if len(audits) != 1:
+            raise RuntimeError("easy-only placement requires exactly one candidate audit")
+        gated = gate_merged_initialization(
+            inputs,
+            dense,
+            audits[0],
+            merged,
+            group,
+            merge_voxel_size=float(config["dense_merge_voxel_size"]),
+            config=ClusterConfidenceConfig(),
+        )
+        gaussians = gated.gaussians
+        gate_summary = gated.as_dict(include_records=False)
+    gaussians = _float_gaussians(gaussians)
+    receipt = {
+        "schema": "rtgs.full_compact_reconstruction.placement.v3",
+        "initializer": config["initializer"],
+        "elapsed_seconds": time.perf_counter() - started,
+        "compact_carve_config": dataclasses.asdict(carve_config),
+        "merge_voxel_size": float(config["dense_merge_voxel_size"]),
+        "merge_opacity_mode": "union",
+        "merge_weight_by_score": True,
+        "diagnostics": dense.diagnostics,
+        "gate": gate_summary,
+        "n_dense_eligible": dense.gaussians.n,
+        "n_merged": merged.n,
+        "n_gaussians": gaussians.n,
+        "candidate_count": int(dense.diagnostics["candidate_count"]),
+        "input_component_count": int(sum(inputs.n_opt_2d)),
+        "cluster_histograms": _cluster_histograms(
+            group,
+            dense.lineage.source_view_indices,
+            n_clusters=merged.n,
+            n_views=inputs.n_views,
+        ),
+        "gaussians_sha256": _gaussian_hashes(gaussians),
+    }
+    return gaussians, receipt
+
+
+def _place_splat_sfm_gaussians(
+    dataset: CompactDataset,
+    config: dict[str, Any],
+) -> tuple[Gaussians3D, dict[str, Any]]:
+    inputs = _fit_reconstruction_inputs(dataset, config, suffix="splat-sfm")
+    sfm_config = SplatSfMConfig(
+        min_views=int(config["sfm_min_views"]),
+        init_opacity=float(config["init_opacity"]),
+        source_chunk=int(config["sfm_source_chunk"]),
+        seed_pair_limit=config["sfm_seed_pair_limit"],
+    )
+    started = time.perf_counter()
+    result = structure_from_splats(inputs, sfm_config)
+    gaussians = _float_gaussians(result.gaussians)
+    receipt = {
+        "schema": "rtgs.full_compact_reconstruction.placement.v3",
+        "initializer": "splat-sfm",
+        "elapsed_seconds": time.perf_counter() - started,
+        "splat_sfm_config": dataclasses.asdict(sfm_config),
+        "diagnostics": result.diagnostics,
+        "n_gaussians": gaussians.n,
+        "candidate_count": int(sum(inputs.n_opt_2d)),
+        "input_component_count": int(sum(inputs.n_opt_2d)),
+        "track_offsets": result.track_offsets.tolist(),
+        "member_global_view_indices": [
+            int(config["fit_indices"][int(index)]) for index in result.member_view_indices
+        ],
+        "member_component_indices": result.member_component_indices.tolist(),
+        "gaussians_sha256": _gaussian_hashes(gaussians),
+    }
+    return gaussians, receipt
+
+
+def _place_field_gaussians(
+    dataset: CompactDataset,
+    config: dict[str, Any],
+) -> tuple[Gaussians3D, dict[str, Any]]:
+    fit_indices = tuple(config["fit_indices"])
+    heldout = tuple(index for index in range(dataset.n_views) if index not in fit_indices)
+    fits = SceneFits.from_compact_dataset(
+        dataset,
+        train_view_indices=fit_indices,
+        heldout_view_indices=heldout,
+    )
+    field_config = FieldLiftConfig(
+        max_tracks=int(config["field_max_tracks"]),
+        max_train_views=int(config["field_max_train_views"]),
+        depth_samples=int(config["depth_samples"]),
+        min_views=int(config["min_views"]),
+        robust_view_fraction=float(config["robust_view_fraction"]),
+        min_placement_score=float(config["min_placement_score"]),
+        init_opacity=float(config["init_opacity"]),
+        background_fraction=0.0,
+        seed=int(config["seed"]),
+    )
+    started = time.perf_counter()
+    result = FieldLifter(field_config).fit(fits)
+    gaussians = _float_gaussians(result.gaussians)
+    receipt = {
+        "schema": "rtgs.full_compact_reconstruction.placement.v3",
+        "initializer": "field",
+        "elapsed_seconds": time.perf_counter() - started,
+        "field_lift_config": dataclasses.asdict(field_config),
+        "diagnostics": result.diagnostics,
+        "semantic_validation": dataclasses.asdict(result.semantic_validation),
+        "n_gaussians": gaussians.n,
+        "candidate_count": int(sum(dataset.views[index].observation.n for index in fit_indices)),
+        "input_component_count": int(
+            sum(dataset.views[index].observation.n for index in fit_indices)
+        ),
+        "optimized_global_view_indices": list(result.optimized_view_indices),
+        "gaussians_sha256": _gaussian_hashes(gaussians),
+    }
+    return gaussians, receipt
+
+
+def _place_random_gaussians(
+    dataset: CompactDataset,
+    config: dict[str, Any],
+) -> tuple[Gaussians3D, dict[str, Any]]:
+    from rtgs.lift.compact_carve import _center_and_extent
+
+    inputs = _fit_reconstruction_inputs(dataset, config, suffix="random")
+    center, extent = _center_and_extent(inputs, torch.float32)
+    count = int(config["max_tracks"])
+    generator = torch.Generator(device="cpu").manual_seed(int(config["seed"]))
+    started = time.perf_counter()
+    directions = torch.randn(count, 3, generator=generator)
+    directions = directions / directions.norm(dim=-1, keepdim=True)
+    radii = 0.5 * extent * torch.rand(count, 1, generator=generator).pow(1.0 / 3.0)
+    points = center + directions * radii
+    scale = torch.full((count,), 0.5 * extent / max(count, 1) ** (1.0 / 3.0))
+    colors = torch.full((count, 3), 0.5)
+    gaussians = _float_gaussians(_isotropic(points, scale, colors, float(config["init_opacity"])))
+    receipt = {
+        "schema": "rtgs.full_compact_reconstruction.placement.v3",
+        "initializer": "random",
+        "elapsed_seconds": time.perf_counter() - started,
+        "seed": int(config["seed"]),
+        "bounds_center": center.tolist(),
+        "bounds_extent": float(extent),
+        "sampling": "uniform-volume sphere with radius 0.5 * bounds_extent",
+        "color": [0.5, 0.5, 0.5],
+        "isotropic_scale": float(scale[0]),
+        "n_gaussians": gaussians.n,
+        "candidate_count": count,
+        "input_component_count": int(sum(inputs.n_opt_2d)),
+        "gaussians_sha256": _gaussian_hashes(gaussians),
+    }
+    return gaussians, receipt
+
+
+def _place_beam_fusion_gaussians(
+    dataset: CompactDataset,
+    config: dict[str, Any],
+) -> tuple[Gaussians3D, dict[str, Any]]:
+    fit_indices = tuple(config["fit_indices"])
+    inputs = _fit_reconstruction_inputs(dataset, config, suffix="beam-fusion")
+    beam_config = BeamFusionConfig(
+        min_views=int(config["beam_min_views"]),
+        transverse_gate_sigma=float(config["beam_transverse_gate_sigma"]),
+        max_color_distance=float(config["beam_max_color_distance"]),
+        color_sigma=float(config["beam_color_sigma"]),
+        fold_in_gate_sigma=float(config["beam_fold_in_gate_sigma"]),
+        nms_voxel_size=config["beam_nms_voxel_size"],
+        init_opacity=float(config["init_opacity"]),
+        source_chunk=int(config["beam_source_chunk"]),
+        pair_limit=config["beam_pair_limit"],
+        max_components=int(config["max_tracks"]),
+        seed_budget_multiplier=int(config["beam_seed_budget_multiplier"]),
+    )
+    last_reported = [-math.inf]
+
+    def progress(record: BeamFusionProgress) -> None:
+        if (
+            record.stage == "complete"
+            or record.elapsed_seconds - last_reported[0] >= 30.0
+            or (record.stage == "pair_seeding" and record.completed % 10 == 0)
+        ):
+            last_reported[0] = record.elapsed_seconds
+            print(
+                f"[beam:{record.stage}] {record.completed}/{record.total} "
+                f"ray_pairs={record.evaluated_ray_pairs:,} "
+                f"gated={record.gated_seeds:,} voxels={record.retained_seed_voxels:,} "
+                f"elapsed={record.elapsed_seconds:.1f}s",
+                flush=True,
+            )
+
+    started = time.perf_counter()
+    result = fuse_gaussian_beams(
+        inputs,
+        beam_config,
+        progress_callback=progress,
+    )
+    gaussians = _float_gaussians(result.gaussians)
+    local_to_global = torch.tensor(fit_indices, dtype=torch.long)
+    contributor_global_views = local_to_global[result.contributor_view_indices]
+    receipt = {
+        "schema": "rtgs.full_compact_reconstruction.placement.v2",
+        "initializer": "beam-fusion-bounded",
+        "elapsed_seconds": time.perf_counter() - started,
+        "beam_fusion_config": dataclasses.asdict(beam_config),
+        "diagnostics": result.diagnostics,
+        "n_gaussians": gaussians.n,
+        "candidate_count": int(result.diagnostics["n_seeds"]),
+        "input_component_count": int(sum(inputs.n_opt_2d)),
+        "component_offsets": result.component_offsets.tolist(),
+        "contributor_global_view_indices": contributor_global_views.tolist(),
+        "contributor_component_indices": result.contributor_component_indices.tolist(),
+        "component_weights": result.component_weights.tolist(),
+        "gaussians_sha256": _gaussian_hashes(gaussians),
     }
     return gaussians, receipt
 
@@ -2356,6 +2967,49 @@ def _train_config(config: dict[str, Any]) -> TrainConfig:
         validate_render_finite=True,
         seed=int(config["seed"]),
     )
+
+
+def _evaluate_initial_compact_model(
+    scene: SceneData,
+    init: Gaussians3D,
+    config: dict[str, Any],
+) -> dict[str, Any]:
+    """Evaluate the true pre-optimizer model on the materialized compact teachers."""
+    from rtgs.render.base import get_rasterizer
+
+    started = time.perf_counter()
+    device = torch.device(config["device"])
+    model = init.to(device)
+    renderer = get_rasterizer(
+        "gsplat",
+        device=device,
+        packed=True,
+        antialiased=True,
+    )
+    validation_local = [scene.view_names.index(EXPECTED_VIEW_NAMES[index]) for index in V_INDICES]
+    metrics = {
+        "schema": "rtgs.full_compact_reconstruction.initial_metrics.v1",
+        "initializer": config["initializer"],
+        "n_gaussians": init.n,
+        "train": Trainer.evaluate_metrics(
+            scene,
+            model,
+            renderer,
+            indices=scene.training_views,
+        ),
+        "V": Trainer.evaluate_metrics(
+            scene,
+            model,
+            renderer,
+            indices=validation_local,
+        ),
+        "V_interpretation": config["validation_interpretation"],
+        "elapsed_seconds": time.perf_counter() - started,
+    }
+    del model, renderer
+    if device.type == "cuda":
+        torch.cuda.empty_cache()
+    return metrics
 
 
 def _save_ply_new(gaussians: Gaussians3D, path: Path) -> None:
@@ -2616,6 +3270,8 @@ def _fit(args: argparse.Namespace) -> None:
     config = _effective_config(args, dataset)
     _write_json_new(out / "config.json", config)
     _write_json_new(out / "provenance.json", _compact_provenance(dataset, config))
+    source_snapshot = _preserve_execution_sources(out, config)
+    _write_json_new(out / "executed_sources.json", source_snapshot)
     print(
         f"[plan] views={len(config['fit_indices'])} "
         f"components={config['expected_component_center_candidates']} "
@@ -2644,6 +3300,29 @@ def _fit(args: argparse.Namespace) -> None:
             "views": materialization,
         },
     )
+    print("[initial-metrics] evaluating the true pre-optimizer Gaussian set", flush=True)
+    initial_metrics = _evaluate_initial_compact_model(scene, init, config)
+    _write_json_new(out / "initial_compact_metrics.json", initial_metrics)
+    print(
+        f"[initial-metrics] train_fg_psnr={initial_metrics['train']['psnr_fg']:.4f} "
+        f"V_fg_psnr={initial_metrics['V']['psnr_fg']:.4f}",
+        flush=True,
+    )
+    if config["init_only"]:
+        _write_json_new(
+            out / "initialization_complete.json",
+            {
+                "schema": "rtgs.full_compact_reconstruction.initialization_complete.v1",
+                "completed_utc": _utc_now(),
+                "initializer": config["initializer"],
+                "n_gaussians": init.n,
+                "gaussians_init_sha256": _sha256_file(out / "gaussians_init.ply"),
+                "placement_sha256": _sha256_file(out / "placement.json"),
+                "initial_metrics_sha256": _sha256_file(out / "initial_compact_metrics.json"),
+            },
+        )
+        print("[fit] init-only run complete", flush=True)
+        return
     trainer_config = _train_config(config)
     _write_json_new(out / "training_config.json", dataclasses.asdict(trainer_config))
     _train_and_finalize(out, config, scene, init, trainer_config)
@@ -2652,7 +3331,22 @@ def _fit(args: argparse.Namespace) -> None:
 def _polish(args: argparse.Namespace) -> None:
     if args.parent_out is None:  # parse_args enforces this for CLI callers.
         raise ValueError("polish requires --parent-out")
-    state = _polish_parent_preflight(args.parent_out, args.out)
+    parent_receipt = _load_json_object(
+        args.parent_out.resolve() / "fit_complete.json",
+        label="polish parent fit receipt",
+    )
+    state = (
+        _polish_parent_preflight(args.parent_out, args.out)
+        if "recovery" in parent_receipt
+        else _clean_polish_parent_preflight(args.parent_out, args.out)
+    )
+    protocol_amendment = None
+    if getattr(args, "protocol_amendment", None) is not None:
+        amendment_path = args.protocol_amendment.resolve(strict=True)
+        protocol_amendment = {
+            "path": str(amendment_path),
+            "sha256": _sha256_file(amendment_path),
+        }
     parent = state["parent"]
     out = state["out"]
     config = state["config"]
@@ -2698,30 +3392,42 @@ def _polish(args: argparse.Namespace) -> None:
     target_replay["prior_deterministic_algorithms_setting_restored"] = True
     target_replay["deterministic_algorithms_setting_after_replay"] = previous_deterministic
     target_replay["alpha_replay"] = alpha_replay
-    if target_replay.get("reference_schema") != LEGACY_NONDETERMINISTIC_TARGET_SCHEMA:
-        raise RuntimeError("polish replay did not consume the legacy-v1 parent targets")
     if target_replay.get("deterministic_recovery_replay_verified") is not True:
         raise RuntimeError("polish target replays were not independently deterministic")
-    prior_target_replay = state["recovery"].get("target_replay")
-    if not isinstance(prior_target_replay, dict):
-        raise RuntimeError("parent recovery target replay is missing")
-    if target_replay.get("deterministic_recovery_identity_sha256") != prior_target_replay.get(
-        "deterministic_recovery_identity_sha256"
-    ):
-        raise RuntimeError("polish deterministic targets differ from the recovered parent replay")
-    prior_alpha_replay = prior_target_replay.get("alpha_replay")
-    if not isinstance(prior_alpha_replay, dict) or alpha_replay.get(
-        "identity_sha256"
-    ) != prior_alpha_replay.get("identity_sha256"):
-        raise RuntimeError("polish alpha replay differs from the recovered parent replay")
+    if state["parent_kind"] == "recovered":
+        if target_replay.get("reference_schema") != LEGACY_NONDETERMINISTIC_TARGET_SCHEMA:
+            raise RuntimeError("polish replay did not consume the legacy-v1 parent targets")
+        prior_target_replay = state["recovery"].get("target_replay")
+        if not isinstance(prior_target_replay, dict):
+            raise RuntimeError("parent recovery target replay is missing")
+        if target_replay.get("deterministic_recovery_identity_sha256") != prior_target_replay.get(
+            "deterministic_recovery_identity_sha256"
+        ):
+            raise RuntimeError(
+                "polish deterministic targets differ from the recovered parent replay"
+            )
+        prior_alpha_replay = prior_target_replay.get("alpha_replay")
+        if not isinstance(prior_alpha_replay, dict) or alpha_replay.get(
+            "identity_sha256"
+        ) != prior_alpha_replay.get("identity_sha256"):
+            raise RuntimeError("polish alpha replay differs from the recovered parent replay")
+    else:
+        if target_replay.get("reference_schema") != DETERMINISTIC_TARGET_SCHEMA:
+            raise RuntimeError("clean polish replay did not consume deterministic-v2 targets")
+        if target_replay.get("original_tensor_equivalence_verified") is not True:
+            raise RuntimeError("clean polish target tensors differ from the parent")
 
     for name, record in state["artifacts"].items():
         if _sha256_file(parent / name) != record["sha256"]:
             raise RuntimeError(f"polish parent artifact changed during preflight: {name}")
-    if _sha256_file(state["recovery_path"]) != state["recovery_sha256"]:
+    if (
+        state["parent_kind"] == "recovered"
+        and _sha256_file(state["recovery_path"]) != state["recovery_sha256"]
+    ):
         raise RuntimeError("polish parent recovery receipt changed during preflight")
 
-    trainer_config = _polish_train_config(state["recovery_trainer_config"])
+    parent_trainer_config = state["parent_trainer_config"]
+    trainer_config = _polish_train_config(parent_trainer_config)
     if _resolve_schedule_iterations(trainer_config) != POLISH_SCHEDULE_ITERATIONS:
         raise RuntimeError("internal polish schedule resolution differs from 40,000 steps")
     sh_interval = _resolve_sh_interval(trainer_config)
@@ -2758,10 +3464,11 @@ def _polish(args: argparse.Namespace) -> None:
         "schema": "rtgs.full_compact_reconstruction.polish_start.v1",
         "created_utc": _utc_now(),
         "written_before_polish_training": True,
+        "protocol_amendment": protocol_amendment,
         "continuation_exact": False,
         "continuation_exact_reason": (
             "The parent PLY preserves Gaussian parameters but not Adam moments, per-parameter "
-            "step counters, or the recovered RNG stream. The polish is a deliberate new "
+            "step counters, or the parent RNG stream. The polish is a deliberate new "
             "fixed-topology optimizer segment, not an exact continuation."
         ),
         "parent_output": str(parent),
@@ -2773,13 +3480,35 @@ def _polish(args: argparse.Namespace) -> None:
             "n_gaussians": init.n,
             "sh_degree": init.sh_degree,
         },
-        "parent_recovery": {
-            "path": str(state["recovery_path"]),
-            "sha256": state["recovery_sha256"],
-            "resume_exact": False,
-            "resume_step": POLISH_PARENT_RESUME_STEP,
-            "last_recovered_step": POLISH_PARENT_ITERATIONS,
-        },
+        "parent_execution": (
+            {
+                "kind": "non_exact_recovery",
+                "path": str(state["recovery_path"]),
+                "sha256": state["recovery_sha256"],
+                "resume_exact": False,
+                "resume_step": POLISH_PARENT_RESUME_STEP,
+                "last_recovered_step": POLISH_PARENT_ITERATIONS,
+            }
+            if state["parent_kind"] == "recovered"
+            else {
+                "kind": "uninterrupted",
+                "fit_complete": str(parent / "fit_complete.json"),
+                "fit_complete_sha256": _sha256_file(parent / "fit_complete.json"),
+                "first_step": 1,
+                "last_step": POLISH_PARENT_ITERATIONS,
+            }
+        ),
+        "parent_recovery": (
+            {
+                "path": str(state["recovery_path"]),
+                "sha256": state["recovery_sha256"],
+                "resume_exact": False,
+                "resume_step": POLISH_PARENT_RESUME_STEP,
+                "last_recovered_step": POLISH_PARENT_ITERATIONS,
+            }
+            if state["parent_kind"] == "recovered"
+            else None
+        ),
         "global_steps": {
             "parent_last": POLISH_PARENT_ITERATIONS,
             "first_polish": POLISH_PARENT_ITERATIONS + 1,
@@ -2799,7 +3528,7 @@ def _polish(args: argparse.Namespace) -> None:
             "active_from_first_polish_step": True,
         },
         "learning_rates": {
-            "means_parent_base": state["recovery_trainer_config"].lr_means,
+            "means_parent_base": parent_trainer_config.lr_means,
             "means_parent_terminal_factor": 0.01,
             "means_polish_base": trainer_config.lr_means,
             "means_polish_final_factor": trainer_config.means_lr_final_factor,
@@ -2807,12 +3536,12 @@ def _polish(args: argparse.Namespace) -> None:
             "other_parameter_factor": POLISH_OTHER_LR_FACTOR,
         },
         "rng": {
-            "parent_seed": state["recovery_trainer_config"].seed,
+            "parent_seed": parent_trainer_config.seed,
             "polish_seed": trainer_config.seed,
             "new_deterministic_stream": True,
         },
         "parent_target_lineage": {
-            "schema": LEGACY_NONDETERMINISTIC_TARGET_SCHEMA,
+            "schema": target_replay["reference_schema"],
             "sha256": _sha256_file(parent / "compact_targets.json"),
             "original_tensor_equivalence_verified": target_replay[
                 "original_tensor_equivalence_verified"
@@ -3976,6 +4705,18 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     parser.add_argument(
+        "--preregistration",
+        type=Path,
+        default=None,
+        help="optional frozen protocol file to hash-bind into the run configuration",
+    )
+    parser.add_argument(
+        "--protocol-amendment",
+        type=Path,
+        default=None,
+        help="optional post-parent/pre-continuation amendment to hash-bind in polish_start.json",
+    )
+    parser.add_argument(
         "--phase",
         choices=(
             "fit",
@@ -4008,13 +4749,47 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         default="all",
         help="all fits 26/26 views; protocol fits T, validates V, and reserves H",
     )
+    parser.add_argument(
+        "--initializer",
+        choices=(
+            "topk",
+            "beam-fusion",
+            "dense-merge",
+            "easy-only",
+            "splat-sfm",
+            "field",
+            "random",
+        ),
+        default="topk",
+        help="image-free compact initializer used before the ordinary 3DGS trainer",
+    )
+    parser.add_argument(
+        "--init-only",
+        action="store_true",
+        help="save placement, compact targets, and initialization metrics without training",
+    )
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--max-tracks", type=int, default=5_000)
     parser.add_argument("--depth-samples", type=int, default=32)
     parser.add_argument("--min-views", type=int, default=2)
+    parser.add_argument("--beam-min-views", type=int, default=3)
     parser.add_argument("--robust-view-fraction", type=float, default=0.60)
     parser.add_argument("--min-placement-score", type=float, default=0.01)
     parser.add_argument("--init-opacity", type=float, default=0.10)
+    parser.add_argument("--beam-transverse-gate-sigma", type=float, default=3.0)
+    parser.add_argument("--beam-max-color-distance", type=float, default=0.35)
+    parser.add_argument("--beam-color-sigma", type=float, default=0.25)
+    parser.add_argument("--beam-fold-in-gate-sigma", type=float, default=3.0)
+    parser.add_argument("--beam-nms-voxel", type=float, default=None)
+    parser.add_argument("--beam-source-chunk", type=int, default=256)
+    parser.add_argument("--beam-seed-budget-multiplier", type=int, default=4)
+    parser.add_argument("--beam-pair-limit", type=int, default=None)
+    parser.add_argument("--dense-merge-voxel", type=float, default=0.06)
+    parser.add_argument("--sfm-min-views", type=int, default=2)
+    parser.add_argument("--sfm-source-chunk", type=int, default=256)
+    parser.add_argument("--sfm-seed-pair-limit", type=int, default=None)
+    parser.add_argument("--field-max-tracks", type=int, default=128)
+    parser.add_argument("--field-max-train-views", type=int, default=26)
     parser.add_argument("--iterations", type=int, default=30_000)
     parser.add_argument("--eval-every", type=int, default=1_000)
     parser.add_argument(
@@ -4057,6 +4832,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     if args.phase != "recover" and args.device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("CUDA is required for the requested compact reconstruction")
+    if args.init_only and args.phase not in {"fit"}:
+        raise ValueError("--init-only is valid only with --phase fit")
+    if args.protocol_amendment is not None and args.phase != "polish":
+        raise ValueError("--protocol-amendment is valid only with --phase polish")
     if args.phase in {"fit", "all"}:
         _fit(args)
     if args.phase == "recover":

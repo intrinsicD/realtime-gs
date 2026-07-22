@@ -61,9 +61,63 @@ def _save_gaussians(g, out: Path) -> None:
 def _load_gaussians(path: Path):
     from rtgs.core.gaussians3d import Gaussians3D
 
-    if path.suffix == ".ply":
+    if path.suffix.lower() == ".ply":
         return Gaussians3D.load_ply(path)
     return Gaussians3D.load_npz(path)
+
+
+def _load_viewer_comparison_manifest(path: Path):
+    """Load ordered initial/final model pairs for one synchronized viewer."""
+    manifest_path = path.expanduser().resolve(strict=True)
+    payload = json.loads(manifest_path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError("viewer comparison manifest must contain a JSON object")
+    expected_root_keys = {"schema", "methods"}
+    if set(payload) != expected_root_keys:
+        raise ValueError("viewer comparison manifest must contain exactly 'schema' and 'methods'")
+    if payload["schema"] != "rtgs.viewer-comparison.v1":
+        raise ValueError("unsupported viewer comparison manifest schema")
+    methods = payload["methods"]
+    if not isinstance(methods, list) or not methods:
+        raise ValueError("viewer comparison manifest 'methods' must be a non-empty list")
+
+    models = {}
+    method_names: set[str] = set()
+    first_final_path = None
+    for index, method in enumerate(methods):
+        if not isinstance(method, dict) or set(method) != {"name", "initial", "final"}:
+            raise ValueError(
+                f"viewer comparison method {index} must contain exactly "
+                "'name', 'initial', and 'final'"
+            )
+        name = method["name"]
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError(f"viewer comparison method {index} has an invalid name")
+        name = name.strip()
+        if name in method_names:
+            raise ValueError(f"duplicate viewer comparison method name: {name}")
+        method_names.add(name)
+
+        for state in ("initial", "final"):
+            raw_path = method[state]
+            if not isinstance(raw_path, str) or not raw_path:
+                raise ValueError(f"viewer comparison method '{name}' has an invalid {state} path")
+            model_path = Path(raw_path).expanduser()
+            if not model_path.is_absolute():
+                model_path = manifest_path.parent / model_path
+            model_path = model_path.resolve(strict=True)
+            if not model_path.is_file() or model_path.suffix.lower() not in {".ply", ".npz"}:
+                raise ValueError(
+                    f"viewer comparison {state} path for '{name}' must be a .ply or .npz file"
+                )
+            model = _load_gaussians(model_path)
+            label = f"{name} · {state} · {model.n:,} splats"
+            models[label] = model
+            if state == "final" and first_final_path is None:
+                first_final_path = model_path
+
+    assert first_final_path is not None
+    return models, first_final_path
 
 
 def _cmd_fit_images(args: argparse.Namespace) -> int:
@@ -409,21 +463,40 @@ def _cmd_render(args: argparse.Namespace) -> int:
 def _cmd_view(args: argparse.Namespace) -> int:
     from rtgs.viewer import launch_viewer
 
-    final_path = Path(args.gaussians).expanduser()
-    models = {"final": _load_gaussians(final_path)}
-    initial_path = None if args.initial is None else Path(args.initial).expanduser()
-    if initial_path is None and final_path.name == "gaussians.ply":
-        candidate = final_path.with_name("gaussians_init.ply")
-        if candidate.is_file():
-            initial_path = candidate
-    if initial_path is not None:
-        models["initial"] = _load_gaussians(initial_path)
+    if args.comparison_manifest is not None:
+        if args.initial is not None:
+            print("--initial cannot be combined with --comparison-manifest", file=sys.stderr)
+            return 2
+        if args.watch_checkpoints is not None:
+            print(
+                "--watch-checkpoints cannot be combined with --comparison-manifest",
+                file=sys.stderr,
+            )
+            return 2
+        try:
+            models, render_options_path = _load_viewer_comparison_manifest(
+                Path(args.comparison_manifest)
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"invalid viewer comparison manifest: {exc}", file=sys.stderr)
+            return 2
+    else:
+        final_path = Path(args.gaussians).expanduser()
+        models = {"final": _load_gaussians(final_path)}
+        initial_path = None if args.initial is None else Path(args.initial).expanduser()
+        if initial_path is None and final_path.name == "gaussians.ply":
+            candidate = final_path.with_name("gaussians_init.ply")
+            if candidate.is_file():
+                initial_path = candidate
+        if initial_path is not None:
+            models["initial"] = _load_gaussians(initial_path)
+        render_options_path = final_path
 
     scene = None
     if args.scene is not None:
         scene = _load_scene(args.scene, downscale=args.downscale, max_images=args.max_images)
     snapshot_dir = None if args.snapshot_dir is None else Path(args.snapshot_dir).expanduser()
-    saved_packed, saved_antialiased = _saved_render_options(final_path)
+    saved_packed, saved_antialiased = _saved_render_options(render_options_path)
     packed = saved_packed if args.packed is None else args.packed
     antialiased = saved_antialiased if args.antialiased is None else args.antialiased
     launch_viewer(
@@ -437,6 +510,10 @@ def _cmd_view(args: argparse.Namespace) -> int:
         host=args.host,
         port=args.port,
         max_viewer_gaussians=args.max_viewer_gaussians,
+        watch_directory=(
+            None if args.watch_checkpoints is None else Path(args.watch_checkpoints).expanduser()
+        ),
+        watch_interval_seconds=args.watch_interval,
         open_browser=args.open,
     )
     return 0
@@ -781,7 +858,13 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(func=_cmd_render)
 
     p = sub.add_parser("view", help="open an interactive browser viewer for saved gaussians")
-    p.add_argument("--gaussians", required=True, help="final reconstruction .npz or .ply")
+    viewer_source = p.add_mutually_exclusive_group(required=True)
+    viewer_source.add_argument("--gaussians", help="final reconstruction .npz or .ply")
+    viewer_source.add_argument(
+        "--comparison-manifest",
+        default=None,
+        help="JSON manifest of named initial/final pairs to compare with one orbit camera",
+    )
     p.add_argument(
         "--initial",
         default=None,
@@ -799,6 +882,17 @@ def main(argv: list[str] | None = None) -> int:
         type=int,
         default=None,
         help="optional WebGL transfer/display cap (does not alter saved reconstruction)",
+    )
+    p.add_argument(
+        "--watch-checkpoints",
+        default=None,
+        help="poll a training checkpoints directory and display its newest completed PLY",
+    )
+    p.add_argument(
+        "--watch-interval",
+        type=float,
+        default=2.0,
+        help="checkpoint polling interval in seconds",
     )
     p.add_argument(
         "--rasterizer",

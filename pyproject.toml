@@ -38,6 +38,7 @@ where = ["src"]
 # and the indexed observation-query backend (rtgs.core.observation2d_cuda).
 "rtgs.image2gs.cuda" = ["*.cpp", "*.cu"]
 "rtgs.core.cuda" = ["*.cpp", "*.cu"]
+rtgs = ["_viewer_arcball.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

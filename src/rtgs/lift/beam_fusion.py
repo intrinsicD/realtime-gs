@@ -34,6 +34,8 @@ discrete matcher.  CPU-first, deterministic, no RGB.
 from __future__ import annotations
 
 import math
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
 
 import torch
@@ -63,22 +65,39 @@ class BeamFusionConfig:
     init_opacity: float = 0.1
     source_chunk: int = 1024
     pair_limit: int | None = None
+    max_components: int | None = None
+    seed_budget_multiplier: int = 4
+    fold_in_chunk: int = 512
+    max_seed_voxels: int = 2_000_000
 
     def __post_init__(self) -> None:
         if isinstance(self.min_views, bool) or not isinstance(self.min_views, int):
             raise TypeError("min_views must be an integer")
         if self.min_views < 2:
             raise ValueError("min_views must be at least two")
-        if isinstance(self.source_chunk, bool) or not isinstance(self.source_chunk, int):
-            raise TypeError("source_chunk must be an integer")
-        if self.source_chunk <= 0:
-            raise ValueError("source_chunk must be positive")
+        for name in (
+            "source_chunk",
+            "seed_budget_multiplier",
+            "fold_in_chunk",
+            "max_seed_voxels",
+        ):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise TypeError(f"{name} must be an integer")
+            if value <= 0:
+                raise ValueError(f"{name} must be positive")
         if self.pair_limit is not None and (
             isinstance(self.pair_limit, bool)
             or not isinstance(self.pair_limit, int)
             or self.pair_limit <= 0
         ):
             raise ValueError("pair_limit must be a positive integer or None")
+        if self.max_components is not None and (
+            isinstance(self.max_components, bool)
+            or not isinstance(self.max_components, int)
+            or self.max_components <= 0
+        ):
+            raise ValueError("max_components must be a positive integer or None")
         for name in (
             "near",
             "bounds_scale",
@@ -120,6 +139,19 @@ class BeamFusionResult:
     @property
     def n_components(self) -> int:
         return int(self.component_offsets.numel() - 1)
+
+
+@dataclass(frozen=True)
+class BeamFusionProgress:
+    """Silent-by-default progress record for the bounded production path."""
+
+    stage: str
+    completed: int
+    total: int
+    evaluated_ray_pairs: int
+    gated_seeds: int
+    retained_seed_voxels: int
+    elapsed_seconds: float
 
 
 @dataclass(frozen=True)
@@ -254,9 +286,460 @@ def _ci_fuse(precisions: torch.Tensor, means: torch.Tensor) -> tuple[torch.Tenso
     return fused_precision, fused_mean
 
 
+def _bounded_seed_candidates(
+    inputs: ReconstructionInputs,
+    views: list[_BeamView],
+    config: BeamFusionConfig,
+    pairs: list[tuple[int, int]],
+    nms_voxel: float,
+    started: float,
+    progress_callback: Callable[[BeamFusionProgress], None] | None,
+) -> tuple[dict[str, torch.Tensor], dict[str, int | list[int]]]:
+    """Stream every ray pair while retaining only the strongest seed in each 3D voxel."""
+    center, extent = _center_and_extent(inputs, torch.float64)
+    half = float(extent) * config.bounds_scale
+    lower = center - half
+    cells_per_axis = (
+        torch.ceil(torch.full((3,), 2.0 * half / nms_voxel, dtype=torch.float64))
+        .to(torch.long)
+        .clamp_min(1)
+    )
+    grid_shape = [int(value) for value in cells_per_axis.tolist()]
+    n_cells = math.prod(grid_shape)
+    if n_cells > config.max_seed_voxels:
+        raise ValueError(
+            "beam fusion seed voxel grid exceeds max_seed_voxels: "
+            f"{n_cells} > {config.max_seed_voxels}; increase nms_voxel_size or the explicit cap"
+        )
+
+    sentinel = torch.iinfo(torch.long).max
+    best_weight = torch.full((n_cells,), -torch.inf, dtype=torch.float64)
+    best_rank = torch.full((n_cells,), sentinel, dtype=torch.long)
+    best_u = torch.full((n_cells,), -1, dtype=torch.long)
+    best_i = torch.full((n_cells,), -1, dtype=torch.long)
+    best_v = torch.full((n_cells,), -1, dtype=torch.long)
+    best_j = torch.full((n_cells,), -1, dtype=torch.long)
+    best_s = torch.zeros(n_cells, dtype=torch.float64)
+    best_t = torch.zeros(n_cells, dtype=torch.float64)
+
+    n_views = inputs.n_views
+    component_stride = max(view.means2d.shape[0] for view in views) + 1
+    evaluated_ray_pairs = 0
+    gated_seeds = 0
+    retained_seed_voxels = 0
+    peak_pair_matrix = 0
+    nx, ny, nz = grid_shape
+
+    for pair_index, (u, v) in enumerate(pairs):
+        view_u, view_v = views[u], views[v]
+        n_u, n_v = view_u.means2d.shape[0], view_v.means2d.shape[0]
+        if n_u == 0 or n_v == 0:
+            continue
+        focal_u = math.sqrt(inputs.cameras[u].fx * inputs.cameras[u].fy)
+        focal_v = math.sqrt(inputs.cameras[v].fx * inputs.cameras[v].fy)
+        for start in range(0, n_u, config.source_chunk):
+            stop = min(start + config.source_chunk, n_u)
+            pair_matrix = (stop - start) * n_v
+            evaluated_ray_pairs += pair_matrix
+            peak_pair_matrix = max(peak_pair_matrix, pair_matrix)
+            s, t, distance = _ray_closest_points(
+                view_u.origin,
+                view_u.dirs_world[start:stop],
+                view_v.origin,
+                view_v.dirs_world,
+            )
+            sigma_u = view_u.sigmas_px[start:stop, None] * s.clamp_min(1e-8) / focal_u
+            sigma_v = view_v.sigmas_px[None, :] * t.clamp_min(1e-8) / focal_v
+            gate = distance.square() / (sigma_u.square() + sigma_v.square()).clamp_min(1e-18)
+            color_distance = torch.cdist(view_u.colors[start:stop], view_v.colors)
+            valid = (
+                (s >= view_u.depth_lo[start:stop, None])
+                & (s <= view_u.depth_hi[start:stop, None])
+                & (t >= view_v.depth_lo[None, :])
+                & (t <= view_v.depth_hi[None, :])
+                & (gate <= config.transverse_gate_sigma**2)
+                & (color_distance <= config.max_color_distance)
+            )
+            local_i, j = valid.nonzero(as_tuple=True)
+            if local_i.numel() == 0:
+                continue
+            gated_seeds += int(local_i.numel())
+            i = local_i + start
+            s_value = s[local_i, j]
+            t_value = t[local_i, j]
+            point_u = view_u.origin + s_value[:, None] * view_u.dirs_world[i]
+            point_v = view_v.origin + t_value[:, None] * view_v.dirs_world[j]
+            provisional = 0.5 * (point_u + point_v)
+            cell = torch.floor((provisional - lower) / nms_voxel).to(torch.long)
+            inside = (
+                (cell[:, 0] >= 0)
+                & (cell[:, 0] < nx)
+                & (cell[:, 1] >= 0)
+                & (cell[:, 1] < ny)
+                & (cell[:, 2] >= 0)
+                & (cell[:, 2] < nz)
+            )
+            if not bool(inside.all()):
+                i = i[inside]
+                j = j[inside]
+                local_i = local_i[inside]
+                s_value = s_value[inside]
+                t_value = t_value[inside]
+                cell = cell[inside]
+                if i.numel() == 0:
+                    continue
+            keys = cell[:, 0] + nx * (cell[:, 1] + ny * cell[:, 2])
+            selected_gate = gate[local_i, j]
+            selected_color_distance = color_distance[local_i, j]
+            weights = (
+                0.5
+                * (view_u.amplitudes[i] + view_v.amplitudes[j])
+                * torch.exp(-0.5 * selected_gate)
+                * torch.exp(-0.5 * selected_color_distance.square() / config.color_sigma**2)
+            )
+            ranks = ((u * component_stride + i) * n_views + v) * component_stride + j
+
+            unique_keys, inverse = torch.unique(keys, sorted=True, return_inverse=True)
+            local_weight = torch.full((unique_keys.numel(),), -torch.inf, dtype=torch.float64)
+            local_weight.scatter_reduce_(0, inverse, weights, reduce="amax", include_self=True)
+            weight_winner = weights == local_weight[inverse]
+            rank_candidates = torch.where(weight_winner, ranks, torch.full_like(ranks, sentinel))
+            local_rank = torch.full((unique_keys.numel(),), sentinel, dtype=torch.long)
+            local_rank.scatter_reduce_(
+                0, inverse, rank_candidates, reduce="amin", include_self=True
+            )
+            winner_rows = (weight_winner & (ranks == local_rank[inverse])).nonzero(as_tuple=True)[0]
+            row_by_group = torch.full((unique_keys.numel(),), -1, dtype=torch.long)
+            row_by_group[inverse[winner_rows]] = winner_rows
+            if bool((row_by_group < 0).any()):  # pragma: no cover - reduction invariant
+                raise RuntimeError("beam fusion voxel reduction lost a local winner")
+
+            old_weight = best_weight[unique_keys]
+            old_rank = best_rank[unique_keys]
+            replace = (local_weight > old_weight) | (
+                (local_weight == old_weight) & (local_rank < old_rank)
+            )
+            groups = replace.nonzero(as_tuple=True)[0]
+            if groups.numel() == 0:
+                continue
+            update_keys = unique_keys[groups]
+            rows = row_by_group[groups]
+            retained_seed_voxels += int((old_rank[groups] == sentinel).sum())
+            best_weight[update_keys] = weights[rows]
+            best_rank[update_keys] = ranks[rows]
+            best_u[update_keys] = u
+            best_i[update_keys] = i[rows]
+            best_v[update_keys] = v
+            best_j[update_keys] = j[rows]
+            best_s[update_keys] = s_value[rows]
+            best_t[update_keys] = t_value[rows]
+
+        if progress_callback is not None:
+            progress_callback(
+                BeamFusionProgress(
+                    stage="pair_seeding",
+                    completed=pair_index + 1,
+                    total=len(pairs),
+                    evaluated_ray_pairs=evaluated_ray_pairs,
+                    gated_seeds=gated_seeds,
+                    retained_seed_voxels=retained_seed_voxels,
+                    elapsed_seconds=time.perf_counter() - started,
+                )
+            )
+
+    occupied = (best_rank != sentinel).nonzero(as_tuple=True)[0]
+    if occupied.numel() == 0:
+        raise ValueError(
+            "beam fusion produced no gated pair intersections; loosen the transverse/color "
+            "gates or supply views with more overlap"
+        )
+    # Stable lexicographic selection: weight descending, then (u,i,v,j) rank ascending.
+    rank_order = torch.argsort(best_rank[occupied], stable=True)
+    occupied = occupied[rank_order]
+    weight_order = torch.argsort(best_weight[occupied], descending=True, stable=True)
+    occupied = occupied[weight_order]
+    assert config.max_components is not None
+    seed_budget = min(int(occupied.numel()), config.max_components * config.seed_budget_multiplier)
+    occupied = occupied[:seed_budget]
+    seeds = {
+        "u": best_u[occupied],
+        "i": best_i[occupied],
+        "v": best_v[occupied],
+        "j": best_j[occupied],
+        "s": best_s[occupied],
+        "t": best_t[occupied],
+        "weight": best_weight[occupied],
+    }
+    diagnostics: dict[str, int | list[int]] = {
+        "evaluated_ray_pairs": evaluated_ray_pairs,
+        "gated_seeds": gated_seeds,
+        "retained_seed_voxels": retained_seed_voxels,
+        "retained_seed_candidates": seed_budget,
+        "peak_pair_matrix": peak_pair_matrix,
+        "seed_grid_shape": grid_shape,
+        "seed_grid_cells": n_cells,
+    }
+    return seeds, diagnostics
+
+
+def _fuse_gaussian_beams_bounded(
+    inputs: ReconstructionInputs,
+    views: list[_BeamView],
+    config: BeamFusionConfig,
+    pairs: list[tuple[int, int]],
+    nms_voxel: float,
+    max_sigma: float,
+    started: float,
+    progress_callback: Callable[[BeamFusionProgress], None] | None,
+) -> BeamFusionResult:
+    """Production-sized beam fusion with bounded seed storage and vectorized fold-in."""
+    seeding_started = time.perf_counter()
+    seeds, seed_diagnostics = _bounded_seed_candidates(
+        inputs,
+        views,
+        config,
+        pairs,
+        nms_voxel,
+        started,
+        progress_callback,
+    )
+    seeding_seconds = time.perf_counter() - seeding_started
+    n_seeds = int(seeds["u"].numel())
+    n_views = inputs.n_views
+    rows = torch.arange(n_seeds, dtype=torch.long)
+    point_u = views[0].origin.new_zeros((n_seeds, 3))
+    point_v = views[0].origin.new_zeros((n_seeds, 3))
+    source_colors = views[0].colors.new_zeros((n_seeds, 3))
+    for view_index, view in enumerate(views):
+        source_u = seeds["u"] == view_index
+        if bool(source_u.any()):
+            indices = seeds["i"][source_u]
+            point_u[source_u] = view.origin + seeds["s"][source_u, None] * view.dirs_world[indices]
+            source_colors[source_u] = view.colors[indices]
+        source_v = seeds["v"] == view_index
+        if bool(source_v.any()):
+            indices = seeds["j"][source_v]
+            point_v[source_v] = view.origin + seeds["t"][source_v, None] * view.dirs_world[indices]
+    provisional = 0.5 * (point_u + point_v)
+
+    contributors = torch.full((n_seeds, n_views), -1, dtype=torch.long)
+    depths = torch.full((n_seeds, n_views), torch.nan, dtype=torch.float64)
+    contributors[rows, seeds["u"]] = seeds["i"]
+    contributors[rows, seeds["v"]] = seeds["j"]
+    depths[rows, seeds["u"]] = seeds["s"]
+    depths[rows, seeds["v"]] = seeds["t"]
+
+    fold_started = time.perf_counter()
+    for view_index, (view, camera) in enumerate(zip(views, inputs.cameras, strict=True)):
+        eligible = ((seeds["u"] != view_index) & (seeds["v"] != view_index)).nonzero(as_tuple=True)[
+            0
+        ]
+        for start in range(0, eligible.numel(), config.fold_in_chunk):
+            selected_rows = eligible[start : start + config.fold_in_chunk]
+            uv, depth = camera.project(provisional[selected_rows])
+            distances = torch.cdist(uv.to(torch.float64), view.means2d)
+            nearest_distance, nearest = distances.min(dim=1)
+            color_gap = (view.colors[nearest] - source_colors[selected_rows]).norm(dim=1)
+            accepted = (
+                (depth.to(torch.float64) > config.near)
+                & (nearest_distance <= config.fold_in_gate_sigma * view.sigmas_px[nearest])
+                & (color_gap <= config.max_color_distance)
+            )
+            accepted_rows = selected_rows[accepted]
+            contributors[accepted_rows, view_index] = nearest[accepted]
+            depths[accepted_rows, view_index] = depth[accepted].to(torch.float64)
+        if progress_callback is not None:
+            progress_callback(
+                BeamFusionProgress(
+                    stage="fold_in",
+                    completed=view_index + 1,
+                    total=n_views,
+                    evaluated_ray_pairs=int(seed_diagnostics["evaluated_ray_pairs"]),
+                    gated_seeds=int(seed_diagnostics["gated_seeds"]),
+                    retained_seed_voxels=int(seed_diagnostics["retained_seed_voxels"]),
+                    elapsed_seconds=time.perf_counter() - started,
+                )
+            )
+    fold_in_seconds = time.perf_counter() - fold_started
+
+    lengths = (contributors >= 0).sum(dim=1)
+    eligible = lengths >= config.min_views
+    if not bool(eligible.any()):
+        raise ValueError(
+            "beam fusion rejected every bounded seed at the min_views fold-in gate; loosen "
+            "the gates or lower min_views"
+        )
+    contributors = contributors[eligible]
+    depths = depths[eligible]
+    seed_weights = seeds["weight"][eligible]
+    lengths = lengths[eligible]
+    n_components_prefilter = int(contributors.shape[0])
+
+    fusion_started = time.perf_counter()
+    precision_sum = torch.zeros(n_components_prefilter, 3, 3, dtype=torch.float64)
+    information_sum = torch.zeros(n_components_prefilter, 3, dtype=torch.float64)
+    for view_index, (view, camera) in enumerate(zip(views, inputs.cameras, strict=True)):
+        component_rows = (contributors[:, view_index] >= 0).nonzero(as_tuple=True)[0]
+        if component_rows.numel() == 0:
+            continue
+        indices = contributors[component_rows, view_index]
+        view_depths = depths[component_rows, view_index]
+        half_length = (
+            0.5
+            * (view.depth_hi[indices] - view.depth_lo[indices]).clamp_min(1e-6)
+            * view.dirs_world[indices].norm(dim=1)
+        )
+        precisions = _beam_precisions(
+            view,
+            camera,
+            indices,
+            view_depths,
+            half_length,
+        )
+        means = view.origin + view_depths[:, None] * view.dirs_world[indices]
+        precision_sum.index_add_(0, component_rows, precisions)
+        information_sum.index_add_(0, component_rows, (precisions @ means[:, :, None])[:, :, 0])
+    divisor = lengths.to(torch.float64)[:, None, None]
+    fused_precision = precision_sum / divisor
+    fused_information = information_sum / lengths.to(torch.float64)[:, None]
+    fused_mean = torch.linalg.solve(fused_precision, fused_information[:, :, None])[:, :, 0]
+    component_weights = seed_weights * lengths.to(torch.float64)
+
+    components: list[dict] = []
+    for row in range(n_components_prefilter):
+        signature = tuple(
+            (view_index, int(contributors[row, view_index]))
+            for view_index in range(n_views)
+            if int(contributors[row, view_index]) >= 0
+        )
+        components.append(
+            {
+                "signature": signature,
+                "weight": float(component_weights[row]),
+                "precision": fused_precision[row],
+                "mean": fused_mean[row],
+            }
+        )
+
+    by_signature: dict[tuple, dict] = {}
+    for component in components:
+        existing = by_signature.get(component["signature"])
+        if existing is None or component["weight"] > existing["weight"]:
+            by_signature[component["signature"]] = component
+    unique = sorted(by_signature.values(), key=lambda item: (-item["weight"], item["signature"]))
+    kept: list[dict] = []
+    occupied: set[tuple[int, int, int]] = set()
+    assert config.max_components is not None
+    for component in unique:
+        if component["weight"] < config.weight_floor:
+            continue
+        key = tuple(int(value) for value in torch.floor(component["mean"] / nms_voxel).tolist())
+        if key in occupied:
+            continue
+        occupied.add(key)
+        kept.append(component)
+        if len(kept) == config.max_components:
+            break
+    if not kept:
+        raise ValueError("beam fusion NMS removed every component; lower weight_floor")
+
+    means = torch.stack([component["mean"] for component in kept])
+    covariances = torch.linalg.inv(torch.stack([component["precision"] for component in kept]))
+    covariances = 0.5 * (covariances + covariances.transpose(-1, -2))
+    eigenvalues, eigenvectors = torch.linalg.eigh(covariances)
+    eigenvalues = eigenvalues.clamp(min=config.min_sigma_world**2, max=max_sigma**2)
+    covariances = eigenvectors @ torch.diag_embed(eigenvalues) @ eigenvectors.transpose(-1, -2)
+
+    colors = []
+    offsets = [0]
+    contributor_views: list[int] = []
+    contributor_components: list[int] = []
+    matched: dict[int, set[int]] = {view: set() for view in range(n_views)}
+    for component in kept:
+        color_sum = torch.zeros(3, dtype=torch.float64)
+        amplitude_sum = 0.0
+        for view_index, splat_index in component["signature"]:
+            amplitude = float(views[view_index].amplitudes[splat_index])
+            color_sum += amplitude * views[view_index].colors[splat_index]
+            amplitude_sum += amplitude
+            contributor_views.append(view_index)
+            contributor_components.append(splat_index)
+            matched[view_index].add(splat_index)
+        offsets.append(len(contributor_views))
+        colors.append(color_sum / max(amplitude_sum, 1e-12))
+    unmatched = tuple(
+        int(inputs.observations[view].n - len(matched[view])) for view in range(n_views)
+    )
+
+    dtype = inputs.observations[0].dtype
+    gaussians = Gaussians3D.from_means_covs(
+        means=means.to(dtype),
+        covs=covariances.to(dtype),
+        colors=torch.stack(colors).clamp(0.0, 1.0).to(dtype),
+        opacity=torch.full((len(kept),), config.init_opacity, dtype=dtype),
+        sh_degree=0,
+    )
+    kept_lengths = torch.tensor(
+        [len(component["signature"]) for component in kept], dtype=torch.long
+    )
+    diagnostics: dict[str, object] = {
+        "bounded_seed_mode": True,
+        "n_views": n_views,
+        "n_view_pairs": len(pairs),
+        "n_seeds": int(seed_diagnostics["gated_seeds"]),
+        "n_seed_voxels": int(seed_diagnostics["retained_seed_voxels"]),
+        "n_seed_candidates_retained": n_seeds,
+        "n_components_prefilter": n_components_prefilter,
+        "n_components": len(kept),
+        "component_view_histogram": {
+            int(length): int((kept_lengths == length).sum())
+            for length in kept_lengths.unique(sorted=True)
+        },
+        "nms_voxel_size": nms_voxel,
+        "max_sigma_world": max_sigma,
+        "unmatched_per_view": list(unmatched),
+        "evaluated_ray_pairs": int(seed_diagnostics["evaluated_ray_pairs"]),
+        "peak_pair_matrix": int(seed_diagnostics["peak_pair_matrix"]),
+        "seed_grid_shape": seed_diagnostics["seed_grid_shape"],
+        "seed_grid_cells": int(seed_diagnostics["seed_grid_cells"]),
+        "seed_budget": config.max_components * config.seed_budget_multiplier,
+        "timings_seconds": {
+            "pair_seeding": seeding_seconds,
+            "fold_in": fold_in_seconds,
+            "fusion_and_reduction": time.perf_counter() - fusion_started,
+            "total": time.perf_counter() - started,
+        },
+    }
+    if progress_callback is not None:
+        progress_callback(
+            BeamFusionProgress(
+                stage="complete",
+                completed=1,
+                total=1,
+                evaluated_ray_pairs=int(seed_diagnostics["evaluated_ray_pairs"]),
+                gated_seeds=int(seed_diagnostics["gated_seeds"]),
+                retained_seed_voxels=int(seed_diagnostics["retained_seed_voxels"]),
+                elapsed_seconds=time.perf_counter() - started,
+            )
+        )
+    return BeamFusionResult(
+        gaussians=gaussians,
+        component_offsets=torch.tensor(offsets, dtype=torch.long),
+        contributor_view_indices=torch.tensor(contributor_views, dtype=torch.long),
+        contributor_component_indices=torch.tensor(contributor_components, dtype=torch.long),
+        component_weights=torch.tensor(
+            [component["weight"] for component in kept], dtype=torch.float64
+        ),
+        unmatched_per_view=unmatched,
+        diagnostics=diagnostics,
+    )
+
+
 def fuse_gaussian_beams(
     inputs: ReconstructionInputs,
     config: BeamFusionConfig | None = None,
+    *,
+    progress_callback: Callable[[BeamFusionProgress], None] | None = None,
 ) -> BeamFusionResult:
     """Run tomographic beam fusion and return the CI-fused 3D initialization."""
     if config is None:
@@ -282,6 +765,18 @@ def fuse_gaussian_beams(
     pairs.sort(key=lambda pair: (float((positions[pair[0]] - positions[pair[1]]).norm()), pair))
     if config.pair_limit is not None:
         pairs = pairs[: config.pair_limit]
+
+    if config.max_components is not None:
+        return _fuse_gaussian_beams_bounded(
+            inputs,
+            views,
+            config,
+            pairs,
+            nms_voxel,
+            max_sigma,
+            time.perf_counter(),
+            progress_callback,
+        )
 
     # Stage 1-2: seed candidate components from gated pair intersections.
     seeds: list[tuple[int, int, int, int, float, float, float]] = []  # u,i,v,j,s,t,gate_weight
@@ -481,6 +976,7 @@ def fuse_gaussian_beams(
 
 __all__ = [
     "BeamFusionConfig",
+    "BeamFusionProgress",
     "BeamFusionResult",
     "fuse_gaussian_beams",
 ]
