@@ -238,7 +238,7 @@ def run_compact_placement_csr_benchmark(
     max_weight_err = float((csr_result.weight_sum - grouped_result.weight_sum).abs().max())
     if not math.isfinite(csr_seconds) or csr_seconds <= 0.0:
         raise RuntimeError("compact CSR benchmark produced a non-finite CSR time")
-    return {
+    result: dict[str, float | int | bool | str] = {
         "components": components,
         "query_points": query_points,
         "tile_size": tile_size,
@@ -257,6 +257,33 @@ def run_compact_placement_csr_benchmark(
         "max_weight_sum_err": max_weight_err,
         "within_contract": int(max_color_err <= 2e-6 and max_weight_err <= 2e-6),
     }
+    # Optional GPU arm: same CSR index served by the CUDA query backend, timed end-to-end
+    # with CPU points (transfers included — the compact placement seam is CPU-typed). Keys
+    # are present only when CUDA is available, so CPU histories stay comparable.
+    if torch.cuda.is_available():
+        from rtgs.core.observation2d_cuda import GaussianObservationIndexCuda
+
+        cuda_backend = GaussianObservationIndexCuda(index)
+        cuda_result = cuda_backend.query(points)  # warm-up (JIT build) + parity sample
+        torch.cuda.synchronize()
+        cuda_times: list[float] = []
+        for _ in range(repeats):
+            started = time.perf_counter()
+            cuda_backend.query(points)
+            torch.cuda.synchronize()
+            cuda_times.append(time.perf_counter() - started)
+        cuda_seconds = statistics.median(cuda_times)
+        result.update(
+            {
+                "cuda_seconds": cuda_seconds,
+                "cuda_speedup_vs_csr": csr_seconds / cuda_seconds,
+                "cuda_max_color_err": float((cuda_result.color - csr_result.color).abs().max()),
+                "cuda_max_weight_sum_err": float(
+                    (cuda_result.weight_sum - csr_result.weight_sum).abs().max()
+                ),
+            }
+        )
+    return result
 
 
 def run_benchmarks(config: BenchConfig, smoke: bool = False) -> dict:
