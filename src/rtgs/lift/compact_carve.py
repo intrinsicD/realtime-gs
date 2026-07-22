@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import math
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Literal
 
@@ -306,6 +306,39 @@ def make_placement_progress_printer(
             printer(record.format_line())
 
     return callback
+
+
+def build_query_backends(
+    observations: Sequence[GaussianObservationField],
+    config: CompactCarveConfig,
+    device: str = "cpu",
+) -> list[ObservationQueryBackend]:
+    """Build one per-view observation query backend under the compact Carve caps.
+
+    ``device="cpu"`` returns the exact CPU CSR indexes (identical to the defaults that
+    :func:`score_world_points` and :class:`CompactCarveInitializer` build internally).
+    ``device="cuda"`` wraps those same CPU-built indexes in the experimental GPU query
+    backend (``rtgs.core.observation2d_cuda``); it accepts the seam's CPU query points and
+    returns CPU results, so the placement pipeline itself is unchanged. The CPU path stays
+    the correctness oracle.
+    """
+    if device not in ("cpu", "cuda"):
+        raise ValueError("device must be 'cpu' or 'cuda'")
+    indexes = [
+        GaussianObservationIndex(
+            field,
+            tile_size=config.tile_size,
+            max_entries=config.max_index_entries_per_view,
+            max_candidates=config.max_candidates_per_tile,
+            max_query_pairs=config.max_query_pairs,
+        )
+        for field in observations
+    ]
+    if device == "cpu":
+        return list(indexes)
+    from rtgs.core.observation2d_cuda import GaussianObservationIndexCuda
+
+    return [GaussianObservationIndexCuda(index) for index in indexes]
 
 
 def score_world_points(

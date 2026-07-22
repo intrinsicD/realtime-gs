@@ -17,6 +17,36 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-21 — Indexed CUDA compact-teacher query backend (mechanism, GPU-unverified)
+
+- **Question**: Can the compact-placement observation queries — the workload behind the one
+  observed ~4 h CPU placement run (26 views, 130k components, 108.16M point-view
+  projections) — run on the GPU behind the existing `ObservationQueryBackend` seam without
+  touching the placement pipeline?
+- **Setup**: New `rtgs.core.observation2d_cuda.GaussianObservationIndexCuda` (JIT extension in
+  `rtgs/core/cuda/`) implementing the same `query`/`query_weight_sum` protocol: it wraps the
+  CPU-built CSR index verbatim (identical caps, tile membership, and canonical
+  ascending-component order), binary-searches each point's tile, and accumulates its row
+  sequentially in registers — no atomics, so repeat queries are bit-identical; only FMA
+  contraction can differ from the CPU reference. Inference-only by design (gradient queries
+  stay on the CPU index). Entry points: `build_query_backends(observations, config,
+  device="cuda")` in `rtgs.lift.compact_carve`, feeding the existing `backends` parameter of
+  `score_world_points` / `CompactCarveInitializer.initialize`; a conditional CUDA arm in the
+  tracked `compact_placement_csr_cpu` micro-benchmark reports `cuda_seconds` /
+  `cuda_speedup_vs_csr` / parity errors when a GPU is present.
+- **Result**: CPU-side only on this container: guards, helper-construction parity, and the
+  full existing CSR/grouped suite pass; the seven GPU parity/determinism/counter tests
+  self-skip. No GPU execution, timing, or parity number exists yet.
+- **Conclusion**: Mechanism in place behind the anticipated seam ("a future CUDA backend can
+  implement this same interface", observation2d.py). **No correctness or performance claim**
+  until the `cuda`-marked tests and the benchmark arm run on a GPU box; the CPU CSR index
+  remains the default and the oracle.
+- **Follow-ups**: On a GPU box: `pytest -q tests/test_observation2d_cuda.py` (builds the
+  extension, runs the parity matrix), then `benchmarks/run.py --quick --update-docs` for the
+  tracked CUDA-arm numbers; then a placement-scale rerun of the compact pipeline with
+  `build_query_backends(..., device="cuda")` on the Janelle frame to retire or confirm the
+  ~4 h CPU placement cost, with the idle-GPU/repeats protocol before any speedup claim.
+
 ## 2026-07-21 — Fused batch_views stage-1 fitting + CUDA extension skeleton (mechanism)
 
 - **Question**: Can stage-1 fitting run as one fused multi-view optimization (the prerequisite

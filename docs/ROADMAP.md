@@ -174,8 +174,13 @@
 - [ ] Add aggregate device-byte/index budgets, replace eager Python overlap lists with CSR/lazy
       storage, add indexed CUDA compact-teacher queries, and bound backward activation memory before
       making a production-scale claim. (Flattened CPU CSR observation queries landed 2026-07-20 with
-      exact parity and a tracked micro-benchmark; the device-byte/index budgets, CUDA queries, and
-      backward-memory bound remain.)
+      exact parity and a tracked micro-benchmark; the device-byte/index budgets and
+      backward-memory bound remain. 2026-07-21: an indexed CUDA query backend landed —
+      `rtgs.core.observation2d_cuda.GaussianObservationIndexCuda` wraps the CPU-built CSR index,
+      is inference-only and atomics-free, plugs into the existing `backends` seam via
+      `rtgs.lift.compact_carve.build_query_backends(..., device="cuda")`, and has self-skipping
+      GPU parity tests plus a conditional arm in the tracked micro-benchmark; it is not yet
+      verified or timed on GPU hardware, so the CPU index remains the default and the oracle.)
 - [x] Execute and independently audit the calibrated dense confidence-gated initialization chain.
       E1 found a +1.9714 dB all-view init-only gain for dense+merge but failed the 2× count gate at
       13.48×. I1 reproduced the frozen 60/2,319 easy-only classifier. E2 then rejected easy-only
