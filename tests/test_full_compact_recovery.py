@@ -491,6 +491,36 @@ def _write_polish_parent(recovery_harness, parent: Path, dataset: Path) -> dict[
     return {str(path.relative_to(parent)): recovery_harness._sha256_file(path) for path in paths}
 
 
+def _write_clean_polish_parent(recovery_harness, parent: Path, dataset: Path) -> None:
+    _write_polish_parent(recovery_harness, parent, dataset)
+    trainer_payload = json.loads((parent / "training_config.json").read_text(encoding="utf-8"))
+    trainer_payload["iterations"] = 30_000
+    trainer_payload["iteration_offset"] = 0
+    trainer_payload["schedule_iterations"] = None
+    (parent / "training_config.json").write_text(json.dumps(trainer_payload), encoding="utf-8")
+    targets = json.loads((parent / "compact_targets.json").read_text(encoding="utf-8"))
+    targets["schema"] = recovery_harness.DETERMINISTIC_TARGET_SCHEMA
+    targets["deterministic_algorithms"] = True
+    (parent / "compact_targets.json").write_text(json.dumps(targets), encoding="utf-8")
+    history = {
+        "loss": [0.1] * 30_000,
+        "psnr": [[30_000, 20.0]],
+        "elapsed": [[30_000, 1.0]],
+        "n_gaussians": [[30_000, 7]],
+        "active_sh_degree": [[30_000, 3]],
+        "iteration_offset": 0,
+        "segment_iterations": 30_000,
+        "schedule_iterations": 30_000,
+    }
+    fit_receipt = {
+        "schema": "rtgs.full_compact_reconstruction.fit_complete.v1",
+        "final_ply_sha256": recovery_harness._sha256_file(parent / "gaussians_final.ply"),
+        "n_final_gaussians": 7,
+    }
+    (parent / "training_history.json").write_text(json.dumps(history), encoding="utf-8")
+    (parent / "fit_complete.json").write_text(json.dumps(fit_receipt), encoding="utf-8")
+
+
 def _write_tail_parent(recovery_harness, parent: Path, dataset: Path) -> dict[str, str]:
     parent.mkdir()
     dataset.mkdir()
@@ -857,6 +887,19 @@ def test_polish_static_preflight_binds_recovered_parent_and_refuses_overwrite(
     out.mkdir()
     with pytest.raises(FileExistsError, match="overwrite polish output"):
         recovery_harness._polish_parent_preflight(parent, out)
+
+
+def test_clean_polish_preflight_binds_uninterrupted_parent(recovery_harness, tmp_path):
+    parent = tmp_path / "parent"
+    out = tmp_path / "polish"
+    _write_clean_polish_parent(recovery_harness, parent, tmp_path / "dataset")
+
+    state = recovery_harness._clean_polish_parent_preflight(parent, out)
+
+    assert state["parent_kind"] == "uninterrupted"
+    assert state["parent_trainer_config"].iteration_offset == 0
+    assert state["parent_trainer_config"].iterations == 30_000
+    assert state["n_final"] == 7
 
 
 def test_polish_static_preflight_rejects_parent_final_hash_drift(recovery_harness, tmp_path):
@@ -1862,3 +1905,44 @@ def test_recovery_cli_requires_checkpoint_only_for_recover(recovery_harness, tmp
                 str(tmp_path / "parent"),
             ]
         )
+
+
+@pytest.mark.parametrize(
+    "initializer",
+    (
+        "topk",
+        "beam-fusion",
+        "dense-merge",
+        "easy-only",
+        "splat-sfm",
+        "field",
+        "random",
+    ),
+)
+def test_full_compact_cli_accepts_every_compact_suite_initializer(
+    recovery_harness,
+    tmp_path,
+    initializer,
+):
+    args = recovery_harness.parse_args(
+        ["--phase", "fit", "--out", str(tmp_path / initializer), "--initializer", initializer]
+    )
+    assert args.initializer == initializer
+    assert recovery_harness._initializer_interpretation(initializer)
+
+
+def test_dense_cluster_histograms_count_members_and_distinct_views(recovery_harness):
+    group = torch.tensor([0, 0, 1, 1, 1, 2], dtype=torch.long)
+    views = torch.tensor([0, 1, 0, 0, 2, 2], dtype=torch.long)
+
+    histograms = recovery_harness._cluster_histograms(
+        group,
+        views,
+        n_clusters=3,
+        n_views=3,
+    )
+
+    assert histograms == {
+        "member_count": {"1": 1, "2": 1, "3": 1},
+        "distinct_source_views": {"1": 1, "2": 2},
+    }

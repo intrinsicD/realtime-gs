@@ -8,8 +8,9 @@ primitives, we:
 1. **Fit every input image with 2D gaussians** (GaussianImage-style accumulated splatting —
    seconds per image, embarrassingly parallel across images).
 2. **Lift the 2D gaussians into 3D** — each 2D gaussian already carries position, anisotropic
-   shape, and color; only its depth (and the covariance along the ray) is missing. Five
-   competing variants supply it:
+   shape, and color; only its depth (and the covariance along the ray) is missing. The main
+   lifting interface exposes five named variants: A–D use the legacy RGB/depth scene contract,
+   while E has a separate compact-only entry:
    - **A · `gradient`** — keep each gaussian on its camera ray and optimize per-gaussian
      depth by rendering into *other* views (multi-view photometric gradient descent).
    - **B · `depth`** — feed-forward monocular depth (Depth Anything V2 or similar) gives
@@ -23,6 +24,11 @@ primitives, we:
    - **E · `field`** — an image-free research path places source-anchored fibers from compact
      frozen 2D fields, refits an additive density/RGB-numerator proxy, and applies transactional
      topology proposals. Frozen StructSplat renderer semantics are validated separately.
+   Checked-in compact captures also support RGB-free research initializers without pretending
+   that their inputs match the legacy cohort: balanced top-K compact carve, dense+merge,
+   confidence-gated easy-only, calibrated splat-SfM, tomographic beam fusion, complete field lift,
+   and a camera-bounds random control. Classic SfM still requires sparse points; gradient/carve,
+   depth, and hybrid require dense RGB and/or depth evidence absent from a compact-only bundle.
 3. **Refine with standard 3DGS optimization** from this dense, structured initialization.
    CUDA runs can select gsplat's Default (AbsGS/revised opacity) or MCMC
    (relocation/teleportation + noise) strategy under a hard configurable primitive budget.
@@ -71,10 +77,70 @@ indices, and correspondences; strict
   --out runs/field-frame-00008/gaussians_init.ply
 ```
 
-`field` is an implemented CPU-tested research path, not a reconstruction-quality, performance,
-or production-default claim. Its analytic whole-plane loss is exact for additive peak-mixture
-density and RGB numerator only; normalized finite-support/fade/affine StructSplat teachers are
-evaluated by separate bounded deterministic sampled validation with train/held-out aggregates.
+`field` is an implemented CPU-tested research path with one audited all-fitted-view development
+execution, not a held-out/generalization, performance, topology-utility, or production-default
+claim. Its analytic whole-plane loss is exact for additive peak-mixture density and RGB numerator
+only; normalized finite-support/fade/affine StructSplat teachers are evaluated by separate bounded
+deterministic sampled validation with train/held-out aggregates.
+
+For a full compact-only comparison, the convergence harness accepts `topk`, `beam-fusion`,
+`dense-merge`, `easy-only`, `splat-sfm`, `field`, and `random`. The suite operator runs each
+successful arm through the same density schedule and fixed-topology plateau rule, records native
+initial counts instead of silently trimming variable-count methods, and never opens source RGB:
+
+```bash
+LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 \
+  .venv-cuda/bin/python benchmarks/run_compact_initializer_suite.py \
+  --out runs/all_initializers_frame00008_20260721 \
+  --protocol benchmarks/results/20260721_all_initializers_frame00008_PREREG.md \
+  --keep-going
+```
+
+This is an all-fitted-view development comparison. It cannot establish held-out quality or make
+RGB/depth/SfM-dependent methods lose by omission; the protocol contains the complete applicability
+inventory and the method-specific parameters.
+
+The audited result is deliberately a **non-winner**. Dense+merge has the highest fitted-view
+foreground PSNR (38.2480 dB), while beam fusion has the lowest selected training objective
+(0.002447); dense's objective is 4.40% worse, so it does not pass the frozen two-metric win rule.
+Adaptive density grew every arm to 35.6k–49.2k Gaussians, and even random finished fourth by
+foreground PSNR. The single-scene suite therefore identifies no materially superior converged
+initializer and authorizes no default change:
+
+| Initializer | Initial 3D Gaussians | Selected final | Fitted FG PSNR | Objective |
+| --- | ---: | ---: | ---: | ---: |
+| top-K | 5,000 | 43,288 @ 70k | 37.2992 | 0.002742 |
+| beam fusion (historical) | 5,000 | 44,222 @ 69k | 37.8874 | **0.002447** |
+| dense+merge | 2,088 | 49,177 @ 70k | **38.2480** | 0.002555 |
+| easy-only | 7 | 35,644 @ 69k | 36.9587 | 0.002905 |
+| splat-SfM | 943 | 39,987 @ 69k | 37.7063 | 0.002759 |
+| field | 127 (128 before topology) | 39,059 @ 70k | 37.2408 | 0.002766 |
+| random | 5,000 | 39,513 @ 70k | 37.4257 | 0.002680 |
+
+See the frozen
+[`protocol`](benchmarks/results/20260721_all_initializers_frame00008_PREREG.md),
+[`result`](benchmarks/results/20260721_all_initializers_frame00008_RESULT.md), and independent
+[`audit`](benchmarks/results/20260721_all_initializers_frame00008_AUDIT.md). All 26 views were fit,
+native counts differ, timings are nonportable, and the field arm lacks the protocol-requested
+individual topology move receipts; those limitations are part of the result, not footnotes to a
+default-selection claim.
+
+Compare every saved initial state against its selected final state in one orbit viewer with the
+checked-in [`comparison manifest`](benchmarks/results/20260721_all_initializers_frame00008_VIEWER.json):
+
+```bash
+.venv-cuda/bin/rtgs view \
+  --comparison-manifest benchmarks/results/20260721_all_initializers_frame00008_VIEWER.json \
+  --max-viewer-gaussians 50000 --device cpu --port 8782
+```
+
+The **Gaussian set** selector is ordered by method, then `initial`/`final`, and includes the loaded
+count in each label. Orbit once and switch entries: changing the set does not reset the browser
+camera, which makes geometry changes easy to spot without running seven viewer processes. The cap
+does not truncate this suite (its largest selected endpoint has 49,177 splats). All fourteen models
+are loaded and prepared in host memory at startup, while only the selected set is transferred to
+the WebGL view. This compact-only bundle has no source RGB, so this command intentionally provides
+orbit inspection rather than calibrated reference-image snapshots.
 
 The migration is resumable and deletes RGB/mask directories only after every bundle and source
 hash verifies:
@@ -149,7 +215,24 @@ host, add `--host 0.0.0.0 --no-open` and use SSH port forwarding.
 `--max-viewer-gaussians` is only a configurable browser-transfer cap; it never changes the
 reconstruction. Training writes `gaussians.config.json`; `view` and `render` automatically reuse
 its packed/antialiased render mode, with explicit `--[no-]packed` and `--[no-]antialiased`
-overrides available.
+overrides available. For multiple methods, `--comparison-manifest` accepts the strict
+`rtgs.viewer-comparison.v1` schema shown above and resolves model paths relative to the manifest.
+
+To watch a long fit without sharing the training GPU, run the viewer on CPU and point it at the
+checkpoint directory:
+
+```bash
+.venv-cuda/bin/rtgs view --gaussians runs/example/gaussians_init.ply \
+  --watch-checkpoints runs/example/checkpoints --device cpu
+```
+
+The viewer attempts only the newest named PLY checkpoint, leaves the last valid model visible, and
+retries if it catches a file while it is still being written. `--device cpu` keeps the viewer
+server off CUDA, but checkpoint I/O, CPU work, and host-memory use are nonzero. The orbit preview
+still runs as WebGL in the browser. If that browser is on the training
+workstation, its graphics process can still consume the display GPU. For the lowest interference,
+run the server on CPU and open it from a second machine through an SSH tunnel; “zero performance
+impact” requires a controlled on/off measurement and is not claimed.
 
 The default depth checkpoint is the Apache-2.0 Depth Anything V2 Small model. Other checkpoint
 names are rejected unless their code and weights have been explicitly license-verified.

@@ -17,6 +17,141 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-22 — Seven-initializer endpoint comparison viewer (integration only)
+
+- **Question**: Can the exact initial and selected-final PLYs from the completed compact
+  initializer suite be inspected from one unchanged orbit camera instead of seven independent
+  viewer processes?
+- **Setup**: Added the strict checked-in
+  `benchmarks/results/20260721_all_initializers_frame00008_VIEWER.json` manifest (SHA-256
+  `edf774227a35479d600d939e14fc631c9fa1a1598625a2c5c95d70a915022448`) and launched
+  `.venv-cuda/bin/rtgs view --comparison-manifest
+  benchmarks/results/20260721_all_initializers_frame00008_VIEWER.json
+  --max-viewer-gaussians 50000 --device cpu --port 8782 --no-open` with
+  `CUDA_VISIBLE_DEVICES=''`. The manifest names top-K, beam fusion, dense+merge, easy-only,
+  splat-SfM, field, and random, with paths resolved relative to the manifest. This is a post-result
+  handoff; it did not run during training or participate in checkpoint selection.
+- **Result**: The strict loader prepared all 14 endpoints in method/initial/final order and exposed
+  their actual counts in the selector; counts were 5,000/43,288, 5,000/44,222, 2,088/49,177,
+  7/35,644, 943/39,987, 127/39,059, and 5,000/39,513 respectively. The 50,000 preview cap therefore
+  retained every endpoint. Eleven focused CPU viewer tests passed. PID 1725254 owned the exact
+  `127.0.0.1:8782` socket and returned HTTP 200; one post-start sample was 721,572 KiB RSS, and that
+  PID was absent from the `nvidia-smi` compute-process query. The prior dense-only viewer was
+  stopped after this replacement passed. The run-local receipt is
+  `runs/all_initializers_frame00008_20260721/comparison_viewer_receipt.json`.
+- **Conclusion**: The viewer now supports flicker-style endpoint comparison: orbit once, then
+  switch the **Gaussian set** entry without resetting the client camera. It loads all models in
+  host memory and sends the selected model to the WebGL client. This is not a simultaneous
+  side-by-side render, a visual-quality conclusion, a performance benchmark, or a zero-overhead
+  claim. The compact bundle has no source RGB, so calibrated reference-image snapshots are outside
+  this handoff; a same-machine browser may still use the display GPU.
+- **Follow-ups**: Record qualitative observations separately from the frozen quantitative result.
+  If simultaneous panels become necessary, add a synchronized two-canvas UI and benchmark its
+  browser-side memory before recommending it during training.
+
+---
+
+## 2026-07-21 — Full compact-compatible initializer convergence suite
+
+- **Question**: On the same full 26-view/130,000-component `frame_00008` compact bundle and
+  ordinary adaptive-density schedule, does any repository initializer that can legitimately
+  consume compact-only evidence converge to materially better fitted quality than every other
+  arm?
+- **Setup**: Prospective descriptive six-arm execution at revision
+  `d74c9a623cba8af4694e0112753927407c7fdab5`, seed 0, PyTorch 2.12.0+cu132, CUDA 13.2, gsplat
+  1.5.3, RTX 4090. The arms were top-K, dense+0.06 merge, frozen easy-only gate, all-pairs
+  splat-SfM, complete 128-track field lift, and a 5,000-point bounds-only random control; the prior
+  full beam fit entered as a disclosed historical anchor. Native counts were retained. Every arm
+  used the same 30k gsplat DefaultStrategy parent (density 500–15k, every 100, cap 100k), then
+  non-exact fixed-topology 10k segments to the first joint plateau or 70k. All 26 compact teachers
+  were fit and source RGB was not opened. Protocol/result/audit:
+  `benchmarks/results/20260721_all_initializers_frame00008_{PREREG,RESULT,AUDIT}.{md,json}`
+  (where present).
+- **Result**: Initial 3D counts were top-K 5,000, beam 5,000, dense 2,088, easy-only 7,
+  splat-SfM 943, field 127 (128 before one accepted topology move), and random 5,000. All arms
+  reached the joint plateau at the 70k assessment; selected steps were 69k for beam, easy-only,
+  and splat-SfM and 70k otherwise. Final foreground-PSNR order was dense **38.248049**, beam
+  37.887375, splat-SfM 37.706291, random 37.425717, top-K 37.299174, field 37.240826, easy-only
+  36.958743 dB. Dense led beam by **0.360674 dB**, but its selected objective 0.002554868 was
+  **4.4003% worse** than beam's best 0.002447185. Thus dense failed the required objective
+  improvement and no arm passed both materiality gates. Density-stop/final counts ranged from
+  35,644 to 49,177.
+- **Conclusion**: `NO_MATERIALLY_SUPERIOR_CONVERGED_INITIALIZER`. Dense+merge and beam form the
+  fitted-quality Pareto front; the frozen practical-equivalence intersection is empty because the
+  two best metrics split. Balanced top-K remains the default. Dense is the initialization-quality
+  leader on this scene (20.7546 dB before optimization), but the final rank cannot be causally
+  attributed to placement after major topology growth. Random's fourth-place finish emphasizes
+  the robustness—and confounding effect—of ordinary adaptive density. This is one seed, one scene,
+  native-count, all-fitted-view evidence, not held-out geometry or generalization.
+- **Applicability and audit**: Gradient, legacy carve, depth, hybrid, and classic SfM were not
+  called losers; their required RGB/depth/sparse-point inputs do not exist in the compact-only
+  bundle. The independent replay passed 10,012 checks, loaded 482 PLYs/4.63 GB finite with exact
+  counts, and exactly reproduced all seven selected compact metric sets. Field quality remains
+  valid, but its harness saved only aggregate topology counts (7 proposed/1 accepted), not the
+  protocol-required individual move receipts; move-level topology utility is unaudited. Timings
+  remain nonportable sequential diagnostics. All 199 focused initializer/recovery/viewer tests
+  passed. The repository-wide non-slow gate retained 16 unrelated failures: nine frozen ABI/source
+  binding checks and seven checks requiring a missing historical G2SR input artifact; no threshold
+  or fail-closed binding was weakened.
+- **Viewer handoff**: No viewer ran during measured execution. After audit, a CPU/Torch viewer for
+  dense+merge initial versus selected final returned HTTP 200 at `http://127.0.0.1:8781`, used
+  about 578 MiB RSS at its launch sample, and owned no `nvidia-smi` compute process. This supports
+  visual inspection without a viewer-server CUDA allocation, not a zero-overhead claim; live
+  watching uses `--watch-checkpoints` and the browser may still use a same-machine display GPU.
+- **Follow-ups**: Do not tune these consumed all-view outcomes. A default-selection follow-up must
+  be a fresh multi-scene/multi-seed protocol with train-only selection, genuinely held-out cameras,
+  and explicit capacity/budget control. Add execution-time field move receipts before rerunning
+  topology utility. Compare RGB/depth/SfM-required methods only in a separately named cohort whose
+  inputs actually exist.
+
+---
+
+## 2026-07-21 — Full `frame_00008` bounded beam fusion and convergence
+
+- **Question**: Can the tomographic beam idea consume the full 26-view, 130,000-splat compact
+  bundle, initialize exactly 5,000 3D Gaussians, and reach the frozen compact-training plateau;
+  and can a separate CPU viewer expose 1k-step progress without taking CUDA resources?
+- **Setup**: Preregistered all-view development run at revision
+  `d74c9a623cba8af4694e0112753927407c7fdab5`, seed 0, PyTorch 2.12.0+cu132, gsplat 1.5.3,
+  RTX 4090. Beam fusion evaluated all 325 view pairs/all 8.125 billion 5k×5k ray pairs with
+  minimum 3 views, transverse/fold gates 3σ, RGB gate 0.35, RGB σ=0.25, a 0.0223616-world-unit
+  voxel, 20k seed budget, and final cap 5k. The count-matched top-K control used 32 depths,
+  minimum 2 views, robust fraction 0.60, and score floor 0.01. Only beam received the new fit:
+  DefaultStrategy density through 15k, 30k parent, then non-exact fixed-topology 10k segments to
+  the first joint plateau or 70k. Protocol/result/audit:
+  `benchmarks/results/20260721_beam_fusion_full_frame00008_{PREREG,RESULT,AUDIT}.{md,json}`
+  (where present).
+- **Result**: Both arms initialized exactly 5,000. Beam placement took 138.326 s, admitted
+  345,109,938 gated seeds into 743,844 seed voxels, and returned components with 18–26
+  contributing views. Its initialization was **11.5826 dB** mean foreground PSNR versus
+  **11.8629 dB** for top-K (beam − top-K **−0.2803 dB**); crop SSIM was 0.72967 versus 0.77155
+  and alpha IoU 0.00199 versus 0.26740. Density grew beam to 44,222 Gaussians by 15k. Both frozen
+  convergence rules plateaued at the 70k assessment and selected 69k: fitted compact-target
+  foreground PSNR **37.8874 dB**, crop SSIM **0.995821**, alpha IoU **0.976061**. Seventy PLY
+  checkpoints plus init/final reloaded finite and stayed under the 100k cap.
+- **Conclusion**: Full-bundle bounded beam fusion is computationally feasible and trainable, but
+  it is **not a better initializer on this scene**. The later quality cannot be attributed to beam
+  fusion because ordinary densification expanded the model 8.84× and there is no matched top-K
+  downstream fit. All views were fit, so there is no held-out/generalization claim and no default
+  change. The 91.665-second top-K diagnostic clears the linked CSR task's numeric time target once,
+  but does not close its missing exact-parity, repeated-benchmark, CSR-memory, or tracked-table
+  gates.
+- **Viewer and audit**: The training watcher was CPU-only and owned no CUDA allocation; PLY-save
+  callbacks totaled 0.896 s versus 2,163.649 s of optimizer time. CPU/RAM/I/O were nonzero and no
+  controlled on/off run exists, so “zero impact” is rejected. The executed watcher required
+  manually expanding the count slider beyond the initial 5k; a post-run UX fix now follows growth
+  automatically and passed a separate HTTP-200 smoke. The independent scientist pass accepts the
+  single-scene result but reports 16 unrelated full-suite failures from stale frozen ABI bindings
+  and a missing historical G2SR artifact; 150 focused tests had 145 pass/5 skip, with no relevant
+  failure.
+- **Follow-ups**: Before reconsidering beam fusion, run a matched top-K downstream arm with the
+  same target hashes/schedule and a held-out-view protocol, then test whether greater source-splat
+  coverage or beam-association plus splat-SfM covariance triangulation improves the initial alpha
+  failure. Measure viewer overhead with randomized on/off repeats if it becomes a performance
+  claim.
+
+---
+
 ## 2026-07-21 — Full compact StructSplat 2D reconstruction gallery
 
 - **Question**: Do all 52 compact 5,000-component 2D teachers in

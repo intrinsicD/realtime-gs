@@ -13,6 +13,7 @@ import threading
 import time
 import webbrowser
 from dataclasses import dataclass
+from importlib import resources
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,8 @@ import torch
 from rtgs.core.camera import Camera
 from rtgs.core.gaussians3d import Gaussians3D, rotmat_to_quat
 from rtgs.core.sh import eval_sh, sh_to_rgb
+
+_VIEW_COLOR_SETTLE_SECONDS = 0.15
 
 
 @dataclass(frozen=True)
@@ -48,6 +51,9 @@ class ViewerApp:
     server: Any
     _gaussian_handle: list[Any]
     frustum_handles: list[Any]
+    _watch_stop: threading.Event | None = None
+    _watch_thread: threading.Thread | None = None
+    _color_refresh_timers: list[list[threading.Timer | None]] | None = None
 
     @property
     def gaussian_handle(self) -> Any:
@@ -56,6 +62,15 @@ class ViewerApp:
 
     def stop(self) -> None:
         """Stop the HTTP/WebSocket server."""
+        if self._color_refresh_timers is not None:
+            for timer_box in self._color_refresh_timers:
+                if timer_box[0] is not None:
+                    timer_box[0].cancel()
+                    timer_box[0] = None
+        if self._watch_stop is not None:
+            self._watch_stop.set()
+        if self._watch_thread is not None:
+            self._watch_thread.join(timeout=5.0)
         self.server.stop()
 
 
@@ -189,6 +204,55 @@ def _require_viser():
     return viser
 
 
+def _arcball_camera_javascript(viewer_extent: float) -> str:
+    """Return the browser controller configured for this scene's world scale."""
+    extent = float(viewer_extent)
+    if not math.isfinite(extent) or extent <= 0.0:
+        raise ValueError("viewer extent must be finite and positive")
+    min_distance = max(extent * 1.0e-4, 1.0e-6)
+    max_distance = max(extent * 1.0e4, min_distance * 1.0e6)
+    config = (
+        "window.__rtgsArcballConfig = "
+        f'{{"radiansPerPixel":{math.radians(0.2)!r},'
+        f'"minDistance":{min_distance!r},"maxDistance":{max_distance!r}}};\n'
+    )
+    source = resources.files("rtgs").joinpath("_viewer_arcball.js").read_text(encoding="utf-8")
+    return config + source
+
+
+def _install_arcball_camera(server: Any, viser: Any, viewer_extent: float) -> None:
+    """Persist the realtime-gs browser controller for current and future clients."""
+    messages = getattr(viser, "_messages", None)
+    connection = getattr(server, "_connection", None)
+    queue_message = getattr(connection, "queue_message", None)
+    message_type = None if messages is None else getattr(messages, "RunJavascriptMessage", None)
+    if message_type is None or not callable(queue_message):
+        raise RuntimeError(
+            "rtgs arcball controls require a compatible viser>=1.0.30,<2 installation"
+        )
+    queue_message(message_type(source=_arcball_camera_javascript(viewer_extent)))
+
+
+def _latest_checkpoint(directory: Path) -> tuple[int, Path] | None:
+    """Return the newest complete-looking ``gaussians_step_XXXXXX.ply`` path."""
+    latest: tuple[int, Path] | None = None
+    if not directory.is_dir():
+        return None
+    prefix = "gaussians_step_"
+    suffix = ".ply"
+    for path in directory.iterdir():
+        name = path.name
+        if not path.is_file() or not name.startswith(prefix) or not name.endswith(suffix):
+            continue
+        token = name[len(prefix) : -len(suffix)]
+        if not token.isdigit():
+            continue
+        candidate = (int(token), path)
+        if latest is None or candidate[0] > latest[0]:
+            latest = candidate
+    return latest
+
+
 def render_exact_snapshot(
     gaussians: Gaussians3D,
     camera: Camera,
@@ -231,6 +295,8 @@ def create_viewer(
     host: str = "127.0.0.1",
     port: int = 8080,
     max_viewer_gaussians: int | None = None,
+    watch_directory: Path | None = None,
+    watch_interval_seconds: float = 2.0,
 ) -> ViewerApp:
     """Create and populate a non-blocking Viser server.
 
@@ -245,9 +311,18 @@ def create_viewer(
         snapshot_dir: Optional directory in which exact snapshot PNGs are also saved.
         host/port: Viser server binding.
         max_viewer_gaussians: Optional transfer/display cap, independent of fitted counts.
+        watch_directory: Optional training checkpoint directory. The first named model is replaced
+            from the newest ``gaussians_step_XXXXXX.ply`` in a background polling thread.
+        watch_interval_seconds: Poll interval for ``watch_directory``.
     """
     if not models:
         raise ValueError("at least one Gaussian model is required")
+    if not math.isfinite(watch_interval_seconds) or watch_interval_seconds <= 0.0:
+        raise ValueError("watch_interval_seconds must be finite and positive")
+    if watch_directory is not None:
+        watch_directory = Path(watch_directory).expanduser()
+        if not watch_directory.is_dir():
+            raise ValueError("watch_directory must be an existing directory")
     viser = _require_viser()
     prepared = {
         name: prepare_viewer_data(model, max_gaussians=max_viewer_gaussians)
@@ -275,6 +350,8 @@ def create_viewer(
         viewer_center = np.median(current_data.centers, axis=0).astype(np.float64)
         radii = np.linalg.norm(current_data.centers - viewer_center[None], axis=-1)
         viewer_extent = max(2.2 * float(np.quantile(radii, 0.99)), 1e-3)
+
+    _install_arcball_camera(server, viser, viewer_extent)
 
     frustum_handles: list[Any] = []
     camera_labels: list[str] = []
@@ -304,8 +381,9 @@ def create_viewer(
             frustum_handles.append(handle)
 
     server.gui.add_markdown(
-        "**realtime-gs viewer**\n\nOrbit in the viewport. WebGL colors are refreshed from "
-        "every active SH band as the camera moves; exact snapshots use the full rasterizer."
+        "**realtime-gs viewer**\n\nLeft-drag: unrestricted trackball orbit · right-drag: "
+        "pan · wheel/pinch: zoom. WebGL colors refresh from every active SH band after "
+        "camera motion settles; exact snapshots use the full rasterizer."
     )
     model_control = server.gui.add_dropdown(
         "Gaussian set", options=model_names, initial_value=current_name
@@ -321,6 +399,11 @@ def create_viewer(
         "Opacity multiplier", min=0.0, max=2.0, step=0.05, initial_value=1.0
     )
     frame_button = server.gui.add_button("Frame reconstruction")
+    watch_status = None
+    if watch_directory is not None:
+        watch_status = server.gui.add_markdown(
+            f"Watching `{watch_directory}` for completed training checkpoints."
+        )
 
     show_cameras = None
     split_control = None
@@ -354,8 +437,10 @@ def create_viewer(
             f"packed=`{snapshot_packed}`, antialiased=`{snapshot_antialiased}`."
         )
 
-    lock = threading.Lock()
+    lock = threading.RLock()
     last_view_position: list[np.ndarray | None] = [None]
+    replace_state = threading.local()
+    color_refresh_timers: list[list[threading.Timer | None]] = []
 
     def selected_camera_index() -> int:
         assert camera_control is not None
@@ -375,49 +460,98 @@ def create_viewer(
         client.camera.look_at = viewer_center
         client.camera.up_direction = np.array([0.0, 0.0, 1.0])
 
-    def replace_splats() -> None:
+    def replace_splats(*, preserve_full_count: bool = False) -> None:
         nonlocal current_data
+        if getattr(replace_state, "active", False):
+            return
         with lock:
-            current_data = prepared[model_control.value]
-            count_control.max = current_data.n
-            count_control.step = max(1, current_data.n // 500)
-            count_control.value = min(int(count_control.value), current_data.n)
-            count = int(count_control.value)
-            opacity = np.clip(
-                current_data.opacities[:count] * float(opacity_control.value), 0.0, 1.0
-            )
-            colors = _view_dependent_rgbs(
-                current_data,
-                models[model_control.value].sh_degree,
-                last_view_position[0],
-                count,
-            )
-            gaussian_handle_box[0].remove()
-            gaussian_handle_box[0] = server.scene.add_gaussian_splats(
-                "/reconstruction",
-                centers=current_data.centers[:count],
-                covariances=current_data.covariances[:count],
-                rgbs=colors,
-                opacities=opacity,
-            )
+            replace_state.active = True
+            try:
+                was_showing_all = int(count_control.value) == int(count_control.max)
+                current_data = prepared[model_control.value]
+                count_control.max = current_data.n
+                count_control.step = max(1, current_data.n // 500)
+                count_control.value = (
+                    current_data.n
+                    if preserve_full_count and was_showing_all
+                    else min(int(count_control.value), current_data.n)
+                )
+                count = int(count_control.value)
+                opacity = np.clip(
+                    current_data.opacities[:count] * float(opacity_control.value), 0.0, 1.0
+                )
+                colors = _view_dependent_rgbs(
+                    current_data,
+                    models[model_control.value].sh_degree,
+                    last_view_position[0],
+                    count,
+                )
+                gaussian_handle_box[0].remove()
+                gaussian_handle_box[0] = server.scene.add_gaussian_splats(
+                    "/reconstruction",
+                    centers=current_data.centers[:count],
+                    covariances=current_data.covariances[:count],
+                    rgbs=colors,
+                    opacities=opacity,
+                )
+            finally:
+                replace_state.active = False
 
     def attach_view_dependent_color(client: Any) -> None:
-        """Keep Viser's RGB-only splats synchronized with the client's full-SH view."""
-        last_update = [0.0]
+        """Refresh full-SH color once camera motion settles, outside the drag hot path."""
+        timer_box: list[threading.Timer | None] = [None]
+        sequence = [0]
+        color_refresh_timers.append(timer_box)
 
-        def update(camera: Any, *, force: bool = False) -> None:
-            now = time.monotonic()
-            if not force and now - last_update[0] < 0.1:
-                return
-            position = np.asarray(camera.position, dtype=np.float32)
+        def refresh(position: np.ndarray, expected_sequence: int) -> None:
             with lock:
-                last_update[0] = now
-                last_view_position[0] = position
+                if sequence[0] != expected_sequence:
+                    return
+                timer_box[0] = None
                 count = int(count_control.value)
                 name = model_control.value
-                gaussian_handle_box[0].rgbs = _view_dependent_rgbs(
-                    prepared[name], models[name].sh_degree, position, count
-                )
+                model = models[name]
+                data = prepared[name]
+                sh_degree = model.sh_degree
+                if sh_degree == 0:
+                    return
+            colors = _view_dependent_rgbs(data, sh_degree, position, count)
+            with lock:
+                if (
+                    sequence[0] != expected_sequence
+                    or model_control.value != name
+                    or int(count_control.value) != count
+                    or prepared[name] is not data
+                ):
+                    return
+                gaussian_handle_box[0].rgbs = colors
+
+        def update(camera: Any, *, force: bool = False) -> None:
+            position = np.asarray(camera.position, dtype=np.float32).copy()
+            with lock:
+                last_view_position[0] = position
+                sequence[0] += 1
+                expected_sequence = sequence[0]
+                if timer_box[0] is not None:
+                    timer_box[0].cancel()
+                    timer_box[0] = None
+                needs_refresh = models[model_control.value].sh_degree > 0
+            if not needs_refresh:
+                return
+            if force:
+                refresh(position, expected_sequence)
+                return
+            timer = threading.Timer(
+                _VIEW_COLOR_SETTLE_SECONDS,
+                refresh,
+                args=(position, expected_sequence),
+            )
+            timer.daemon = True
+            with lock:
+                if sequence[0] != expected_sequence:
+                    return
+                timer_box[0] = timer
+            timer.start()
 
         @client.camera.on_update
         def _(camera: Any) -> None:
@@ -550,10 +684,54 @@ def create_viewer(
             frame_client_camera(client)
             attach_view_dependent_color(client)
 
+    watch_stop = None
+    watch_thread = None
+    if watch_directory is not None:
+        assert watch_status is not None
+        watched_name = model_names[0]
+        watch_stop = threading.Event()
+
+        def watch_checkpoints() -> None:
+            latest_step = -1
+            while not watch_stop.is_set():
+                candidate = _latest_checkpoint(watch_directory)
+                if candidate is not None and candidate[0] > latest_step:
+                    step, path = candidate
+                    try:
+                        model = Gaussians3D.load_ply(path)
+                        data = prepare_viewer_data(model, max_gaussians=max_viewer_gaussians)
+                        with lock:
+                            models[watched_name] = model
+                            prepared[watched_name] = data
+                        if model_control.value == watched_name:
+                            replace_splats(preserve_full_count=True)
+                        latest_step = step
+                        watch_status.content = (
+                            f"Live checkpoint: step **{step:,}**, {model.n:,} fitted splats "
+                            f"(`{path.name}`)."
+                        )
+                    except Exception as exc:
+                        # A direct writer may briefly expose a partial PLY. Leave the last valid
+                        # model visible and retry this step on the next bounded poll.
+                        watch_status.content = (
+                            f"Checkpoint `{path.name}` is not ready: `{type(exc).__name__}: {exc}`"
+                        )
+                watch_stop.wait(watch_interval_seconds)
+
+        watch_thread = threading.Thread(
+            target=watch_checkpoints,
+            name="rtgs-checkpoint-viewer",
+            daemon=True,
+        )
+        watch_thread.start()
+
     return ViewerApp(
         server=server,
         _gaussian_handle=gaussian_handle_box,
         frustum_handles=frustum_handles,
+        _watch_stop=watch_stop,
+        _watch_thread=watch_thread,
+        _color_refresh_timers=color_refresh_timers,
     )
 
 

@@ -132,10 +132,16 @@ def test_checkpoint_callback_is_isolated_and_none_preserves_default_exactly():
     for field in ("means", "quats", "log_scales", "opacity", "sh"):
         assert torch.equal(getattr(default_final, field), getattr(none_final, field))
         assert torch.equal(getattr(default_final, field), getattr(observed_final, field))
+    ignored_history_keys = {"elapsed", "checkpoint_callback_seconds"}
     for history in (none_history, observed_history):
-        assert {key: value for key, value in history.items() if key != "elapsed"} == {
-            key: value for key, value in default_history.items() if key != "elapsed"
+        assert {
+            key: value for key, value in history.items() if key not in ignored_history_keys
+        } == {
+            key: value for key, value in default_history.items() if key not in ignored_history_keys
         }
+    assert default_history["checkpoint_callback_seconds"] == 0.0
+    assert none_history["checkpoint_callback_seconds"] == 0.0
+    assert observed_history["checkpoint_callback_seconds"] >= 0.0
     assert callback_steps == [2, 4]
 
 

@@ -1,7 +1,7 @@
 # State-of-the-art survey and reuse decisions
 
 Compiled 2026-07-07 from three research sweeps (3DGS fitting/rendering; 2D gaussian image
-representations; depth/lifting/carving), then updated through the 2026-07-15 Scholar Inbox digest.
+representations; depth/lifting/carving), then updated through the 2026-07-21 experiment record.
 Each section ends with what this repo reuses. License claims were verified against the repositories
 on the original compile date — re-verify before anything license-sensitive.
 
@@ -376,10 +376,13 @@ the tested scores and initialization geometry within tolerance. That does not ex
 otherwise non-identical fragmentation. Tunnel samples are camera-depth values; their local spread
 is multiplied by the pixel-ray norm before becoming a Euclidean ray-axis covariance. Query point
 batches and reference-backend point–component pairs are capped explicitly. The static tile index
-still costs O(component–tile overlaps), custom backends must honor the chunk contract, and runtime,
-peak RSS, full-resolution behavior, CUDA behavior, and reconstruction quality remain unmeasured.
-Current `from_scene` geometry/bounds also lack proof of train-only provenance, so this mechanism
-does not establish strict held-out isolation.
+still costs O(component–tile overlaps), and custom backends must honor the chunk contract. A later
+full 26-view top-K run measured 99.7 s placement, 11.8629 dB initial fitted-view foreground PSNR,
+and 37.2992 dB after adaptive density, but it was an unrepeated contended diagnostic without the
+task's grouped-reference parity/RSS gates. Portable runtime, arbitrary-scale memory, CUDA query
+behavior, and held-out reconstruction quality therefore remain unestablished. Current `from_scene`
+geometry/bounds also lack proof of train-only provenance, so this mechanism does not establish
+strict held-out isolation.
 
 ### 2.4 Sparse 3D point rendering and discrete-pixel risk (2026-07-16)
 
@@ -644,10 +647,32 @@ that topology improves reconstruction.
 
 **Reuse decision:** keep this as a CPU-tested research path and reuse its decomposition-free field
 loss, observability reports, exact source fiber, and immutable-teacher validation boundary. Do not
-claim normalized-renderer objective equivalence, calibrated quality, speed/memory benefit,
-topology utility, or a production default until a frozen calibrated train/held-out experiment and
+claim normalized-renderer objective equivalence, calibrated held-out quality, speed/memory
+benefit, topology utility, or a production default until a frozen train/held-out experiment and
 independent audit establish them. The fixed-topology sampled `CompactTrainer` and its outstanding
 proposal/density questions remain separate.
+
+### 2.10 Compact-initializer convergence update (2026-07-21)
+
+The full `frame_00008` compact-only suite compared every applicable repository family under one
+ordinary adaptive-density/convergence schedule: balanced top-K, dense+merge, easy-only,
+structure-from-splats, complete field lift, random, and a disclosed historical beam-fusion anchor.
+Native initial counts ranged from 7 to 5,000 and were not trimmed. All 26 views were fit, all arms
+reached the joint plateau at the 70k assessment, and final topologies ranged from 35,644 to 49,177.
+
+Dense+merge was the clear initialization-quality leader (2,088 Gaussians, 20.7546 dB fitted-view
+foreground PSNR) and the final foreground-PSNR leader (38.2480 dB). Beam fusion instead had the
+best selected equal-view objective, 0.002447 versus dense's 0.002555. Dense's +0.3607 dB PSNR lead
+came with a 4.4003% worse objective, so no arm improved both metrics by the frozen material margins.
+Random finished fourth at 37.4257 dB after growing to 39,513, illustrating how strongly ordinary
+density control can recover fitted targets and confound causal attribution to initialization.
+
+**Reuse decision:** retain all compact-native initializers as research arms and balanced top-K as
+the conservative default. Do not select dense or beam post hoc from this metric split. A default
+question now requires fresh multi-scene/multi-seed evidence with genuinely held-out cameras and
+explicit capacity/budget control. RGB/depth/classic-SfM lifters require a separate cohort rather
+than being labeled losers on data they cannot consume. The complete result and scientist pass are
+`benchmarks/results/20260721_all_initializers_frame00008_{RESULT,AUDIT}.md`.
 
 ## 3. Depth estimation & feed-forward geometry (variant B backends)
 

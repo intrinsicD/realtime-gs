@@ -1,0 +1,40 @@
+{
+  "schema": "rtgs.viewer-comparison.v1",
+  "methods": [
+    {
+      "name": "top-K",
+      "initial": "../../runs/all_initializers_frame00008_20260721/topk/fit_0_30000/gaussians_init.ply",
+      "final": "../../runs/all_initializers_frame00008_20260721/topk/settle_60000_70000/gaussians_final.ply"
+    },
+    {
+      "name": "beam fusion",
+      "initial": "../../runs/beam_fusion_full_frame00008_fit_20260721/gaussians_init.ply",
+      "final": "../../runs/beam_fusion_full_frame00008_settle_60000_70000_20260721/gaussians_final.ply"
+    },
+    {
+      "name": "dense+merge",
+      "initial": "../../runs/all_initializers_frame00008_20260721/dense-merge/fit_0_30000/gaussians_init.ply",
+      "final": "../../runs/all_initializers_frame00008_20260721/dense-merge/settle_60000_70000/gaussians_final.ply"
+    },
+    {
+      "name": "easy-only",
+      "initial": "../../runs/all_initializers_frame00008_20260721/easy-only/fit_0_30000/gaussians_init.ply",
+      "final": "../../runs/all_initializers_frame00008_20260721/easy-only/settle_60000_70000/gaussians_final.ply"
+    },
+    {
+      "name": "splat-SfM",
+      "initial": "../../runs/all_initializers_frame00008_20260721/splat-sfm/fit_0_30000/gaussians_init.ply",
+      "final": "../../runs/all_initializers_frame00008_20260721/splat-sfm/settle_60000_70000/gaussians_final.ply"
+    },
+    {
+      "name": "field",
+      "initial": "../../runs/all_initializers_frame00008_20260721/field/fit_0_30000/gaussians_init.ply",
+      "final": "../../runs/all_initializers_frame00008_20260721/field/settle_60000_70000/gaussians_final.ply"
+    },
+    {
+      "name": "random",
+      "initial": "../../runs/all_initializers_frame00008_20260721/random/fit_0_30000/gaussians_init.ply",
+      "final": "../../runs/all_initializers_frame00008_20260721/random/settle_60000_70000/gaussians_final.ply"
+    }
+  ]
+}

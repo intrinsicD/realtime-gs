@@ -612,6 +612,7 @@ class Trainer:
             history["density_stats"] = gsplat_controller.stats
         if device.type == "cuda":
             history["peak_vram_gb"] = torch.cuda.max_memory_allocated(device) / 1024**3
+        history["checkpoint_callback_seconds"] = callback_seconds
         return build().detach(), history
 
     @staticmethod

@@ -261,6 +261,10 @@ def test_degenerate_identical_cameras_fail_closed_with_actionable_error():
         ("init_opacity", 1.0, "init_opacity"),
         ("source_chunk", 0, "source_chunk must be positive"),
         ("pair_limit", 0, "pair_limit"),
+        ("max_components", 0, "max_components"),
+        ("seed_budget_multiplier", 0, "seed_budget_multiplier"),
+        ("fold_in_chunk", 0, "fold_in_chunk"),
+        ("max_seed_voxels", 0, "max_seed_voxels"),
     ],
 )
 def test_config_validation(field, value, message):
@@ -282,3 +286,50 @@ def test_result_feeds_downstream_merge_and_eval():
     evaluation = evaluate_initialization(inputs, result.gaussians)
     assert math.isfinite(evaluation.mean_foreground_psnr)
     assert evaluation.n_gaussians == result.n_components
+
+
+def test_bounded_production_path_matches_exact_fixture_and_reports_progress():
+    cameras = _default_cameras()
+    inputs = _build_inputs(_GT_MEANS, _gt_covariances(seed=8), _GT_COLORS, cameras)
+    exact = fuse_gaussian_beams(inputs, BeamFusionConfig(min_views=3))
+    progress = []
+    bounded = fuse_gaussian_beams(
+        inputs,
+        BeamFusionConfig(
+            min_views=3,
+            max_components=100,
+            seed_budget_multiplier=100,
+            fold_in_chunk=3,
+        ),
+        progress_callback=progress.append,
+    )
+
+    assert bounded.n_components == exact.n_components
+    assert torch.equal(bounded.gaussians.means, exact.gaussians.means)
+    assert torch.equal(bounded.component_offsets, exact.component_offsets)
+    assert torch.equal(bounded.contributor_view_indices, exact.contributor_view_indices)
+    assert torch.equal(bounded.contributor_component_indices, exact.contributor_component_indices)
+    assert bounded.diagnostics["bounded_seed_mode"] is True
+    assert bounded.diagnostics["evaluated_ray_pairs"] == 15 * _GT_MEANS.shape[0] ** 2
+    assert bounded.diagnostics["n_seed_candidates_retained"] < bounded.diagnostics["n_seeds"]
+    assert progress[-1].stage == "complete"
+    assert [item.completed for item in progress if item.stage == "pair_seeding"] == list(
+        range(1, 16)
+    )
+
+
+def test_bounded_production_path_enforces_output_and_seed_grid_caps():
+    cameras = _default_cameras()
+    inputs = _build_inputs(_GT_MEANS, _gt_covariances(seed=9), _GT_COLORS, cameras)
+    result = fuse_gaussian_beams(
+        inputs,
+        BeamFusionConfig(min_views=3, max_components=3, seed_budget_multiplier=4),
+    )
+    assert result.n_components == 3
+    assert result.diagnostics["n_seed_candidates_retained"] <= 12
+
+    with pytest.raises(ValueError, match="max_seed_voxels"):
+        fuse_gaussian_beams(
+            inputs,
+            BeamFusionConfig(min_views=3, max_components=3, max_seed_voxels=999_999),
+        )

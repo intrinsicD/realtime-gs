@@ -3,12 +3,23 @@
 Status: **implemented research path.** The CPU-first implementation covers the typed compact
 input boundary, measurement and observability controls, analytic field proxy, visibility/gain,
 fiber refit, deterministic topology moves, maskless placement, registry/pipeline/CLI integration,
-and semantic validation. This status is an implementation statement only: no reconstruction-
-quality, performance, production-default, or topology-utility claim has been established.
+and semantic validation. One audited calibrated all-fitted-view development run now establishes
+bounded execution and fitted-target quality only; no held-out/generalization, performance,
+production-default, or topology-utility claim has been established.
 
 Related docs: `docs/ARCHITECTURE.md` (current pipeline), `docs/RESEARCH.md` (SOTA survey and
 reuse decisions), `docs/EXPERIMENTS.md` (the empirical record this design leans on),
 `docs/ROADMAP.md` (milestones — this is the M3/stage-2 rework).
+
+Empirical update (2026-07-21): on the complete 26-view `frame_00008` compact bundle, the public
+path placed 128 tracks and returned 127 after one accepted topology move, with no fallback. All
+outputs had covariance-observability rank 6 (maximum condition 2.3109), and source projection and
+color errors were at most `2.18e-11` and `2.22e-16`. Ordinary adaptive density then grew the model
+to 39,059 and reached the common 70k fitted-target plateau at 37.2408 dB foreground PSNR. Field
+ranked sixth of seven by that metric and did not support a default change. The execution saved
+aggregate topology counts (7 proposals/1 acceptance) but omitted the protocol-required individual
+move receipts; final quality is audited, while move-level topology utility is not. See
+`benchmarks/results/20260721_all_initializers_frame00008_{RESULT,AUDIT}.md`.
 
 ---
 
@@ -361,12 +372,13 @@ Dependency sketch: 0 → {1, 2}; 2 → 3 → 4 → 5; {4,5} → 6; everything �
 
 ## 9. Open empirical questions
 
-Implementation does not answer whether field lifting improves initialization quality, time to
-quality, topology recovery, or memory/runtime on calibrated data. The required next evidence is a
-frozen train/held-out calibrated protocol comparing: topology moves on/off and by proposal type;
-analytic proxy change versus frozen-teacher semantic metrics; visibility/gain ablations;
-observability-gate behavior under narrow baselines; and masked versus maskless placement. None of
-those questions is closed, and the research path is not a default.
+The single all-fitted-view suite now measures one bounded initialization and terminal quality
+point, where field ranked sixth by foreground PSNR; it does not answer whether field lifting
+improves held-out quality, time to quality, topology recovery, or memory/runtime on calibrated
+data. The required next evidence is a frozen train/held-out protocol comparing: topology moves
+on/off and by proposal type; analytic proxy change versus frozen-teacher semantic metrics;
+visibility/gain ablations; observability-gate behavior under narrow baselines; and masked versus
+maskless placement. None of those questions is closed, and the research path is not a default.
 
 ---
 
