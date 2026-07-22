@@ -23,6 +23,7 @@ from typing import Protocol
 
 import numpy as np
 import torch
+from torch.utils.checkpoint import checkpoint
 
 _SCHEMA = "rtgs.gaussian_observation_field.v1"
 _PROVIDERS = frozenset({"structsplat", "synthetic_fixture"})
@@ -1198,15 +1199,39 @@ class GaussianObservationIndex:
         buffer.index_add_(0, point_index, values)
         return buffer
 
-    def query(self, xy: torch.Tensor, component_chunk: int = 4096) -> ObservationQuery:
-        """Query colors through the exact CSR pair stream."""
+    def query(
+        self,
+        xy: torch.Tensor,
+        component_chunk: int = 4096,
+        *,
+        checkpoint_pair_chunks: bool = False,
+    ) -> ObservationQuery:
+        """Query colors through the exact CSR pair stream.
+
+        ``checkpoint_pair_chunks`` bounds backward activation memory for gradient-carrying
+        queries: each pair chunk's paired evaluation runs under non-reentrant activation
+        checkpointing, so autograd retains only the chunk inputs (point coordinates and
+        component ids) instead of every per-pair intermediate, and recomputes one chunk at a
+        time during backward. Values and gradients are unchanged (the recompute replays the
+        identical deterministic ops); forward compute roughly doubles for gradient queries.
+        The option is inert without gradients and off by default.
+        """
         xy = self.field._validate_xy(xy)
         if component_chunk <= 0:
             raise ValueError("component_chunk must be positive")
+        use_checkpoint = checkpoint_pair_chunks and torch.is_grad_enabled()
         numerator = torch.zeros(xy.shape[0], 3, dtype=self.field.dtype)
         denominator = torch.zeros(xy.shape[0], dtype=self.field.dtype)
         for point_index, component_ids in self._iter_pair_chunks(xy, component_chunk):
-            weights, colors = self.field._paired_values(xy[point_index], component_ids)
+            if use_checkpoint:
+                weights, colors = checkpoint(
+                    self.field._paired_values,
+                    xy[point_index],
+                    component_ids,
+                    use_reentrant=False,
+                )
+            else:
+                weights, colors = self.field._paired_values(xy[point_index], component_ids)
             denominator = self._accumulate(denominator, point_index, weights)
             numerator = self._accumulate(numerator, point_index, weights[:, None] * colors)
         if self.field.blend_mode == "normalized":
@@ -1220,14 +1245,32 @@ class GaussianObservationIndex:
             valid=self.field.valid_domain(xy),
         )
 
-    def query_weight_sum(self, xy: torch.Tensor, component_chunk: int = 4096) -> torch.Tensor:
-        """Query only the exact CSR denominator, sharing the pair stream but skipping color."""
+    def query_weight_sum(
+        self,
+        xy: torch.Tensor,
+        component_chunk: int = 4096,
+        *,
+        checkpoint_pair_chunks: bool = False,
+    ) -> torch.Tensor:
+        """Query only the exact CSR denominator, sharing the pair stream but skipping color.
+
+        ``checkpoint_pair_chunks`` behaves as in :meth:`query`.
+        """
         xy = self.field._validate_xy(xy)
         if component_chunk <= 0:
             raise ValueError("component_chunk must be positive")
+        use_checkpoint = checkpoint_pair_chunks and torch.is_grad_enabled()
         denominator = torch.zeros(xy.shape[0], dtype=self.field.dtype)
         for point_index, component_ids in self._iter_pair_chunks(xy, component_chunk):
-            weights = self.field._paired_weights(xy[point_index], component_ids)
+            if use_checkpoint:
+                weights = checkpoint(
+                    self.field._paired_weights,
+                    xy[point_index],
+                    component_ids,
+                    use_reentrant=False,
+                )
+            else:
+                weights = self.field._paired_weights(xy[point_index], component_ids)
             denominator = self._accumulate(denominator, point_index, weights)
         return denominator
 

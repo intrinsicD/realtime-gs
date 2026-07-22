@@ -180,7 +180,15 @@
       is inference-only and atomics-free, plugs into the existing `backends` seam via
       `rtgs.lift.compact_carve.build_query_backends(..., device="cuda")`, and has self-skipping
       GPU parity tests plus a conditional arm in the tracked micro-benchmark; it is not yet
-      verified or timed on GPU hardware, so the CPU index remains the default and the oracle.)
+      verified or timed on GPU hardware, so the CPU index remains the default and the oracle.
+      2026-07-22: the two remaining mechanisms landed — opt-in aggregate
+      `max_index_entries_total`/`max_index_bytes_total` budgets on `CompactCarveConfig`
+      (preflighted before CSR allocation, re-checked on built or supplied backends, defaults
+      unbounded) and opt-in `checkpoint_pair_chunks` on the CSR `query`/`query_weight_sum`
+      (bounds backward activation memory by recomputing one pair chunk at a time; identical
+      values/gradients, saved activation bytes measured at 0.48x baseline on the CPU toy case).
+      What remains for this bullet is the production-scale confirmatory run itself, not
+      mechanism work.)
 - [x] Execute and independently audit the calibrated dense confidence-gated initialization chain.
       E1 found a +1.9714 dB all-view init-only gain for dense+merge but failed the 2× count gate at
       13.48×. I1 reproduced the frozen 60/2,319 easy-only classifier. E2 then rejected easy-only
