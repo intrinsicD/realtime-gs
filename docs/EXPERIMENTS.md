@@ -17,6 +17,35 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-22 — Aggregate index budgets + checkpointed pair-chunk queries (mechanism)
+
+- **Question**: The ROADMAP compact-scaling bullet requires aggregate device-byte/index
+  budgets and a backward-activation-memory bound before any production-scale claim. Can both
+  land as opt-in controls without changing default behavior or numerics?
+- **Setup**: (1) `CompactCarveConfig.max_index_entries_total` / `max_index_bytes_total`
+  (default `None` = prior behavior): the summed per-view CSR cost is preflighted via
+  `GaussianObservationIndex.estimate_entries` before any allocation, and built or
+  caller-supplied backends are re-checked against both totals in `build_query_backends`,
+  `score_world_points`, and `CompactCarveInitializer.initialize`. (2)
+  `checkpoint_pair_chunks` keyword on the CSR index's `query`/`query_weight_sum`:
+  gradient-carrying queries evaluate each pair chunk under non-reentrant activation
+  checkpointing, retaining only chunk inputs and recomputing one chunk at a time during
+  backward; inert without gradients and off by default.
+- **Result**: CPU tests (`tests/test_compact_budgets_and_checkpoint.py`): budget preflight
+  rejects one entry over the exact estimated total before allocation and passes at the exact
+  total; byte budget rejects on built backends; supplied-backend enforcement verified through
+  `score_world_points`. Checkpointed queries are bit-identical forward and gradient-equal to
+  1e-7 against the baseline, and a `saved_tensors_hooks` byte probe measured saved activation
+  bytes at **0.48x baseline** (568,416 → 272,232 bytes; 3,612 pairs streamed in 512-pair
+  chunks). Toy-scale measurement; no production memory claim.
+- **Conclusion**: Both mechanisms exist, are exercised by CPU tests, and leave every default
+  untouched. With CSR (2026-07-20), the CUDA query backend (2026-07-21, GPU-unverified), and
+  these two controls, the compact-scaling bullet's remaining work is the production-scale
+  confirmatory run, not mechanism.
+- **Follow-ups**: Choose production budget values from the 26-view Janelle preflight numbers;
+  wire `checkpoint_pair_chunks` into the compact trainer behind its own preregistered config
+  once a training-memory question is actually opened.
+
 ## 2026-07-21 — Indexed CUDA compact-teacher query backend (mechanism, GPU-unverified)
 
 - **Question**: Can the compact-placement observation queries — the workload behind the one

@@ -50,6 +50,12 @@ class CompactCarveConfig:
     tile_size: int = 16
     max_index_entries_per_view: int = 16_000_000
     max_candidates_per_tile: int = 200_000
+    # Aggregate budgets across every view's index (the per-view caps bound one index; a
+    # production scene multiplies them by the view count). ``None`` keeps them unbounded,
+    # preserving prior behavior. Entries are preflighted before any CSR allocation; bytes are
+    # checked on the built (or caller-supplied) backends.
+    max_index_entries_total: int | None = None
+    max_index_bytes_total: int | None = None
     seed: int = 0
     bounds_scale: float = 0.5
     near: float = 0.05
@@ -108,6 +114,12 @@ class CompactCarveConfig:
             raise ValueError("max_index_entries_per_view must be positive")
         if self.max_candidates_per_tile <= 0:
             raise ValueError("max_candidates_per_tile must be positive")
+        for name in ("max_index_entries_total", "max_index_bytes_total"):
+            value = getattr(self, name)
+            if value is not None and (
+                isinstance(value, bool) or not isinstance(value, int) or value <= 0
+            ):
+                raise ValueError(f"{name} must be a positive integer or None")
         if self.seed < 0:
             raise ValueError("seed must be non-negative")
         if not math.isfinite(self.bounds_scale) or self.bounds_scale <= 0:
@@ -308,6 +320,55 @@ def make_placement_progress_printer(
     return callback
 
 
+def _preflight_aggregate_index_budget(
+    observations: Sequence[GaussianObservationField],
+    config: CompactCarveConfig,
+) -> None:
+    """Fail before any CSR allocation when the exact aggregate entry count exceeds budget."""
+    if config.max_index_entries_total is None:
+        return
+    estimated_total = sum(
+        GaussianObservationIndex.estimate_entries(field, config.tile_size) for field in observations
+    )
+    if estimated_total > config.max_index_entries_total:
+        raise ValueError(
+            "aggregate observation-index entry budget exceeded before allocation: "
+            f"estimated_total={estimated_total}, "
+            f"max_index_entries_total={config.max_index_entries_total}"
+        )
+
+
+def _enforce_aggregate_index_budget(
+    backends: Sequence[ObservationQueryBackend],
+    config: CompactCarveConfig,
+) -> None:
+    """Check built or caller-supplied backends against the aggregate entry/byte budgets.
+
+    Backends that expose ``n_entries``/``payload_bytes`` (the CPU CSR index and its CUDA
+    wrapper) contribute to the totals; opaque third-party backends contribute zero, which the
+    caller contract already treats as their own responsibility.
+    """
+    if config.max_index_entries_total is None and config.max_index_bytes_total is None:
+        return
+    total_entries = sum(int(getattr(backend, "n_entries", 0)) for backend in backends)
+    total_bytes = sum(int(getattr(backend, "payload_bytes", 0)) for backend in backends)
+    if (
+        config.max_index_entries_total is not None
+        and total_entries > config.max_index_entries_total
+    ):
+        raise ValueError(
+            "aggregate observation-index entry budget exceeded: "
+            f"total_entries={total_entries}, "
+            f"max_index_entries_total={config.max_index_entries_total}"
+        )
+    if config.max_index_bytes_total is not None and total_bytes > config.max_index_bytes_total:
+        raise ValueError(
+            "aggregate observation-index byte budget exceeded: "
+            f"total_payload_bytes={total_bytes}, "
+            f"max_index_bytes_total={config.max_index_bytes_total}"
+        )
+
+
 def build_query_backends(
     observations: Sequence[GaussianObservationField],
     config: CompactCarveConfig,
@@ -324,6 +385,7 @@ def build_query_backends(
     """
     if device not in ("cpu", "cuda"):
         raise ValueError("device must be 'cpu' or 'cuda'")
+    _preflight_aggregate_index_budget(observations, config)
     indexes = [
         GaussianObservationIndex(
             field,
@@ -334,6 +396,7 @@ def build_query_backends(
         )
         for field in observations
     ]
+    _enforce_aggregate_index_budget(indexes, config)
     if device == "cpu":
         return list(indexes)
     from rtgs.core.observation2d_cuda import GaussianObservationIndexCuda
@@ -370,6 +433,7 @@ def score_world_points(
     if points.device.type != "cpu":
         raise ValueError("compact Carve CPU reference requires CPU points")
     if backends is None:
+        _preflight_aggregate_index_budget(inputs.observations, config)
         backends = [
             GaussianObservationIndex(
                 field,
@@ -394,6 +458,7 @@ def score_world_points(
                 raise ValueError("indexed query backend differs from compact Carve caps")
         if isinstance(backend, GaussianObservationField) and backend is not field:
             raise ValueError("field query backends must correspond to their ordered teacher")
+    _enforce_aggregate_index_budget(backends, config)
 
     parts: list[CompactPointScores] = []
     for start in range(0, points.shape[0], config.query_batch_size):
@@ -457,6 +522,7 @@ class CompactCarveInitializer:
         generator = torch.Generator(device="cpu").manual_seed(self.config.seed)
         build_start = time.perf_counter()
         if backends is None:
+            _preflight_aggregate_index_budget(inputs.observations, self.config)
             backends = [
                 GaussianObservationIndex(
                     field,
@@ -483,6 +549,7 @@ class CompactCarveInitializer:
                     raise ValueError("indexed query backend differs from compact Carve caps")
             if isinstance(backend, GaussianObservationField) and backend is not field:
                 raise ValueError("field query backends must correspond to their ordered teacher")
+        _enforce_aggregate_index_budget(backends, self.config)
 
         index_build_seconds = time.perf_counter() - build_start
         index_payload_bytes = tuple(int(getattr(b, "payload_bytes", 0)) for b in backends)
