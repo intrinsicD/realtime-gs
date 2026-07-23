@@ -146,6 +146,7 @@ def test_default_fit_config_is_the_frozen_default_preserving_9p_path() -> None:
         "batch_views": False,
         "lr": 0.01,
         "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
         "row_chunk": 64,
         "log_every": 50,
         "convergence_patience": 0,
