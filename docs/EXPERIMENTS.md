@@ -17,6 +17,82 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-23 — Why beam-fusion's on-surface init doesn't help convergence (mechanism)
+
+- **Question**: The 2026-07-21 full run found beam fusion initializes on the character surface
+  yet does not beat top-K after densified refinement. Its follow-up asked *why*: does refinement
+  destroy the initialization before recovering, and if so, by what mechanism? Concretely — is the
+  init erased positionally, radiometrically, or by dilution; and is any of that specific to beam?
+- **Setup**: Reduced-scale **mechanism screen on the real checked-in bundle**
+  `dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d`, seed 0, torch reference
+  rasterizer + classic CPU `DensityController`, revision `cef1b2c` (+ untracked harness). New
+  `benchmarks/beam_convergence_dynamics.py` runs a 2×2 factorial —
+  `{beam-fusion, random} × {adaptive density (ADC), fixed topology}` — under one identical loss
+  (masked L1 + 0.2 D-SSIM + 0.05 mask-alpha + 0.01 outside-alpha, black background) and the
+  20260721 schedule scaled by 1/30 (1000 steps; ADC 20–500 every 4; opacity reset every 100;
+  cap 8000). Exact frozen-field teachers (`GaussianObservationField.query`) with packed-alpha
+  masking, 8/26 views, downscale 32, 800 initial Gaussians. The classic controller was subclassed
+  to track the identity of every initial Gaussian through clone/split/prune surgery, and each
+  checkpoint logs foreground PSNR, alpha-IoU, survivor displacement from the initial means, and
+  symmetric chamfer distance to the frozen beam surface. Deviations from production (fewer/smaller
+  views, torch-ref + classic controller instead of gsplat DefaultStrategy, 800 vs 5000 Gaussians,
+  1000 vs 70000 steps, resolution-recalibrated grad threshold 3e-3 frozen before the measured
+  arms) mean this **cannot close a default or make a production-quantitative claim** — it isolates
+  mechanism. Command: `.venv/bin/python benchmarks/beam_convergence_dynamics.py --out
+  runs/beam_convergence_dynamics_20260723`. Artifacts (git-ignored) under that directory:
+  per-arm `dynamics.json` trajectories, `summary.json`, init/checkpoint/final PLYs, init/final
+  previews.
+- **Result**: The reduced screen reproduces the GPU run's signature — the beam init renders at
+  **12.33 dB fg / alpha-IoU 0.0107 / alpha-inside 0.140** (GPU full run: 11.58 dB / 0.00199),
+  i.e. its centers sit on the surface (init chamfer-to-surface 0.006 world units) but it renders
+  almost no alpha. Random inits far higher alpha (0.294) from diffuse volume coverage.
+  - **Positionally the init is preserved, not destroyed.** Surviving beam originals plateau at
+    **0.014 mean / 0.022 p90** displacement (scene extent 2.236), and the ADC model stays pinned
+    to the beam surface the entire run (chamfer current→surface ≈0.03 vs 0.15–0.5 for the random
+    arms, which start in the volume and never fully reach the surface).
+  - **Radiometrically it is destroyed repeatedly.** Every opacity reset (steps 100/200/300/400/500)
+    clamps all opacities to 0.011, collapsing beam fg PSNR to the ~12–14 dB init floor and alpha-IoU
+    to **0.000** (fraction opacity<0.02 → 1.000), then recovering over ~50–75 steps. A sawtooth, not
+    a one-time dip — and random-ADC shows the same alpha collapse at every reset (to 0.000), so the
+    mechanism is not beam-specific.
+  - **Then it is diluted.** ADC grows beam 800→4390 Gaussians (4585 newborns); only **737 (17%)**
+    of the final model are beam originals. The other 83% are density clones/splits.
+  - **Matched-count, density-free comparison (the clean test): beam wins.** Fixed-topology, 800
+    Gaussians each: **beam 25.01 dB / alpha-IoU 0.936 vs random 22.61 dB / 0.772** (+2.39 dB,
+    +0.164). ADC endpoints (count-confounded): beam 26.92 dB / 4390 G vs random 24.78 dB / 1288 G.
+    Random-ADC pruned its own survivors 800→443 and ended at alpha-IoU 0.407, i.e. density control
+    actively degraded coverage relative to fixed topology.
+- **Conclusion**: The user's read is correct — beam fusion *is* the better initialization — but
+  its advantage is the wrong currency for the default pipeline. It buys **correct surface
+  placement**, which fixed-topology optimization converts into a real +2.4 dB / +0.16 alpha-IoU
+  gain over random. It does **not** buy **rendered coverage**: at init opacity 0.10 and world-σ
+  median ≈0.0045, the on-surface splats accumulate almost no alpha (IoU 0.01), so they contribute
+  little to the early loss that drives training. Adaptive density control then erases the placement
+  advantage three ways: (1) periodic opacity resets zero the rendered model back to the init floor
+  and force re-recovery, equally for every arm; (2) densification grows a 5× larger population and
+  dilutes the beam originals to a 17% minority; (3) run long enough, the endpoint is governed by
+  that density-grown population, which is nearly init-independent — random lands within ~2 dB here
+  and, at the full 70k GPU budget, top-K/beam/random equalize to within 0.6 dB. So refinement does
+  not *destroy* the geometry (positions barely move); it **bypasses** it — given enough steps,
+  density control manufactures comparable geometry from clones regardless of the seed, while the
+  opacity reset repeatedly discards the one thing beam placed well. **Scope/limitation**: the
+  reduced screen's contrast init is *random*, not the GPU run's top-K, so it explains the
+  *mechanism* (a correct-placement, zero-coverage seed is bypassed) rather than re-deriving the
+  beam≈top-K null itself; top-K is a much stronger baseline (GPU init alpha-IoU 0.267 vs beam's
+  0.002), which is consistent with the mechanism. Confidence: high on mechanism (clean 2×2 on real
+  data, GPU init signature reproduced to 0.75 dB / 0.009 alpha-IoU); single-scene, reduced-scale,
+  torch-ref + classic controller, changes no default.
+- **Follow-ups**: (1) If beam fusion is meant to accelerate the *default* densified pipeline, fix
+  the coverage deficit at the source — raise its `init_opacity`/scale so the surface renders alpha
+  before step 1 (its 0.01 vs random's 0.29 is the gap density control spends the first 500 steps
+  closing) — then re-run the matched 2×2. (2) Test beam under a fixed-topology / reset-free
+  schedule (e.g. MCMC or `opacity_reset_every=0`) where a good seed is not diluted; the +2.4 dB
+  fixed-topology margin here suggests that is where beam's placement pays off. (3) Escalate a
+  chosen intervention to a preregistered GPU run with a matched top-K arm and held-out views
+  before any default or roadmap change — this screen only tells us where to look.
+
+---
+
 ## 2026-07-22 — Aggregate index budgets + checkpointed pair-chunk queries (mechanism)
 
 - **Question**: The ROADMAP compact-scaling bullet requires aggregate device-byte/index
