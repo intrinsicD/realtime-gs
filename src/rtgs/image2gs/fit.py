@@ -16,7 +16,7 @@ import torch
 
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.metrics import masked_psnr, psnr
-from rtgs.image2gs.renderer2d import render_gaussians_2d
+from rtgs.image2gs.renderer2d import render_gaussian_coverage_2d, render_gaussians_2d
 
 if TYPE_CHECKING:
     from rtgs.core.observation2d import GaussianObservationField
@@ -77,6 +77,11 @@ class FitConfig:
     pool_prune_count: int = 32
     pool_spawn_count: int = 32
     pool_min_live: int = 1
+    # Soft mask containment (opt-in, default 0.0; native serial backend, requires a mask). Adds
+    # ``mask_coverage_weight * mean(coverage outside the mask)`` to the loss, pulling gaussian
+    # energy to stay inside the mask. The hard geometric containment (mean projection + SDF-derived
+    # scale caps for exact-zero-outside support) is a separate follow-up.
+    mask_coverage_weight: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -314,6 +319,8 @@ def _fit_native_from_initialization(
     """Shared implementation used by ordinary initialization and paired research arms."""
     h, w = image.shape[:2]
     _validate_initial_gaussians(g0, h, w)
+    if config.mask_coverage_weight > 0.0 and mask is None:
+        raise ValueError("mask_coverage_weight requires a mask")
 
     # Raw (unconstrained) parameters.
     wh = image.new_tensor([w, h])
@@ -394,10 +401,13 @@ def _fit_native_from_initialization(
     stale_checks = 0
     for it in range(config.iterations):
         opt.zero_grad()
+        built = build()
         rendered = render_gaussians_2d(
-            build(), h, w, row_chunk=config.row_chunk, renderer=config.native_renderer
+            built, h, w, row_chunk=config.row_chunk, renderer=config.native_renderer
         )
         loss = _fit_loss(rendered, target, mask)
+        if config.mask_coverage_weight > 0.0 and mask is not None:
+            loss = loss + _mask_coverage_penalty(built, mask, h, w, config)
         loss.backward()
         lr_used = float(opt.param_groups[0]["lr"])
         if diagnostic_callback is not None:
@@ -504,6 +514,15 @@ def _fit_loss(
     return (((rendered - target) ** 2) * weights[..., None]).mean()
 
 
+def _mask_coverage_penalty(
+    g: Gaussians2D, mask: torch.Tensor, height: int, width: int, config: FitConfig
+) -> torch.Tensor:
+    """Soft penalty on color-independent gaussian coverage outside the mask (containment)."""
+    coverage = render_gaussian_coverage_2d(g, height, width, row_chunk=config.row_chunk)
+    outside = 1.0 - mask.to(coverage).clamp(0, 1)
+    return config.mask_coverage_weight * (coverage * outside).mean()
+
+
 def _validate_fit_controls(
     config: FitConfig,
     diagnostic_callback: NativeFitDiagnosticCallback | None,
@@ -537,6 +556,13 @@ def _validate_fit_controls(
         for name in ("pool_triage_every", "pool_prune_count", "pool_spawn_count"):
             if getattr(config, name) < 0:
                 raise ValueError(f"{name} must be non-negative")
+    if config.mask_coverage_weight < 0.0:
+        raise ValueError("mask_coverage_weight must be non-negative")
+    if config.mask_coverage_weight > 0.0:
+        if config.backend != "native":
+            raise ValueError("mask_coverage_weight requires the native backend")
+        if config.batch_views or config.pool:
+            raise ValueError("mask_coverage_weight is not supported with batch_views or the pool")
 
 
 def _validate_raw_parameters(raw_parameters: dict[str, torch.Tensor]) -> None:

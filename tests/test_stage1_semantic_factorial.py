@@ -160,6 +160,7 @@ def test_default_fit_config_is_the_frozen_default_preserving_9p_path() -> None:
         "pool_prune_count": 32,
         "pool_spawn_count": 32,
         "pool_min_live": 1,
+        "mask_coverage_weight": 0.0,
     }
 
 
