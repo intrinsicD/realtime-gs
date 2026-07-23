@@ -1,0 +1,20 @@
+{
+  "schema": "rtgs.viewer-comparison.v1",
+  "methods": [
+    {
+      "name": "ci",
+      "initial": "../../runs/beam_partition_covariance_20260723/ci/gaussians_init.ply",
+      "final": "../../runs/beam_partition_covariance_20260723/ci/gaussians_final.ply"
+    },
+    {
+      "name": "pou-area",
+      "initial": "../../runs/beam_partition_covariance_20260723/pou-area/gaussians_init.ply",
+      "final": "../../runs/beam_partition_covariance_20260723/pou-area/gaussians_final.ply"
+    },
+    {
+      "name": "pou-full",
+      "initial": "../../runs/beam_partition_covariance_20260723/pou-full/gaussians_init.ply",
+      "final": "../../runs/beam_partition_covariance_20260723/pou-full/gaussians_final.ply"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "rtgs.viewer-comparison.v1",
+  "methods": [
+    {
+      "name": "ci",
+      "initial": "../../runs/beam_covariance_refit_20260723/ci/gaussians_init.ply",
+      "final": "../../runs/beam_covariance_refit_20260723/ci/gaussians_final.ply"
+    },
+    {
+      "name": "track-lsq",
+      "initial": "../../runs/beam_covariance_refit_20260723/track-lsq/gaussians_init.ply",
+      "final": "../../runs/beam_covariance_refit_20260723/track-lsq/gaussians_final.ply"
+    },
+    {
+      "name": "track-robust",
+      "initial": "../../runs/beam_covariance_refit_20260723/track-robust/gaussians_init.ply",
+      "final": "../../runs/beam_covariance_refit_20260723/track-robust/gaussians_final.ply"
+    }
+  ]
+}

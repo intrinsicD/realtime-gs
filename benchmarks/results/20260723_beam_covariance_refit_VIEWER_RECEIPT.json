@@ -1,0 +1,24 @@
+{
+  "schema": "rtgs.viewer-smoke.v1",
+  "timestamp": "2026-07-23T13:30:07+02:00",
+  "comparison_manifest": "benchmarks/results/20260723_beam_covariance_refit_VIEWER.json",
+  "comparison_manifest_sha256": "067204cc52e273df959b5cfe8cd866f44d1f14a289f47fbf331927a4e2e562f1",
+  "command": "CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest benchmarks/results/20260723_beam_covariance_refit_VIEWER.json --max-viewer-gaussians 800 --device cpu --port 8782 --no-open",
+  "models": [
+    {"label": "ci · initial · 800 splats", "count": 800},
+    {"label": "ci · final · 800 splats", "count": 800},
+    {"label": "track-lsq · initial · 800 splats", "count": 800},
+    {"label": "track-lsq · final · 800 splats", "count": 800},
+    {"label": "track-robust · initial · 800 splats", "count": 800},
+    {"label": "track-robust · final · 800 splats", "count": 800}
+  ],
+  "host": "127.0.0.1",
+  "port": 8782,
+  "socket_owner_pid": 2014629,
+  "http_status": 200,
+  "cuda_visible_devices": "",
+  "nvidia_compute_process_output": [],
+  "server_stopped_after_smoke": true,
+  "port_free_after_stop": true,
+  "note": "The base .venv lacks the optional viser package; the successful viewer smoke used the existing .venv-cuda viewer installation while forcing CPU."
+}

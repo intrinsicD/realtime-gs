@@ -1,0 +1,215 @@
+{
+  "schema": "rtgs.beam_partition_opacity_probe.audit.v1",
+  "generated_utc": "2026-07-23T12:57:15.067337+00:00",
+  "primary": {
+    "path": "runs/beam_partition_covariance_20260723/opacity_probe.json",
+    "sha256": "b73b1c1e5dfb2859baef4a1115c5a39c38f5b4c8e4aaec590dad6bc3fd4db0b4"
+  },
+  "repeat": {
+    "path": "runs/beam_partition_covariance_20260723_repeat/opacity_probe.json",
+    "sha256": "6586bc8db0cea2a6f6a1d07fe916e2f446d8784a10d9bbfbed77669d95e25ba4"
+  },
+  "headline": {
+    "pou_full_baseline_alpha_0_01": {
+      "threshold": 0.01,
+      "recall": 0.9436580985784531,
+      "precision": 0.8913227170705795
+    },
+    "pou_full_baseline_alpha_0_02": {
+      "threshold": 0.02,
+      "recall": 0.9099362194538116,
+      "precision": 0.9198705703020096
+    },
+    "pou_full_opacity_x8": {
+      "opacity_factor": 8.0,
+      "effective_uniform_opacity": 0.800000011920929,
+      "psnr_fg": 16.47197437286377,
+      "alpha_iou_at_0_5": 0.7223328799009323,
+      "alpha_inside": 0.6758176237344742,
+      "alpha_outside": 0.015009999857284129,
+      "recall": 0.7388780117034912,
+      "precision": 0.9706239402294159
+    },
+    "ci_opacity_x8": {
+      "opacity_factor": 8.0,
+      "effective_uniform_opacity": 0.800000011920929,
+      "psnr_fg": 14.482916593551636,
+      "alpha_iou_at_0_5": 0.6309042572975159,
+      "alpha_inside": 0.5942868143320084,
+      "alpha_outside": 0.00715155660873279,
+      "recall": 0.6380192786455154,
+      "precision": 0.982846736907959
+    }
+  },
+  "claim_disposition": {
+    "pou_full_has_broad_low_alpha_support_on_fitted_views": "confirm_at_posthoc_thresholds_only",
+    "fixed_opacity_0_1_is_a_major_step0_bottleneck": "support_as_exploratory_sensitivity_not_causal_selection",
+    "opacity_x8_is_a_valid_initializer_rule": "not_tested_and_not_authorized",
+    "opacity_is_the_only_missing_factor": "not_established",
+    "held_out_or_default_claim": "not_authorized"
+  },
+  "findings": [
+    "Alpha IoU uses a hard 0.5 prediction threshold. At base opacity 0.1, pou-full already has 0.944 foreground recall at alpha>0.01 and 0.910 at alpha>0.02, but only 0.00886 IoU at alpha>0.5.",
+    "Changing only uniform opacity from 0.1 to 0.8 raises pou-full alpha IoU to 0.7223 and foreground PSNR to 16.472 dB, with outside alpha rising to 0.0150.",
+    "The sweep is post-hoc, fitted-view-only, and globally uniform. It identifies optical thickness as a likely bottleneck but cannot select factor eight or rule out residual geometry, count, visibility, or topology bottlenecks."
+  ],
+  "checks": [
+    {
+      "name": "schemas and exploratory scope",
+      "passed": true,
+      "detail": {
+        "schema": "rtgs.beam_partition_opacity_probe.v1",
+        "status": "complete_exploratory_posthoc",
+        "all_views_fitted": true
+      }
+    },
+    {
+      "name": "bound probe source",
+      "passed": true,
+      "detail": {
+        "primary": "315a9d8cb4ada8a2d24f6ce066cccbd0a222b3fed93546a665cffa3153635018",
+        "repeat": "315a9d8cb4ada8a2d24f6ce066cccbd0a222b3fed93546a665cffa3153635018",
+        "current": "315a9d8cb4ada8a2d24f6ce066cccbd0a222b3fed93546a665cffa3153635018"
+      }
+    },
+    {
+      "name": "frozen factors, thresholds, and alpha-IoU definition",
+      "passed": true,
+      "detail": {
+        "opacity_factors": [
+          0.5,
+          1.0,
+          2.0,
+          4.0,
+          8.0
+        ],
+        "alpha_thresholds": [
+          0.01,
+          0.02,
+          0.05,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5
+        ]
+      }
+    },
+    {
+      "name": "ci: exact repeated scientific probe",
+      "passed": true,
+      "detail": {
+        "primary_ply_sha256": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f",
+        "repeat_ply_sha256": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f"
+      }
+    },
+    {
+      "name": "ci: fixed 800-Gaussian PLY",
+      "passed": true,
+      "detail": {
+        "primary_count": 800,
+        "repeat_count": 800
+      }
+    },
+    {
+      "name": "ci: factor-one metrics reproduce both base runs",
+      "passed": true,
+      "detail": {
+        "psnr_fg": 12.330296039581299,
+        "alpha_iou_at_0_5": 0.010733034316217527,
+        "alpha_inside": 0.13974887691438198,
+        "alpha_outside": 0.0010313659731764346
+      }
+    },
+    {
+      "name": "ci: alpha-inside responds monotonically to opacity only",
+      "passed": true,
+      "detail": [
+        0.07421782705932856,
+        0.13974887691438198,
+        0.2497383914887905,
+        0.4095165953040123,
+        0.5942868143320084
+      ]
+    },
+    {
+      "name": "pou-area: exact repeated scientific probe",
+      "passed": true,
+      "detail": {
+        "primary_ply_sha256": "be5172af3fbe7a254fc658edeb219a9642f626881713b5ef22c837dcdb2fa559",
+        "repeat_ply_sha256": "be5172af3fbe7a254fc658edeb219a9642f626881713b5ef22c837dcdb2fa559"
+      }
+    },
+    {
+      "name": "pou-area: fixed 800-Gaussian PLY",
+      "passed": true,
+      "detail": {
+        "primary_count": 800,
+        "repeat_count": 800
+      }
+    },
+    {
+      "name": "pou-area: factor-one metrics reproduce both base runs",
+      "passed": true,
+      "detail": {
+        "psnr_fg": 12.312767505645752,
+        "alpha_iou_at_0_5": 0.006246110948268324,
+        "alpha_inside": 0.1227413509041071,
+        "alpha_outside": 0.0011911850306205451
+      }
+    },
+    {
+      "name": "pou-area: alpha-inside responds monotonically to opacity only",
+      "passed": true,
+      "detail": [
+        0.06441843695938587,
+        0.1227413509041071,
+        0.2241201475262642,
+        0.3809308335185051,
+        0.5815526843070984
+      ]
+    },
+    {
+      "name": "pou-full: exact repeated scientific probe",
+      "passed": true,
+      "detail": {
+        "primary_ply_sha256": "dc1a4e9106e530f45d5748f048dd167dcd2640356530e290075873f77835ffc9",
+        "repeat_ply_sha256": "dc1a4e9106e530f45d5748f048dd167dcd2640356530e290075873f77835ffc9"
+      }
+    },
+    {
+      "name": "pou-full: fixed 800-Gaussian PLY",
+      "passed": true,
+      "detail": {
+        "primary_count": 800,
+        "repeat_count": 800
+      }
+    },
+    {
+      "name": "pou-full: factor-one metrics reproduce both base runs",
+      "passed": true,
+      "detail": {
+        "psnr_fg": 12.574459075927734,
+        "alpha_iou_at_0_5": 0.008858671571942978,
+        "alpha_inside": 0.1520034745335579,
+        "alpha_outside": 0.002115174153004773
+      }
+    },
+    {
+      "name": "pou-full: alpha-inside responds monotonically to opacity only",
+      "passed": true,
+      "detail": [
+        0.08027707226574421,
+        0.1520034745335579,
+        0.27436382323503494,
+        0.45705197751522064,
+        0.6758176237344742
+      ]
+    }
+  ],
+  "check_summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0
+  }
+}

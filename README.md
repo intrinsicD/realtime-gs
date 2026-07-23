@@ -125,6 +125,49 @@ native counts differ, timings are nonportable, and the field arm lacks the proto
 individual topology move receipts; those limitations are part of the result, not footnotes to a
 default-selection claim.
 
+A focused Beam covariance follow-up held its 800 means, colors, opacity, and count bit-identical
+and compared unchanged covariance intersection (CI), linear covariance triangulation on Beam's
+contributor tracks, and robust Cholesky refitting. Linear LSQ raised initial fitted-view alpha IoU
+from 0.0107 to 0.5506 and improved fixed-topology PSNR AUC by 9.11%, but **failed the direct
+covariance gate**: 635/800 raw matrices were non-SPD and the bounded result's median whitened
+reprojection residual was 13.45 versus CI's 0.689. Robust refitting removed the scale/coverage
+gain and did not improve convergence. The audited conclusion is therefore narrower than the
+attractive render numbers: Beam exposes useful Gaussian lineage, while this LSQ result is an
+anisotropic scale heuristic rather than validated 3D covariance. CI and all defaults remain
+unchanged. See the
+[`protocol`](benchmarks/results/20260723_beam_covariance_refit_PREREG.md),
+[`result`](benchmarks/results/20260723_beam_covariance_refit_RESULT.md), and
+[`audit`](benchmarks/results/20260723_beam_covariance_refit_AUDIT.md).
+
+Compare the CI, track-LSQ, and track-robust initial/final states with one synchronized orbit:
+
+```bash
+CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view \
+  --comparison-manifest benchmarks/results/20260723_beam_covariance_refit_VIEWER.json \
+  --max-viewer-gaussians 800 --device cpu --port 8782 --no-open
+```
+
+A second follow-up implements the requested mask-only density partition around Beam's exact native
+2D contributor identities. Order-5 quadrature partitions all masked source density among 4,704
+unique anchors, then refits covariance while keeping the 800 means, colors, opacity, lineage,
+depths, and count fixed. The construction is valid and exactly reproducible, but the primary
+coverage hypothesis fails: `pou-area`/`pou-full` change initial alpha IoU by −41.8%/−17.5% versus
+CI. The full partition shape nevertheless improves the fitted-view fixed-topology foreground-PSNR
+AUC by 6.82%, ends +0.118 dB above CI, and reaches CI's endpoint 50 steps earlier. This is a narrow
+single-scene optimization-conditioning result, not physical covariance, held-out evidence, or a
+default change. See the
+[`protocol`](benchmarks/results/20260723_beam_partition_covariance_PREREG.md),
+[`result`](benchmarks/results/20260723_beam_partition_covariance_RESULT.md), and
+[`audit`](benchmarks/results/20260723_beam_partition_covariance_AUDIT.md).
+
+Compare CI, determinant-only partition area, and full partition covariance before/after fitting:
+
+```bash
+CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view \
+  --comparison-manifest benchmarks/results/20260723_beam_partition_covariance_VIEWER.json \
+  --max-viewer-gaussians 800 --device cpu --port 8783 --no-open
+```
+
 Compare every saved initial state against its selected final state in one orbit viewer with the
 checked-in [`comparison manifest`](benchmarks/results/20260721_all_initializers_frame00008_VIEWER.json):
 

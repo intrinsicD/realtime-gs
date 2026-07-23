@@ -1,0 +1,1616 @@
+{
+  "schema": "rtgs.beam_partition_covariance.audit.v1",
+  "generated_utc": "2026-07-23T12:57:14.850252+00:00",
+  "execution_binding": {
+    "git_revision": "c2a7e120a5cafdcf22d4bff6f5b9868b860eb1df",
+    "protocol_sha256": "550abb9b931fb60644c0851c5ac488de969e1bbe1f0d6ed598cae353d8290562",
+    "source_hashes": {
+      "src/rtgs/lift/beam_partition.py": "088956887dea77bfeb720714ee937a58ac83ff1166b2c8080fd15c516c0ad196",
+      "src/rtgs/lift/beam_fusion.py": "575c12fdb59ad7a430178ed5899eb9d546cddc965f50617eeed0b40fe9ca2e12",
+      "benchmarks/beam_partition_covariance.py": "5ac7a63d4b8105b0b0b5f392fc541cf4dbbb7ca660f4fa6f93839b1fc07f817e",
+      "tests/test_beam_partition.py": "656ab4f6b9d0129bd8e395f990ee67de8c5899b96abd77ce8a46407bf52a6986",
+      "benchmarks/beam_covariance_refit.py": "8eb11a50fa9055578139985350ece981861c717e81317445863c9233c890995e",
+      "benchmarks/beam_convergence_dynamics.py": "6521af11d0af8513cd6963de260786e37c9791506a0782619b0561045fe2ffa9"
+    },
+    "official_command": ".venv/bin/python benchmarks/beam_partition_covariance.py --protocol benchmarks/results/20260723_beam_partition_covariance_PREREG.md --out runs/beam_partition_covariance_20260723",
+    "repeat_command": ".venv/bin/python benchmarks/beam_partition_covariance.py --protocol benchmarks/results/20260723_beam_partition_covariance_PREREG.md --out runs/beam_partition_covariance_20260723_repeat",
+    "python": "3.11.15 | packaged by conda-forge | (main, Mar  5 2026, 16:45:40) [GCC 14.3.0]",
+    "torch": "2.12.1+cpu",
+    "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.35",
+    "torch_threads": 16,
+    "torch_interop_threads": 32
+  },
+  "input_binding": {
+    "manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+    "manifest_sha256": "b1c8e256d73e2c05f3cb4797a615bdbb2639a637f12908a5c96a2a9a9f912847",
+    "semantic_digest": "0f86429b4cf503df3ad46ca84a9346c9ab1ada51509d90e13ae9fb241d2a8ef5",
+    "calibration_sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091",
+    "files": [
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0001.rtgsv",
+        "bytes": 160821,
+        "sha256": "b50f4e9355e9219e97f07df821ed3ea3c168b5f5a9583a2531c8b2d55ba9ef44"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0004.rtgsv",
+        "bytes": 159935,
+        "sha256": "d5148fa0a9f9df90094b51ceae8f1687a8e95ed7e2df309e78881d1144580d64"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0005.rtgsv",
+        "bytes": 160942,
+        "sha256": "33b1510f0ffff8c702ebef138ce9c9776405060c1c77f60046704c7409f9a623"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0006.rtgsv",
+        "bytes": 159883,
+        "sha256": "b1c9d3528de4f58a4ed5f80a7022348761cf27ff905175a95a9021b60386015f"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0008.rtgsv",
+        "bytes": 160067,
+        "sha256": "cb532b668bd01ac6932980f69a787593e5fbdd34752504a2d4bc0443ae1fa182"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0009.rtgsv",
+        "bytes": 159253,
+        "sha256": "16101a602171e04613c9ed27003c84f4adf4d4e2325d55869589f5802e7b2b37"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0012.rtgsv",
+        "bytes": 161221,
+        "sha256": "5d738cf9a74dc24ecc892d164fdf5eba171dcb5da5a930b734c0dc5673534322"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0014.rtgsv",
+        "bytes": 158826,
+        "sha256": "7c164f9d6896cee049729aebeff604fffdae62e7243e78e0a507c53bc29760cf"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0018.rtgsv",
+        "bytes": 159247,
+        "sha256": "5e7f88baa7e49f8d981adddf5675deff3b1efcd6210cf61f4841c19350316920"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0019.rtgsv",
+        "bytes": 158193,
+        "sha256": "64aa034d52234fc586128591474a86c2c7d6921e0819a0837a9799e5d549c083"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0020.rtgsv",
+        "bytes": 158863,
+        "sha256": "efaa9f8d11d33ca130237822230456a222e75480a41e1eafaa9754e3c4810c94"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0021.rtgsv",
+        "bytes": 159955,
+        "sha256": "09249fc1f8278d3125582e034f68c7c2fcdc12eacb371de31b384c687ef96b72"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0022.rtgsv",
+        "bytes": 159085,
+        "sha256": "7f74aba47263909a70f115cde2ec03bcc4bc0732acf1840b9d38e3a8d7687057"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0025.rtgsv",
+        "bytes": 158233,
+        "sha256": "55beaadada7bf388a245c5e7b6b003797c2f51188b437b4f4755b51fd2e4d28a"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0026.rtgsv",
+        "bytes": 160474,
+        "sha256": "bbde6aae5691226e0416a0facf7392218a4ca4c1b0a42d3e4ebcc6d0ac8b6fc2"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0028.rtgsv",
+        "bytes": 161663,
+        "sha256": "f3aa5a53ed8ca9265446725223fa32ac89ebcf41e9fbb32745511a9350d94d34"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0029.rtgsv",
+        "bytes": 162657,
+        "sha256": "2b0b8231579795adcdfb2502c6fcd865ca658e2fd620deebb625fb7f39d4f066"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0030.rtgsv",
+        "bytes": 158025,
+        "sha256": "96c0c0734ce96ad2cd5591e242fcef3903e6dc9512d08acef8bf3ca0010e4d02"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0031.rtgsv",
+        "bytes": 159672,
+        "sha256": "ba3079a836d6a026ab212bf9f27608061bbb8c564b8feb7510a9c7f357771996"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0034.rtgsv",
+        "bytes": 160429,
+        "sha256": "9a3771e1073fd9da46bd613fdfbd5be262ece2e22532a2694fa00ce5c97af8c1"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0037.rtgsv",
+        "bytes": 159678,
+        "sha256": "37042aa89bf8eb5c024d9c005cc2bce93fa334a4ebd0fd6cd42334fb097631ae"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0039.rtgsv",
+        "bytes": 158694,
+        "sha256": "16fc6d112405e8866cf249560b230cef7dd7a0427f3121e636b64dc9040c5e5c"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C1000.rtgsv",
+        "bytes": 160051,
+        "sha256": "f22d919844758a9b9c13560502942a8fbc493017a49a143e7f5b98a6db8038bf"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C1001.rtgsv",
+        "bytes": 158785,
+        "sha256": "1e9202fa4b0814d08c5df31c7e82edad0ff2796410bea1a1250d1bd1e413b1e7"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C1002.rtgsv",
+        "bytes": 159466,
+        "sha256": "ebd4677d825ee0f5fb1acb14948ff820bdfca883663d3c591cf5ff37f210f574"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C1004.rtgsv",
+        "bytes": 158265,
+        "sha256": "6ab8d26a42a0145a074996f9f728a289c8ef00884af0c9ca61f3da06ba93dd16"
+      }
+    ]
+  },
+  "primary": {
+    "directory": "runs/beam_partition_covariance_20260723",
+    "summary_sha256": "6703b57b342fff29aed40b63643b19c2263ccd562af809edfffeab8145294400",
+    "artifact_manifest": [
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/dynamics.json",
+        "bytes": 36530,
+        "sha256": "640799c4c6fd117e27092d4207bb5bc9d18aafbd3eb7677049826a65592b2993"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "98a178b482180691af65470dc4d9170817fc70f60ea84f94fba1d2705550ab70"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "35383ba98d9e44548e92d849036e9ee052d800eadcadb828ad8040384c4b1e45"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "aee1464ac9494a44901d9deda3ff383db204538e28af588ad9cac809f038cc10"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "ef756999f577c90b9bfa9a3cc9df43ab1da0959702239005bcf2cb6f4c2f3e9f"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "60301485331d9beb4aa97259912d33059b7675fa63d1d4f4c3947ee0e4ed9501"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "2c5b6f66af489591bed8aa320fc35ce273f410c87a31c9766e6ce290d608f5eb"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "b0b0834ec5f6835e7a2d08366b31e1edbca6a9d5f3b15a2dc28eb0fcf95fbc62"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "b4cc47185cfb90d71a00c56615175af26fbc63edb4e7bc3453db082a53c85e47"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/preview_final.png",
+        "bytes": 9269,
+        "sha256": "d3df5660258f1862e36fac81c31b1e5b5528506b2f84521a440a15fe06d03b1b"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/ci/preview_init.png",
+        "bytes": 7162,
+        "sha256": "f5af4920553e6d8d03544e963a8a82e64886b74f63fe86b77b9b19ecc48cb8df"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/comparison_contact_sheet.png",
+        "bytes": 1678863,
+        "sha256": "e77229937883e05e09a2f88dcb4d215ae13429646f89ed9ad5869989811d85fb"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/opacity_probe.json",
+        "bytes": 11129,
+        "sha256": "b73b1c1e5dfb2859baef4a1115c5a39c38f5b4c8e4aaec590dad6bc3fd4db0b4"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/dynamics.json",
+        "bytes": 36554,
+        "sha256": "9c1cfeaf7ccded1798398c8040eb01fccb587c1a1b2e645a4fecc928dfc0a775"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "f8be7bab90ac95f16f8ea2cfd649778196bc13178615a7db7fbd13886e2681b3"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "28ba00e3032ec4e8c70349fe374f862f529aa47a74d2a50bbe84a4ece29fda65"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "7d78a9bc4c79bd3beef6cb2ba4f323b24e8e4fe5d627429d74f61aaa7114b9fd"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "11adc8cad33291b06a5fe3667bc3d630b7b394e5cf0c20701f6d3a62ac37a1a4"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "8e995cfd28b644f024d6634c14432c267627877668ec205ecb26d0e69776b308"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "372e9bb92e87352ff7069f6cb70f16675af289c0b018d90b955bec9b4dcdc15b"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "bd7db6905437987479c34086b18f3b6cbb7901718441395e2537d882ed534474"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "e33702f4a23c04e57c838c0b33eccfecc053c7699eff39a970336ecb207c013a"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "fea1728ea3690f93be946b85d8156b21f8e5387bd08e4ca5e933284b4ad1b6e7"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "fea1728ea3690f93be946b85d8156b21f8e5387bd08e4ca5e933284b4ad1b6e7"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "be5172af3fbe7a254fc658edeb219a9642f626881713b5ef22c837dcdb2fa559"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/preview_final.png",
+        "bytes": 9215,
+        "sha256": "6e6aa137ced12884b48e6dce033e9ad070bf6e62744816301f299bfc52570bb7"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-area/preview_init.png",
+        "bytes": 7223,
+        "sha256": "0a2df4ae4f8b15a5daabd0b4a9dc8e2c741b9c44571dd15e1add6e5330c5b3bb"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/dynamics.json",
+        "bytes": 36538,
+        "sha256": "677f19469f9e3566e58f84108b8123fb4ad4d38299b0589eea75bb63b5d8c00c"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "418175b6d159b5e21cfafad780ca5cfc9eb85facdba5b235e62c4ad7ca10cdda"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "27f1e8957466efada7e749f1e4aae422d4dad32639a076169612002aa6d4d436"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "defdc09a10e14edea8105dd9399b81f49b61760357ecacce6d3727bf437d3486"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "dd1e87eec4edaacd6b20634487122094e07120ac29ac821995d5847ad321007a"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "937a21d49498c9464761fdbf40bf69813b780c83c2831ab529e1017caf2878d3"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "3624e8210feae3fb5f36cc39c27e673bf031affcacfc578fe3057c4b434e447c"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "21e1709e036e2dcaa14107648f56fa9e841419d15cd71a6f6cb89e4c58de71ed"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "1aaffafe3decec6e6fcc2f66cf71eb4459ba641e0c780f70d3fff730a5929a8d"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "b24eb9e4de64bc3334118be015f5bb5f40e152a62d0520c83167420ed08e365b"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "b24eb9e4de64bc3334118be015f5bb5f40e152a62d0520c83167420ed08e365b"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "dc1a4e9106e530f45d5748f048dd167dcd2640356530e290075873f77835ffc9"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/preview_final.png",
+        "bytes": 9268,
+        "sha256": "1298a0e136e6ebac301853a2e6143b3816dbc9e44ac7a7556af63cef1143bd43"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/pou-full/preview_init.png",
+        "bytes": 7363,
+        "sha256": "066ebc03df39ddf9c77eb140a6ff78e1784e5210385076b3ba9a47a4498af73f"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723/summary.json",
+        "bytes": 24424,
+        "sha256": "6703b57b342fff29aed40b63643b19c2263ccd562af809edfffeab8145294400"
+      }
+    ]
+  },
+  "repeat": {
+    "directory": "runs/beam_partition_covariance_20260723_repeat",
+    "summary_sha256": "8f1e50714193334dcc800c00e4008e89243d359ca269396b98fca8ca0ba00f7b",
+    "artifact_manifest": [
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/dynamics.json",
+        "bytes": 36530,
+        "sha256": "e9cf5f1349fe9b42a493fc48d7f0016ecf22c55b4b0871fb47e51ae51590201f"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "98a178b482180691af65470dc4d9170817fc70f60ea84f94fba1d2705550ab70"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "35383ba98d9e44548e92d849036e9ee052d800eadcadb828ad8040384c4b1e45"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "aee1464ac9494a44901d9deda3ff383db204538e28af588ad9cac809f038cc10"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "ef756999f577c90b9bfa9a3cc9df43ab1da0959702239005bcf2cb6f4c2f3e9f"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "60301485331d9beb4aa97259912d33059b7675fa63d1d4f4c3947ee0e4ed9501"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "2c5b6f66af489591bed8aa320fc35ce273f410c87a31c9766e6ce290d608f5eb"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "b0b0834ec5f6835e7a2d08366b31e1edbca6a9d5f3b15a2dc28eb0fcf95fbc62"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "b4cc47185cfb90d71a00c56615175af26fbc63edb4e7bc3453db082a53c85e47"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/preview_final.png",
+        "bytes": 9269,
+        "sha256": "d3df5660258f1862e36fac81c31b1e5b5528506b2f84521a440a15fe06d03b1b"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/ci/preview_init.png",
+        "bytes": 7162,
+        "sha256": "f5af4920553e6d8d03544e963a8a82e64886b74f63fe86b77b9b19ecc48cb8df"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/opacity_probe.json",
+        "bytes": 11157,
+        "sha256": "6586bc8db0cea2a6f6a1d07fe916e2f446d8784a10d9bbfbed77669d95e25ba4"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/dynamics.json",
+        "bytes": 36554,
+        "sha256": "8b04472092e6be7351ec8403a737e8a4572f3f4aa97168a094df0ec295eefd3a"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "f8be7bab90ac95f16f8ea2cfd649778196bc13178615a7db7fbd13886e2681b3"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "28ba00e3032ec4e8c70349fe374f862f529aa47a74d2a50bbe84a4ece29fda65"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "7d78a9bc4c79bd3beef6cb2ba4f323b24e8e4fe5d627429d74f61aaa7114b9fd"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "11adc8cad33291b06a5fe3667bc3d630b7b394e5cf0c20701f6d3a62ac37a1a4"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "8e995cfd28b644f024d6634c14432c267627877668ec205ecb26d0e69776b308"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "372e9bb92e87352ff7069f6cb70f16675af289c0b018d90b955bec9b4dcdc15b"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "bd7db6905437987479c34086b18f3b6cbb7901718441395e2537d882ed534474"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "e33702f4a23c04e57c838c0b33eccfecc053c7699eff39a970336ecb207c013a"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "fea1728ea3690f93be946b85d8156b21f8e5387bd08e4ca5e933284b4ad1b6e7"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "fea1728ea3690f93be946b85d8156b21f8e5387bd08e4ca5e933284b4ad1b6e7"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "be5172af3fbe7a254fc658edeb219a9642f626881713b5ef22c837dcdb2fa559"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/preview_final.png",
+        "bytes": 9215,
+        "sha256": "6e6aa137ced12884b48e6dce033e9ad070bf6e62744816301f299bfc52570bb7"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-area/preview_init.png",
+        "bytes": 7223,
+        "sha256": "0a2df4ae4f8b15a5daabd0b4a9dc8e2c741b9c44571dd15e1add6e5330c5b3bb"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/dynamics.json",
+        "bytes": 36538,
+        "sha256": "1fc77dc25b9e1e464a9b4f1fe671195cab27d868c2cc43c4d73a362a10f618e5"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "418175b6d159b5e21cfafad780ca5cfc9eb85facdba5b235e62c4ad7ca10cdda"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "27f1e8957466efada7e749f1e4aae422d4dad32639a076169612002aa6d4d436"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "defdc09a10e14edea8105dd9399b81f49b61760357ecacce6d3727bf437d3486"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "dd1e87eec4edaacd6b20634487122094e07120ac29ac821995d5847ad321007a"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "937a21d49498c9464761fdbf40bf69813b780c83c2831ab529e1017caf2878d3"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "3624e8210feae3fb5f36cc39c27e673bf031affcacfc578fe3057c4b434e447c"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "21e1709e036e2dcaa14107648f56fa9e841419d15cd71a6f6cb89e4c58de71ed"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "1aaffafe3decec6e6fcc2f66cf71eb4459ba641e0c780f70d3fff730a5929a8d"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "b24eb9e4de64bc3334118be015f5bb5f40e152a62d0520c83167420ed08e365b"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "b24eb9e4de64bc3334118be015f5bb5f40e152a62d0520c83167420ed08e365b"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "dc1a4e9106e530f45d5748f048dd167dcd2640356530e290075873f77835ffc9"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/preview_final.png",
+        "bytes": 9268,
+        "sha256": "1298a0e136e6ebac301853a2e6143b3816dbc9e44ac7a7556af63cef1143bd43"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/pou-full/preview_init.png",
+        "bytes": 7363,
+        "sha256": "066ebc03df39ddf9c77eb140a6ff78e1784e5210385076b3ba9a47a4498af73f"
+      },
+      {
+        "path": "runs/beam_partition_covariance_20260723_repeat/summary.json",
+        "bytes": 24424,
+        "sha256": "8f1e50714193334dcc800c00e4008e89243d359ca269396b98fca8ca0ba00f7b"
+      }
+    ]
+  },
+  "lineage_replay": {
+    "components": 800,
+    "contributor_links": 6029,
+    "unique_view_component_anchors": 4704,
+    "csr_and_depth_sha256": "2fd11f5482a28a85bb520f14b475c139e2a3b88a6847bf404ee50e5e3d71a4de"
+  },
+  "mechanism_validity": {
+    "all_views_have_anchors_and_mass": true,
+    "partition_of_unity_error_at_most_1e_12": true,
+    "native_ci_roundtrip_error_at_most_1e_4": true,
+    "frozen_fields_and_count": true,
+    "all": true
+  },
+  "covariance_diagnostics_recomputed_from_saved_initial_ply": {
+    "ci": {
+      "own_partition_target": {
+        "relative_frobenius_residual": {
+          "mean": 0.9216520308135195,
+          "median": 0.9403062060868854,
+          "p90": 0.9973749776012176,
+          "p99": 3.1911371005070484,
+          "max": 6.201196660420133
+        },
+        "whitened_rms_residual": {
+          "mean": 1.2670462845806651,
+          "median": 0.6888018417794926,
+          "p90": 2.8645154180700363,
+          "p99": 3.4715815266145205,
+          "max": 4.331640097542723
+        },
+        "sigma_all_axes": {
+          "mean": 0.006259937173493962,
+          "median": 0.0044630674206454545,
+          "p90": 0.01340926174822634,
+          "p99": 0.02520267617731285,
+          "max": 0.03651990410346287
+        },
+        "sigma_min": {
+          "mean": 0.0026199866686094525,
+          "median": 0.002102513472725132,
+          "p90": 0.00477126340176837,
+          "p99": 0.008800272798414078,
+          "max": 0.016860143865559254
+        },
+        "sigma_max": {
+          "mean": 0.010753366515657175,
+          "median": 0.009804781141314617,
+          "p90": 0.01888088920561545,
+          "p99": 0.028877586584947757,
+          "max": 0.03651990410346287
+        },
+        "condition_number": {
+          "mean": 34.10203834607576,
+          "median": 15.0379756410631,
+          "p90": 66.53673692835157,
+          "p99": 281.4598163910626,
+          "max": 1465.598967574772
+        }
+      },
+      "native_contributor_target": {
+        "relative_frobenius_residual": {
+          "mean": 0.9216520308135195,
+          "median": 0.9403062060868854,
+          "p90": 0.9973749776012176,
+          "p99": 3.1911371005070484,
+          "max": 6.201196660420133
+        },
+        "whitened_rms_residual": {
+          "mean": 1.2670462845806651,
+          "median": 0.6888018417794926,
+          "p90": 2.8645154180700363,
+          "p99": 3.4715815266145205,
+          "max": 4.331640097542723
+        },
+        "sigma_all_axes": {
+          "mean": 0.006259937173493962,
+          "median": 0.0044630674206454545,
+          "p90": 0.01340926174822634,
+          "p99": 0.02520267617731285,
+          "max": 0.03651990410346287
+        },
+        "sigma_min": {
+          "mean": 0.0026199866686094525,
+          "median": 0.002102513472725132,
+          "p90": 0.00477126340176837,
+          "p99": 0.008800272798414078,
+          "max": 0.016860143865559254
+        },
+        "sigma_max": {
+          "mean": 0.010753366515657175,
+          "median": 0.009804781141314617,
+          "p90": 0.01888088920561545,
+          "p99": 0.028877586584947757,
+          "max": 0.03651990410346287
+        },
+        "condition_number": {
+          "mean": 34.10203834607576,
+          "median": 15.0379756410631,
+          "p90": 66.53673692835157,
+          "p99": 281.4598163910626,
+          "max": 1465.598967574772
+        }
+      }
+    },
+    "pou-area": {
+      "own_partition_target": {
+        "relative_frobenius_residual": {
+          "mean": 0.8554740401078107,
+          "median": 0.9094394533813399,
+          "p90": 0.9914066222071001,
+          "p99": 1.3685579719030219,
+          "max": 4.877568978493603
+        },
+        "whitened_rms_residual": {
+          "mean": 1.1763654936408527,
+          "median": 0.7839405376664125,
+          "p90": 2.557435767432866,
+          "p99": 3.2825784032942438,
+          "max": 3.4922877433534887
+        },
+        "sigma_all_axes": {
+          "mean": 0.005137391357878155,
+          "median": 0.004297234815737762,
+          "p90": 0.009259110403276365,
+          "p99": 0.01691839615333163,
+          "max": 0.04024375327498251
+        },
+        "sigma_min": {
+          "mean": 0.0025530650854658156,
+          "median": 0.002293676059970395,
+          "p90": 0.00400049500687733,
+          "p99": 0.007111181590627016,
+          "max": 0.014610818537025158
+        },
+        "sigma_max": {
+          "mean": 0.008228520799371156,
+          "median": 0.0074673270257544794,
+          "p90": 0.012272906296262496,
+          "p99": 0.023537845602653963,
+          "max": 0.04024375327498251
+        },
+        "condition_number": {
+          "mean": 16.53274946370813,
+          "median": 9.990282369368035,
+          "p90": 33.279305973084874,
+          "p99": 101.17414111091462,
+          "max": 450.83517825602536
+        }
+      },
+      "native_contributor_target": {
+        "relative_frobenius_residual": {
+          "mean": 1.3384764240952984,
+          "median": 0.9680584593953158,
+          "p90": 0.9991750787286797,
+          "p99": 11.76700820689822,
+          "max": 161.61777590359145
+        },
+        "whitened_rms_residual": {
+          "mean": 4.562036495319045,
+          "median": 0.6554941795668922,
+          "p90": 8.492385034832365,
+          "p99": 65.70790592041176,
+          "max": 677.7555343293855
+        },
+        "sigma_all_axes": {
+          "mean": 0.005137391357878155,
+          "median": 0.004297234815737762,
+          "p90": 0.009259110403276365,
+          "p99": 0.01691839615333163,
+          "max": 0.04024375327498251
+        },
+        "sigma_min": {
+          "mean": 0.0025530650854658156,
+          "median": 0.002293676059970395,
+          "p90": 0.00400049500687733,
+          "p99": 0.007111181590627016,
+          "max": 0.014610818537025158
+        },
+        "sigma_max": {
+          "mean": 0.008228520799371156,
+          "median": 0.0074673270257544794,
+          "p90": 0.012272906296262496,
+          "p99": 0.023537845602653963,
+          "max": 0.04024375327498251
+        },
+        "condition_number": {
+          "mean": 16.53274946370813,
+          "median": 9.990282369368035,
+          "p90": 33.279305973084874,
+          "p99": 101.17414111091462,
+          "max": 450.83517825602536
+        }
+      }
+    },
+    "pou-full": {
+      "own_partition_target": {
+        "relative_frobenius_residual": {
+          "mean": 0.7084379075729896,
+          "median": 0.6296829177243931,
+          "p90": 1.091501474308916,
+          "p99": 2.601078405112209,
+          "max": 6.199107646259724
+        },
+        "whitened_rms_residual": {
+          "mean": 0.7865139428726845,
+          "median": 0.5523364633317618,
+          "p90": 1.6529631540647105,
+          "p99": 2.7351333162169533,
+          "max": 4.311386303823985
+        },
+        "sigma_all_axes": {
+          "mean": 0.00807437364960126,
+          "median": 0.007267485188304786,
+          "p90": 0.012332628180722486,
+          "p99": 0.021114310662199324,
+          "max": 0.05165877804897005
+        },
+        "sigma_min": {
+          "mean": 0.005489238642486948,
+          "median": 0.005237888237679212,
+          "p90": 0.007354107813279926,
+          "p99": 0.012069271505889273,
+          "max": 0.02418957029015244
+        },
+        "sigma_max": {
+          "mean": 0.011120395633240117,
+          "median": 0.010241452109680005,
+          "p90": 0.014587750726489658,
+          "p99": 0.030070290365465456,
+          "max": 0.05165877804897005
+        },
+        "condition_number": {
+          "mean": 4.640376150376563,
+          "median": 3.893862913518032,
+          "p90": 7.396270805052415,
+          "p99": 18.324631179687312,
+          "max": 30.118156838137782
+        }
+      },
+      "native_contributor_target": {
+        "relative_frobenius_residual": {
+          "mean": 1.8225477828826364,
+          "median": 0.9530288723499948,
+          "p90": 1.7773230340160344,
+          "p99": 21.220145926055842,
+          "max": 383.9937642174417
+        },
+        "whitened_rms_residual": {
+          "mean": 18.721501306509712,
+          "median": 1.0778451509739564,
+          "p90": 38.100201281666855,
+          "p99": 279.4746190326413,
+          "max": 4013.168335400892
+        },
+        "sigma_all_axes": {
+          "mean": 0.00807437364960126,
+          "median": 0.007267485188304786,
+          "p90": 0.012332628180722486,
+          "p99": 0.021114310662199324,
+          "max": 0.05165877804897005
+        },
+        "sigma_min": {
+          "mean": 0.005489238642486948,
+          "median": 0.005237888237679212,
+          "p90": 0.007354107813279926,
+          "p99": 0.012069271505889273,
+          "max": 0.02418957029015244
+        },
+        "sigma_max": {
+          "mean": 0.011120395633240117,
+          "median": 0.010241452109680005,
+          "p90": 0.014587750726489658,
+          "p99": 0.030070290365465456,
+          "max": 0.05165877804897005
+        },
+        "condition_number": {
+          "mean": 4.640376150376563,
+          "median": 3.893862913518032,
+          "p90": 7.396270805052415,
+          "p99": 18.324631179687312,
+          "max": 30.118156838137782
+        }
+      }
+    }
+  },
+  "outcomes": {
+    "ci": {
+      "init_psnr_fg": 12.330296039581299,
+      "init_alpha_iou": 0.010733034316217527,
+      "init_alpha_inside": 0.13974887691438198,
+      "init_alpha_outside": 0.0010313659731764346,
+      "final_psnr_fg": 25.0083065032959,
+      "final_alpha_iou": 0.936492845416069,
+      "final_alpha_inside": 0.9362937808036804,
+      "final_alpha_outside": 0.03161252196878195,
+      "psnr_fg_auc_db_steps": 21856.839060783386,
+      "psnr_fg_auc_mean_db": 21.856839060783386,
+      "first_step_reaching_ci_final_psnr": 1000
+    },
+    "pou-area": {
+      "init_psnr_fg": 12.312767505645752,
+      "init_alpha_iou": 0.006246110948268324,
+      "init_alpha_inside": 0.1227413509041071,
+      "init_alpha_outside": 0.0011911850306205451,
+      "final_psnr_fg": 25.098240852355957,
+      "final_alpha_iou": 0.9361094087362289,
+      "final_alpha_inside": 0.9336376786231995,
+      "final_alpha_outside": 0.030936896102502942,
+      "psnr_fg_auc_db_steps": 22918.44908595085,
+      "psnr_fg_auc_mean_db": 22.91844908595085,
+      "first_step_reaching_ci_final_psnr": 975
+    },
+    "pou-full": {
+      "init_psnr_fg": 12.574459075927734,
+      "init_alpha_iou": 0.008858671571942978,
+      "init_alpha_inside": 0.1520034745335579,
+      "init_alpha_outside": 0.002115174153004773,
+      "final_psnr_fg": 25.12632703781128,
+      "final_alpha_iou": 0.9372499287128448,
+      "final_alpha_inside": 0.9369266927242279,
+      "final_alpha_outside": 0.032010580180212855,
+      "psnr_fg_auc_db_steps": 23347.58939743042,
+      "psnr_fg_auc_mean_db": 23.34758939743042,
+      "first_step_reaching_ci_final_psnr": 950
+    }
+  },
+  "preregistered_gates": {
+    "pou-area": {
+      "initial_alpha_inside_relative_gain_vs_ci": -0.12170062748121158,
+      "initial_alpha_iou_relative_gain_vs_ci": -0.41804798491788087,
+      "initial_psnr_fg_delta_db_vs_ci": -0.017528533935546875,
+      "initial_alpha_outside": 0.0011911850306205451,
+      "psnr_fg_auc_relative_gain_vs_ci": 0.04857106840633052,
+      "final_psnr_fg_delta_db_vs_ci": 0.0899343490600586,
+      "final_alpha_iou_delta_vs_ci": -0.0003834366798400879,
+      "coverage_mechanism": false,
+      "optimization_outcome": true,
+      "both_required_gates": false
+    },
+    "pou-full": {
+      "initial_alpha_inside_relative_gain_vs_ci": 0.08769013311415574,
+      "initial_alpha_iou_relative_gain_vs_ci": -0.17463493445114608,
+      "initial_psnr_fg_delta_db_vs_ci": 0.24416303634643555,
+      "initial_alpha_outside": 0.002115174153004773,
+      "psnr_fg_auc_relative_gain_vs_ci": 0.06820521176466965,
+      "final_psnr_fg_delta_db_vs_ci": 0.11802053451538086,
+      "final_alpha_iou_delta_vs_ci": 0.0007570832967758179,
+      "coverage_mechanism": false,
+      "optimization_outcome": true,
+      "both_required_gates": false
+    }
+  },
+  "full_shape_gate": {
+    "initial_shape_clause": true,
+    "pipeline_shape_clause": true,
+    "pou_full_passes_coverage_and_optimization": false,
+    "full_partition_shape_adds_value": false,
+    "auc_relative_gain_full_vs_area": 0.018724666310105276,
+    "final_psnr_delta_full_vs_area": 0.028086185455322266
+  },
+  "claim_disposition": {
+    "exact_native_2d_contributors_are_used_as_anchors": "confirm_from_CSR_source_replay_without_3d_projection_matching",
+    "masked_density_is_partitioned": "confirm_at_frozen_order_5_quadrature_resolution",
+    "partition_covariance_increases_initial_visible_coverage": "retire",
+    "partition_covariance_improves_fixed_topology_fitted_view_optimization": "confirm_narrowly_for_this_single_scene_CPU_development_run",
+    "full_partition_shape_is_better_than_area_scaling": "narrow_to_1.87pct_AUC_gain_but_overall_preregistered_shape_gate_failed",
+    "partition_moments_recover_physical_3d_covariance": "not_established",
+    "production_default_change": "not_authorized",
+    "held_out_multi_scene_or_cuda_behavior": "not_tested"
+  },
+  "protocol_findings": [
+    "All construction, fitting, and evaluation cameras are fitted views; no held-out or generalization claim is available.",
+    "The mask integral is a deterministic 25-sample Gaussian quadrature approximation, not an exact continuous or full-pixel integral.",
+    "Most determinant-matching scalar covariance multipliers are below one while a few are extreme (maximum recorded 21290x); the frozen 3D Beam sigma bound limits their output effect, but the distribution is not uniform upscaling.",
+    "Raw per-anchor partitions were not persisted in the official run directories. The audit regenerated them exactly from bound source and data, and both full runs regenerated byte-identical initial PLYs.",
+    "CPU elapsed times are non-decisional and support no performance or real-time claim."
+  ],
+  "checks": [
+    {
+      "name": "summary schema and completeness",
+      "passed": true,
+      "detail": {
+        "schema": "rtgs.beam_partition_covariance.v1",
+        "status": "complete",
+        "arms": [
+          "ci",
+          "pou-area",
+          "pou-full"
+        ]
+      }
+    },
+    {
+      "name": "frozen common parameters",
+      "passed": true,
+      "detail": {
+        "selected_global_views": [
+          0,
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21
+        ],
+        "evaluation_local_views": [
+          0,
+          2,
+          4,
+          6
+        ],
+        "downscale": 32,
+        "n_init": 800,
+        "iterations": 1000,
+        "fixed_topology": true,
+        "seed": 0
+      }
+    },
+    {
+      "name": "protocol source and summary binding",
+      "passed": true,
+      "detail": {
+        "actual": "550abb9b931fb60644c0851c5ac488de969e1bbe1f0d6ed598cae353d8290562",
+        "primary": "550abb9b931fb60644c0851c5ac488de969e1bbe1f0d6ed598cae353d8290562",
+        "repeat": "550abb9b931fb60644c0851c5ac488de969e1bbe1f0d6ed598cae353d8290562"
+      }
+    },
+    {
+      "name": "all preregistered source hashes preserved",
+      "passed": true,
+      "detail": {
+        "src/rtgs/lift/beam_partition.py": "088956887dea77bfeb720714ee937a58ac83ff1166b2c8080fd15c516c0ad196",
+        "src/rtgs/lift/beam_fusion.py": "575c12fdb59ad7a430178ed5899eb9d546cddc965f50617eeed0b40fe9ca2e12",
+        "benchmarks/beam_partition_covariance.py": "5ac7a63d4b8105b0b0b5f392fc541cf4dbbb7ca660f4fa6f93839b1fc07f817e",
+        "tests/test_beam_partition.py": "656ab4f6b9d0129bd8e395f990ee67de8c5899b96abd77ce8a46407bf52a6986",
+        "benchmarks/beam_covariance_refit.py": "8eb11a50fa9055578139985350ece981861c717e81317445863c9233c890995e",
+        "benchmarks/beam_convergence_dynamics.py": "6521af11d0af8513cd6963de260786e37c9791506a0782619b0561045fe2ffa9"
+      }
+    },
+    {
+      "name": "base git revision",
+      "passed": true,
+      "detail": "c2a7e120a5cafdcf22d4bff6f5b9868b860eb1df"
+    },
+    {
+      "name": "protocol predates measured dynamics artifacts",
+      "passed": true,
+      "detail": {
+        "protocol_mtime_ns": 1784808273300196531,
+        "first_dynamics_mtime_ns": 1784808393729920140
+      }
+    },
+    {
+      "name": "compact manifest hash",
+      "passed": true,
+      "detail": "b1c8e256d73e2c05f3cb4797a615bdbb2639a637f12908a5c96a2a9a9f912847"
+    },
+    {
+      "name": "compact payload hash: C0001",
+      "passed": true,
+      "detail": {
+        "sha256": "b50f4e9355e9219e97f07df821ed3ea3c168b5f5a9583a2531c8b2d55ba9ef44",
+        "bytes": 160821
+      }
+    },
+    {
+      "name": "compact payload hash: C0004",
+      "passed": true,
+      "detail": {
+        "sha256": "d5148fa0a9f9df90094b51ceae8f1687a8e95ed7e2df309e78881d1144580d64",
+        "bytes": 159935
+      }
+    },
+    {
+      "name": "compact payload hash: C0005",
+      "passed": true,
+      "detail": {
+        "sha256": "33b1510f0ffff8c702ebef138ce9c9776405060c1c77f60046704c7409f9a623",
+        "bytes": 160942
+      }
+    },
+    {
+      "name": "compact payload hash: C0006",
+      "passed": true,
+      "detail": {
+        "sha256": "b1c9d3528de4f58a4ed5f80a7022348761cf27ff905175a95a9021b60386015f",
+        "bytes": 159883
+      }
+    },
+    {
+      "name": "compact payload hash: C0008",
+      "passed": true,
+      "detail": {
+        "sha256": "cb532b668bd01ac6932980f69a787593e5fbdd34752504a2d4bc0443ae1fa182",
+        "bytes": 160067
+      }
+    },
+    {
+      "name": "compact payload hash: C0009",
+      "passed": true,
+      "detail": {
+        "sha256": "16101a602171e04613c9ed27003c84f4adf4d4e2325d55869589f5802e7b2b37",
+        "bytes": 159253
+      }
+    },
+    {
+      "name": "compact payload hash: C0012",
+      "passed": true,
+      "detail": {
+        "sha256": "5d738cf9a74dc24ecc892d164fdf5eba171dcb5da5a930b734c0dc5673534322",
+        "bytes": 161221
+      }
+    },
+    {
+      "name": "compact payload hash: C0014",
+      "passed": true,
+      "detail": {
+        "sha256": "7c164f9d6896cee049729aebeff604fffdae62e7243e78e0a507c53bc29760cf",
+        "bytes": 158826
+      }
+    },
+    {
+      "name": "compact payload hash: C0018",
+      "passed": true,
+      "detail": {
+        "sha256": "5e7f88baa7e49f8d981adddf5675deff3b1efcd6210cf61f4841c19350316920",
+        "bytes": 159247
+      }
+    },
+    {
+      "name": "compact payload hash: C0019",
+      "passed": true,
+      "detail": {
+        "sha256": "64aa034d52234fc586128591474a86c2c7d6921e0819a0837a9799e5d549c083",
+        "bytes": 158193
+      }
+    },
+    {
+      "name": "compact payload hash: C0020",
+      "passed": true,
+      "detail": {
+        "sha256": "efaa9f8d11d33ca130237822230456a222e75480a41e1eafaa9754e3c4810c94",
+        "bytes": 158863
+      }
+    },
+    {
+      "name": "compact payload hash: C0021",
+      "passed": true,
+      "detail": {
+        "sha256": "09249fc1f8278d3125582e034f68c7c2fcdc12eacb371de31b384c687ef96b72",
+        "bytes": 159955
+      }
+    },
+    {
+      "name": "compact payload hash: C0022",
+      "passed": true,
+      "detail": {
+        "sha256": "7f74aba47263909a70f115cde2ec03bcc4bc0732acf1840b9d38e3a8d7687057",
+        "bytes": 159085
+      }
+    },
+    {
+      "name": "compact payload hash: C0025",
+      "passed": true,
+      "detail": {
+        "sha256": "55beaadada7bf388a245c5e7b6b003797c2f51188b437b4f4755b51fd2e4d28a",
+        "bytes": 158233
+      }
+    },
+    {
+      "name": "compact payload hash: C0026",
+      "passed": true,
+      "detail": {
+        "sha256": "bbde6aae5691226e0416a0facf7392218a4ca4c1b0a42d3e4ebcc6d0ac8b6fc2",
+        "bytes": 160474
+      }
+    },
+    {
+      "name": "compact payload hash: C0028",
+      "passed": true,
+      "detail": {
+        "sha256": "f3aa5a53ed8ca9265446725223fa32ac89ebcf41e9fbb32745511a9350d94d34",
+        "bytes": 161663
+      }
+    },
+    {
+      "name": "compact payload hash: C0029",
+      "passed": true,
+      "detail": {
+        "sha256": "2b0b8231579795adcdfb2502c6fcd865ca658e2fd620deebb625fb7f39d4f066",
+        "bytes": 162657
+      }
+    },
+    {
+      "name": "compact payload hash: C0030",
+      "passed": true,
+      "detail": {
+        "sha256": "96c0c0734ce96ad2cd5591e242fcef3903e6dc9512d08acef8bf3ca0010e4d02",
+        "bytes": 158025
+      }
+    },
+    {
+      "name": "compact payload hash: C0031",
+      "passed": true,
+      "detail": {
+        "sha256": "ba3079a836d6a026ab212bf9f27608061bbb8c564b8feb7510a9c7f357771996",
+        "bytes": 159672
+      }
+    },
+    {
+      "name": "compact payload hash: C0034",
+      "passed": true,
+      "detail": {
+        "sha256": "9a3771e1073fd9da46bd613fdfbd5be262ece2e22532a2694fa00ce5c97af8c1",
+        "bytes": 160429
+      }
+    },
+    {
+      "name": "compact payload hash: C0037",
+      "passed": true,
+      "detail": {
+        "sha256": "37042aa89bf8eb5c024d9c005cc2bce93fa334a4ebd0fd6cd42334fb097631ae",
+        "bytes": 159678
+      }
+    },
+    {
+      "name": "compact payload hash: C0039",
+      "passed": true,
+      "detail": {
+        "sha256": "16fc6d112405e8866cf249560b230cef7dd7a0427f3121e636b64dc9040c5e5c",
+        "bytes": 158694
+      }
+    },
+    {
+      "name": "compact payload hash: C1000",
+      "passed": true,
+      "detail": {
+        "sha256": "f22d919844758a9b9c13560502942a8fbc493017a49a143e7f5b98a6db8038bf",
+        "bytes": 160051
+      }
+    },
+    {
+      "name": "compact payload hash: C1001",
+      "passed": true,
+      "detail": {
+        "sha256": "1e9202fa4b0814d08c5df31c7e82edad0ff2796410bea1a1250d1bd1e413b1e7",
+        "bytes": 158785
+      }
+    },
+    {
+      "name": "compact payload hash: C1002",
+      "passed": true,
+      "detail": {
+        "sha256": "ebd4677d825ee0f5fb1acb14948ff820bdfca883663d3c591cf5ff37f210f574",
+        "bytes": 159466
+      }
+    },
+    {
+      "name": "compact payload hash: C1004",
+      "passed": true,
+      "detail": {
+        "sha256": "6ab8d26a42a0145a074996f9f728a289c8ef00884af0c9ca61f3da06ba93dd16",
+        "bytes": 158265
+      }
+    },
+    {
+      "name": "replayed Beam component and link counts",
+      "passed": true,
+      "detail": {
+        "components": 800,
+        "links": 6029
+      }
+    },
+    {
+      "name": "replayed deterministic partition diagnostics",
+      "passed": true,
+      "detail": {
+        "replay_digest": "30dc86256567629b3d6e81103a284c416ce64866e74476259687852ad72568a9",
+        "recorded_digest": "30dc86256567629b3d6e81103a284c416ce64866e74476259687852ad72568a9"
+      }
+    },
+    {
+      "name": "replayed member masks are identical",
+      "passed": true,
+      "detail": 6029
+    },
+    {
+      "name": "ci: complete primary and repeat checkpoint grids",
+      "passed": true,
+      "detail": {
+        "primary_count": 40,
+        "repeat_count": 40
+      }
+    },
+    {
+      "name": "ci: deterministic timing-free dynamics repeat",
+      "passed": true,
+      "detail": {
+        "primary": "63204d53067cf21a1aca56a11488c22ca437e0d3c941b3de01a1099a851b1172",
+        "repeat": "63204d53067cf21a1aca56a11488c22ca437e0d3c941b3de01a1099a851b1172"
+      }
+    },
+    {
+      "name": "ci: repeated PSNR trajectory",
+      "passed": true,
+      "detail": {
+        "primary_endpoint": [
+          1000,
+          25.0083065032959
+        ],
+        "repeat_endpoint": [
+          1000,
+          25.0083065032959
+        ]
+      }
+    },
+    {
+      "name": "ci/gaussians_init.ply: finite SPD fixed-count artifact",
+      "passed": true,
+      "detail": {
+        "primary_count": 800,
+        "repeat_count": 800
+      }
+    },
+    {
+      "name": "ci/gaussians_init.ply: byte-exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f",
+        "repeat": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f"
+      }
+    },
+    {
+      "name": "ci/gaussians_final.ply: finite SPD fixed-count artifact",
+      "passed": true,
+      "detail": {
+        "primary_count": 800,
+        "repeat_count": 800
+      }
+    },
+    {
+      "name": "ci/gaussians_final.ply: byte-exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414",
+        "repeat": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      }
+    },
+    {
+      "name": "ci: source replay exactly reproduces initial PLY",
+      "passed": true,
+      "detail": {
+        "replay": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f",
+        "artifact": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f"
+      }
+    },
+    {
+      "name": "pou-area: complete primary and repeat checkpoint grids",
+      "passed": true,
+      "detail": {
+        "primary_count": 40,
+        "repeat_count": 40
+      }
+    },
+    {
+      "name": "pou-area: deterministic timing-free dynamics repeat",
+      "passed": true,
+      "detail": {
+        "primary": "c3b6c63624141c54309eeac19617cb0b89cfbe8d1b57d5b4b573c1fff3bf958d",
+        "repeat": "c3b6c63624141c54309eeac19617cb0b89cfbe8d1b57d5b4b573c1fff3bf958d"
+      }
+    },
+    {
+      "name": "pou-area: repeated PSNR trajectory",
+      "passed": true,
+      "detail": {
+        "primary_endpoint": [
+          1000,
+          25.098240852355957
+        ],
+        "repeat_endpoint": [
+          1000,
+          25.098240852355957
+        ]
+      }
+    },
+    {
+      "name": "pou-area/gaussians_init.ply: finite SPD fixed-count artifact",
+      "passed": true,
+      "detail": {
+        "primary_count": 800,
+        "repeat_count": 800
+      }
+    },
+    {
+      "name": "pou-area/gaussians_init.ply: byte-exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "be5172af3fbe7a254fc658edeb219a9642f626881713b5ef22c837dcdb2fa559",
+        "repeat": "be5172af3fbe7a254fc658edeb219a9642f626881713b5ef22c837dcdb2fa559"
+      }
+    },
+    {
+      "name": "pou-area/gaussians_final.ply: finite SPD fixed-count artifact",
+      "passed": true,
+      "detail": {
+        "primary_count": 800,
+        "repeat_count": 800
+      }
+    },
+    {
+      "name": "pou-area/gaussians_final.ply: byte-exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "fea1728ea3690f93be946b85d8156b21f8e5387bd08e4ca5e933284b4ad1b6e7",
+        "repeat": "fea1728ea3690f93be946b85d8156b21f8e5387bd08e4ca5e933284b4ad1b6e7"
+      }
+    },
+    {
+      "name": "pou-area: source replay exactly reproduces initial PLY",
+      "passed": true,
+      "detail": {
+        "replay": "be5172af3fbe7a254fc658edeb219a9642f626881713b5ef22c837dcdb2fa559",
+        "artifact": "be5172af3fbe7a254fc658edeb219a9642f626881713b5ef22c837dcdb2fa559"
+      }
+    },
+    {
+      "name": "pou-full: complete primary and repeat checkpoint grids",
+      "passed": true,
+      "detail": {
+        "primary_count": 40,
+        "repeat_count": 40
+      }
+    },
+    {
+      "name": "pou-full: deterministic timing-free dynamics repeat",
+      "passed": true,
+      "detail": {
+        "primary": "90393c0e2520380e6d2c37c7f8ce0b69f71e1fb9128f50da96a8242f6ebbd699",
+        "repeat": "90393c0e2520380e6d2c37c7f8ce0b69f71e1fb9128f50da96a8242f6ebbd699"
+      }
+    },
+    {
+      "name": "pou-full: repeated PSNR trajectory",
+      "passed": true,
+      "detail": {
+        "primary_endpoint": [
+          1000,
+          25.12632703781128
+        ],
+        "repeat_endpoint": [
+          1000,
+          25.12632703781128
+        ]
+      }
+    },
+    {
+      "name": "pou-full/gaussians_init.ply: finite SPD fixed-count artifact",
+      "passed": true,
+      "detail": {
+        "primary_count": 800,
+        "repeat_count": 800
+      }
+    },
+    {
+      "name": "pou-full/gaussians_init.ply: byte-exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "dc1a4e9106e530f45d5748f048dd167dcd2640356530e290075873f77835ffc9",
+        "repeat": "dc1a4e9106e530f45d5748f048dd167dcd2640356530e290075873f77835ffc9"
+      }
+    },
+    {
+      "name": "pou-full/gaussians_final.ply: finite SPD fixed-count artifact",
+      "passed": true,
+      "detail": {
+        "primary_count": 800,
+        "repeat_count": 800
+      }
+    },
+    {
+      "name": "pou-full/gaussians_final.ply: byte-exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "b24eb9e4de64bc3334118be015f5bb5f40e152a62d0520c83167420ed08e365b",
+        "repeat": "b24eb9e4de64bc3334118be015f5bb5f40e152a62d0520c83167420ed08e365b"
+      }
+    },
+    {
+      "name": "pou-full: source replay exactly reproduces initial PLY",
+      "passed": true,
+      "detail": {
+        "replay": "dc1a4e9106e530f45d5748f048dd167dcd2640356530e290075873f77835ffc9",
+        "artifact": "dc1a4e9106e530f45d5748f048dd167dcd2640356530e290075873f77835ffc9"
+      }
+    },
+    {
+      "name": "timing-free primary and repeat summaries are exact",
+      "passed": true,
+      "detail": {
+        "primary": "b5c05d2086aa1a504297eea118f3b7f13e3b9a6620fd97f1712bbdb955d0f36a",
+        "repeat": "b5c05d2086aa1a504297eea118f3b7f13e3b9a6620fd97f1712bbdb955d0f36a"
+      }
+    },
+    {
+      "name": "all saved non-covariance initialization fields bit-exact",
+      "passed": true,
+      "detail": {
+        "ci": {
+          "means": true,
+          "opacity": true,
+          "sh": true
+        },
+        "pou-area": {
+          "means": true,
+          "opacity": true,
+          "sh": true
+        },
+        "pou-full": {
+          "means": true,
+          "opacity": true,
+          "sh": true
+        }
+      }
+    },
+    {
+      "name": "CI control unchanged from preceding covariance experiment",
+      "passed": true,
+      "detail": {
+        "preceding": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f",
+        "current": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f"
+      }
+    },
+    {
+      "name": "all preregistered mechanism-validity gates",
+      "passed": true,
+      "detail": {
+        "all_views_have_anchors_and_mass": true,
+        "partition_of_unity_error_at_most_1e_12": true,
+        "native_ci_roundtrip_error_at_most_1e_4": true,
+        "frozen_fields_and_count": true,
+        "all": true
+      }
+    },
+    {
+      "name": "ci: recomputed own-target covariance diagnostics",
+      "passed": true,
+      "detail": {
+        "recomputed_median": 0.6888018417794926,
+        "recorded_median": 0.6888018417794926
+      }
+    },
+    {
+      "name": "ci: recomputed native-target covariance diagnostics",
+      "passed": true,
+      "detail": {
+        "recomputed_median": 0.6888018417794926,
+        "recorded_median": 0.6888018417794926
+      }
+    },
+    {
+      "name": "pou-area: recomputed own-target covariance diagnostics",
+      "passed": true,
+      "detail": {
+        "recomputed_median": 0.7839405376664125,
+        "recorded_median": 0.7839405376664125
+      }
+    },
+    {
+      "name": "pou-area: recomputed native-target covariance diagnostics",
+      "passed": true,
+      "detail": {
+        "recomputed_median": 0.6554941795668922,
+        "recorded_median": 0.6554941795668922
+      }
+    },
+    {
+      "name": "pou-full: recomputed own-target covariance diagnostics",
+      "passed": true,
+      "detail": {
+        "recomputed_median": 0.5523364633317618,
+        "recorded_median": 0.5523364633317618
+      }
+    },
+    {
+      "name": "pou-full: recomputed native-target covariance diagnostics",
+      "passed": true,
+      "detail": {
+        "recomputed_median": 1.0778451509739564,
+        "recorded_median": 1.0778451509739564
+      }
+    }
+  ],
+  "check_summary": {
+    "total": 70,
+    "passed": 70,
+    "failed": 0
+  }
+}

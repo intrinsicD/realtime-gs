@@ -674,6 +674,78 @@ explicit capacity/budget control. RGB/depth/classic-SfM lifters require a separa
 than being labeled losers on data they cannot consume. The complete result and scientist pass are
 `benchmarks/results/20260721_all_initializers_frame00008_{RESULT,AUDIT}.md`.
 
+### 2.11 Beam lineage constrains covariance, not coverage (2026-07-23)
+
+Beam Fusion's retained contributor CSR is a real Gaussian-to-Gaussian partial correspondence
+structure: the reduced Janelle screen produced 800 3D hypotheses with 6,029 view links. It is not a
+dense correspondence field. Only 4,704 unique fitted 2D Gaussians—11.76% of the selected input
+pool—occurred in those links, and a source Gaussian may contribute to more than one retained 3D
+hypothesis.
+
+Applying Splat-SfM's linear covariance equations to those Beam tracks exposed an identifiability
+failure rather than a covariance solution. The median linear residual was 0.737 and 635/800 raw
+3D matrices were non-SPD. Eigenvalue clamping created extremely anisotropic splats: median maximum
+sigma rose 4.59× over CI, median minimum sigma hit the `1e-4` floor, and median condition reached
+178,541. The bounded result's median whitened 2D covariance residual was 13.4478, far worse than
+CI's 0.6888. It therefore cannot be interpreted as better physical 3D covariance.
+
+The same invalid-SPD repair was useful as a coverage intervention. With count, means, opacity, and
+SH/color bit-identical, fitted-view initial alpha IoU rose 0.01073→0.55056, the 1,000-step
+fixed-topology foreground-PSNR AUC rose 9.108%, and final foreground PSNR rose 0.5569 dB. A robust
+whitened Cholesky fit reduced median residual only 7.80% versus CI and collapsed the wide scales;
+its coverage and optimization returned to the CI curve. Thus local covariance fidelity and sparse
+surface coverage are distinct objectives. The 2D covariance of a matched fitted component does
+not imply enough footprint for a sparse 3D representation to cover the mask.
+
+**Reuse decision:** keep CI as the Beam covariance and do not integrate either tested treatment.
+Reuse the CSR only as lineage. If coverage is revisited, test a clearly named bounded scale prior
+or CI/LSQ spectral blend with outside-mask leakage guards; do not present it as covariance
+recovery. A physical estimator needs a PSD-constrained reprojection gate before downstream
+optimization. The exact single-scene, all-fitted-view CPU result and scientist pass are
+`benchmarks/results/20260723_beam_covariance_refit_{RESULT,AUDIT}.md`; no held-out, production
+gsplat/density, multi-scene, or default claim follows.
+
+### 2.12 Masked density partitions improve conditioning, not initial coverage (2026-07-23)
+
+The sparse-lineage limitation can be addressed without inventing 3D-to-2D matches. Beam Fusion now
+retains each contributor's implied depth, and `rtgs.lift.beam_partition` deduplicates its exact
+native source component ids per view. Those native 2D means remain fixed anchors. Frozen order-5
+Gaussian quadrature samples the full 5,000-component source mixture, removes samples outside the
+packed foreground mask, and assigns every retained sample to the nearest anchor. Fixed-anchor
+second moments therefore include both within-Gaussian covariance and the spatial spread of nearby
+source density. Shared contributors are partitioned once even when multiple 3D tracks reuse them.
+
+On the same reduced Janelle screen, 6,029 links became 4,704 unique view/component anchors. Every
+partition had support, partition-of-unity mass error was at most `2.70e-16`, and replaying native
+covariance through the newly retained exact depths reproduced CI within `1.23e-6` relative error.
+The partition geometry was surprising: per-view median determinant-matching scalar covariance
+multipliers were only 0.333–0.821× the native anchor covariance, while a rare tail reached
+21,290×. Thus “give each survivor its surrounding density” is not equivalent to heuristic global
+scale inflation.
+
+The full partition moment produced better-behaved 3D shapes than either CI or determinant-only
+scaling: median condition number fell from 15.04 to 3.89 and median whitened residual against the
+new partition targets fell from 0.6888 to 0.5523. It simultaneously became worse against the
+original local contributor covariances (1.0778), so neither target is physical ground truth.
+Most importantly, the preregistered coverage hypothesis failed. Initial alpha IoU fell from
+0.01073 (CI) to 0.00625 (`pou-area`) and 0.00886 (`pou-full`); full alpha-inside rose only 8.77%,
+short of the required 25%.
+
+There is nevertheless a reproducible optimization signal. With 800 fixed Gaussians and identical
+means/colors/opacity, foreground-PSNR AUC improved 4.86% for area-only and 6.82% for full moments.
+`pou-full` reached CI's final fitted-view PSNR 50 steps earlier and ended +0.118 dB with unchanged
+final alpha IoU. Full shape added 1.87% AUC beyond determinant-only scaling, but the overall frozen
+shape decision remained negative because it required the primary coverage gate.
+
+**Reuse decision:** retain the native-anchor partition as an opt-in research mechanism, not a
+Beam default. Its supported interpretation is better fixed-topology optimization conditioning on
+one all-fitted-view CPU scene, not increased coverage or recovered physical covariance. Do not
+replace it with blind covariance enlargement; persist raw partition tensors and replicate
+`pou-full` against CI across scenes/seeds and untouched held-out cameras first. A later production
+gsplat split/merge test must be separate because topology can turn the extreme covariance tail
+into a different causal mechanism. Exact result and 70/70 scientist pass:
+`benchmarks/results/20260723_beam_partition_covariance_{RESULT,AUDIT}.md`.
+
 ## 3. Depth estimation & feed-forward geometry (variant B backends)
 
 | Model | Output | License | Integration |

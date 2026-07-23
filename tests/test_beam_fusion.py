@@ -216,6 +216,10 @@ def test_lineage_is_consistent_per_view_unique_and_deterministic():
     assert torch.equal(first.gaussians.means, second.gaussians.means)
     assert torch.equal(first.component_offsets, second.component_offsets)
     assert torch.equal(first.contributor_view_indices, second.contributor_view_indices)
+    assert first.contributor_depths.shape == first.contributor_view_indices.shape
+    assert bool(torch.isfinite(first.contributor_depths).all())
+    assert bool((first.contributor_depths > 0).all())
+    assert torch.equal(first.contributor_depths, second.contributor_depths)
     assert torch.equal(first.component_weights, second.component_weights)
 
 
@@ -309,6 +313,7 @@ def test_bounded_production_path_matches_exact_fixture_and_reports_progress():
     assert torch.equal(bounded.component_offsets, exact.component_offsets)
     assert torch.equal(bounded.contributor_view_indices, exact.contributor_view_indices)
     assert torch.equal(bounded.contributor_component_indices, exact.contributor_component_indices)
+    assert torch.equal(bounded.contributor_depths, exact.contributor_depths)
     assert bounded.diagnostics["bounded_seed_mode"] is True
     assert bounded.diagnostics["evaluated_ray_pairs"] == 15 * _GT_MEANS.shape[0] ** 2
     assert bounded.diagnostics["n_seed_candidates_retained"] < bounded.diagnostics["n_seeds"]

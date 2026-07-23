@@ -1,0 +1,1733 @@
+{
+  "schema": "rtgs.beam_covariance_refit.audit.v1",
+  "generated_utc": "2026-07-23T12:56:59.102117+00:00",
+  "execution_binding": {
+    "git_revision": "c2a7e120a5cafdcf22d4bff6f5b9868b860eb1df",
+    "protocol_sha256": "9287b25650d9d4a4f42442ef24dce6e0b2c658f04b47430eca2975ca31835c22",
+    "executed_harness_sha256": "ebae0f5c6697690d3c8c92bc3657dffe1e6206a32970e5894e86fb603bc93336",
+    "current_harness_sha256": "8eb11a50fa9055578139985350ece981861c717e81317445863c9233c890995e",
+    "postrun_viewer_fix_sha256": "2c6a82a169fd2925d7b208a304f20724f2f942a44058c8e10d8c9539f7c8bf03",
+    "synthetic_test_sha256": "75db5bf9f56ebb19db6a664e43bac9e8d4b8fb0c475fe652c48d6427c23efb51",
+    "imported_helper_post_run_sha256": "6521af11d0af8513cd6963de260786e37c9791506a0782619b0561045fe2ffa9",
+    "source_binding_limitation": "beam_convergence_dynamics.py was imported by the official harness while dirty but was not separately hashed in the preregistration; its unchanged current hash is preserved post-run, so this is usable development evidence but not a fully pre-bound replay package",
+    "postrun_integration_fix": "The generated viewer manifest path was one parent too high. The adjacent reverse-applicable patch binds the two-line path-only correction and reconstructs the exact executed harness hash; no numerical path changed.",
+    "official_command": "PYTHONUNBUFFERED=1 .venv/bin/python benchmarks/beam_covariance_refit.py --protocol benchmarks/results/20260723_beam_covariance_refit_PREREG.md --out runs/beam_covariance_refit_20260723",
+    "repeat_command": "CUDA_VISIBLE_DEVICES='' PYTHONUNBUFFERED=1 .venv/bin/python benchmarks/beam_covariance_refit.py --protocol benchmarks/results/20260723_beam_covariance_refit_PREREG.md --out runs/beam_covariance_refit_repeat_20260723",
+    "python": "3.11.15 | packaged by conda-forge | (main, Mar  5 2026, 16:45:40) [GCC 14.3.0]",
+    "torch": "2.12.1+cpu",
+    "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.35",
+    "torch_threads": 16,
+    "torch_interop_threads": 32
+  },
+  "input_binding": {
+    "manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+    "manifest_sha256": "b1c8e256d73e2c05f3cb4797a615bdbb2639a637f12908a5c96a2a9a9f912847",
+    "semantic_digest": "0f86429b4cf503df3ad46ca84a9346c9ab1ada51509d90e13ae9fb241d2a8ef5",
+    "calibration_sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091",
+    "files": [
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0001.rtgsv",
+        "bytes": 160821,
+        "sha256": "b50f4e9355e9219e97f07df821ed3ea3c168b5f5a9583a2531c8b2d55ba9ef44"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0004.rtgsv",
+        "bytes": 159935,
+        "sha256": "d5148fa0a9f9df90094b51ceae8f1687a8e95ed7e2df309e78881d1144580d64"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0005.rtgsv",
+        "bytes": 160942,
+        "sha256": "33b1510f0ffff8c702ebef138ce9c9776405060c1c77f60046704c7409f9a623"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0006.rtgsv",
+        "bytes": 159883,
+        "sha256": "b1c9d3528de4f58a4ed5f80a7022348761cf27ff905175a95a9021b60386015f"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0008.rtgsv",
+        "bytes": 160067,
+        "sha256": "cb532b668bd01ac6932980f69a787593e5fbdd34752504a2d4bc0443ae1fa182"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0009.rtgsv",
+        "bytes": 159253,
+        "sha256": "16101a602171e04613c9ed27003c84f4adf4d4e2325d55869589f5802e7b2b37"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0012.rtgsv",
+        "bytes": 161221,
+        "sha256": "5d738cf9a74dc24ecc892d164fdf5eba171dcb5da5a930b734c0dc5673534322"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0014.rtgsv",
+        "bytes": 158826,
+        "sha256": "7c164f9d6896cee049729aebeff604fffdae62e7243e78e0a507c53bc29760cf"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0018.rtgsv",
+        "bytes": 159247,
+        "sha256": "5e7f88baa7e49f8d981adddf5675deff3b1efcd6210cf61f4841c19350316920"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0019.rtgsv",
+        "bytes": 158193,
+        "sha256": "64aa034d52234fc586128591474a86c2c7d6921e0819a0837a9799e5d549c083"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0020.rtgsv",
+        "bytes": 158863,
+        "sha256": "efaa9f8d11d33ca130237822230456a222e75480a41e1eafaa9754e3c4810c94"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0021.rtgsv",
+        "bytes": 159955,
+        "sha256": "09249fc1f8278d3125582e034f68c7c2fcdc12eacb371de31b384c687ef96b72"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0022.rtgsv",
+        "bytes": 159085,
+        "sha256": "7f74aba47263909a70f115cde2ec03bcc4bc0732acf1840b9d38e3a8d7687057"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0025.rtgsv",
+        "bytes": 158233,
+        "sha256": "55beaadada7bf388a245c5e7b6b003797c2f51188b437b4f4755b51fd2e4d28a"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0026.rtgsv",
+        "bytes": 160474,
+        "sha256": "bbde6aae5691226e0416a0facf7392218a4ca4c1b0a42d3e4ebcc6d0ac8b6fc2"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0028.rtgsv",
+        "bytes": 161663,
+        "sha256": "f3aa5a53ed8ca9265446725223fa32ac89ebcf41e9fbb32745511a9350d94d34"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0029.rtgsv",
+        "bytes": 162657,
+        "sha256": "2b0b8231579795adcdfb2502c6fcd865ca658e2fd620deebb625fb7f39d4f066"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0030.rtgsv",
+        "bytes": 158025,
+        "sha256": "96c0c0734ce96ad2cd5591e242fcef3903e6dc9512d08acef8bf3ca0010e4d02"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0031.rtgsv",
+        "bytes": 159672,
+        "sha256": "ba3079a836d6a026ab212bf9f27608061bbb8c564b8feb7510a9c7f357771996"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0034.rtgsv",
+        "bytes": 160429,
+        "sha256": "9a3771e1073fd9da46bd613fdfbd5be262ece2e22532a2694fa00ce5c97af8c1"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0037.rtgsv",
+        "bytes": 159678,
+        "sha256": "37042aa89bf8eb5c024d9c005cc2bce93fa334a4ebd0fd6cd42334fb097631ae"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C0039.rtgsv",
+        "bytes": 158694,
+        "sha256": "16fc6d112405e8866cf249560b230cef7dd7a0427f3121e636b64dc9040c5e5c"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C1000.rtgsv",
+        "bytes": 160051,
+        "sha256": "f22d919844758a9b9c13560502942a8fbc493017a49a143e7f5b98a6db8038bf"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C1001.rtgsv",
+        "bytes": 158785,
+        "sha256": "1e9202fa4b0814d08c5df31c7e82edad0ff2796410bea1a1250d1bd1e413b1e7"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C1002.rtgsv",
+        "bytes": 159466,
+        "sha256": "ebd4677d825ee0f5fb1acb14948ff820bdfca883663d3c591cf5ff37f210f574"
+      },
+      {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/C1004.rtgsv",
+        "bytes": 158265,
+        "sha256": "6ab8d26a42a0145a074996f9f728a289c8ef00884af0c9ca61f3da06ba93dd16"
+      }
+    ]
+  },
+  "primary": {
+    "directory": "runs/beam_covariance_refit_20260723",
+    "summary_sha256": "350ce35a8cfd353a43d71e8979b4b301df3a40261c7f34c69211fdd16de83ca2",
+    "artifact_manifest": [
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/dynamics.json",
+        "bytes": 36530,
+        "sha256": "20e3690a449ed52e0ad551a47e51f6f0d94daf38a13e21b219e8ede74685aef7"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "98a178b482180691af65470dc4d9170817fc70f60ea84f94fba1d2705550ab70"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "35383ba98d9e44548e92d849036e9ee052d800eadcadb828ad8040384c4b1e45"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "aee1464ac9494a44901d9deda3ff383db204538e28af588ad9cac809f038cc10"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "ef756999f577c90b9bfa9a3cc9df43ab1da0959702239005bcf2cb6f4c2f3e9f"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "60301485331d9beb4aa97259912d33059b7675fa63d1d4f4c3947ee0e4ed9501"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "2c5b6f66af489591bed8aa320fc35ce273f410c87a31c9766e6ce290d608f5eb"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "b0b0834ec5f6835e7a2d08366b31e1edbca6a9d5f3b15a2dc28eb0fcf95fbc62"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "b4cc47185cfb90d71a00c56615175af26fbc63edb4e7bc3453db082a53c85e47"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/preview_final.png",
+        "bytes": 9269,
+        "sha256": "d3df5660258f1862e36fac81c31b1e5b5528506b2f84521a440a15fe06d03b1b"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/ci/preview_init.png",
+        "bytes": 7162,
+        "sha256": "f5af4920553e6d8d03544e963a8a82e64886b74f63fe86b77b9b19ecc48cb8df"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/summary.json",
+        "bytes": 16387,
+        "sha256": "350ce35a8cfd353a43d71e8979b4b301df3a40261c7f34c69211fdd16de83ca2"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/dynamics.json",
+        "bytes": 36981,
+        "sha256": "80fef64546ec37788aa0b13522946d8d12a423f65b333ca22295d6c5f6513295"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "5a9eb228c6b7f429cfbf83decbf4e534c3f0f0707eebc27bd7f50bffcd0718b0"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "dded301ec0fea9d06e9109d633068ca795709cb26e3b4e89375b282dc3592bc5"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "e459ff72721e36d0e5b47d0749e6ed594505cb48ebeb7320829ff70c30d8970e"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "460ca56c1c37d2532dddcabef6278eb7b7fe77b0589dbe39fbbbea50b7df0464"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "027fff97b1e7117e0fba10137abf599ca5af3dda76500ea45c88d32d509814b1"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "95bc27b092b70690b58fad0bc37e4548037a6444be366d4aec6539509fb280df"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "5d7774f9a3bbc1297570524b90f86ff676becb2567ebc28da4020f7758b6b61d"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "9b7f9137e2feec49c401040400f51e20a468a7b040d26a3d051ff034453a280f"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "6a4ddedf429d78448f3a1a87ee1f0c534d20180e7d9d3e2efd6014e131396aa3"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "6a4ddedf429d78448f3a1a87ee1f0c534d20180e7d9d3e2efd6014e131396aa3"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "3c841e1398995394d97edb15259326f9f070971f3703fc6a5f3b04e92403eadd"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/preview_final.png",
+        "bytes": 9204,
+        "sha256": "fb51cf41de8c4535416d283ca560f58a806f9ef0534b8c98aaabc515178540ff"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-lsq/preview_init.png",
+        "bytes": 8176,
+        "sha256": "c2f0e2b4a1c9681965a9e4a5b6e395998d0d2d1765b5fbc68e8e2af04c0fbbeb"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/dynamics.json",
+        "bytes": 36508,
+        "sha256": "30b3d736f4ace4bbfb83ceb618d8f72bdf136f23905b07fdfab788340db78bc7"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "d2103573260751d0da7fab6d8f778e209f4337f51adaed7d614a7f3c0581d7fb"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "84fbfdc53d1ceeb4dab64983f34a30af3d0b4cb6915a7c3495173d1ae6123cc8"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "748b57aa004c46852b02b9449a9526bdf29b4391681ccee839901a51fffc6d17"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "1800a90a14a8cb9b009d7687cffed6382a04d6dbc55c36ff32dc4d25c8a7e44f"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "56522dfe323ae0dc7f14741a52d1143658ff3fe8f242db4c34873fece4042c79"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "70f52d1c69f2362afd9b6caaff3169f94f7a160aa8cc04d67267feaab99fdc69"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "839dda8bd7990369dc7abbddba56612260fb84e62d5100951f0baa0cce5a618a"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "888f0a796d7e4cbf5f996feb16ebc69a7aa0d62ea5ab21d94d2be5503850e09c"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "4cab2dcf9e501ffd55724a5de8fcf4e63aef259492ee64e569b75a5c2d0f7005"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "4cab2dcf9e501ffd55724a5de8fcf4e63aef259492ee64e569b75a5c2d0f7005"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "20e73670035cafeb7a5a07fd3a24d413037cbd1f4b53a530b93c97b7b0039989"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/preview_final.png",
+        "bytes": 9294,
+        "sha256": "a1350d1ad94a2388c5e529289c80ef6b4a575e45b4f3053526a8a8ba09b47675"
+      },
+      {
+        "path": "runs/beam_covariance_refit_20260723/track-robust/preview_init.png",
+        "bytes": 7180,
+        "sha256": "98fae31faa64ea2ec879ba42235d01a46904bf21089a17bace29dd7e624860dc"
+      }
+    ]
+  },
+  "repeat": {
+    "directory": "runs/beam_covariance_refit_repeat_20260723",
+    "summary_sha256": "ad69e184446a6ff4a485e60c81b07053563826783ce834c1abfe42dd706e03f5",
+    "artifact_manifest": [
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/dynamics.json",
+        "bytes": 36530,
+        "sha256": "2c8c53c4e2444bb319ee09241ef05314564aac4fa042e94236b2b599779f76a4"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "98a178b482180691af65470dc4d9170817fc70f60ea84f94fba1d2705550ab70"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "35383ba98d9e44548e92d849036e9ee052d800eadcadb828ad8040384c4b1e45"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "aee1464ac9494a44901d9deda3ff383db204538e28af588ad9cac809f038cc10"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "ef756999f577c90b9bfa9a3cc9df43ab1da0959702239005bcf2cb6f4c2f3e9f"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "60301485331d9beb4aa97259912d33059b7675fa63d1d4f4c3947ee0e4ed9501"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "2c5b6f66af489591bed8aa320fc35ce273f410c87a31c9766e6ce290d608f5eb"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "b0b0834ec5f6835e7a2d08366b31e1edbca6a9d5f3b15a2dc28eb0fcf95fbc62"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "b4cc47185cfb90d71a00c56615175af26fbc63edb4e7bc3453db082a53c85e47"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/preview_final.png",
+        "bytes": 9269,
+        "sha256": "d3df5660258f1862e36fac81c31b1e5b5528506b2f84521a440a15fe06d03b1b"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/ci/preview_init.png",
+        "bytes": 7162,
+        "sha256": "f5af4920553e6d8d03544e963a8a82e64886b74f63fe86b77b9b19ecc48cb8df"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/summary.json",
+        "bytes": 16384,
+        "sha256": "ad69e184446a6ff4a485e60c81b07053563826783ce834c1abfe42dd706e03f5"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/dynamics.json",
+        "bytes": 36981,
+        "sha256": "aef9a8b2f02bca5c40f9a71d3bca31bb78822f17d3d6e58a7cc11b053ef041a5"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "5a9eb228c6b7f429cfbf83decbf4e534c3f0f0707eebc27bd7f50bffcd0718b0"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "dded301ec0fea9d06e9109d633068ca795709cb26e3b4e89375b282dc3592bc5"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "e459ff72721e36d0e5b47d0749e6ed594505cb48ebeb7320829ff70c30d8970e"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "460ca56c1c37d2532dddcabef6278eb7b7fe77b0589dbe39fbbbea50b7df0464"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "027fff97b1e7117e0fba10137abf599ca5af3dda76500ea45c88d32d509814b1"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "95bc27b092b70690b58fad0bc37e4548037a6444be366d4aec6539509fb280df"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "5d7774f9a3bbc1297570524b90f86ff676becb2567ebc28da4020f7758b6b61d"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "9b7f9137e2feec49c401040400f51e20a468a7b040d26a3d051ff034453a280f"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "6a4ddedf429d78448f3a1a87ee1f0c534d20180e7d9d3e2efd6014e131396aa3"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "6a4ddedf429d78448f3a1a87ee1f0c534d20180e7d9d3e2efd6014e131396aa3"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "3c841e1398995394d97edb15259326f9f070971f3703fc6a5f3b04e92403eadd"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/preview_final.png",
+        "bytes": 9204,
+        "sha256": "fb51cf41de8c4535416d283ca560f58a806f9ef0534b8c98aaabc515178540ff"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-lsq/preview_init.png",
+        "bytes": 8176,
+        "sha256": "c2f0e2b4a1c9681965a9e4a5b6e395998d0d2d1765b5fbc68e8e2af04c0fbbeb"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/dynamics.json",
+        "bytes": 36507,
+        "sha256": "1cfe019ea7f8b12fcd8da06adaaa781b1bd148149fc1c7290de1fafd36fa8797"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_00075.ply",
+        "bytes": 199928,
+        "sha256": "d2103573260751d0da7fab6d8f778e209f4337f51adaed7d614a7f3c0581d7fb"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_00100.ply",
+        "bytes": 199928,
+        "sha256": "84fbfdc53d1ceeb4dab64983f34a30af3d0b4cb6915a7c3495173d1ae6123cc8"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_00125.ply",
+        "bytes": 199928,
+        "sha256": "748b57aa004c46852b02b9449a9526bdf29b4391681ccee839901a51fffc6d17"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_00200.ply",
+        "bytes": 199928,
+        "sha256": "1800a90a14a8cb9b009d7687cffed6382a04d6dbc55c36ff32dc4d25c8a7e44f"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_00300.ply",
+        "bytes": 199928,
+        "sha256": "56522dfe323ae0dc7f14741a52d1143658ff3fe8f242db4c34873fece4042c79"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_00400.ply",
+        "bytes": 199928,
+        "sha256": "70f52d1c69f2362afd9b6caaff3169f94f7a160aa8cc04d67267feaab99fdc69"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_00500.ply",
+        "bytes": 199928,
+        "sha256": "839dda8bd7990369dc7abbddba56612260fb84e62d5100951f0baa0cce5a618a"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_00750.ply",
+        "bytes": 199928,
+        "sha256": "888f0a796d7e4cbf5f996feb16ebc69a7aa0d62ea5ab21d94d2be5503850e09c"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_01000.ply",
+        "bytes": 199928,
+        "sha256": "4cab2dcf9e501ffd55724a5de8fcf4e63aef259492ee64e569b75a5c2d0f7005"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_final.ply",
+        "bytes": 199928,
+        "sha256": "4cab2dcf9e501ffd55724a5de8fcf4e63aef259492ee64e569b75a5c2d0f7005"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/gaussians_init.ply",
+        "bytes": 54813,
+        "sha256": "20e73670035cafeb7a5a07fd3a24d413037cbd1f4b53a530b93c97b7b0039989"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/preview_final.png",
+        "bytes": 9294,
+        "sha256": "a1350d1ad94a2388c5e529289c80ef6b4a575e45b4f3053526a8a8ba09b47675"
+      },
+      {
+        "path": "runs/beam_covariance_refit_repeat_20260723/track-robust/preview_init.png",
+        "bytes": 7180,
+        "sha256": "98fae31faa64ea2ec879ba42235d01a46904bf21089a17bace29dd7e624860dc"
+      }
+    ]
+  },
+  "lineage": {
+    "components": 800,
+    "contributor_links": 6029,
+    "unique_2d_contributors": 4704,
+    "unique_2d_contributors_per_view": [
+      592,
+      594,
+      630,
+      591,
+      598,
+      596,
+      536,
+      567
+    ],
+    "unique_input_fraction": 0.1176
+  },
+  "raw_lsq": {
+    "non_spd_count": 635,
+    "non_spd_fraction": 0.79375,
+    "linear_residual": {
+      "mean": 0.7264486675937821,
+      "median": 0.737083412063191,
+      "p90": 0.8635245684172187,
+      "p99": 0.9233046560308679,
+      "max": 0.9713940293215129
+    },
+    "minimum_raw_eigenvalue": -0.007286566309779818
+  },
+  "covariance_diagnostics_recomputed_from_saved_initial_ply": {
+    "ci": {
+      "relative_frobenius_residual": {
+        "mean": 0.9216520308135195,
+        "median": 0.9403062060868854,
+        "p90": 0.9973749776012176,
+        "p99": 3.1911371005070484,
+        "max": 6.201196660420133
+      },
+      "whitened_rms_residual": {
+        "mean": 1.2670462845806651,
+        "median": 0.6888018417794926,
+        "p90": 2.8645154180700363,
+        "p99": 3.4715815266145205,
+        "max": 4.331640097542723
+      },
+      "sigma_all_axes": {
+        "mean": 0.006259937173493962,
+        "median": 0.0044630674206454545,
+        "p90": 0.01340926174822634,
+        "p99": 0.02520267617731285,
+        "max": 0.03651990410346287
+      }
+    },
+    "track-lsq": {
+      "relative_frobenius_residual": {
+        "mean": 15.870575135476784,
+        "median": 1.3918922347485052,
+        "p90": 26.069221029639237,
+        "p99": 250.90182028321638,
+        "max": 3656.040744371818
+      },
+      "whitened_rms_residual": {
+        "mean": 189.23811019735186,
+        "median": 13.447837281968372,
+        "p90": 352.87333483015993,
+        "p99": 2659.4583100756226,
+        "max": 56750.61543789068
+      },
+      "sigma_all_axes": {
+        "mean": 0.023887885583700797,
+        "median": 0.018563450102330774,
+        "p90": 0.059009403232833324,
+        "p99": 0.10009053250142781,
+        "max": 0.12337146296680931
+      }
+    },
+    "track-robust": {
+      "relative_frobenius_residual": {
+        "mean": 1.0517151193054026,
+        "median": 0.9623518821524005,
+        "p90": 0.9979567868618581,
+        "p99": 4.635527479558284,
+        "max": 82.21475458845106
+      },
+      "whitened_rms_residual": {
+        "mean": 1.562334560436531,
+        "median": 0.6350496563953408,
+        "p90": 2.8776294899793062,
+        "p99": 14.911496801465198,
+        "max": 312.127638646509
+      },
+      "sigma_all_axes": {
+        "mean": 0.004612009826739101,
+        "median": 0.002859602932413759,
+        "p90": 0.011459637307660387,
+        "p99": 0.02268999948733078,
+        "max": 0.10140296790990747
+      }
+    }
+  },
+  "outcomes": {
+    "ci": {
+      "init_psnr_fg": 12.330296039581299,
+      "init_alpha_iou": 0.010733034316217527,
+      "init_alpha_inside": 0.13974887691438198,
+      "init_alpha_outside": 0.0010313659731764346,
+      "final_psnr_fg": 25.0083065032959,
+      "final_alpha_iou": 0.936492845416069,
+      "final_alpha_inside": 0.9362937808036804,
+      "final_alpha_outside": 0.03161252196878195,
+      "psnr_fg_auc_db_steps": 21856.839060783386,
+      "psnr_fg_auc_mean_db": 21.856839060783386,
+      "first_step_reaching_ci_final_psnr": 1000
+    },
+    "track-lsq": {
+      "init_psnr_fg": 14.232304573059082,
+      "init_alpha_iou": 0.5505599528551102,
+      "init_alpha_inside": 0.4950306564569473,
+      "init_alpha_outside": 0.02537613140884787,
+      "final_psnr_fg": 25.565218448638916,
+      "final_alpha_iou": 0.9346569329500198,
+      "final_alpha_inside": 0.9533330798149109,
+      "final_alpha_outside": 0.036257615545764565,
+      "psnr_fg_auc_db_steps": 23847.527968883514,
+      "psnr_fg_auc_mean_db": 23.847527968883515,
+      "first_step_reaching_ci_final_psnr": 650
+    },
+    "track-robust": {
+      "init_psnr_fg": 12.274949312210083,
+      "init_alpha_iou": 0.010473227070178837,
+      "init_alpha_inside": 0.12837406620383263,
+      "init_alpha_outside": 0.0009903276804834604,
+      "final_psnr_fg": 24.91859769821167,
+      "final_alpha_iou": 0.9350523501634598,
+      "final_alpha_inside": 0.932592123746872,
+      "final_alpha_outside": 0.031912725418806076,
+      "psnr_fg_auc_db_steps": 21649.76249039173,
+      "psnr_fg_auc_mean_db": 21.64976249039173,
+      "first_step_reaching_ci_final_psnr": null
+    }
+  },
+  "preregistered_gates": {
+    "track-lsq": {
+      "median_whitened_residual_reduction_vs_ci": -18.52352108587052,
+      "initial_alpha_iou_relative_gain_vs_ci": 50.295834582697516,
+      "initial_psnr_fg_delta_db_vs_ci": 1.9020085334777832,
+      "psnr_fg_auc_relative_gain_vs_ci": 0.09107853622218953,
+      "final_psnr_fg_delta_db_vs_ci": 0.5569119453430176,
+      "final_alpha_iou_delta_vs_ci": -0.0018359124660491943,
+      "rule_1_direct_covariance": false,
+      "rule_2_initial_coverage_and_quality": true,
+      "rule_3_pipeline_utility": true,
+      "all_preregistered_rules": false
+    },
+    "track-robust": {
+      "median_whitened_residual_reduction_vs_ci": 0.07803722656328138,
+      "initial_alpha_iou_relative_gain_vs_ci": -0.024206318398341753,
+      "initial_psnr_fg_delta_db_vs_ci": -0.05534672737121582,
+      "psnr_fg_auc_relative_gain_vs_ci": -0.009474223139758653,
+      "final_psnr_fg_delta_db_vs_ci": -0.08970880508422852,
+      "final_alpha_iou_delta_vs_ci": -0.001440495252609253,
+      "rule_1_direct_covariance": false,
+      "rule_2_initial_coverage_and_quality": false,
+      "rule_3_pipeline_utility": false,
+      "all_preregistered_rules": false
+    }
+  },
+  "robust_preference": {
+    "median_whitened_residual_at_least_5pct_better_than_lsq": true,
+    "better_auc_than_lsq": false,
+    "better_final_psnr_than_lsq": false,
+    "preferred": false
+  },
+  "claim_disposition": {
+    "beam_fusion_exposes_pixel_or_gaussian_partial_correspondences": "confirm_as_gaussian_to_gaussian_CSR_lineage",
+    "track_lsq_is_a_better_correspondence_consistent_covariance_estimator": "retire_failed_direct_covariance_gate_after_SPD_projection",
+    "track_lsq_improves_fitted_view_coverage_and_convergence": "confirm_narrowly_for_this_fixed_topology_development_run",
+    "track_robust_improves_over_ci_or_lsq": "retire",
+    "track_lsq_effect_is_evidence_for_physical_3d_covariance": "retire_effect_is_anisotropic_scale_inflation_not_reprojection_fidelity",
+    "production_default_change": "not_authorized",
+    "held_out_multi_scene_or_cuda_behavior": "not_tested"
+  },
+  "protocol_findings": [
+    "All selected and evaluated cameras were fitted; no held-out or generalization claim is available.",
+    "635/800 raw LS covariance solutions are non-SPD. Eigenvalue clamping turns the treatment into a highly anisotropic scale heuristic and destroys its raw linear fit interpretation.",
+    "The preregistration omitted a hash for the dirty imported convergence helper. The exact same-environment repeat and post-run hash narrow but do not erase that source-binding defect.",
+    "A post-result two-line viewer-manifest relative-path correction is isolated in 20260723_beam_covariance_refit_POSTRUN_FIX.patch; reversing it reconstructs the executed harness hash.",
+    "CPU elapsed times are non-decisional and support no performance claim."
+  ],
+  "checks": [
+    {
+      "name": "primary summary strict JSON",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "repeat summary strict JSON",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "summary schema and status",
+      "passed": true,
+      "detail": {
+        "schema": "rtgs.beam_covariance_refit.v1",
+        "status": "complete"
+      }
+    },
+    {
+      "name": "frozen common parameters",
+      "passed": true,
+      "detail": {
+        "selected_global_views": [
+          0,
+          3,
+          6,
+          9,
+          12,
+          15,
+          18,
+          21
+        ],
+        "evaluation_local_views": [
+          0,
+          2,
+          4,
+          6
+        ],
+        "downscale": 32,
+        "n_init": 800,
+        "iterations": 1000,
+        "fixed_topology": true,
+        "seed": 0
+      }
+    },
+    {
+      "name": "arm order and completeness",
+      "passed": true,
+      "detail": [
+        "ci",
+        "track-lsq",
+        "track-robust"
+      ]
+    },
+    {
+      "name": "protocol hash bound in primary summary",
+      "passed": true,
+      "detail": {
+        "summary": "9287b25650d9d4a4f42442ef24dce6e0b2c658f04b47430eca2975ca31835c22",
+        "actual": "9287b25650d9d4a4f42442ef24dce6e0b2c658f04b47430eca2975ca31835c22"
+      }
+    },
+    {
+      "name": "post-run viewer-only harness correction bound",
+      "passed": true,
+      "detail": {
+        "current_harness": "8eb11a50fa9055578139985350ece981861c717e81317445863c9233c890995e",
+        "postrun_fix": "2c6a82a169fd2925d7b208a304f20724f2f942a44058c8e10d8c9539f7c8bf03"
+      }
+    },
+    {
+      "name": "exact executed harness reconstructed from current source and reverse patch",
+      "passed": true,
+      "detail": "ebae0f5c6697690d3c8c92bc3657dffe1e6206a32970e5894e86fb603bc93336"
+    },
+    {
+      "name": "preregistered synthetic-test hash preserved",
+      "passed": true,
+      "detail": "75db5bf9f56ebb19db6a664e43bac9e8d4b8fb0c475fe652c48d6427c23efb51"
+    },
+    {
+      "name": "post-run imported-helper hash preserved",
+      "passed": true,
+      "detail": "6521af11d0af8513cd6963de260786e37c9791506a0782619b0561045fe2ffa9"
+    },
+    {
+      "name": "compact manifest hash",
+      "passed": true,
+      "detail": "b1c8e256d73e2c05f3cb4797a615bdbb2639a637f12908a5c96a2a9a9f912847"
+    },
+    {
+      "name": "compact payload hash: C0001",
+      "passed": true,
+      "detail": {
+        "sha256": "b50f4e9355e9219e97f07df821ed3ea3c168b5f5a9583a2531c8b2d55ba9ef44",
+        "bytes": 160821
+      }
+    },
+    {
+      "name": "compact payload hash: C0004",
+      "passed": true,
+      "detail": {
+        "sha256": "d5148fa0a9f9df90094b51ceae8f1687a8e95ed7e2df309e78881d1144580d64",
+        "bytes": 159935
+      }
+    },
+    {
+      "name": "compact payload hash: C0005",
+      "passed": true,
+      "detail": {
+        "sha256": "33b1510f0ffff8c702ebef138ce9c9776405060c1c77f60046704c7409f9a623",
+        "bytes": 160942
+      }
+    },
+    {
+      "name": "compact payload hash: C0006",
+      "passed": true,
+      "detail": {
+        "sha256": "b1c9d3528de4f58a4ed5f80a7022348761cf27ff905175a95a9021b60386015f",
+        "bytes": 159883
+      }
+    },
+    {
+      "name": "compact payload hash: C0008",
+      "passed": true,
+      "detail": {
+        "sha256": "cb532b668bd01ac6932980f69a787593e5fbdd34752504a2d4bc0443ae1fa182",
+        "bytes": 160067
+      }
+    },
+    {
+      "name": "compact payload hash: C0009",
+      "passed": true,
+      "detail": {
+        "sha256": "16101a602171e04613c9ed27003c84f4adf4d4e2325d55869589f5802e7b2b37",
+        "bytes": 159253
+      }
+    },
+    {
+      "name": "compact payload hash: C0012",
+      "passed": true,
+      "detail": {
+        "sha256": "5d738cf9a74dc24ecc892d164fdf5eba171dcb5da5a930b734c0dc5673534322",
+        "bytes": 161221
+      }
+    },
+    {
+      "name": "compact payload hash: C0014",
+      "passed": true,
+      "detail": {
+        "sha256": "7c164f9d6896cee049729aebeff604fffdae62e7243e78e0a507c53bc29760cf",
+        "bytes": 158826
+      }
+    },
+    {
+      "name": "compact payload hash: C0018",
+      "passed": true,
+      "detail": {
+        "sha256": "5e7f88baa7e49f8d981adddf5675deff3b1efcd6210cf61f4841c19350316920",
+        "bytes": 159247
+      }
+    },
+    {
+      "name": "compact payload hash: C0019",
+      "passed": true,
+      "detail": {
+        "sha256": "64aa034d52234fc586128591474a86c2c7d6921e0819a0837a9799e5d549c083",
+        "bytes": 158193
+      }
+    },
+    {
+      "name": "compact payload hash: C0020",
+      "passed": true,
+      "detail": {
+        "sha256": "efaa9f8d11d33ca130237822230456a222e75480a41e1eafaa9754e3c4810c94",
+        "bytes": 158863
+      }
+    },
+    {
+      "name": "compact payload hash: C0021",
+      "passed": true,
+      "detail": {
+        "sha256": "09249fc1f8278d3125582e034f68c7c2fcdc12eacb371de31b384c687ef96b72",
+        "bytes": 159955
+      }
+    },
+    {
+      "name": "compact payload hash: C0022",
+      "passed": true,
+      "detail": {
+        "sha256": "7f74aba47263909a70f115cde2ec03bcc4bc0732acf1840b9d38e3a8d7687057",
+        "bytes": 159085
+      }
+    },
+    {
+      "name": "compact payload hash: C0025",
+      "passed": true,
+      "detail": {
+        "sha256": "55beaadada7bf388a245c5e7b6b003797c2f51188b437b4f4755b51fd2e4d28a",
+        "bytes": 158233
+      }
+    },
+    {
+      "name": "compact payload hash: C0026",
+      "passed": true,
+      "detail": {
+        "sha256": "bbde6aae5691226e0416a0facf7392218a4ca4c1b0a42d3e4ebcc6d0ac8b6fc2",
+        "bytes": 160474
+      }
+    },
+    {
+      "name": "compact payload hash: C0028",
+      "passed": true,
+      "detail": {
+        "sha256": "f3aa5a53ed8ca9265446725223fa32ac89ebcf41e9fbb32745511a9350d94d34",
+        "bytes": 161663
+      }
+    },
+    {
+      "name": "compact payload hash: C0029",
+      "passed": true,
+      "detail": {
+        "sha256": "2b0b8231579795adcdfb2502c6fcd865ca658e2fd620deebb625fb7f39d4f066",
+        "bytes": 162657
+      }
+    },
+    {
+      "name": "compact payload hash: C0030",
+      "passed": true,
+      "detail": {
+        "sha256": "96c0c0734ce96ad2cd5591e242fcef3903e6dc9512d08acef8bf3ca0010e4d02",
+        "bytes": 158025
+      }
+    },
+    {
+      "name": "compact payload hash: C0031",
+      "passed": true,
+      "detail": {
+        "sha256": "ba3079a836d6a026ab212bf9f27608061bbb8c564b8feb7510a9c7f357771996",
+        "bytes": 159672
+      }
+    },
+    {
+      "name": "compact payload hash: C0034",
+      "passed": true,
+      "detail": {
+        "sha256": "9a3771e1073fd9da46bd613fdfbd5be262ece2e22532a2694fa00ce5c97af8c1",
+        "bytes": 160429
+      }
+    },
+    {
+      "name": "compact payload hash: C0037",
+      "passed": true,
+      "detail": {
+        "sha256": "37042aa89bf8eb5c024d9c005cc2bce93fa334a4ebd0fd6cd42334fb097631ae",
+        "bytes": 159678
+      }
+    },
+    {
+      "name": "compact payload hash: C0039",
+      "passed": true,
+      "detail": {
+        "sha256": "16fc6d112405e8866cf249560b230cef7dd7a0427f3121e636b64dc9040c5e5c",
+        "bytes": 158694
+      }
+    },
+    {
+      "name": "compact payload hash: C1000",
+      "passed": true,
+      "detail": {
+        "sha256": "f22d919844758a9b9c13560502942a8fbc493017a49a143e7f5b98a6db8038bf",
+        "bytes": 160051
+      }
+    },
+    {
+      "name": "compact payload hash: C1001",
+      "passed": true,
+      "detail": {
+        "sha256": "1e9202fa4b0814d08c5df31c7e82edad0ff2796410bea1a1250d1bd1e413b1e7",
+        "bytes": 158785
+      }
+    },
+    {
+      "name": "compact payload hash: C1002",
+      "passed": true,
+      "detail": {
+        "sha256": "ebd4677d825ee0f5fb1acb14948ff820bdfca883663d3c591cf5ff37f210f574",
+        "bytes": 159466
+      }
+    },
+    {
+      "name": "compact payload hash: C1004",
+      "passed": true,
+      "detail": {
+        "sha256": "6ab8d26a42a0145a074996f9f728a289c8ef00884af0c9ca61f3da06ba93dd16",
+        "bytes": 158265
+      }
+    },
+    {
+      "name": "deterministic Beam Fusion replay count",
+      "passed": true,
+      "detail": 800
+    },
+    {
+      "name": "contributor-link count replay",
+      "passed": true,
+      "detail": {
+        "recomputed": 6029,
+        "summary": 6029
+      }
+    },
+    {
+      "name": "ci: complete primary checkpoint grid",
+      "passed": true,
+      "detail": [
+        25,
+        50,
+        75,
+        100,
+        125,
+        150,
+        175,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
+        400,
+        425,
+        450,
+        475,
+        500,
+        525,
+        550,
+        575,
+        600,
+        625,
+        650,
+        675,
+        700,
+        725,
+        750,
+        775,
+        800,
+        825,
+        850,
+        875,
+        900,
+        925,
+        950,
+        975,
+        1000
+      ]
+    },
+    {
+      "name": "ci: complete repeat checkpoint grid",
+      "passed": true,
+      "detail": [
+        25,
+        50,
+        75,
+        100,
+        125,
+        150,
+        175,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
+        400,
+        425,
+        450,
+        475,
+        500,
+        525,
+        550,
+        575,
+        600,
+        625,
+        650,
+        675,
+        700,
+        725,
+        750,
+        775,
+        800,
+        825,
+        850,
+        875,
+        900,
+        925,
+        950,
+        975,
+        1000
+      ]
+    },
+    {
+      "name": "ci: deterministic scientific dynamics repeat",
+      "passed": true,
+      "detail": {
+        "primary": "63204d53067cf21a1aca56a11488c22ca437e0d3c941b3de01a1099a851b1172",
+        "repeat": "63204d53067cf21a1aca56a11488c22ca437e0d3c941b3de01a1099a851b1172"
+      }
+    },
+    {
+      "name": "ci: repeated PSNR trajectory",
+      "passed": true,
+      "detail": {
+        "primary_endpoint": [
+          1000,
+          25.0083065032959
+        ],
+        "repeat_endpoint": [
+          1000,
+          25.0083065032959
+        ]
+      }
+    },
+    {
+      "name": "ci/gaussians_init.ply: finite fixed-count primary artifact",
+      "passed": true,
+      "detail": {
+        "count": 800
+      }
+    },
+    {
+      "name": "ci/gaussians_init.ply: exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f",
+        "repeat": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f"
+      }
+    },
+    {
+      "name": "ci/gaussians_final.ply: finite fixed-count primary artifact",
+      "passed": true,
+      "detail": {
+        "count": 800
+      }
+    },
+    {
+      "name": "ci/gaussians_final.ply: exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414",
+        "repeat": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+      }
+    },
+    {
+      "name": "track-lsq: complete primary checkpoint grid",
+      "passed": true,
+      "detail": [
+        25,
+        50,
+        75,
+        100,
+        125,
+        150,
+        175,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
+        400,
+        425,
+        450,
+        475,
+        500,
+        525,
+        550,
+        575,
+        600,
+        625,
+        650,
+        675,
+        700,
+        725,
+        750,
+        775,
+        800,
+        825,
+        850,
+        875,
+        900,
+        925,
+        950,
+        975,
+        1000
+      ]
+    },
+    {
+      "name": "track-lsq: complete repeat checkpoint grid",
+      "passed": true,
+      "detail": [
+        25,
+        50,
+        75,
+        100,
+        125,
+        150,
+        175,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
+        400,
+        425,
+        450,
+        475,
+        500,
+        525,
+        550,
+        575,
+        600,
+        625,
+        650,
+        675,
+        700,
+        725,
+        750,
+        775,
+        800,
+        825,
+        850,
+        875,
+        900,
+        925,
+        950,
+        975,
+        1000
+      ]
+    },
+    {
+      "name": "track-lsq: deterministic scientific dynamics repeat",
+      "passed": true,
+      "detail": {
+        "primary": "2ef5547acc6bbfbd58bd1d9cae67070bef337363264c277f5c983f80e4139907",
+        "repeat": "2ef5547acc6bbfbd58bd1d9cae67070bef337363264c277f5c983f80e4139907"
+      }
+    },
+    {
+      "name": "track-lsq: repeated PSNR trajectory",
+      "passed": true,
+      "detail": {
+        "primary_endpoint": [
+          1000,
+          25.565218448638916
+        ],
+        "repeat_endpoint": [
+          1000,
+          25.565218448638916
+        ]
+      }
+    },
+    {
+      "name": "track-lsq/gaussians_init.ply: finite fixed-count primary artifact",
+      "passed": true,
+      "detail": {
+        "count": 800
+      }
+    },
+    {
+      "name": "track-lsq/gaussians_init.ply: exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "3c841e1398995394d97edb15259326f9f070971f3703fc6a5f3b04e92403eadd",
+        "repeat": "3c841e1398995394d97edb15259326f9f070971f3703fc6a5f3b04e92403eadd"
+      }
+    },
+    {
+      "name": "track-lsq/gaussians_final.ply: finite fixed-count primary artifact",
+      "passed": true,
+      "detail": {
+        "count": 800
+      }
+    },
+    {
+      "name": "track-lsq/gaussians_final.ply: exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "6a4ddedf429d78448f3a1a87ee1f0c534d20180e7d9d3e2efd6014e131396aa3",
+        "repeat": "6a4ddedf429d78448f3a1a87ee1f0c534d20180e7d9d3e2efd6014e131396aa3"
+      }
+    },
+    {
+      "name": "track-robust: complete primary checkpoint grid",
+      "passed": true,
+      "detail": [
+        25,
+        50,
+        75,
+        100,
+        125,
+        150,
+        175,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
+        400,
+        425,
+        450,
+        475,
+        500,
+        525,
+        550,
+        575,
+        600,
+        625,
+        650,
+        675,
+        700,
+        725,
+        750,
+        775,
+        800,
+        825,
+        850,
+        875,
+        900,
+        925,
+        950,
+        975,
+        1000
+      ]
+    },
+    {
+      "name": "track-robust: complete repeat checkpoint grid",
+      "passed": true,
+      "detail": [
+        25,
+        50,
+        75,
+        100,
+        125,
+        150,
+        175,
+        200,
+        225,
+        250,
+        275,
+        300,
+        325,
+        350,
+        375,
+        400,
+        425,
+        450,
+        475,
+        500,
+        525,
+        550,
+        575,
+        600,
+        625,
+        650,
+        675,
+        700,
+        725,
+        750,
+        775,
+        800,
+        825,
+        850,
+        875,
+        900,
+        925,
+        950,
+        975,
+        1000
+      ]
+    },
+    {
+      "name": "track-robust: deterministic scientific dynamics repeat",
+      "passed": true,
+      "detail": {
+        "primary": "4d7e07d11bc2afe2fe9ad897145501fed6ae8a26043a84c39a03453834ecdc6b",
+        "repeat": "4d7e07d11bc2afe2fe9ad897145501fed6ae8a26043a84c39a03453834ecdc6b"
+      }
+    },
+    {
+      "name": "track-robust: repeated PSNR trajectory",
+      "passed": true,
+      "detail": {
+        "primary_endpoint": [
+          1000,
+          24.91859769821167
+        ],
+        "repeat_endpoint": [
+          1000,
+          24.91859769821167
+        ]
+      }
+    },
+    {
+      "name": "track-robust/gaussians_init.ply: finite fixed-count primary artifact",
+      "passed": true,
+      "detail": {
+        "count": 800
+      }
+    },
+    {
+      "name": "track-robust/gaussians_init.ply: exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "20e73670035cafeb7a5a07fd3a24d413037cbd1f4b53a530b93c97b7b0039989",
+        "repeat": "20e73670035cafeb7a5a07fd3a24d413037cbd1f4b53a530b93c97b7b0039989"
+      }
+    },
+    {
+      "name": "track-robust/gaussians_final.ply: finite fixed-count primary artifact",
+      "passed": true,
+      "detail": {
+        "count": 800
+      }
+    },
+    {
+      "name": "track-robust/gaussians_final.ply: exact repeat PLY",
+      "passed": true,
+      "detail": {
+        "primary": "4cab2dcf9e501ffd55724a5de8fcf4e63aef259492ee64e569b75a5c2d0f7005",
+        "repeat": "4cab2dcf9e501ffd55724a5de8fcf4e63aef259492ee64e569b75a5c2d0f7005"
+      }
+    },
+    {
+      "name": "timing-free primary and repeat summaries are exact",
+      "passed": true,
+      "detail": {
+        "primary": "476885661bde429626bddba20b0dae1411c5dbd10c7121581004eb93d0a110e0",
+        "repeat": "476885661bde429626bddba20b0dae1411c5dbd10c7121581004eb93d0a110e0"
+      }
+    },
+    {
+      "name": "saved CI initialization equals deterministic Beam replay",
+      "passed": true,
+      "detail": {
+        "means": true,
+        "quats": true,
+        "log_scales": true,
+        "opacity": true,
+        "sh": true
+      }
+    },
+    {
+      "name": "all non-covariance initialization fields bit-exact",
+      "passed": true,
+      "detail": {
+        "ci": {
+          "means": true,
+          "opacity": true,
+          "sh": true
+        },
+        "track-lsq": {
+          "means": true,
+          "opacity": true,
+          "sh": true
+        },
+        "track-robust": {
+          "means": true,
+          "opacity": true,
+          "sh": true
+        }
+      }
+    },
+    {
+      "name": "ci: independently recomputed relative residual",
+      "passed": true,
+      "detail": {
+        "recomputed": {
+          "mean": 0.9216520308135195,
+          "median": 0.9403062060868854,
+          "p90": 0.9973749776012176,
+          "p99": 3.1911371005070484,
+          "max": 6.201196660420133
+        },
+        "recorded": {
+          "mean": 0.9216520308135195,
+          "median": 0.9403062060868854,
+          "p90": 0.9973749776012176,
+          "p99": 3.1911371005070484,
+          "max": 6.201196660420133
+        }
+      }
+    },
+    {
+      "name": "ci: independently recomputed whitened residual",
+      "passed": true,
+      "detail": {
+        "recomputed": {
+          "mean": 1.2670462845806651,
+          "median": 0.6888018417794926,
+          "p90": 2.8645154180700363,
+          "p99": 3.4715815266145205,
+          "max": 4.331640097542723
+        },
+        "recorded": {
+          "mean": 1.2670462845806651,
+          "median": 0.6888018417794926,
+          "p90": 2.8645154180700363,
+          "p99": 3.4715815266145205,
+          "max": 4.331640097542723
+        }
+      }
+    },
+    {
+      "name": "track-lsq: independently recomputed relative residual",
+      "passed": true,
+      "detail": {
+        "recomputed": {
+          "mean": 15.870575135476784,
+          "median": 1.3918922347485052,
+          "p90": 26.069221029639237,
+          "p99": 250.90182028321638,
+          "max": 3656.040744371818
+        },
+        "recorded": {
+          "mean": 15.870575135476784,
+          "median": 1.3918922347485052,
+          "p90": 26.069221029639237,
+          "p99": 250.90182028321638,
+          "max": 3656.040744371818
+        }
+      }
+    },
+    {
+      "name": "track-lsq: independently recomputed whitened residual",
+      "passed": true,
+      "detail": {
+        "recomputed": {
+          "mean": 189.23811019735186,
+          "median": 13.447837281968372,
+          "p90": 352.87333483015993,
+          "p99": 2659.4583100756226,
+          "max": 56750.61543789068
+        },
+        "recorded": {
+          "mean": 189.23811019735186,
+          "median": 13.447837281968372,
+          "p90": 352.87333483015993,
+          "p99": 2659.4583100756226,
+          "max": 56750.61543789068
+        }
+      }
+    },
+    {
+      "name": "track-robust: independently recomputed relative residual",
+      "passed": true,
+      "detail": {
+        "recomputed": {
+          "mean": 1.0517151193054026,
+          "median": 0.9623518821524005,
+          "p90": 0.9979567868618581,
+          "p99": 4.635527479558284,
+          "max": 82.21475458845106
+        },
+        "recorded": {
+          "mean": 1.0517151193054026,
+          "median": 0.9623518821524005,
+          "p90": 0.9979567868618581,
+          "p99": 4.635527479558284,
+          "max": 82.21475458845106
+        }
+      }
+    },
+    {
+      "name": "track-robust: independently recomputed whitened residual",
+      "passed": true,
+      "detail": {
+        "recomputed": {
+          "mean": 1.562334560436531,
+          "median": 0.6350496563953408,
+          "p90": 2.8776294899793062,
+          "p99": 14.911496801465198,
+          "max": 312.127638646509
+        },
+        "recorded": {
+          "mean": 1.562334560436531,
+          "median": 0.6350496563953408,
+          "p90": 2.8776294899793062,
+          "p99": 14.911496801465198,
+          "max": 312.127638646509
+        }
+      }
+    },
+    {
+      "name": "raw LS non-SPD count replay",
+      "passed": true,
+      "detail": {
+        "recomputed": 635,
+        "recorded": 635
+      }
+    },
+    {
+      "name": "raw LS linear residual replay",
+      "passed": true,
+      "detail": {
+        "recomputed": {
+          "mean": 0.7264486675937821,
+          "median": 0.737083412063191,
+          "p90": 0.8635245684172187,
+          "p99": 0.9233046560308679,
+          "max": 0.9713940293215129
+        },
+        "recorded": {
+          "mean": 0.7264486675937821,
+          "median": 0.737083412063191,
+          "p90": 0.8635245684172187,
+          "p99": 0.9233046560308679,
+          "max": 0.9713940293215129
+        }
+      }
+    },
+    {
+      "name": "saved track-LSQ covariance equals bounded raw LS replay",
+      "passed": true,
+      "detail": 6.1945833827042884e-09
+    }
+  ],
+  "check_summary": {
+    "total": 75,
+    "passed": 75,
+    "failed": 0
+  }
+}

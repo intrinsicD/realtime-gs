@@ -209,6 +209,38 @@
       move-receipt defect are in
       `benchmarks/results/20260721_all_initializers_frame00008_{PREREG,RESULT,AUDIT}.{md,json}`
       (where present)
+- [x] Test whether Beam Fusion's own contributor CSR supports better 3D covariance through
+      Splat-SfM LSQ or robust Cholesky descent. On the reduced fitted-view Janelle screen, 635/800
+      raw LS matrices were non-SPD; bounded LSQ failed the covariance-reprojection gate but acted
+      as anisotropic scale inflation, raising initial alpha IoU 0.01073→0.55056 and fixed-topology
+      PSNR AUC 9.108%. Robust refitting removed the coverage benefit and failed every pipeline
+      gate. Keep CI; do not call the LSQ effect physical covariance. Evidence:
+      `benchmarks/results/20260723_beam_covariance_refit_{PREREG,RESULT,AUDIT}.md`
+- [x] Implement and independently audit a mask-only partition of all source 2D Gaussian density
+      around Beam's exact surviving native contributors. The order-5 hard-Voronoi partition was
+      mechanically valid (4,704 unique anchors, `2.70e-16` maximum mass error), but did not raise
+      initial coverage: alpha IoU changed 0.01073→0.00625 area-only / 0.00886 full. Full moments
+      did improve fixed-topology fitted-view PSNR AUC 6.82%, reached CI's endpoint 50 steps
+      earlier, and ended +0.118 dB; this is optimization conditioning, not physical covariance or
+      default evidence. Keep CI. Evidence:
+      `benchmarks/results/20260723_beam_partition_covariance_{PREREG,RESULT,AUDIT}.md`
+- [x] Localize the partition initializer's near-zero step-zero alpha IoU with a render-only,
+      post-hoc optical-thickness probe. At the original opacity 0.10, `pou-full` already covers
+      94.37% of fitted-view foreground pixels at `alpha>0.01`, but only 0.886% at the official
+      `alpha>0.5` threshold. Changing only uniform opacity to 0.80 raises alpha IoU to 0.72233,
+      identifying optical thickness as the first bottleneck without selecting that multiplier or
+      ruling out residual geometry/topology limitations. Evidence:
+      `benchmarks/results/20260723_beam_partition_opacity_probe_{RESULT.md,AUDIT.json}`
+- [ ] Preregister a blockwise Beam initializer bottleneck ladder on train/held-out cameras:
+      per-Gaussian optical thickness only, then +covariance, +means, and finally topology. Isolate
+      SH/color as a separate appearance block. Score incremental alpha-IoU gap closure with an
+      outside-alpha guardrail; do not tune or select an opacity rule on the consumed all-fitted
+      Janelle screen
+- [ ] Before any Beam covariance promotion, persist raw partition receipts and replicate CI versus
+      `pou-full` across multiple scenes/seeds with untouched held-out cameras. Only after that may
+      a production gsplat split/merge arm test whether better conditioning survives topology.
+      Treat soft/geodesic responsibilities, extreme-tail bounds/blends, or heuristic upscaling as
+      new preregistered treatments; do not tune the consumed all-view frame
 - [ ] If initializer default selection is revisited, use a fresh preregistered multi-scene,
       multi-seed protocol with train-only checkpoint selection, genuinely held-out cameras, and
       matched or explicitly modeled capacity/budget effects. Do not tune the consumed all-view

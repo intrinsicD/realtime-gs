@@ -1,0 +1,14 @@
+diff --git a/benchmarks/beam_covariance_refit.py b/benchmarks/beam_covariance_refit.py
+--- a/benchmarks/beam_covariance_refit.py
++++ b/benchmarks/beam_covariance_refit.py
+@@ -482,8 +482,8 @@ def _write_viewer_manifest(out: Path) -> Path:
+         "methods": [
+             {
+                 "name": name,
+-                "initial": f"../../../runs/{out.name}/{name}/gaussians_init.ply",
+-                "final": f"../../../runs/{out.name}/{name}/gaussians_final.ply",
++                "initial": f"../../runs/{out.name}/{name}/gaussians_init.ply",
++                "final": f"../../runs/{out.name}/{name}/gaussians_final.ply",
+             }
+             for name in ARMS
+         ],

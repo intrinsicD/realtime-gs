@@ -17,6 +17,192 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-23 — Post-hoc Beam partition optical-thickness probe
+
+- **Question**: Did `pou-full` fail the step-zero coverage gate because its projected footprints
+  miss the foreground, or because Beam's fixed opacity 0.10 leaves existing support below the
+  evaluator's hard `alpha > 0.5` threshold?
+- **Setup**: Exploratory post-hoc render-only sweep over the byte-identical 800-Gaussian initial
+  PLYs from both partition runs. Means, covariance, SH/color, and count were frozen; no
+  optimization ran. Uniform opacity factors were `[0.5,1,2,4,8]`, and baseline support was
+  measured at alpha thresholds `[0.01,0.02,0.05,0.1,0.2,0.3,0.4,0.5]` with the exact Torch CPU
+  renderer on the same fitted local views `[0,2,4,6]`. Base revision:
+  `c2a7e120a5cafdcf22d4bff6f5b9868b860eb1df`. Commands:
+  `.venv/bin/python benchmarks/beam_partition_opacity_probe.py --run
+  runs/beam_partition_covariance_20260723`, repeated with the `_repeat` run, then
+  `.venv/bin/python benchmarks/audit_beam_partition_opacity_probe.py`. Probe source SHA-256:
+  `315a9d8cb4ada8a2d24f6ce066cccbd0a222b3fed93546a665cffa3153635018`.
+- **Result**: At opacity 0.10, `pou-full` has foreground recall/precision **0.9437/0.8913** at
+  `alpha>0.01` and **0.9099/0.9199** at `alpha>0.02`, but only **0.00886** IoU at the official
+  0.5 threshold. Changing only uniform opacity to 0.80 raises its IoU to **0.72233**, foreground
+  PSNR from **12.5745→16.4720 dB**, and outside alpha from **0.00212→0.01501**. CI reaches
+  0.63090 IoU under the same sensitivity. The repeat matched every scientific arm field exactly;
+  independent audit passed **15/15** checks.
+- **Conclusion**: The projected `pou-full` footprints broadly support the fitted-view mask at low
+  alpha; insufficient optical thickness is the first identified step-zero bottleneck. This
+  post-hoc sweep neither selects factor eight nor establishes that opacity is the only missing
+  factor, held-out benefit, or a default. Full result and dispositions:
+  `benchmarks/results/20260723_beam_partition_opacity_probe_{RESULT.md,AUDIT.json}`.
+- **Follow-ups/viewer**: Preregister a train/held-out blockwise oracle ladder: opacity only,
+  +covariance, +means, then topology, with appearance isolated. Attribute each block by
+  alpha-IoU gap closure and outside-alpha guardrail. The probe creates no new model state, so the
+  existing six-model partition viewer manifest and successful CPU viewer receipt remain the
+  visual handoff.
+
+---
+
+## 2026-07-23 — Masked native-anchor Beam density partitions on Janelle
+
+- **Question**: Can Beam's surviving native 2D contributor identities act as fixed anchors for a
+  mask-only partition of the complete original 2D Gaussian density, and do the resulting
+  fixed-anchor moments improve 3D covariance, visible initialization coverage, or convergence?
+  The causal arms were unchanged CI, a determinant-matched native-shape control (`pou-area`), and
+  the full partition moment (`pou-full`).
+- **Setup**: Frozen protocol
+  `benchmarks/results/20260723_beam_partition_covariance_PREREG.md`; revision
+  `c2a7e120a5cafdcf22d4bff6f5b9868b860eb1df` plus six bound source/test hashes; compact Janelle
+  `frame_00008`, global views `[0,3,6,9,12,15,18,21]`, all fitted, seed 0, downscale 32. Beam
+  produced 800 Gaussians and 6,029 links. For each view, order-5 Gauss-Hermite samples of all
+  5,000 source Gaussians were discarded outside the exact packed mask and assigned by hard
+  nearest-anchor Voronoi responsibility to unique native CSR contributors. The treatments reused
+  exact source rays/depths and kept means, opacity, SH/color, lineage, and count fixed. Each arm
+  ran 1,000 fixed-topology Torch CPU steps. Command:
+  `.venv/bin/python benchmarks/beam_partition_covariance.py --protocol
+  benchmarks/results/20260723_beam_partition_covariance_PREREG.md --out
+  runs/beam_partition_covariance_20260723`; an unchanged repeat used the `_repeat` output.
+  Result/audit:
+  `benchmarks/results/20260723_beam_partition_covariance_{RESULT,AUDIT}.md`.
+- **Result**: Deduplication left 4,704 unique native anchors and 1,325 reused links. No partition
+  was empty; maximum relative mass error was `2.70e-16`, and native CI covariance round-trip
+  error was `1.23e-6`. The distribution was not uniform upscaling: per-view median determinant
+  scales were 0.333–0.821×, with a 21,290× maximum outlier. `pou-full` reduced median whitened
+  residual against its own partition target from CI's 0.6888 to 0.5523, but worsened residual
+  against native contributor covariance to 1.0778. Initial alpha IoU changed
+  **0.01073→0.00625 (`pou-area`) / 0.00886 (`pou-full`)**, so both failed the frozen coverage
+  gate. Nevertheless foreground-PSNR AUC improved **4.86% / 6.82%**; `pou-full` ended
+  **25.1263 dB versus CI 25.0083**, preserved final alpha IoU (0.93725 versus 0.93649), and first
+  reached CI's endpoint at step 950 rather than 1000. Full shape added 1.87% AUC over area-only,
+  but the overall shape gate still failed because coverage was a prerequisite. The exact repeat
+  matched all scientific trajectories and initial/final PLYs byte-for-byte; independent audit
+  passed **70/70** checks.
+- **Conclusion**: The requested native-anchor, mask-only construction is mechanically sound, but
+  it does **not** increase visible coverage at 800 Gaussians and opacity 0.10. Confirm only a
+  narrow fitted-view optimization-conditioning benefit for `pou-full`; do not call it physical
+  covariance or promote it over CI. CI and production defaults remain unchanged. Blind
+  covariance upscaling is not justified because most measured partition scales shrink and the
+  tail is extreme.
+- **Follow-ups/viewer**: Before promotion, persist raw anchor/mass/covariance receipts and repeat
+  CI versus `pou-full` on multiple scenes/seeds with untouched held-out cameras. Only then test
+  production gsplat split/merge; any soft/geodesic partition, tail bound, or CI blend is a new
+  preregistered treatment. Inspect all six 800-splat endpoints with
+  `CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest
+  benchmarks/results/20260723_beam_partition_covariance_VIEWER.json --max-viewer-gaussians 800
+  --device cpu --port 8783 --no-open`. HTTP returned 200; PID 2036564 owned the CPU viewer,
+  an unrelated GPU process was excluded, and the server/port were stopped. Receipt:
+  `benchmarks/results/20260723_beam_partition_covariance_VIEWER_RECEIPT.json`. Primary artifacts
+  are under `runs/beam_partition_covariance_20260723`.
+
+---
+
+## 2026-07-23 — Beam-track LSQ/robust covariance refit on Janelle
+
+- **Question**: Beam Fusion retains Gaussian-to-Gaussian contributor lineage. Can the same
+  correspondences estimate better 3D covariances than covariance intersection (CI), improve
+  visible initialization coverage, and accelerate otherwise identical optimization? The frozen
+  treatments were Splat-SfM linear covariance triangulation on Beam tracks (`track-LSQ`) and a
+  120-step robust whitened Cholesky refinement (`track-robust`).
+- **Setup**: Frozen protocol
+  `benchmarks/results/20260723_beam_covariance_refit_PREREG.md`; revision
+  `c2a7e120a5cafdcf22d4bff6f5b9868b860eb1df` plus preregistered harness/test hashes; compact
+  Janelle `frame_00008`, eight all-fitted views, seed 0, 800 Beam outputs, 6,029 contributor
+  links. Count, means, opacity, and SH/color were bit-identical; only covariance differed. Every
+  arm then ran 1,000 fixed-topology Torch CPU steps at downscale 32 with the same masks, loss,
+  view stream, and learning-rate schedule. Official command:
+  `PYTHONUNBUFFERED=1 .venv/bin/python benchmarks/beam_covariance_refit.py --protocol
+  benchmarks/results/20260723_beam_covariance_refit_PREREG.md --out
+  runs/beam_covariance_refit_20260723`. The full command was repeated unchanged; the independent
+  audit rebuilt lineage and residuals and passed 75/75 checks. Result/audit:
+  `benchmarks/results/20260723_beam_covariance_refit_{RESULT,AUDIT}.md`.
+- **Result**: The tracks cover 4,704 unique 2D Gaussians, only 11.76% of the selected 40,000-input
+  pool. Raw LS is inconsistent (median linear residual 0.737) and non-SPD for **635/800** outputs.
+  After eigenvalue clamping, track-LSQ's median whitened covariance residual is **13.4478** versus
+  CI's **0.6888**; median maximum sigma grows 4.59× and median condition reaches 178,541. This
+  invalid-SPD repair nevertheless raises initial alpha IoU **0.01073→0.55056**, foreground PSNR
+  **12.3303→14.2323 dB**, PSNR-AUC **+9.108%**, and final foreground PSNR
+  **25.0083→25.5652 dB**; it reaches the CI final PSNR at step 650 rather than 1000. Outside alpha
+  also rises 0.00103→0.02538. Track-robust reduces median whitened residual only **7.80%** versus
+  CI (below the frozen 20% gate), returns initial alpha IoU to 0.01047, loses 0.95% AUC, and ends
+  at 24.9186 dB. Exact repeat trajectories and initial/final PLY hashes match.
+- **Conclusion**: Neither treatment passes all preregistered gates. Beam Fusion does provide
+  partial Gaussian correspondences, but the tested LSQ/SPD path does **not** recover a defensible
+  physical covariance. Its useful downstream effect is accidental, highly anisotropic scale
+  inflation. Robust covariance descent removes that inflation and its coverage advantage. Retain
+  CI and all current defaults; confirm only the narrow fitted-view observation that wider
+  surface-aligned splats can improve coverage and fixed-topology convergence.
+- **Follow-ups/viewer**: Test an explicitly named coverage prior—bounded CI scale multipliers or a
+  CI/LSQ spectral blend—with outside-mask alpha as a guard, before allowing split/merge. A physical
+  covariance estimator must be PSD-constrained and pass reprojection gates before refinement.
+  Replicate any candidate on multiple scenes/seeds with untouched held-out cameras and the
+  production gsplat/density path. Inspect all six endpoints with
+  `CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest
+  benchmarks/results/20260723_beam_covariance_refit_VIEWER.json --max-viewer-gaussians 800
+  --device cpu --port 8782 --no-open`. All six 800-splat models loaded, PID 2014629 owned
+  `127.0.0.1:8782`, HTTP returned 200, no NVIDIA compute process was listed, and the server/port
+  were stopped afterward; receipt:
+  `benchmarks/results/20260723_beam_covariance_refit_VIEWER_RECEIPT.json`. The official artifacts are under
+  `runs/beam_covariance_refit_20260723`. The preregistration omitted a separate hash for the dirty
+  imported dynamics helper; the exact repeat and unchanged post-run hash narrow but do not erase
+  that provenance defect. A two-line post-result viewer-relative-path repair is separately bound
+  and changes no numerical path.
+
+---
+
+## 2026-07-23 — Independent replication/audit of Janelle beam dynamics
+
+- **Question**: Does the already-logged reduced Janelle beam-convergence screen reproduce from
+  its now-committed harness, and which of its claims survive an adversarial source/artifact audit?
+- **Setup**: Replayed the frozen 2×2 on
+  `dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d` from clean revision
+  `c2a7e120a5cafdcf22d4bff6f5b9868b860eb1df`, harness SHA-256
+  `bbfe4172958af8f1188999f0eb1d4c41dccef2299b40ff93909f65e8dcf17991`, seed 0:
+  `{beam, random} × {ADC, fixed}`, 800 initial Gaussians, eight fitted views, downscale 32,
+  Torch CPU/classic density, 1,000 steps. Immediately repeated both ADC arms unchanged. Command:
+  `CUDA_VISIBLE_DEVICES='' PYTHONUNBUFFERED=1 .venv/bin/python
+  benchmarks/beam_convergence_dynamics.py --out
+  runs/beam_convergence_dynamics_replication_20260723`; repeat used
+  `--out runs/beam_convergence_dynamics_repeat2_20260723 --arms beam-adc random-adc`.
+  Result/audit:
+  `benchmarks/results/20260723_beam_convergence_dynamics_REPLICATION_{RESULT,AUDIT}.md`
+  and `_AUDIT.json`.
+- **Result**: The current ADC runs repeat exactly in every scientific trajectory field and final
+  PLY. Beam-ADC ends at **26.85986 dB / 0.95082 alpha-IoU / 4,255 G / 740 originals**;
+  Random-ADC at **24.38014 / 0.32681 / 1,198 / 439**. Every reset at steps
+  100/200/300/400/500 leaves no Gaussian above opacity 0.02 and alpha-IoU ≤0.000287 in both ADC
+  arms. Beam originals move only 0.01449 mean / 0.02162 p90 world units and become 17.39% of the
+  final population. At fixed count 800, the full beam package beats the full random package by
+  **+2.39419 dB and +0.16342 alpha-IoU**. The independent audit passed 132/132 checks and loaded
+  66/66 PLYs finite with exact counts.
+- **Corrections**: The fixed comparison is not placement-only: means, rotations,
+  scales/covariances, and SH/color differ; only count, opacity, targets, optimizer, and schedule
+  are matched. “17% originals” proves row-population dilution, not independent re-derivation,
+  because split descendants count as newborns. The earlier untracked run's raw artifacts are
+  absent and its exact ADC endpoints do not reproduce (current counts −135 beam/−90 random);
+  retire those exact old ADC numbers while retaining the qualitative mechanism. Empty confident
+  sets also exposed 30 non-standard JSON `NaN` Chamfer values; the audit normalizes only those to
+  `null`, and the harness now fails closed on any non-finite JSON value.
+- **Conclusion**: High confidence that explicit opacity resets cause the repeated coverage
+  sawtooth and that most original beam centers survive with little motion while density growth
+  makes them a minority. Confirm only that the **complete beam initializer package** outperforms
+  random at equal fixed count in this reduced fitted-view screen. No position-only causal,
+  held-out, full-scale gsplat, default, or global-convergence claim is authorized.
+- **Viewer/follow-up**: The CPU viewer with initial/final plus the Beam-ADC checkpoint directory
+  returned HTTP 200 on port 8784, owned no CUDA compute allocation, and was stopped after smoke;
+  the exact command is in the result note. A promotion experiment must match colors/covariances
+  while swapping centers, add top-K, use full gsplat DefaultStrategy, and preserve held-out
+  reporting cameras.
+
+---
+
 ## 2026-07-23 — Why beam-fusion's on-surface init doesn't help convergence (mechanism)
 
 - **Question**: The 2026-07-21 full run found beam fusion initializes on the character surface

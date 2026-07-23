@@ -132,6 +132,7 @@ class BeamFusionResult:
     component_offsets: torch.Tensor  # (C+1,), int64 CSR offsets into contributor arrays
     contributor_view_indices: torch.Tensor  # (M,), int64
     contributor_component_indices: torch.Tensor  # (M,), int64
+    contributor_depths: torch.Tensor  # (M,), float64 implied camera-space beam depths
     component_weights: torch.Tensor  # (C,)
     unmatched_per_view: tuple[int, ...]
     diagnostics: dict[str, object]
@@ -615,6 +616,11 @@ def _fuse_gaussian_beams_bounded(
         components.append(
             {
                 "signature": signature,
+                "depths": tuple(
+                    float(depths[row, view_index])
+                    for view_index in range(n_views)
+                    if int(contributors[row, view_index]) >= 0
+                ),
                 "weight": float(component_weights[row]),
                 "precision": fused_precision[row],
                 "mean": fused_mean[row],
@@ -654,16 +660,20 @@ def _fuse_gaussian_beams_bounded(
     offsets = [0]
     contributor_views: list[int] = []
     contributor_components: list[int] = []
+    contributor_depths: list[float] = []
     matched: dict[int, set[int]] = {view: set() for view in range(n_views)}
     for component in kept:
         color_sum = torch.zeros(3, dtype=torch.float64)
         amplitude_sum = 0.0
-        for view_index, splat_index in component["signature"]:
+        for (view_index, splat_index), depth in zip(
+            component["signature"], component["depths"], strict=True
+        ):
             amplitude = float(views[view_index].amplitudes[splat_index])
             color_sum += amplitude * views[view_index].colors[splat_index]
             amplitude_sum += amplitude
             contributor_views.append(view_index)
             contributor_components.append(splat_index)
+            contributor_depths.append(depth)
             matched[view_index].add(splat_index)
         offsets.append(len(contributor_views))
         colors.append(color_sum / max(amplitude_sum, 1e-12))
@@ -727,6 +737,7 @@ def _fuse_gaussian_beams_bounded(
         component_offsets=torch.tensor(offsets, dtype=torch.long),
         contributor_view_indices=torch.tensor(contributor_views, dtype=torch.long),
         contributor_component_indices=torch.tensor(contributor_components, dtype=torch.long),
+        contributor_depths=torch.tensor(contributor_depths, dtype=torch.float64),
         component_weights=torch.tensor(
             [component["weight"] for component in kept], dtype=torch.float64
         ),
@@ -880,6 +891,7 @@ def fuse_gaussian_beams(
         components.append(
             {
                 "signature": signature,
+                "depths": tuple(contributors[view_index][1] for view_index in member_views),
                 "weight": gate_weight * len(member_views),
                 "precision": fused_precision,
                 "mean": fused_mean,
@@ -922,16 +934,20 @@ def fuse_gaussian_beams(
     offsets = [0]
     contributor_views: list[int] = []
     contributor_components: list[int] = []
+    contributor_depths: list[float] = []
     matched: dict[int, set[int]] = {view: set() for view in range(n_views)}
     for component in kept:
         color_sum = torch.zeros(3, dtype=torch.float64)
         amplitude_sum = 0.0
-        for view_index, splat_index in component["signature"]:
+        for (view_index, splat_index), depth in zip(
+            component["signature"], component["depths"], strict=True
+        ):
             amplitude = float(views[view_index].amplitudes[splat_index])
             color_sum += amplitude * views[view_index].colors[splat_index]
             amplitude_sum += amplitude
             contributor_views.append(view_index)
             contributor_components.append(splat_index)
+            contributor_depths.append(depth)
             matched[view_index].add(splat_index)
         offsets.append(len(contributor_views))
         colors.append(color_sum / max(amplitude_sum, 1e-12))
@@ -966,6 +982,7 @@ def fuse_gaussian_beams(
         component_offsets=torch.tensor(offsets, dtype=torch.long),
         contributor_view_indices=torch.tensor(contributor_views, dtype=torch.long),
         contributor_component_indices=torch.tensor(contributor_components, dtype=torch.long),
+        contributor_depths=torch.tensor(contributor_depths, dtype=torch.float64),
         component_weights=torch.tensor(
             [component["weight"] for component in kept], dtype=torch.float64
         ),

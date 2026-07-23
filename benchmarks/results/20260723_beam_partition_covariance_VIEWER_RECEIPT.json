@@ -1,0 +1,44 @@
+{
+  "schema": "rtgs.viewer-smoke.v1",
+  "timestamp": "2026-07-23T14:19:51+02:00",
+  "comparison_manifest": "benchmarks/results/20260723_beam_partition_covariance_VIEWER.json",
+  "comparison_manifest_sha256": "71a0631f36f2eebdc7f8d4e001cf6d220c5031f46f0784185316c9fdfd507fc6",
+  "command": "CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest benchmarks/results/20260723_beam_partition_covariance_VIEWER.json --max-viewer-gaussians 800 --device cpu --port 8783 --no-open",
+  "url": "http://127.0.0.1:8783",
+  "http_status": 200,
+  "http_bytes": 2888259,
+  "viewer_pid": 2036564,
+  "viewer_process_used_cuda": false,
+  "other_nvidia_compute_process_observed": {
+    "pid": 2036323,
+    "command": "/home/alex/miniconda3/bin/python -",
+    "used_memory_mib": 1264,
+    "owned_by_viewer": false
+  },
+  "models": [
+    {
+      "name": "ci",
+      "initial_count": 800,
+      "initial_sha256": "cd4fdb2c8ac33bf609e0c9b90f4f0c070fa4c939bfb68c8c0371b55fddb2dc9f",
+      "final_count": 800,
+      "final_sha256": "a46a2420c8fb713653afd86d0a87a964e04665f0a5dee94a9324d92d787bf414"
+    },
+    {
+      "name": "pou-area",
+      "initial_count": 800,
+      "initial_sha256": "be5172af3fbe7a254fc658edeb219a9642f626881713b5ef22c837dcdb2fa559",
+      "final_count": 800,
+      "final_sha256": "fea1728ea3690f93be946b85d8156b21f8e5387bd08e4ca5e933284b4ad1b6e7"
+    },
+    {
+      "name": "pou-full",
+      "initial_count": 800,
+      "initial_sha256": "dc1a4e9106e530f45d5748f048dd167dcd2640356530e290075873f77835ffc9",
+      "final_count": 800,
+      "final_sha256": "b24eb9e4de64bc3334118be015f5bb5f40e152a62d0520c83167420ed08e365b"
+    }
+  ],
+  "server_stopped": true,
+  "port_closed_after_stop": true,
+  "qualitative_scope": "Orbit inspection only; numerical decisions use the exact Torch artifacts."
+}

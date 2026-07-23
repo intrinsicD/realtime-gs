@@ -261,10 +261,13 @@ class TrackingController(DensityController):
         return new_params
 
 
-def _chamfer(a: torch.Tensor, b: torch.Tensor) -> tuple[float, float]:
+def _chamfer(a: torch.Tensor, b: torch.Tensor) -> tuple[float | None, float | None]:
     """Mean and p90 nearest-neighbor distance from each row of ``a`` to ``b``."""
     if a.numel() == 0 or b.numel() == 0:
-        return float("nan"), float("nan")
+        # JSON has no NaN value.  An empty confident set is expected immediately after an
+        # opacity reset, so record the distance as unavailable instead of emitting non-standard
+        # JSON tokens that strict downstream parsers reject.
+        return None, None
     nearest = torch.cdist(a, b).min(dim=1).values
     return float(nearest.mean()), float(nearest.quantile(0.9))
 
@@ -364,7 +367,7 @@ def run_arm(
         "loss_first_20": history["loss"][:20],
         "loss_last_20": history["loss"][-20:],
     }
-    (arm_dir / "dynamics.json").write_text(json.dumps(record, indent=2))
+    (arm_dir / "dynamics.json").write_text(json.dumps(record, indent=2, allow_nan=False))
     return record
 
 
@@ -458,7 +461,7 @@ def main() -> int:
             for name, record in records.items()
         },
     }
-    (out / "summary.json").write_text(json.dumps(summary, indent=2))
+    (out / "summary.json").write_text(json.dumps(summary, indent=2, allow_nan=False))
     print(json.dumps(summary["arms"], indent=2), flush=True)
     return 0
 
