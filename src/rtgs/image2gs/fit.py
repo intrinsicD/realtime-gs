@@ -67,6 +67,16 @@ class FitConfig:
     appearance_parameterization: str = _CURRENT_APPEARANCE
     # Benchmark-only mechanism control. Geometry is omitted from the optimizer when enabled.
     freeze_geometry: bool = False
+    # Fixed-capacity pool + free list (opt-in, default off; see rtgs.image2gs.pool). Preallocates
+    # ``pool_capacity`` rows once and recycles parked rows via periodic triage (park lowest-weight,
+    # spawn at residual peaks) without reallocating the optimizer. Native backend + default
+    # appearance only; ``pool_capacity=None`` derives from ``max_gaussians`` or ``2*n_gaussians``.
+    pool: bool = False
+    pool_capacity: int | None = None
+    pool_triage_every: int = 50
+    pool_prune_count: int = 32
+    pool_spawn_count: int = 32
+    pool_min_live: int = 1
 
 
 @dataclass(frozen=True)
@@ -223,6 +233,11 @@ def fit_image(
     if diagnostic_callback is not None and gen is not None:
         rng_state_after = gen.get_state().clone()
 
+    if config.pool:
+        from rtgs.image2gs.pool import fit_pooled_from_initialization
+
+        return fit_pooled_from_initialization(image, target, g0, config, mask, xy_offset)
+
     return _fit_native_from_initialization(
         image,
         target,
@@ -264,6 +279,13 @@ def fit_image_from_initialization(
         if mask.shape != image.shape[:2]:
             raise ValueError("mask size does not match image")
         target = image * mask.to(image).clamp(0, 1)[..., None]
+    if config.pool:
+        from rtgs.image2gs.pool import fit_pooled_from_initialization
+
+        return fit_pooled_from_initialization(
+            image, target, initial_gaussians, config, mask, xy_offset
+        )
+
     return _fit_native_from_initialization(
         image,
         target,
@@ -499,6 +521,22 @@ def _validate_fit_controls(
         raise ValueError("diagnostic_steps must contain integers")
     if any(step < 0 or step > config.iterations for step in steps):
         raise ValueError("diagnostic_steps must lie in [0, iterations]")
+    if config.pool:
+        if config.backend != "native":
+            raise ValueError("pool fitting requires the native backend")
+        if config.appearance_parameterization != _CURRENT_APPEARANCE:
+            raise ValueError("pool fitting supports only the default appearance parameterization")
+        if config.freeze_geometry:
+            raise ValueError("pool fitting is incompatible with freeze_geometry")
+        if diagnostic_callback is not None or steps:
+            raise ValueError("pool fitting does not support native fit diagnostics")
+        if config.pool_capacity is not None and config.pool_capacity < config.n_gaussians:
+            raise ValueError("pool_capacity must be at least n_gaussians")
+        if config.pool_min_live < 1:
+            raise ValueError("pool_min_live must be at least 1")
+        for name in ("pool_triage_every", "pool_prune_count", "pool_spawn_count"):
+            if getattr(config, name) < 0:
+                raise ValueError(f"{name} must be non-negative")
 
 
 def _validate_raw_parameters(raw_parameters: dict[str, torch.Tensor]) -> None:

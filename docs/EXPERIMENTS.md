@@ -17,6 +17,31 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-23 — Fixed-capacity 2D-gaussian pool + free list (stage-1 scaffold)
+
+- **Question**: Can StructSplat's pooled row lifecycle (ADR-0020) be ported to rtgs stage 1 —
+  preallocate a fixed capacity, park/recycle rows through a free list, and grow/prune without
+  reallocating the optimizer — behind an opt-in flag that leaves the native fit unchanged?
+- **Setup**: New `rtgs.image2gs.pool` (`GaussianPool2D` + `fit_pooled_from_initialization`), routed
+  from `fit_image`/`fit_image_from_initialization` when `FitConfig.pool` is set (default off).
+  CPU-synthetic mechanism screen only — **not** a `benchmarks/run.py` run and **not** a calibrated
+  `dataset/` result. Seed 0. Tests: `tests/test_image2gs_pool.py`.
+- **Result**: `pytest -q tests/test_image2gs_pool.py` → 13 passed. Parked rows are exactly zero in
+  both forward and gradient (additive compositor + live-only render). With triage disabled the pool
+  is **bit-exact** to the native fit (`allclose` xy/color; equal final PSNR; xy maxdiff 0.0). The
+  optimizer is never rebuilt (identical parameter objects across park/activate; recycled rows' Adam
+  moments reset). Exploratory, untracked sanity on a 24×24 ramp: the growing policy grew 16→40 live
+  rows and improved over the fixed-16 seed, while a naive aggressive-prune short run regresses — as
+  expected for an untuned policy.
+- **Conclusion**: The allocation mechanism is in place and faithful (bit-exact when idle). This is
+  infrastructure, not a quality or default claim; the triage policy is deliberately minimal.
+- **Follow-ups**: Phase-2 benchmarked experiment through `benchmarks/run.py` — pool (count/byte-
+  budgeted growth + park/merge) vs. the fixed-N native baseline and the StructSplat backend at
+  matched count/wall-clock on a calibrated frame; add a moment-preserving merge operator; consider
+  skipping parked-row compute in the render.
+
+---
+
 ## 2026-07-23 — Post-hoc Beam partition optical-thickness probe
 
 - **Question**: Did `pou-full` fail the step-zero coverage gate because its projected footprints

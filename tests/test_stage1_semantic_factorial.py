@@ -153,6 +153,13 @@ def test_default_fit_config_is_the_frozen_default_preserving_9p_path() -> None:
         "convergence_check_every": 25,
         "appearance_parameterization": "weight_color_9p",
         "freeze_geometry": False,
+        # The opt-in pooled allocation seam is off; the frozen harness fits the fixed native set.
+        "pool": False,
+        "pool_capacity": None,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
     }
 
 
