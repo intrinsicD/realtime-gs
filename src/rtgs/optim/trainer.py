@@ -52,6 +52,10 @@ class TrainConfig:
     density_strategy: str = "classic"
     density: DensityConfig = field(default_factory=DensityConfig)
     eval_every: int = 50
+    # Opt-in checkpoint selection. "final" (default) returns the last iterate, unchanged. With
+    # "best_train_psnr" the run returns the eval checkpoint with the highest TRAINING-view PSNR
+    # (selection uses scene.training_views only -- never held-out/test views).
+    checkpoint_policy: str = "final"
     target_sh_degree: int = 3
     # None preserves the standard 1k interval for long runs but scales it down so a short run
     # still trains every requested band.
@@ -264,6 +268,8 @@ class Trainer:
             raise ValueError("non-current quaternion_update_policy requires densify=False")
         if cfg.eval_every <= 0:
             raise ValueError("eval_every must be positive")
+        if cfg.checkpoint_policy not in ("final", "best_train_psnr"):
+            raise ValueError("checkpoint_policy must be 'final' or 'best_train_psnr'")
         device = _resolve_device(cfg.device)
         scene = scene.to(device)
         controls = None
@@ -403,6 +409,13 @@ class Trainer:
         train_views = scene.training_views
         if not train_views:
             raise ValueError("scene has no training views")
+
+        select_best = cfg.checkpoint_policy == "best_train_psnr"
+        if select_best:
+            history["train_psnr"] = []
+        best_train_psnr = -float("inf")
+        best_snapshot: Gaussians3D | None = None
+        best_step: int | None = None
 
         if device.type == "cuda":
             torch.cuda.reset_peak_memory_stats(device)
@@ -586,6 +599,13 @@ class Trainer:
 
             if completed_step % cfg.eval_every == 0 or local_it == cfg.iterations - 1:
                 history["psnr"].append((completed_step, self.evaluate(scene, build(), renderer)))
+                if select_best:
+                    train_psnr = self.evaluate(scene, build(), renderer, indices=train_views)
+                    history["train_psnr"].append((completed_step, train_psnr))
+                    if train_psnr > best_train_psnr:
+                        best_train_psnr = train_psnr
+                        best_step = completed_step
+                        best_snapshot = build().detach()
                 if device.type == "cuda":
                     torch.cuda.synchronize(device)
                 if checkpoint_callback is None:
@@ -613,6 +633,11 @@ class Trainer:
         if device.type == "cuda":
             history["peak_vram_gb"] = torch.cuda.max_memory_allocated(device) / 1024**3
         history["checkpoint_callback_seconds"] = callback_seconds
+        if select_best and best_snapshot is not None:
+            history["selected_step"] = best_step
+            history["selected_train_psnr"] = best_train_psnr
+            history["checkpoint_selection_views"] = list(train_views)
+            return best_snapshot, history
         return build().detach(), history
 
     @staticmethod

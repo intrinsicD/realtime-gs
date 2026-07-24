@@ -16,7 +16,7 @@ import torch
 
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.metrics import masked_psnr, psnr
-from rtgs.image2gs.renderer2d import render_gaussians_2d
+from rtgs.image2gs.renderer2d import render_gaussian_coverage_2d, render_gaussians_2d
 
 if TYPE_CHECKING:
     from rtgs.core.observation2d import GaussianObservationField
@@ -53,6 +53,11 @@ class FitConfig:
     # Fraction of position-sampling probability taken from the gradient magnitude; the
     # rest is uniform (Image-GS uses a 0.3 uniform floor).
     grad_init_mix: float = 0.7
+    # Stage-1 initialization strategy (native backend). "gradient" (default) samples positions from
+    # the gradient magnitude; "structure_tensor" uses the torch-free feature-aware oriented
+    # initializer (rtgs.image2gs.structure_init: structure tensor -> density -> anisotropic WSE ->
+    # oriented anisotropic covariance). Color is sampled at each placed center either way.
+    init_strategy: str = "gradient"
     row_chunk: int = 64
     log_every: int = 50
     # Convergence-based early stopping (step 1: "fit until convergence"). PSNR is checked
@@ -67,6 +72,21 @@ class FitConfig:
     appearance_parameterization: str = _CURRENT_APPEARANCE
     # Benchmark-only mechanism control. Geometry is omitted from the optimizer when enabled.
     freeze_geometry: bool = False
+    # Fixed-capacity pool + free list (opt-in, default off; see rtgs.image2gs.pool). Preallocates
+    # ``pool_capacity`` rows once and recycles parked rows via periodic triage (park lowest-weight,
+    # spawn at residual peaks) without reallocating the optimizer. Native backend + default
+    # appearance only; ``pool_capacity=None`` derives from ``max_gaussians`` or ``2*n_gaussians``.
+    pool: bool = False
+    pool_capacity: int | None = None
+    pool_triage_every: int = 50
+    pool_prune_count: int = 32
+    pool_spawn_count: int = 32
+    pool_min_live: int = 1
+    # Soft mask containment (opt-in, default 0.0; native serial backend, requires a mask). Adds
+    # ``mask_coverage_weight * mean(coverage outside the mask)`` to the loss, pulling gaussian
+    # energy to stay inside the mask. The hard geometric containment (mean projection + SDF-derived
+    # scale caps for exact-zero-outside support) is a separate follow-up.
+    mask_coverage_weight: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -163,6 +183,28 @@ def init_gaussians_2d(
     return Gaussians2D(xy=xy, chol=chol, color=color, weight=weight)
 
 
+def _init_gaussians_2d_structure(image: torch.Tensor, n: int, seed: int | None) -> Gaussians2D:
+    """Feature-aware oriented init via the torch-free ``structure_init``, packed as Gaussians2D.
+
+    Positions and oriented covariance come from :mod:`rtgs.image2gs.structure_init` (structure
+    tensor -> density -> anisotropic WSE); color is sampled from ``image`` at each center and the
+    weight is seeded like the gradient-magnitude init.
+    """
+    import numpy as np
+
+    from rtgs.image2gs.structure_init import structure_init
+
+    device, dtype = image.device, image.dtype
+    result = structure_init(image.detach().cpu().numpy(), n, rng=np.random.default_rng(seed))
+    xy = torch.from_numpy(result.xy).to(device=device, dtype=dtype)
+    chol = torch.from_numpy(result.chol).to(device=device, dtype=dtype)
+    ix = xy[:, 0].floor().long().clamp(0, image.shape[1] - 1)
+    iy = xy[:, 1].floor().long().clamp(0, image.shape[0] - 1)
+    color = image[iy, ix].clone().clamp(0.0, 1.0)
+    weight = torch.full((xy.shape[0],), 0.5, device=device, dtype=dtype)
+    return Gaussians2D(xy=xy, chol=chol, color=color, weight=weight)
+
+
 def fit_image(
     image: torch.Tensor,
     config: FitConfig | None = None,
@@ -219,9 +261,17 @@ def fit_image(
         if diagnostic_callback is not None:
             rng_state_before = gen.get_state().clone()
 
-    g0 = init_gaussians_2d(target, config.n_gaussians, config.grad_init_mix, gen)
+    if config.init_strategy == "structure_tensor":
+        g0 = _init_gaussians_2d_structure(target, config.n_gaussians, seed)
+    else:
+        g0 = init_gaussians_2d(target, config.n_gaussians, config.grad_init_mix, gen)
     if diagnostic_callback is not None and gen is not None:
         rng_state_after = gen.get_state().clone()
+
+    if config.pool:
+        from rtgs.image2gs.pool import fit_pooled_from_initialization
+
+        return fit_pooled_from_initialization(image, target, g0, config, mask, xy_offset)
 
     return _fit_native_from_initialization(
         image,
@@ -264,6 +314,13 @@ def fit_image_from_initialization(
         if mask.shape != image.shape[:2]:
             raise ValueError("mask size does not match image")
         target = image * mask.to(image).clamp(0, 1)[..., None]
+    if config.pool:
+        from rtgs.image2gs.pool import fit_pooled_from_initialization
+
+        return fit_pooled_from_initialization(
+            image, target, initial_gaussians, config, mask, xy_offset
+        )
+
     return _fit_native_from_initialization(
         image,
         target,
@@ -292,6 +349,8 @@ def _fit_native_from_initialization(
     """Shared implementation used by ordinary initialization and paired research arms."""
     h, w = image.shape[:2]
     _validate_initial_gaussians(g0, h, w)
+    if config.mask_coverage_weight > 0.0 and mask is None:
+        raise ValueError("mask_coverage_weight requires a mask")
 
     # Raw (unconstrained) parameters.
     wh = image.new_tensor([w, h])
@@ -372,10 +431,13 @@ def _fit_native_from_initialization(
     stale_checks = 0
     for it in range(config.iterations):
         opt.zero_grad()
+        built = build()
         rendered = render_gaussians_2d(
-            build(), h, w, row_chunk=config.row_chunk, renderer=config.native_renderer
+            built, h, w, row_chunk=config.row_chunk, renderer=config.native_renderer
         )
         loss = _fit_loss(rendered, target, mask)
+        if config.mask_coverage_weight > 0.0 and mask is not None:
+            loss = loss + _mask_coverage_penalty(built, mask, h, w, config)
         loss.backward()
         lr_used = float(opt.param_groups[0]["lr"])
         if diagnostic_callback is not None:
@@ -482,6 +544,15 @@ def _fit_loss(
     return (((rendered - target) ** 2) * weights[..., None]).mean()
 
 
+def _mask_coverage_penalty(
+    g: Gaussians2D, mask: torch.Tensor, height: int, width: int, config: FitConfig
+) -> torch.Tensor:
+    """Soft penalty on color-independent gaussian coverage outside the mask (containment)."""
+    coverage = render_gaussian_coverage_2d(g, height, width, row_chunk=config.row_chunk)
+    outside = 1.0 - mask.to(coverage).clamp(0, 1)
+    return config.mask_coverage_weight * (coverage * outside).mean()
+
+
 def _validate_fit_controls(
     config: FitConfig,
     diagnostic_callback: NativeFitDiagnosticCallback | None,
@@ -492,6 +563,10 @@ def _validate_fit_controls(
         raise ValueError(f"appearance_parameterization must be one of: {choices}")
     if config.native_renderer not in ("torch", "cuda", "auto"):
         raise ValueError("native_renderer must be 'torch', 'cuda', or 'auto'")
+    if config.init_strategy not in ("gradient", "structure_tensor"):
+        raise ValueError("init_strategy must be 'gradient' or 'structure_tensor'")
+    if config.init_strategy == "structure_tensor" and config.backend != "native":
+        raise ValueError("init_strategy='structure_tensor' requires the native backend")
     steps = tuple(diagnostic_steps)
     if diagnostic_callback is None and steps:
         raise ValueError("diagnostic_steps require diagnostic_callback")
@@ -499,6 +574,29 @@ def _validate_fit_controls(
         raise ValueError("diagnostic_steps must contain integers")
     if any(step < 0 or step > config.iterations for step in steps):
         raise ValueError("diagnostic_steps must lie in [0, iterations]")
+    if config.pool:
+        if config.backend != "native":
+            raise ValueError("pool fitting requires the native backend")
+        if config.appearance_parameterization != _CURRENT_APPEARANCE:
+            raise ValueError("pool fitting supports only the default appearance parameterization")
+        if config.freeze_geometry:
+            raise ValueError("pool fitting is incompatible with freeze_geometry")
+        if diagnostic_callback is not None or steps:
+            raise ValueError("pool fitting does not support native fit diagnostics")
+        if config.pool_capacity is not None and config.pool_capacity < config.n_gaussians:
+            raise ValueError("pool_capacity must be at least n_gaussians")
+        if config.pool_min_live < 1:
+            raise ValueError("pool_min_live must be at least 1")
+        for name in ("pool_triage_every", "pool_prune_count", "pool_spawn_count"):
+            if getattr(config, name) < 0:
+                raise ValueError(f"{name} must be non-negative")
+    if config.mask_coverage_weight < 0.0:
+        raise ValueError("mask_coverage_weight must be non-negative")
+    if config.mask_coverage_weight > 0.0:
+        if config.backend != "native":
+            raise ValueError("mask_coverage_weight requires the native backend")
+        if config.batch_views or config.pool:
+            raise ValueError("mask_coverage_weight is not supported with batch_views or the pool")
 
 
 def _validate_raw_parameters(raw_parameters: dict[str, torch.Tensor]) -> None:

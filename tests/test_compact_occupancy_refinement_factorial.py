@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import importlib
 import json
 import math
@@ -19,6 +20,25 @@ from benchmarks import compact_occupancy_refinement_factorial as factorial
 from rtgs.core.camera import Camera
 from rtgs.core.observation2d import GaussianObservationField, GaussianPointProposal
 from rtgs.data.reconstruction_inputs import ReconstructionInputs
+
+
+def _skip_without_sealed_torch_binding() -> None:
+    """Skip when the installed torch is not the sealed reproduction build.
+
+    The runtime-path binding is pinned to a specific torch build via
+    ``TORCH_INSTANTIATOR_SHA256`` (the SHA-256 of ``torch.distributed.nn.jit.instantiator``).
+    On any other torch install the binding raises ``ProtocolInvalid``; a clean CI checkout
+    uses a different (CPU) torch than the sealed build, so these binding tests skip rather
+    than hard-fail — matching the existing CUDA precondition-skip in this module.
+    """
+    try:
+        instantiator = importlib.import_module("torch.distributed.nn.jit.instantiator")
+        path = Path(instantiator.__file__).resolve(strict=True)
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    except Exception as exc:  # pragma: no cover - defensive: torch layout differs
+        pytest.skip(f"torch instantiator source unavailable for the sealed binding: {exc}")
+    if digest != factorial.TORCH_INSTANTIATOR_SHA256:
+        pytest.skip("torch instantiator source binding differs from the sealed reproduction build")
 
 
 @contextlib.contextmanager
@@ -710,6 +730,7 @@ def test_frozen_config_exposes_no_dense_checkpoint_evaluation():
 
 
 def test_torch_runtime_path_binding_survives_exact_six_adam_groups_and_step():
+    _skip_without_sealed_torch_binding()
     before = factorial._torch_runtime_import_path_binding()
     parameters = {
         name: torch.nn.Parameter(torch.tensor([float(index + 1)]))
@@ -780,6 +801,7 @@ print(json.dumps(record, sort_keys=True))
 
 
 def test_torch_runtime_path_rejects_foreign_duplicate_reordered_and_symlink_entries(tmp_path):
+    _skip_without_sealed_torch_binding()
     factorial._torch_runtime_import_path_binding()
     from torch.distributed.nn.jit import instantiator
 
@@ -849,6 +871,7 @@ print(json.dumps({
 def test_torch_runtime_path_rejects_mode_owner_origin_source_and_member_tampering(
     monkeypatch, tmp_path
 ):
+    _skip_without_sealed_torch_binding()
     factorial._torch_runtime_import_path_binding()
     from torch.distributed.nn.jit import instantiator
 

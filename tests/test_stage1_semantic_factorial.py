@@ -146,6 +146,7 @@ def test_default_fit_config_is_the_frozen_default_preserving_9p_path() -> None:
         "batch_views": False,
         "lr": 0.01,
         "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
         "row_chunk": 64,
         "log_every": 50,
         "convergence_patience": 0,
@@ -153,6 +154,14 @@ def test_default_fit_config_is_the_frozen_default_preserving_9p_path() -> None:
         "convergence_check_every": 25,
         "appearance_parameterization": "weight_color_9p",
         "freeze_geometry": False,
+        # The opt-in pooled allocation seam is off; the frozen harness fits the fixed native set.
+        "pool": False,
+        "pool_capacity": None,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0,
     }
 
 

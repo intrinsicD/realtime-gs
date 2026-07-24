@@ -22,6 +22,8 @@ cuda = ["gsplat>=1.4"]
 depth = ["transformers>=4.45"]
 # Interactive browser viewer (Apache-2.0; imported lazily).
 viewer = ["viser>=1.0.30,<2"]
+# Tracked benchmark experiments and the tests that import them (some use scipy).
+benchmark = ["scipy>=1.10"]
 dev = [
     "pytest>=8.0",
     "ruff>=0.6",
@@ -42,6 +44,10 @@ rtgs = ["_viewer_arcball.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Put the repo root on sys.path so tests can `from benchmarks import ...` regardless of how pytest
+# is launched (CI's `pytest` console script vs verify.sh's `python -m pytest`); benchmarks/ is not
+# an installed package.
+pythonpath = ["."]
 addopts = "-q --strict-markers"
 markers = [
     "cuda: tests that require a CUDA GPU (deselected automatically when unavailable)",
@@ -52,6 +58,9 @@ markers = [
 line-length = 100
 target-version = "py310"
 src = ["src", "tests", "scripts", "benchmarks"]
+# ruff 0.16 began formatting embedded code in Markdown; keep ruff scoped to Python source so
+# `ruff format --check` does not churn docs and frozen benchmark/PREREG evidence artifacts.
+extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]
