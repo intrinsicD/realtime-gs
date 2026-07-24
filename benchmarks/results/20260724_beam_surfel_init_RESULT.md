@@ -211,10 +211,17 @@ cross-scene ranking, a production-topology result, or a performance claim.
 
 ## Next preregistered experiments
 
-1. **The count result is the finding worth confirming.** Preregister equal-final-count and
-   equal-wall-clock comparisons across multiple scenes and seeds with untouched held-out
-   cameras: does a cover-consistent initialization reach control quality at ~45% of the
-   primitives on CUDA gsplat with the production strategies? Do not reuse this root.
+1. ~~**The count result is the finding worth confirming.**~~ **Done, same root, on
+   2026-07-24.** The budgets compared above are *unmatched*, so this reading was tested against
+   the alternative that the control was merely allowed to overshoot. Under a matched hard budget
+   of 2,400 (= 3 x `N_init`) over three seeds, `surfel` beat `ci` by **+0.5074 / +0.6450 /
+   +0.8049 dB** held out while never reaching the cap, and the capped control *lost* 0.196 dB
+   versus its own uncapped endpoint: verdict `M1_CAPACITY_ADVANTAGE_HOLDS`, 3/3 seeds, guardrail
+   passed. At matched capacity the treatment also leads on train views, removing the overfit
+   ambiguity noted above. See
+   [`20260724_beam_surfel_matched_capacity_RESULT.md`](20260724_beam_surfel_matched_capacity_RESULT.md).
+   What remains genuinely open is **generalization**: multiple mask-bearing scenes and the
+   production CUDA gsplat strategies. The two other checked-in roots have no packed alpha.
 2. **Separate the leakage.** The silhouette halo is a real property of a cover rule applied to a
    surface that curves away from the camera. Test a mask-aware or curvature-aware shrink at the
    silhouette as its own treatment with an initial alpha-outside gate; do not select

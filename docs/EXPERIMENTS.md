@@ -73,9 +73,15 @@ comment at the changed default. Threshold changes in tests must cite an entry he
   seed, CPU reference rasterizer, downscale 32, 8 of 26 views, two of three held-out cameras
   interpolative. Three of five gates failed as frozen, so **no default changes**; `surfel_init`
   stays opt-in and Beam Fusion keeps CI.
-- **Follow-ups**: (a) preregister the count result directly — equal-final-count and
-  equal-wall-clock comparisons on CUDA gsplat across multiple scenes/seeds with untouched
-  held-out cameras, asking whether control quality is reachable at ~45% of the primitives;
+- **Follow-ups**: (a) **executed the same day, same root** — a matched hard budget of 2,400
+  (3x `N_init`) over seeds 0/1/2 was run specifically to withdraw the count claim, and it
+  survived unanimously: `surfel` − `ci` = +0.5074 / +0.6450 / +0.8049 dB held out with the
+  treatment never reaching the cap while the control did, verdict
+  `M1_CAPACITY_ADVANTAGE_HOLDS`, guardrail passed, and the capped control 0.196 dB *below* its
+  own uncapped endpoint — so the control was capacity-limited, not overshooting, and at matched
+  capacity it trails on train views too. Generalization across mask-bearing scenes and the
+  production CUDA gsplat strategies remains open (both other checked-in roots lack packed
+  alpha). See `benchmarks/results/20260724_beam_surfel_matched_capacity_RESULT.md`;
   (b) treat the silhouette halo as its own treatment (mask-aware or curvature-aware shrink where
   the surface curves away) with an initial alpha-outside gate — do not select `cover-iso` post
   hoc from this run; (c) replace the participation gate with densification-per-dB-held-out, now

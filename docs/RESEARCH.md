@@ -795,13 +795,23 @@ therefore reduces rather than increases growth, and reaches better held-out qual
 of the primitives (22.3279 dB at 2,230 versus 21.8745 dB at 5,030), while the control ends higher
 on train views and lower held out.
 
+That comparison used unmatched budgets, so it was retested against the alternative that the control
+was simply allowed to overshoot. Under a matched hard budget of 2,400 (three times the frozen
+initialization size) over three seeds, the control does not catch up — it gets worse. Capping it
+costs 0.196 dB against its own uncapped endpoint, so it is capacity-limited rather than greedy,
+while the treatment never reaches the cap and still leads by 0.5074/0.6450/0.8049 dB held out
+(3/3 seeds, `M1_CAPACITY_ADVANTAGE_HOLDS`, leakage guardrail passed). At matched capacity the
+treatment also leads on training views, which removes the "more capacity versus better
+initialization" ambiguity: there is no metric left on which the control is ahead.
+
 **Reuse decision:** keep CI as Beam's covariance and keep `surfel_init` opt-in; three of five
-preregistered gates failed, including an initial outside-mask leakage of 0.13125 against a 0.05
-guardrail. Reuse the *framing*: never treat an estimator covariance as a rendering covariance, and
+preregistered gates failed on the screen, including an initial outside-mask leakage of 0.13125
+against a 0.05 guardrail, and the matched-capacity confirmation shares that root. Reuse the *framing*: never treat an estimator covariance as a rendering covariance, and
 size initialization primitives against the output budget rather than the observation scale — this
 applies equally to `splat_sfm` and to any future feed-forward pointmap variant. The count result
-is what deserves a fresh multi-scene, multi-seed, CUDA-gsplat preregistration; the silhouette halo
-and the densification-per-dB question are separate treatments. Exact result and 70/70 audit:
+survived its matched-capacity falsification on this root and now deserves a multi-scene,
+CUDA-gsplat preregistration for generalization; the silhouette halo and the densification-per-dB
+question are separate treatments. Exact result and 70/70 audit:
 `benchmarks/results/20260724_beam_surfel_init_RESULT.md`.
 
 ## 3. Depth estimation & feed-forward geometry (variant B backends)

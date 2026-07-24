@@ -246,11 +246,20 @@
       more, not less, because the screen-gradient criterion scales as 1/sigma). Keep CI, keep
       `surfel_init` opt-in, no default change. Evidence:
       `benchmarks/results/20260724_beam_surfel_init_{PREREG,RESULT}.md`
-- [ ] Preregister the count result on its own: equal-final-count and equal-wall-clock
-      cover-consistent versus control initialization on CUDA gsplat, multiple scenes and seeds,
-      untouched held-out cameras. Ask whether control quality is reachable at ~45% of the
-      primitives. Do not reuse `frame_00009`, and do not select `cover-iso` post hoc from the
-      screen that produced it
+- [x] Falsify the count result under a matched primitive budget before believing it. Same root,
+      hard budget 2,400 (3x `N_init`), seeds 0/1/2, decision rule written to withdraw the claim:
+      `surfel` beat `ci` by +0.5074/+0.6450/+0.8049 dB held out in 3/3 seeds while never reaching
+      the cap that the control did, and the capped control lost 0.196 dB against its own uncapped
+      endpoint — so it was capacity-limited, not overshooting. At matched capacity the treatment
+      also leads on train views, closing the overfit ambiguity. Verdict
+      `M1_CAPACITY_ADVANTAGE_HOLDS`, leakage guardrail passed, no default change. Evidence:
+      `benchmarks/results/20260724_beam_surfel_matched_capacity_{PREREG,RESULT}.md`
+- [ ] Generalize the confirmed count result: multiple **mask-bearing** scenes, fresh roots, and
+      the production CUDA gsplat strategies (Default and MCMC/relocation) with equal-wall-clock as
+      well as equal-count comparisons. Blocked on data — `karate/frame_00005` and
+      `karate/frame_00060` carry no packed alpha, so the mask-based coverage/leakage protocol
+      cannot run there without confounding scene with supervision regime. Do not select
+      `cover-iso-op` post hoc from the screen that produced it
 - [ ] Treat the initialization's silhouette halo as a separate preregistered treatment: a
       mask-aware or curvature-aware shrink where the surface curves away from the camera, gated on
       initial outside-mask alpha. The cover condition assumes a locally planar patch and is

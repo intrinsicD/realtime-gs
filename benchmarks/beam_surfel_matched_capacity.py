@@ -223,6 +223,91 @@ def decide(cells: dict[str, dict[int, dict]], seeds: list[int]) -> dict:
     }
 
 
+def write_viewer_manifest(out: Path, arms: list[str], seeds: list[int]) -> Path:
+    """Synchronized comparison over every (seed, arm) final model.
+
+    This run varies only the trainer seed and the density budget, so each arm's initialization is
+    the shared one from the screen under test; `initial` therefore points at that screen's saved
+    init PLY and `final` at this run's matched-budget endpoint.
+    """
+    manifest = {
+        "schema": "rtgs.viewer-comparison.v1",
+        "methods": [
+            {
+                "name": f"seed{seed}:{arm}",
+                "initial": f"../../runs/beam_surfel_init_20260724/fixed/{arm}/gaussians_init.ply",
+                "final": f"../../runs/{out.name}/seed{seed}/{arm}/gaussians_final.ply",
+            }
+            for seed in seeds
+            for arm in arms
+        ],
+    }
+    path = ROOT / "benchmarks/results/20260724_beam_surfel_matched_capacity_VIEWER.json"
+    path.write_text(json.dumps(manifest, indent=2, allow_nan=False) + "\n")
+    return path
+
+
+def write_index(out: Path, summary: dict) -> Path:
+    """Summary-bound results page with relative links to this run's own artifacts."""
+    rows = []
+    for arm, by_seed in summary["cells"].items():
+        for seed, cell in sorted(by_seed.items()):
+            held = cell["final_metrics"]["heldout"]
+            rows.append(
+                "<tr><td>{arm}</td><td>{seed}</td><td>{n}</td><td>{cap}</td><td>{p:.4f}</td>"
+                "<td>{i:.4f}</td><td>{o:.4f}</td><td>{a:.4f}</td>"
+                '<td><a href="seed{seed}/{arm}/preview_final.png">final</a></td></tr>'.format(
+                    arm=arm,
+                    seed=seed,
+                    n=cell["final_n"],
+                    cap="yes" if cell["reached_budget"] else "no",
+                    p=held.get("psnr_fg", float("nan")),
+                    i=held.get("alpha_iou", float("nan")),
+                    o=held.get("alpha_outside", float("nan")),
+                    a=cell["heldout_psnr_auc"],
+                )
+            )
+    decision = summary["decision"]
+    per_seed = "".join(
+        "<li>seed {s}: surfel - ci = {d:+.4f} dB, N {a} vs {b}</li>".format(
+            s=c["seed"], d=c["delta_psnr_fg_db"], a=c["surfel_final_n"], b=c["ci_final_n"]
+        )
+        for c in decision.get("per_seed", [])
+    )
+    html = f"""<!doctype html>
+<meta charset="utf-8">
+<title>Matched-capacity falsification — {summary["frame"]}</title>
+<style>
+body {{ font-family: system-ui, sans-serif; margin: 2rem; max-width: 66rem; }}
+table {{ border-collapse: collapse; width: 100%; }}
+th, td {{ border: 1px solid #ccc; padding: 0.35rem 0.6rem; text-align: right; }}
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) {{ text-align: left; }}
+code {{ background: #f4f4f4; padding: 0 0.2rem; }}
+</style>
+<h1>Matched-capacity falsification of the surfel-initialization count result</h1>
+<p>Every arm shares one hard budget of <strong>{summary["matched_budget"]}</strong> primitives
+(3 x the frozen {summary["n_init"]}-Gaussian initialization) over seeds {summary["seeds"]} on
+<code>{summary["frame"]}</code>. All metrics are on the held-out cameras, which entered neither
+Beam Fusion nor refinement. Protocol:
+<a href="../../benchmarks/results/20260724_beam_surfel_matched_capacity_PREREG.md"
+>preregistration</a>.</p>
+<p><strong>Verdict: {decision["verdict"]}</strong> at a {decision["margin_db"]} dB margin;
+outside-alpha guardrail {"passed" if decision["guardrail_passed"] else "FAILED"}
+(worst {decision["guardrail_max_outside_alpha"]:.5f}).</p>
+<ul>{per_seed}</ul>
+<table>
+<tr><th>arm</th><th>seed</th><th>final N</th><th>hit cap</th><th>held-out PSNR</th>
+<th>alpha IoU</th><th>alpha out</th><th>PSNR AUC</th><th>preview</th></tr>
+{chr(10).join(rows)}
+</table>
+<p>Same root as the screen under test, so this confirms a mechanism and does not generalize.
+One device, CPU reference rasterizer, downscale {summary["downscale"]}.</p>
+"""
+    path = out / "index.html"
+    path.write_text(html)
+    return path
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
@@ -320,7 +405,11 @@ def main() -> int:
         },
     }
     (out / "summary.json").write_text(json.dumps(summary, indent=2, allow_nan=False) + "\n")
+    index = write_index(out, summary)
+    viewer = write_viewer_manifest(out, args.arms, list(args.seeds))
     print(json.dumps(decision, indent=2), flush=True)
+    print(f"[index] {index}", flush=True)
+    print(f"[viewer] {viewer}", flush=True)
     return 0
 
 
