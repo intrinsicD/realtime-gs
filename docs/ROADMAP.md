@@ -273,6 +273,19 @@
       of its originals were above `split_scale_frac * extent` at the first density event, so the
       controller could only clone them in place. Evidence:
       `benchmarks/results/20260724_beam_surfel_birth_attribution_RESULT.md`
+- [ ] Sweep `density.start_iter`/`stop_iter` on the **control arm alone**. The scale-gradient
+      diagnostic showed the control's primitives do grow (2.25x over 1,000 steps under a coherent
+      99%-growth-signed gradient) but at ~860 steps per doubling, while density control commits the
+      entire budget between steps 20 and 500 — so topology is decided before the primitives cross
+      the split boundary. If delaying densification recovers much of the gap, part of what has been
+      attributed to initialization scale belongs to schedule timing. Cheapest decisive control in
+      this line; run it before any GPU generalization work
+- [ ] Measure the EWA dilation suppression factor under CUDA gsplat's antialiasing filter. The CPU
+      reference floors the projected footprint at 0.5477 px, which absorbs 88% of any scale change
+      for the control; gsplat's filter differs and the whole mechanism may not transfer
+- [ ] Test a scale-relative split threshold as an alternative fix that requires no initialization
+      change: the current `split_scale_frac * extent` is absolute, so an initializer whose
+      primitives are uniformly small can never reach it
 - [ ] Test `split_scale_frac` as a confound on the control arm alone. If lowering the threshold
       lets the control split its under-sized primitives and recovers much of the gap, part of the
       effect attributed to initialization scale belongs to a controller threshold mismatched to

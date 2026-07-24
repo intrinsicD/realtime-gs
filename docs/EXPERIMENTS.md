@@ -17,6 +17,54 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-24 — Why an under-sized primitive does not grow: it does, but loses a race
+
+- **Question**: post-hoc diagnostic, selects nothing. If the control's primitives sit below the
+  split boundary, why does gradient descent not simply grow them until they cover? Every earlier
+  run measured outcomes; none measured the gradient the optimizer actually receives.
+- **Setup**: `benchmarks/beam_surfel_scale_gradient.py` on the frozen `frame_00009`
+  initializations. One forward/backward of the trainer's masked loss per training view, capturing
+  `dL/d log_scale`, `dL/d mu`, `dL/d opacity_logit` per Gaussian, plus intrinsic (undilated)
+  projected sigma and per-Gaussian sign consistency `|mean|/RMS` across views — the quantity that
+  decides whether Adam, which normalizes magnitude, can move a parameter at all.
+- **Result**: the reference rasterizer adds `Sigma_2D = J Sigma J^T + 0.3 I` px², a **0.5477 px**
+  floor. `ci` projects to **0.2015 px** with **98.0%** below that floor, so the primitive supplies
+  only **11.9%** of the rendered variance; its `|dL/d log s|` is 4.86e-06 versus `cover-iso`'s
+  4.83e-05 (10× smaller) and its scale/position gradient ratio is 0.0126 versus 0.0541 (4.3×
+  smaller relative). **But the gradient is not the blocker**: 99.0% of the control's primitives
+  point toward growth at sign consistency 0.8592, and the identity-tracked run measured its
+  survivors growing 0.00739 → 0.01660 world sigma over 1,000 steps (2.25×, `Δ log s = 0.809`,
+  `8.1e-4`/step against `lr = 5e-3`, ~860 steps per doubling). Density control runs steps 20–500
+  and commits the whole budget while `Δ log s ≈ 0.4` — sigma ≈ 0.011, still under the 0.02229
+  split boundary — which is exactly the measured split-eligibility of **2.8%** at the first
+  density event rising to only **24.0%** at the last. Separately and unplanned: `surfel`'s signed
+  mean `dL/d log s` is **−4.06e-07** with 52.4% pointing to growth and consistency 0.4154, i.e.
+  the derived cover scale sits at the **zero crossing of the scale gradient**, while `ci` sits far
+  from it (−4.69e-06, 99.0%, 0.8592) and isotropic `cover-iso-op` overshoots the other way (35.5%
+  pointing to growth).
+- **Conclusion**: "the gradient vanishes" is wrong and was the hypothesis this run was written to
+  test. The control's primitives grow steadily under a coherent signal; they simply grow an order
+  of magnitude too slowly relative to the density schedule, which reads the scale as it is at
+  steps 20–500 and spends the entire budget on clone-in-place before the primitives ever cross the
+  split threshold. Growth by gradient descent and topology decision by density control share a
+  clock, and the initialization loses the race. Three distinct fixes follow — correct the scale up
+  front, delay densification until scales converge, or make the split threshold scale-relative —
+  and this session only tested the first. The fixed-point agreement is stronger evidence for the
+  hexagonal-cover derivation than any preregistered gate in this line: the analytic condition and
+  the optimizer's own optimum agree to within a gradient an order of magnitude below the control's.
+  Confidence: moderate for the mechanism, low for the rate — gradients evaluated at step 0 only,
+  growth rate inferred from an endpoint rather than a logged trajectory, one scene, one seed, CPU
+  reference rasterizer. `EWA_DILATION = 0.3` px² is this repo's convention; CUDA gsplat's filter
+  differs and its suppression factor must be measured, not assumed.
+- **Follow-ups**: (a) the cheapest decisive control in this whole line — sweep
+  `density.start_iter`/`stop_iter` on the **control arm alone**; if delaying densification until
+  scales have grown recovers much of the gap, part of what has been attributed to initialization
+  scale belongs to schedule timing; (b) log the per-step scale trajectory instead of inferring an
+  average rate; (c) measure the suppression factor under CUDA gsplat's antialiasing, where the
+  floor and therefore the whole mechanism may differ; (d) test a scale-relative split threshold as
+  an alternative fix that needs no initialization change. Full record:
+  `benchmarks/results/20260724_beam_surfel_scale_gradient_RESULT.md`.
+
 ## 2026-07-24 — The control's initialization is vestigial: split was structurally unavailable
 
 - **Question**: post-hoc diagnostic, selects nothing. At a matched budget the cover-consistent
