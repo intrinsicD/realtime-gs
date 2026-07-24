@@ -1,0 +1,864 @@
+{
+  "schema": "rtgs.geometric_arena_frame00008.audit.v1",
+  "created_utc": "2026-07-24T12:47:59.096203+00:00",
+  "audit_source": {
+    "path": "benchmarks/audit_geometric_arena_frame00008.py",
+    "sha256": "e70b48c7794b01b8aa82d324a60e5b215595981662d2f3426a1d368aec6e7855",
+    "bytes": 35987
+  },
+  "official_summary": {
+    "path": "runs/geometric_arena_frame00008_20260724/summary.json",
+    "sha256": "fbb03a705f2926941f553d9eb7c6fb6788d18cafbcbd774aa71381adc755c0c4",
+    "bytes": 71315
+  },
+  "scope": "single-scene, single-seed storage experiment with two fresh-process dynamic controls and one geometric arena observation",
+  "claim_table": [
+    {
+      "claim": "The geometric arena preserves the dynamic end-to-end trajectory.",
+      "kind_scope": "asserted correctness; one CUDA scene/seed",
+      "evidence": "Dynamic controls themselves end at 5,424 and 5,337; the arena ends at 5,395.",
+      "disposition": "NARROW \u2014 not testable under this invalid control bracket"
+    },
+    {
+      "claim": "The arena materially reduces density-event latency.",
+      "kind_scope": "measured systems claim; one arena run",
+      "evidence": "1.175\u00d7 the faster dynamic event total; frozen \u22640.80 gate not met.",
+      "disposition": "RETIRE for this run"
+    },
+    {
+      "claim": "The arena improves end-to-end 10k time.",
+      "kind_scope": "measured systems claim; one arena run",
+      "evidence": "1.018\u00d7 the faster dynamic total; frozen \u22640.98 gate not met.",
+      "disposition": "RETIRE for this run"
+    },
+    {
+      "claim": "Arena memory is non-inferior at this scale.",
+      "kind_scope": "descriptive GPU memory; one scene",
+      "evidence": "Peak allocated ratio 1.049\u00d7; reserved ratio 0.971\u00d7.",
+      "disposition": "NARROW to this observed run"
+    },
+    {
+      "claim": "The default may change from dynamic allocation.",
+      "kind_scope": "production/default claim",
+      "evidence": "Protocol forbids a default change; validity and speed gates fail.",
+      "disposition": "RETIRE \u2014 keep dynamic default"
+    }
+  ],
+  "independent_reduction": {
+    "protocol_disposition": {
+      "validity": {
+        "sampled_views_match": true,
+        "event_trajectories_match": false,
+        "dynamic_final_counts_match": false
+      },
+      "dynamic_final_counts": [
+        5424,
+        5337
+      ],
+      "dynamic_heldout_psnr_fg": [
+        22.314208984375,
+        22.134048461914062
+      ],
+      "dynamic_heldout_psnr_delta_db": 0.1801605224609375,
+      "disposition": "INVALID_DYNAMIC_CONTROL_NONREPEATABILITY",
+      "default_change_authorized": false
+    },
+    "producer_disposition": "REJECT_CURRENT_ARENA_CORRECTNESS",
+    "performance": {
+      "density_event_ratio_to_faster_dynamic": 1.175476564713728,
+      "native_elapsed_ratio_to_faster_dynamic": 1.0180058400172196,
+      "non_density_ratio_to_worse_dynamic": 0.977849066973354,
+      "peak_allocated_ratio_to_worse_dynamic": 1.0488889362791094,
+      "peak_reserved_ratio_to_worse_dynamic": 0.9705882352941176
+    },
+    "timing_decisional": false,
+    "default_change_authorized": false
+  },
+  "raw_measurements": {
+    "dynamic-a": {
+      "final_n": 5424,
+      "native_seconds": 39.88722997996956,
+      "density_event_seconds": 0.04892976302653551,
+      "peak_allocated_mib": 45.79296875,
+      "peak_reserved_mib": 68.0,
+      "heldout_psnr_fg": 22.314208984375,
+      "heldout_alpha_iou": 0.9533173441886902
+    },
+    "geometric": {
+      "final_n": 5395,
+      "native_seconds": 40.60543306171894,
+      "density_event_seconds": 0.05751578975468874,
+      "peak_allocated_mib": 48.03173828125,
+      "peak_reserved_mib": 66.0,
+      "heldout_psnr_fg": 22.344547271728516,
+      "heldout_alpha_iou": 0.956855058670044
+    },
+    "dynamic-b": {
+      "final_n": 5337,
+      "native_seconds": 41.52178586181253,
+      "density_event_seconds": 0.05534830875694752,
+      "peak_allocated_mib": 45.6884765625,
+      "peak_reserved_mib": 68.0,
+      "heldout_psnr_fg": 22.134048461914062,
+      "heldout_alpha_iou": 0.9548183679580688
+    }
+  },
+  "first_divergence": {
+    "step": 400,
+    "n_after": {
+      "dynamic-a": 2098,
+      "geometric": 2094,
+      "dynamic-b": 2096
+    }
+  },
+  "checks": [
+    {
+      "name": "official result shape and completion state are exact",
+      "passed": true,
+      "detail": {
+        "summary_sha256": "fbb03a705f2926941f553d9eb7c6fb6788d18cafbcbd774aa71381adc755c0c4",
+        "schema": "rtgs.geometric_arena_frame00008.result.v1",
+        "status": "complete",
+        "arms": [
+          "dynamic-a",
+          "geometric",
+          "dynamic-b"
+        ],
+        "steps": [
+          2000,
+          4000,
+          6000,
+          8000,
+          10000
+        ]
+      }
+    },
+    {
+      "name": "protocol predates ordered workers and remains hash-bound",
+      "passed": true,
+      "detail": {
+        "protocol_sha256": "06865184f39bfdabe903c21f935a7aaa26056b0217663b92b82a0063371ca5bb",
+        "plan_created_utc": "2026-07-24T12:37:14.731952+00:00",
+        "worker_completed_utc": {
+          "dynamic-a": "2026-07-24T12:37:59.214832+00:00",
+          "geometric": "2026-07-24T12:38:45.089282+00:00",
+          "dynamic-b": "2026-07-24T12:39:31.839256+00:00"
+        },
+        "summary_completed_utc": "2026-07-24T12:39:34.088365+00:00"
+      }
+    },
+    {
+      "name": "dirty-tree executed source closure remains byte-exact",
+      "passed": true,
+      "detail": {
+        "git_revision": "7772f4fb63bf5b7c6540fbce7dfa3bf578bd7c11",
+        "source_count": 12,
+        "source_aggregate_sha256": "36262b05a5c836620c9c372b13037686ed98f4b16cdaa6532d44b6aa382fb2a0"
+      }
+    },
+    {
+      "name": "calibrated inputs, tensors, masks, initialization, and held-out split replay",
+      "passed": true,
+      "detail": {
+        "view_names": [
+          "C0001",
+          "C0008",
+          "C0014",
+          "C0021",
+          "C0026",
+          "C0031",
+          "C0039",
+          "C1004"
+        ],
+        "train_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "test_indices": [
+          7
+        ],
+        "inputs": {
+          "C0001": {
+            "matched": true
+          },
+          "C0008": {
+            "matched": true
+          },
+          "C0014": {
+            "matched": true
+          },
+          "C0021": {
+            "matched": true
+          },
+          "C0026": {
+            "matched": true
+          },
+          "C0031": {
+            "matched": true
+          },
+          "C0039": {
+            "matched": true
+          },
+          "C1004": {
+            "matched": true
+          }
+        }
+      }
+    },
+    {
+      "name": "arms differ only in frozen storage configuration",
+      "passed": true,
+      "detail": {
+        "config_sha256": {
+          "dynamic-a": "836d7c9bf4415e010f054458ffb1b7d7df33f1eb0cc9659aceee42111a08bfe9",
+          "geometric": "dced47c0d2f45a249238cafc94510d3d852b48d798460077e30db5f3af03055d",
+          "dynamic-b": "836d7c9bf4415e010f054458ffb1b7d7df33f1eb0cc9659aceee42111a08bfe9"
+        },
+        "storage_policy": {
+          "dynamic-a": "dynamic",
+          "geometric": "geometric",
+          "dynamic-b": "dynamic"
+        }
+      }
+    },
+    {
+      "name": "all summary and worker artifacts remain hash/size exact",
+      "passed": true,
+      "detail": {
+        "artifact_reference_count": 153,
+        "unique_artifact_count": 108,
+        "failures": []
+      }
+    },
+    {
+      "name": "all 15 saved states and three finals replay exact, finite, and bounded",
+      "passed": true,
+      "detail": {
+        "failures": []
+      }
+    },
+    {
+      "name": "all 15 train/held-out metric records independently replay",
+      "passed": true,
+      "detail": {
+        "tolerance": 1e-06,
+        "maximum_absolute_difference": 0.0,
+        "failures": []
+      }
+    },
+    {
+      "name": "training histories preserve RNG sequence and complete synchronized event accounting",
+      "passed": true,
+      "detail": {
+        "sampled_train_views_sha256": {
+          "dynamic-a": "20ad86923e4e5573e6295eec590035f51fdadaa7a85c88acf07f330df60400c4",
+          "geometric": "20ad86923e4e5573e6295eec590035f51fdadaa7a85c88acf07f330df60400c4",
+          "dynamic-b": "20ad86923e4e5573e6295eec590035f51fdadaa7a85c88acf07f330df60400c4"
+        },
+        "event_steps": {
+          "dynamic-a": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ],
+          "geometric": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ],
+          "dynamic-b": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ]
+        },
+        "event_milliseconds": {
+          "dynamic-a": [
+            33.49099587649107,
+            2.109438180923462,
+            2.958657220005989,
+            2.1026786416769028,
+            2.1071182563900948,
+            2.022838220000267,
+            2.05087848007679,
+            2.087158150970936
+          ],
+          "geometric": [
+            34.08434521406889,
+            2.4551590904593468,
+            2.782967872917652,
+            2.4213194847106934,
+            3.2011475414037704,
+            5.357846617698669,
+            3.7815067917108536,
+            3.4314971417188644
+          ],
+          "dynamic-b": [
+            34.35801528394222,
+            3.7143370136618614,
+            2.2318176925182343,
+            3.7269964814186096,
+            3.493167459964752,
+            3.1170574948191643,
+            2.0800987258553505,
+            2.6268186047673225
+          ]
+        }
+      }
+    },
+    {
+      "name": "arena capacity and migration accounting are internally consistent",
+      "passed": true,
+      "detail": {
+        "policy": "geometric",
+        "active_n": 5395,
+        "capacity": 8192,
+        "max_capacity": 20000,
+        "growth_factor": 2.0,
+        "adam_parameter_row_bytes": 708,
+        "physical_parameter_adam_bytes": 5799936,
+        "active_parameter_adam_bytes": 3819660,
+        "migration_count": 4,
+        "migration_copied_bytes": 4606956,
+        "migrations": [
+          {
+            "iteration": 200,
+            "old_capacity": 512,
+            "new_capacity": 1024,
+            "active_n": 422,
+            "required_n": 815,
+            "copied_bytes": 298776
+          },
+          {
+            "iteration": 300,
+            "old_capacity": 1024,
+            "new_capacity": 2048,
+            "active_n": 815,
+            "required_n": 1378,
+            "copied_bytes": 577020
+          },
+          {
+            "iteration": 400,
+            "old_capacity": 2048,
+            "new_capacity": 4096,
+            "active_n": 1378,
+            "required_n": 2094,
+            "copied_bytes": 975624
+          },
+          {
+            "iteration": 700,
+            "old_capacity": 4096,
+            "new_capacity": 8192,
+            "active_n": 3892,
+            "required_n": 4551,
+            "copied_bytes": 2755536
+          }
+        ]
+      }
+    },
+    {
+      "name": "audit detects preregistered dynamic-control nonrepeatability",
+      "passed": true,
+      "detail": {
+        "first_divergence_index": 2,
+        "first_divergence_step": 400,
+        "trajectories": {
+          "dynamic-a": [
+            {
+              "iteration": 200,
+              "n_before": 422,
+              "n_after": 815
+            },
+            {
+              "iteration": 300,
+              "n_before": 815,
+              "n_after": 1378
+            },
+            {
+              "iteration": 400,
+              "n_before": 1378,
+              "n_after": 2098
+            },
+            {
+              "iteration": 500,
+              "n_before": 2098,
+              "n_after": 3039
+            },
+            {
+              "iteration": 600,
+              "n_before": 3039,
+              "n_after": 3909
+            },
+            {
+              "iteration": 700,
+              "n_before": 3909,
+              "n_after": 4582
+            },
+            {
+              "iteration": 800,
+              "n_before": 4582,
+              "n_after": 5073
+            },
+            {
+              "iteration": 900,
+              "n_before": 5073,
+              "n_after": 5424
+            }
+          ],
+          "geometric": [
+            {
+              "iteration": 200,
+              "n_before": 422,
+              "n_after": 815
+            },
+            {
+              "iteration": 300,
+              "n_before": 815,
+              "n_after": 1378
+            },
+            {
+              "iteration": 400,
+              "n_before": 1378,
+              "n_after": 2094
+            },
+            {
+              "iteration": 500,
+              "n_before": 2094,
+              "n_after": 3051
+            },
+            {
+              "iteration": 600,
+              "n_before": 3051,
+              "n_after": 3892
+            },
+            {
+              "iteration": 700,
+              "n_before": 3892,
+              "n_after": 4551
+            },
+            {
+              "iteration": 800,
+              "n_before": 4551,
+              "n_after": 5025
+            },
+            {
+              "iteration": 900,
+              "n_before": 5025,
+              "n_after": 5395
+            }
+          ],
+          "dynamic-b": [
+            {
+              "iteration": 200,
+              "n_before": 422,
+              "n_after": 815
+            },
+            {
+              "iteration": 300,
+              "n_before": 815,
+              "n_after": 1378
+            },
+            {
+              "iteration": 400,
+              "n_before": 1378,
+              "n_after": 2096
+            },
+            {
+              "iteration": 500,
+              "n_before": 2096,
+              "n_after": 3037
+            },
+            {
+              "iteration": 600,
+              "n_before": 3037,
+              "n_after": 3860
+            },
+            {
+              "iteration": 700,
+              "n_before": 3860,
+              "n_after": 4500
+            },
+            {
+              "iteration": 800,
+              "n_before": 4500,
+              "n_after": 4971
+            },
+            {
+              "iteration": 900,
+              "n_before": 4971,
+              "n_after": 5337
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "raw timing/memory ratios recompute, while remaining descriptive",
+      "passed": true,
+      "detail": {
+        "independent": {
+          "density_event_ratio_to_faster_dynamic": 1.175476564713728,
+          "native_elapsed_ratio_to_faster_dynamic": 1.0180058400172196,
+          "non_density_ratio_to_worse_dynamic": 0.977849066973354,
+          "peak_allocated_ratio_to_worse_dynamic": 1.0488889362791094,
+          "peak_reserved_ratio_to_worse_dynamic": 0.9705882352941176
+        },
+        "producer": {
+          "density_event_ratio_to_faster_dynamic": 1.175476564713728,
+          "native_elapsed_ratio_to_faster_dynamic": 1.0180058400172196,
+          "non_density_ratio_to_worse_dynamic": 0.977849066973354,
+          "peak_allocated_ratio_to_worse_dynamic": 1.0488889362791094,
+          "peak_reserved_ratio_to_worse_dynamic": 0.9705882352941176
+        },
+        "timing_decisional": false,
+        "reason": "dynamic controls differ by count, trajectory, and >0.02 dB held-out"
+      }
+    },
+    {
+      "name": "audit applies protocol validity before arena correctness and overrides producer label",
+      "passed": true,
+      "detail": {
+        "audit_disposition": "INVALID_DYNAMIC_CONTROL_NONREPEATABILITY",
+        "producer_disposition": "REJECT_CURRENT_ARENA_CORRECTNESS",
+        "producer_validity": {
+          "sampled_views_match": true,
+          "event_trajectories_match": false,
+          "dynamic_final_counts_match": false
+        }
+      }
+    },
+    {
+      "name": "CPU viewer loads all 30 manifest models and shuts down cleanly",
+      "passed": true,
+      "detail": {
+        "manifest_sha256": "c84cf82cb93b97d87889e5294c8a236039fe422a8a0bf0961ecd7edf8c6d6118",
+        "method_count": 15,
+        "http_status": 200,
+        "response_bytes": 2888259
+      }
+    },
+    {
+      "name": "all 38 diagnostic raster/GIF artifacts decode",
+      "passed": true,
+      "detail": {
+        "visual_count": 38,
+        "failures": [],
+        "visuals": {
+          "runs/geometric_arena_frame00008_20260724/checkpoint_train_C0014.png": {
+            "size": [
+              2331,
+              948
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/checkpoint_heldout_C1004.png": {
+            "size": [
+              2331,
+              948
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_02000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_02000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_04000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_04000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_06000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_06000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_08000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_08000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_10000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_10000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_train_C0014.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_heldout_C1004.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_02000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_02000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_04000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_04000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_06000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_06000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_08000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_08000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_10000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_10000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_train_C0014.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_heldout_C1004.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_02000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_02000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_04000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_04000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_06000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_06000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_08000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_08000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_10000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_10000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_train_C0014.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_heldout_C1004.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          }
+        }
+      }
+    },
+    {
+      "name": "required index is result-bound with only the audit self-reference deferred",
+      "passed": true,
+      "detail": {
+        "index_sha256": "45c815cee0c2047da704121c0bb565dfe89f4b5e145d5963d36c239208cb0c3b",
+        "reference_count": 59,
+        "unique_local_target_count": 39,
+        "deferred_audit_note_seen": true,
+        "missing_non_deferred_targets": []
+      }
+    }
+  ],
+  "check_summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0
+  },
+  "commands": {
+    "official": "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python benchmarks/geometric_arena_frame00008.py",
+    "viewer": "CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest benchmarks/results/20260724_geometric_arena_frame00008_VIEWER.json --scene /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16 --device cpu --max-viewer-gaussians 20000 --host 127.0.0.1 --port 8787 --no-open",
+    "audit": "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python benchmarks/audit_geometric_arena_frame00008.py"
+  },
+  "verification_context": {
+    "focused_cpu": ".venv/bin/pytest -q tests/test_gaussian_arena.py tests/test_optim.py -m 'not cuda' (passed)",
+    "focused_cuda": ".venv-cuda/bin/pytest -q tests/test_optim.py::test_geometric_arena_gsplat_default_trains_and_grows (passed)",
+    "repository_verify": "./scripts/verify.sh: lint/format passed; six unrelated historical tests failed because they freeze removed libstdc++.so.6.0.33; all remaining non-slow tests passed when those six were deselected",
+    "git_diff_check": "passed"
+  }
+}

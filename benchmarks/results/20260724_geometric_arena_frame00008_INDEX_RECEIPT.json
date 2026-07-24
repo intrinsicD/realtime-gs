@@ -1,0 +1,268 @@
+{
+  "schema": "rtgs.geometric_arena_frame00008.index_receipt.v1",
+  "checked_utc": "2026-07-24T12:48:08.341675+00:00",
+  "serve_command": ".venv/bin/python -m http.server 8791 --bind 127.0.0.1 --directory .",
+  "url": "http://127.0.0.1:8791/runs/geometric_arena_frame00008_20260724/index.html",
+  "index": {
+    "path": "runs/geometric_arena_frame00008_20260724/index.html",
+    "sha256": "45c815cee0c2047da704121c0bb565dfe89f4b5e145d5963d36c239208cb0c3b",
+    "bytes": 15253,
+    "http_status": 200
+  },
+  "links": {
+    "references": 59,
+    "unique_local_targets": 39,
+    "status_counts": {
+      "200": 39
+    },
+    "targets_with_nonpositive_content_length": 0,
+    "total_target_bytes": 21435125,
+    "targets": [
+      {
+        "path": "benchmarks/results/20260724_geometric_arena_frame00008_AUDIT.md",
+        "http_status": 200,
+        "response_bytes": 3452,
+        "response_sha256": "15ab336f5b4190125f87a683ca523742fccf34f875145eb0db5c3afc0a016eec"
+      },
+      {
+        "path": "benchmarks/results/20260724_geometric_arena_frame00008_PREREG.md",
+        "http_status": 200,
+        "response_bytes": 5701,
+        "response_sha256": "06865184f39bfdabe903c21f935a7aaa26056b0217663b92b82a0063371ca5bb"
+      },
+      {
+        "path": "benchmarks/results/20260724_geometric_arena_frame00008_RESULT.md",
+        "http_status": 200,
+        "response_bytes": 1180,
+        "response_sha256": "9a249c522e3449dee7f4194216f4885c60b464a5cf7df38ca1524d7fd61ced7a"
+      },
+      {
+        "path": "benchmarks/results/20260724_geometric_arena_frame00008_VIEWER.json",
+        "http_status": 200,
+        "response_bytes": 4056,
+        "response_sha256": "c84cf82cb93b97d87889e5294c8a236039fe422a8a0bf0961ecd7edf8c6d6118"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/checkpoint_heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 278561,
+        "response_sha256": "de0c659365fdb478f0c2e10fc0303797e761777b2acfb03414c155f918abfa65"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/checkpoint_train_C0014.png",
+        "http_status": 200,
+        "response_bytes": 257647,
+        "response_sha256": "8ae3f6835dad524ae9263e4d03e197186f9c67fe1de85925436e4b8631e9f5fa"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_02000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 47534,
+        "response_sha256": "159e4932ffc73c7c70537b77482240804bb7d5d0779db91ab35b40d8b2ff4cb0"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_04000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 47791,
+        "response_sha256": "5a9a3de22f160fad3828a70723a5e7d9a2a92fc17ae58e2ba8b5a2b0e3294ad1"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_06000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 48314,
+        "response_sha256": "be750dec1e3349c855f9d37f735b5f1366433e832f71969ed33eaabde948b478"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_08000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 48473,
+        "response_sha256": "5df784eed2547463abbc8b6cae5a9cac8455ba85c3881599eab6fbc3e4c175df"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoint_visuals/step_10000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 48588,
+        "response_sha256": "005925d9f721310c18e65b8a414809dcfde80c0ad04edbaaf12f578b23066742"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_02000.ply",
+        "http_status": 200,
+        "response_bytes": 1346681,
+        "response_sha256": "7f92c8e91ede18316c5dd0ed8d6b80123f60eaeb906281774e74133ef043de23"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_04000.ply",
+        "http_status": 200,
+        "response_bytes": 1346681,
+        "response_sha256": "5746299f6dd46881b0a8d904c5fbf8caf51f477dc00a4599d58fe86811984072"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_06000.ply",
+        "http_status": 200,
+        "response_bytes": 1346681,
+        "response_sha256": "a573cbf2976a4e358dbf45f165bc1aa4efcd51a1089d89f42fcdd428a5156718"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_08000.ply",
+        "http_status": 200,
+        "response_bytes": 1346681,
+        "response_sha256": "76973541b31aaeac61238b1065c21261b8414af1069daaf861469af954fd7cbf"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_10000.ply",
+        "http_status": 200,
+        "response_bytes": 1346681,
+        "response_sha256": "4bb646e053abb5b083d16085e1799c43c4dbf6a8718299af04a7a041755ac0e0"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_02000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 47895,
+        "response_sha256": "777357c06b932d8d24cdc7d4d3c25d5698b1699c2437afd7523d49e506237ccb"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_04000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 47869,
+        "response_sha256": "3fbcf517063e3a2df8cc62be7406aace770f8f28fe14af6833551ea78f92ac39"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_06000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 48177,
+        "response_sha256": "428baf4ffa92b97339ac1ab81bdecc1e14729c183a7d7b09b8a652036e05436a"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_08000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 48392,
+        "response_sha256": "cd9e57f8e589b1b0b9815d36a1481e02488855c58d64e05a24b98995061925bd"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoint_visuals/step_10000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 48510,
+        "response_sha256": "a07e740584568471b8bd4fabdc74f6f56cdff4b8ad1e2a744b24f10471d4614b"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_02000.ply",
+        "http_status": 200,
+        "response_bytes": 1325105,
+        "response_sha256": "acd20ce58db19d6b30dd37b481291daba0df73bffecf9ee74c923e13eb8e1765"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_04000.ply",
+        "http_status": 200,
+        "response_bytes": 1325105,
+        "response_sha256": "d5c4f89b083b43bf78e1116b0eb4ded5497214783bb8d384eed6b2ad2a7e4e7d"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_06000.ply",
+        "http_status": 200,
+        "response_bytes": 1325105,
+        "response_sha256": "ddfb0f3722d7bd5a33044c2446b05e51cb6dfb1f5e47d07def9a7c0c17485ac9"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_08000.ply",
+        "http_status": 200,
+        "response_bytes": 1325105,
+        "response_sha256": "69f45d4023addd724e5beb48a2c3bc597a28b08626e6cee50e14892a9e1979b8"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_10000.ply",
+        "http_status": 200,
+        "response_bytes": 1325105,
+        "response_sha256": "0fa9ee9d9d37569dd37261374cb3cd899d47edcfedfb94a911a422c5fa5f8fad"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_02000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 47345,
+        "response_sha256": "d09b9ed155d5a34a835f7fc7429a054729946ccad8078053401262805d71776e"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_04000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 47529,
+        "response_sha256": "090756a836b3a475fe4714da2333099235dcb8ac095a43615f8b334acc795027"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_06000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 47914,
+        "response_sha256": "b3bcd61090f9ca6b33a83e32c1528e592d436f5656986f35e2ebf04ad1e19028"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_08000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 48095,
+        "response_sha256": "c17cbbb65a7c645c5e895a3d4db4da494909344be2f8b6102092a023f9e69402"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoint_visuals/step_10000/heldout_C1004.png",
+        "http_status": 200,
+        "response_bytes": 48404,
+        "response_sha256": "027382f10e5761026bdf3408c1ae4282b429fce832cc9e85c9d7fea2601b7638"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_02000.ply",
+        "http_status": 200,
+        "response_bytes": 1339489,
+        "response_sha256": "69cb08abf7b9f4bd943ad3fbc05a3652f6befd354135dd36d92b832df4b65c07"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_04000.ply",
+        "http_status": 200,
+        "response_bytes": 1339489,
+        "response_sha256": "b86975d3a95cc4151630e33eb59c6da060419b75877ca30f19870ebee11677ea"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_06000.ply",
+        "http_status": 200,
+        "response_bytes": 1339489,
+        "response_sha256": "ecb276e2a0f29e0074aa45ea895aaffe7fdde97e748109a1bbdcb83eb93f9a37"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_08000.ply",
+        "http_status": 200,
+        "response_bytes": 1339489,
+        "response_sha256": "62effa4b7e3d3b263b5fcc7c3ba23b68749e7e64bccff139bdaf7410c44ef795"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_10000.ply",
+        "http_status": 200,
+        "response_bytes": 1339489,
+        "response_sha256": "49dd8c0396d0354d84db356d7c016920c5bdc700a0fedb6829110b2f8136342c"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/plan.json",
+        "http_status": 200,
+        "response_bytes": 19207,
+        "response_sha256": "e2c79d21eb78b30e373164c99da2a62724f0b784181b973fd684051f706d4870"
+      },
+      {
+        "path": "runs/geometric_arena_frame00008_20260724/summary.json",
+        "http_status": 200,
+        "response_bytes": 71315,
+        "response_sha256": "fbb03a705f2926941f553d9eb7c6fb6788d18cafbcbd774aa71381adc755c0c4"
+      },
+      {
+        "path": "runs/pool_structure_wse_10k_frame00008_20260724/index.html",
+        "http_status": 200,
+        "response_bytes": 16801,
+        "response_sha256": "ddbf538dc9beec1d036e2057d5213ffa2d5bdcdd204751c25c69e818d71c49e1"
+      }
+    ]
+  },
+  "server": {
+    "pid": 2297538,
+    "host": "127.0.0.1",
+    "port": 8791,
+    "pid_owned_listening_socket": true,
+    "rss_kib_at_check": 19788,
+    "pid_stopped_after_stop": true,
+    "port_closed_after_stop": true
+  },
+  "scope": "HTTP and completed local-link smoke only; no visual-quality or performance claim",
+  "passed": true
+}
