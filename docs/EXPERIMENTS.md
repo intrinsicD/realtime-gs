@@ -17,6 +17,56 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-24 — The control's initialization is vestigial: split was structurally unavailable
+
+- **Question**: post-hoc diagnostic, selects nothing. At a matched budget the cover-consistent
+  initialization wins, but is that because its initial Gaussians are *refined into* the answer, or
+  because both arms simply rebuild the answer by birth and one seeds it better? And why did split
+  — the operator that should propagate good positions into coverage — apparently do so little?
+- **Setup**: `benchmarks/beam_surfel_birth_attribution.py`, `frame_00009`, seed 0, matched budget
+  2,400, 1,000 steps, otherwise the frozen protocol. Every initial row's physical identity is
+  carried through clone/split/prune (a split *replaces* its parent, so a split original stops
+  counting as surviving). Three subsets of the same final model are rendered on the held-out
+  cameras: all, surviving originals only, newborns only. Alpha compositing is not additive, so
+  these are self-consistent sub-models rather than an attribution of variance; alpha-IoU is the
+  interpretable subset statistic. Split boundary `0.01 * extent = 0.02229` world sigma.
+- **Result**: `ci` ends 767 originals + 1,633 newborns; **newborns alone reach 21.459 dB /
+  0.9250 alpha-IoU against the complete model's 21.678 / 0.9205**, while the 767 originals alone
+  give 13.458 / 0.4385 — barely above their own 11.798 dB initialization — and end *smaller*
+  (0.01660 vs 0.03135 median sigma) and *less opaque* (0.0317 vs 0.0737) than their own
+  descendants. `surfel` ends 639 originals + 1,648 newborns and **neither subset reproduces the
+  whole**: originals 14.182 / **0.7355**, newborns 20.649 / 0.8413, all 22.186 / 0.9241; its
+  originals stay the largest primitives (0.05847 vs 0.02915). Count-favorable comparison: the
+  treatment's originals hold 0.7355 alpha-IoU with **639** primitives versus the control's 0.4385
+  with **767**. Survivor displacement is similar in absolute terms (0.01515 vs 0.01843 world,
+  both ~0.4x the 0.0409 median spacing) but **2.015x their own sigma** (p90 4.338) for the control
+  versus **0.815x** (p90 1.387) for the treatment. Decisively: at the first density event only
+  **2.8%** of the control's originals were above the split boundary, reaching 24.0% by the last;
+  the treatment started at **63.2%** and ended at **97.2%**.
+- **Conclusion**: in the control the initialization is close to vestigial — it seeds, then the
+  answer is rebuilt by birth and the originals are out-scaled and out-opacified by their own
+  descendants. In the treatment the originals remain load-bearing surface and the newborns add
+  detail on top. The reason split "did nothing" is that it was **structurally unavailable**: 97%
+  of the control's initial primitives sat below the split threshold, so the controller could only
+  clone them *in place*, duplicating a too-small Gaussian at the same location — which adds
+  optical mass but does not fill space. Split, the operator that displaces children by a draw
+  from the parent's own covariance (in the tangent plane for a surfel), is how good positions
+  actually become coverage, and fixing the extent is what opened it. This also explains the
+  earlier inverted participation counts: the control's originals fired the `1/sigma` gradient
+  criterion more often (0.6125 vs 0.2550) *because* they were under-sized, and every firing
+  produced a clone in place. High participation was the symptom, not the cure. Confidence:
+  moderate for the mechanism, low for magnitudes — one scene, one seed, CPU reference rasterizer,
+  classic controller, and split-eligibility bounds what the controller *can* do rather than
+  counting what it did.
+- **Follow-ups**: (a) measure convergence *cost* directly — steps and wall-clock to a fixed
+  held-out target — since "less optimization in total" is implied by these numbers but was never
+  the measured quantity; (b) test whether `split_scale_frac` is the real lever on the control arm
+  alone: lowering it should let the control split and would separate "the initialization was
+  badly scaled" from "the controller's threshold was mismatched to it"; (c) repeat the subset
+  attribution on the production CUDA gsplat strategies, where MCMC relocation replaces
+  clone/split entirely and this mechanism may not exist. Full record:
+  `benchmarks/results/20260724_beam_surfel_birth_attribution_RESULT.md`.
+
 ## 2026-07-24 — Beam covariance answers the wrong question; a cover-consistent rule halves the count
 
 - **Question**: Beam Fusion places components well but their covariances, opacities, and

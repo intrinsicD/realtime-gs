@@ -264,9 +264,25 @@
       mask-aware or curvature-aware shrink where the surface curves away from the camera, gated on
       initial outside-mask alpha. The cover condition assumes a locally planar patch and is
       therefore wrong exactly at the silhouette
-- [ ] Replace the densification-participation question with densification-per-dB-held-out. The
-      classic criterion fires hardest on under-sized primitives, so raw participation counts
-      measure the defect rather than the fix
+- [x] Replace the densification-participation question with a birth-attribution measurement. The
+      post-hoc diagnostic settled it: in the control, newborns alone reach 21.459 dB / 0.9250
+      alpha-IoU against the complete model's 21.678 / 0.9205 while its 767 surviving originals
+      alone give 13.458 / 0.4385, so the initialization is close to vestigial; in the treatment
+      neither subset reproduces the whole and the originals hold 0.7355 alpha-IoU with 639
+      primitives. The cause is that split was structurally unavailable to the control — only 2.8%
+      of its originals were above `split_scale_frac * extent` at the first density event, so the
+      controller could only clone them in place. Evidence:
+      `benchmarks/results/20260724_beam_surfel_birth_attribution_RESULT.md`
+- [ ] Test `split_scale_frac` as a confound on the control arm alone. If lowering the threshold
+      lets the control split its under-sized primitives and recovers much of the gap, part of the
+      effect attributed to initialization scale belongs to a controller threshold mismatched to
+      it. This is a cheap, decisive control and should run before any GPU generalization work
+- [ ] Measure convergence cost directly — steps and wall-clock to a fixed held-out target, not
+      AUC — on an otherwise idle machine. "Fewer primitives and less total optimization" is
+      implied by the current numbers but was never the measured quantity
+- [ ] Repeat the birth attribution under the production CUDA gsplat strategies. MCMC/relocation
+      replaces clone/split outright, so the clone-in-place mechanism identified here may not exist
+      there and the initialization's value could differ
 - [ ] Preregister a blockwise Beam initializer bottleneck ladder on train/held-out cameras:
       per-Gaussian optical thickness only, then +covariance, +means, and finally topology. Isolate
       SH/color as a separate appearance block. Score incremental alpha-IoU gap closure with an
