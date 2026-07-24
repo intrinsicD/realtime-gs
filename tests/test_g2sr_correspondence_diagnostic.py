@@ -18,6 +18,21 @@ from benchmarks import g2sr_correspondence_diagnostic as diagnostic
 from rtgs.core.camera import Camera
 
 
+def _skip_without_teacher_bundle() -> None:
+    """Skip when the sealed teacher evidence bundle is absent.
+
+    The plan/replay diagnostics bind to ``runs/.../reconstruction_inputs/manifest.json``,
+    which lives under the gitignored ``runs/`` tree and only exists in the local
+    reproduction environment. On a clean checkout (CI, a fresh clone) the bundle is
+    missing, so these tests skip rather than hard-fail on the missing manifest —
+    matching the CPU-first testability rule and the existing precondition-skip idiom in
+    ``test_compact_occupancy_refinement_factorial``.
+    """
+    manifest = diagnostic.TEACHER_BUNDLE / "manifest.json"
+    if not manifest.exists():
+        pytest.skip(f"sealed teacher evidence bundle absent: {manifest} (runs/ is gitignored)")
+
+
 def _parallel_camera(center_x: float, *, width: int = 96, height: int = 72) -> Camera:
     return Camera(
         fx=80.0,
@@ -99,6 +114,7 @@ def test_pair_protocol_is_frozen_and_heldout_is_rejected() -> None:
 
 
 def test_plan_preregisters_all_required_protocol_axes_and_memory() -> None:
+    _skip_without_teacher_bundle()
     plan = diagnostic.plan_payload()
     assert plan["status"] == "PREREGISTERED_NOT_RUN"
     assert plan["reference"] == "C0014"
@@ -122,6 +138,7 @@ def test_replay_binding_covers_every_local_rtgs_python_source(
     tmp_path,
     monkeypatch,
 ) -> None:
+    _skip_without_teacher_bundle()
     replay_paths = set(diagnostic.REPLAY_CODE_PATHS)
     expected_rtgs = {
         path.relative_to(diagnostic.ROOT)
@@ -154,6 +171,7 @@ def test_replay_binding_covers_every_local_rtgs_python_source(
 
 
 def test_cuda_device_is_frozen_in_plan_factory_and_cli() -> None:
+    _skip_without_teacher_bundle()
     assert diagnostic.plan_payload()["flow"]["device"] == diagnostic.ACQUISITION_DEVICE
     with pytest.raises(ValueError, match="frozen acquisition device"):
         diagnostic.create_flow_backend(
@@ -214,6 +232,7 @@ def test_rgb_free_source_verification_uses_only_compact_view_bytes(
     tmp_path,
     monkeypatch,
 ) -> None:
+    _skip_without_teacher_bundle()
     output = tmp_path / "rgb-free-plan"
     plan_path = diagnostic.write_plan(output)
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
@@ -449,6 +468,7 @@ def test_native_means_api_is_preferred_with_compatibility_fallback() -> None:
 
 
 def test_plan_write_is_immutable(tmp_path) -> None:
+    _skip_without_teacher_bundle()
     path = diagnostic.write_plan(tmp_path)
     before = path.read_bytes()
     payload = json.loads(before)
@@ -478,6 +498,7 @@ def test_empty_mechanism_ply_is_valid_and_does_not_invent_a_marker(tmp_path) -> 
 
 
 def test_plan_schema_is_fail_closed_and_rejects_heldout_leakage() -> None:
+    _skip_without_teacher_bundle()
     plan = diagnostic.plan_payload()
     diagnostic._validate_plan_schema(plan)
 
@@ -515,6 +536,7 @@ def test_plan_schema_is_fail_closed_and_rejects_heldout_leakage() -> None:
 
 
 def test_analyze_has_no_custom_gate_bypass_and_plan_names_both_affine_conditions() -> None:
+    _skip_without_teacher_bundle()
     assert list(inspect.signature(diagnostic.analyze).parameters) == ["output"]
     source = inspect.getsource(diagnostic.analyze)
     assert source.index("_verify_analysis_directory(output, temporary)") < source.index(
