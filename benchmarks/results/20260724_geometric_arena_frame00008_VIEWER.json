@@ -1,0 +1,80 @@
+{
+  "schema": "rtgs.viewer-comparison.v1",
+  "methods": [
+    {
+      "name": "dynamic-a @ 2k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_02000.ply"
+    },
+    {
+      "name": "dynamic-a @ 4k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_04000.ply"
+    },
+    {
+      "name": "dynamic-a @ 6k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_06000.ply"
+    },
+    {
+      "name": "dynamic-a @ 8k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_08000.ply"
+    },
+    {
+      "name": "dynamic-a @ 10k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-a/checkpoints/gaussians_step_10000.ply"
+    },
+    {
+      "name": "geometric @ 2k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/geometric/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_02000.ply"
+    },
+    {
+      "name": "geometric @ 4k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/geometric/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_04000.ply"
+    },
+    {
+      "name": "geometric @ 6k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/geometric/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_06000.ply"
+    },
+    {
+      "name": "geometric @ 8k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/geometric/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_08000.ply"
+    },
+    {
+      "name": "geometric @ 10k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/geometric/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/geometric/checkpoints/gaussians_step_10000.ply"
+    },
+    {
+      "name": "dynamic-b @ 2k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_02000.ply"
+    },
+    {
+      "name": "dynamic-b @ 4k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_04000.ply"
+    },
+    {
+      "name": "dynamic-b @ 6k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_06000.ply"
+    },
+    {
+      "name": "dynamic-b @ 8k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_08000.ply"
+    },
+    {
+      "name": "dynamic-b @ 10k",
+      "initial": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/gaussians_init.ply",
+      "final": "../../runs/geometric_arena_frame00008_20260724/models/dynamic-b/checkpoints/gaussians_step_10000.ply"
+    }
+  ]
+}

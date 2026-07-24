@@ -1,0 +1,534 @@
+{
+  "schema": "rtgs.new_variants_frame00008.audit.v1",
+  "generated_utc": "2026-07-24T08:45:44.558714+00:00",
+  "summary": {
+    "path": "runs/new_variants_frame00008_20260724_v3/summary.json",
+    "sha256": "f302b6eaaae6eac8dd7e0894b371f8860df03d047ebb73e037e72ee90be166e9"
+  },
+  "scope": "single-scene, single-seed development audit with seven training cameras and one held-out camera; quality evidence only, no default/generalization/performance claim",
+  "stage1_gates": {
+    "pool": {
+      "mean_psnr_delta_db": 1.2291393280029297,
+      "view_wins": 7,
+      "outside_ratio": 0.8665521456810796,
+      "passed": true
+    },
+    "structure-tensor": {
+      "mean_psnr_delta_db": 0.8956674848284045,
+      "view_wins": 7,
+      "outside_ratio": 1.3870582277249994,
+      "passed": false
+    },
+    "mask-containment": {
+      "outside_reduction_fraction": 0.9052464179047404,
+      "mean_psnr_delta_db": -10.512417929513115,
+      "inside_ratio": 0.9367936661098399,
+      "passed": false
+    }
+  },
+  "downstream_gates": {
+    "pool": {
+      "heldout_psnr_fg_delta_db": 0.2690410614013672,
+      "heldout_alpha_iou_delta": -0.005452990531921387,
+      "train_psnr_fg_delta_db": -0.094450814383368,
+      "passed": true
+    },
+    "mask-containment": {
+      "heldout_psnr_fg_delta_db": 0.5578460693359375,
+      "heldout_alpha_iou_delta": -0.004342913627624512,
+      "train_psnr_fg_delta_db": -0.007908139910014711,
+      "passed": true
+    },
+    "structure-tensor": {
+      "heldout_psnr_fg_delta_db": 0.027599334716796875,
+      "heldout_alpha_iou_delta": -0.008612096309661865,
+      "train_psnr_fg_delta_db": -0.11973108564104251,
+      "passed": false
+    },
+    "best-train-checkpoint": {
+      "selected_step": 2000,
+      "heldout_psnr_fg_delta_db": 0.0,
+      "heldout_alpha_iou_delta": 0.0,
+      "passed": false
+    }
+  },
+  "claim_disposition": {
+    "pool_stage1_quality": "confirm_single_scene_single_seed_development",
+    "pool_downstream_heldout_gain": "confirm_single_scene_single_heldout_camera_development",
+    "mask_containment_stage1_useful_at_weight_5": "retire_failed_quality_and_inside_coverage_gates",
+    "mask_containment_downstream_heldout_gain": "confirm_surprising_single_scene_development_result_requires_replication",
+    "structure_tensor_stage1_useful": "retire_failed_outside_coverage_guardrail",
+    "structure_tensor_downstream_gain": "retire_below_material_psnr_floor",
+    "best_train_checkpoint_improves_result": "retire_selected_final_step_exactly",
+    "default_or_generalization_claim": "not_authorized",
+    "performance_or_memory_claim": "not_authorized_contended_unrepeated_execution"
+  },
+  "findings": [
+    "Pool recycling passed its frozen stage-1 gate: +1.2291 dB, 7/7 view wins, and 13.34% less outside coverage.",
+    "Pool also passed the held-out downstream gate: +0.2690 dB foreground PSNR, -0.00545 alpha IoU, and -0.0945 dB train PSNR.",
+    "Containment weight 5.0 cut outside stage-1 coverage by 90.52% but lost 10.5124 dB foreground PSNR, so the intended stage-1 gate failed.",
+    "Despite that failed local gate, the containment arm passed the downstream gate with +0.5578 dB held-out foreground PSNR; this is a surprising development observation, not a selected weight.",
+    "Structure initialization improved mean stage-1 foreground PSNR by 0.8957 dB but raised outside coverage by 38.71% and added only +0.0276 dB held out.",
+    "Train-only checkpoint selection chose step 2000; selected and final models are bit-exact."
+  ],
+  "checks": [
+    {
+      "name": "official summary hash and complete schema",
+      "passed": true,
+      "detail": {
+        "summary_sha256": "f302b6eaaae6eac8dd7e0894b371f8860df03d047ebb73e037e72ee90be166e9",
+        "status": "complete"
+      }
+    },
+    {
+      "name": "append-only protocol chain and failed attempts preserved",
+      "passed": true,
+      "detail": {
+        "v1": "eb8e053d823462485f0c1e7b11f269aae0b0efbe25f8136c3a22e37824b14a22",
+        "v2": "2230b2f8a0b78918308f6fc850586e616e24447acb333fc002e8c243e0ba4b90",
+        "v3": "649f93fca12c71437c7a44fd742935d1e7d446ade9ea7950913444ef8395816d"
+      }
+    },
+    {
+      "name": "v3 protocol predates official plan and plan binds protocol",
+      "passed": true,
+      "detail": {
+        "protocol_mtime_ns": 1784882230935995870,
+        "plan_mtime_ns": 1784882258408889808,
+        "bound_sha256": "649f93fca12c71437c7a44fd742935d1e7d446ade9ea7950913444ef8395816d"
+      }
+    },
+    {
+      "name": "executed source and git revision remain bound",
+      "passed": true,
+      "detail": {
+        "harness_sha256": "d0f429352a28bdb1584cc30ff9b92a7a70b94c168966a19e4785876ea7cc1e8c",
+        "git_revision": "7772f4fb63bf5b7c6540fbce7dfa3bf578bd7c11"
+      }
+    },
+    {
+      "name": "all summary-bound artifacts exist with exact bytes and hashes",
+      "passed": true,
+      "detail": {
+        "unique_artifact_count": 124,
+        "failures": []
+      }
+    },
+    {
+      "name": "calibrated view order, tensor hashes, and seven/one split replay",
+      "passed": true,
+      "detail": {
+        "view_names": [
+          "C0001",
+          "C0008",
+          "C0014",
+          "C0021",
+          "C0026",
+          "C0031",
+          "C0039",
+          "C1004"
+        ],
+        "training_views": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "testing_views": [
+          7
+        ],
+        "loaded_tensor_hashes_match": true
+      }
+    },
+    {
+      "name": "all 28 stage-1 fits replay with finite valid fields and metrics",
+      "passed": true,
+      "detail": {
+        "stored_metric_max_abs_error": 3.814697265625e-06,
+        "cuda_vs_torch_render_max_abs": 2.980232238769531e-07,
+        "cuda_vs_torch_render_mean_abs_mean": 1.2902736884875691e-09
+      }
+    },
+    {
+      "name": "held-out C1004 has no stage-1 fit artifact",
+      "passed": true,
+      "detail": {
+        "stage1_view_names": [
+          "C0001",
+          "C0008",
+          "C0014",
+          "C0021",
+          "C0026",
+          "C0031",
+          "C0039"
+        ],
+        "heldout": "C1004"
+      }
+    },
+    {
+      "name": "pool mechanism and all frozen stage-1 gates recomputed",
+      "passed": true,
+      "detail": {
+        "pool_mechanism": true,
+        "gates": {
+          "pool": {
+            "mean_psnr_delta_db": 1.2291393280029297,
+            "view_wins": 7,
+            "outside_ratio": 0.8665521456810796,
+            "passed": true
+          },
+          "structure-tensor": {
+            "mean_psnr_delta_db": 0.8956674848284045,
+            "view_wins": 7,
+            "outside_ratio": 1.3870582277249994,
+            "passed": false
+          },
+          "mask-containment": {
+            "outside_reduction_fraction": 0.9052464179047404,
+            "mean_psnr_delta_db": -10.512417929513115,
+            "inside_ratio": 0.9367936661098399,
+            "passed": false
+          }
+        }
+      }
+    },
+    {
+      "name": "all NPZ/PLY models are finite with exact counts and 3D metrics replay",
+      "passed": true,
+      "detail": {
+        "metric_replay_max_abs_error": 0.0,
+        "counts": {
+          "baseline": {
+            "initial": 418,
+            "final": 5542
+          },
+          "pool": {
+            "initial": 458,
+            "final": 5548
+          },
+          "mask-containment": {
+            "initial": 395,
+            "final": 5710
+          },
+          "structure-tensor": {
+            "initial": 410,
+            "final": 5498
+          },
+          "best-train-checkpoint": {
+            "initial": 418,
+            "final": 5542
+          }
+        }
+      }
+    },
+    {
+      "name": "best-checkpoint arm is an exact paired final-step selection with no test access",
+      "passed": true,
+      "detail": {
+        "selected_step": 2000,
+        "selected_train_psnr": 29.359185900006974,
+        "selection_views": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "models_bit_exact": true
+      }
+    },
+    {
+      "name": "training histories are complete with train-only sampling and post-surgery recovery",
+      "passed": true,
+      "detail": {
+        "baseline": {
+          "density_steps": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ],
+          "recovery_steps_after_last_surgery": 1100,
+          "final_count": 5542
+        },
+        "pool": {
+          "density_steps": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ],
+          "recovery_steps_after_last_surgery": 1100,
+          "final_count": 5548
+        },
+        "mask-containment": {
+          "density_steps": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ],
+          "recovery_steps_after_last_surgery": 1100,
+          "final_count": 5710
+        },
+        "structure-tensor": {
+          "density_steps": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ],
+          "recovery_steps_after_last_surgery": 1100,
+          "final_count": 5498
+        }
+      }
+    },
+    {
+      "name": "all frozen downstream gates recomputed",
+      "passed": true,
+      "detail": {
+        "pool": {
+          "heldout_psnr_fg_delta_db": 0.2690410614013672,
+          "heldout_alpha_iou_delta": -0.005452990531921387,
+          "train_psnr_fg_delta_db": -0.094450814383368,
+          "passed": true
+        },
+        "mask-containment": {
+          "heldout_psnr_fg_delta_db": 0.5578460693359375,
+          "heldout_alpha_iou_delta": -0.004342913627624512,
+          "train_psnr_fg_delta_db": -0.007908139910014711,
+          "passed": true
+        },
+        "structure-tensor": {
+          "heldout_psnr_fg_delta_db": 0.027599334716796875,
+          "heldout_alpha_iou_delta": -0.008612096309661865,
+          "train_psnr_fg_delta_db": -0.11973108564104251,
+          "passed": false
+        },
+        "best-train-checkpoint": {
+          "selected_step": 2000,
+          "heldout_psnr_fg_delta_db": 0.0,
+          "heldout_alpha_iou_delta": 0.0,
+          "passed": false
+        }
+      }
+    },
+    {
+      "name": "comparison viewer loaded all ten bound CPU models and shut down cleanly",
+      "passed": true,
+      "detail": {
+        "manifest_sha256": "97ca3186471fdc3a396f052f8a9017233ddffa9d75ecfc1b8fa590a24482833a",
+        "methods": [
+          "baseline",
+          "pool",
+          "mask-containment",
+          "structure-tensor",
+          "best-train-checkpoint"
+        ],
+        "http_status": 200,
+        "response_bytes": 2888259
+      }
+    },
+    {
+      "name": "calibrated, cross-arm, and novel-view visual artifacts decode",
+      "passed": true,
+      "detail": {
+        "visual_count": 23,
+        "artifacts": {
+          "runs/new_variants_frame00008_20260724_v3/stage1_contact_sheet.png": {
+            "size": [
+              1665,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/new_variants_frame00008_20260724_v3/reconstruction_train_C0014.png": {
+            "size": [
+              1332,
+              1580
+            ],
+            "frames": 1
+          },
+          "runs/new_variants_frame00008_20260724_v3/reconstruction_heldout_C1004.png": {
+            "size": [
+              1332,
+              1580
+            ],
+            "frames": 1
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/baseline/reconstruction_contact_sheet.png": {
+            "size": [
+              2664,
+              1248
+            ],
+            "frames": 1
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/baseline/reconstruction.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 8
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/baseline/novel_orbit.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/baseline/novel_elevation.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/pool/reconstruction_contact_sheet.png": {
+            "size": [
+              2664,
+              1248
+            ],
+            "frames": 1
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/pool/reconstruction.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 8
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/pool/novel_orbit.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/pool/novel_elevation.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/mask-containment/reconstruction_contact_sheet.png": {
+            "size": [
+              2664,
+              1248
+            ],
+            "frames": 1
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/mask-containment/reconstruction.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 8
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/mask-containment/novel_orbit.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/mask-containment/novel_elevation.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/structure-tensor/reconstruction_contact_sheet.png": {
+            "size": [
+              2664,
+              1248
+            ],
+            "frames": 1
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/structure-tensor/reconstruction.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 8
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/structure-tensor/novel_orbit.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/structure-tensor/novel_elevation.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/best-train-checkpoint/reconstruction_contact_sheet.png": {
+            "size": [
+              2664,
+              1248
+            ],
+            "frames": 1
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/best-train-checkpoint/reconstruction.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 8
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/best-train-checkpoint/novel_orbit.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/new_variants_frame00008_20260724_v3/models/best-train-checkpoint/novel_elevation.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          }
+        }
+      }
+    }
+  ],
+  "check_summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0
+  },
+  "commands": {
+    "official": "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python benchmarks/new_variants_frame00008.py --protocol benchmarks/results/20260724_new_variants_frame00008_PREREG_V3.md --out runs/new_variants_frame00008_20260724_v3",
+    "audit": ".venv-cuda/bin/python benchmarks/audit_new_variants_frame00008.py",
+    "viewer": "CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest benchmarks/results/20260724_new_variants_frame00008_VIEWER.json --scene /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16 --device cpu --max-viewer-gaussians 20000 --host 127.0.0.1 --port 8784 --no-open"
+  }
+}

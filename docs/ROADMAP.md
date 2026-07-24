@@ -251,12 +251,44 @@
       growth on Janelle; repeat across scenes and compare gsplat MCMC/teleportation
 - [x] Progressive/error-driven stage-1 allocation via StructSplat residual/tensor growth;
       compare `quadtree_wse` and GaussianImage at matched wall-clock/count
+- [x] Compare all four new opt-in paths on a train/held-out Janelle `frame_00008` split with
+      matched common carve and 2,000-step gsplat refinement. The fixed-capacity pool was the only
+      balanced positive treatment: +1.2291 dB stage-1 foreground PSNR over seven paired views and
+      +0.2690 dB on held-out `C1004`, within the alpha-IoU guardrail. Mask containment at weight
+      5.0 failed stage 1 by −10.5124 dB despite a surprising +0.5578 dB endpoint; structure tensor
+      failed the spill guardrail and endpoint materiality; train-only checkpoint selection chose
+      the final model exactly. Keep defaults unchanged. Evidence:
+      `benchmarks/results/20260724_new_variants_frame00008_{RESULT.md,AUDIT.md,AUDIT.json}`
+- [x] Add a matched density-prefix control for structure-tensor WSE and test both under the fixed
+      pool against pooled gradient. WSE lost −0.4385 dB to no-WSE at stage 1 but recovered a
+      marginal +0.1137 dB held-out endpoint edge; both structure combinations lost to pooled
+      gradient at stage 1 and failed anchor-relative downstream materiality. Retain the control
+      as research-only and keep defaults unchanged. Any reopening requires paired multi-seed,
+      multi-scene repeats because the unchanged pooled anchor drifted −0.0769 dB between sessions.
+      Evidence:
+      `benchmarks/results/20260724_pool_structure_wse_frame00008_{RESULT.md,AUDIT.md,AUDIT.json}`
+- [x] Extend the three pooled arms over a fresh 10k schedule and preserve exact 2k/4k/6k/8k/10k
+      states. WSE passed the downstream gate versus both gradient and density at every checkpoint,
+      ending +0.3702/+0.7737 dB held out; density failed against gradient throughout. All three
+      held-out trajectories peaked at the first 2k reporting snapshot and declined 0.214–0.359 dB
+      by 10k. This confirms only a single-scene/seed downstream WSE observation: parent structure
+      stage-1 gates remain failed, `C1004` cannot select an early stop, and defaults stay
+      unchanged. Evidence:
+      `benchmarks/results/20260724_pool_structure_wse_10k_frame00008_{RESULT.md,AUDIT.md,AUDIT.json}`
+- [ ] Replicate baseline versus the fixed-capacity pool across multiple seeds, scenes, and more
+      than one held-out camera before considering promotion; match live count and model the
+      allocation/runtime cost explicitly in a separate isolated performance pass
+- [ ] In a separate preregistered study, sweep lower mask-containment weights and decompose the
+      unexpected endpoint gain through stage-1 appearance, carve count, topology, and held-out
+      geometry. Do not select weight 5.0 or combine containment with the pool from this one run
 - [ ] Add LPIPS-VGG to held-out evaluation
 - [x] Add alpha-IoU/leakage metrics and both interpolated-orbit and elevation-varying
       novel-view geometry diagnostics
 - [x] Run full 26-view Janelle frame at 1/8 and 1/4 resolution with quality/VRAM curves
-- [ ] Repeat clean time-to-quality runs on an otherwise idle GPU and add a train-only validation
-      checkpoint policy (never select checkpoints on the held-out test views)
+- [ ] Repeat clean time-to-quality runs on an otherwise idle GPU. The train-only validation
+      checkpoint policy is implemented and split-safe; its first Janelle comparison selected the
+      final step bit-exactly, so it supplies no early-stopping benefit yet (never select
+      checkpoints on held-out test views)
 - [ ] Feed-forward multi-view init (VGGT/MASt3R pointmaps) as a fourth variant
 
 ## M4 — Real-time ambitions

@@ -1,0 +1,20 @@
+{
+  "schema": "rtgs.viewer-comparison.v1",
+  "methods": [
+    {
+      "name": "pool-gradient",
+      "initial": "../../runs/pool_structure_wse_frame00008_20260724/models/pool-gradient/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_frame00008_20260724/models/pool-gradient/gaussians_final.ply"
+    },
+    {
+      "name": "pool-structure-density",
+      "initial": "../../runs/pool_structure_wse_frame00008_20260724/models/pool-structure-density/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_frame00008_20260724/models/pool-structure-density/gaussians_final.ply"
+    },
+    {
+      "name": "pool-structure-wse",
+      "initial": "../../runs/pool_structure_wse_frame00008_20260724/models/pool-structure-wse/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_frame00008_20260724/models/pool-structure-wse/gaussians_final.ply"
+    }
+  ]
+}

@@ -45,11 +45,37 @@ def test_structure_tensor_init_is_deterministic():
     assert torch.allclose(g1.chol, g2.chol)
 
 
+def test_structure_density_sampling_runs_with_pool():
+    image = _smooth_image()
+    cfg = FitConfig(
+        init_strategy="structure_tensor",
+        structure_sampling="density",
+        pool=True,
+        pool_capacity=64,
+        n_gaussians=32,
+        iterations=25,
+        log_every=25,
+    )
+    gaussians, history = fit_image(image, cfg, seed=0)
+    assert gaussians.n == 32
+    assert history["pool_capacity"] == 64
+    assert history["live_count"] == 32
+    assert all(
+        torch.isfinite(field).all()
+        for field in (gaussians.xy, gaussians.chol, gaussians.color, gaussians.weight)
+    )
+
+
 @pytest.mark.parametrize(
     ("overrides", "match"),
     [
         ({"init_strategy": "not-a-strategy"}, "init_strategy"),
         ({"init_strategy": "structure_tensor", "backend": "structsplat"}, "native backend"),
+        ({"structure_sampling": "density"}, "structure_tensor"),
+        (
+            {"init_strategy": "structure_tensor", "structure_sampling": "not-a-mode"},
+            "structure_sampling",
+        ),
     ],
 )
 def test_init_strategy_validation(overrides, match):

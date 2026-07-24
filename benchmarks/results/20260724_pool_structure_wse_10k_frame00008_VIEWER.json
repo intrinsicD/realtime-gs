@@ -1,0 +1,80 @@
+{
+  "schema": "rtgs.viewer-comparison.v1",
+  "methods": [
+    {
+      "name": "pool-gradient @ 2k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoints/gaussians_step_02000.ply"
+    },
+    {
+      "name": "pool-gradient @ 4k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoints/gaussians_step_04000.ply"
+    },
+    {
+      "name": "pool-gradient @ 6k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoints/gaussians_step_06000.ply"
+    },
+    {
+      "name": "pool-gradient @ 8k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoints/gaussians_step_08000.ply"
+    },
+    {
+      "name": "pool-gradient @ 10k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoints/gaussians_step_10000.ply"
+    },
+    {
+      "name": "pool-structure-density @ 2k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoints/gaussians_step_02000.ply"
+    },
+    {
+      "name": "pool-structure-density @ 4k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoints/gaussians_step_04000.ply"
+    },
+    {
+      "name": "pool-structure-density @ 6k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoints/gaussians_step_06000.ply"
+    },
+    {
+      "name": "pool-structure-density @ 8k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoints/gaussians_step_08000.ply"
+    },
+    {
+      "name": "pool-structure-density @ 10k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoints/gaussians_step_10000.ply"
+    },
+    {
+      "name": "pool-structure-wse @ 2k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoints/gaussians_step_02000.ply"
+    },
+    {
+      "name": "pool-structure-wse @ 4k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoints/gaussians_step_04000.ply"
+    },
+    {
+      "name": "pool-structure-wse @ 6k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoints/gaussians_step_06000.ply"
+    },
+    {
+      "name": "pool-structure-wse @ 8k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoints/gaussians_step_08000.ply"
+    },
+    {
+      "name": "pool-structure-wse @ 10k",
+      "initial": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/gaussians_init.ply",
+      "final": "../../runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoints/gaussians_step_10000.ply"
+    }
+  ]
+}

@@ -1,0 +1,1221 @@
+{
+  "schema": "rtgs.pool_structure_wse_10k_frame00008.audit.v1",
+  "generated_utc": "2026-07-24T10:12:30.857209+00:00",
+  "audit_source": {
+    "path": "benchmarks/audit_pool_structure_wse_10k_frame00008.py",
+    "sha256": "870d18185499dde6665d5cd35cbd6ea211d65957d3821289ff68a1ceedf51918"
+  },
+  "summary": {
+    "path": "runs/pool_structure_wse_10k_frame00008_20260724/summary.json",
+    "sha256": "6fdabac92cd0bf1d4ad610f90083ecd75f0942c15cf16278809fa0ba46baf01b"
+  },
+  "scope": "single-scene, single-seed 10k development trajectories with seven training cameras and one reporting-only held-out camera",
+  "checkpoint_gates": {
+    "density_vs_gradient": {
+      "2000": {
+        "treatment": "pool-structure-density",
+        "reference": "pool-gradient",
+        "step": 2000,
+        "heldout_psnr_fg_delta_db": -0.4275932312011719,
+        "heldout_alpha_iou_delta": 0.0007749199867248535,
+        "train_psnr_fg_delta_db": -0.06494413103376218,
+        "passed": false
+      },
+      "4000": {
+        "treatment": "pool-structure-density",
+        "reference": "pool-gradient",
+        "step": 4000,
+        "heldout_psnr_fg_delta_db": -0.4472217559814453,
+        "heldout_alpha_iou_delta": 0.0008031725883483887,
+        "train_psnr_fg_delta_db": -0.08637101309640016,
+        "passed": false
+      },
+      "6000": {
+        "treatment": "pool-structure-density",
+        "reference": "pool-gradient",
+        "step": 6000,
+        "heldout_psnr_fg_delta_db": -0.47006988525390625,
+        "heldout_alpha_iou_delta": 0.0018129348754882812,
+        "train_psnr_fg_delta_db": -0.03710883004324472,
+        "passed": false
+      },
+      "8000": {
+        "treatment": "pool-structure-density",
+        "reference": "pool-gradient",
+        "step": 8000,
+        "heldout_psnr_fg_delta_db": -0.3679656982421875,
+        "heldout_alpha_iou_delta": 0.003124535083770752,
+        "train_psnr_fg_delta_db": -0.04308564322335684,
+        "passed": false
+      },
+      "10000": {
+        "treatment": "pool-structure-density",
+        "reference": "pool-gradient",
+        "step": 10000,
+        "heldout_psnr_fg_delta_db": -0.4034690856933594,
+        "heldout_alpha_iou_delta": 0.0019591450691223145,
+        "train_psnr_fg_delta_db": -0.04975128173828125,
+        "passed": false
+      }
+    },
+    "wse_vs_gradient": {
+      "2000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-gradient",
+        "step": 2000,
+        "heldout_psnr_fg_delta_db": 0.22461509704589844,
+        "heldout_alpha_iou_delta": 0.0019370317459106445,
+        "train_psnr_fg_delta_db": -0.08190291268484984,
+        "passed": true
+      },
+      "4000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-gradient",
+        "step": 4000,
+        "heldout_psnr_fg_delta_db": 0.29335784912109375,
+        "heldout_alpha_iou_delta": 0.0010010600090026855,
+        "train_psnr_fg_delta_db": -0.05779130118233766,
+        "passed": true
+      },
+      "6000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-gradient",
+        "step": 6000,
+        "heldout_psnr_fg_delta_db": 0.3742713928222656,
+        "heldout_alpha_iou_delta": 0.0021803975105285645,
+        "train_psnr_fg_delta_db": -0.041499819074356736,
+        "passed": true
+      },
+      "8000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-gradient",
+        "step": 8000,
+        "heldout_psnr_fg_delta_db": 0.3585853576660156,
+        "heldout_alpha_iou_delta": 0.002159416675567627,
+        "train_psnr_fg_delta_db": -0.06565911429269278,
+        "passed": true
+      },
+      "10000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-gradient",
+        "step": 10000,
+        "heldout_psnr_fg_delta_db": 0.37021636962890625,
+        "heldout_alpha_iou_delta": 0.0012748241424560547,
+        "train_psnr_fg_delta_db": -0.08250808715820312,
+        "passed": true
+      }
+    },
+    "wse_vs_density": {
+      "2000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-structure-density",
+        "step": 2000,
+        "heldout_psnr_fg_delta_db": 0.6522083282470703,
+        "heldout_alpha_iou_delta": 0.001162111759185791,
+        "train_psnr_fg_delta_db": -0.016958781651087662,
+        "passed": true
+      },
+      "4000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-structure-density",
+        "step": 4000,
+        "heldout_psnr_fg_delta_db": 0.7405796051025391,
+        "heldout_alpha_iou_delta": 0.00019788742065429688,
+        "train_psnr_fg_delta_db": 0.0285797119140625,
+        "passed": true
+      },
+      "6000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-structure-density",
+        "step": 6000,
+        "heldout_psnr_fg_delta_db": 0.8443412780761719,
+        "heldout_alpha_iou_delta": 0.0003674626350402832,
+        "train_psnr_fg_delta_db": -0.004390989031112014,
+        "passed": true
+      },
+      "8000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-structure-density",
+        "step": 8000,
+        "heldout_psnr_fg_delta_db": 0.7265510559082031,
+        "heldout_alpha_iou_delta": -0.000965118408203125,
+        "train_psnr_fg_delta_db": -0.022573471069335938,
+        "passed": true
+      },
+      "10000": {
+        "treatment": "pool-structure-wse",
+        "reference": "pool-structure-density",
+        "step": 10000,
+        "heldout_psnr_fg_delta_db": 0.7736854553222656,
+        "heldout_alpha_iou_delta": -0.0006843209266662598,
+        "train_psnr_fg_delta_db": -0.032756805419921875,
+        "passed": true
+      }
+    }
+  },
+  "sustained_long_run_positive": {
+    "density_vs_gradient": false,
+    "wse_vs_gradient": true,
+    "wse_vs_density": true
+  },
+  "trajectory_averages": {
+    "pool-gradient": {
+      "train": {
+        "steps": [
+          0,
+          2000,
+          4000,
+          6000,
+          8000,
+          10000
+        ],
+        "values": [
+          15.361759458269391,
+          29.30386243547712,
+          29.52872657775879,
+          29.530490602765763,
+          29.586857114519393,
+          29.5463262285505
+        ],
+        "average_db": 28.080795914786204
+      },
+      "test": {
+        "steps": [
+          0,
+          2000,
+          4000,
+          6000,
+          8000,
+          10000
+        ],
+        "values": [
+          15.814434051513672,
+          22.55779457092285,
+          22.439178466796875,
+          22.310283660888672,
+          22.21662139892578,
+          22.198486328125
+        ],
+        "average_db": 21.706067657470705
+      }
+    },
+    "pool-structure-density": {
+      "train": {
+        "steps": [
+          0,
+          2000,
+          4000,
+          6000,
+          8000,
+          10000
+        ],
+        "values": [
+          15.53815964290074,
+          29.23891830444336,
+          29.44235556466239,
+          29.49338177272252,
+          29.543771471296036,
+          29.49657494681222
+        ],
+        "average_db": 28.047158881596157
+      },
+      "test": {
+        "steps": [
+          0,
+          2000,
+          4000,
+          6000,
+          8000,
+          10000
+        ],
+        "values": [
+          16.0306339263916,
+          22.13020133972168,
+          21.99195671081543,
+          21.840213775634766,
+          21.848655700683594,
+          21.79501724243164
+        ],
+        "average_db": 21.344770622253417
+      }
+    },
+    "pool-structure-wse": {
+      "train": {
+        "steps": [
+          0,
+          2000,
+          4000,
+          6000,
+          8000,
+          10000
+        ],
+        "values": [
+          15.58856473650251,
+          29.22195952279227,
+          29.47093527657645,
+          29.488990783691406,
+          29.5211980002267,
+          29.4638181413923
+        ],
+        "average_db": 28.04585500444685
+      },
+      "test": {
+        "steps": [
+          0,
+          2000,
+          4000,
+          6000,
+          8000,
+          10000
+        ],
+        "values": [
+          16.107376098632812,
+          22.78240966796875,
+          22.73253631591797,
+          22.684555053710938,
+          22.575206756591797,
+          22.568702697753906
+        ],
+        "average_db": 22.022549438476563
+      }
+    }
+  },
+  "heldout_checkpoint_peaks": {
+    "pool-gradient": {
+      "best_reporting_step": 2000,
+      "best_psnr_fg": 22.55779457092285,
+      "10k_psnr_fg": 22.198486328125,
+      "10k_minus_best_db": -0.35930824279785156
+    },
+    "pool-structure-density": {
+      "best_reporting_step": 2000,
+      "best_psnr_fg": 22.13020133972168,
+      "10k_psnr_fg": 21.79501724243164,
+      "10k_minus_best_db": -0.33518409729003906
+    },
+    "pool-structure-wse": {
+      "best_reporting_step": 2000,
+      "best_psnr_fg": 22.78240966796875,
+      "10k_psnr_fg": 22.568702697753906,
+      "10k_minus_best_db": -0.21370697021484375
+    }
+  },
+  "parent_2k_endpoint_deltas_not_repeatability_evidence": {
+    "pool-gradient": {
+      "heldout_psnr_fg_delta_db": -0.14948081970214844,
+      "heldout_alpha_iou_delta": 0.00420832633972168,
+      "train_psnr_fg_delta_db": 0.13098498753139154
+    },
+    "pool-structure-density": {
+      "heldout_psnr_fg_delta_db": -0.4586029052734375,
+      "heldout_alpha_iou_delta": 6.866455078125e-05,
+      "train_psnr_fg_delta_db": -0.060407911028182326
+    },
+    "pool-structure-wse": {
+      "heldout_psnr_fg_delta_db": 0.07987594604492188,
+      "heldout_alpha_iou_delta": 0.0058786869049072266,
+      "train_psnr_fg_delta_db": -0.1796463557652075
+    }
+  },
+  "claim_disposition": {
+    "wse_beats_density_under_pool_over_10k": "confirm_single_scene_single_seed_sustained_development_observation",
+    "wse_beats_pool_gradient_over_10k": "confirm_single_scene_single_seed_sustained_downstream_observation",
+    "density_without_wse_beats_pool_gradient": "retire_fails_all_checkpoint_gates",
+    "training_beyond_2k_improves_heldout_quality": "retire_all_three_reporting_trajectories_peak_at_2k",
+    "best_checkpoint_is_2k": "not_authorized_heldout_camera_is_reporting_only_and_no_validation_selection_ran",
+    "stage1_or_combined_end_to_end_winner": "not_reopened_parent_stage1_gates_still_bound_and_failed_for_structure_arms",
+    "default_or_generalization_claim": "not_authorized_single_scene_seed_and_heldout_camera",
+    "performance_or_memory_claim": "not_authorized_contended_unrepeated_execution"
+  },
+  "findings": [
+    "WSE versus gradient passes every frozen checkpoint gate; at 10k the deltas are +0.3702 dB held-out foreground PSNR, +0.00127 alpha IoU, and -0.0825 dB train PSNR.",
+    "WSE versus density also passes every checkpoint gate; its 10k held-out foreground PSNR edge is +0.7737 dB.",
+    "Density without WSE fails against gradient at every checkpoint; its 10k held-out foreground PSNR delta is -0.4035 dB.",
+    "All three held-out trajectories peak at the first 2k reporting snapshot and decline thereafter; no held-out-selected early-stop claim is authorized.",
+    "The new 2k states are deliberately not parent replays because the means-LR schedule now spans 10k; parent endpoint differences therefore do not estimate nondeterminism."
+  ],
+  "checks": [
+    {
+      "name": "official result is complete and hash-bound",
+      "passed": true,
+      "detail": {
+        "summary_sha256": "6fdabac92cd0bf1d4ad610f90083ecd75f0942c15cf16278809fa0ba46baf01b",
+        "status": "complete",
+        "checkpoint_steps": [
+          2000,
+          4000,
+          6000,
+          8000,
+          10000
+        ]
+      }
+    },
+    {
+      "name": "protocol predates execution and is bound by plan and summary",
+      "passed": true,
+      "detail": {
+        "protocol_sha256": "93d1ec116a1f23c88c970393809742574e6e92b1e95479d1f347db92c39eb3c8",
+        "protocol_mtime_ns": 1784887273226946570,
+        "plan_mtime_ns": 1784887290986860222
+      }
+    },
+    {
+      "name": "executed dirty-tree source remains exactly bound",
+      "passed": true,
+      "detail": {
+        "source_count": 9,
+        "harness_sha256": "c163af7328cc7d3ad599101fcf4ddeb0ed90f97755cc82409883f4823c6d9c69",
+        "git_revision": "7772f4fb63bf5b7c6540fbce7dfa3bf578bd7c11"
+      }
+    },
+    {
+      "name": "audited parent summary and parent model records remain exact",
+      "passed": true,
+      "detail": {
+        "parent_summary_sha256": "83c832b920a4603937112f4ff177ca8ac4d420dc58e72e97e847e7c896e176eb",
+        "parent_status": "complete"
+      }
+    },
+    {
+      "name": "all summary-bound artifacts retain exact bytes and hashes",
+      "passed": true,
+      "detail": {
+        "unique_artifact_count": 104,
+        "failures": []
+      }
+    },
+    {
+      "name": "calibrated tensors and seven-train/one-reporting-only split replay",
+      "passed": true,
+      "detail": {
+        "view_names": [
+          "C0001",
+          "C0008",
+          "C0014",
+          "C0021",
+          "C0026",
+          "C0031",
+          "C0039",
+          "C1004"
+        ],
+        "training_views": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "testing_views": [
+          7
+        ],
+        "loaded_tensor_hashes_match": true
+      }
+    },
+    {
+      "name": "10k schedule changes only iterations and global schedule length",
+      "passed": true,
+      "detail": {
+        "iterations": 10000,
+        "schedule_iterations": 10000,
+        "eval_every": 100,
+        "density_stop_iter": 1000
+      }
+    },
+    {
+      "name": "copied initial states exactly equal audited parent states",
+      "passed": true,
+      "detail": {
+        "pool-gradient": {
+          "npz_sha256": "f73cfde8cf2c7dfeb0a8b3e32474e01f62fa8eb106e3c2af18d24fb7fe9f64c6",
+          "ply_sha256": "572bb4f247249d5565d83a79f1801cd53962174b39abf74384f32632b2a70b3d"
+        },
+        "pool-structure-density": {
+          "npz_sha256": "1ef84c7885d0b0404a4ac1713a224c4f01e3540d086e9151372a5d1e85d1b79c",
+          "ply_sha256": "05a5b78dbe03735b62468ab3d89d971c60334ac233138662aa3878ca87ecd155"
+        },
+        "pool-structure-wse": {
+          "npz_sha256": "f0e41c4c57289f08c8b7101898c1f06192e0b2085b10bb877d8a315e97971abb",
+          "ply_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46"
+        }
+      }
+    },
+    {
+      "name": "all 36 checkpoint NPZ/PLY loads are finite and final equals 10k",
+      "passed": true,
+      "detail": {
+        "pool-gradient": {
+          "initial_n": 458,
+          "checkpoint_n": {
+            "2000": 5511,
+            "4000": 5511,
+            "6000": 5511,
+            "8000": 5511,
+            "10000": 5511
+          },
+          "final_equals_10k": true
+        },
+        "pool-structure-density": {
+          "initial_n": 423,
+          "checkpoint_n": {
+            "2000": 5434,
+            "4000": 5434,
+            "6000": 5434,
+            "8000": 5434,
+            "10000": 5434
+          },
+          "final_equals_10k": true
+        },
+        "pool-structure-wse": {
+          "initial_n": 422,
+          "checkpoint_n": {
+            "2000": 5406,
+            "4000": 5406,
+            "6000": 5406,
+            "8000": 5406,
+            "10000": 5406
+          },
+          "final_equals_10k": true
+        }
+      }
+    },
+    {
+      "name": "initial and all 15 checkpoint metric records replay through exact gsplat",
+      "passed": true,
+      "detail": {
+        "metric_replay_max_abs_error": 0.0
+      }
+    },
+    {
+      "name": "histories are complete, paired, train-only, final-policy, and recover 9k steps",
+      "passed": true,
+      "detail": {
+        "pool-gradient": {
+          "density_count_change_steps": [
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1000
+          ],
+          "density_controller_iterations": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ],
+          "last_count_change_step": 1000,
+          "recovery_steps": 9000,
+          "sampled_view_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "means_lr_initial": 0.00035244819641113285,
+          "means_lr_final": 3.524481964110211e-06
+        },
+        "pool-structure-density": {
+          "density_count_change_steps": [
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1000
+          ],
+          "density_controller_iterations": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ],
+          "last_count_change_step": 1000,
+          "recovery_steps": 9000,
+          "sampled_view_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "means_lr_initial": 0.00035244819641113285,
+          "means_lr_final": 3.524481964110211e-06
+        },
+        "pool-structure-wse": {
+          "density_count_change_steps": [
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1000
+          ],
+          "density_controller_iterations": [
+            200,
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900
+          ],
+          "last_count_change_step": 1000,
+          "recovery_steps": 9000,
+          "sampled_view_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "means_lr_initial": 0.00035244819641113285,
+          "means_lr_final": 3.524481964110211e-06
+        }
+      }
+    },
+    {
+      "name": "frozen checkpoint gates recompute with both WSE contrasts sustained",
+      "passed": true,
+      "detail": {
+        "checkpoint_gates": {
+          "density_vs_gradient": {
+            "2000": {
+              "treatment": "pool-structure-density",
+              "reference": "pool-gradient",
+              "step": 2000,
+              "heldout_psnr_fg_delta_db": -0.4275932312011719,
+              "heldout_alpha_iou_delta": 0.0007749199867248535,
+              "train_psnr_fg_delta_db": -0.06494413103376218,
+              "passed": false
+            },
+            "4000": {
+              "treatment": "pool-structure-density",
+              "reference": "pool-gradient",
+              "step": 4000,
+              "heldout_psnr_fg_delta_db": -0.4472217559814453,
+              "heldout_alpha_iou_delta": 0.0008031725883483887,
+              "train_psnr_fg_delta_db": -0.08637101309640016,
+              "passed": false
+            },
+            "6000": {
+              "treatment": "pool-structure-density",
+              "reference": "pool-gradient",
+              "step": 6000,
+              "heldout_psnr_fg_delta_db": -0.47006988525390625,
+              "heldout_alpha_iou_delta": 0.0018129348754882812,
+              "train_psnr_fg_delta_db": -0.03710883004324472,
+              "passed": false
+            },
+            "8000": {
+              "treatment": "pool-structure-density",
+              "reference": "pool-gradient",
+              "step": 8000,
+              "heldout_psnr_fg_delta_db": -0.3679656982421875,
+              "heldout_alpha_iou_delta": 0.003124535083770752,
+              "train_psnr_fg_delta_db": -0.04308564322335684,
+              "passed": false
+            },
+            "10000": {
+              "treatment": "pool-structure-density",
+              "reference": "pool-gradient",
+              "step": 10000,
+              "heldout_psnr_fg_delta_db": -0.4034690856933594,
+              "heldout_alpha_iou_delta": 0.0019591450691223145,
+              "train_psnr_fg_delta_db": -0.04975128173828125,
+              "passed": false
+            }
+          },
+          "wse_vs_gradient": {
+            "2000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-gradient",
+              "step": 2000,
+              "heldout_psnr_fg_delta_db": 0.22461509704589844,
+              "heldout_alpha_iou_delta": 0.0019370317459106445,
+              "train_psnr_fg_delta_db": -0.08190291268484984,
+              "passed": true
+            },
+            "4000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-gradient",
+              "step": 4000,
+              "heldout_psnr_fg_delta_db": 0.29335784912109375,
+              "heldout_alpha_iou_delta": 0.0010010600090026855,
+              "train_psnr_fg_delta_db": -0.05779130118233766,
+              "passed": true
+            },
+            "6000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-gradient",
+              "step": 6000,
+              "heldout_psnr_fg_delta_db": 0.3742713928222656,
+              "heldout_alpha_iou_delta": 0.0021803975105285645,
+              "train_psnr_fg_delta_db": -0.041499819074356736,
+              "passed": true
+            },
+            "8000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-gradient",
+              "step": 8000,
+              "heldout_psnr_fg_delta_db": 0.3585853576660156,
+              "heldout_alpha_iou_delta": 0.002159416675567627,
+              "train_psnr_fg_delta_db": -0.06565911429269278,
+              "passed": true
+            },
+            "10000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-gradient",
+              "step": 10000,
+              "heldout_psnr_fg_delta_db": 0.37021636962890625,
+              "heldout_alpha_iou_delta": 0.0012748241424560547,
+              "train_psnr_fg_delta_db": -0.08250808715820312,
+              "passed": true
+            }
+          },
+          "wse_vs_density": {
+            "2000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-structure-density",
+              "step": 2000,
+              "heldout_psnr_fg_delta_db": 0.6522083282470703,
+              "heldout_alpha_iou_delta": 0.001162111759185791,
+              "train_psnr_fg_delta_db": -0.016958781651087662,
+              "passed": true
+            },
+            "4000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-structure-density",
+              "step": 4000,
+              "heldout_psnr_fg_delta_db": 0.7405796051025391,
+              "heldout_alpha_iou_delta": 0.00019788742065429688,
+              "train_psnr_fg_delta_db": 0.0285797119140625,
+              "passed": true
+            },
+            "6000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-structure-density",
+              "step": 6000,
+              "heldout_psnr_fg_delta_db": 0.8443412780761719,
+              "heldout_alpha_iou_delta": 0.0003674626350402832,
+              "train_psnr_fg_delta_db": -0.004390989031112014,
+              "passed": true
+            },
+            "8000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-structure-density",
+              "step": 8000,
+              "heldout_psnr_fg_delta_db": 0.7265510559082031,
+              "heldout_alpha_iou_delta": -0.000965118408203125,
+              "train_psnr_fg_delta_db": -0.022573471069335938,
+              "passed": true
+            },
+            "10000": {
+              "treatment": "pool-structure-wse",
+              "reference": "pool-structure-density",
+              "step": 10000,
+              "heldout_psnr_fg_delta_db": 0.7736854553222656,
+              "heldout_alpha_iou_delta": -0.0006843209266662598,
+              "train_psnr_fg_delta_db": -0.032756805419921875,
+              "passed": true
+            }
+          }
+        },
+        "sustained_long_run_positive": {
+          "density_vs_gradient": false,
+          "wse_vs_gradient": true,
+          "wse_vs_density": true
+        }
+      }
+    },
+    {
+      "name": "preregistered trajectory averages are finite and all held-out peaks occur at 2k",
+      "passed": true,
+      "detail": {
+        "trajectories": {
+          "pool-gradient": {
+            "train": {
+              "steps": [
+                0,
+                2000,
+                4000,
+                6000,
+                8000,
+                10000
+              ],
+              "values": [
+                15.361759458269391,
+                29.30386243547712,
+                29.52872657775879,
+                29.530490602765763,
+                29.586857114519393,
+                29.5463262285505
+              ],
+              "average_db": 28.080795914786204
+            },
+            "test": {
+              "steps": [
+                0,
+                2000,
+                4000,
+                6000,
+                8000,
+                10000
+              ],
+              "values": [
+                15.814434051513672,
+                22.55779457092285,
+                22.439178466796875,
+                22.310283660888672,
+                22.21662139892578,
+                22.198486328125
+              ],
+              "average_db": 21.706067657470705
+            }
+          },
+          "pool-structure-density": {
+            "train": {
+              "steps": [
+                0,
+                2000,
+                4000,
+                6000,
+                8000,
+                10000
+              ],
+              "values": [
+                15.53815964290074,
+                29.23891830444336,
+                29.44235556466239,
+                29.49338177272252,
+                29.543771471296036,
+                29.49657494681222
+              ],
+              "average_db": 28.047158881596157
+            },
+            "test": {
+              "steps": [
+                0,
+                2000,
+                4000,
+                6000,
+                8000,
+                10000
+              ],
+              "values": [
+                16.0306339263916,
+                22.13020133972168,
+                21.99195671081543,
+                21.840213775634766,
+                21.848655700683594,
+                21.79501724243164
+              ],
+              "average_db": 21.344770622253417
+            }
+          },
+          "pool-structure-wse": {
+            "train": {
+              "steps": [
+                0,
+                2000,
+                4000,
+                6000,
+                8000,
+                10000
+              ],
+              "values": [
+                15.58856473650251,
+                29.22195952279227,
+                29.47093527657645,
+                29.488990783691406,
+                29.5211980002267,
+                29.4638181413923
+              ],
+              "average_db": 28.04585500444685
+            },
+            "test": {
+              "steps": [
+                0,
+                2000,
+                4000,
+                6000,
+                8000,
+                10000
+              ],
+              "values": [
+                16.107376098632812,
+                22.78240966796875,
+                22.73253631591797,
+                22.684555053710938,
+                22.575206756591797,
+                22.568702697753906
+              ],
+              "average_db": 22.022549438476563
+            }
+          }
+        },
+        "heldout_checkpoint_peaks": {
+          "pool-gradient": {
+            "best_reporting_step": 2000,
+            "best_psnr_fg": 22.55779457092285,
+            "10k_psnr_fg": 22.198486328125,
+            "10k_minus_best_db": -0.35930824279785156
+          },
+          "pool-structure-density": {
+            "best_reporting_step": 2000,
+            "best_psnr_fg": 22.13020133972168,
+            "10k_psnr_fg": 21.79501724243164,
+            "10k_minus_best_db": -0.33518409729003906
+          },
+          "pool-structure-wse": {
+            "best_reporting_step": 2000,
+            "best_psnr_fg": 22.78240966796875,
+            "10k_psnr_fg": 22.568702697753906,
+            "10k_minus_best_db": -0.21370697021484375
+          }
+        }
+      }
+    },
+    {
+      "name": "CPU viewer loads all 30 manifest entries and shuts down cleanly",
+      "passed": true,
+      "detail": {
+        "manifest_sha256": "1234020869f3945114cf645ccbc728c1281e49e79622e36823700d0bc1e6eab9",
+        "method_count": 15,
+        "http_status": 200,
+        "response_bytes": 2888259
+      }
+    },
+    {
+      "name": "all 39 raster visuals and six SVG trajectories decode",
+      "passed": true,
+      "detail": {
+        "raster_visual_count": 39,
+        "svg_polyline_count": 6,
+        "raster_visuals": {
+          "runs/pool_structure_wse_10k_frame00008_20260724/stage1_contact_sheet.png": {
+            "size": [
+              1332,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/checkpoint_train_C0014.png": {
+            "size": [
+              2331,
+              948
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/checkpoint_heldout_C1004.png": {
+            "size": [
+              2331,
+              948
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_02000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_02000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_04000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_04000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_06000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_06000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_08000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_08000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_10000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_visuals/step_10000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_train_C0014.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-gradient/checkpoint_heldout_C1004.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_02000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_02000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_04000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_04000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_06000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_06000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_08000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_08000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_10000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_visuals/step_10000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_train_C0014.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-density/checkpoint_heldout_C1004.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_02000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_02000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_04000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_04000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_06000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_06000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_08000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_08000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_10000/train_C0014.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_visuals/step_10000/heldout_C1004.png": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_train_C0014.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          },
+          "runs/pool_structure_wse_10k_frame00008_20260724/models/pool-structure-wse/checkpoint_heldout_C1004.gif": {
+            "size": [
+              999,
+              316
+            ],
+            "frames": 5
+          }
+        }
+      }
+    },
+    {
+      "name": "required index is summary-bound with complete local links except audit self-reference",
+      "passed": true,
+      "detail": {
+        "index_sha256": "ddbf538dc9beec1d036e2057d5213ffa2d5bdcdd204751c25c69e818d71c49e1",
+        "link_count": 60,
+        "unique_local_target_count": 40,
+        "missing_non_deferred_targets": [],
+        "deferred_until_notes_written": [
+          "benchmarks/results/20260724_pool_structure_wse_10k_frame00008_AUDIT.json",
+          "benchmarks/results/20260724_pool_structure_wse_10k_frame00008_RESULT.md"
+        ]
+      }
+    }
+  ],
+  "check_summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0
+  },
+  "commands": {
+    "official": "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python benchmarks/pool_structure_wse_10k_frame00008.py --protocol benchmarks/results/20260724_pool_structure_wse_10k_frame00008_PREREG.md --out runs/pool_structure_wse_10k_frame00008_20260724",
+    "audit": "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python benchmarks/audit_pool_structure_wse_10k_frame00008.py",
+    "viewer": "CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest benchmarks/results/20260724_pool_structure_wse_10k_frame00008_VIEWER.json --scene /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16 --device cpu --max-viewer-gaussians 20000 --host 127.0.0.1 --port 8786 --no-open"
+  }
+}

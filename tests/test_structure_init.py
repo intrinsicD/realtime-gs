@@ -14,6 +14,9 @@ from rtgs.image2gs.structure_init import (
     _MIN_DIAG,
     StructureInitConfig,
     StructureInitResult,
+    _density_pmf,
+    _sample_candidates,
+    _structure_tensor,
     structure_init,
 )
 
@@ -190,6 +193,40 @@ def test_deterministic_given_rng():
     assert np.array_equal(a.chol, b.chol)
 
 
+def test_density_mode_is_matched_candidate_prefix_without_wse():
+    size = 48
+    n = 120
+    image = _vertical_edge(size)
+    cfg = StructureInitConfig(sampling_mode="density")
+    result = structure_init(image, n, rng=np.random.default_rng(0), config=cfg)
+
+    tensor = _structure_tensor(image, cfg)
+    density = _density_pmf(tensor.energy, cfg)
+    candidate_count = max(int(np.ceil(cfg.wse_oversample * n)), n)
+    candidates = _sample_candidates(
+        density,
+        candidate_count,
+        np.random.default_rng(0),
+    )
+    expected = candidates[:n].copy()
+    expected[:, 0] = np.clip(expected[:, 0], 0.0, size - 1e-3)
+    expected[:, 1] = np.clip(expected[:, 1], 0.0, size - 1e-3)
+
+    assert result.n == n
+    assert np.array_equal(result.xy, expected.astype(np.float32))
+
+
+def test_density_mode_is_deterministic_and_differs_from_wse():
+    image = _vertical_edge(48)
+    config = StructureInitConfig(sampling_mode="density")
+    a = structure_init(image, 120, rng=np.random.default_rng(0), config=config)
+    b = structure_init(image, 120, rng=np.random.default_rng(0), config=config)
+    wse = structure_init(image, 120, rng=np.random.default_rng(0))
+    assert np.array_equal(a.xy, b.xy)
+    assert np.array_equal(a.chol, b.chol)
+    assert not np.array_equal(a.xy, wse.xy)
+
+
 def test_anisotropy_strength_zero_is_isotropic():
     size = 48
     cfg = StructureInitConfig(anisotropy_strength=0.0)
@@ -201,6 +238,8 @@ def test_anisotropy_strength_zero_is_isotropic():
 
 
 def test_invalid_config_and_args_raise():
+    with pytest.raises(ValueError):
+        StructureInitConfig(sampling_mode="random")
     with pytest.raises(ValueError):
         StructureInitConfig(gradient_operator="prewitt")
     with pytest.raises(ValueError):

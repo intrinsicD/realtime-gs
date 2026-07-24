@@ -824,6 +824,43 @@ def test_gsplat_strategies_train_and_grow(strategy):
 
 @pytest.mark.cuda
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="needs CUDA")
+def test_geometric_arena_gsplat_default_trains_and_grows():
+    pytest.importorskip("gsplat")
+    torch.manual_seed(17)
+    torch.cuda.manual_seed_all(17)
+    scene = make_synthetic_scene(n_gaussians=12, n_cameras=4, image_size=16, seed=9)
+    init = make_gt_gaussians(n=40, seed=10)
+    config = TrainConfig(
+        iterations=18,
+        rasterizer="gsplat",
+        device="cuda",
+        density_strategy="gsplat-default",
+        gaussian_storage_policy="geometric",
+        profile_density_events=True,
+        density=DensityConfig(
+            start_iter=1,
+            stop_iter=16,
+            every=3,
+            grad_threshold=0.0,
+            absgrad=True,
+            prune_scale_frac=10.0,
+            max_gaussians=64,
+            opacity_reset_every=0,
+        ),
+        eval_every=18,
+        ssim_lambda=0.0,
+    )
+    refined, history = Trainer(config).train(scene, init)
+    assert 40 < refined.n <= 64
+    assert history["gaussian_storage_policy"] == "geometric"
+    assert history["storage_diagnostics"]["capacity"] >= refined.n
+    assert history["density_stats"]
+    assert all(item["event_seconds"] >= 0.0 for item in history["density_stats"])
+    assert torch.isfinite(refined.means).all()
+
+
+@pytest.mark.cuda
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="needs CUDA")
 @pytest.mark.parametrize("strategy", ["gsplat-default", "gsplat-mcmc"])
 def test_gsplat_strategies_enforce_budget_before_initializing_state(strategy):
     pytest.importorskip("gsplat")

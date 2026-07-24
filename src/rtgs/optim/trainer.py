@@ -51,6 +51,15 @@ class TrainConfig:
     densify: bool = True
     density_strategy: str = "classic"
     density: DensityConfig = field(default_factory=DensityConfig)
+    # Opt-in Stage-3 storage research seam. ``dynamic`` preserves gsplat's exact tensor
+    # replacement behavior. ``geometric`` keeps live-shaped leaves backed by geometrically
+    # growing parameter/Adam capacity and currently supports CUDA gsplat-default only.
+    gaussian_storage_policy: str = "dynamic"
+    arena_growth_factor: float = 2.0
+    arena_initial_capacity: int | None = None
+    # Synchronize around scheduled density events to measure their complete wall time. Disabled
+    # by default because the synchronization itself changes execution overlap.
+    profile_density_events: bool = False
     eval_every: int = 50
     # Opt-in checkpoint selection. "final" (default) returns the last iterate, unchanged. With
     # "best_train_psnr" the run returns the eval checkpoint with the highest TRAINING-view PSNR
@@ -291,6 +300,17 @@ class Trainer:
         strategy_name = cfg.density_strategy
         if cfg.densify:
             validate_strategy_name(strategy_name)
+        if cfg.gaussian_storage_policy not in {"dynamic", "geometric"}:
+            raise ValueError("gaussian_storage_policy must be 'dynamic' or 'geometric'")
+        if cfg.gaussian_storage_policy == "geometric":
+            if not cfg.densify or strategy_name != "gsplat-default":
+                raise ValueError(
+                    "geometric Gaussian storage requires densify=True and gsplat-default"
+                )
+            if device.type != "cuda" or cfg.rasterizer == "torch":
+                raise ValueError("geometric Gaussian storage requires the CUDA gsplat rasterizer")
+            if not math.isfinite(cfg.arena_growth_factor) or cfg.arena_growth_factor <= 1.0:
+                raise ValueError("arena_growth_factor must be finite and greater than one")
         needs_absgrad = cfg.densify and strategy_uses_absgrad(strategy_name, cfg.density)
         renderer = get_rasterizer(
             cfg.rasterizer,
@@ -349,6 +369,7 @@ class Trainer:
             )
             for name, parameter in params.items()
         }
+        arena = None
         classic_controller = None
         gsplat_controller = None
         if cfg.densify and strategy_name == "classic":
@@ -361,8 +382,24 @@ class Trainer:
             if cfg.rasterizer == "torch" or device.type != "cuda":
                 raise RuntimeError(f"{strategy_name} requires --rasterizer gsplat and CUDA")
             enforce_budget(params, optimizers, cfg.density.max_gaussians)
+            if cfg.gaussian_storage_policy == "geometric":
+                from rtgs.optim.arena import GeometricParameterArena
+
+                arena = GeometricParameterArena(
+                    params,
+                    optimizers,
+                    max_capacity=cfg.density.max_gaussians,
+                    growth_factor=cfg.arena_growth_factor,
+                    initial_capacity=cfg.arena_initial_capacity,
+                )
             gsplat_controller = GsplatStrategyController(
-                strategy_name, cfg.density, extent, params, optimizers
+                strategy_name,
+                cfg.density,
+                extent,
+                params,
+                optimizers,
+                arena=arena,
+                profile_events=cfg.profile_density_events,
             )
 
         def build() -> Gaussians3D:
@@ -393,6 +430,8 @@ class Trainer:
             "kernel_support_diagnostics": [],
             "density_stats": None,
             "density_strategy": strategy_name if cfg.densify else "none",
+            "gaussian_storage_policy": cfg.gaussian_storage_policy,
+            "storage_diagnostics": None,
             "resolved_sh_degree_interval": sh_interval,
             "iteration_offset": cfg.iteration_offset,
             "segment_iterations": cfg.iterations,
@@ -403,6 +442,8 @@ class Trainer:
             "means_lr_gamma": means_gamma,
             "opacity_logit_epsilon": opacity_logit_epsilon,
             "peak_vram_gb": 0.0,
+            "peak_vram_reserved_gb": 0.0,
+            "cuda_memory_stats": {},
         }
         if control_metadata is not None:
             history["step_control_metadata"] = control_metadata
@@ -419,6 +460,7 @@ class Trainer:
 
         if device.type == "cuda":
             torch.cuda.reset_peak_memory_stats(device)
+            torch.cuda.reset_accumulated_memory_stats(device)
             torch.cuda.synchronize(device)
         callback_seconds = 0.0
         started = time.perf_counter()
@@ -630,8 +672,25 @@ class Trainer:
             history["density_stats"] = classic_controller.stats
         elif gsplat_controller is not None:
             history["density_stats"] = gsplat_controller.stats
+        if arena is not None:
+            history["storage_diagnostics"] = arena.diagnostics()
         if device.type == "cuda":
             history["peak_vram_gb"] = torch.cuda.max_memory_allocated(device) / 1024**3
+            history["peak_vram_reserved_gb"] = torch.cuda.max_memory_reserved(device) / 1024**3
+            memory_stats = torch.cuda.memory_stats(device)
+            history["cuda_memory_stats"] = {
+                key: int(memory_stats[key])
+                for key in (
+                    "allocated_bytes.all.peak",
+                    "reserved_bytes.all.peak",
+                    "inactive_split_bytes.all.peak",
+                    "num_alloc_retries",
+                    "num_device_alloc",
+                    "num_device_free",
+                    "num_ooms",
+                )
+                if key in memory_stats
+            }
         history["checkpoint_callback_seconds"] = callback_seconds
         if select_best and best_snapshot is not None:
             history["selected_step"] = best_step

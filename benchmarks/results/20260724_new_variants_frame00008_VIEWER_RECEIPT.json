@@ -1,0 +1,47 @@
+{
+  "schema": "rtgs.new_variants_frame00008.viewer_receipt.v1",
+  "checked_utc": "2026-07-24T08:41:21+00:00",
+  "command": "CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest benchmarks/results/20260724_new_variants_frame00008_VIEWER.json --scene /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16 --device cpu --max-viewer-gaussians 20000 --host 127.0.0.1 --port 8784 --no-open",
+  "manifest": {
+    "path": "benchmarks/results/20260724_new_variants_frame00008_VIEWER.json",
+    "sha256": "97ca3186471fdc3a396f052f8a9017233ddffa9d75ecfc1b8fa590a24482833a",
+    "method_count": 5,
+    "model_count": 10
+  },
+  "server": {
+    "pid": 2224991,
+    "host": "127.0.0.1",
+    "port": 8784,
+    "http_status": 200,
+    "response_bytes": 2888259,
+    "response_sha256": "01d39569615f502a619f2987d09b6680d015808d67788f309c8431a5e9f12757",
+    "rss_kib_at_check": 639312,
+    "cuda_visible_devices": "",
+    "nvidia_compute_processes_at_check": [],
+    "port_closed_after_stop": true,
+    "pid_stopped_after_stop": true
+  },
+  "models": {
+    "baseline": {
+      "initial_sha256": "7a45b30d89d06f6302405b536db0046efc32d56b9c6085fa6c0d79ac90886618",
+      "final_sha256": "899db11624b51ac8772031f8c7ad17577893fa1f8c5d3c073c8e253407c6358b"
+    },
+    "pool": {
+      "initial_sha256": "4230dad130a1be11690dc3209fe1aff32394830c5a34a64b1b9de168f7aafe18",
+      "final_sha256": "2382d516661b90c8f8af4edb98d01e598f66faa46a580d542240956a9bb22d3f"
+    },
+    "mask-containment": {
+      "initial_sha256": "da32b51c3f2c379485c90f32ec87ec8dd0d8f4e85114af6043db064a6c61dcb0",
+      "final_sha256": "41eb6e4b518564c21d7dd6a972bcff9c392d42fa532529256600279f63cb83c5"
+    },
+    "structure-tensor": {
+      "initial_sha256": "9a3009118bc76670c3f381839c93080827d8d2d04de82e740293913f70ae5df7",
+      "final_sha256": "353dee37d2763ce7bb3b0a3e545595537b99ad6a1adf130c719f6122df2e8a65"
+    },
+    "best-train-checkpoint": {
+      "initial_sha256": "7a45b30d89d06f6302405b536db0046efc32d56b9c6085fa6c0d79ac90886618",
+      "final_sha256": "899db11624b51ac8772031f8c7ad17577893fa1f8c5d3c073c8e253407c6358b"
+    }
+  },
+  "scope": "HTTP and model-load smoke only; CPU viewer path, no quality or performance claim"
+}

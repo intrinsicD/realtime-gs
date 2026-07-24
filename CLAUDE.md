@@ -42,9 +42,10 @@ images ──► [1] image2gs: fit compact 2D gaussians per image (native or Str
    calibrated scene under `dataset/` before it is considered complete. Synthetic scenes remain
    valid for deterministic unit tests and mechanism screens, but synthetic-only evidence cannot
    close a pipeline-quality or default question. Results-bearing runs save `--out` artifacts and
-   previews, and every handoff includes a smoke-tested `rtgs view` command for the saved initial
-   and final Gaussians. Treat the WebGL view as a diagnostic; quantitative decisions use exact
-   rasterizer metrics on a frozen train/validation/test protocol.
+   previews, a summary-bound relative-link `index.html` results page, and smoke-test receipts for
+   both that page and an `rtgs view` command covering the saved initial/final or checkpoint
+   Gaussians. Treat the WebGL view as a diagnostic; quantitative decisions use exact rasterizer
+   metrics on a frozen train/validation/test protocol.
 
 ## Commands
 

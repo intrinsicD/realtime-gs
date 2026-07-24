@@ -58,6 +58,10 @@ class FitConfig:
     # initializer (rtgs.image2gs.structure_init: structure tensor -> density -> anisotropic WSE ->
     # oriented anisotropic covariance). Color is sampled at each placed center either way.
     init_strategy: str = "gradient"
+    # Structure-initializer placement control. "wse" is the unchanged default; "density" keeps
+    # the first N points from the identical oversampled density-candidate stream and omits only
+    # Weighted Sample Elimination. Research-only and valid with init_strategy="structure_tensor".
+    structure_sampling: str = "wse"
     row_chunk: int = 64
     log_every: int = 50
     # Convergence-based early stopping (step 1: "fit until convergence"). PSNR is checked
@@ -183,7 +187,12 @@ def init_gaussians_2d(
     return Gaussians2D(xy=xy, chol=chol, color=color, weight=weight)
 
 
-def _init_gaussians_2d_structure(image: torch.Tensor, n: int, seed: int | None) -> Gaussians2D:
+def _init_gaussians_2d_structure(
+    image: torch.Tensor,
+    n: int,
+    seed: int | None,
+    sampling_mode: str,
+) -> Gaussians2D:
     """Feature-aware oriented init via the torch-free ``structure_init``, packed as Gaussians2D.
 
     Positions and oriented covariance come from :mod:`rtgs.image2gs.structure_init` (structure
@@ -192,10 +201,15 @@ def _init_gaussians_2d_structure(image: torch.Tensor, n: int, seed: int | None) 
     """
     import numpy as np
 
-    from rtgs.image2gs.structure_init import structure_init
+    from rtgs.image2gs.structure_init import StructureInitConfig, structure_init
 
     device, dtype = image.device, image.dtype
-    result = structure_init(image.detach().cpu().numpy(), n, rng=np.random.default_rng(seed))
+    result = structure_init(
+        image.detach().cpu().numpy(),
+        n,
+        rng=np.random.default_rng(seed),
+        config=StructureInitConfig(sampling_mode=sampling_mode),
+    )
     xy = torch.from_numpy(result.xy).to(device=device, dtype=dtype)
     chol = torch.from_numpy(result.chol).to(device=device, dtype=dtype)
     ix = xy[:, 0].floor().long().clamp(0, image.shape[1] - 1)
@@ -262,7 +276,12 @@ def fit_image(
             rng_state_before = gen.get_state().clone()
 
     if config.init_strategy == "structure_tensor":
-        g0 = _init_gaussians_2d_structure(target, config.n_gaussians, seed)
+        g0 = _init_gaussians_2d_structure(
+            target,
+            config.n_gaussians,
+            seed,
+            config.structure_sampling,
+        )
     else:
         g0 = init_gaussians_2d(target, config.n_gaussians, config.grad_init_mix, gen)
     if diagnostic_callback is not None and gen is not None:
@@ -565,6 +584,10 @@ def _validate_fit_controls(
         raise ValueError("native_renderer must be 'torch', 'cuda', or 'auto'")
     if config.init_strategy not in ("gradient", "structure_tensor"):
         raise ValueError("init_strategy must be 'gradient' or 'structure_tensor'")
+    if config.structure_sampling not in ("wse", "density"):
+        raise ValueError("structure_sampling must be 'wse' or 'density'")
+    if config.init_strategy != "structure_tensor" and config.structure_sampling != "wse":
+        raise ValueError("structure_sampling='density' requires init_strategy='structure_tensor'")
     if config.init_strategy == "structure_tensor" and config.backend != "native":
         raise ValueError("init_strategy='structure_tensor' requires the native backend")
     steps = tuple(diagnostic_steps)

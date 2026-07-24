@@ -1,0 +1,15 @@
+{
+  "schema": "rtgs.pool_structure_wse_frame00008.preplan_failure.v1",
+  "date": "2026-07-24",
+  "protocol": {
+    "path": "benchmarks/results/20260724_pool_structure_wse_frame00008_PREREG_V2.md",
+    "sha256": "e9de68c509d5b0ee21eddf08e55180834f357713351d23a46bc1172ce9fff4f6"
+  },
+  "command": "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python benchmarks/pool_structure_wse_frame00008.py --protocol benchmarks/results/20260724_pool_structure_wse_frame00008_PREREG_V2.md --out runs/pool_structure_wse_frame00008_20260724",
+  "out_directory_created": false,
+  "scene_loaded": false,
+  "arm_started": false,
+  "outcome_seen": false,
+  "error_type": "ModuleNotFoundError",
+  "error": "No module named 'benchmarks'"
+}

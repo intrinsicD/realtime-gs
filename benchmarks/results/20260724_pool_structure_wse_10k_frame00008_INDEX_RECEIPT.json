@@ -1,0 +1,33 @@
+{
+  "schema": "rtgs.pool_structure_wse_10k_frame00008.index_receipt.v1",
+  "checked_utc": "2026-07-24T10:15:30+00:00",
+  "serve_command": ".venv/bin/python -m http.server 8790 --bind 127.0.0.1 --directory .",
+  "url": "http://127.0.0.1:8790/runs/pool_structure_wse_10k_frame00008_20260724/index.html",
+  "index": {
+    "path": "runs/pool_structure_wse_10k_frame00008_20260724/index.html",
+    "sha256": "ddbf538dc9beec1d036e2057d5213ffa2d5bdcdd204751c25c69e818d71c49e1",
+    "bytes": 16801,
+    "http_status": 200
+  },
+  "links": {
+    "references": 60,
+    "unique_local_targets": 40,
+    "status_counts": {
+      "200": 40
+    },
+    "targets_with_nonpositive_content_length": 0,
+    "total_target_bytes": 21800213,
+    "result_note_status": 200,
+    "audit_json_status": 200
+  },
+  "server": {
+    "pid": 2250978,
+    "host": "127.0.0.1",
+    "port": 8790,
+    "pid_owned_listening_socket": true,
+    "rss_kib_at_check": 19860,
+    "pid_stopped_after_stop": true,
+    "port_closed_after_stop": true
+  },
+  "scope": "HTTP and completed local-link smoke only; no visual-quality or performance claim"
+}

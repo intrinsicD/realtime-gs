@@ -1,0 +1,103 @@
+{
+  "schema": "rtgs.pool_structure_wse_10k_frame00008.viewer_receipt.v1",
+  "checked_utc": "2026-07-24T10:05:33+00:00",
+  "command": "CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest benchmarks/results/20260724_pool_structure_wse_10k_frame00008_VIEWER.json --scene /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16 --device cpu --max-viewer-gaussians 20000 --host 127.0.0.1 --port 8786 --no-open",
+  "manifest": {
+    "path": "benchmarks/results/20260724_pool_structure_wse_10k_frame00008_VIEWER.json",
+    "sha256": "1234020869f3945114cf645ccbc728c1281e49e79622e36823700d0bc1e6eab9",
+    "method_count": 15,
+    "model_count": 30
+  },
+  "models": [
+    {
+      "name": "pool-gradient @ 2k",
+      "initial_sha256": "572bb4f247249d5565d83a79f1801cd53962174b39abf74384f32632b2a70b3d",
+      "final_sha256": "5218f00a4779436df9dc33b5c3e33f90c3e4b9adb95d8c66a55dab4f0890754a"
+    },
+    {
+      "name": "pool-gradient @ 4k",
+      "initial_sha256": "572bb4f247249d5565d83a79f1801cd53962174b39abf74384f32632b2a70b3d",
+      "final_sha256": "39de8fca6b4c1f87d53357f7095a26ba18e62c5f43280ec9173d07d7ccd17275"
+    },
+    {
+      "name": "pool-gradient @ 6k",
+      "initial_sha256": "572bb4f247249d5565d83a79f1801cd53962174b39abf74384f32632b2a70b3d",
+      "final_sha256": "9a4953f5166ae6fc2d6a543629c5b1fbd715777cd4deab0fa1eadbac5c5a5222"
+    },
+    {
+      "name": "pool-gradient @ 8k",
+      "initial_sha256": "572bb4f247249d5565d83a79f1801cd53962174b39abf74384f32632b2a70b3d",
+      "final_sha256": "706dbc898ddabed9b3621bd89f9439767b34e65040f41d636b14640597888663"
+    },
+    {
+      "name": "pool-gradient @ 10k",
+      "initial_sha256": "572bb4f247249d5565d83a79f1801cd53962174b39abf74384f32632b2a70b3d",
+      "final_sha256": "a240b287eeb271948065a89b7a4f18768658f3ecd769fa5a93159cdb34056662"
+    },
+    {
+      "name": "pool-structure-density @ 2k",
+      "initial_sha256": "05a5b78dbe03735b62468ab3d89d971c60334ac233138662aa3878ca87ecd155",
+      "final_sha256": "e8e94a2cfc58d670705573d7289749b52f7c6c1e2fcdde49264bcbd024e4e0e3"
+    },
+    {
+      "name": "pool-structure-density @ 4k",
+      "initial_sha256": "05a5b78dbe03735b62468ab3d89d971c60334ac233138662aa3878ca87ecd155",
+      "final_sha256": "9eea0a05f1131efab110c390d814a739d0617dc611398dacbd2d9e3faa67a97e"
+    },
+    {
+      "name": "pool-structure-density @ 6k",
+      "initial_sha256": "05a5b78dbe03735b62468ab3d89d971c60334ac233138662aa3878ca87ecd155",
+      "final_sha256": "dbb041e4234b60b883adc168ecabbe94256dc4f40513d8dd9a7d5aa0848c3c1d"
+    },
+    {
+      "name": "pool-structure-density @ 8k",
+      "initial_sha256": "05a5b78dbe03735b62468ab3d89d971c60334ac233138662aa3878ca87ecd155",
+      "final_sha256": "ead708cde81f9cdbbad70c7fa8c606f7254da0d77ca87a532f6d404bcc602c10"
+    },
+    {
+      "name": "pool-structure-density @ 10k",
+      "initial_sha256": "05a5b78dbe03735b62468ab3d89d971c60334ac233138662aa3878ca87ecd155",
+      "final_sha256": "402f540236fd9b0a3abb31c97c239bdc3b06e38ce9d5f532d065f4f633d13998"
+    },
+    {
+      "name": "pool-structure-wse @ 2k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "170b59e5945e5781941ba499520c2f5e596da46de1355a3a8731cc78037d482d"
+    },
+    {
+      "name": "pool-structure-wse @ 4k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "9c8e2391a30d4a622d7f4d79c0521e52690b19f95c17d0bb3919b3c2aa9bb470"
+    },
+    {
+      "name": "pool-structure-wse @ 6k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "cc249d15504147e427a4afb2108916e54ae05e7248bdef97d6e6f254c4fb9dae"
+    },
+    {
+      "name": "pool-structure-wse @ 8k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "208ee9f32f400d66da338be7a274fdba48726cdc8148952ba512148743a14194"
+    },
+    {
+      "name": "pool-structure-wse @ 10k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "1cc4a4ed5adcd3168a7b647c51629e4bb32290f24c06bdc4366c02c3b98cf546"
+    }
+  ],
+  "server": {
+    "pid": 2247756,
+    "host": "127.0.0.1",
+    "port": 8786,
+    "pid_owned_listening_socket": true,
+    "http_status": 200,
+    "response_bytes": 2888259,
+    "response_sha256": "01d39569615f502a619f2987d09b6680d015808d67788f309c8431a5e9f12757",
+    "rss_kib_at_check": 661324,
+    "cuda_visible_devices": "",
+    "nvidia_compute_processes_at_check": [],
+    "pid_stopped_after_stop": true,
+    "port_closed_after_stop": true
+  },
+  "scope": "CPU HTTP/model-load smoke only; no quality or performance claim"
+}

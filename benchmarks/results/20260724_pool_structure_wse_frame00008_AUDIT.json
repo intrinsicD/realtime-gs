@@ -1,0 +1,485 @@
+{
+  "schema": "rtgs.pool_structure_wse_frame00008.audit.v1",
+  "generated_utc": "2026-07-24T09:35:18.317158+00:00",
+  "summary": {
+    "path": "runs/pool_structure_wse_frame00008_20260724/summary.json",
+    "sha256": "83c832b920a4603937112f4ff177ca8ac4d420dc58e72e97e847e7c896e176eb"
+  },
+  "scope": "single-scene, single-seed development audit with seven training cameras and one held-out camera; WSE effect conditional on the frozen pool only",
+  "stage1_gates": {
+    "wse_vs_density": {
+      "treatment": "pool-structure-wse",
+      "reference": "pool-structure-density",
+      "mean_psnr_delta_db": -0.4384634835379444,
+      "view_wins": 3,
+      "outside_ratio": 1.0917460328240423,
+      "passed": false
+    },
+    "density_vs_gradient": {
+      "treatment": "pool-structure-density",
+      "reference": "pool-gradient",
+      "mean_psnr_delta_db": -2.3161209651402075,
+      "view_wins": 0,
+      "outside_ratio": 1.2854755562228628,
+      "passed": false
+    },
+    "wse_vs_gradient": {
+      "treatment": "pool-structure-wse",
+      "reference": "pool-gradient",
+      "mean_psnr_delta_db": -2.754584448678152,
+      "view_wins": 0,
+      "outside_ratio": 1.4034128387985896,
+      "passed": false
+    }
+  },
+  "downstream_gates": {
+    "wse_vs_density": {
+      "treatment": "pool-structure-wse",
+      "reference": "pool-structure-density",
+      "heldout_psnr_fg_delta_db": 0.11372947692871094,
+      "heldout_alpha_iou_delta": -0.0046479105949401855,
+      "train_psnr_fg_delta_db": 0.1022796630859375,
+      "passed": true
+    },
+    "density_vs_gradient": {
+      "treatment": "pool-structure-density",
+      "reference": "pool-gradient",
+      "heldout_psnr_fg_delta_db": -0.11847114562988281,
+      "heldout_alpha_iou_delta": 0.004914581775665283,
+      "train_psnr_fg_delta_db": 0.1264487675258117,
+      "passed": false
+    },
+    "wse_vs_gradient": {
+      "treatment": "pool-structure-wse",
+      "reference": "pool-gradient",
+      "heldout_psnr_fg_delta_db": -0.004741668701171875,
+      "heldout_alpha_iou_delta": 0.00026667118072509766,
+      "train_psnr_fg_delta_db": 0.2287284306117492,
+      "passed": false
+    }
+  },
+  "prior_anchor_drift": {
+    "stage1_mean_psnr_fg_delta_db": 0.0007978166852673496,
+    "heldout_final_psnr_fg_delta_db": -0.07692146301269531,
+    "heldout_final_alpha_iou_delta": 0.001910865306854248,
+    "prior_final_count": 5548,
+    "current_final_count": 5578
+  },
+  "claim_disposition": {
+    "no_wse_density_control_is_a_matched_opt_in_seam": "confirm_mechanism_and_effective_config_default_unchanged",
+    "wse_improves_pooled_structure_stage1": "retire_failed_primary_quality_gate_negative_delta_and_3_of_7_wins",
+    "wse_improves_pooled_structure_downstream": "narrow_single_scene_single_seed_gate_pass_only_not_balanced_or_robust",
+    "pooled_structure_density_beats_pooled_gradient": "retire_failed_stage1_and_downstream_psnr_gates",
+    "pooled_structure_wse_beats_pooled_gradient": "retire_failed_stage1_and_downstream_materiality_gates",
+    "wse_by_pool_interaction": "not_tested_all_arms_are_pooled",
+    "default_or_generalization_claim": "not_authorized",
+    "performance_or_memory_claim": "not_authorized_contended_unrepeated_execution"
+  },
+  "findings": [
+    "WSE lost its direct pooled stage-1 contrast: -0.4385 dB, 3/7 wins, outside ratio 1.0917.",
+    "WSE passed the direct downstream gate versus density with +0.1137 dB held-out foreground PSNR, -0.00465 alpha IoU, and +0.1023 dB train PSNR.",
+    "Neither pooled structure arm beat pooled gradient at stage 1 or passed its downstream materiality gate; no combined method is a balanced winner.",
+    "The nominally unchanged pooled-gradient anchor moved -0.0769 dB held out and changed count 5548->5578 relative to the prior run, so the marginal +0.1137 dB WSE endpoint contrast is not replication-grade evidence."
+  ],
+  "checks": [
+    {
+      "name": "official summary hash and complete combination schema",
+      "passed": true,
+      "detail": {
+        "summary_sha256": "83c832b920a4603937112f4ff177ca8ac4d420dc58e72e97e847e7c896e176eb",
+        "status": "complete"
+      }
+    },
+    {
+      "name": "append-only protocol chain preserves the pre-plan V2 import failure",
+      "passed": true,
+      "detail": {
+        "v1": "616f3691c90e714270dd9c20daf87d48571e8257db8f150594abc90694a9c03d",
+        "v2": "e9de68c509d5b0ee21eddf08e55180834f357713351d23a46bc1172ce9fff4f6",
+        "v3": "1f8859d2bcae7c71336794c4e815202f9f738fcf6d9769a476d4cf6610016416",
+        "v2_failure": "c1f41b750ec77decc2ff276cfea4978b959a5e3a24eac91393e8ac7bec783d6d"
+      }
+    },
+    {
+      "name": "V3 predates the plan and the plan binds V3",
+      "passed": true,
+      "detail": {
+        "protocol_mtime_ns": 1784885313750536707,
+        "plan_mtime_ns": 1784885327449468279,
+        "bound_sha256": "1f8859d2bcae7c71336794c4e815202f9f738fcf6d9769a476d4cf6610016416"
+      }
+    },
+    {
+      "name": "executed source, wrapper, and git revision remain bound",
+      "passed": true,
+      "detail": {
+        "harness_sha256": "9daef81cfcfdb12d2cc3afa786ffb5f798d6492660284250ec09a2ba8ad5efd1",
+        "git_revision": "7772f4fb63bf5b7c6540fbce7dfa3bf578bd7c11",
+        "source_count": 13
+      }
+    },
+    {
+      "name": "all summary-bound artifacts exist with exact bytes and hashes",
+      "passed": true,
+      "detail": {
+        "unique_artifact_count": 93,
+        "failures": []
+      }
+    },
+    {
+      "name": "calibrated tensors and seven-train/one-held-out split replay",
+      "passed": true,
+      "detail": {
+        "view_names": [
+          "C0001",
+          "C0008",
+          "C0014",
+          "C0021",
+          "C0026",
+          "C0031",
+          "C0039",
+          "C1004"
+        ],
+        "training_views": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "testing_views": [
+          7
+        ],
+        "loaded_tensor_hashes_match": true
+      }
+    },
+    {
+      "name": "effective arms isolate WSE and hold the pool lifecycle fixed",
+      "passed": true,
+      "detail": {
+        "structure_arm_config_differences": [
+          "structure_sampling"
+        ],
+        "all_pool_controls_match": true
+      }
+    },
+    {
+      "name": "all 21 pooled stage-1 fits and metrics replay",
+      "passed": true,
+      "detail": {
+        "stored_metric_max_abs_error": 1.9073486328125e-06,
+        "cuda_vs_torch_render_max_abs": 2.384185791015625e-07,
+        "cuda_vs_torch_render_mean_abs_mean": 1.0469891646779943e-09,
+        "pool_histories_valid": true,
+        "heldout_fit_absent": true
+      }
+    },
+    {
+      "name": "all frozen stage-1 gates recompute without a passing treatment",
+      "passed": true,
+      "detail": {
+        "wse_vs_density": {
+          "treatment": "pool-structure-wse",
+          "reference": "pool-structure-density",
+          "mean_psnr_delta_db": -0.4384634835379444,
+          "view_wins": 3,
+          "outside_ratio": 1.0917460328240423,
+          "passed": false
+        },
+        "density_vs_gradient": {
+          "treatment": "pool-structure-density",
+          "reference": "pool-gradient",
+          "mean_psnr_delta_db": -2.3161209651402075,
+          "view_wins": 0,
+          "outside_ratio": 1.2854755562228628,
+          "passed": false
+        },
+        "wse_vs_gradient": {
+          "treatment": "pool-structure-wse",
+          "reference": "pool-gradient",
+          "mean_psnr_delta_db": -2.754584448678152,
+          "view_wins": 0,
+          "outside_ratio": 1.4034128387985896,
+          "passed": false
+        }
+      }
+    },
+    {
+      "name": "all 3D NPZ/PLY states are finite and exact metrics replay",
+      "passed": true,
+      "detail": {
+        "metric_replay_max_abs_error": 0.0,
+        "counts": {
+          "pool-gradient": {
+            "initial": 458,
+            "final": 5578
+          },
+          "pool-structure-density": {
+            "initial": 423,
+            "final": 5393
+          },
+          "pool-structure-wse": {
+            "initial": 422,
+            "final": 5553
+          }
+        }
+      }
+    },
+    {
+      "name": "training histories are complete, train-only, final-policy, and recovered after density",
+      "passed": true,
+      "detail": {
+        "pool-gradient": {
+          "density_change_steps": [
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1000
+          ],
+          "last_surgery": 1000,
+          "recovery_steps": 1000,
+          "sampled_view_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        },
+        "pool-structure-density": {
+          "density_change_steps": [
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1000
+          ],
+          "last_surgery": 1000,
+          "recovery_steps": 1000,
+          "sampled_view_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        },
+        "pool-structure-wse": {
+          "density_change_steps": [
+            300,
+            400,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1000
+          ],
+          "last_surgery": 1000,
+          "recovery_steps": 1000,
+          "sampled_view_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        }
+      }
+    },
+    {
+      "name": "frozen downstream gates replay with only WSE versus density passing",
+      "passed": true,
+      "detail": {
+        "wse_vs_density": {
+          "treatment": "pool-structure-wse",
+          "reference": "pool-structure-density",
+          "heldout_psnr_fg_delta_db": 0.11372947692871094,
+          "heldout_alpha_iou_delta": -0.0046479105949401855,
+          "train_psnr_fg_delta_db": 0.1022796630859375,
+          "passed": true
+        },
+        "density_vs_gradient": {
+          "treatment": "pool-structure-density",
+          "reference": "pool-gradient",
+          "heldout_psnr_fg_delta_db": -0.11847114562988281,
+          "heldout_alpha_iou_delta": 0.004914581775665283,
+          "train_psnr_fg_delta_db": 0.1264487675258117,
+          "passed": false
+        },
+        "wse_vs_gradient": {
+          "treatment": "pool-structure-wse",
+          "reference": "pool-gradient",
+          "heldout_psnr_fg_delta_db": -0.004741668701171875,
+          "heldout_alpha_iou_delta": 0.00026667118072509766,
+          "train_psnr_fg_delta_db": 0.2287284306117492,
+          "passed": false
+        }
+      }
+    },
+    {
+      "name": "prior pooled-gradient anchor is hash-bound and config-matched except the new default field",
+      "passed": true,
+      "detail": {
+        "stage1_mean_psnr_fg_delta_db": 0.0007978166852673496,
+        "heldout_final_psnr_fg_delta_db": -0.07692146301269531,
+        "heldout_final_alpha_iou_delta": 0.001910865306854248,
+        "prior_final_count": 5548,
+        "current_final_count": 5578
+      }
+    },
+    {
+      "name": "CPU viewer loaded all six bound models and shut down cleanly",
+      "passed": true,
+      "detail": {
+        "manifest_sha256": "227b48d962778ba74c6e5e89c9e11c415a137e6b94e8d01e750546effe797d6b",
+        "methods": [
+          "pool-gradient",
+          "pool-structure-density",
+          "pool-structure-wse"
+        ],
+        "http_status": 200,
+        "response_bytes": 2888259
+      }
+    },
+    {
+      "name": "all calibrated, cross-arm, and novel-view visuals decode",
+      "passed": true,
+      "detail": {
+        "visual_count": 15,
+        "artifacts": {
+          "runs/pool_structure_wse_frame00008_20260724/stage1_contact_sheet.png": {
+            "size": [
+              1332,
+              316
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_frame00008_20260724/reconstruction_train_C0014.png": {
+            "size": [
+              1332,
+              948
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_frame00008_20260724/reconstruction_heldout_C1004.png": {
+            "size": [
+              1332,
+              948
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-gradient/reconstruction_contact_sheet.png": {
+            "size": [
+              2664,
+              1248
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-gradient/reconstruction.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 8
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-gradient/novel_orbit.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-gradient/novel_elevation.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-structure-density/reconstruction_contact_sheet.png": {
+            "size": [
+              2664,
+              1248
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-structure-density/reconstruction.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 8
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-structure-density/novel_orbit.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-structure-density/novel_elevation.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-structure-wse/reconstruction_contact_sheet.png": {
+            "size": [
+              2664,
+              1248
+            ],
+            "frames": 1
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-structure-wse/reconstruction.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 8
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-structure-wse/novel_orbit.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          },
+          "runs/pool_structure_wse_frame00008_20260724/models/pool-structure-wse/novel_elevation.gif": {
+            "size": [
+              333,
+              288
+            ],
+            "frames": 12
+          }
+        }
+      }
+    }
+  ],
+  "check_summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0
+  },
+  "commands": {
+    "official": "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python benchmarks/pool_structure_wse_frame00008.py --protocol benchmarks/results/20260724_pool_structure_wse_frame00008_PREREG_V3.md --out runs/pool_structure_wse_frame00008_20260724",
+    "audit": "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python benchmarks/audit_pool_structure_wse_frame00008.py",
+    "viewer": "CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest benchmarks/results/20260724_pool_structure_wse_frame00008_VIEWER.json --scene /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16 --device cpu --max-viewer-gaussians 20000 --host 127.0.0.1 --port 8785 --no-open"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "rtgs.viewer-comparison.v1",
+  "methods": [
+    {
+      "name": "baseline",
+      "initial": "../../runs/new_variants_frame00008_20260724_v3/models/baseline/gaussians_init.ply",
+      "final": "../../runs/new_variants_frame00008_20260724_v3/models/baseline/gaussians_final.ply"
+    },
+    {
+      "name": "pool",
+      "initial": "../../runs/new_variants_frame00008_20260724_v3/models/pool/gaussians_init.ply",
+      "final": "../../runs/new_variants_frame00008_20260724_v3/models/pool/gaussians_final.ply"
+    },
+    {
+      "name": "mask-containment",
+      "initial": "../../runs/new_variants_frame00008_20260724_v3/models/mask-containment/gaussians_init.ply",
+      "final": "../../runs/new_variants_frame00008_20260724_v3/models/mask-containment/gaussians_final.ply"
+    },
+    {
+      "name": "structure-tensor",
+      "initial": "../../runs/new_variants_frame00008_20260724_v3/models/structure-tensor/gaussians_init.ply",
+      "final": "../../runs/new_variants_frame00008_20260724_v3/models/structure-tensor/gaussians_final.ply"
+    },
+    {
+      "name": "best-train-checkpoint",
+      "initial": "../../runs/new_variants_frame00008_20260724_v3/models/best-train-checkpoint/gaussians_init.ply",
+      "final": "../../runs/new_variants_frame00008_20260724_v3/models/best-train-checkpoint/gaussians_final.ply"
+    }
+  ]
+}

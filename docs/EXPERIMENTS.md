@@ -17,6 +17,142 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-24 — Pooled structure/WSE trajectories over a fresh 10k schedule
+
+- **Question**: Starting from the exact audited pooled gradient, pooled structure+density, and
+  pooled structure+WSE initializations, does a fresh 10,000-step schedule change their downstream
+  ranking, when do differences appear, and do they persist through 8k and 10k?
+- **Setup**: Frozen protocol
+  `benchmarks/results/20260724_pool_structure_wse_10k_frame00008_PREREG.md`; revision
+  `7772f4fb63bf5b7c6540fbce7dfa3bf578bd7c11` plus the summary-bound dirty tree, seed 0,
+  Janelle `frame_00008` at downscale 16, seven train-only cameras and reporting-only `C1004`.
+  Each arm reused its byte-exact parent initialization, restarted its optimizer, and ran 10,000
+  unpacked antialiased CUDA/gsplat steps with a 10k means-LR schedule. Density ended by completed
+  step 1,000. Complete NPZ+PLY states and post-run train/held-out metrics were saved at
+  2k/4k/6k/8k/10k. Official command:
+  `LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python
+  benchmarks/pool_structure_wse_10k_frame00008.py --protocol
+  benchmarks/results/20260724_pool_structure_wse_10k_frame00008_PREREG.md --out
+  runs/pool_structure_wse_10k_frame00008_20260724`.
+- **Result**: Held-out foreground PSNR at 2k→10k was **22.5578→22.1985 gradient**,
+  **22.1302→21.7950 density**, and **22.7824→22.5687 WSE**. WSE passed the frozen balanced gate
+  against both alternatives at every checkpoint. At 10k it led gradient by **+0.3702 dB**
+  held-out with alpha-IoU **+0.00127** and train foreground PSNR **−0.0825 dB**; it led density by
+  **+0.7737 dB** with alpha-IoU **−0.00068** and train **−0.0328 dB**. Density failed against
+  gradient throughout and ended **−0.4035 dB** held out. Both WSE contrasts passed at 8k and 10k,
+  meeting the preregistered sustained-positive definition. Yet every arm's highest held-out
+  checkpoint was 2k, followed by a 0.214–0.359 dB decline. Independent replay passed **16/16**
+  checks, including every saved state/metric, histories, split, 39 raster visuals, trajectory SVG,
+  30-model viewer, and required results page. Evidence:
+  `benchmarks/results/20260724_pool_structure_wse_10k_frame00008_{RESULT.md,AUDIT.md,AUDIT.json}`.
+- **Conclusion**: Confirm only a scoped downstream result: WSE is sustainedly better than the
+  matched density control and modestly better than pooled gradient under this fresh schedule on
+  one scene/seed/held-out camera. Ten thousand steps do not improve held-out quality. Do not use
+  `C1004` to select 2k, and do not change a default: the parent structure stage-1 gates still
+  failed, no train-only checkpoint validation ran, and replication/generalization remain absent.
+- **Follow-ups/viewer/page**: Add a train-only validation camera before testing an early-stop rule,
+  then repeat across seeds, scenes, and held-out cameras. The complete offline page is
+  `runs/pool_structure_wse_10k_frame00008_20260724/index.html`; its final HTTP smoke checked all
+  40 unique local targets. Inspect all 15 initial/checkpoint pairs with
+  `CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest
+  benchmarks/results/20260724_pool_structure_wse_10k_frame00008_VIEWER.json --scene
+  /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16
+  --device cpu --max-viewer-gaussians 20000 --host 127.0.0.1 --port 8786 --no-open`; the CPU
+  smoke returned HTTP 200 and shut down cleanly.
+
+## 2026-07-24 — Pool + structure tensor with and without WSE on Janelle
+
+- **Question**: Conditional on the fixed-capacity stage-1 pool, does anisotropic Weighted Sample
+  Elimination improve structure-tensor initialization, or is the same density sampling and
+  tensor-oriented covariance sufficient without elimination?
+- **Setup**: Added the opt-in, default-preserving `structure_sampling="density"` control: it keeps
+  the first 640 points from the exact same 2,560-point density candidate stream that WSE reduces
+  to 640. Frozen protocol chain
+  `benchmarks/results/20260724_pool_structure_wse_frame00008_PREREG{,_V2,_V3}.md`; revision
+  `7772f4fb63bf5b7c6540fbce7dfa3bf578bd7c11`, seed 0, Janelle `frame_00008` at downscale 16,
+  seven train-only cameras and held-out `C1004`. Arms were pooled gradient, pooled
+  structure+density/no-WSE, and pooled structure+WSE. Every arm used 640 live/1,280 allocated
+  rows, 300 native-CUDA fit steps, the same 32³/48-sample carve lift, and 2,000 unpacked
+  antialiased gsplat steps. Official command:
+  `LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python
+  benchmarks/pool_structure_wse_frame00008.py --protocol
+  benchmarks/results/20260724_pool_structure_wse_frame00008_PREREG_V3.md --out
+  runs/pool_structure_wse_frame00008_20260724`. V1/V2 source-only preflight failures occurred
+  before any calibrated outcome and are preserved.
+- **Result**: At stage 1, WSE versus matched no-WSE changed mean foreground PSNR by
+  **−0.4385 dB**, won **3/7** cameras, and raised outside coverage 9.17%, so its gate failed.
+  Against pooled gradient, density/no-WSE lost **2.3161 dB** and WSE lost **2.7546 dB**, both
+  with 0/7 wins and worse spill. WSE nevertheless ended **+0.1137 dB** above no-WSE on held-out
+  `C1004` after refinement, within the alpha/train guardrails. Final held-out foreground PSNR was
+  **22.7073 pooled gradient / 22.5888 density / 22.7025 WSE**; neither structure arm passed the
+  anchor-relative +0.10 dB gate. The independently replayed audit passed **15/15** checks. The
+  nominally unchanged pooled anchor itself drifted −0.0769 dB and 5,548→5,578 Gaussians versus
+  the preceding session, narrowing the marginal WSE endpoint observation further. Evidence:
+  `benchmarks/results/20260724_pool_structure_wse_frame00008_{RESULT.md,AUDIT.md,AUDIT.json}`.
+- **Conclusion**: No combined method is a balanced winner. Removing WSE helps the immediate
+  pooled structure fit, while WSE recovers a small downstream edge over that control, but neither
+  beats pooled gradient end to end. Keep gradient initialization, WSE's existing structure-path
+  default, and every production setting unchanged; retain density-prefix sampling only as a
+  research control. This all-pooled study does not estimate a WSE×pool interaction.
+- **Follow-ups/viewer**: Do not sweep this consumed single scene. Any renewed WSE claim needs
+  paired multi-seed repeats, more scenes, and multiple held-out cameras. Visual sheets and per-arm
+  calibrated/novel-view animations are under `runs/pool_structure_wse_frame00008_20260724`.
+  Inspect all six initial/final models with `CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view
+  --comparison-manifest
+  benchmarks/results/20260724_pool_structure_wse_frame00008_VIEWER.json --scene
+  /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16
+  --device cpu --max-viewer-gaussians 20000 --port 8785 --no-open`; the tracked smoke returned
+  HTTP 200 and shut down cleanly.
+
+## 2026-07-24 — All new opt-in variants on Janelle frame 00008
+
+- **Question**: On the same calibrated Janelle frame used by the recent initializer studies, how
+  do the four newly added opt-in paths compare numerically and visually: fixed-capacity
+  pool/free-list stage-1 fitting, soft mask containment, structure-tensor initialization, and
+  train-only best-checkpoint selection?
+- **Setup**: Frozen protocol chain
+  `benchmarks/results/20260724_new_variants_frame00008_PREREG{,_V2,_V3}.md`; revision
+  `7772f4fb63bf5b7c6540fbce7dfa3bf578bd7c11`, seed 0, Janelle `frame_00008` at downscale 16.
+  Cameras `C0001,C0008,C0014,C0021,C0026,C0031,C0039` were train-only and `C1004` was
+  reporting-only. Each stage-1 arm fit 640 live Gaussians for 300 native-CUDA steps per train
+  view. Single-factor arms used a 1,280-capacity/640-live pool, `mask_coverage_weight=5.0`, or
+  `init_strategy=structure_tensor`. All then used the same 32³/48-sample carve lift and 2,000-step
+  unpacked antialiased gsplat DefaultStrategy refinement. The checkpoint arm re-reported the
+  baseline trajectory selected only from train-view PSNR. Official command:
+  `LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python
+  benchmarks/new_variants_frame00008.py --protocol
+  benchmarks/results/20260724_new_variants_frame00008_PREREG_V3.md --out
+  runs/new_variants_frame00008_20260724_v3`. V1 stopped on a reporting-key typo after one unsaved
+  fit; V2 saved all fits but stopped before refinement step 1 on unsupported packed RGB+D random
+  backgrounds; both failures are preserved, and V3 changed only the common layout to unpacked and
+  reran from scratch.
+- **Result**: Pool won stage-1 foreground PSNR on 7/7 views, improving the equal-view mean
+  **24.8360→26.0652 dB (+1.2291)** while reducing outside coverage **13.34%**; its final held-out
+  `C1004` foreground PSNR improved **22.5152→22.7842 dB (+0.2690)** with alpha-IoU
+  **0.95043→0.94498**, passing both frozen gates. Containment reduced outside coverage 90.52% but
+  lost **10.5124 dB** at stage 1 and failed its local gate; surprisingly, its downstream endpoint
+  reached **23.0730 dB (+0.5578)** with alpha-IoU 0.94609. Structure tensor gained **0.8957 dB**
+  at stage 1 but raised outside coverage 38.71%, then gained only **0.0276 dB** downstream.
+  Train-only selection chose the final step 2,000 bit-exactly. The independent replay passed
+  **15/15** checks, including all 28 saved stage-1 fits, exact 3D metric replay, split isolation,
+  histories, 124 bound artifacts, 23 visuals, and the ten-model CPU viewer:
+  `benchmarks/results/20260724_new_variants_frame00008_{RESULT.md,AUDIT.md,AUDIT.json}`.
+- **Conclusion**: Confirm only a narrow single-scene/seed positive result for pool/free-list
+  recycling at matched live count. The containment endpoint is a surprising observation, not
+  evidence for weight 5.0 or a mechanism; structure-tensor and checkpoint-selection claims retire
+  in this scope. Keep every default unchanged. No timing, memory, real-time, or generalization
+  claim is supported.
+- **Follow-ups/viewer**: Replicate baseline versus pool over multiple seeds, scenes, and held-out
+  cameras. Separately sweep lower containment weights while recording stage-1 appearance, carve
+  count, topology, and held-out quality; do not combine treatments before both replicate. Visual
+  sheets and per-arm calibrated/novel-view animations are under
+  `runs/new_variants_frame00008_20260724_v3`. Inspect the five initial/final pairs with
+  `CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest
+  benchmarks/results/20260724_new_variants_frame00008_VIEWER.json --scene
+  /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16
+  --device cpu --max-viewer-gaussians 20000 --port 8784 --no-open`; the tracked smoke returned
+  HTTP 200 and shut down cleanly.
+
 ## 2026-07-23 — Fixed-capacity 2D-gaussian pool + free list (stage-1 scaffold)
 
 - **Question**: Can StructSplat's pooled row lifecycle (ADR-0020) be ported to rtgs stage 1 —

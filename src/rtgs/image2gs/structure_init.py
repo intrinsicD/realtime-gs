@@ -73,6 +73,8 @@ class StructureInitConfig:
     """Shaping exponent: density ~ ``(energy / ref) ** density_power``."""
 
     # --- anisotropic Weighted Sample Elimination --------------------------------------------
+    sampling_mode: str = "wse"
+    """Final placement: ``"wse"`` or matched ``"density"`` without sample elimination."""
     wse_oversample: float = 4.0
     """Draw ``ceil(wse_oversample * N)`` density candidates, then eliminate down to exactly N."""
     wse_alpha: float = 8.0
@@ -87,6 +89,10 @@ class StructureInitConfig:
     """In [0,1]; how strongly coherence drives elongation (0 keeps every gaussian isotropic)."""
 
     def __post_init__(self) -> None:
+        if self.sampling_mode not in ("wse", "density"):
+            raise ValueError(
+                f"sampling_mode must be 'wse' or 'density', got {self.sampling_mode!r}"
+            )
         if self.gradient_operator not in ("central", "sobel"):
             raise ValueError(
                 f"gradient_operator must be 'central' or 'sobel', got {self.gradient_operator!r}"
@@ -504,10 +510,13 @@ def structure_init(
 ) -> StructureInitResult:
     """Feature-aware oriented initialization of ``n`` 2D gaussians for one image.
 
-    Fits a structure tensor, derives a density PMF from its energy, places exactly ``n`` points
-    with anisotropic Weighted Sample Elimination, and builds an oriented anisotropic covariance
-    at each point (edge gaussians elongate along the local edge tangent). Deterministic given
-    ``rng``; torch-free.
+    Fits a structure tensor, derives a density PMF from its energy, places exactly ``n`` points,
+    and builds an oriented anisotropic covariance at each point (edge gaussians elongate along the
+    local edge tangent). The default ``sampling_mode="wse"`` uses anisotropic Weighted Sample
+    Elimination. The matched ``"density"`` control draws the identical oversampled candidate
+    stream but keeps its first ``n`` points, isolating removal of WSE without changing the tensor,
+    density, candidate RNG, orientation, covariance, or count. Deterministic given ``rng``;
+    torch-free.
 
     Args:
         image: ``(H, W, 3)`` (or ``(H, W)``) float array in ``[0, 1]``.
@@ -540,9 +549,15 @@ def structure_init(
     angle_c = tensor.angle[iy, ix].astype(np.float64)
     coh_c = tensor.coherence[iy, ix].astype(np.float64)
 
-    r_i = _target_radius(dens_c, n)
-    metric = _anisotropy_metric(angle_c, _aniso_ratio(coh_c, cfg))
-    keep = _wse_eliminate(cand, n, r_i, metric, cfg.wse_alpha)
+    if cfg.sampling_mode == "wse":
+        r_i = _target_radius(dens_c, n)
+        metric = _anisotropy_metric(angle_c, _aniso_ratio(coh_c, cfg))
+        keep = _wse_eliminate(cand, n, r_i, metric, cfg.wse_alpha)
+    else:
+        # Matched no-WSE control: retain the prefix of the same density-drawn oversample used by
+        # the WSE arm. Candidates after N are deliberately generated but ignored so both modes
+        # consume an identical candidate RNG stream and differ only in subset selection.
+        keep = np.arange(n, dtype=np.int64)
 
     xy = cand[keep]
     xy[:, 0] = np.clip(xy[:, 0], 0.0, w - 1e-3)

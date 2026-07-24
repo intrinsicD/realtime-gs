@@ -32,7 +32,7 @@ pipeline-quality/default question with synthetic-only evidence. If checkpoint or
 selection is needed, freeze a validation subset drawn from training cameras and leave the loader's
 test cameras reporting-only.
 
-## Viewer handoff (mandatory)
+## Viewer and results-page handoff (mandatory)
 
 Use `--out` and keep previews enabled so every results-bearing run writes `gaussians_init.ply`,
 `gaussians.ply`, metrics/history JSON, calibrated comparisons, and novel-view diagnostics. Launch
@@ -50,6 +50,14 @@ preview is qualitative; decision metrics and camera snapshots must come from the
 `Rasterizer` backend. Use Torch snapshots in the current shared environment; its editable
 GaussianImage `gsplat` fork is not the repository's modern 3D gsplat backend.
 
+Every official results-bearing output directory must also contain `index.html`. Generate it from
+the exact saved metrics and visual artifacts, use relative links, and include the protocol,
+summary, result/audit records, viewer manifest, comparison visuals, and saved models relevant to
+the experiment. Bind the page in the machine summary, serve it from the repository root, require
+HTTP 200 for the page and every local target, and preserve a smoke-test receipt. A JSON-only
+handoff is incomplete; synthetic mechanism/unit checks that do not claim an official result are
+exempt.
+
 For sweeps, write a short script under `benchmarks/` (or a throwaway in the scratchpad if
 it should not be kept) that calls `rtgs.pipeline.run_pipeline` directly with varying
 config, seeds fixed.
@@ -60,5 +68,6 @@ Append an entry to `docs/EXPERIMENTS.md` using its template: date, question, set
 (exact command/config + git rev), result numbers, conclusion, and follow-ups. Negative
 results are logged too — they are the point of a research repo. If the experiment changes
 a default hyperparameter, update the config dataclass AND note the entry that justifies it. Also
-record the local `dataset/` scene/split, viewer-ready output directory, and exact `rtgs view`
-command; if the local-data interaction or viewer smoke did not run, label the experiment incomplete.
+record the local `dataset/` scene/split, viewer-ready output directory, exact `rtgs view` command,
+and `index.html` path; if the local-data interaction, viewer smoke, or results-page smoke did not
+run, label the experiment incomplete.
