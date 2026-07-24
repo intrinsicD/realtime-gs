@@ -275,6 +275,18 @@
       stage-1 gates remain failed, `C1004` cannot select an early stop, and defaults stay
       unchanged. Evidence:
       `benchmarks/results/20260724_pool_structure_wse_10k_frame00008_{RESULT.md,AUDIT.md,AUDIT.json}`
+- [x] Implement an opt-in geometrically growing Stage-3 parameter/Adam arena for
+      `gsplat-default` and screen it against two fresh-process dynamic controls on the audited
+      WSE initialization. The run was invalid: the dynamic controls themselves diverged
+      5,424→5,337 Gaussians and 0.1802 dB held out, beginning at the step-400 density event.
+      Descriptive arena event/total ratios versus the faster dynamic control were 1.175×/1.018×,
+      so no speed gate passed and `dynamic` remains the default. Evidence:
+      `benchmarks/results/20260724_geometric_arena_frame00008_{RESULT.md,AUDIT.md,AUDIT.json}`
+- [ ] Validate Stage-3 arena transaction parity on one frozen real pre-density state, accumulated
+      selection tensors, and split offsets shared by both implementations. If exact parity passes,
+      preregister repeated fresh-process timing blocks with explicit warmup exclusion, tolerant
+      quality/count equivalence, multiple scenes, and an idle named GPU; do not reuse independent
+      end-to-end CUDA trajectories as an exact equality oracle.
 - [ ] Replicate baseline versus the fixed-capacity pool across multiple seeds, scenes, and more
       than one held-out camera before considering promotion; match live count and model the
       allocation/runtime cost explicitly in a separate isolated performance pass

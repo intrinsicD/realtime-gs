@@ -17,6 +17,53 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-24 — Geometric Stage-3 Gaussian arena on Janelle
+
+- **Question**: Can a live-shaped, geometrically growing parameter/Adam arena avoid repeated
+  exact-sized allocation during `gsplat-default` clone/split/prune waves without changing the
+  logical result, and does that reduce density-event or end-to-end latency?
+- **Setup**: Added the opt-in `TrainConfig.gaussian_storage_policy="geometric"` research path;
+  `dynamic` remains the default. The arena exposes only its active prefix to autograd/rendering,
+  preallocates parameter and Adam-moment capacity, grows by 2×, zeroes newborn moments, and commits
+  each DefaultStrategy topology wave in one ordered transaction. Frozen protocol
+  `benchmarks/results/20260724_geometric_arena_frame00008_PREREG.md`; source-bound dirty revision
+  `7772f4fb63bf5b7c6540fbce7dfa3bf578bd7c11`, seed 0, the exact 422-Gaussian pooled
+  structure+WSE initialization, Janelle `frame_00008` at downscale 16, seven training cameras and
+  reporting-only `C1004`. Fresh processes ran dynamic-A, geometric, and dynamic-B for 10,000
+  steps, with synchronized density-event timing and full 2k/4k/6k/8k/10k states. Official
+  command: `LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 .venv-cuda/bin/python
+  benchmarks/geometric_arena_frame00008.py`.
+- **Result**: The comparison is **invalid by its frozen control rule**. Dynamic-A ended at 5,424
+  Gaussians and dynamic-B at 5,337, with held-out foreground PSNR 22.3142 versus 22.1340 dB
+  (0.1802 dB drift). All arms matched through the 300-step event, then diverged at step 400:
+  2,098 dynamic-A / 2,094 geometric / 2,096 dynamic-B. The arena ended at 5,395, so its different
+  trajectory cannot be attributed to storage when the nominally identical controls also differ.
+  Descriptively only, synchronized density events took 48.930 / 57.516 / 55.348 ms and native
+  10k elapsed took 39.887 / 40.605 / 41.522 s for dynamic-A / geometric / dynamic-B. Thus the
+  arena was 1.175× the faster dynamic event total and 1.018× its end-to-end time, missing both
+  frozen win gates. Peak allocated memory was 45.793 / 48.032 / 45.688 MiB; the arena migrated
+  four times to capacity 8,192. The producer reduction incorrectly mapped invalid controls to
+  `REJECT_CURRENT_ARENA_CORRECTNESS`; the independent 16/16-check audit preserves the JSON and
+  overrides that label with `INVALID_DYNAMIC_CONTROL_NONREPEATABILITY`.
+- **Conclusion**: Keep exact-sized dynamic storage as the default. This run neither proves an arena
+  correctness defect nor supports a speedup; it shows that end-to-end exact trajectory equality
+  across independent CUDA/gsplat runs is not a valid attribution oracle here. The opt-in arena
+  remains mechanism-tested research code only. No quality, general memory, MCMC/teleportation, or
+  production claim is authorized.
+- **Follow-ups/viewer/page**: First freeze one real pre-density state plus its accumulated
+  selection tensors and random split offsets, then apply the dynamic and arena topology
+  transactions to that identical payload for exact parity. Only then run repeated fresh-process
+  timing blocks with an explicit warmup rule, tolerant preregistered equivalence gates, multiple
+  scenes, and an idle named GPU. The complete page is
+  `runs/geometric_arena_frame00008_20260724/index.html`; its completed-link HTTP smoke and the
+  30-model CPU viewer smoke passed. Inspect the five checkpoints per arm with
+  `CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest
+  benchmarks/results/20260724_geometric_arena_frame00008_VIEWER.json --scene
+  /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16
+  --device cpu --max-viewer-gaussians 20000 --host 127.0.0.1 --port 8787 --no-open`.
+  Evidence:
+  `benchmarks/results/20260724_geometric_arena_frame00008_{RESULT.md,AUDIT.md,AUDIT.json}`.
+
 ## 2026-07-24 — Pooled structure/WSE trajectories over a fresh 10k schedule
 
 - **Question**: Starting from the exact audited pooled gradient, pooled structure+density, and
