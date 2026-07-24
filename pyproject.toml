@@ -52,6 +52,9 @@ markers = [
 line-length = 100
 target-version = "py310"
 src = ["src", "tests", "scripts", "benchmarks"]
+# ruff 0.16 began formatting embedded code in Markdown; keep ruff scoped to Python source so
+# `ruff format --check` does not churn docs and frozen benchmark/PREREG evidence artifacts.
+extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]
