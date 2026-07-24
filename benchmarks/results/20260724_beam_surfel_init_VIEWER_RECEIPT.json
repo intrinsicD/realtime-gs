@@ -1,0 +1,31 @@
+{
+  "schema": "rtgs.beam_surfel_init_viewer_receipt.v1",
+  "command": ".venv/bin/rtgs view --comparison-manifest benchmarks/results/20260724_beam_surfel_init_VIEWER.json --device cpu --port 8794 --no-open",
+  "manifest_sha256": "13e250d401118e36c3a4534870d3bee2a5e8a1d8d9b0d09b618621a117b22e01",
+  "n_methods": 10,
+  "n_models_loaded": 20,
+  "method_names": [
+    "fixed:ci",
+    "fixed:ci-op",
+    "fixed:cover-iso",
+    "fixed:cover-iso-op",
+    "fixed:surfel",
+    "adc:ci",
+    "adc:ci-op",
+    "adc:cover-iso",
+    "adc:cover-iso-op",
+    "adc:surfel"
+  ],
+  "viewer_pid": 16059,
+  "listening_socket": "127.0.0.1:8794",
+  "pid_owns_listening_socket": true,
+  "http_status": 200,
+  "device": "cpu",
+  "cuda_available": false,
+  "results_page": "runs/beam_surfel_init_20260724/index.html",
+  "results_page_bytes": 4007,
+  "results_page_sha256": "0d199b40f7dae937a9811c871380a5bee237f65b699d91159b83d4d1d87be2b7",
+  "results_page_broken_relative_links": "none",
+  "stopped_after_test": true,
+  "note": "WebGL orbit preview is a qualitative diagnostic; all quantitative claims use the exact Torch CPU rasterizer metrics in summary.json."
+}

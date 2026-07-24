@@ -17,6 +17,73 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-24 — Beam covariance answers the wrong question; a cover-consistent rule halves the count
+
+- **Question**: Beam Fusion places components well but their covariances, opacities, and
+  apparent contribution to refinement are poor. Is the covariance simply imprecise, or is it
+  estimating a different quantity than the renderer needs — and does rebuilding extent,
+  orientation, and opacity from a derived surface-cover condition fix coverage, optimization,
+  and densification participation?
+- **Setup**: New opt-in `rtgs.lift.surfel_init`. Frozen protocol
+  `benchmarks/results/20260724_beam_surfel_init_PREREG.md` (sha256 `5430a456…`), harness
+  `benchmarks/beam_surfel_init.py` (sha256 `542d4559…`), base revision `f9336fd`, seed 0. Fresh
+  root `dataset/2025_03_07_stage_with_fabric/frame_00009` (`frame_00008` is a consumed root and
+  was used only to replicate the diagnostic). Train views `[0,3,6,9,12,15,18,21]` feed Beam
+  Fusion and refinement; `[1,13,25]` = `C0004, C0025, C1004` are held out for reporting only.
+  800 components, downscale-32 compact teachers, 1,000 Torch CPU steps, five covariance/opacity
+  arms sharing bit-identical means/SH/count, run under both fixed topology and the frozen
+  20260723 classic density controller. Command:
+  `.venv/bin/python benchmarks/beam_surfel_init.py --protocol
+  benchmarks/results/20260724_beam_surfel_init_PREREG.md --out runs/beam_surfel_init_20260724`.
+  Independent audit `benchmarks/audit_beam_surfel_init.py`: **70/70**.
+- **Result**: The diagnostic is decisive and replicates on both roots. The fused short axis
+  aligns with a local kNN surface normal at mean |cos| **0.531** against a **0.500** random
+  baseline (the contributing cameras span a median **161°** arc, so no direction is
+  under-triangulated). A precision mean is dominated by the sharpest matched observation: the
+  fused sigma is **1.660×** (`frame_00009`) / **1.750×** (`frame_00008`) the *smallest*
+  contributor footprint but only **0.443×** / **0.551×** the *median* one. After **50×**
+  decimation the widest axis reaches only **0.182×** / **0.256×** the distance to the
+  component's own nearest neighbours, so 6.58 primitives would have to overlap to reach alpha
+  0.5 at opacity 0.10. Fixed topology, held out: `ci` init 11.7978 dB / α-IoU 0.00213 → AUC
+  19.4044 → final 21.2741 dB; `ci-op` (opacity only) init 14.4893 / **0.64970** → AUC 19.4395
+  (**+0.18%**) → final 21.2281 (**−0.046 dB**); `cover-iso` (extent only) init 13.8767 / 0.51420
+  → AUC **21.0774 (+8.62%)** → final **21.8594 (+0.585 dB)**; `surfel` init 16.9586 / **0.73315**
+  → AUC 20.8934 (+7.67%) → final 21.6450 (+0.371 dB). With density control the control needed
+  **5,030** primitives for 21.8745 dB held out, while `cover-iso-op` reached **22.3279 dB
+  (+0.4534) with 2,230 (0.443×)** and `cover-iso` 22.2455 dB with **2,156 (0.429×)**; the
+  control ends *higher* on train views (28.6049 vs 27.2435 dB) and *lower* held out. The
+  fraction of original rows meeting the densification criterion was `ci` **0.6125**, `ci-op`
+  **0.7200**, `surfel` **0.2550**. Preregistered verdicts: G2 **pass** (+5.1607 dB), G3 **pass**
+  (+7.6738% AUC, +0.3710 dB final), final-leakage guardrail **pass** (worst 0.04553); G1
+  **fail** (init α-out 0.13125 > 0.05 despite α-IoU 0.73315), G5 **fail** (+0.08346 < 0.10), G4
+  **fail in the opposite direction** (0.42× the control, not ≥5×).
+- **Conclusion**: The covariance is not imprecise — it is the *position-estimator* covariance
+  being used where the renderer needs a *surface-element extent*, and it is additionally blind
+  to the 50× decimation between the 2D fits and the 3D outputs. Extent and optical thickness
+  then do opposite jobs: opacity alone buys the step-0 image and contributes nothing to
+  optimization, while extent alone buys the entire optimization gain from a worse-looking start.
+  This retires the reading that the 20260723 optical-thickness probe identified the primary
+  bottleneck; that probe was render-only and could not see the split. The premise that the
+  initial Gaussians barely participate in densification is also false: because the classic
+  criterion is a screen-space positional gradient and `dG/dmu` scales as `1/sigma`, under-sized
+  primitives qualify *more*, and density control was compensating for the bad initialization by
+  multiplying it — which is why fixing the scale reaches better held-out quality with under half
+  the primitives. Confidence is moderate for the mechanism (replicated on two roots, 70/70
+  audit, bit-identical means/SH/count across arms) and low for any magnitude: one scene, one
+  seed, CPU reference rasterizer, downscale 32, 8 of 26 views, two of three held-out cameras
+  interpolative. Three of five gates failed as frozen, so **no default changes**; `surfel_init`
+  stays opt-in and Beam Fusion keeps CI.
+- **Follow-ups**: (a) preregister the count result directly — equal-final-count and
+  equal-wall-clock comparisons on CUDA gsplat across multiple scenes/seeds with untouched
+  held-out cameras, asking whether control quality is reachable at ~45% of the primitives;
+  (b) treat the silhouette halo as its own treatment (mask-aware or curvature-aware shrink where
+  the surface curves away) with an initial alpha-outside gate — do not select `cover-iso` post
+  hoc from this run; (c) replace the participation gate with densification-per-dB-held-out, now
+  that the criterion is known to fire hardest on under-sized primitives; (d) re-run the
+  diagnostic on a narrow-baseline capture, where the orientation defect should change character
+  because a single direction *is* under-triangulated. Full record:
+  `benchmarks/results/20260724_beam_surfel_init_{PREREG,RESULT}.md`.
+
 ## 2026-07-24 — Geometric Stage-3 Gaussian arena on Janelle
 
 - **Question**: Can a live-shaped, geometrically growing parameter/Adam arena avoid repeated

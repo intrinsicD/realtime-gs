@@ -231,6 +231,33 @@
       identifying optical thickness as the first bottleneck without selecting that multiplier or
       ruling out residual geometry/topology limitations. Evidence:
       `benchmarks/results/20260723_beam_partition_opacity_probe_{RESULT.md,AUDIT.json}`
+- [x] Ask whether Beam's covariance is imprecise or is estimating the wrong quantity. Measured on
+      a fresh `frame_00009` root and replicated on `frame_00008`: the fused short axis aligns with
+      a local kNN surface normal at 0.531 mean |cos| against a 0.500 random baseline (contributing
+      cameras span a median 161-degree arc), a precision mean inherits the sharpest matched
+      observation (1.66-1.75x the smallest contributor footprint, 0.44-0.55x the median), and the
+      widest axis is 0.18-0.26x the nearest-neighbour spacing after 50x decimation. The new opt-in
+      `rtgs.lift.surfel_init` rebuilds extent/orientation/opacity from a derived hexagonal-cover
+      condition plus Beam's own resolution floor. Held out, extent alone gave +8.62% AUC and
+      +0.585 dB final while opacity alone gave +0.18% and -0.046 dB, and with density control the
+      cover arms reached +0.4534 dB at 0.443x the control's final count. Three of five
+      preregistered gates failed (initial outside-alpha 0.13125 vs a 0.05 guardrail; the
+      attribution gate by 0.017; and participation *inversely* — under-sized primitives qualify
+      more, not less, because the screen-gradient criterion scales as 1/sigma). Keep CI, keep
+      `surfel_init` opt-in, no default change. Evidence:
+      `benchmarks/results/20260724_beam_surfel_init_{PREREG,RESULT}.md`
+- [ ] Preregister the count result on its own: equal-final-count and equal-wall-clock
+      cover-consistent versus control initialization on CUDA gsplat, multiple scenes and seeds,
+      untouched held-out cameras. Ask whether control quality is reachable at ~45% of the
+      primitives. Do not reuse `frame_00009`, and do not select `cover-iso` post hoc from the
+      screen that produced it
+- [ ] Treat the initialization's silhouette halo as a separate preregistered treatment: a
+      mask-aware or curvature-aware shrink where the surface curves away from the camera, gated on
+      initial outside-mask alpha. The cover condition assumes a locally planar patch and is
+      therefore wrong exactly at the silhouette
+- [ ] Replace the densification-participation question with densification-per-dB-held-out. The
+      classic criterion fires hardest on under-sized primitives, so raw participation counts
+      measure the defect rather than the fix
 - [ ] Preregister a blockwise Beam initializer bottleneck ladder on train/held-out cameras:
       per-Gaussian optical thickness only, then +covariance, +means, and finally topology. Isolate
       SH/color as a separate appearance block. Score incremental alpha-IoU gap closure with an
