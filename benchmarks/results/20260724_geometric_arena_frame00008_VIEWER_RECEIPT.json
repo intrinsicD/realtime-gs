@@ -1,0 +1,109 @@
+{
+  "schema": "rtgs.geometric_arena_frame00008.viewer_receipt.v1",
+  "checked_utc": "2026-07-24T12:42:17.070895+00:00",
+  "command": "CUDA_VISIBLE_DEVICES='' .venv-cuda/bin/rtgs view --comparison-manifest benchmarks/results/20260724_geometric_arena_frame00008_VIEWER.json --scene /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008 --downscale 16 --device cpu --max-viewer-gaussians 20000 --host 127.0.0.1 --port 8787 --no-open",
+  "manifest": {
+    "path": "benchmarks/results/20260724_geometric_arena_frame00008_VIEWER.json",
+    "sha256": "c84cf82cb93b97d87889e5294c8a236039fe422a8a0bf0961ecd7edf8c6d6118",
+    "method_count": 15,
+    "model_count": 30
+  },
+  "models": [
+    {
+      "name": "dynamic-a @ 2k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "7f92c8e91ede18316c5dd0ed8d6b80123f60eaeb906281774e74133ef043de23"
+    },
+    {
+      "name": "dynamic-a @ 4k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "5746299f6dd46881b0a8d904c5fbf8caf51f477dc00a4599d58fe86811984072"
+    },
+    {
+      "name": "dynamic-a @ 6k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "a573cbf2976a4e358dbf45f165bc1aa4efcd51a1089d89f42fcdd428a5156718"
+    },
+    {
+      "name": "dynamic-a @ 8k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "76973541b31aaeac61238b1065c21261b8414af1069daaf861469af954fd7cbf"
+    },
+    {
+      "name": "dynamic-a @ 10k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "4bb646e053abb5b083d16085e1799c43c4dbf6a8718299af04a7a041755ac0e0"
+    },
+    {
+      "name": "geometric @ 2k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "69cb08abf7b9f4bd943ad3fbc05a3652f6befd354135dd36d92b832df4b65c07"
+    },
+    {
+      "name": "geometric @ 4k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "b86975d3a95cc4151630e33eb59c6da060419b75877ca30f19870ebee11677ea"
+    },
+    {
+      "name": "geometric @ 6k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "ecb276e2a0f29e0074aa45ea895aaffe7fdde97e748109a1bbdcb83eb93f9a37"
+    },
+    {
+      "name": "geometric @ 8k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "62effa4b7e3d3b263b5fcc7c3ba23b68749e7e64bccff139bdaf7410c44ef795"
+    },
+    {
+      "name": "geometric @ 10k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "49dd8c0396d0354d84db356d7c016920c5bdc700a0fedb6829110b2f8136342c"
+    },
+    {
+      "name": "dynamic-b @ 2k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "acd20ce58db19d6b30dd37b481291daba0df73bffecf9ee74c923e13eb8e1765"
+    },
+    {
+      "name": "dynamic-b @ 4k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "d5c4f89b083b43bf78e1116b0eb4ded5497214783bb8d384eed6b2ad2a7e4e7d"
+    },
+    {
+      "name": "dynamic-b @ 6k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "ddfb0f3722d7bd5a33044c2446b05e51cb6dfb1f5e47d07def9a7c0c17485ac9"
+    },
+    {
+      "name": "dynamic-b @ 8k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "69f45d4023addd724e5beb48a2c3bc597a28b08626e6cee50e14892a9e1979b8"
+    },
+    {
+      "name": "dynamic-b @ 10k",
+      "initial_sha256": "338ed545acc8a4dcdd2178538c36f7d34be790719c1c1a411221d1e93d862f46",
+      "final_sha256": "0fa9ee9d9d37569dd37261374cb3cd899d47edcfedfb94a911a422c5fa5f8fad"
+    }
+  ],
+  "server": {
+    "pid": 2295535,
+    "host": "127.0.0.1",
+    "port": 8787,
+    "pid_owned_listening_socket": true,
+    "http_status": 200,
+    "response_bytes": 2888259,
+    "response_sha256": "01d39569615f502a619f2987d09b6680d015808d67788f309c8431a5e9f12757",
+    "rss_kib_at_check": 660976,
+    "cuda_visible_devices": "",
+    "nvidia_compute_processes_at_check": [],
+    "pid_stopped_after_stop": true,
+    "port_closed_after_stop": true
+  },
+  "log": {
+    "path": "runs/geometric_arena_frame00008_20260724/viewer_smoke.log",
+    "sha256": "ed01478231b623559f00764f1c617d4295a7e02235b2f84bcc849227cc091dc6",
+    "bytes": 426
+  },
+  "scope": "CPU HTTP/model-load smoke only; no quality or performance claim",
+  "passed": true
+}
