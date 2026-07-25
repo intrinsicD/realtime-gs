@@ -746,6 +746,74 @@ gsplat split/merge test must be separate because topology can turn the extreme c
 into a different causal mechanism. Exact result and 70/70 scientist pass:
 `benchmarks/results/20260723_beam_partition_covariance_{RESULT,AUDIT}.md`.
 
+### 2.13 Localization covariance is not rendering covariance (2026-07-24)
+
+The two preceding notes both assumed the open question was *how accurately* Beam Fusion recovers a
+3D covariance. Measurement on a fresh root says the question is wrong. Covariance intersection
+estimates where a component **is**; the renderer needs how much surface a primitive **covers**.
+Those quantities differ in three separable ways, all quantified on `frame_00009` and replicated
+on `frame_00008` at 800 components and 8 views.
+
+*Orientation is uninformative.* The fused short axis aligns with a local kNN surface normal at
+mean |cos| 0.531 and the long axis with the mean view direction at 0.540, against a 0.500 random
+baseline. The cause is the rig: contributing cameras span a median 161-degree arc, so no direction
+is systematically under-triangulated and the residual ~4:1 anisotropy is set by heterogeneous
+per-view footprints rather than by geometry. A narrow-baseline capture should behave differently
+and is the obvious falsification test.
+
+*A precision mean inherits the sharpest observation.* `Lambda = mean_k Lambda_k` is dominated by
+the largest precision, so each component takes the tightest 2D Gaussian in its track: fused sigma
+is 1.66-1.75x the smallest contributor footprint but 0.44-0.55x the median, and Spearman
+correlation is higher against the minimum (0.56-0.69) than the median (0.40-0.50). This is correct
+for localization and wrong for extent.
+
+*The covariance is blind to decimation.* Seeding, dedupe, and NMS reduce 40,000 fitted 2D
+Gaussians to 800 outputs, but the covariance still describes the un-decimated observation scale.
+The widest axis reaches 0.18-0.26x the distance to the component's own nearest neighbours, so
+6.58 primitives would have to overlap to reach alpha 0.5 at opacity 0.10.
+
+`rtgs.lift.surfel_init` rebuilds extent, orientation, and opacity from the requirement instead,
+keeping means/SH/count bit-identical: a kNN PCA local frame, `sigma_t = max(0.5 * spacing,
+resolution_floor)` with `0.5` fixed by the hexagonal-cover ripple (1.25% at 0.50 by direct
+summation, 13.3% at 0.40) and the floor taken from Beam's own contributor footprints, a normal
+extent bounded by the localization sigma and a flatness cap, and opacity from inverting
+`1 - (1 - o)^S`. Because the cover term dominates a decimated set and the resolution term a dense
+one, the rule is budget-adaptive rather than an inflation multiplier — the objection that closed
+2.11. On this root the floor bound 323 of 800 components, so both terms are live.
+
+The screen separates two things the 20260723 optical-thickness probe had conflated. Opacity alone
+raises initial alpha IoU 0.00213 to 0.64970 and then contributes nothing (AUC +0.18%, final
+-0.046 dB). Extent alone starts worse (0.51420) and carries the whole optimization gain (AUC
++8.62%, final +0.585 dB). Optical thickness was the bottleneck for the step-zero image only.
+
+The density-control result reverses a standing assumption. Original rows in the *control* meet the
+densification criterion far more often than in the treatment (0.6125 vs 0.2550), because the
+classic criterion is a screen-space positional gradient and `dG/dmu` scales as `1/sigma`: an
+under-sized primitive on a residual has a steeper gradient, not a weaker one. Density control was
+never ignoring the initialization — it was compensating for it by multiplication. Fixing extent
+therefore reduces rather than increases growth, and reaches better held-out quality with 43-46%
+of the primitives (22.3279 dB at 2,230 versus 21.8745 dB at 5,030), while the control ends higher
+on train views and lower held out.
+
+That comparison used unmatched budgets, so it was retested against the alternative that the control
+was simply allowed to overshoot. Under a matched hard budget of 2,400 (three times the frozen
+initialization size) over three seeds, the control does not catch up — it gets worse. Capping it
+costs 0.196 dB against its own uncapped endpoint, so it is capacity-limited rather than greedy,
+while the treatment never reaches the cap and still leads by 0.5074/0.6450/0.8049 dB held out
+(3/3 seeds, `M1_CAPACITY_ADVANTAGE_HOLDS`, leakage guardrail passed). At matched capacity the
+treatment also leads on training views, which removes the "more capacity versus better
+initialization" ambiguity: there is no metric left on which the control is ahead.
+
+**Reuse decision:** keep CI as Beam's covariance and keep `surfel_init` opt-in; three of five
+preregistered gates failed on the screen, including an initial outside-mask leakage of 0.13125
+against a 0.05 guardrail, and the matched-capacity confirmation shares that root. Reuse the *framing*: never treat an estimator covariance as a rendering covariance, and
+size initialization primitives against the output budget rather than the observation scale — this
+applies equally to `splat_sfm` and to any future feed-forward pointmap variant. The count result
+survived its matched-capacity falsification on this root and now deserves a multi-scene,
+CUDA-gsplat preregistration for generalization; the silhouette halo and the densification-per-dB
+question are separate treatments. Exact result and 70/70 audit:
+`benchmarks/results/20260724_beam_surfel_init_RESULT.md`.
+
 ## 3. Depth estimation & feed-forward geometry (variant B backends)
 
 | Model | Output | License | Integration |

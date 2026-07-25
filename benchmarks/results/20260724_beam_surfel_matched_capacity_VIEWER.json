@@ -1,0 +1,50 @@
+{
+  "schema": "rtgs.viewer-comparison.v1",
+  "methods": [
+    {
+      "name": "seed0:ci",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/ci/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_matched_capacity_20260724/seed0/ci/gaussians_final.ply"
+    },
+    {
+      "name": "seed0:surfel",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/surfel/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_matched_capacity_20260724/seed0/surfel/gaussians_final.ply"
+    },
+    {
+      "name": "seed0:cover-iso-op",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/cover-iso-op/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_matched_capacity_20260724/seed0/cover-iso-op/gaussians_final.ply"
+    },
+    {
+      "name": "seed1:ci",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/ci/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_matched_capacity_20260724/seed1/ci/gaussians_final.ply"
+    },
+    {
+      "name": "seed1:surfel",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/surfel/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_matched_capacity_20260724/seed1/surfel/gaussians_final.ply"
+    },
+    {
+      "name": "seed1:cover-iso-op",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/cover-iso-op/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_matched_capacity_20260724/seed1/cover-iso-op/gaussians_final.ply"
+    },
+    {
+      "name": "seed2:ci",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/ci/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_matched_capacity_20260724/seed2/ci/gaussians_final.ply"
+    },
+    {
+      "name": "seed2:surfel",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/surfel/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_matched_capacity_20260724/seed2/surfel/gaussians_final.ply"
+    },
+    {
+      "name": "seed2:cover-iso-op",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/cover-iso-op/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_matched_capacity_20260724/seed2/cover-iso-op/gaussians_final.ply"
+    }
+  ]
+}

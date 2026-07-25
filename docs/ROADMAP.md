@@ -231,6 +231,87 @@
       identifying optical thickness as the first bottleneck without selecting that multiplier or
       ruling out residual geometry/topology limitations. Evidence:
       `benchmarks/results/20260723_beam_partition_opacity_probe_{RESULT.md,AUDIT.json}`
+- [x] Ask whether Beam's covariance is imprecise or is estimating the wrong quantity. Measured on
+      a fresh `frame_00009` root and replicated on `frame_00008`: the fused short axis aligns with
+      a local kNN surface normal at 0.531 mean |cos| against a 0.500 random baseline (contributing
+      cameras span a median 161-degree arc), a precision mean inherits the sharpest matched
+      observation (1.66-1.75x the smallest contributor footprint, 0.44-0.55x the median), and the
+      widest axis is 0.18-0.26x the nearest-neighbour spacing after 50x decimation. The new opt-in
+      `rtgs.lift.surfel_init` rebuilds extent/orientation/opacity from a derived hexagonal-cover
+      condition plus Beam's own resolution floor. Held out, extent alone gave +8.62% AUC and
+      +0.585 dB final while opacity alone gave +0.18% and -0.046 dB, and with density control the
+      cover arms reached +0.4534 dB at 0.443x the control's final count. Three of five
+      preregistered gates failed (initial outside-alpha 0.13125 vs a 0.05 guardrail; the
+      attribution gate by 0.017; and participation *inversely* — under-sized primitives qualify
+      more, not less, because the screen-gradient criterion scales as 1/sigma). Keep CI, keep
+      `surfel_init` opt-in, no default change. Evidence:
+      `benchmarks/results/20260724_beam_surfel_init_{PREREG,RESULT}.md`
+- [x] Falsify the count result under a matched primitive budget before believing it. Same root,
+      hard budget 2,400 (3x `N_init`), seeds 0/1/2, decision rule written to withdraw the claim:
+      `surfel` beat `ci` by +0.5074/+0.6450/+0.8049 dB held out in 3/3 seeds while never reaching
+      the cap that the control did, and the capped control lost 0.196 dB against its own uncapped
+      endpoint — so it was capacity-limited, not overshooting. At matched capacity the treatment
+      also leads on train views, closing the overfit ambiguity. Verdict
+      `M1_CAPACITY_ADVANTAGE_HOLDS`, leakage guardrail passed, no default change. Evidence:
+      `benchmarks/results/20260724_beam_surfel_matched_capacity_{PREREG,RESULT}.md`
+- [x] Measure what the remaining held-out error is actually made of before designing a coverage
+      stage. Interior holes hold 58.93% of the error at initialization but **0.00-0.08% at
+      convergence** (stable across boundary widths and alpha thresholds); the residual is the
+      silhouette band and interior appearance. Hole filling is an initialization problem, not a
+      refinement one. Shares are resolution-sensitive and must be re-measured at downscale 4.
+      Evidence: `benchmarks/residual_decomposition.py`,
+      `runs/beam_surfel_init_20260724/residual_decomposition.json`
+- [ ] Run the GPU transfer chain: measure gsplat's screen-space floor (`gpu_dilation_probe.py`),
+      then the preregistered `cover-iso` versus `ci` comparison at downscale 4 under gsplat Default
+      and separately under MCMC (`gpu_stage1_initialization.py`). The CPU mechanism depends on a
+      0.548 px reference-rasterizer floor that gsplat may not share, so a null there is a real
+      outcome. Protocol: `benchmarks/results/20260725_gpu_stage1_initialization_PREREG.md`;
+      order and decision branches: `benchmarks/results/20260725_gpu_RUNBOOK.md`
+- [ ] Design the coverage stage only from the real-resolution residual decomposition, per the
+      runbook's branch table. Do not preregister a split/birth treatment until holes are shown to
+      be the dominant residual at that resolution
+- [ ] Generalize the confirmed count result: multiple **mask-bearing** scenes, fresh roots, and
+      the production CUDA gsplat strategies (Default and MCMC/relocation) with equal-wall-clock as
+      well as equal-count comparisons. Blocked on data — `karate/frame_00005` and
+      `karate/frame_00060` carry no packed alpha, so the mask-based coverage/leakage protocol
+      cannot run there without confounding scene with supervision regime. Do not select
+      `cover-iso-op` post hoc from the screen that produced it
+- [ ] Treat the initialization's silhouette halo as a separate preregistered treatment: a
+      mask-aware or curvature-aware shrink where the surface curves away from the camera, gated on
+      initial outside-mask alpha. The cover condition assumes a locally planar patch and is
+      therefore wrong exactly at the silhouette
+- [x] Replace the densification-participation question with a birth-attribution measurement. The
+      post-hoc diagnostic settled it: in the control, newborns alone reach 21.459 dB / 0.9250
+      alpha-IoU against the complete model's 21.678 / 0.9205 while its 767 surviving originals
+      alone give 13.458 / 0.4385, so the initialization is close to vestigial; in the treatment
+      neither subset reproduces the whole and the originals hold 0.7355 alpha-IoU with 639
+      primitives. The cause is that split was structurally unavailable to the control — only 2.8%
+      of its originals were above `split_scale_frac * extent` at the first density event, so the
+      controller could only clone them in place. Evidence:
+      `benchmarks/results/20260724_beam_surfel_birth_attribution_RESULT.md`
+- [ ] Sweep `density.start_iter`/`stop_iter` on the **control arm alone**. The scale-gradient
+      diagnostic showed the control's primitives do grow (2.25x over 1,000 steps under a coherent
+      99%-growth-signed gradient) but at ~860 steps per doubling, while density control commits the
+      entire budget between steps 20 and 500 — so topology is decided before the primitives cross
+      the split boundary. If delaying densification recovers much of the gap, part of what has been
+      attributed to initialization scale belongs to schedule timing. Cheapest decisive control in
+      this line; run it before any GPU generalization work
+- [ ] Measure the EWA dilation suppression factor under CUDA gsplat's antialiasing filter. The CPU
+      reference floors the projected footprint at 0.5477 px, which absorbs 88% of any scale change
+      for the control; gsplat's filter differs and the whole mechanism may not transfer
+- [ ] Test a scale-relative split threshold as an alternative fix that requires no initialization
+      change: the current `split_scale_frac * extent` is absolute, so an initializer whose
+      primitives are uniformly small can never reach it
+- [ ] Test `split_scale_frac` as a confound on the control arm alone. If lowering the threshold
+      lets the control split its under-sized primitives and recovers much of the gap, part of the
+      effect attributed to initialization scale belongs to a controller threshold mismatched to
+      it. This is a cheap, decisive control and should run before any GPU generalization work
+- [ ] Measure convergence cost directly — steps and wall-clock to a fixed held-out target, not
+      AUC — on an otherwise idle machine. "Fewer primitives and less total optimization" is
+      implied by the current numbers but was never the measured quantity
+- [ ] Repeat the birth attribution under the production CUDA gsplat strategies. MCMC/relocation
+      replaces clone/split outright, so the clone-in-place mechanism identified here may not exist
+      there and the initialization's value could differ
 - [ ] Preregister a blockwise Beam initializer bottleneck ladder on train/held-out cameras:
       per-Gaussian optical thickness only, then +covariance, +means, and finally topology. Isolate
       SH/color as a separate appearance block. Score incremental alpha-IoU gap closure with an
