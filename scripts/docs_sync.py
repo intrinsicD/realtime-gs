@@ -16,6 +16,11 @@ Checks:
   6. Every path-like reference in CLAUDE.md's repository map exists on disk.
   7. Every public module in src/rtgs has a module docstring.
   8. docs/BENCHMARKS.md contains the auto-generated markers benchmarks/run.py rewrites.
+  9. Every docs/*.md is reachable by name from an entrypoint (CLAUDE.md, README.md, AGENTS.md)
+     directly or through another reachable doc — the reverse of check 6, so a new doc cannot
+     sit in docs/ with no discovery path from the agent guide.
+
+The ``ara/`` claim ledger has its own structural checker: scripts/check_ara.py.
 
 Run: python scripts/docs_sync.py
 """
@@ -134,11 +139,43 @@ def check_claude_md_paths() -> None:
     claude = read(ROOT / "CLAUDE.md")
     # Check path-like tokens that clearly refer to repo files/dirs.
     for token in re.findall(
-        r"(?:^|[\s`(])((?:src|tests|benchmarks|docs|scripts|\.claude|\.github)/[\w./-]*)", claude
+        r"(?:^|[\s`(])((?:src|tests|benchmarks|docs|scripts|ara|dataset|\.claude|\.agents"
+        r"|\.github)/[\w./-]*)",
+        claude,
     ):
         rel = token.rstrip(".,;:")
         if not (ROOT / rel).exists():
             err(f"CLAUDE.md references '{rel}' which does not exist")
+
+
+def check_docs_reachable() -> None:
+    """Every docs/*.md must be discoverable by name from an entrypoint.
+
+    check_claude_md_paths() proves the paths CLAUDE.md names exist. This is the other
+    direction: a doc added to docs/ with no reference from CLAUDE.md, README.md, AGENTS.md, or
+    a doc those reach is invisible to an agent reading the guide. Reachability is transitive so
+    a task/design note referenced from ROADMAP.md or EXPERIMENTS.md still counts.
+    """
+    docs_dir = ROOT / "docs"
+    if not docs_dir.is_dir():
+        err("missing docs/ directory")
+        return
+    all_docs = {p.name for p in docs_dir.glob("*.md")}
+
+    reachable: set[str] = set()
+    frontier = [read(ROOT / name) for name in ("CLAUDE.md", "README.md", "AGENTS.md")]
+    while frontier:
+        text = frontier.pop()
+        for name in sorted(all_docs - reachable):
+            if name in text:
+                reachable.add(name)
+                frontier.append(read(docs_dir / name))
+
+    for name in sorted(all_docs - reachable):
+        err(
+            f"docs/{name} is not referenced from CLAUDE.md, README.md, AGENTS.md, or any doc "
+            "they reach (add it to the CLAUDE.md repository map or link it from a listed doc)"
+        )
 
 
 def check_module_docstrings() -> None:
@@ -165,6 +202,7 @@ def main() -> int:
     check_lifters_documented()
     check_skills_listed()
     check_claude_md_paths()
+    check_docs_reachable()
     check_module_docstrings()
     check_benchmark_markers()
     if errors:

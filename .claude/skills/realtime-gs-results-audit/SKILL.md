@@ -1,6 +1,6 @@
 ---
 name: realtime-gs-results-audit
-description: Adversarial referee pass ("scientist pass") over realtime-gs claims, experiments, benchmarks, and causal or confirmatory evidence. Use before quantitative or capability claims enter README.md or docs/, after an experiment or benchmark session, before changing a default or closing a roadmap question, when reviewing a results-bearing PR or commit, or whenever preregistered, held-out, real-data, or GPU numbers lack an independent audit. Do not use to propose or run a new experiment; use the experiment or bench skill for that.
+description: Adversarial referee pass ("scientist pass") over realtime-gs claims, experiments, benchmarks, and causal or confirmatory evidence. Use before quantitative or capability claims enter README.md or docs/, after an experiment or benchmark session, before changing a default or closing a roadmap question, when reviewing a results-bearing PR or commit, or whenever preregistered, held-out, real-data, or GPU numbers lack an independent audit. Do not use to propose or run a new experiment; use the rtgs-experiment or rtgs-bench skill for that.
 license: MIT
 metadata:
   version: "1.0.0"
