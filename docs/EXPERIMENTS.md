@@ -17,6 +17,211 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-25 — Stage 0: interior holes are not the remaining problem; the silhouette is
+
+- **Question**: post-hoc diagnostic, selects nothing. Before spending a stage on "fill internal
+  holes with split and birth", is that actually where the remaining held-out error lives?
+- **Setup**: `benchmarks/residual_decomposition.py` over the saved `frame_00009` models. Held-out
+  L1 error split into four disjoint regions — interior holes (inside the eroded mask, alpha below
+  threshold), interior covered (geometry present, so error there is *appearance*), the silhouette
+  band, and exterior leak. Reported over an alpha-threshold sweep (0.1/0.3/0.5) and a boundary-width
+  sweep (1/2/3 px) because single-threshold summaries misled this project before, plus a pure-torch
+  connected-component analysis of the holes.
+- **Result**: at **initialization**, `ci` has interior holes holding **58.93%** of the error with a
+  99.65% interior hole fraction concentrated in a few large patches (largest component 1,271 px,
+  97.7% of hole pixels). At **convergence** those holes are gone: `ci` final **0.06%** of error
+  (2 px, both single-pixel), `surfel` final **0.00%** (0 px). The residual is instead the
+  silhouette band and interior appearance. Region shares are boundary-width dependent — at radius
+  1/2/3 px the boundary holds 47.02% / 66.31% / 76.50% and interior appearance 45.23% / 31.90% /
+  22.85% — but the near-zero hole share is stable across every width and threshold, and boundary
+  error *density* is consistently 2–2.7× the interior's.
+- **Conclusion**: filling interior holes is an **initialization-stage** problem, not a
+  refinement-stage one. Optimization already closes them completely, which is precisely what
+  `surfel_init` short-circuits by starting from a cover. A planned stage aimed at "more coverage
+  via split and birth" would therefore have targeted a problem that no longer exists at
+  convergence. The dominant remaining terms are the silhouette band — the same defect as the
+  screen's failed G1 leakage gate, now shown to be the *largest* error term rather than a cosmetic
+  initialization artefact — and interior appearance. Confidence: moderate for the ordering, low for
+  the exact shares, because at downscale 32 the object spans ~40 px so a 2 px band is 24% of all
+  pixels; the shares must be re-measured at real resolution before any stage is designed on them.
+- **Follow-ups**: (a) re-run at downscale 4 on GPU, which `benchmarks/gpu_stage1_initialization.py`
+  does automatically per arm; (b) design the coverage stage only after that, per the branch table in
+  `benchmarks/results/20260725_gpu_RUNBOOK.md`; (c) if the boundary term survives at real
+  resolution, the treatment is a silhouette-aware initialization rule — the cover condition assumes
+  a locally planar patch and is provably wrong where the surface curves away from the camera;
+  (d) freeze SH at degree 0 during any geometry stage so colour cannot absorb geometric error.
+
+## 2026-07-24 — Why an under-sized primitive does not grow: it does, but loses a race
+
+- **Question**: post-hoc diagnostic, selects nothing. If the control's primitives sit below the
+  split boundary, why does gradient descent not simply grow them until they cover? Every earlier
+  run measured outcomes; none measured the gradient the optimizer actually receives.
+- **Setup**: `benchmarks/beam_surfel_scale_gradient.py` on the frozen `frame_00009`
+  initializations. One forward/backward of the trainer's masked loss per training view, capturing
+  `dL/d log_scale`, `dL/d mu`, `dL/d opacity_logit` per Gaussian, plus intrinsic (undilated)
+  projected sigma and per-Gaussian sign consistency `|mean|/RMS` across views — the quantity that
+  decides whether Adam, which normalizes magnitude, can move a parameter at all.
+- **Result**: the reference rasterizer adds `Sigma_2D = J Sigma J^T + 0.3 I` px², a **0.5477 px**
+  floor. `ci` projects to **0.2015 px** with **98.0%** below that floor, so the primitive supplies
+  only **11.9%** of the rendered variance; its `|dL/d log s|` is 4.86e-06 versus `cover-iso`'s
+  4.83e-05 (10× smaller) and its scale/position gradient ratio is 0.0126 versus 0.0541 (4.3×
+  smaller relative). **But the gradient is not the blocker**: 99.0% of the control's primitives
+  point toward growth at sign consistency 0.8592, and the identity-tracked run measured its
+  survivors growing 0.00739 → 0.01660 world sigma over 1,000 steps (2.25×, `Δ log s = 0.809`,
+  `8.1e-4`/step against `lr = 5e-3`, ~860 steps per doubling). Density control runs steps 20–500
+  and commits the whole budget while `Δ log s ≈ 0.4` — sigma ≈ 0.011, still under the 0.02229
+  split boundary — which is exactly the measured split-eligibility of **2.8%** at the first
+  density event rising to only **24.0%** at the last. Separately and unplanned: `surfel`'s signed
+  mean `dL/d log s` is **−4.06e-07** with 52.4% pointing to growth and consistency 0.4154, i.e.
+  the derived cover scale sits at the **zero crossing of the scale gradient**, while `ci` sits far
+  from it (−4.69e-06, 99.0%, 0.8592) and isotropic `cover-iso-op` overshoots the other way (35.5%
+  pointing to growth).
+- **Conclusion**: "the gradient vanishes" is wrong and was the hypothesis this run was written to
+  test. The control's primitives grow steadily under a coherent signal; they simply grow an order
+  of magnitude too slowly relative to the density schedule, which reads the scale as it is at
+  steps 20–500 and spends the entire budget on clone-in-place before the primitives ever cross the
+  split threshold. Growth by gradient descent and topology decision by density control share a
+  clock, and the initialization loses the race. Three distinct fixes follow — correct the scale up
+  front, delay densification until scales converge, or make the split threshold scale-relative —
+  and this session only tested the first. The fixed-point agreement is stronger evidence for the
+  hexagonal-cover derivation than any preregistered gate in this line: the analytic condition and
+  the optimizer's own optimum agree to within a gradient an order of magnitude below the control's.
+  Confidence: moderate for the mechanism, low for the rate — gradients evaluated at step 0 only,
+  growth rate inferred from an endpoint rather than a logged trajectory, one scene, one seed, CPU
+  reference rasterizer. `EWA_DILATION = 0.3` px² is this repo's convention; CUDA gsplat's filter
+  differs and its suppression factor must be measured, not assumed.
+- **Follow-ups**: (a) the cheapest decisive control in this whole line — sweep
+  `density.start_iter`/`stop_iter` on the **control arm alone**; if delaying densification until
+  scales have grown recovers much of the gap, part of what has been attributed to initialization
+  scale belongs to schedule timing; (b) log the per-step scale trajectory instead of inferring an
+  average rate; (c) measure the suppression factor under CUDA gsplat's antialiasing, where the
+  floor and therefore the whole mechanism may differ; (d) test a scale-relative split threshold as
+  an alternative fix that needs no initialization change. Full record:
+  `benchmarks/results/20260724_beam_surfel_scale_gradient_RESULT.md`.
+
+## 2026-07-24 — The control's initialization is vestigial: split was structurally unavailable
+
+- **Question**: post-hoc diagnostic, selects nothing. At a matched budget the cover-consistent
+  initialization wins, but is that because its initial Gaussians are *refined into* the answer, or
+  because both arms simply rebuild the answer by birth and one seeds it better? And why did split
+  — the operator that should propagate good positions into coverage — apparently do so little?
+- **Setup**: `benchmarks/beam_surfel_birth_attribution.py`, `frame_00009`, seed 0, matched budget
+  2,400, 1,000 steps, otherwise the frozen protocol. Every initial row's physical identity is
+  carried through clone/split/prune (a split *replaces* its parent, so a split original stops
+  counting as surviving). Three subsets of the same final model are rendered on the held-out
+  cameras: all, surviving originals only, newborns only. Alpha compositing is not additive, so
+  these are self-consistent sub-models rather than an attribution of variance; alpha-IoU is the
+  interpretable subset statistic. Split boundary `0.01 * extent = 0.02229` world sigma.
+- **Result**: `ci` ends 767 originals + 1,633 newborns; **newborns alone reach 21.459 dB /
+  0.9250 alpha-IoU against the complete model's 21.678 / 0.9205**, while the 767 originals alone
+  give 13.458 / 0.4385 — barely above their own 11.798 dB initialization — and end *smaller*
+  (0.01660 vs 0.03135 median sigma) and *less opaque* (0.0317 vs 0.0737) than their own
+  descendants. `surfel` ends 639 originals + 1,648 newborns and **neither subset reproduces the
+  whole**: originals 14.182 / **0.7355**, newborns 20.649 / 0.8413, all 22.186 / 0.9241; its
+  originals stay the largest primitives (0.05847 vs 0.02915). Count-favorable comparison: the
+  treatment's originals hold 0.7355 alpha-IoU with **639** primitives versus the control's 0.4385
+  with **767**. Survivor displacement is similar in absolute terms (0.01515 vs 0.01843 world,
+  both ~0.4x the 0.0409 median spacing) but **2.015x their own sigma** (p90 4.338) for the control
+  versus **0.815x** (p90 1.387) for the treatment. Decisively: at the first density event only
+  **2.8%** of the control's originals were above the split boundary, reaching 24.0% by the last;
+  the treatment started at **63.2%** and ended at **97.2%**.
+- **Conclusion**: in the control the initialization is close to vestigial — it seeds, then the
+  answer is rebuilt by birth and the originals are out-scaled and out-opacified by their own
+  descendants. In the treatment the originals remain load-bearing surface and the newborns add
+  detail on top. The reason split "did nothing" is that it was **structurally unavailable**: 97%
+  of the control's initial primitives sat below the split threshold, so the controller could only
+  clone them *in place*, duplicating a too-small Gaussian at the same location — which adds
+  optical mass but does not fill space. Split, the operator that displaces children by a draw
+  from the parent's own covariance (in the tangent plane for a surfel), is how good positions
+  actually become coverage, and fixing the extent is what opened it. This also explains the
+  earlier inverted participation counts: the control's originals fired the `1/sigma` gradient
+  criterion more often (0.6125 vs 0.2550) *because* they were under-sized, and every firing
+  produced a clone in place. High participation was the symptom, not the cure. Confidence:
+  moderate for the mechanism, low for magnitudes — one scene, one seed, CPU reference rasterizer,
+  classic controller, and split-eligibility bounds what the controller *can* do rather than
+  counting what it did.
+- **Follow-ups**: (a) measure convergence *cost* directly — steps and wall-clock to a fixed
+  held-out target — since "less optimization in total" is implied by these numbers but was never
+  the measured quantity; (b) test whether `split_scale_frac` is the real lever on the control arm
+  alone: lowering it should let the control split and would separate "the initialization was
+  badly scaled" from "the controller's threshold was mismatched to it"; (c) repeat the subset
+  attribution on the production CUDA gsplat strategies, where MCMC relocation replaces
+  clone/split entirely and this mechanism may not exist. Full record:
+  `benchmarks/results/20260724_beam_surfel_birth_attribution_RESULT.md`.
+
+## 2026-07-24 — Beam covariance answers the wrong question; a cover-consistent rule halves the count
+
+- **Question**: Beam Fusion places components well but their covariances, opacities, and
+  apparent contribution to refinement are poor. Is the covariance simply imprecise, or is it
+  estimating a different quantity than the renderer needs — and does rebuilding extent,
+  orientation, and opacity from a derived surface-cover condition fix coverage, optimization,
+  and densification participation?
+- **Setup**: New opt-in `rtgs.lift.surfel_init`. Frozen protocol
+  `benchmarks/results/20260724_beam_surfel_init_PREREG.md` (sha256 `5430a456…`), harness
+  `benchmarks/beam_surfel_init.py` (sha256 `542d4559…`), base revision `f9336fd`, seed 0. Fresh
+  root `dataset/2025_03_07_stage_with_fabric/frame_00009` (`frame_00008` is a consumed root and
+  was used only to replicate the diagnostic). Train views `[0,3,6,9,12,15,18,21]` feed Beam
+  Fusion and refinement; `[1,13,25]` = `C0004, C0025, C1004` are held out for reporting only.
+  800 components, downscale-32 compact teachers, 1,000 Torch CPU steps, five covariance/opacity
+  arms sharing bit-identical means/SH/count, run under both fixed topology and the frozen
+  20260723 classic density controller. Command:
+  `.venv/bin/python benchmarks/beam_surfel_init.py --protocol
+  benchmarks/results/20260724_beam_surfel_init_PREREG.md --out runs/beam_surfel_init_20260724`.
+  Independent audit `benchmarks/audit_beam_surfel_init.py`: **70/70**.
+- **Result**: The diagnostic is decisive and replicates on both roots. The fused short axis
+  aligns with a local kNN surface normal at mean |cos| **0.531** against a **0.500** random
+  baseline (the contributing cameras span a median **161°** arc, so no direction is
+  under-triangulated). A precision mean is dominated by the sharpest matched observation: the
+  fused sigma is **1.660×** (`frame_00009`) / **1.750×** (`frame_00008`) the *smallest*
+  contributor footprint but only **0.443×** / **0.551×** the *median* one. After **50×**
+  decimation the widest axis reaches only **0.182×** / **0.256×** the distance to the
+  component's own nearest neighbours, so 6.58 primitives would have to overlap to reach alpha
+  0.5 at opacity 0.10. Fixed topology, held out: `ci` init 11.7978 dB / α-IoU 0.00213 → AUC
+  19.4044 → final 21.2741 dB; `ci-op` (opacity only) init 14.4893 / **0.64970** → AUC 19.4395
+  (**+0.18%**) → final 21.2281 (**−0.046 dB**); `cover-iso` (extent only) init 13.8767 / 0.51420
+  → AUC **21.0774 (+8.62%)** → final **21.8594 (+0.585 dB)**; `surfel` init 16.9586 / **0.73315**
+  → AUC 20.8934 (+7.67%) → final 21.6450 (+0.371 dB). With density control the control needed
+  **5,030** primitives for 21.8745 dB held out, while `cover-iso-op` reached **22.3279 dB
+  (+0.4534) with 2,230 (0.443×)** and `cover-iso` 22.2455 dB with **2,156 (0.429×)**; the
+  control ends *higher* on train views (28.6049 vs 27.2435 dB) and *lower* held out. The
+  fraction of original rows meeting the densification criterion was `ci` **0.6125**, `ci-op`
+  **0.7200**, `surfel` **0.2550**. Preregistered verdicts: G2 **pass** (+5.1607 dB), G3 **pass**
+  (+7.6738% AUC, +0.3710 dB final), final-leakage guardrail **pass** (worst 0.04553); G1
+  **fail** (init α-out 0.13125 > 0.05 despite α-IoU 0.73315), G5 **fail** (+0.08346 < 0.10), G4
+  **fail in the opposite direction** (0.42× the control, not ≥5×).
+- **Conclusion**: The covariance is not imprecise — it is the *position-estimator* covariance
+  being used where the renderer needs a *surface-element extent*, and it is additionally blind
+  to the 50× decimation between the 2D fits and the 3D outputs. Extent and optical thickness
+  then do opposite jobs: opacity alone buys the step-0 image and contributes nothing to
+  optimization, while extent alone buys the entire optimization gain from a worse-looking start.
+  This retires the reading that the 20260723 optical-thickness probe identified the primary
+  bottleneck; that probe was render-only and could not see the split. The premise that the
+  initial Gaussians barely participate in densification is also false: because the classic
+  criterion is a screen-space positional gradient and `dG/dmu` scales as `1/sigma`, under-sized
+  primitives qualify *more*, and density control was compensating for the bad initialization by
+  multiplying it — which is why fixing the scale reaches better held-out quality with under half
+  the primitives. Confidence is moderate for the mechanism (replicated on two roots, 70/70
+  audit, bit-identical means/SH/count across arms) and low for any magnitude: one scene, one
+  seed, CPU reference rasterizer, downscale 32, 8 of 26 views, two of three held-out cameras
+  interpolative. Three of five gates failed as frozen, so **no default changes**; `surfel_init`
+  stays opt-in and Beam Fusion keeps CI.
+- **Follow-ups**: (a) **executed the same day, same root** — a matched hard budget of 2,400
+  (3x `N_init`) over seeds 0/1/2 was run specifically to withdraw the count claim, and it
+  survived unanimously: `surfel` − `ci` = +0.5074 / +0.6450 / +0.8049 dB held out with the
+  treatment never reaching the cap while the control did, verdict
+  `M1_CAPACITY_ADVANTAGE_HOLDS`, guardrail passed, and the capped control 0.196 dB *below* its
+  own uncapped endpoint — so the control was capacity-limited, not overshooting, and at matched
+  capacity it trails on train views too. Generalization across mask-bearing scenes and the
+  production CUDA gsplat strategies remains open (both other checked-in roots lack packed
+  alpha). See `benchmarks/results/20260724_beam_surfel_matched_capacity_RESULT.md`;
+  (b) treat the silhouette halo as its own treatment (mask-aware or curvature-aware shrink where
+  the surface curves away) with an initial alpha-outside gate — do not select `cover-iso` post
+  hoc from this run; (c) replace the participation gate with densification-per-dB-held-out, now
+  that the criterion is known to fire hardest on under-sized primitives; (d) re-run the
+  diagnostic on a narrow-baseline capture, where the orientation defect should change character
+  because a single direction *is* under-triangulated. Full record:
+  `benchmarks/results/20260724_beam_surfel_init_{PREREG,RESULT}.md`.
+
 ## 2026-07-24 — Geometric Stage-3 Gaussian arena on Janelle
 
 - **Question**: Can a live-shaped, geometrically growing parameter/Adam arena avoid repeated

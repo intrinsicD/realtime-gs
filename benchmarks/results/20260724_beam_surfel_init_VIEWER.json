@@ -1,0 +1,55 @@
+{
+  "schema": "rtgs.viewer-comparison.v1",
+  "methods": [
+    {
+      "name": "fixed:ci",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/ci/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/fixed/ci/gaussians_final.ply"
+    },
+    {
+      "name": "fixed:ci-op",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/ci-op/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/fixed/ci-op/gaussians_final.ply"
+    },
+    {
+      "name": "fixed:cover-iso",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/cover-iso/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/fixed/cover-iso/gaussians_final.ply"
+    },
+    {
+      "name": "fixed:cover-iso-op",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/cover-iso-op/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/fixed/cover-iso-op/gaussians_final.ply"
+    },
+    {
+      "name": "fixed:surfel",
+      "initial": "../../runs/beam_surfel_init_20260724/fixed/surfel/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/fixed/surfel/gaussians_final.ply"
+    },
+    {
+      "name": "adc:ci",
+      "initial": "../../runs/beam_surfel_init_20260724/adc/ci/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/adc/ci/gaussians_final.ply"
+    },
+    {
+      "name": "adc:ci-op",
+      "initial": "../../runs/beam_surfel_init_20260724/adc/ci-op/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/adc/ci-op/gaussians_final.ply"
+    },
+    {
+      "name": "adc:cover-iso",
+      "initial": "../../runs/beam_surfel_init_20260724/adc/cover-iso/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/adc/cover-iso/gaussians_final.ply"
+    },
+    {
+      "name": "adc:cover-iso-op",
+      "initial": "../../runs/beam_surfel_init_20260724/adc/cover-iso-op/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/adc/cover-iso-op/gaussians_final.ply"
+    },
+    {
+      "name": "adc:surfel",
+      "initial": "../../runs/beam_surfel_init_20260724/adc/surfel/gaussians_init.ply",
+      "final": "../../runs/beam_surfel_init_20260724/adc/surfel/gaussians_final.ply"
+    }
+  ]
+}

@@ -71,7 +71,8 @@ src/rtgs/
                metrics — shared math & containers
   image2gs/    stage 1: differentiable 2D splatting (serial + fused batch_views),
                native/StructSplat fitting, adapters; experimental CUDA ext in cuda_backend.py
-  lift/        stage 2: gradient/depth/hybrid/carve/field, compact_carve, field_* and merge
+  lift/        stage 2: gradient/depth/hybrid/carve/field, compact_carve, beam_fusion,
+               surfel_init (cover-consistent covariance/opacity post-process), field_* and merge
   depth/       DepthBackend protocol, mock (tests), depth_anything (lazy), align (scale/shift)
   render/      dense Rasterizer (torch CPU ref, gsplat CUDA); sparse PointRasterizer (torch CPU)
   optim/       stage 3: RGB trainer.py; RGB-free fixed-topology compact_trainer.py;

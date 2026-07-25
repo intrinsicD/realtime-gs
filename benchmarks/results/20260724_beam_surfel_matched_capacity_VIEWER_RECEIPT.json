@@ -1,0 +1,18 @@
+{
+  "schema": "rtgs.beam_surfel_matched_capacity_viewer_receipt.v1",
+  "command": ".venv/bin/rtgs view --comparison-manifest benchmarks/results/20260724_beam_surfel_matched_capacity_VIEWER.json --device cpu --port 8795 --no-open",
+  "manifest_sha256": "a97fb73cd0302f0f31551af68b4b4f683c265c3e182fa6e6c30aa40ba3e84518",
+  "n_methods": 9,
+  "n_models_loaded": 18,
+  "viewer_pid": 31973,
+  "listening_socket": "127.0.0.1:8795",
+  "pid_owns_listening_socket": true,
+  "http_status": 200,
+  "device": "cpu",
+  "cuda_available": false,
+  "results_page": "runs/beam_surfel_matched_capacity_20260724/index.html",
+  "results_page_sha256": "ce9ed26244dea02d8b804092658cba8fddcdc5bd76a6219c451038c7846f8990",
+  "results_page_broken_relative_links": "none",
+  "stopped_after_test": true,
+  "note": "`initial` entries point at the shared initialization saved by the screen under test; only the matched-budget finals belong to this run."
+}
