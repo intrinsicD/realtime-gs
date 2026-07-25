@@ -1,5 +1,5 @@
 ---
-name: bench
+name: rtgs-bench
 description: Run the benchmark suite and update docs/BENCHMARKS.md. Use after performance-relevant changes (renderers, fitting loops, lifters, trainer) or when asked how fast/accurate the pipeline is.
 ---
 

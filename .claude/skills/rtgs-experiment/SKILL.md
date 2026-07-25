@@ -1,5 +1,5 @@
 ---
-name: experiment
+name: rtgs-experiment
 description: Run a research experiment on the pipeline (compare lifting variants, sweep a hyperparameter, test a hypothesis) and log the outcome in docs/EXPERIMENTS.md. Use for any "does X help / which variant is better / try Y" request.
 ---
 
@@ -58,6 +58,18 @@ HTTP 200 for the page and every local target, and preserve a smoke-test receipt.
 handoff is incomplete; synthetic mechanism/unit checks that do not claim an official result are
 exempt.
 
+Gate the bundle before reporting:
+
+```bash
+.venv/bin/python scripts/check_results_bundle.py runs/<name>
+```
+
+It checks the required artifacts and previews, that `index.html` uses relative links which all
+resolve, that the page carries the summary numbers rather than only linking `metrics.json`, and
+that a receipt records both the page smoke test and the exact `rtgs view` command. Pass
+`--no-previews` only for a legitimately preview-free run. A bundle that does not pass is not a
+results-bearing run, and its numbers do not go in a handoff.
+
 For sweeps, write a short script under `benchmarks/` (or a throwaway in the scratchpad if
 it should not be kept) that calls `rtgs.pipeline.run_pipeline` directly with varying
 config, seeds fixed.
@@ -71,3 +83,11 @@ a default hyperparameter, update the config dataclass AND note the entry that ju
 record the local `dataset/` scene/split, viewer-ready output directory, exact `rtgs view` command,
 and `index.html` path; if the local-data interaction, viewer smoke, or results-page smoke did not
 run, label the experiment incomplete.
+
+If the experiment produced or changed a claim, add or update its row in `ara/logic/claims.md` in
+the same commit, with a `Proof` binding to the artifact and a `Boundary` recording what the run
+does *not* establish. Stage a not-yet-promoted finding as an `O<NN>` observation in
+`ara/staging/observations.yaml` instead. `.venv/bin/python scripts/check_ara.py` verifies the
+structure; see the "Evidence and claims" section of CLAUDE.md.
+
+One-off sweep drivers go in `scripts/experiments/`, not the top level of `scripts/`.

@@ -34,7 +34,7 @@
 > research objective, pause and ask the researcher for direction.
 
 This controller prompt was executed on 2026-07-14 with the repository's
-`.claude/skills/experiment/SKILL.md` workflow. Each iteration-specific revision below was written
+`.claude/skills/rtgs-experiment/SKILL.md` workflow. Each iteration-specific revision below was written
 before the next implementation or experiment, and every numerical result is preserved under
 `benchmarks/results/` and summarized in `docs/EXPERIMENTS.md`.
 

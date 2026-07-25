@@ -27,5 +27,9 @@ jobs:
         run: pytest -q -m "not slow"
       - name: Docs sync
         run: python scripts/docs_sync.py
+      - name: ARA claim ledger
+        run: python scripts/check_ara.py
+      - name: Script layout
+        run: python scripts/check_script_layout.py
       - name: Benchmark smoke (quick, no docs update)
         run: python benchmarks/run.py --quick --smoke
