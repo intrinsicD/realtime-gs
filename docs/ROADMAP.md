@@ -254,6 +254,22 @@
       also leads on train views, closing the overfit ambiguity. Verdict
       `M1_CAPACITY_ADVANTAGE_HOLDS`, leakage guardrail passed, no default change. Evidence:
       `benchmarks/results/20260724_beam_surfel_matched_capacity_{PREREG,RESULT}.md`
+- [x] Measure what the remaining held-out error is actually made of before designing a coverage
+      stage. Interior holes hold 58.93% of the error at initialization but **0.00-0.08% at
+      convergence** (stable across boundary widths and alpha thresholds); the residual is the
+      silhouette band and interior appearance. Hole filling is an initialization problem, not a
+      refinement one. Shares are resolution-sensitive and must be re-measured at downscale 4.
+      Evidence: `benchmarks/residual_decomposition.py`,
+      `runs/beam_surfel_init_20260724/residual_decomposition.json`
+- [ ] Run the GPU transfer chain: measure gsplat's screen-space floor (`gpu_dilation_probe.py`),
+      then the preregistered `cover-iso` versus `ci` comparison at downscale 4 under gsplat Default
+      and separately under MCMC (`gpu_stage1_initialization.py`). The CPU mechanism depends on a
+      0.548 px reference-rasterizer floor that gsplat may not share, so a null there is a real
+      outcome. Protocol: `benchmarks/results/20260725_gpu_stage1_initialization_PREREG.md`;
+      order and decision branches: `benchmarks/results/20260725_gpu_RUNBOOK.md`
+- [ ] Design the coverage stage only from the real-resolution residual decomposition, per the
+      runbook's branch table. Do not preregister a split/birth treatment until holes are shown to
+      be the dominant residual at that resolution
 - [ ] Generalize the confirmed count result: multiple **mask-bearing** scenes, fresh roots, and
       the production CUDA gsplat strategies (Default and MCMC/relocation) with equal-wall-clock as
       well as equal-count comparisons. Blocked on data — `karate/frame_00005` and

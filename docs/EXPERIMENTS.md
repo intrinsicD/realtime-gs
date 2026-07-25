@@ -17,6 +17,40 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-25 — Stage 0: interior holes are not the remaining problem; the silhouette is
+
+- **Question**: post-hoc diagnostic, selects nothing. Before spending a stage on "fill internal
+  holes with split and birth", is that actually where the remaining held-out error lives?
+- **Setup**: `benchmarks/residual_decomposition.py` over the saved `frame_00009` models. Held-out
+  L1 error split into four disjoint regions — interior holes (inside the eroded mask, alpha below
+  threshold), interior covered (geometry present, so error there is *appearance*), the silhouette
+  band, and exterior leak. Reported over an alpha-threshold sweep (0.1/0.3/0.5) and a boundary-width
+  sweep (1/2/3 px) because single-threshold summaries misled this project before, plus a pure-torch
+  connected-component analysis of the holes.
+- **Result**: at **initialization**, `ci` has interior holes holding **58.93%** of the error with a
+  99.65% interior hole fraction concentrated in a few large patches (largest component 1,271 px,
+  97.7% of hole pixels). At **convergence** those holes are gone: `ci` final **0.06%** of error
+  (2 px, both single-pixel), `surfel` final **0.00%** (0 px). The residual is instead the
+  silhouette band and interior appearance. Region shares are boundary-width dependent — at radius
+  1/2/3 px the boundary holds 47.02% / 66.31% / 76.50% and interior appearance 45.23% / 31.90% /
+  22.85% — but the near-zero hole share is stable across every width and threshold, and boundary
+  error *density* is consistently 2–2.7× the interior's.
+- **Conclusion**: filling interior holes is an **initialization-stage** problem, not a
+  refinement-stage one. Optimization already closes them completely, which is precisely what
+  `surfel_init` short-circuits by starting from a cover. A planned stage aimed at "more coverage
+  via split and birth" would therefore have targeted a problem that no longer exists at
+  convergence. The dominant remaining terms are the silhouette band — the same defect as the
+  screen's failed G1 leakage gate, now shown to be the *largest* error term rather than a cosmetic
+  initialization artefact — and interior appearance. Confidence: moderate for the ordering, low for
+  the exact shares, because at downscale 32 the object spans ~40 px so a 2 px band is 24% of all
+  pixels; the shares must be re-measured at real resolution before any stage is designed on them.
+- **Follow-ups**: (a) re-run at downscale 4 on GPU, which `benchmarks/gpu_stage1_initialization.py`
+  does automatically per arm; (b) design the coverage stage only after that, per the branch table in
+  `benchmarks/results/20260725_gpu_RUNBOOK.md`; (c) if the boundary term survives at real
+  resolution, the treatment is a silhouette-aware initialization rule — the cover condition assumes
+  a locally planar patch and is provably wrong where the surface curves away from the camera;
+  (d) freeze SH at degree 0 during any geometry stage so colour cannot absorb geometric error.
+
 ## 2026-07-24 — Why an under-sized primitive does not grow: it does, but loses a race
 
 - **Question**: post-hoc diagnostic, selects nothing. If the control's primitives sit below the
