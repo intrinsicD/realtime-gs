@@ -254,7 +254,13 @@ def estimate_local_surface_frames(
     for start in range(0, n, config.neighbor_chunk):
         stop = min(start + config.neighbor_chunk, n)
         block = points[start:stop]
-        distances = torch.cdist(block, points)
+        # ``donot_use_mm_for_euclid_dist`` forces the direct pairwise form. The default lets
+        # torch pick a matmul expansion (|x|^2 - 2x.y + |y|^2) for larger blocks, so the same
+        # point pair yields different last bits depending on ``neighbor_chunk``. That breaks the
+        # chunk invariance this function promises, and the expansion also loses precision to
+        # cancellation for nearby points (~1.7e-11 on a 0.07-spaced float64 lattice, from a
+        # geometry term this path then takes a mean and an eigendecomposition of).
+        distances = torch.cdist(block, points, compute_mode="donot_use_mm_for_euclid_dist")
         rows = torch.arange(start, stop)
         distances[rows - start, rows] = torch.inf
         nearest, indices = distances.topk(frame_k, largest=False)
