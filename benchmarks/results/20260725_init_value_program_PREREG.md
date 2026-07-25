@@ -1,9 +1,22 @@
 # PREREG — Initialization Value Program
 
 **Date frozen:** 2026-07-25
+**Amended:** 2026-07-25, before any experiment in this program was executed and while zero of its
+data existed. The amendment adds the headroom measurement (§0b, E0b), makes E1b's substitution
+ladder downstream, promotes COLMAP SfM points to a first-class arm, states the positive hypothesis
+that was previously only implied, and ungates the training-free diagnostics from M3/M4. Nothing
+here was adjusted in response to a result, because there were none.
 **Status:** pre-registration. No results may be entered into this file. Results go to
 `20260725_init_value_program_RESULT.md`, audit to `..._AUDIT.md`.
 **Supersedes as the governing protocol for init claims:** `20260721_all_initializers_frame00008_PREREG.md`
+**Ledger action on supersession:** every `ara/logic/claims.md` row whose `Proof` rests on the
+superseded protocol must be re-read against this document and moved to `superseded` where its
+licence came from the retired design. That sweep ships with the first RESULT commit of this
+program, not as later cleanup.
+**Bundle rule:** every results-bearing run here is a Hard Rule 7 run — `--out` artifacts, previews,
+a summary-bound relative-link `index.html`, a viewer receipt, and a passing
+`python scripts/check_results_bundle.py <run_dir>`. Training-free audits (E1, E1c) are exempt from
+the viewer receipt but not from the artifact and index requirements.
 
 ---
 
@@ -36,6 +49,48 @@ and held-out generalization. Photogrammetric validity is a means, never a termin
 non-SPD raw matrices and whitened residual 13.45) applied a terminal criterion that this program
 explicitly retires. Non-SPD is a parameterization defect to be fixed, not a reason to discard a
 render-space gain.
+
+---
+
+## 0b. The positive hypothesis (what a win would be, mechanistically)
+
+The program above is written defensively — it is built to stop a false positive. Stated alone it
+would be satisfied by a well-audited null, and a null is not the reason this pipeline exists. So the
+positive thesis is written down here, in falsifiable form, before any of it is tested.
+
+**What Stage 1 uniquely produces.** A fitted 2D Gaussian set is a *per-view reconstruction of the
+image*, not a repeatable keypoint detection. Every pixel region that carries radiance gets
+primitives, including flat, textureless, low-gradient regions. Classical SfM — the standard 3DGS
+initializer — is the opposite: it is detector-driven and texture-biased, and returns nothing at all
+where there is no corner to match. This is a structural difference in *what gets represented*, not a
+quality difference in how well it is represented.
+
+**H-P1 (the asset is coverage, not accuracy).** The distinctive property of the multi-view + mask →
+2D Gaussian → tomographic lift path is **completeness at low primitive count**: coverage of surface
+that SfM leaves empty, at a primitive count far below a dense reconstruction. Accuracy of the means
+is a *precondition* for that coverage to be useful, not the contribution itself. This is why "the
+means look excellent and it did not help" is not a paradox — accurate means with no coverage
+advantage, or with coverage the optimizer can trivially manufacture, buy nothing.
+
+**H-P2 (the payoff regime follows from H-P1).** A coverage advantage can only pay where the
+optimizer cannot manufacture coverage on its own. Densification manufactures coverage from
+photometric residual; that requires photometric constraint and iterations to spend. Therefore init
+value should rise as constraint per unit capacity falls — few views, bounded primitive budget, few
+iterations — and vanish in the memorization regime. This is the same prediction as H-B2, arrived at
+from the mechanism rather than from the Ω arithmetic, and E5 is its sharpest test.
+
+**Pre-declared consequences, so this cannot be retrofitted:**
+
+| If | Then |
+| --- | --- |
+| beam-fusion beats `colmap-sfm` on E1c *completeness* while tying or losing on *accuracy* | H-P1's premise holds; the asset is real and correctly named |
+| beam-fusion beats `colmap-sfm` on accuracy but not completeness | the method is a better triangulator, not a better initializer; the thesis must be rewritten as a geometry contribution and defended on E1c alone |
+| the completeness advantage exists but produces no `T@τ` or fixed-budget gain at *any* E5 view count | H-P2 is refuted. Coverage is not the lever, and no repair in Part 3 targets the right quantity. |
+| `colmap-sfm` is unavailable or degenerate on a scene (too few points to run 3DGS at all) | that is itself the coverage result, and is reported as such rather than as a missing arm |
+
+**What this hypothesis forbids.** It forbids claiming a win from accuracy of the means alone (E1c is
+necessary, never sufficient), and it forbids claiming a win in the unbounded/many-view cell, where
+H-P2 predicts a tie and §1.3.5 already declares ties uninformative.
 
 ---
 
@@ -101,6 +156,15 @@ stays within 0.1 dB of it for 200 further iterations (prevents crediting a trans
 **Alpha-mass attribution** `A` — fraction of accumulated rendered alpha over held-out views
 contributed by primitives whose lineage root is an init primitive.
 
+**Headroom** `H(c) = metric(oracle, c) − metric(random, c)` for a cell `c` (scene × budget × view
+count × resolution), on held-out FG PSNR and on `T@τ`. The maximum advantage any initialization can
+confer in that cell. Measured in E0b against the oracle of M5; a lower bound on true headroom, since
+the real-scene oracle is a fixed point of the same optimizer.
+
+**Fraction of headroom captured** `F(a, c) = (metric(a, c) − metric(random, c)) / H(c)`. The
+normalized quantity reported for every arm in Part 2. Undefined — and reported as undefined, never
+as zero — where `H(c)` does not exceed 2× the E0 spread. `F > 1` is possible and is not an error.
+
 ---
 
 ## 2. Part 0 — Instrumentation (must land before any experiment)
@@ -141,8 +205,33 @@ A mode where `max_3d_gaussians` is a hard cap **and** the growth criterion is no
 schedule-saturating. Verify: with cap = init count and growth enabled, the run must terminate with
 exactly the init count and no primitive churn beyond pruning.
 
-**Gate:** M0–M4 pass their unit tests, and `rtgs audit-init` reproduces the known 0.0107 alpha IoU
+### M5 — Reference arms: oracle and COLMAP SfM
+
+Two arms that E0b, E1b, E1c and Part 2 all depend on, and neither of which exists today.
+
+**Oracle init builder.** Given a scene and a budget `N`, produce the E0b ceiling state: on synthetic
+scenes by sampling GT geometry to `N`; on real captures by training a long unbounded run on **train
+views only**, pruning the converged state to `N` by alpha-mass contribution, and refitting at fixed
+topology to convergence at `N`. Must refuse to run if the source run's view split does not match the
+evaluation split — an oracle contaminated by held-out views silently invalidates every `F` in the
+program, so this is a hard failure, not a warning.
+
+**`colmap-sfm` initializer.** COLMAP SfM points as a registered `rtgs.lift.base.Lifter`, so the
+standard 3DGS initialization is a first-class arm rather than evaluation infrastructure.
+`src/rtgs/data/colmap.py` already loads the reconstructions; what is missing is the points→3D
+Gaussian arm and its registration in `rtgs.lift.get_lifter`. Per the repository's working rules this
+also needs a pipeline test, a `benchmarks/run.py` entry, and a row in `docs/ARCHITECTURE.md`. Record
+the point count per scene — where it is too low to initialize, that is an E1c/H-P1 result.
+
+**Parameter-substitution harness.** The E1b ladder needs component-wise substitution between two
+Gaussian states (means / scales / rotation / opacity / SH) with an assertion that untouched blocks
+are bit-identical to the donor. Shared with E10.
+
+**Gate:** M0–M5 pass their unit tests, and `rtgs audit-init` reproduces the known 0.0107 alpha IoU
 on the Beam CI initialization. If it does not reproduce, stop — the instrumentation is wrong.
+Additionally, the oracle builder must beat random by more than the E0 spread on at least one cell of
+one scene before E0b's grid is trusted — an oracle that never wins anywhere is far more likely to be
+a broken builder than a true universal null, and must be debugged before it is believed.
 
 ---
 
@@ -169,6 +258,72 @@ so, constrained comparisons need more seeds, not fewer.
 
 ---
 
+### E0b — Headroom: how much could *any* initializer buy here?
+
+**Question:** in a given cell (scene × budget × view count × resolution), what is the maximum
+downstream advantage an initialization can confer at all?
+
+**Why this must exist and must run before Part 2 and Part 3.** Every other experiment compares
+initializers to each other. None of them establishes whether the cell has anything to win. E1, E1c,
+E2 and E3 can all return clean, encouraging answers in a cell where the ceiling over random is 0.2
+dB, and Part 3 would then spend its budget repairing an initialization whose best possible version
+changes nothing. The 2026-07-21 null result is consistent with a zero ceiling and nobody has
+measured one. This is the cheapest experiment in the program — one arm — and it is the one that
+decides whether the rest of it is winnable.
+
+**Oracle construction.** The oracle is a *reference ceiling*, never a competing method, and is
+labelled as such everywhere it appears.
+
+| Scene type | Oracle init at budget `N` |
+| --- | --- |
+| Synthetic | ground-truth geometry, sampled to `N` primitives, GT colour |
+| Real capture | converged state of a long unbounded run **trained on train views only**, pruned to `N` by alpha-mass contribution, then refit at fixed topology to convergence at `N` |
+
+The real-scene oracle is the optimizer's own fixed point handed back to it at iteration 0. The
+fixed-topology refit at `N` matters: a pruned converged state is not the best `N`-primitive state,
+and without the refit the ceiling is understated. Training the oracle source on train views only is
+mandatory — an oracle that has seen held-out views measures nothing.
+
+**Setup:** oracle and `random` only, over the full Part 2 regime grid (the E4 caps × the E5 view
+counts × the E6 downscales), ≥ 3 scenes, ≥ 3 seeds. No other arm runs at this stage.
+
+**Primary metrics.** For each cell `c`, on held-out FG PSNR and on `T@τ`:
+
+- **headroom** `H(c) = metric(oracle, c) − metric(random, c)`
+- and for every later arm `a`, the normalized quantity reported throughout Part 2:
+  **fraction of headroom captured** `F(a, c) = (metric(a, c) − metric(random, c)) / H(c)`
+
+`F` is the quantity that separates "no initializer can help in this cell" from "our initializer does
+not help in this cell" — the exact distinction the 2026-07-21 design could not make. Where `H(c)`
+does not exceed 2× the E0 spread, `F` is undefined and must be reported as undefined, never as zero
+and never imputed.
+
+**Pre-declared interpretation:**
+
+| Observation | Reading |
+| --- | --- |
+| `H` within E0 noise in every cell | **no initialization can matter on these scenes at any budget or view count.** Part 3 is unwinnable and is not run. The program reduces to E11 plus the negative result, which is a complete outcome under §8. |
+| `H` within noise at high Ω, large at low Ω | expected under H-P2. The low-Ω cells are the entire experiment; Part 2's full arm set runs **only** there, and the high-Ω cells are reported as measured ties. |
+| `H` large everywhere, including the unbounded 2026-07-21 cell | the 07-21 protocol did not erase the effect after all, and something in the current harness differs from it. Stop and reconcile before proceeding — this contradicts the tie that suite observed. |
+| `H` large but no real arm captures more than 0.1 of it anywhere | initialization matters and none of our initializers is an initialization. That is a publishable negative and redirects the work to Part 3 with a known target. |
+
+**Consequence for Part 2 — oracle-first grid.** E4/E5/E6 are restructured: run this one-arm sweep
+over the grid first, then run the full arm set **only in the cells where `H` exceeds 2× the E0
+spread**. Cells with no headroom are reported with their `H` and closed, not populated with five
+arms that are guaranteed to tie. The 225-run E4 estimate in §7 is an upper bound that this
+restructuring is expected to cut substantially; the reduction is recorded in the RESULT file.
+
+**Watch for:**
+- Treating the oracle as an arm. It is not a method, it cannot be proposed, and no claim of the form
+  "our init approaches the oracle" is admissible without the E0b noise check on `H` itself.
+- The synthetic oracle being *too* good — GT geometry at GT colour can exceed anything reachable
+  from images, inflating `H` and deflating every `F`. Report the synthetic and real ceilings
+  separately and never pool them.
+- A negative `H` (random beating the oracle) in some cell. That is a real and interesting signal —
+  it means the schedule is tuned to a cold start — and is reported, not clipped to zero.
+
+---
+
 ### E1 — Init render audit: does the lift preserve Stage-1 information?
 
 **Question:** does our initialization exist as a render state, or only as a point set?
@@ -188,11 +343,43 @@ IoU `< 0.05` for the CI covariance path.
 | 3–10 dB | partial loss; localize it via the ablation in E1b |
 | > 10 dB | **the optimizer receives no warm start.** All prior init comparisons were comparing support regions, not initializations. |
 
-**E1b — loss localization.** Starting from the true 3D state where available (synthetic scene with
-ground-truth geometry), substitute one component at a time from the lift: means only, means+scales,
-means+scales+rotation, +opacity, +SH. Report `ΔLE` after each substitution. This produces an
-attribution of the lift loss across the parameter blocks and tells us exactly which one to fix.
-Prediction: the drop is dominated by the scale/rotation block, secondarily opacity.
+**E1b — loss localization, measured downstream.** Starting from the true 3D state where available
+(synthetic scene with ground-truth geometry), substitute one component at a time from the lift:
+means only, means+scales, means+scales+rotation, +opacity, +SH. Report `ΔLE` after each
+substitution, **and train each substituted state to report `T@τ` and held-out FG PSNR at the E4
+constrained budget cell.**
+
+The downstream half is not optional and is the point of the experiment. `ΔLE` attributes loss of
+the *initial render*; `T@τ` attributes loss of *convergence*, and the two can invert. A parameter
+block can destroy iteration 0 and be repaired by the optimizer within a few hundred iterations
+(irrelevant, however bad it looks), while another can render acceptably and still sit in a basin the
+optimizer cannot leave (decisive, and invisible to `ΔLE`). Spending Part 3 on the block that
+dominates `ΔLE` rather than the block that dominates `T@τ` is the most expensive mistake available
+in this program.
+
+**The two crossover arms carry the result** and must be reported as a pair:
+
+| Arm | Composition | Reading if it converges like the full lift |
+| --- | --- | --- |
+| `GT-means` | GT means + lift's scale, rotation, opacity, SH | the means were never the bottleneck; tomographic accuracy is not the lever and E7/E8 are correctly targeted at packaging |
+| `GT-packaging` | lift's means + GT scale, rotation, opacity, SH | the packaging was never the bottleneck; the means are the lever and E7/E8 are aimed at the wrong block |
+
+**Pre-declared interpretation:**
+
+| Observation | Reading |
+| --- | --- |
+| `GT-packaging` ≈ full GT, `GT-means` ≈ full lift | packaging is the whole loss. E7/E8 are justified and bounded by this gap. |
+| `GT-means` ≈ full GT, `GT-packaging` ≈ full lift | the means are the whole loss. E7/E8 are pointless as specified and the lift itself must be revisited. |
+| both crossovers sit between the two ends | the loss is distributed; the split between them is the budget allocation between E7/E8 and lift work |
+| neither crossover, nor full GT, beats `random` at this cell | there is no headroom here — cross-check against E0b, and if E0b agrees, stop |
+
+**This experiment is the direct test of the standing puzzle** that beam fusion produced visually
+excellent means with no downstream payoff. `GT-means` converging no better than the full lift
+explains that observation mechanically and retires it as a mystery.
+
+Prediction: the `ΔLE` drop is dominated by the scale/rotation block, secondarily opacity — and the
+`T@τ` attribution is explicitly *not* predicted to follow the same ordering. Recording that
+divergence, in either direction, is a result.
 
 **Confound to avoid:** measuring `ΔLE` with a different background, SH degree, or antialiasing
 setting than training uses. The audit must read `gaussians.config.json`.
@@ -242,8 +429,14 @@ the evaluation.
 - **along-ray error component vs. tangential error component**, decomposed relative to the source
   camera ray, which is the axis the tomographic fusion is supposed to be resolving
 
-**Arms:** beam-fusion, dense-merge, splat-sfm, top-K, field, random. Random is the control and
-establishes the error a method must beat to have found anything at all.
+**Arms:** beam-fusion, dense-merge, splat-sfm, top-K, field, random, **colmap-sfm**. Random is the
+control and establishes the error a method must beat to have found anything at all. `colmap-sfm` —
+classical COLMAP SfM points, the standard 3DGS initializer — is the external baseline and the arm
+that H-P1 is stated against; note that `splat-sfm` is *structure-from-splats*, an internal RGB-free
+method, and is not a substitute for it. The accuracy/completeness split is the decisive comparison:
+H-P1 predicts beam-fusion wins **completeness** against `colmap-sfm` at equal or lower primitive
+count, and does not require winning accuracy. Report the two directions separately for this pair
+even if they are pooled elsewhere.
 
 **Pre-declared interpretation:**
 
@@ -354,6 +547,17 @@ outcome the current evidence points to. The combination **E1c poor means × E1 l
 the repair path and reduces the program to Part 2 plus E11. Record which of the four quadrants the
 data lands in, explicitly, before proceeding.
 
+**E0b and E1b override the quadrant call.** The quadrant describes where the lift's loss is; it does
+not establish that recovering that loss is worth anything. Two results outrank it:
+
+- if E0b finds no headroom in any cell, Part 3 is not run regardless of which quadrant the data
+  lands in — a perfectly repaired initialization would still change nothing;
+- if E1b's `GT-means` arm converges like the full lift, then accurate means do not help even when
+  handed to the optimizer for free, and no improvement to the tomography is worth funding.
+
+Record the headroom verdict and the E1b crossover verdict in the exit paragraphs **before** the
+quadrant call, and treat the quadrant as conditional on both.
+
 ---
 
 ## 4. Part 2 — Regime: under what conditions can initialization matter?
@@ -374,10 +578,19 @@ initializers is large at cap = 1× init count and vanishes by 8×.
 
 | Factor | Levels |
 | --- | --- |
-| Initializer | beam-fusion, dense-merge, splat-sfm, random, (top-K) |
+| Initializer | beam-fusion, dense-merge, splat-sfm, **colmap-sfm**, random, (top-K) |
 | Cap `max_3d_gaussians` | 1×, 2×, 4×, 8× the arm's native init count, and unbounded |
 | Scenes | ≥ 3 |
 | Seeds | ≥ 3 (5 for the 1× and 2× cells) |
+
+`colmap-sfm` is the field's standard 3DGS initialization and is a required arm, not a courtesy
+baseline. Without it the best available outcome of this sweep is "beam fusion beats our other
+lifts," which does not support any claim of the form "better than anything else." Where a scene's
+COLMAP reconstruction yields too few points to initialize at all, that is recorded as the coverage
+result predicted by H-P1 and the arm is reported as degenerate rather than dropped.
+
+Per E0b, this sweep runs **only in cells whose headroom `H` exceeds 2× the E0 spread.** Cells closed
+by E0b are reported with their `H` and not populated.
 
 Native init counts differ across arms (5,000 / 2,088 / 943 / …). Run **both** normalizations and
 report both: cap relative to each arm's own init count, and cap at absolute matched counts
@@ -388,8 +601,19 @@ questions and conflating them is the most likely way to generate a spurious resu
 **Reference run for `τ`:** random init, unbounded, 70k iterations, held-out FG PSNR plateau.
 `τ = plateau − 0.5 dB`, frozen per scene before the sweep.
 
-**Primary metrics:** `T@τ` (iterations-to-target), and held-out FG PSNR at fixed iteration budgets
-{2k, 7k, 30k, 70k}.
+**Primary metrics — two co-primaries, not one:**
+
+1. `T@τ` (iterations-to-target) — the *speed* axis.
+2. **held-out FG PSNR at cap = 1× and 2× init count** — the *compactness* axis: quality reachable at
+   a fixed primitive budget, irrespective of how long it takes.
+
+Held-out FG PSNR at fixed iteration budgets {2k, 7k, 30k, 70k} is recorded as secondary.
+
+`T@τ` alone presumes the win is speed. This pipeline produces a compact representation by
+construction, and §1.3.5 already predicts every arm ties at the unbounded plateau; if a real effect
+exists it is at least as likely to appear as *more quality per primitive* as *fewer iterations*.
+Pre-declaring only the speed metric would discard that outcome. Both co-primaries are reported for
+every cell, and `F(a, c)` from E0b is reported alongside each.
 
 **Pre-declared decision rule for the project's core claim:**
 
@@ -401,6 +625,24 @@ questions and conflating them is the most likely way to generate a spurious resu
 >
 > Between 0.5 and 0.8: the effect is real but modest; the project must be reframed as a
 > memory-efficiency contribution (E11) rather than a speed contribution.
+
+**Pre-declared decision rule for the compactness claim (independent of the speed claim):**
+
+> The "more quality per primitive" claim is **supported** iff, at cap = 1× init count, the best
+> structured initializer exceeds random's held-out FG PSNR by more than 2× the E0 spread of that
+> cell, on ≥ 3 scenes and ≥ 3 seeds, **and** captures `F ≥ 0.5` of the E0b headroom there.
+>
+> It is **refuted** if the margin is within the E0 spread, or if `F < 0.1`, under the same
+> conditions.
+>
+> The two decision rules are independent. Either may be supported without the other, and a
+> compactness win with a speed tie is a complete positive result for this program — not a
+> consolation reframing.
+
+**Against `colmap-sfm` specifically:** any claim of the form "better than the standard
+initialization" requires beating the `colmap-sfm` arm under whichever of the two rules is being
+invoked. Beating only internal arms supports a claim about our own variants and nothing more, and
+must be worded that way in the RESULT file.
 
 **Watch for:**
 - The cap being reached early and the run then being a fixed-topology optimization for 60k
@@ -427,8 +669,15 @@ set is **identical across all N**, drawn from cameras excluded at every level. B
 cells from E4 plus unbounded.
 
 **Primary metric:** held-out FG PSNR gap between the best structured init and random, as a function
-of N. Secondary: LPIPS and a depth/geometry error where ground truth exists — PSNR is a poor
-detector of floaters, which is the failure mode sparse views produce.
+of N, **and the same gap against `colmap-sfm`, reported separately** — the gap against random says
+the init carries information, the gap against `colmap-sfm` says it beats the standard practice, and
+only the second supports the project's claim. `F(a, c)` from E0b is reported for every N. Secondary:
+LPIPS and a depth/geometry error where ground truth exists — PSNR is a poor detector of floaters,
+which is the failure mode sparse views produce.
+
+This is the sharpest test of H-P2, and the cell where the coverage mechanism of H-P1 should be most
+visible: at N = 3 the optimizer has the least photometric residual with which to manufacture its own
+coverage, and `colmap-sfm` has the fewest points.
 
 **Pre-declared prediction:** gap ≥ 1.5 dB at N = 3, ≥ 0.5 dB at N = 6, within noise at N = 26.
 
@@ -436,9 +685,10 @@ detector of floaters, which is the failure mode sparse views produce.
 lift's information content is genuinely zero (consistent with a large `ΔLE` in E1), or that
 3DGS's inductive bias dominates any init.
 
-**Watch for:** at N = 3, all methods may fail catastrophically and tie at the bottom. Include a
-"can any method reconstruct this at all" sanity arm (SfM init with dense COLMAP points, or GT
-geometry init on the synthetic scene) to confirm the regime is solvable before concluding a tie.
+**Watch for:** at N = 3, all methods may fail catastrophically and tie at the bottom. The E0b oracle
+arm at each N is the "can any method reconstruct this at all" control and must be run at every view
+count for exactly this reason — a tie at the bottom with `H` within noise is a dead cell, whereas a
+tie at the bottom with large `H` is the most interesting cell in the program.
 
 ---
 
@@ -449,12 +699,30 @@ geometry init on the synthetic scene) to confirm the regime is solvable before c
 **Setup:** downscale ∈ {16, 4, 2} on ≥ 2 scenes, best two budget cells, ≥ 3 seeds. Report Ω for
 every cell.
 
-**Primary metric:** init-vs-random gap plotted against Ω, pooling E4/E5/E6 cells.
+**Primary metric:** init-vs-random gap plotted against Ω, pooling E4/E5/E6 cells. Plotted **twice**:
+once as the E0b headroom `H` vs. Ω (what is available), once as `F` vs. Ω (what our arms capture).
+Separating these is what makes the figure interpretable — a low gap at high Ω means something
+entirely different when `H` is also low than when `H` is large.
 
 **Deliverable:** a single figure — gap vs. Ω across all three sweeps. If the points collapse onto
 one curve, that curve is the paper's central claim: *initialization value is a function of the
 constraint-to-capacity ratio, and prior 3DGS init comparisons were conducted at Ω where it cannot
 be observed.* That is a contribution independent of whether our specific lift wins.
+
+**Pre-declared branch if they do not collapse.** Collapse is a hypothesis, not a given, and
+non-collapse is at least as likely: the three sweeps change physically different things — capacity
+(budget), angular baseline and coverage (view count), and supervision frequency content
+(resolution) — and Ω compresses all three into one scalar that has no reason to be sufficient.
+
+| Observation | Reading |
+| --- | --- |
+| points collapse onto one curve in Ω | Ω is the governing variable; the claim above stands as written |
+| view-count cells lie on a separate, steeper curve | init value is governed by **angular coverage**, not capacity ratio. This is a *better* outcome for a multi-view tomographic method than the collapse, and the paper's variable becomes coverage rather than Ω. It must be reported as the primary finding, not as a failed collapse. |
+| resolution cells separate | supervision frequency content governs; the 07-21 downscale-16 confound is confirmed as a distinct mechanism and must be reported separately from the budget effect |
+| no ordering in any variable | there is no regime structure to find at this resolution of sweep; report the null and do not fit a curve to it |
+
+Fitting a single curve through non-collapsing points, or dropping the sweep that fails to collapse,
+is prohibited. The figure reports whatever structure exists, including none.
 
 ---
 
@@ -464,9 +732,15 @@ Run only the fixes that Part 1's attribution justifies. Each has an independent 
 
 ### E7 — Surfel initialization (SPD-parameterized, normal-oriented)
 
-**Precondition:** E1c must have shown that the means are an asset. Fixing the covariance around
-inaccurate means produces a well-packaged wrong geometry, which is harder to detect than an
-obviously broken one.
+**Preconditions — all three, not just the first:**
+
+1. E1c must have shown that the means are an asset. Fixing the covariance around inaccurate means
+   produces a well-packaged wrong geometry, which is harder to detect than an obviously broken one.
+2. E0b must have found a cell with headroom. Repairing an initialization in a cell where the oracle
+   ties random is unfalsifiable work.
+3. E1b's crossover must have implicated the packaging block rather than the means. If `GT-packaging`
+   converges like the full lift, the covariance was never the loss and this experiment is aimed at
+   the wrong parameter.
 
 **Motivation:** two-view covariance intersection cannot resolve along-ray variance in principle.
 Replace estimation with a prior.
@@ -561,23 +835,39 @@ holds k× more views than the RGB path, measured as follows." Nothing about qual
 
 ## 7. Execution order and dependency graph
 
+The instrumentation gate is **per-experiment, not monolithic**. M3 (lineage) and M4 (budget-honest
+density) are the expensive builds, and only E2/E3 and the budgeted runs need them; the training-free
+diagnostics need only M0–M2 and must not wait.
+
 ```
-M0–M4  (instrumentation gate)
-  └─ E0  noise floor  ──────────────► thresholds for everything below
-       ├─ E1  init audit    ─┐
-       ├─ E1c geometry acc.  ├─ Part 1 exit paragraphs + quadrant call
-       ├─ E2  lineage        │
-       └─ E3  census       ──┘
-             │
-             ├─ if means good AND lift broken ──► E7, E8 (then re-enter Part 2)
-             ├─ if means poor ──────────────────► skip Part 3, go to Part 2 + E11
-             └─ Part 2: E4 ──► E5 ──► E6 ──► gap-vs-Ω figure
-                          │
-                          └─ E9 (if E3 justified) ──► E10 ablation
+M0 seed/determinism ─┬─ M1 stage-1 cache ─┬─ M2 audit-init ──► E1, E1c   (training-free)
+                     │                                          │
+                     ├─ M4 budget-honest density ──► E0 noise floor
+                     │                                  └─────► E0b headroom  ◄── gates Parts 2 & 3
+                     └─ M3 lineage ────────────────► E2, E3
+                                                       │
+   E1 + E1c + E1b + E2 + E3 ──► Part 1 exit paragraphs
+                                 │  (headroom verdict and E1b crossover verdict first,
+                                 │   then the quadrant call, conditional on both)
+                                 │
+   ├─ if E0b headroom ≈ 0 everywhere ────────► stop. Report the negative + E11. Part 3 not run.
+   ├─ if E1b GT-means ≈ full lift ───────────► means are not the lever; do not fund tomography work
+   ├─ if means good AND lift broken ─────────► E7, E8 (then re-enter Part 2)
+   ├─ if means poor ─────────────────────────► skip Part 3, go to Part 2 + E11
+   └─ Part 2, oracle-first: E0b grid ──► full arms in headroom cells only
+                                          E4 ──► E5 ──► E6 ──► H-vs-Ω and F-vs-Ω figures
+                                           │
+                                           └─ E9 (if E3 justified) ──► E10 ablation
 E11 runs in parallel, independent of all of the above.
 ```
 
-Estimated GPU cost is dominated by E4 (5 initializers × 5 caps × 3 scenes × 3 seeds = 225 runs).
+Estimated GPU cost was dominated by E4 (5 initializers × 5 caps × 3 scenes × 3 seeds = 225 runs,
+now 6 arms with `colmap-sfm`). **The oracle-first restructuring is the cost control:** E0b sweeps the
+grid with one arm, and the full arm set runs only where headroom exists. If headroom is confined to
+the low-Ω corner as H-P2 predicts, this removes most of the grid. Report the realized run count
+against the 225-run upper bound in the RESULT file, with the cells closed by E0b listed explicitly
+so the reduction is auditable rather than silent.
+
 Run E4 at reduced iteration count (30k) first as a screen, then re-run only the cells that matter
 at full length. Declare the screen as a screen in the RESULT file.
 
@@ -628,3 +918,16 @@ that a tie does not later get relitigated into a win.
   documented for the field lift; under normalized finite-support StructSplat semantics it is an
   approximation and must be validated by bounded sampled comparison, as in the existing field-lift
   validation.
+- The real-scene E0b oracle is a fixed point of the *same* optimizer, so it measures reachable
+  quality, not a true supremum. A better `N`-primitive state may exist that this optimizer cannot
+  find from any start. `H` is therefore a **lower bound** on true headroom, `F > 1` is possible and
+  is not an error, and "no headroom" means "none this optimizer can exploit" — which is the
+  decision-relevant quantity here, but is not the same statement.
+- `colmap-sfm` is only as strong as its reconstruction. A weak COLMAP makes an easy baseline and a
+  worthless comparison. Use the same reconstruction that produced the calibration, state the
+  settings and the resulting point count per scene, and do not tune our arms against a baseline that
+  was not tuned at all.
+- H-P1's coverage argument is measured on masked, object-centric foregrounds, which is close to the
+  regime where classical SfM is weakest. It is the favourable case for the hypothesis, and a
+  completeness win there does not establish one on textured, unbounded scenes where SfM is strong.
+  Say so wherever the coverage claim is made.
