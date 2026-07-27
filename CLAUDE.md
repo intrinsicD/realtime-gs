@@ -97,8 +97,11 @@ benchmarks/    run.py harness + results/*.json, protocols, seals, RESULT/AUDIT n
 docs/          ARCHITECTURE, RESEARCH (SOTA survey), RESEARCH_LOOP, ROADMAP, BENCHMARKS,
                EXPERIMENTS; DESIGN_field_lift.md design note; TASK_* per-protocol notes;
                ADR-XXXX-surfel-lift.md and ADR-YYYY-init-preserving-densification.md (the
-               init-parameter and schedule decisions); 20260725_claims_and_questions.md
-               (which outcome makes which paper, above the init-value PREREG)
+               init-parameter and schedule decisions); ADR-002-carrier-refinement.md (phase
+               schedule maturing beam-fusion carriers before standard 3DGS takes over);
+               20260725_claims_and_questions.md (which outcome makes which paper, above the
+               init-value PREREG); PAPER_PLAN_beam_fusion.md (working title, contributions,
+               required experiments/ablations/metrics)
 ara/           claim + evidence ledger (see "Evidence and claims" below)
 dataset/       calibrated local scenes required by Hard Rule 7
 scripts/       verify.sh plus the checkers (docs_sync, check_ara, check_script_layout,
