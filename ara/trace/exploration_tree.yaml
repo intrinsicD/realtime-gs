@@ -2725,3 +2725,167 @@ tree:
       verified HTTP 200; no new visual assessment has yet been supplied.
     also_depends_on: [N148, N149]
     status: open
+  - id: N160
+    type: question
+    title: "Is the Initialization Value Program claim-safe?"
+    provenance: user
+    timestamp: "2026-07-25T23:45+02:00"
+    description: >
+      The user requested a non-author review of the 2026-07-25 Initialization Value Program and
+      asked whether it is the right approach. Independent review of preregistration SHA-256
+      2336b6362b0602a488fc10ed74b526eba91f8fd05a19db621e6cc42a1cef2408 returned
+      FAIL PENDING PROTOCOL REPAIR: the scientific decomposition is useful, but nine
+      decision-changing protocol defects prevent confirmatory execution. The review is preserved
+      at benchmarks/results/20260725_init_value_program_PREREG_REVIEW_INITIAL_FAIL.md.
+    status: resolved
+  - id: N161
+    type: question
+    title: "Will the repaired program diagnose what works and what to improve?"
+    provenance: user
+    timestamp: "2026-07-25T23:52+02:00"
+    description: >
+      The user asked whether the proposed experiment set would test the right quantities, show
+      whether initialization is working, and identify how to improve it or find a better route.
+      The clarified answer is conditional: after the N160 protocol repairs, the ladder can
+      distinguish absent reference gap, inaccurate geometry, render-packaging loss, optimizer
+      rejection, density-control erasure, and systems cost. Descriptive diagnostics alone do not
+      identify a causal fix; each implicated layer still needs a matched intervention and
+      downstream validation, and a fully negative ladder narrows or rejects the tested thesis
+      rather than automatically discovering a replacement method.
+    also_depends_on: [N160]
+    status: resolved
+  - id: N162
+    type: decision
+    title: "Repair the Initialization Value Program as a gated pilot-informed protocol"
+    provenance: user
+    timestamp: "2026-07-26T00:27+02:00"
+    choice: >
+      Amend the failed umbrella preregistration rather than run it. Treat every existing Stage and
+      Karate outcome as pilot/development evidence, freeze beam-cover against train-only fixed-pose
+      COLMAP and count-matched random controls, separate validation from a once-opened fresh test,
+      use end-to-end seconds-to-target plus fixed-count held-out quality as co-primary endpoints,
+      and require matched one-factor diagnostics before changing the candidate. No validation or
+      confirmation is authorized until the corresponding executable addendum and fresh non-author
+      review pass.
+    alternatives:
+      - "Run the original adaptive umbrella protocol despite the initial FAIL review."
+      - "Promote existing Stage or Karate pilots as confirmatory evidence."
+      - "Abandon the initialization question without preserving a diagnostic repair path."
+    evidence:
+      - N160
+      - N161
+      - "benchmarks/results/20260725_init_value_program_PREREG_REVIEW_INITIAL_FAIL.md"
+      - "benchmarks/results/20260725_init_value_program_PREREG.md"
+    status: resolved
+  - id: N163
+    type: question
+    title: "Does the repaired Initialization Value Program pass a fresh non-author review?"
+    provenance: user
+    timestamp: "2026-07-26T09:10+02:00"
+    description: >
+      The user asked to read the amended master protocol and begin the work; its own section 10
+      names a fresh non-author review as the only legal next action. Independent review of
+      preregistration SHA-256
+      e8f75dd72425abcb5b2edf33a88ba7c456b69576b97500083fae064ebae5f8cc returned
+      FAIL BOUNDED AMENDMENT REQUIRED. The nine initial blockers are substantively repaired and
+      every checkable factual assertion in the document reproduces, but four localized defects
+      remain: the count-matched random arm differs from beam-cover in appearance, extent, and
+      volume derivation and so is not an information control; the T@tau censoring rule awards a
+      paired time success whenever the comparator gains more than 0.25 dB over its final 200
+      updates; the LPIPS headline guardrail has no implementation, dependency, or weights in this
+      repository; and the alpha IoU threshold contradicts the repository evaluator it cites. The
+      review is preserved at
+      benchmarks/results/20260725_init_value_program_PREREG_REVIEW_02_FAIL.md.
+    also_depends_on: [N160, N162]
+    status: resolved
+  - id: N164
+    type: experiment
+    title: "Does the beam-cover initializer show value on the development screen, and is the historical random arm an information control?"
+    provenance: ai-executed
+    timestamp: "2026-07-26T13:31+02:00"
+    description: >
+      Development-only screen on the Karate validation frames while the confirmatory protocol
+      remains FAIL-blocked at N163. 96 runs: 2 scenes x 2 viewsets x 2 primitive counts x 4 arms
+      x 3 seeds, fixed topology, 1500 updates, gsplat/CUDA, 39.6 min. Three findings. (1) Review
+      finding B1 is confirmed empirically: random-matched and random-grey share means and differ
+      only in appearance, yet appearance alone moves held-out Q by up to 0.71 dB and changes sign
+      between scenes, so a single random arm cannot separate initialization information from
+      initialization appearance. (2) beam-cover's 1.7-2.6 dB iteration-0 lead over the comparator
+      is almost entirely closed by 1500 updates, so Q@0 is not evidence of initialization value.
+      (3) The candidate's direction is scene-dependent, not count-dependent: beam-cover minus
+      random-grey is negative in all four frame_00005 cells and positive in all four frame_00060
+      cells. The two anchor cells disagree, so the screen licenses no candidate claim. The COLMAP
+      comparator could not be built (no source RGB), so no SfM-relative statement is licensed
+      either. Result note at benchmarks/results/20260726_init_value_dev_screen_RESULT.md; bundle
+      runs/init_value_dev_screen/ passes scripts/check_results_bundle.py.
+    also_depends_on: [N163]
+    status: resolved
+  - id: N165
+    type: implementation
+    title: "Implement ADR-XXXX (closed-form surfel init parameters) and ADR-YYYY (init-preserving densification and trust schedule)"
+    provenance: user
+    timestamp: "2026-07-27T00:00+02:00"
+    description: >
+      The user asked for the non-positional initialization parameters to be fixed as specified in
+      docs/ADR-XXXX-surfel-lift.md and for the schedule to be adapted as specified in
+      docs/ADR-YYYY-init-preserving-densification.md, before running the experiments those ADRs
+      call for. Three new modules. rtgs.lift.surfel_lift implements ADR-XXXX section 1 (normals
+      from local PCA over the lifted means, sign-disambiguated toward the contributing cameras,
+      with the back-projected 2D-major-axis normal logged as a cross-check and never fused),
+      section 2 (tangential sigmas back-projected from the fitted 2D footprints with the
+      70-degree incidence gate, log-space median fusion, 3:1 aspect cap, coherence blend, and
+      sigma_n as the declared rho prior), section 3 (log-transmittance linearization of the
+      Stage-1 alpha composite solved as a box-constrained NNLS by projected gradient), section 4
+      (incidence-weighted SH-0 mean with higher bands zeroed), and every section 5 flag.
+      rtgs.optim.init_density implements ADR-YYYY sections 1-4, 6 and 7: three growth channels
+      with separate budgets, appearance-preserving clone and split, the error-driven tile
+      trigger, relocation instead of the global opacity reset, and the short accumulation window.
+      rtgs.optim.init_trust implements section 5 as an exact per-row learning-rate multiplier
+      applied by post-step interpolation, because Adam normalizes away a scaled gradient.
+      Two deviations are recorded rather than hidden. (1) The ADR's continuous in-plane residual
+      direction is quantized to the primitive's own dominant tangential axis, which makes the
+      offsets and second-moment updates exact in the stored (q, log s) parameterization; the
+      angle discarded by that quantization is logged per event. (2) A primitive whose every
+      observation is rejected by the incidence gate has its candidates restored rather than
+      emitting a scale-free surfel. Acceptance criteria measured on synthetic ground truth:
+      ADR-XXXX A1 normal error median below 15 degrees and tangential log-ratio error below
+      0.35, A3 bit-identical and chunk-invariant output, A4 no autograd graph; ADR-YYYY A1 event
+      invariance 42.6 dB (clone) and 47.2 dB (split) against 28.3 dB and 32.8 dB for the vanilla
+      operators through the same harness, A2 second moments exact to 1e-4 in log scale, A5 the
+      disabled profile bit-identical to the incumbent trainer.
+    also_depends_on: [N164]
+    status: resolved
+  - id: N166
+    type: experiment
+    title: "Do the ADR-XXXX init parameters and the ADR-YYYY schedule move held-out quality, and is the schedule effect init-conditioned?"
+    provenance: ai-executed
+    timestamp: "2026-07-27T05:29+02:00"
+    description: >
+      Development-only screen on the two alpha-bearing Stage frames, which are the only compact
+      bundles in this repository carrying the packed alpha ADR-XXXX section 3 solves against.
+      82 cells, 131.7 minutes, gsplat/CUDA. Screen A: 7 arms x 3 seeds, fixed topology, N=2400,
+      1500 updates. Screen B: 2 initializations x 3 growth levels x 2 trust levels x 2 seeds.
+      Endpoint is median per-view foreground-weighted PSNR on held-out views against each view's
+      own compact 2D fit. Four results, every one of them with the proposed mediator moving as
+      designed. (1) ADR-XXXX raises initial alpha IoU from 0.119 to 0.691 and from 0.011 to 0.765
+      and raises Q at step zero by 6.3 and 4.8 dB, and then loses downstream: every arm carrying
+      the section 3 transmittance solve is a material loss against the repository default on both
+      scenes at zero of three seeds, minus 1.13 to minus 2.32 dB. (2) The same construction with
+      section 3 disabled and the incumbent constant opacity lands inside the 0.25 dB band on both
+      scenes, so sections 1, 2 and 4 are downstream-neutral and the opacity solve alone costs
+      1.3 to 1.5 dB; the rho sweep does not rescue it. (3) The ADR-YYYY operators preserve the
+      render far better than vanilla at each event, 42.6 dB clone and 47.2 dB split against
+      28.3 and 32.8 dB through the same harness, and the init-preserving controller is
+      nonetheless below the classic controller in all four scene-by-init comparisons. (4) The
+      trust schedule is negative for the accurate initialization on both scenes and positive for
+      the random control on one, an interaction of minus 1.58 dB where it is large, which is the
+      opposite sign from the section 5 S4 crossover prediction. The one positive interaction,
+      vanilla densification worth plus 1.27 dB to the accurate init and minus 0.27 dB to random,
+      does not replicate on the second scene. The lift's own flags report that about half the
+      primitives disagree by more than three times between views on tangential scale, which is
+      the ADR's stated estimator of the beam-fusion false-correspondence rate. No default
+      changed; both ADRs remain proposed with every level implemented and selectable. Result note
+      at benchmarks/results/20260727_surfel_init_schedule_screen_RESULT.md; bundle
+      runs/surfel_init_schedule_screen/ passes scripts/check_results_bundle.py.
+    also_depends_on: [N165]
+    status: resolved

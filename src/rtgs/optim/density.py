@@ -114,6 +114,10 @@ class DensityController:
         self.grad_accum = torch.zeros(n_gaussians, device=device)
         self.count = torch.zeros(n_gaussians, device=device)
         self.stats: list[dict] = []
+        # Read-only record of the most recent surgery, so a lineage tracker (ADR-YYYY M3) can
+        # follow the classic path without the classic path having to know it exists. Recording
+        # it changes no parameter, gradient, or RNG draw.
+        self.last_surgery: dict[str, torch.Tensor] | None = None
 
     def accumulate(self, out: RenderOutput, width: int, height: int) -> None:
         """Record screen-space positional gradients after loss.backward()."""
@@ -220,6 +224,18 @@ class DensityController:
                 extras.append(child)
 
         new_params = _edit_params(optimizer, params, keep_mask, extras)
+        self.last_surgery = {
+            "keep_mask": keep_mask.detach().clone(),
+            # ``_edit_params`` appends survivors, clones, split child 0, split child 1 in that
+            # order, so the parent of each appended row follows the same concatenation.
+            "parent_rows": torch.cat(
+                [
+                    clone_mask.nonzero(as_tuple=True)[0],
+                    split_mask.nonzero(as_tuple=True)[0],
+                    split_mask.nonzero(as_tuple=True)[0],
+                ]
+            ),
+        }
 
         n_new = new_params["means"].shape[0]
         if n_new > cfg.max_gaussians:

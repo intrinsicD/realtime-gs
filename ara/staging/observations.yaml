@@ -2005,3 +2005,163 @@ observations:
     promoted_to: "logic/solution/constraints.md:R23"
     crystallized_via: artifact-commitment
     stale: false
+  - id: O132
+    timestamp: "2026-07-25T23:45+02:00"
+    provenance: ai-suggested
+    content: >
+      The 2026-07-25 Initialization Value Program is a useful research roadmap but is not
+      claim-safe as a confirmatory preregistration until it direction-normalizes T@tau headroom,
+      separates validation selection from once-opened test evidence, freezes exact paired
+      inference and scenes/seeds, measures compute time rather than iterations as speed, enforces
+      train-only initializer/COLMAP inputs, narrows Delta-LE and oracle interpretations, and keeps
+      optimizer utility separate from physical covariance validity.
+    context: >
+      Non-author preregistration review N160; no program experiment was run and the user has not
+      yet adopted or revised the proposed repair.
+    potential_type: constraint
+    bound_to: [N160]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R24"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O133
+    timestamp: "2026-07-25T23:52+02:00"
+    provenance: ai-suggested
+    content: >
+      A repaired initialization-value ladder can localize failure among reference headroom,
+      geometry, iteration-0 render packaging, optimizer survival/inheritance, density-control
+      erasure, and compute cost. It cannot infer the correct repair from descriptive Delta-LE,
+      survival, or split-rate measurements alone: every diagnosis needs a matched one-factor
+      intervention scored on downstream compute-to-target and held-out fixed-cap quality. A null
+      across all validated layers bounds or rejects the tested initialization thesis but does not
+      automatically discover a new method.
+    context: >
+      Clarification N161 following the independent initial-FAIL review; the user asked whether the
+      experiment program would diagnose both success and improvement direction but did not yet
+      adopt the proposed repaired ladder.
+    potential_type: constraint
+    bound_to: [N160, N161]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R25"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O134
+    timestamp: "2026-07-26T09:10+02:00"
+    provenance: ai-suggested
+    content: >
+      A count-matched random initializer is only an information control when it matches the
+      candidate on every non-placement factor, and a comparator-derived time target is only a
+      speed estimand when comparator censoring is non-evaluable rather than a candidate success.
+      Under fixed topology with birth and split disabled, unmatched appearance or extent
+      initialization is not recoverable by density control, so an unmatched random arm converts an
+      appearance advantage into an apparent initialization-information gain; and a target defined
+      as the comparator's own final quality minus a materiality margin makes comparator censoring a
+      property of the optimizer schedule rather than of any initializer.
+    context: >
+      Second non-author review N163 of the amended Initialization Value Program master protocol;
+      the review returned FAIL BOUNDED AMENDMENT REQUIRED and no experiment was run.
+    potential_type: constraint
+    bound_to: [N163]
+    promoted: false
+    crystallized_via: null
+    stale: false
+  - id: O135
+    timestamp: "2026-07-26T13:31+02:00"
+    provenance: ai-executed
+    content: >
+      On the Karate development screen under fixed topology, initialization appearance and
+      initialization placement are separately material and can point in opposite directions.
+      Holding means identical and varying only colour moved held-out quality by up to 0.71 dB,
+      exceeding the 0.25 dB materiality margin in five of eight cells and reversing sign between
+      the two scenes; consequently the candidate beat the matched random arm in cells where it
+      lost to the unmatched one. A preregistration that carries a single random arm therefore
+      reports an unknown mixture of the two effects, and the amended protocol must retain both a
+      matched and an unmatched random control rather than choosing one.
+    context: >
+      Development-only screen N164, run while the confirmatory protocol is FAIL-blocked at N163.
+      This is the direct measurement of review finding B1, which O134 had staged as an argument.
+    potential_type: constraint
+    bound_to: [N163, N164]
+    promoted: false
+    crystallized_via: null
+    stale: false
+  - id: O136
+    timestamp: "2026-07-26T13:31+02:00"
+    provenance: ai-executed
+    content: >
+      An iteration-0 quality lead is not a proxy for the post-optimization effect it is meant to
+      predict. The beam-cover initializer started 1.7 to 2.6 dB above the repository default in
+      every screen cell, yet after 1500 fixed-topology updates the spread across all four arms
+      collapsed to 1.0 dB or less and usually to under 0.3 dB. Reporting Q at step 0 as
+      initialization value overstates the durable effect by roughly an order of magnitude on these
+      scenes, and any endpoint that credits initialization must be measured after the optimizer
+      has had a comparable budget.
+    context: >
+      Development-only screen N164; observed uniformly across two scenes, two view counts, and two
+      primitive counts.
+    potential_type: constraint
+    bound_to: [N164]
+    promoted: false
+    crystallized_via: null
+    stale: false
+  - id: O137
+    timestamp: "2026-07-27T05:29+02:00"
+    provenance: ai-executed
+    content: >
+      An initialization repair can move its own proposed mediator by a very large margin and
+      reverse the downstream outcome it was built to improve. The closed-form surfel construction
+      raised initial rendered alpha IoU from 0.119 to 0.691 on one scene and from 0.011 to 0.765
+      on the other, and raised held-out quality at step zero by 6.3 and 4.8 dB, while every arm
+      carrying its transmittance opacity solve finished a material loss against the repository
+      default on both scenes at zero of three seeds. Disabling that one section restored parity
+      without changing any other parameter, isolating it as the cause. Mediator movement is
+      therefore not evidence of repair value even when the mediator is the exact quantity the
+      failure was diagnosed on.
+    context: >
+      Development-only screen N166 on the two alpha-bearing Stage frames; the only single-factor
+      contrast in the design is the opacity solve on versus off.
+    potential_type: constraint
+    bound_to: [N165, N166]
+    promoted: false
+    crystallized_via: null
+    stale: false
+  - id: O138
+    timestamp: "2026-07-27T05:29+02:00"
+    provenance: ai-executed
+    content: >
+      Appearance-preserving densification events are not what makes densification work. Operators
+      built to preserve the rendered image at each clone and split do so by a measured 14 dB over
+      the vanilla operators on a fixed unit fixture, 42.6 versus 28.3 dB for clone and 47.2 versus
+      32.8 dB for split, and the controller built from them finished below the vanilla controller
+      in all four scene-by-initialization comparisons. The perturbation that the appearance-
+      preserving design exists to eliminate appears to carry exploration value, so the design
+      invariant "growth changes capacity, never the current solution" is implementable and is not
+      the property that determines outcome.
+    context: >
+      Development-only screen N166; the vanilla arm is the incumbent code path itself, not a
+      re-implementation, so the contrast is not confounded by the operator harness.
+    potential_type: constraint
+    bound_to: [N165, N166]
+    promoted: false
+    crystallized_via: null
+    stale: false
+  - id: O139
+    timestamp: "2026-07-27T05:29+02:00"
+    provenance: ai-executed
+    content: >
+      Throttling the learning rate of the parameters an initialization got right, while leaving
+      opacity and spherical harmonics free, is harmful to that initialization rather than
+      protective. A per-primitive trust schedule on position, tangential scale and rotation was
+      negative for the accurate initialization on both scenes and positive for the random control
+      on one, an interaction of minus 1.58 dB where it was large, which is the opposite sign from
+      the predicted accurate-helps random-hurts crossover. The plausible mechanism is that free
+      appearance parameters fit to a geometry that is not allowed to correct itself, which implies
+      any trust asymmetry must throttle appearance and geometry together or not at all.
+    context: >
+      Development-only screen N166, measured under fixed topology so no density event confounds
+      the learning-rate contrast.
+    potential_type: constraint
+    bound_to: [N165, N166]
+    promoted: false
+    crystallized_via: null
+    stale: false

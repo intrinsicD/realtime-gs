@@ -1,0 +1,78 @@
+session:
+  id: "2026-07-27_001"
+  date: "2026-07-27"
+  started: "2026-07-27T00:00+02:00"
+  last_turn: "2026-07-27T05:35+02:00"
+  turn_count: 1
+  summary: "Implemented ADR-XXXX and ADR-YYYY to their acceptance criteria, then screened both: the init construction moves its mediator hard and loses downstream, and both schedule components are refuted."
+
+events_logged:
+  - turn: 1
+    type: implementation
+    id: N165
+    routing: direct
+    provenance: user
+    summary: "User asked for the non-positional init parameters and the schedule to be fixed as the two ADRs specify, before running the experiments they call for."
+  - turn: 1
+    type: experiment
+    id: N166
+    routing: direct
+    provenance: ai-executed
+    summary: "82-cell development screen on the two alpha-bearing Stage frames; three informative negatives and one non-replication."
+  - turn: 1
+    type: constraint
+    id: O137
+    routing: staged
+    provenance: ai-executed
+    summary: "A repair can move its own mediator enormously and reverse the downstream outcome; mediator movement is not evidence of value."
+  - turn: 1
+    type: constraint
+    id: O138
+    routing: staged
+    provenance: ai-executed
+    summary: "Appearance-preserving densification events are measurably gentler and downstream worse; the vanilla perturbation carries exploration value."
+  - turn: 1
+    type: constraint
+    id: O139
+    routing: staged
+    provenance: ai-executed
+    summary: "Trusting geometry while leaving appearance free harms the accurate initialization; any trust asymmetry must cover both or neither."
+
+ai_actions:
+  - turn: 1
+    action: >
+      Implemented rtgs.lift.surfel_lift (ADR-XXXX sections 1 to 5), rtgs.optim.init_density
+      (ADR-YYYY sections 1 to 4, 6, 7) and rtgs.optim.init_trust (section 5), wired them into the
+      trainer behind opt-in flags that leave every incumbent path bit-identical, and verified them
+      against the ADRs' own acceptance criteria before running anything: synthetic ground-truth
+      normals and scales, determinism and chunk invariance, absence of an autograd graph, event
+      invariance measured against the vanilla operators through the same harness, exact second
+      moments, and lineage inheritance. Recorded two deviations rather than hiding them: the
+      continuous in-plane residual direction is quantized to the primitive's own dominant
+      tangential axis so the second-moment update is exact in the stored parameterization, with
+      the discarded angle logged per event; and a primitive whose every observation is rejected by
+      the incidence gate has its candidates restored rather than emitting a scale-free surfel.
+      Then ran the 82-cell screen, built the Rule 7 bundle with a 19-arm viewer comparison
+      manifest, and wrote the development-only result note. No default was changed and no claim
+      was promoted.
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/lift/surfel_lift.py"
+      - "src/rtgs/optim/init_density.py"
+      - "src/rtgs/optim/init_trust.py"
+      - "src/rtgs/optim/trainer.py"
+      - "src/rtgs/optim/density.py"
+      - "src/rtgs/optim/strategies.py"
+      - "tests/test_surfel_lift.py"
+      - "tests/test_init_preserving_density.py"
+      - "benchmarks/surfel_init_schedule_screen.py"
+      - "benchmarks/surfel_init_schedule_report.py"
+      - "benchmarks/surfel_init_schedule_bundle.py"
+      - "benchmarks/results/20260727_surfel_init_schedule_screen_RESULT.md"
+      - "docs/EXPERIMENTS.md"
+      - "docs/ARCHITECTURE.md"
+      - "CLAUDE.md"
+      - "runs/surfel_init_schedule_screen/ (82 cells, bundle, index.html, comparison.json, viewer_smoke.json)"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"

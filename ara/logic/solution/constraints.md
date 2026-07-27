@@ -265,3 +265,32 @@
   `benchmarks/results/20260720_dense_confidence_gated_init_e2_RESULT.md`]
 - **Evidence**: [N156, N157, `ara/evidence/tables/20260720_dense_confidence_gated_init.md`]
 - **From staging**: O131
+
+## R24: Gate initialization claims behind independent train/validation/test evidence
+- **Constraint**: The Initialization Value Program may support no confirmatory claim until
+  lower-is-better time estimands are direction-correct and censor-aware; Stage and Karate outcomes
+  remain pilot/development evidence; all initializer, refit, count, and SfM inputs are demonstrably
+  train-only; one fixed candidate is compared with train-only fixed-pose COLMAP and count-matched
+  random controls on exact paired seeds; and three fresh mask-bearing scenes are opened once only
+  after all checkpoints are immutable. Iterations are diagnostic; synchronized end-to-end seconds
+  and held-out quality at an exact absolute count are the confirmatory co-primary endpoints.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Code ref**: [`benchmarks/results/20260725_init_value_program_PREREG.md`]
+- **Evidence**: [N160, N162,
+  `benchmarks/results/20260725_init_value_program_PREREG_REVIEW_INITIAL_FAIL.md`]
+- **From staging**: O132
+
+## R25: Require matched downstream interventions before selecting an initialization repair
+- **Constraint**: Render-transfer, coverage, lineage, covariance, appearance, and split/birth
+  diagnostics may localize a failing layer but cannot select a repair by themselves. Each repair
+  must change one frozen factor, measure the proposed mediator, and then improve downstream
+  end-to-end target reach or fixed-count held-out quality on development evidence before the
+  candidate can be revalidated. A null diagnostic ladder narrows or rejects the tested thesis; it
+  does not automatically identify a replacement method.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Code ref**: [`benchmarks/results/20260725_init_value_program_PREREG.md`]
+- **Evidence**: [N161, N162,
+  `benchmarks/results/20260725_init_value_program_PREREG_REVIEW_INITIAL_FAIL.md`]
+- **From staging**: O133

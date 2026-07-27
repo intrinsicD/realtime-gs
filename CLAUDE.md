@@ -81,11 +81,13 @@ src/rtgs/
   image2gs/    stage 1: differentiable 2D splatting (serial + fused batch_views),
                native/StructSplat fitting, adapters; experimental CUDA ext in cuda_backend.py
   lift/        stage 2: gradient/depth/hybrid/carve/field, compact_carve, beam_fusion,
-               surfel_init (cover-consistent covariance/opacity post-process), field_* and merge
+               surfel_init (cover-consistent covariance/opacity post-process),
+               surfel_lift (ADR-XXXX closed-form covariance/opacity/colour), field_* and merge
   depth/       DepthBackend protocol, mock (tests), depth_anything (lazy), align (scale/shift)
   render/      dense Rasterizer (torch CPU ref, gsplat CUDA); sparse PointRasterizer (torch CPU)
   optim/       stage 3: RGB trainer.py; RGB-free fixed-topology compact_trainer.py;
-               CPU classic density.py; CUDA gsplat strategies.py
+               CPU classic density.py; CUDA gsplat strategies.py; ADR-YYYY init_density.py
+               (three-channel appearance-preserving growth) + init_trust.py (trust schedule)
   data/        scenes/loaders plus compact_views.py capped view bundles; field_inputs.py
                explicit compact train/heldout seam; reconstruction_inputs.py fixed-topology seam
   pipeline.py  strict-split orchestration + image-free run_field_pipeline; visualize.py previews;
@@ -93,7 +95,10 @@ src/rtgs/
 tests/         CPU-only pytest suite; conftest.py has seeding + tiny-scene fixtures
 benchmarks/    run.py harness + results/*.json, protocols, seals, RESULT/AUDIT notes
 docs/          ARCHITECTURE, RESEARCH (SOTA survey), RESEARCH_LOOP, ROADMAP, BENCHMARKS,
-               EXPERIMENTS; DESIGN_field_lift.md design note; TASK_* per-protocol notes
+               EXPERIMENTS; DESIGN_field_lift.md design note; TASK_* per-protocol notes;
+               ADR-XXXX-surfel-lift.md and ADR-YYYY-init-preserving-densification.md (the
+               init-parameter and schedule decisions); 20260725_claims_and_questions.md
+               (which outcome makes which paper, above the init-value PREREG)
 ara/           claim + evidence ledger (see "Evidence and claims" below)
 dataset/       calibrated local scenes required by Hard Rule 7
 scripts/       verify.sh plus the checkers (docs_sync, check_ara, check_script_layout,

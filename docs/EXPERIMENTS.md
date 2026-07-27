@@ -17,6 +17,54 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-27 — ADR-XXXX surfel init parameters and ADR-YYYY init-preserving schedule
+
+- **Question**: two ADRs, two claims. ADR-XXXX says the lift's *non-positional* parameters
+  (covariance, opacity, colour) can be rebuilt closed-form from the 2D captures and that doing so
+  repairs an initialization whose means are right but whose rendered state is empty. ADR-YYYY says
+  vanilla ADC destroys such an initialization by four named mechanisms, and that appearance-
+  preserving growth plus a per-primitive trust schedule preserves it. Does either move held-out
+  quality, and is the schedule effect init-conditioned?
+- **Setup**: `python -m benchmarks.surfel_init_schedule_screen` on the two alpha-bearing Stage
+  frames (`frame_00008`, `frame_00009`) — the only compact bundles in the repository with packed
+  alpha, which ADR-XXXX §3 requires. Screen A: 7 arms x 3 seeds, fixed topology, N=2400, 1500
+  updates, downscale 4, masked supervision, gsplat/CUDA. Screen B: 2 inits x 3 growth levels
+  (`none`/`classic`/`init-preserving`) x 2 trust levels x 2 seeds, budget 6000. 82 cells,
+  131.7 min, RTX 3050. Endpoint: median per-view foreground-weighted PSNR on held-out views
+  against each view's own compact 2D fit. Full note:
+  `benchmarks/results/20260727_surfel_init_schedule_screen_RESULT.md`.
+- **Result**: ADR-XXXX moves its mediator hard — init alpha IoU 0.119 -> 0.691 (`frame_00008`) and
+  **0.011 -> 0.765** (`frame_00009`), Q@0 +6.3 dB and +4.8 dB — and loses downstream: every arm
+  carrying the §3 transmittance solve is a material loss versus the repository default on both
+  scenes at 0/3 seeds (-1.13 to -2.32 dB). With §3 **off** and the incumbent constant alpha the
+  same construction lands inside the 0.25 dB band on both scenes (+0.14, -0.24), so §1/§2/§4 are
+  downstream-neutral and §3 alone costs 1.3-1.5 dB. The rho sweep does not rescue it (monotone on
+  one scene, flat on the other; no level reaches the comparator). ADR-YYYY's operators are
+  measurably gentler on the unit fixture — clone 42.6 dB and split 47.2 dB event invariance versus
+  28.3 dB and 32.8 dB for vanilla through the same harness — yet `init-preserving` is below
+  `classic` in all four (scene x init) comparisons. The trust schedule is negative for the accurate
+  init on both scenes (-1.10, -0.48) and positive for the random control on one (+0.49): the
+  interaction is -1.58 dB, the **opposite sign** from ADR-YYYY §5's predicted S4 crossover. The one
+  positive interaction — vanilla densification worth +1.27 dB to the accurate init and -0.27 dB to
+  random, contrast +1.54 dB on `frame_00008` — does **not** replicate on `frame_00009` (-0.25 dB).
+- **Conclusion**: three informative negatives and one non-replication, all with the mediator moving
+  as designed. (1) Reconstructing covariance/rotation/colour from the captures is implementable and
+  downstream-neutral here. (2) The §3 opacity solve is +4.9 dB at init and -1.5 dB at the end: a
+  clean single-factor dissociation, and under `ara` R25 it is not selectable. Its target is a binary
+  silhouette, so `-log(1 - A)` asks for a transmittance the geometry cannot reach and ~42% of
+  primitives sit at a bound — the ADR's alpha target, not the solver, is what needs re-deciding.
+  (3) Appearance-preserving densification events are not what makes densification work; the vanilla
+  perturbation is apparently useful exploration. (4) The lift's own flags say ~half the primitives
+  disagree by more than 3x between views on tangential scale, which is the ADR's stated estimator of
+  the beam-fusion false-correspondence rate and bounds what any covariance construction on this
+  lineage can achieve. No default changed; both ADRs stay `proposed` with every level implemented
+  and selectable. Confidence: moderate for the negatives (consistent across 2 scenes and 3 seeds,
+  0/6 seed-wins), low for anything about the interaction (2 scenes disagree).
+- **Follow-ups**: (a) amend ADR-XXXX §3's alpha target before re-running it; (b) attack the
+  beam-fusion correspondence rate, which caps the lift; (c) resolve measured sigma_t/spacing ~ 0.46
+  against the 0.5 cover condition; (d) any E12 rerun needs per-arm tuning (PREREG §1.5 P-adapt),
+  which this screen did not do, before the schedule levels can be fairly compared.
+
 ## 2026-07-25 — Stage 0: interior holes are not the remaining problem; the silhouette is
 
 - **Question**: post-hoc diagnostic, selects nothing. Before spending a stage on "fill internal

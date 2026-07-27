@@ -1,0 +1,65 @@
+session:
+  id: "2026-07-26_003"
+  date: "2026-07-26"
+  started: "2026-07-26T13:25+02:00"
+  last_turn: "2026-07-26T13:31+02:00"
+  turn_count: 1
+  summary: "Recovered the interrupted development screen after a host restart, completed its Rule 7 bundle, and recorded a scene-split candidate result that empirically confirms review finding B1."
+
+events_logged:
+  - turn: 1
+    type: experiment
+    id: N164
+    routing: direct
+    provenance: user
+    summary: "User asked to continue the last experiment after an unplanned restart; the 96-run screen had completed but its results bundle and write-up had not."
+  - turn: 1
+    type: constraint
+    id: O135
+    routing: staged
+    provenance: ai-executed
+    summary: "Appearance and placement initialization are separately material and can oppose each other, so a single random arm reports an unknown mixture."
+  - turn: 1
+    type: constraint
+    id: O136
+    routing: staged
+    provenance: ai-executed
+    summary: "The iteration-0 lead collapses under a comparable optimizer budget and is not a proxy for initialization value."
+
+ai_actions:
+  - turn: 1
+    action: "Established that the screen itself had finished at 11:21 and only the bundle step was lost; diagnosed the post-reboot gsplat load failure as a libstdc++ ABI mismatch; completed the representative bundle, previews, results page, and viewer receipt; wrote the development-only result note. No experiment was re-run and no scientific parameter was changed."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260726_init_value_dev_screen_RESULT.md"
+      - "benchmarks/init_value_dev_screen_bundle.py"
+      - "benchmarks/init_value_dev_screen_report.py"
+      - "runs/init_value_dev_screen/ (bundle artifacts, previews, index.html, viewer_smoke.json)"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-26_003.yaml"
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The screen completed all 96 runs in 39.6 min and wrote summary.json at 11:21; the interruption cost only the bundle step, so nothing scientific needed recomputation."
+  - turn: 1
+    excerpt: "Two code changes were needed to pass the Rule 7 gate: metrics.json required a top-level 'metrics' object, and index.html had to link the root bundle, which forced the page to be re-rendered before its hash enters the viewer receipt."
+  - turn: 1
+    excerpt: "The two anchor cells disagree: beam-cover is a material gain on frame_00060 (3/3 seeds, 0.72x time to target) and inside the 0.25 dB band on frame_00005. The screen licenses no candidate claim."
+  - turn: 1
+    excerpt: "Appearance alone moves held-out Q by up to 0.71 dB and changes sign between scenes; beam-cover beats random-matched in cells where it loses to random-grey. B1 is confirmed by measurement, not argument."
+  - turn: 1
+    excerpt: "Post-reboot, gsplat's cached CUDA extension needs CXXABI_1.3.15 but .venv resolves torch from miniconda whose libstdc++ stops at 1.3.13; GPU runs need LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6."
+
+open_threads:
+  - "Amend prereg sections 3.1, 4.2, 5.1.6, and 6.8 for findings B1-B4, retaining BOTH random arms per O135, re-hash, and obtain a third non-author review."
+  - "Recover the Karate RGB and calibration against the 62 file hashes in 20260716_compact_point_training_SEAL.json; this is what blocks the COLMAP comparator."
+  - "Commit the master protocol, both reviews, the two 2026-07-25 pilot preregistrations, the screen harnesses, and this result note so the outcome-access ledger is anchored in history."
+
+ai_suggestions_pending:
+  - "Carry both random controls into the confirmatory design rather than picking one; the screen shows the choice changes the sign of the candidate margin."
+  - "Drop Q@0 from any headline endpoint and report it only as a diagnostic."
+  - "Treat the scene-dependent sign as a design requirement: pooling scenes will average a reversal, so the three confirmatory scenes should be analysed per-scene before pooling."

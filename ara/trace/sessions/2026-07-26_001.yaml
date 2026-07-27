@@ -1,0 +1,56 @@
+session:
+  id: "2026-07-26_001"
+  date: "2026-07-26"
+  started: "2026-07-26T00:27+02:00"
+  last_turn: "2026-07-26T00:27+02:00"
+  turn_count: 1
+  summary: "Repaired the Initialization Value Program as a pilot-informed, leakage-safe gated protocol; fresh independent review and executable addenda remain required."
+
+events_logged:
+  - turn: 1
+    type: decision
+    id: N162
+    routing: direct
+    provenance: user
+    summary: "Authorized repair of the failed umbrella preregistration instead of running it."
+  - turn: 1
+    type: constraint
+    id: O132
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Crystallized the train/validation/fresh-test, paired-inference, and end-to-end timing gate as R24."
+  - turn: 1
+    type: constraint
+    id: O133
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Crystallized the matched one-factor downstream intervention rule as R25."
+
+ai_actions:
+  - turn: 1
+    action: "Replaced the failed Initialization Value Program preregistration with a pilot-informed master protocol and cross-checked all nine initial-review blockers."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260725_init_value_program_PREREG.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/logic/solution/constraints.md"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+      - "ara/trace/sessions/2026-07-26_001.yaml"
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The user answered 'yes please' to repairing the preregistration after asking whether it had been fixed."
+  - turn: 1
+    excerpt: "The amended protocol treats all existing Stage/Karate outcomes as development-only and requires three newly sealed mask-bearing scenes for confirmation."
+
+open_threads:
+  - "Obtain a fresh non-author PASS on the amended master-protocol hash before implementation proceeds."
+  - "Recover original Karate RGB/calibration, implement fail-closed train-only COLMAP and isolation/timing/decision seams, then freeze and review the validation addendum."
+  - "Only after validation passes, acquire three fresh mask-bearing calibrated scenes and obtain a separate PASS on the confirmatory addendum."
+
+ai_suggestions_pending:
+  - "Do not run the 96-cell validation screen until every implementation/provenance gate in section 6 exists and its executable addendum passes review."

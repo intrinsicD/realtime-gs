@@ -55,3 +55,38 @@ sessions:
     events_count: 2
     claims_touched: []
     open_threads: 2
+  - id: "2026-07-25_001"
+    date: "2026-07-25"
+    summary: "Failed the Initialization Value Program preregistration pending repair and clarified how a repaired ladder can localize, but not automatically solve, failure."
+    turn_count: 2
+    events_count: 4
+    claims_touched: []
+    open_threads: 1
+  - id: "2026-07-26_001"
+    date: "2026-07-26"
+    summary: "Repaired the Initialization Value Program as a pilot-informed, leakage-safe gated protocol; fresh independent review and executable addenda remain required."
+    turn_count: 1
+    events_count: 3
+    claims_touched: []
+    open_threads: 3
+  - id: "2026-07-26_002"
+    date: "2026-07-26"
+    summary: "Second non-author review of the amended Initialization Value Program: FAIL bounded amendment required on the random control, time-target censoring, LPIPS guardrail, and alpha IoU threshold."
+    turn_count: 1
+    events_count: 2
+    claims_touched: []
+    open_threads: 3
+  - id: "2026-07-26_003"
+    date: "2026-07-26"
+    summary: "Recovered the interrupted development screen after a host restart, completed its Rule 7 bundle, and recorded a scene-split candidate result that empirically confirms review finding B1."
+    turn_count: 1
+    events_count: 3
+    claims_touched: []
+    open_threads: 3
+  - id: "2026-07-27_001"
+    date: "2026-07-27"
+    summary: "Implemented ADR-XXXX and ADR-YYYY to their acceptance criteria, then screened both: the init construction moves its mediator hard and loses downstream, and both schedule components are refuted."
+    turn_count: 1
+    events_count: 5
+    claims_touched: []
+    open_threads: 3

@@ -337,6 +337,6 @@ def strategy_uses_absgrad(name: str, config: DensityConfig) -> bool:
 
 def validate_strategy_name(name: str) -> None:
     """Validate without importing gsplat."""
-    choices = {"classic", "gsplat-default", "gsplat-mcmc"}
+    choices = {"classic", "gsplat-default", "gsplat-mcmc", "init-preserving"}
     if name not in choices:
         raise ValueError(f"unknown density strategy '{name}' (expected one of {sorted(choices)})")
