@@ -25,6 +25,8 @@ from rtgs.core.metrics import image_metrics, masked_crop, ssim
 from rtgs.core.sh import DEFAULT_SMU1_MU
 from rtgs.data.scene import SceneData
 from rtgs.optim.density import DensityConfig, DensityController
+from rtgs.optim.init_density import InitPreservingConfig, InitPreservingController
+from rtgs.optim.init_trust import TrustConfig, TrustSchedule
 from rtgs.render.base import (
     DEFAULT_VISIBILITY_MARGIN_SIGMA,
     KernelSupportDiagnostics,
@@ -100,6 +102,15 @@ class TrainConfig:
     # Clamp used before opacity logit initialization. The historical value remains default;
     # continuation/polish runs may opt into a tighter, explicitly receipted boundary.
     opacity_logit_epsilon: float = 1e-4
+    # ADR-YYYY init-preserving profile. ``density_strategy="init-preserving"`` selects the
+    # three-channel error-driven controller; ``trust`` adds the per-primitive LR schedule and
+    # is independent of it (either may be used alone -- that is the E12 factor structure).
+    # Both default to off, so every established code path stays bit-identical (ADR-YYYY A5).
+    init_density: InitPreservingConfig | None = None
+    trust: TrustConfig | None = None
+    # (N,) PCA coherence per initial primitive, consumed by the trust schedule's rotation rule.
+    # ADR-XXXX §1 supplies it; without it every frame is trusted equally.
+    init_coherence: torch.Tensor | None = None
 
 
 @dataclass(frozen=True)
@@ -372,12 +383,39 @@ class Trainer:
         arena = None
         classic_controller = None
         gsplat_controller = None
-        if cfg.densify and strategy_name == "classic":
+        init_controller = None
+        trust_schedule = None
+        if cfg.trust is not None and cfg.trust.enabled:
+            if quaternion_policy != "current":
+                raise ValueError(
+                    "the trust schedule requires quaternion_update_policy='current': the "
+                    "retraction policies land on the unit sphere, and interpolating toward the "
+                    "pre-step quaternion afterwards would leave the row off it"
+                )
+            if cfg.densify and strategy_name.startswith("gsplat"):
+                raise ValueError(
+                    "the trust schedule requires a density strategy that reports its surgery "
+                    "('classic' or 'init-preserving'); the gsplat strategies do their own "
+                    "parameter replacement and would silently desynchronize the lineage"
+                )
+            trust_schedule = TrustSchedule(
+                cfg.trust,
+                init.n,
+                coherence=cfg.init_coherence,
+                device=device,
+            )
+        if cfg.densify and strategy_name == "init-preserving":
+            init_config = cfg.init_density or InitPreservingConfig(
+                max_gaussians=cfg.density.max_gaussians
+            )
+            init_controller = InitPreservingController(init_config, init.n, extent, device=device)
+        elif cfg.densify and strategy_name == "classic":
             classic_controller = DensityController(cfg.density, init.n, extent, device=device)
             if init.n > cfg.density.max_gaussians:
                 params = classic_controller.step(
                     0, params, optimizers, generator=gen, force_budget=True
                 )
+                _sync_trust_lineage(trust_schedule, classic_controller)
         elif cfg.densify:
             if cfg.rasterizer == "torch" or device.type != "cuda":
                 raise RuntimeError(f"{strategy_name} requires --rasterizer gsplat and CUDA")
@@ -587,6 +625,21 @@ class Trainer:
 
             if classic_controller is not None:
                 classic_controller.accumulate(out, scene.cameras[v].width, scene.cameras[v].height)
+            if init_controller is not None:
+                init_controller.accumulate(
+                    view=int(v),
+                    camera=render_camera,
+                    prediction=color_for_loss,
+                    target=target_for_loss,
+                    alpha=out.alpha,
+                    depth=out.depth,
+                    visible=out.visible,
+                )
+                init_controller.accumulate_gradients(
+                    out, scene.cameras[v].width, scene.cameras[v].height
+                )
+            if trust_schedule is not None:
+                trust_schedule.capture(params)
             observe_quaternion_step = (
                 quaternion_policy != "current" or quaternion_step_callback is not None
             )
@@ -614,6 +667,8 @@ class Trainer:
                 if quaternion_step_callback is not None:
                     with torch.no_grad():
                         quaternion_step_callback(q_old, q_star, q_new, completed_step)
+            if trust_schedule is not None:
+                trust_schedule.apply(params, completed_step)
             history["loss"].append(float(loss.detach()))
             history["loss_terms"].append(
                 {
@@ -627,8 +682,13 @@ class Trainer:
             # Exponential means-LR decay.
             optimizers["means"].param_groups[0]["lr"] *= means_gamma
 
-            if classic_controller is not None:
+            if init_controller is not None:
+                params = init_controller.step(
+                    completed_step, params, optimizers, trust=trust_schedule
+                )
+            elif classic_controller is not None:
                 params = classic_controller.step(completed_step, params, optimizers, generator=gen)
+                _sync_trust_lineage(trust_schedule, classic_controller)
             elif gsplat_controller is not None:
                 gsplat_controller.post_backward(
                     params,
@@ -668,10 +728,14 @@ class Trainer:
                     callback_seconds += time.perf_counter() - observer_started
 
         history["means_lr_final"] = optimizers["means"].param_groups[0]["lr"]
-        if classic_controller is not None:
+        if init_controller is not None:
+            history["density_stats"] = init_controller.stats
+        elif classic_controller is not None:
             history["density_stats"] = classic_controller.stats
         elif gsplat_controller is not None:
             history["density_stats"] = gsplat_controller.stats
+        if trust_schedule is not None:
+            history["trust_schedule"] = trust_schedule.summary()
         if arena is not None:
             history["storage_diagnostics"] = arena.diagnostics()
         if device.type == "cuda":
@@ -1186,6 +1250,23 @@ def _apply_quaternion_update_policy_(
     _require_unit_quaternion_rows(proposed, "post-policy candidate quaternion")
     with torch.no_grad():
         parameter.copy_(proposed)
+
+
+def _sync_trust_lineage(
+    trust_schedule: TrustSchedule | None, controller: DensityController
+) -> None:
+    """Replay the classic controller's surgery onto the trust schedule's lineage arrays.
+
+    The classic path is an E12 *comparison* level, so the trust schedule has to survive it:
+    a lineage tracker that only works with the new controller cannot measure an interaction
+    between the two.  ``last_surgery`` is a record, not a hook -- the classic controller's
+    numerics are untouched (ADR-YYYY A5).
+    """
+    if trust_schedule is None or controller.last_surgery is None:
+        return
+    surgery = controller.last_surgery
+    trust_schedule.reindex(surgery["keep_mask"], surgery["parent_rows"])
+    controller.last_surgery = None
 
 
 def _resolve_device(requested: str) -> torch.device:

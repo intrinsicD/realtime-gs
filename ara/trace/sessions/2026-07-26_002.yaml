@@ -1,0 +1,53 @@
+session:
+  id: "2026-07-26_002"
+  date: "2026-07-26"
+  started: "2026-07-26T09:10+02:00"
+  last_turn: "2026-07-26T09:10+02:00"
+  turn_count: 1
+  summary: "Second non-author review of the amended Initialization Value Program: FAIL bounded amendment required on the random control, time-target censoring, LPIPS guardrail, and alpha IoU threshold."
+
+events_logged:
+  - turn: 1
+    type: question
+    id: N163
+    routing: direct
+    provenance: user
+    summary: "Asked to read the amended master protocol and begin the work; its section 10 names a fresh non-author review as the only legal next action."
+  - turn: 1
+    type: constraint
+    id: O134
+    routing: staged
+    provenance: ai-suggested
+    summary: "Staged the matched-control and censoring conditions a comparator-derived time target and an information control must satisfy."
+
+ai_actions:
+  - turn: 1
+    action: "Completed a second non-author preregistration review, verified every checkable factual assertion in the document against the repository, preserved a FAIL with four bounded amendments, and ran no scientific experiment."
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260725_init_value_program_PREREG_REVIEW_02_FAIL.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/sessions/2026-07-26_002.yaml"
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The user asked to read benchmarks/results/20260725_init_value_program_PREREG.md and begin the work; the document itself forbids an experiment as the next action."
+  - turn: 1
+    excerpt: "All four frozen manifest identities, the section 2.2 split IDs, the Karate packed-alpha absence, and the section 4.2 foreground-MSE definition reproduce exactly against the repository."
+  - turn: 1
+    excerpt: "The reviewed hash is e8f75dd72425abcb5b2edf33a88ba7c456b69576b97500083fae064ebae5f8cc, working-tree content at base d6876bc, which is uncommitted."
+
+open_threads:
+  - "Amend sections 3.1, 4.2, 5.1.6, and 6.8 for findings B1-B4, re-hash the master protocol, and obtain a third non-author review of the amended sections."
+  - "Recover the Karate RGB and calibration against the 62 file hashes in 20260716_compact_point_training_SEAL.json; this is data restoration and may proceed before the PASS."
+  - "Commit the master protocol, both reviews, and the two 2026-07-25 pilot preregistrations and harnesses so the outcome-access ledger is anchored in history."
+
+ai_suggestions_pending:
+  - "Match the random control to beam-cover on opacity, extent rule, and train-view color assignment so only mean placement differs."
+  - "Treat comparator and joint censoring as non-evaluable pairs rather than candidate time successes, and require 4/5 evaluable pairs."
+  - "Recompute the staged train-only bounding volume from training views alone; the manifest bounds_hint is a dataset-wide constant covering held-out views."
