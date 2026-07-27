@@ -90,3 +90,10 @@ sessions:
     events_count: 5
     claims_touched: []
     open_threads: 3
+  - id: "2026-07-27_002"
+    date: "2026-07-27"
+    summary: "Independent referee pass over the ADR-XXXX/ADR-YYYY screen: all four findings confirmed at development scope, one citation erratum recorded, and the three staged constraints promoted as scoped claims C25-C27."
+    turn_count: 1
+    events_count: 1
+    claims_touched: [C25, C26, C27]
+    open_threads: 3

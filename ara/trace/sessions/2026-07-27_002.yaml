@@ -1,0 +1,43 @@
+session:
+  id: "2026-07-27_002"
+  date: "2026-07-27"
+  started: "2026-07-27T09:40+02:00"
+  last_turn: "2026-07-27T10:25+02:00"
+  turn_count: 1
+  summary: "Independent referee pass over the ADR-XXXX/ADR-YYYY screen: all four findings confirmed at development scope, one citation erratum recorded, and the three staged constraints promoted as scoped claims C25-C27."
+
+events_logged:
+  - turn: 1
+    type: decision
+    id: N167
+    routing: direct
+    provenance: ai-executed
+    summary: "Scientist pass over N166 in a fresh CPU-only workspace; internal-consistency, chronology, isolation, and CPU re-execution checks pass; O137-O139 promoted as C25-C27 with development-only scope."
+
+ai_actions:
+  - turn: 1
+    action: >
+      Ran the realtime-gs-results-audit procedure over the 2026-07-27 screen without the
+      gitignored run bundle: verified the governing preregistration predates the screen and the
+      confirmatory phase stayed blocked; verified held-out isolation structurally in the harness;
+      cross-checked Screen B against its two independently published representations (four of
+      four exact), recomputed all ten interaction cells within rounding, reproduced all twelve
+      Screen-A verdicts from the harness's paired-median contrast rule, and confirmed the 82-cell
+      accounting including the valid Screen-A reuse; re-executed the deterministic A1
+      event-invariance fixture on CPU and matched the published figures exactly; found and
+      recorded the frame-role citation erratum (the role table lives in the withdrawn 2026-07-26
+      rewrite, not the governing preregistration) without editing the append-only result note;
+      wrote the audit note and machine-readable audit JSON; promoted O137, O138 and O139 as
+      development-only claims C25, C26 and C27 with explicit replay, seed-depth, tuning-budget,
+      and no-preregistered-question boundaries; left both ADRs proposed and every default
+      unchanged.
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260727_surfel_init_schedule_screen_AUDIT.md"
+      - "benchmarks/results/20260727_surfel_init_schedule_screen_AUDIT.json"
+      - "ara/logic/claims.md"
+      - "ara/staging/observations.yaml"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/trace/sessions/2026-07-27_002.yaml"
+      - "ara/trace/sessions/session_index.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
