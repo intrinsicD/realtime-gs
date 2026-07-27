@@ -476,3 +476,10 @@ entries:
       - "Staged O137, O138 and O139 rather than crystallizing them: three seeds on two outcome-exposed scenes with no per-arm tuning budget cannot close a preregistered question, and PREREG section 1.5 P-adapt was not run."
       - "Did not report the plus 1.54 dB densification interaction as a finding: it fails to replicate on the second scene, which is the same scene-dependence O136's screen already recorded."
       - "Introduced no claim, no default change and no contradiction with C23/C24; both ADRs stay proposed with every comparison level implemented and selectable."
+  - turn: "2026-07-27_002#1"
+    notes:
+      - "Ran the results audit before touching the ledger, per the post-experiment workflow; the audit is N167 and its artifacts are the AUDIT note and JSON beside the result note."
+      - "Promoted O137, O138 and O139 as claims C25-C27 despite the previous turn's staging decision, because that decision blocked closing a preregistered question, not recording scoped development-only rows; every statement and boundary preserves exactly that distinction and closes nothing preregistered."
+      - "Recorded the frame-role citation erratum in the audit rather than editing the append-only result note: the role table is section 1.2 of the withdrawn rewrite, not the governing preregistration, and outcome-exposure stands on independent grounds."
+      - "Bound the claims to tracked artifacts only (result note, audit note and JSON, tests, EXPERIMENTS.md); the gitignored run bundle is absent from this fresh clone and is cited nowhere as durable proof."
+      - "Kept the non-replicated densification interaction out of the ledger, kept both ADRs proposed, changed no default, and left the blocked confirmatory phase untouched."

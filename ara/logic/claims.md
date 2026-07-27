@@ -408,3 +408,99 @@
 - **Boundary**: This is one frame, one frozen main schedule, one control repeat, and one
   late-release held-out camera. Easy-only was still growing at step 300, and the deficit was not
   localized to hard-dropped regions.
+
+## C25: The ADR-XXXX transmittance opacity solve repairs its mediator and loses downstream
+- **Statement**: In the 2026-07-27 development screen on the two alpha-bearing Stage frames, the
+  ADR-XXXX §3 box-constrained log-transmittance opacity solve raised initial rendered alpha IoU
+  from 0.119 to 0.691 (`frame_00008`) and from 0.011 to 0.765 (`frame_00009`) and held-out Q@0 by
+  6.3 and 4.8 dB, yet each of the three arms carrying it finished a material held-out loss against
+  the `ci` default on both scenes with 0/3 material seed-wins each (paired medians −1.13 to
+  −2.32 dB), while the identical construction with §3 replaced by the incumbent constant α = 0.10
+  landed inside the ±0.25 dB band on both scenes (+0.14, −0.24). ADR-XXXX §1/§2/§4 are therefore
+  downstream-neutral in this regime and the opacity solve is the isolated cause of the loss; the
+  ρ sweep does not rescue it, and the A2 alpha-IoU ≥ 0.8 gate is missed on both scenes.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: A replication on non-outcome-exposed alpha-bearing scenes with ≥3
+  paired seeds shows a §3-carrying arm at or inside the materiality band while its §3-off control
+  is unchanged, shows the fixedalpha dissociation failing to reproduce (§1/§2/§4 not neutral), or
+  a bound recomputation from a retained raw bundle contradicts the paired medians, seed-win
+  counts, or mediator values.
+- **Proof**: [N165, N166,
+  `benchmarks/results/20260727_surfel_init_schedule_screen_RESULT.md`,
+  `benchmarks/results/20260727_surfel_init_schedule_screen_AUDIT.md`,
+  `benchmarks/results/20260727_surfel_init_schedule_screen_AUDIT.json`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: surfel-lift, opacity, initialization, mediator, negative-result, development,
+  held-out, calibrated
+- **From staging**: O137
+- **Boundary**: Two outcome-exposed development scenes; the endpoint target is each view's own
+  Stage-1 compact fit, not camera RGB; fixed topology N=2400 at 1500 updates in a low-Ω regime.
+  The raw 82-cell bundle is untracked and absent from a fresh clone, so the durable binding is
+  the result note plus the audit. "Costs 1.3–1.5 dB" is the median-difference estimator; the
+  paired-vs-`ci` representation gives 0.9–1.6 dB with the same sign and materiality class. This
+  closes no preregistered Initialization Value Program question, and whether §3's alpha target
+  should be the binary silhouette at all is the open ADR amendment recorded in the result note.
+
+## C26: Appearance-preserving densification events do not make densification work
+- **Statement**: The ADR-YYYY §1–§4 growth operators preserve the render at each event measurably
+  better than the vanilla operators on the deterministic CPU unit fixture — clone 42.6 dB and
+  split 47.2 dB event invariance against 28.3 dB and 32.8 dB through the same harness, re-executed
+  exactly by the audit — yet the init-preserving controller finished below the classic controller
+  in all four scene×init comparisons of the 2026-07-27 development screen (17.26 vs 18.24 and
+  17.33 vs 17.91 dB on `frame_00008`; 14.28 vs 15.05 and 15.16 vs 16.00 dB on `frame_00009`).
+  Event-level appearance preservation — "growth changes capacity, never the current solution" —
+  is implementable and is not the property that determines densification value in this regime;
+  the vanilla perturbation plausibly carries exploration value.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: A replication with ≥3 paired seeds and per-arm tuning (PREREG §1.5
+  P-adapt) on non-outcome-exposed scenes shows the init-preserving controller at or above the
+  classic controller from an accurate initialization, or the event-invariance ordering fails to
+  reproduce on the fixture, or a bound recomputation contradicts the recorded comparisons.
+- **Proof**: [N165, N166,
+  `benchmarks/results/20260727_surfel_init_schedule_screen_RESULT.md`,
+  `benchmarks/results/20260727_surfel_init_schedule_screen_AUDIT.md`,
+  `tests/test_init_preserving_density.py`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: densification, init-preserving, density-control, negative-result, development,
+  exploration
+- **From staging**: O138
+- **Boundary**: Two seeds per Screen-B cell, so cell medians are two-value midpoints and no
+  win-count machinery applies; the ADR-YYYY levels ran exactly as specified with no per-arm
+  tuning budget, so this tests the ADR's specified levels, not the best achievable version. The
+  exploration-value interpretation is a hypothesis, not a measured mechanism. Closes no
+  preregistered question.
+
+## C27: The ADR-YYYY trust schedule interaction has the opposite sign from its prediction
+- **Statement**: Under fixed topology in the 2026-07-27 development screen, the per-primitive
+  trust schedule (throttling position, tangential scale, and rotation while leaving opacity and
+  SH free) was negative for the accurate surfel initialization on both scenes (−1.10 and
+  −0.48 dB) and positive for the random control on `frame_00008` (+0.49 dB); the init×trust
+  interaction is −1.58 dB where it is large — the opposite sign from the ADR-YYYY §5 predicted S4
+  crossover. The plausible mechanism is appearance parameters fitting to a geometry that is not
+  allowed to correct itself, which implies a trust asymmetry must throttle appearance and
+  geometry together or not at all.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: A ≥3-seed replication on non-outcome-exposed scenes measures a
+  positive trust effect for an accurate initialization or a positive init×trust interaction under
+  the specified §5 levels, or a bound recomputation contradicts the recorded effects or their
+  fixed-topology isolation.
+- **Proof**: [N166,
+  `benchmarks/results/20260727_surfel_init_schedule_screen_RESULT.md`,
+  `benchmarks/results/20260727_surfel_init_schedule_screen_AUDIT.md`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: trust-schedule, learning-rate, initialization, interaction, negative-result,
+  development
+- **From staging**: O139
+- **Boundary**: Two seeds per Screen-B cell; the mechanism sentence is interpretive. The one
+  positive densification interaction (+1.54 dB on `frame_00008`) is deliberately excluded from
+  the ledger — it does not replicate on `frame_00009` (−0.25 dB). Measured under fixed topology
+  so no density event confounds the learning-rate contrast. Closes no preregistered question.

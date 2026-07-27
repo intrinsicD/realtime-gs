@@ -2122,8 +2122,9 @@ observations:
       contrast in the design is the opacity solve on versus off.
     potential_type: constraint
     bound_to: [N165, N166]
-    promoted: false
-    crystallized_via: null
+    promoted: true
+    promoted_to: "logic/claims.md:C25"
+    crystallized_via: artifact-commitment
     stale: false
   - id: O138
     timestamp: "2026-07-27T05:29+02:00"
@@ -2142,8 +2143,9 @@ observations:
       re-implementation, so the contrast is not confounded by the operator harness.
     potential_type: constraint
     bound_to: [N165, N166]
-    promoted: false
-    crystallized_via: null
+    promoted: true
+    promoted_to: "logic/claims.md:C26"
+    crystallized_via: artifact-commitment
     stale: false
   - id: O139
     timestamp: "2026-07-27T05:29+02:00"
@@ -2162,6 +2164,7 @@ observations:
       the learning-rate contrast.
     potential_type: constraint
     bound_to: [N165, N166]
-    promoted: false
-    crystallized_via: null
+    promoted: true
+    promoted_to: "logic/claims.md:C27"
+    crystallized_via: artifact-commitment
     stale: false

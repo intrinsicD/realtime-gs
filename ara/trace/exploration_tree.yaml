@@ -2889,3 +2889,31 @@ tree:
       runs/surfel_init_schedule_screen/ passes scripts/check_results_bundle.py.
     also_depends_on: [N165]
     status: resolved
+  - id: N167
+    type: decision
+    title: "Referee pass over the surfel init/schedule screen; promote its three constraints as scoped claims"
+    provenance: ai-executed
+    timestamp: "2026-07-27T10:25+02:00"
+    description: >
+      Independent post-hoc scientist pass over N166 in a fresh CPU-only workspace, before any
+      promotion. Confirmed at development scope: the two-representation Screen-B cross-check
+      agrees exactly in all four scene-by-init comparisons; all ten interaction cells recompute
+      within display rounding; the paired-median contrast convention and all twelve Screen-A
+      verdicts reproduce from the harness's own contrast() rule; the 82-cell accounting matches
+      the code's explicit Screen-A reuse; the held-out isolation is structural in the harness;
+      and the deterministic A1 event-invariance fixture re-executes exactly on CPU, clone 42.6
+      versus 28.3 dB and split 47.2 versus 32.8 dB. One erratum: the result note attributes the
+      frame-role assignment to section 1.2 of the governing 2026-07-25 preregistration, but that
+      section is the noise-floor gate; the role table is section 1.2 of the withdrawn 2026-07-26
+      rewrite, and outcome-exposure stands on independent grounds, so no claim is inflated. One
+      binding limit: the raw 82-cell bundle is gitignored and absent from a fresh clone, so the
+      durable evidence is the result note, harness source, tests, and audit; every promoted
+      claim carries that boundary. Disposition: O137, O138 and O139 promoted as development-only
+      claims C25, C26 and C27; the non-replicated densification interaction stays out of the
+      ledger; no default, ADR status, or preregistered question changed.
+    evidence:
+      - "benchmarks/results/20260727_surfel_init_schedule_screen_AUDIT.md"
+      - "benchmarks/results/20260727_surfel_init_schedule_screen_AUDIT.json"
+      - "ara/logic/claims.md"
+    also_depends_on: [N166]
+    status: resolved
