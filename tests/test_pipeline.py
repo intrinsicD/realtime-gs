@@ -5,10 +5,17 @@ from dataclasses import replace
 import pytest
 import torch
 
+from rtgs.core.observation2d import GaussianObservationField
+from rtgs.data.reconstruction_inputs import ReconstructionInputs
 from rtgs.image2gs.fit import FitConfig
 from rtgs.optim.density import DensityConfig
 from rtgs.optim.trainer import TrainConfig
-from rtgs.pipeline import PipelineConfig, compare_lifters, run_pipeline
+from rtgs.pipeline import (
+    PipelineConfig,
+    _validate_carrier_input_binding,
+    compare_lifters,
+    run_pipeline,
+)
 
 
 def _fast_config(lifter: str, refine: bool = True) -> PipelineConfig:
@@ -102,3 +109,41 @@ def test_stage1_fits_training_views_only(tiny_scene):
     cfg.fit = FitConfig(n_gaussians=20, iterations=1, log_every=1)
     result = run_pipeline(split, cfg)
     assert len(result.fit_histories) == 2
+
+
+def _carrier_inputs(scene, indices: list[int]) -> ReconstructionInputs:
+    names = [f"view-{index:04d}" for index in indices]
+    observations = [
+        GaussianObservationField(
+            width=scene.cameras[index].width,
+            height=scene.cameras[index].height,
+            means=torch.tensor([[16.0, 16.0]]),
+            log_scales=torch.zeros(1, 2),
+            rotations=torch.zeros(1),
+            colors=torch.full((1, 3), 0.5),
+            amplitudes=torch.full((1,), 0.5),
+            view_id=name,
+            provider="synthetic_fixture",
+        )
+        for index, name in zip(indices, names, strict=True)
+    ]
+    return ReconstructionInputs(
+        observations=observations,
+        cameras=[scene.cameras[index] for index in indices],
+        view_names=names,
+    )
+
+
+def test_carrier_pipeline_binding_requires_exact_ordered_training_cameras(tiny_scene):
+    split = replace(tiny_scene, train_indices=[0, 2], test_indices=[1, 3])
+    valid = _carrier_inputs(split, [0, 2])
+    _validate_carrier_input_binding(valid, split)
+
+    wrong_view = _carrier_inputs(split, [0, 1])
+    with pytest.raises(ValueError, match="exactly the scene training views"):
+        _validate_carrier_input_binding(wrong_view, split)
+
+    wrong_camera = _carrier_inputs(split, [0, 2])
+    wrong_camera.cameras[1] = split.cameras[1]
+    with pytest.raises(ValueError, match="camera does not match"):
+        _validate_carrier_input_binding(wrong_camera, split)

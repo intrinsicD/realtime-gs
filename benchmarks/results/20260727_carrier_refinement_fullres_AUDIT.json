@@ -1,0 +1,499 @@
+{
+  "accounting": {
+    "bandwidth_comparison_valid": false,
+    "bandwidth_limitation": "raw timing covers six selected files plus decode/undistort; compact timing covers all 26 strict containers, so the throughputs are not a controlled speed comparison",
+    "compact_load_mib_per_second": 12.04154646556213,
+    "compact_train3_bytes": 481310,
+    "jpeg_q50_mask_train3_bytes": 2584658,
+    "jpeg_q50_to_compact_size_ratio": 5.370048409548939,
+    "raw_ingestion_mib_per_second": 6.776137165118386,
+    "raw_rgb_mask_train3_bytes": 43608053,
+    "raw_to_compact_size_ratio": 90.60284016538198
+  },
+  "claims": [
+    {
+      "claim": "fixed-track covariance repair lowers its own reprojection residual",
+      "disposition": "confirm",
+      "evidence": {
+        "gate": 0.25,
+        "median_reduction_fraction": 0.5020910878061045
+      },
+      "scope": "mechanical, CPU float64, Janelle train3 contributor links"
+    },
+    {
+      "claim": "fixed-track opacity repair meets its preregistered residual gate",
+      "disposition": "retire",
+      "evidence": {
+        "gate": 0.25,
+        "median_reduction_fraction": 0.1592742109015901
+      },
+      "scope": "experimental 2D-amplitude proxy, not physical alpha"
+    },
+    {
+      "claim": "the complete carrier schedule beats immediate Beam-to-standard",
+      "disposition": "retire",
+      "evidence": {
+        "carrier_survival_rate": 0.9462500214576721,
+        "delta_db": -1.5732498168945312,
+        "gate_db": 0.25
+      },
+      "scope": "full-resolution frame00008 development endpoint after uniform recovery"
+    },
+    {
+      "claim": "the clone phase contributes material quality within the carrier schedule",
+      "disposition": "narrow",
+      "evidence": {
+        "delta_db": 0.5100936889648438,
+        "gate_db": 0.25
+      },
+      "scope": "matched 200-update recovered development arms; topology timing also differs"
+    },
+    {
+      "claim": "covariance repair helps downstream carrier refinement",
+      "disposition": "retire",
+      "evidence": {
+        "no_covariance_minus_full_db": 1.2683238983154297
+      },
+      "scope": "full-resolution frame00008 development"
+    },
+    {
+      "claim": "Beam means carry downstream value over matched random means",
+      "disposition": "confirm",
+      "evidence": {
+        "delta_db": 2.7531070709228516,
+        "gate_db": 0.25
+      },
+      "scope": "simple-parameter, 200-update, single exposed scene control"
+    },
+    {
+      "claim": "JPEG q50 changes the matched random-control quality materially",
+      "disposition": "retire",
+      "evidence": {
+        "delta_db": 0.0018405914306640625,
+        "materiality_db": 0.25
+      },
+      "scope": "second-generation JPEG proxy, not original SfM 3DGS"
+    },
+    {
+      "claim": "compact captures alone are sufficient for a competitive final model",
+      "disposition": "unverified",
+      "evidence": {
+        "beam_only_psnr": 11.540531158447266,
+        "limitation": "all optimized carrier arms consume full-resolution RGB; original SfM baselines are unavailable"
+      },
+      "scope": "paper main claim"
+    },
+    {
+      "claim": "time/VRAM/I/O numbers establish a performance advantage",
+      "disposition": "unverified",
+      "evidence": {
+        "bandwidth_comparison_valid": false,
+        "bandwidth_limitation": "raw timing covers six selected files plus decode/undistort; compact timing covers all 26 strict containers, so the throughputs are not a controlled speed comparison",
+        "compact_load_mib_per_second": 12.04154646556213,
+        "compact_train3_bytes": 481310,
+        "jpeg_q50_mask_train3_bytes": 2584658,
+        "jpeg_q50_to_compact_size_ratio": 5.370048409548939,
+        "raw_ingestion_mib_per_second": 6.776137165118386,
+        "raw_rgb_mask_train3_bytes": 43608053,
+        "raw_to_compact_size_ratio": 90.60284016538198
+      },
+      "scope": "single 4090 process with no idle-GPU protocol or timing repeats"
+    }
+  ],
+  "default_change_authorized": false,
+  "disposition": "REJECT_PROPOSED_CARRIER_SCHEDULE_ON_FRAME00008",
+  "failed_invariants": [],
+  "final_density_events": {
+    "beam-only": {
+      "evaluated_immediately_after_nonempty_density_event": false,
+      "last_density_iteration": null,
+      "last_event_net_growth": 0,
+      "last_event_newborns": 0
+    },
+    "beam-standard": {
+      "evaluated_immediately_after_nonempty_density_event": true,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 622,
+      "last_event_newborns": 899
+    },
+    "carrier-schedule": {
+      "evaluated_immediately_after_nonempty_density_event": true,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 1877,
+      "last_event_newborns": 2348
+    },
+    "carrier-schedule-clone": {
+      "evaluated_immediately_after_nonempty_density_event": true,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 1364,
+      "last_event_newborns": 1678
+    },
+    "clone-only": {
+      "evaluated_immediately_after_nonempty_density_event": false,
+      "last_density_iteration": 120,
+      "last_event_net_growth": 0,
+      "last_event_newborns": 0
+    },
+    "means-only": {
+      "evaluated_immediately_after_nonempty_density_event": true,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 1166,
+      "last_event_newborns": 1168
+    },
+    "no-covariance": {
+      "evaluated_immediately_after_nonempty_density_event": true,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 660,
+      "last_event_newborns": 897
+    },
+    "no-opacity": {
+      "evaluated_immediately_after_nonempty_density_event": true,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 1415,
+      "last_event_newborns": 1834
+    },
+    "no-warmup": {
+      "evaluated_immediately_after_nonempty_density_event": false,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 0,
+      "last_event_newborns": 0
+    },
+    "particle": {
+      "evaluated_immediately_after_nonempty_density_event": false,
+      "last_density_iteration": 120,
+      "last_event_net_growth": 0,
+      "last_event_newborns": 2
+    },
+    "random-jpeg-q50": {
+      "evaluated_immediately_after_nonempty_density_event": true,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 1256,
+      "last_event_newborns": 1266
+    },
+    "random-rgb": {
+      "evaluated_immediately_after_nonempty_density_event": true,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 1237,
+      "last_event_newborns": 1247
+    },
+    "split-immediately": {
+      "evaluated_immediately_after_nonempty_density_event": true,
+      "last_density_iteration": 160,
+      "last_event_net_growth": 1147,
+      "last_event_newborns": 1575
+    }
+  },
+  "findings": [
+    {
+      "affected_arms": [
+        "beam-standard",
+        "carrier-schedule",
+        "carrier-schedule-clone",
+        "means-only",
+        "no-covariance",
+        "no-opacity",
+        "random-jpeg-q50",
+        "random-rgb",
+        "split-immediately"
+      ],
+      "finding": "Nine parent endpoints were evaluated immediately after a non-empty step-160 density event; they are invalid mature endpoints without recovery.",
+      "remediation": "preserve parent result; use the separately preregistered uniform 40-step fixed-topology recovery bundle for mature development comparisons",
+      "severity": "critical"
+    },
+    {
+      "delta_db": -1.5732498168945312,
+      "finding": "The central recovered carrier-value contrast is negative despite high carrier survival; the proposed schedule is rejected on this scene.",
+      "severity": "major"
+    },
+    {
+      "finding": "Covariance repair improves its local objective yet hurts downstream quality; local mechanism success is not global materiality.",
+      "no_covariance_minus_full_db": 1.2683238983154297,
+      "severity": "major"
+    },
+    {
+      "finding": "The run cannot test the paper's compact-only sufficiency claim because every optimized carrier arm consumes raw RGB, and the original SfM baseline is absent.",
+      "severity": "major"
+    },
+    {
+      "finding": "The parent replay is not bit-deterministic in topology-sensitive CUDA arms.",
+      "max_count_repeat_delta": 85,
+      "max_psnr_repeat_delta_db": 0.13613510131835938,
+      "severity": "moderate"
+    },
+    {
+      "finding": "The separately restarted fixed-topology recovery is highly repeatable but is not an exact optimizer-state continuation.",
+      "max_psnr_repeat_delta_db": 3.24249267578125e-05,
+      "severity": "moderate"
+    },
+    {
+      "finding": "Raw and compact ingestion timings cover different view counts and processing, so no bandwidth speedup can be claimed from them.",
+      "severity": "moderate"
+    }
+  ],
+  "initialization_hashes": {
+    "beam-only": "17af6fa699cc2437563cadac0de1a5bb3f34d8ed497e82b2f7dbf5383aedd9be",
+    "beam-standard": "17af6fa699cc2437563cadac0de1a5bb3f34d8ed497e82b2f7dbf5383aedd9be",
+    "carrier-schedule": "831779bb9508690c135bda70946255917dbd43e28cbf519b2b744aea05920d62",
+    "carrier-schedule-clone": "831779bb9508690c135bda70946255917dbd43e28cbf519b2b744aea05920d62",
+    "clone-only": "831779bb9508690c135bda70946255917dbd43e28cbf519b2b744aea05920d62",
+    "means-only": "ff03fd1486f3664286f6e6a68ac7d0503ac7b8d3398efa236be6d6c0369aea38",
+    "no-covariance": "e6c6d7c62900b8422026b7df30eae82678783e550e74a67847ee1fbff9449ede",
+    "no-opacity": "fe6412b37f3abef642a9a6d361f0033b5c808078d5685f4551ac367e87a116cc",
+    "no-warmup": "831779bb9508690c135bda70946255917dbd43e28cbf519b2b744aea05920d62",
+    "particle": "831779bb9508690c135bda70946255917dbd43e28cbf519b2b744aea05920d62",
+    "random-jpeg-q50": "e6f531833cea9d70a6c47f667068db84a662dbc0ed7694e7a59c641698ca50e6",
+    "random-rgb": "e6f531833cea9d70a6c47f667068db84a662dbc0ed7694e7a59c641698ca50e6",
+    "split-immediately": "831779bb9508690c135bda70946255917dbd43e28cbf519b2b744aea05920d62"
+  },
+  "invalid_parent_endpoints": [
+    "beam-standard",
+    "carrier-schedule",
+    "carrier-schedule-clone",
+    "means-only",
+    "no-covariance",
+    "no-opacity",
+    "random-jpeg-q50",
+    "random-rgb",
+    "split-immediately"
+  ],
+  "invariants": {
+    "all_json_numbers_finite": true,
+    "all_status_complete": true,
+    "arm_set_exact": true,
+    "beam_only_budget_zero": true,
+    "beam_only_standard_initializations_bit_exact": true,
+    "optimized_parent_budgets_160": true,
+    "primary_schema": true,
+    "random_rgb_jpeg_initializations_bit_exact": true,
+    "recovery_arm_set_exact": true,
+    "recovery_fixed_counts": true,
+    "recovery_parent_roundtrip_exact_psnr": true,
+    "recovery_schema": true,
+    "repaired_initializations_bit_exact": true,
+    "repeat_schema": true,
+    "resolution_native": true,
+    "sealed_ids_unread": true,
+    "selected_sources_exact": true,
+    "source_binding_exact_across_runs": true,
+    "split_exact": true,
+    "training_views_only": true
+  },
+  "max_parent_count_repeat_delta": 85,
+  "max_parent_psnr_repeat_delta_db": 0.13613510131835938,
+  "max_recovery_psnr_repeat_delta_db": 3.24249267578125e-05,
+  "paper_claim_authorized": false,
+  "parent_repeat_deltas": {
+    "beam-only": {
+      "alpha_iou": 0.0,
+      "lpips_crop_max512": 0.0,
+      "n_final": 0,
+      "psnr_fg": 0.0,
+      "ssim_crop": 0.0
+    },
+    "beam-standard": {
+      "alpha_iou": -6.735324859619141e-06,
+      "lpips_crop_max512": -4.9933791160583496e-05,
+      "n_final": 0,
+      "psnr_fg": 0.0004863739013671875,
+      "ssim_crop": -1.5497207641601562e-06
+    },
+    "carrier-schedule": {
+      "alpha_iou": -0.00014263391494750977,
+      "lpips_crop_max512": -0.0017891228199005127,
+      "n_final": 11,
+      "psnr_fg": 0.13613510131835938,
+      "ssim_crop": 0.00040966272354125977
+    },
+    "carrier-schedule-clone": {
+      "alpha_iou": 0.0031074881553649902,
+      "lpips_crop_max512": 0.0011392980813980103,
+      "n_final": 0,
+      "psnr_fg": -0.002651214599609375,
+      "ssim_crop": -0.00014537572860717773
+    },
+    "clone-only": {
+      "alpha_iou": -0.0016589164733886719,
+      "lpips_crop_max512": 0.002968817949295044,
+      "n_final": 0,
+      "psnr_fg": -0.06739997863769531,
+      "ssim_crop": -6.324052810668945e-05
+    },
+    "means-only": {
+      "alpha_iou": -2.980232238769531e-07,
+      "lpips_crop_max512": -2.086162567138672e-06,
+      "n_final": 0,
+      "psnr_fg": 3.814697265625e-06,
+      "ssim_crop": -5.960464477539063e-08
+    },
+    "no-covariance": {
+      "alpha_iou": 1.1622905731201172e-05,
+      "lpips_crop_max512": 2.2470951080322266e-05,
+      "n_final": 1,
+      "psnr_fg": 8.58306884765625e-05,
+      "ssim_crop": -2.5033950805664062e-06
+    },
+    "no-opacity": {
+      "alpha_iou": -0.0010498762130737305,
+      "lpips_crop_max512": 0.0017592757940292358,
+      "n_final": 85,
+      "psnr_fg": 0.019423484802246094,
+      "ssim_crop": 0.00012189149856567383
+    },
+    "no-warmup": {
+      "alpha_iou": 5.638599395751953e-05,
+      "lpips_crop_max512": 4.8041343688964844e-05,
+      "n_final": 0,
+      "psnr_fg": 7.82012939453125e-05,
+      "ssim_crop": 8.761882781982422e-06
+    },
+    "particle": {
+      "alpha_iou": -0.002801358699798584,
+      "lpips_crop_max512": 0.0007373690605163574,
+      "n_final": 0,
+      "psnr_fg": 0.024639129638671875,
+      "ssim_crop": 0.00016838312149047852
+    },
+    "random-jpeg-q50": {
+      "alpha_iou": 1.9073486328125e-06,
+      "lpips_crop_max512": -1.9371509552001953e-07,
+      "n_final": 0,
+      "psnr_fg": 0.00060272216796875,
+      "ssim_crop": 4.172325134277344e-07
+    },
+    "random-rgb": {
+      "alpha_iou": -6.3478946685791016e-06,
+      "lpips_crop_max512": -5.0514936447143555e-06,
+      "n_final": 0,
+      "psnr_fg": -6.580352783203125e-05,
+      "ssim_crop": 1.1920928955078125e-07
+    },
+    "split-immediately": {
+      "alpha_iou": 0.005494236946105957,
+      "lpips_crop_max512": -0.003768131136894226,
+      "n_final": 1,
+      "psnr_fg": 0.11648941040039062,
+      "ssim_crop": 0.0002358555793762207
+    }
+  },
+  "primary": "runs/carrier_refinement_fullres_frame00008_20260727",
+  "recovery": "runs/carrier_refinement_fullres_frame00008_20260727_recovery",
+  "recovery_gates": {
+    "carrier_survival_rate": 0.9462500214576721,
+    "carrier_value_delta_db": -1.5732498168945312,
+    "carrier_value_gate_pass": false,
+    "clone_contribution_delta_db": 0.5100936889648438,
+    "clone_contribution_gate_pass": true,
+    "jpeg_q50_delta_db": 0.0018405914306640625,
+    "means_value_delta_db": 2.7531070709228516,
+    "means_value_gate_pass": true,
+    "no_covariance_minus_full_db": 1.2683238983154297,
+    "no_opacity_minus_full_db": -0.22137069702148438,
+    "no_warmup_minus_full_db": 0.36457252502441406,
+    "particle_minus_clone_only_db": 0.16158103942871094
+  },
+  "recovery_repeat": "runs/carrier_refinement_fullres_frame00008_20260727_recovery_repeat",
+  "recovery_repeat_deltas": {
+    "beam-standard": {
+      "alpha_iou": 8.344650268554688e-07,
+      "lpips_crop_max512": 3.069639205932617e-06,
+      "n_gaussians": 0,
+      "psnr_fg": -1.9073486328125e-06,
+      "ssim_crop": -5.960464477539063e-08
+    },
+    "carrier-schedule": {
+      "alpha_iou": 0.0,
+      "lpips_crop_max512": -5.27501106262207e-06,
+      "n_gaussians": 0,
+      "psnr_fg": 9.5367431640625e-06,
+      "ssim_crop": 0.0
+    },
+    "carrier-schedule-clone": {
+      "alpha_iou": -1.0132789611816406e-06,
+      "lpips_crop_max512": 2.8908252716064453e-06,
+      "n_gaussians": 0,
+      "psnr_fg": -9.5367431640625e-06,
+      "ssim_crop": 0.0
+    },
+    "clone-only": {
+      "alpha_iou": 5.364418029785156e-07,
+      "lpips_crop_max512": 3.0249357223510742e-06,
+      "n_gaussians": 0,
+      "psnr_fg": 0.0,
+      "ssim_crop": 0.0
+    },
+    "means-only": {
+      "alpha_iou": 2.980232238769531e-07,
+      "lpips_crop_max512": -1.341104507446289e-06,
+      "n_gaussians": 0,
+      "psnr_fg": -3.814697265625e-06,
+      "ssim_crop": 0.0
+    },
+    "no-covariance": {
+      "alpha_iou": 7.748603820800781e-06,
+      "lpips_crop_max512": 6.854534149169922e-06,
+      "n_gaussians": 0,
+      "psnr_fg": 7.62939453125e-06,
+      "ssim_crop": 2.980232238769531e-07
+    },
+    "no-opacity": {
+      "alpha_iou": -5.364418029785156e-06,
+      "lpips_crop_max512": -3.56137752532959e-06,
+      "n_gaussians": 0,
+      "psnr_fg": 0.0,
+      "ssim_crop": 2.384185791015625e-07
+    },
+    "no-warmup": {
+      "alpha_iou": -5.364418029785156e-07,
+      "lpips_crop_max512": -3.7401914596557617e-06,
+      "n_gaussians": 0,
+      "psnr_fg": 1.9073486328125e-06,
+      "ssim_crop": 5.960464477539063e-08
+    },
+    "particle": {
+      "alpha_iou": -3.814697265625e-06,
+      "lpips_crop_max512": -2.7567148208618164e-06,
+      "n_gaussians": 0,
+      "psnr_fg": -1.9073486328125e-06,
+      "ssim_crop": 0.0
+    },
+    "random-jpeg-q50": {
+      "alpha_iou": 0.0,
+      "lpips_crop_max512": 9.685754776000977e-07,
+      "n_gaussians": 0,
+      "psnr_fg": 9.5367431640625e-07,
+      "ssim_crop": 0.0
+    },
+    "random-rgb": {
+      "alpha_iou": 0.0,
+      "lpips_crop_max512": 5.21540641784668e-07,
+      "n_gaussians": 0,
+      "psnr_fg": 0.0,
+      "ssim_crop": 0.0
+    },
+    "split-immediately": {
+      "alpha_iou": -1.4901161193847656e-06,
+      "lpips_crop_max512": 4.51505184173584e-06,
+      "n_gaussians": 0,
+      "psnr_fg": -3.24249267578125e-05,
+      "ssim_crop": -1.1920928955078125e-07
+    }
+  },
+  "repair_gates": {
+    "covariance_gate_pass": true,
+    "covariance_median_after": 0.49654765874190926,
+    "covariance_median_before": 0.9972660592758054,
+    "covariance_reduction_fraction": 0.5020910878061045,
+    "opacity_gate_pass": false,
+    "opacity_median_after": 15.398162045906576,
+    "opacity_median_before": 18.315320221614098,
+    "opacity_reduction_fraction": 0.1592742109015901
+  },
+  "repeat": "runs/carrier_refinement_fullres_frame00008_20260727_repeat",
+  "schema": "rtgs.carrier-refinement-fullres.audit.v1",
+  "source_hashes": {
+    "primary_summary": "cfea7b1d77b3cfa02890750cded16e9b9d09304db7b93edc39cd222220b8343b",
+    "recovery_repeat_summary": "1222d3c51d20006ce8a3638b73bc0100f586e14f691fcbdd1ed17fec2405a3a0",
+    "recovery_summary": "38fba5b0462d3c39b66255a8418b45404769e1c6fed686779ba3928dc1539bd4",
+    "repeat_summary": "8f12770a1b76c3cd1fb9e0fa29fe47bc1bfd625c5c42ccc23ea67cc611c4e01b"
+  }
+}

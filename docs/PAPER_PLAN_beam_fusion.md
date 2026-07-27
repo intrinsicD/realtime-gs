@@ -1,5 +1,14 @@
 # Paper Plan
 
+**Evidence status (2026-07-27): hypothesis only; not established.**
+
+The carrier-refinement implementation and the complete runnable development matrix now exist, but
+the audited native-resolution Janelle run does not authorize the main claim. Optimized carrier
+arms still consume RGB, Beam-only is not competitive, and this capture lacks the sparse
+reconstruction needed for the two Original-3DGS baselines. See
+`benchmarks/results/20260727_carrier_refinement_fullres_RESULT.md` and its independent
+`20260727_carrier_refinement_fullres_AUDIT.md`. The paper remains a plan, not a result.
+
 **Working title**
 
 Beam Fusion:
@@ -100,6 +109,10 @@ Storage
 IO bandwidth
 
 Carrier survival
+
+The experiment harness also records alpha IoU/leakage, primitive count, repair-objective
+residuals, lineage drift/descendants, source hashes, split isolation, and final density events.
+Future paper runs must include recovery updates after the final topology event.
 
 ---
 

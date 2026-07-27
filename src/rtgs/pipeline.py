@@ -15,10 +15,22 @@ import torch
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.data.field_inputs import SceneFits
+from rtgs.data.reconstruction_inputs import ReconstructionInputs
 from rtgs.data.scene import SceneData
 from rtgs.image2gs.fit import FitConfig, fit_views
 from rtgs.lift import get_lifter
+from rtgs.lift.beam_fusion import BeamFusionConfig, BeamFusionResult, fuse_gaussian_beams
+from rtgs.lift.carrier_refinement import (
+    CarrierRepairConfig,
+    CarrierRepairResult,
+    repair_beam_carriers,
+)
 from rtgs.lift.field_lifter import FieldLiftConfig, FieldLifter, FieldLiftResult
+from rtgs.optim.carrier_schedule import (
+    CarrierOptimizationConfig,
+    CarrierOptimizationResult,
+    optimize_carriers,
+)
 from rtgs.optim.trainer import TrainConfig, Trainer
 from rtgs.render.base import get_rasterizer
 
@@ -48,6 +60,28 @@ class PipelineResult:
     train_history: dict = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class CarrierPipelineConfig:
+    """End-to-end Beam Fusion carrier repair and maturation configuration."""
+
+    beam: BeamFusionConfig = field(default_factory=BeamFusionConfig)
+    repair: CarrierRepairConfig = field(default_factory=CarrierRepairConfig)
+    optimization: CarrierOptimizationConfig = field(default_factory=CarrierOptimizationConfig)
+    optimize: bool = True
+
+
+@dataclass(frozen=True)
+class CarrierPipelineResult:
+    """Products and receipts from the ADR-002 carrier pipeline."""
+
+    beam: BeamFusionResult
+    repair: CarrierRepairResult
+    optimization: CarrierOptimizationResult | None
+    gaussians: Gaussians3D
+    metrics: dict[str, float | int]
+    timings: dict[str, float]
+
+
 def run_field_pipeline(
     fits: SceneFits,
     config: FieldLiftConfig | None = None,
@@ -55,6 +89,66 @@ def run_field_pipeline(
     """Run image-free field lifting from frozen compact observations and cameras."""
 
     return FieldLifter(config).fit(fits)
+
+
+def run_carrier_pipeline(
+    inputs: ReconstructionInputs,
+    scene: SceneData,
+    config: CarrierPipelineConfig | None = None,
+) -> CarrierPipelineResult:
+    """Run Beam Fusion, fixed-track carrier repair, then the phased dense-image schedule."""
+
+    config = config or CarrierPipelineConfig()
+    inputs.validate()
+    scene.validate()
+    _validate_carrier_input_binding(inputs, scene)
+    timings: dict[str, float] = {}
+    started_total = time.perf_counter()
+
+    started = time.perf_counter()
+    beam = fuse_gaussian_beams(inputs, config.beam)
+    timings["beam_fusion"] = time.perf_counter() - started
+
+    started = time.perf_counter()
+    repair = repair_beam_carriers(beam, inputs, config.repair)
+    timings["carrier_repair"] = time.perf_counter() - started
+
+    optimization = None
+    final = repair.gaussians
+    if config.optimize:
+        started = time.perf_counter()
+        optimization = optimize_carriers(scene, final, config.optimization)
+        final = optimization.gaussians
+        timings["carrier_optimization"] = time.perf_counter() - started
+
+    requested = config.optimization.template.device
+    device = _resolve_device(requested)
+    renderer = get_rasterizer(
+        config.optimization.template.rasterizer,
+        device=device,
+        packed=config.optimization.template.packed,
+        antialiased=config.optimization.template.antialiased,
+        sh_color_activation=config.optimization.template.sh_color_activation,
+        sh_smu1_mu=config.optimization.template.sh_smu1_mu,
+        kernel_support_mode=config.optimization.template.kernel_support_mode,
+        visibility_margin_sigma=config.optimization.template.visibility_margin_sigma,
+    )
+    metrics: dict[str, float | int] = {
+        "beam_n_gaussians": beam.gaussians.n,
+        "final_n_gaussians": final.n,
+    }
+    _record_evaluation_metrics(metrics, "beam", scene, beam.gaussians.to(device), renderer)
+    _record_evaluation_metrics(metrics, "repaired", scene, repair.gaussians.to(device), renderer)
+    _record_evaluation_metrics(metrics, "final", scene, final.to(device), renderer)
+    timings["total"] = time.perf_counter() - started_total
+    return CarrierPipelineResult(
+        beam=beam,
+        repair=repair,
+        optimization=optimization,
+        gaussians=final,
+        metrics=metrics,
+        timings=timings,
+    )
 
 
 def run_pipeline(
@@ -182,6 +276,51 @@ def _sync(device: torch.device) -> None:
     """Synchronize accelerators before recording wall-clock timings."""
     if device.type == "cuda":
         torch.cuda.synchronize(device)
+
+
+def _validate_carrier_input_binding(
+    inputs: ReconstructionInputs,
+    scene: SceneData,
+) -> None:
+    """Require compact observations to be the scene's exact ordered training cameras."""
+
+    training = scene.training_views
+    expected_names = (
+        [scene.view_names[index] for index in training]
+        if scene.view_names is not None
+        else [f"view-{index:04d}" for index in training]
+    )
+    if inputs.view_names != expected_names:
+        raise ValueError(
+            "carrier inputs must contain exactly the scene training views in training order"
+        )
+    expected_cameras = [scene.cameras[index] for index in training]
+    for name, compact, dense in zip(
+        expected_names,
+        inputs.cameras,
+        expected_cameras,
+        strict=True,
+    ):
+        scalars_match = (
+            compact.fx,
+            compact.fy,
+            compact.cx,
+            compact.cy,
+            compact.width,
+            compact.height,
+        ) == (
+            dense.fx,
+            dense.fy,
+            dense.cx,
+            dense.cy,
+            dense.width,
+            dense.height,
+        )
+        extrinsics_match = torch.equal(compact.R.cpu(), dense.R.cpu()) and torch.equal(
+            compact.t.cpu(), dense.t.cpu()
+        )
+        if not scalars_match or not extrinsics_match:
+            raise ValueError(f"carrier input camera does not match scene training view {name!r}")
 
 
 def _record_evaluation_metrics(

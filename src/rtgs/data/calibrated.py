@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 import warnings
+from collections.abc import Sequence
 from pathlib import Path
 
 import numpy as np
@@ -159,11 +160,15 @@ def load_calibrated_scene(
     test_every: int = 8,
     load_masks: bool = True,
     undistort: bool = True,
+    view_ids: Sequence[str] | None = None,
 ) -> SceneData:
     """Load one calibrated object-centric frame.
 
     ``frame_dir`` can point either to the frame or its ``rgb`` directory.  ``max_images``
     retains evenly spaced cameras so quick runs do not accidentally use one side of the rig.
+    ``view_ids`` loads exactly the requested calibrated camera ids, in caller order, and is
+    mutually exclusive with ``max_images``. This keeps full-resolution subset experiments from
+    materializing the entire capture in memory.
     """
     frame = Path(frame_dir).expanduser().resolve()
     if frame.name == "rgb":
@@ -173,6 +178,8 @@ def load_calibrated_scene(
         raise FileNotFoundError(f"missing RGB directory: {rgb_dir}")
     if downscale < 1:
         raise ValueError("downscale must be at least one")
+    if view_ids is not None and max_images is not None:
+        raise ValueError("view_ids and max_images are mutually exclusive")
 
     calibration_file = (
         Path(calibration_path).expanduser().resolve()
@@ -188,7 +195,18 @@ def load_calibrated_scene(
         and not path.stem.lower().startswith("mask_")
         and _camera_id(path) in records
     ]
-    paths = _sample_evenly(sorted(paths, key=lambda path: _camera_id(path) or ""), max_images)
+    paths = sorted(paths, key=lambda path: _camera_id(path) or "")
+    if view_ids is not None:
+        requested = [str(view_id).upper() for view_id in view_ids]
+        if len(requested) != len(set(requested)):
+            raise ValueError("view_ids must be unique")
+        available = {_camera_id(path): path for path in paths}
+        missing = [view_id for view_id in requested if view_id not in available]
+        if missing:
+            raise ValueError(f"requested calibrated views are unavailable: {missing}")
+        paths = [available[view_id] for view_id in requested]
+    else:
+        paths = _sample_evenly(paths, max_images)
     if not paths:
         raise ValueError(f"no calibrated RGB images found in {rgb_dir}")
 

@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+from dataclasses import replace
 
 import pytest
 import torch
@@ -143,6 +144,62 @@ def test_checkpoint_callback_is_isolated_and_none_preserves_default_exactly():
     assert none_history["checkpoint_callback_seconds"] == 0.0
     assert observed_history["checkpoint_callback_seconds"] >= 0.0
     assert callback_steps == [2, 4]
+
+
+def test_train_only_plateau_stops_after_frozen_patience():
+    scene = make_synthetic_scene(n_gaussians=5, n_cameras=3, image_size=10, seed=24)
+    config = TrainConfig(
+        iterations=10,
+        rasterizer="torch",
+        device="cpu",
+        densify=False,
+        target_sh_degree=0,
+        ssim_lambda=0.0,
+        use_masks=False,
+        random_background=False,
+        eval_every=1,
+        plateau_patience_evals=2,
+        plateau_min_delta=1_000_000.0,
+        plateau_min_iterations=0,
+        seed=7,
+    )
+
+    _, history = Trainer(config).train(scene, scene.gt_gaussians.detach())
+
+    assert history["executed_iterations"] == 3
+    assert history["stop_reason"] == "train_psnr_plateau"
+    assert [step for step, _ in history["train_psnr"]] == [1, 2, 3]
+    assert history["plateau"]["metric"] == "mean_training_view_foreground_psnr"
+    assert history["plateau"]["converged"] is True
+    assert history["plateau"]["stale_evals"] == 2
+
+
+def test_cpu_scene_streaming_matches_eager_training_exactly():
+    scene = make_synthetic_scene(n_gaussians=5, n_cameras=3, image_size=10, seed=25)
+    config = TrainConfig(
+        iterations=3,
+        rasterizer="torch",
+        device="cpu",
+        densify=False,
+        target_sh_degree=0,
+        ssim_lambda=0.0,
+        use_masks=False,
+        random_background=False,
+        eval_every=3,
+        seed=9,
+    )
+
+    eager, eager_history = Trainer(config).train(scene, scene.gt_gaussians.detach())
+    streamed, streamed_history = Trainer(replace(config, stream_scene_from_cpu=True)).train(
+        scene, scene.gt_gaussians.detach()
+    )
+
+    for field in ("means", "quats", "log_scales", "opacity", "sh"):
+        assert torch.equal(getattr(eager, field), getattr(streamed, field))
+    ignored = {"elapsed"}
+    assert {key: value for key, value in eager_history.items() if key not in ignored} == {
+        key: value for key, value in streamed_history.items() if key not in ignored
+    }
 
 
 def test_segmented_training_uses_global_callbacks_sh_and_means_lr_schedule():

@@ -2917,3 +2917,31 @@ tree:
       - "ara/logic/claims.md"
     also_depends_on: [N166]
     status: resolved
+  - id: N168
+    type: decision
+    title: "Referee pass over the short ADR-002 carrier schedule; preserve the scoped negative"
+    provenance: ai-executed
+    timestamp: "2026-07-27T14:53+02:00"
+    description: >
+      Audited the outcome-exposed native-resolution frame_00008 carrier experiment after its
+      separately frozen uniform recovery. The machine audit binds the exact train/validation/
+      sealed split, source hashes, arm set, initialization equality, 160-update parent budgets,
+      40-update fixed-topology recovery, PLY round-trip, repeats, storage accounting, and finite
+      schemas with no failed invariant; an independent recomputation reproduced the checked-in
+      audit JSON byte-for-byte at SHA-256 d2313fff49a1e0375a1a7ab3de0f46861fdaeb88110ae0aa5fa62c0fa9d03a9e.
+      The reader-facing primary and recovery bundles pass scripts/check_results_bundle.py. The
+      parent endpoint was immature because nine arms densified at their final update, so only the
+      uniform recovered comparison is used. It places the short carrier schedule 1.573 dB below
+      immediate Beam-to-standard despite 94.625% carrier survival, and the no-covariance arm
+      1.268 dB above the complete short schedule despite a 50.21% local residual reduction.
+      Disposition: promote only the bounded negative O140/C28; retain the implementation as
+      opt-in; authorize no default, performance, compact-only sufficiency, converged-maturation,
+      or paper claim.
+    evidence:
+      - "benchmarks/results/20260727_carrier_refinement_fullres_RESULT.md"
+      - "benchmarks/results/20260727_carrier_refinement_fullres_AUDIT.md"
+      - "benchmarks/results/20260727_carrier_refinement_fullres_AUDIT.json"
+      - "runs/carrier_refinement_fullres_frame00008_20260727/"
+      - "runs/carrier_refinement_fullres_frame00008_20260727_recovery/"
+    also_depends_on: []
+    status: resolved

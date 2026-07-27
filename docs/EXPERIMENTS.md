@@ -17,6 +17,76 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-27 — Scope correction: ADR-002 convergence pipeline was not tested
+
+- **Question**: did the native-resolution carrier experiment actually implement the iterative
+  until-convergence process described by ADR-002, and can its negative endpoint reject that
+  process?
+- **Setup**: post-result source/artifact audit of
+  `benchmarks/carrier_refinement_fullres.py`, `rtgs.optim.carrier_schedule`, the full
+  `carrier-schedule-clone/training_history.json`, phase lineage, saved PLY/image inventory, and
+  the historical 2026-07-21 all-view Beam result.
+- **Result**: no. The executed full arm used fixed budgets of 30 warm-up, 40 clone, 30 higher-SH,
+  and 60 standard updates; its clone waves occurred at steps 40 and 60, and its standard density
+  events at 120 and the invalid terminal step 160. The recovery added only 40 fixed-topology
+  updates. It saved per-update sampled loss, but render PSNR at only seven phase/checkpoint
+  positions and no covariance/opacity/appearance/warm-up/clone-wave PLYs or visuals. Clone
+  perturbations used all three covariance axes rather than the two tangent axes, and gradient
+  selection cloned 1,482 then 1,798 rows rather than cloning every current row. Earlier
+  **37.8874 dB** was not Beam initialization: initialization was **11.5826 dB**; 37.8874 dB was
+  the selected 69k endpoint after all 26 compact views, 5,000 carriers, density growth to 44,222,
+  and 70k updates.
+- **Conclusion**: the -1.573 dB result rejects only the frozen short 30/40/30/60 treatment, not
+  ADR-002's converged carrier-maturation process. The prior human/machine disposition label was
+  overbroad; numeric results and the final-density/recovery finding remain valid. The short result
+  cannot answer whether repeated tangent-only clone/recovery waves followed by converged standard
+  fitting produce a good representation.
+- **Follow-ups**: before another result-bearing run, freeze the intended view regime and clone
+  semantics; save/render Beam, covariance, opacity, SH0, fixed-topology convergence, every
+  pre/post-clone recovery boundary, higher-SH, standard milestones, and final; log loss terms every
+  update and full render metrics at bounded checkpoints; base any plateau on training data only.
+
+## 2026-07-27 — ADR-002 full-resolution carrier refinement is preserved but not competitive
+
+- **Question**: do fixed-track covariance/opacity/appearance repair and a carrier-preserving
+  warm-up/clone/SH/handover schedule expose value hidden in Beam Fusion's means, and do the
+  paper-plan ablations support a compact-capture reconstruction claim?
+- **Setup**: `benchmarks/carrier_refinement_fullres.py`, frozen v4 protocol
+  `benchmarks/results/20260727_carrier_refinement_fullres_PREREG_V4.md`, base `dd84c28`, seed
+  27027, masked Janelle `frame_00008`, native 5328x4608, train
+  `C0001/C0014/C0028`, validation `C0031/C1000/C1002`, sealed `C1001/C1004`, CUDA gsplat on
+  RTX 4090. Thirteen arms cover Beam-only/immediate-standard, schedule/no-clone/full-clone,
+  covariance/opacity/warm-up/split/clone/particle ablations, matched random RGB/JPEG controls, and
+  means-only. Nine parent arms ended on a non-empty step-160 density event, so a separately frozen
+  post-outcome recovery gives all twelve optimized arms 40 equal fixed-topology updates. Both full
+  matrices were independently replayed. Full result:
+  `benchmarks/results/20260727_carrier_refinement_fullres_RESULT.md`; scientist pass:
+  `benchmarks/results/20260727_carrier_refinement_fullres_AUDIT.md`.
+- **Result**: covariance repair passes its local gate (median whitened residual
+  0.9973 -> 0.4965, 50.21% reduction), while opacity repair fails its local gate
+  (18.3153 -> 15.3982, 15.93%). On mature recovered endpoints, immediate Beam-to-standard is
+  **18.512 dB** foreground PSNR and the complete schedule is **16.939 dB**, a **-1.573 dB**
+  central contrast despite **94.625%** carrier survival. No-covariance reaches **18.207 dB**,
+  **+1.268 dB** over the complete schedule: the covariance phase solves its objective and harms
+  downstream quality. Clone adds +0.510 dB within the schedule; removing opacity costs 0.221 dB,
+  removing warm-up gains 0.365 dB, and particle vs clone-only is +0.162 dB. Means-only beats
+  matched random RGB by +2.753 dB; JPEG q50 and RGB random controls tie (+0.0018 dB). Parent replay
+  variation reaches 0.1361 dB/85 rows under topology-sensitive CUDA; recovery replay variation is
+  at most 0.0000324 dB with exact counts.
+- **Conclusion**: reject the proposed full carrier schedule on this outcome-exposed scene; retain
+  the implementation as an opt-in research path and change no default. Carrier preservation is
+  real but does not imply reconstruction value. The paper's compact-only sufficiency claim remains
+  untested because every optimized carrier arm consumes raw RGB and Beam-only is poor; the capture
+  has no COLMAP sparse model, so Original 3DGS baselines are honestly unavailable. Exact storage
+  counts show raw+mask at 90.60x compact and JPEG-q50+mask at 5.37x, but ingestion timings cover
+  different work and support no bandwidth claim. Visuals remain blurry/over-expanded and are not
+  paper-ready. Confidence: moderate for this scene's negative and the fixed-track mechanisms, low
+  for generalization.
+- **Follow-ups**: require recovery after the last density event in future schedules; do not keep
+  covariance repair on local-loss evidence alone; obtain real SfM baselines and a compact-only
+  optimizer; then use non-exposed scenes, at least three paired seeds, controlled I/O timing, and
+  explicit idle/peak memory accounting before revisiting paper or default claims.
+
 ## 2026-07-27 — ADR-XXXX surfel init parameters and ADR-YYYY init-preserving schedule
 
 - **Question**: two ADRs, two claims. ADR-XXXX says the lift's *non-positional* parameters

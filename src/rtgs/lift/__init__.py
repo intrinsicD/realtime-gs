@@ -7,6 +7,13 @@ Variants (see docs/ARCHITECTURE.md): `gradient` (multi-view photometric descent)
 
 from rtgs.lift.base import CompactInitializer, Lifter
 from rtgs.lift.baselines import RandomLifter, SfMLifter
+from rtgs.lift.carrier_refinement import (
+    CarrierObservationTable,
+    CarrierRepairConfig,
+    CarrierRepairResult,
+    build_carrier_observation_table,
+    repair_beam_carriers,
+)
 from rtgs.lift.carve import CarveLifter
 from rtgs.lift.compact_carve import (
     CompactCandidateAudit,
@@ -92,6 +99,9 @@ def lifter_names() -> list[str]:
 
 __all__ = [
     "CarveLifter",
+    "CarrierObservationTable",
+    "CarrierRepairConfig",
+    "CarrierRepairResult",
     "CompactCandidateAudit",
     "CompactCandidateAuditCallback",
     "CompactCarveConfig",
@@ -126,6 +136,7 @@ __all__ = [
     "get_lifter",
     "gate_merged_initialization",
     "build_fiber_from_initialization",
+    "build_carrier_observation_table",
     "covariance_projection_design",
     "cyclic_shift_grouped_scores",
     "dense_merged_initialization",
@@ -142,6 +153,7 @@ __all__ = [
     "pairwise_gaussian_geometry_cost",
     "radius_connected_components",
     "refine_initialization_depths",
+    "repair_beam_carriers",
     "render_teacher_image",
     "score_world_points",
     "select_component_representatives",

@@ -44,6 +44,19 @@ class DensityConfig:
     opacity_reset_value: float = 0.011
     revised_opacity: bool = True
     mcmc_noise_lr: float = 500_000.0
+    # ADR-002 carrier-maturation controls.  Defaults preserve the classic 3DGS path exactly.
+    # In clone-only mode every selected row is cloned regardless of scale, protected prefix rows
+    # cannot be pruned, and newborns may be perturbed in their parent's covariance frame.
+    clone_only: bool = False
+    # Opt-in controlled maturation wave: clone every current row on a scheduled density step,
+    # independent of accumulated screen-space gradients or visibility counts.
+    clone_all: bool = False
+    clone_jitter_fraction: float = 0.0
+    # Restrict clone displacement to the two local axes orthogonal to the shortest covariance
+    # axis. This treats the shortest principal axis as the Gaussian's local surface normal.
+    clone_tangent_only: bool = False
+    clone_child_opacity_scale: float = 1.0
+    protect_first_n: int = 0
 
 
 @dataclass(frozen=True)
@@ -109,6 +122,21 @@ class DensityController:
             raise ValueError("density every must be positive")
         if config.max_gaussians <= 0:
             raise ValueError("density max_gaussians must be positive")
+        if config.protect_first_n < 0 or config.protect_first_n > n_gaussians:
+            raise ValueError("protect_first_n must be between zero and the initial row count")
+        if not isinstance(config.clone_all, bool):
+            raise TypeError("clone_all must be bool")
+        if config.clone_all and not config.clone_only:
+            raise ValueError("clone_all requires clone_only=True")
+        if not isinstance(config.clone_tangent_only, bool):
+            raise TypeError("clone_tangent_only must be bool")
+        if not math.isfinite(config.clone_jitter_fraction) or config.clone_jitter_fraction < 0:
+            raise ValueError("clone_jitter_fraction must be finite and non-negative")
+        if (
+            not math.isfinite(config.clone_child_opacity_scale)
+            or not 0 < config.clone_child_opacity_scale <= 1
+        ):
+            raise ValueError("clone_child_opacity_scale must be in (0,1]")
         self.cfg = config
         self.extent = scene_extent
         self.grad_accum = torch.zeros(n_gaussians, device=device)
@@ -158,21 +186,34 @@ class DensityController:
         opacity = torch.sigmoid(params[opacity_key].detach())
         scale_max = scales.max(dim=-1).values
 
-        densify = (avg_grad > cfg.grad_threshold) & (self.count > 0)
+        densify = (
+            torch.ones_like(self.count, dtype=torch.bool)
+            if scheduled and cfg.clone_all
+            else (avg_grad > cfg.grad_threshold) & (self.count > 0)
+        )
         is_large = scale_max > cfg.split_scale_frac * self.extent
-        clone_mask = densify & ~is_large
-        split_mask = densify & is_large
+        clone_mask = densify if cfg.clone_only else densify & ~is_large
+        split_mask = torch.zeros_like(densify) if cfg.clone_only else densify & is_large
         prune_mask = (
             (opacity < cfg.prune_opacity) | (scale_max > cfg.prune_scale_frac * self.extent)
             if scheduled
             else torch.zeros_like(densify)
         )
+        if cfg.protect_first_n:
+            prune_mask[: min(cfg.protect_first_n, n)] = False
         # Dense transferred initializations can already exceed the configured budget. Cull the
         # least significant remaining splats on the first scheduled round instead of preserving
         # an over-budget set forever.
         budget_excess = max(n - int(prune_mask.sum()) - cfg.max_gaussians, 0)
         if budget_excess:
-            eligible = (~prune_mask).nonzero(as_tuple=True)[0]
+            eligible_mask = ~prune_mask
+            if cfg.protect_first_n:
+                eligible_mask[: min(cfg.protect_first_n, n)] = False
+            eligible = eligible_mask.nonzero(as_tuple=True)[0]
+            if eligible.numel() < budget_excess:
+                raise RuntimeError(
+                    "density budget cannot be met without pruning protected carrier rows"
+                )
             significance = opacity[eligible] * scales[eligible].prod(dim=-1)
             prune_mask[eligible[torch.topk(significance, budget_excess, largest=False).indices]] = (
                 True
@@ -201,7 +242,32 @@ class DensityController:
 
         extras: list[dict[str, torch.Tensor]] = []
         if bool(clone_mask.any()):
-            extras.append({k: v.detach()[clone_mask].clone() for k, v in params.items()})
+            child = {k: v.detach()[clone_mask].clone() for k, v in params.items()}
+            if cfg.clone_jitter_fraction:
+                from rtgs.core.gaussians3d import quat_to_rotmat
+
+                rotation = quat_to_rotmat(child["quats"])
+                sigma = child[scale_key].exp()
+                noise = (
+                    torch.randn(
+                        sigma.shape,
+                        generator=generator,
+                        device=sigma.device,
+                        dtype=sigma.dtype,
+                    )
+                    * sigma
+                    * cfg.clone_jitter_fraction
+                )
+                if cfg.clone_tangent_only:
+                    shortest_axis = sigma.argmin(dim=-1, keepdim=True)
+                    noise.scatter_(dim=-1, index=shortest_axis, value=0.0)
+                child["means"] = child["means"] + (rotation @ noise[..., None])[..., 0]
+            if cfg.clone_child_opacity_scale != 1.0:
+                child_opacity = (
+                    torch.sigmoid(child[opacity_key]) * cfg.clone_child_opacity_scale
+                ).clamp(1e-6, 1.0 - 1e-6)
+                child[opacity_key] = torch.logit(child_opacity)
+            extras.append(child)
         if bool(split_mask.any()):
             for _ in range(2):
                 child = {k: v.detach()[split_mask].clone() for k, v in params.items()}

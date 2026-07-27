@@ -61,3 +61,7 @@
 - `tables/20260720_dense_confidence_gated_init.md`: audited calibrated E1/I1/E2 chain,
   count/quality decisions, late-release held-out result, profiler decomposition, exact target-cache
   parity, artifact hashes, and explicit local-performance/default boundaries.
+- `benchmarks/results/20260727_carrier_refinement_fullres_{RESULT,AUDIT}.md` and
+  `20260727_carrier_refinement_fullres_AUDIT.json`: source-bound native-resolution
+  carrier-refinement screen, immature-parent correction, uniform recovery, independent repeats,
+  scoped negative result, and explicit no-default/no-paper-claim boundary.

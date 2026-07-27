@@ -504,3 +504,32 @@
   positive densification interaction (+1.54 dB on `frame_00008`) is deliberately excluded from
   the ledger — it does not replicate on `frame_00009` (−0.25 dB). Measured under fixed topology
   so no density event confounds the learning-rate contrast. Closes no preregistered question.
+
+## C28: The frozen short ADR-002 carrier schedule loses despite preserving its carriers
+- **Statement**: On the outcome-exposed native-resolution `frame_00008` development run, the
+  frozen 30/40/30/60 ADR-002 carrier schedule followed by a uniform 40-update fixed-topology
+  recovery finished 1.573 dB below immediate Beam-to-standard refinement while retaining 94.625%
+  of original carriers. Removing covariance repair improved the recovered endpoint by 1.268 dB
+  even though the repair reduced its own whitened reprojection residual by 50.21%, so local repair
+  loss and downstream quality dissociate in this short schedule.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing the bound primary, repeat, recovery, and
+  recovery-repeat bundles changes the stated recovered PSNR contrasts, carrier-survival value, or
+  covariance-residual reduction; or source/split/update-count checks invalidate the audited
+  comparison.
+- **Proof**: [N168,
+  `benchmarks/results/20260727_carrier_refinement_fullres_RESULT.md`,
+  `benchmarks/results/20260727_carrier_refinement_fullres_AUDIT.md`,
+  `benchmarks/results/20260727_carrier_refinement_fullres_AUDIT.json`,
+  `benchmarks/audit_carrier_refinement_fullres.py`]
+- **Dependencies**: []
+- **Tags**: beam-fusion, carrier-refinement, covariance, density-control, negative-result,
+  development, calibrated
+- **From staging**: O140
+- **Boundary**: One outcome-exposed scene and one seed, with topology-sensitive CUDA variation.
+  The treatment is a 160-update mechanism screen plus a post-hoc, separately frozen 40-update
+  recovery with restarted Adam; it is not the ADR's convergence-based maturation process. Every
+  optimized arm consumes raw RGB, the Original-3DGS baselines are absent, timing and VRAM are
+  uncontrolled, and this claim authorizes no default or paper claim.

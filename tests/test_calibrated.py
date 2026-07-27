@@ -81,6 +81,40 @@ def test_load_calibrated_scene_ignores_mask_file_in_rgb_directory(tmp_path):
     assert scene.test_indices == [1]
 
 
+def test_load_calibrated_scene_selects_exact_view_ids_in_caller_order(tmp_path):
+    frame = tmp_path / "frame_00001"
+    (frame / "rgb").mkdir(parents=True)
+    cameras = []
+    for index in range(4):
+        camera_id = f"C{index:04d}"
+        Image.fromarray(np.full((6, 8, 3), 30 * (index + 1), dtype=np.uint8)).save(
+            frame / "rgb" / f"{camera_id}.jpg"
+        )
+        cameras.append(
+            {
+                "camera_id": camera_id,
+                "extrinsics": {"view_matrix": np.eye(4).reshape(-1).tolist()},
+                "intrinsics": {
+                    "camera_matrix": [6.0, 0.0, 3.0, 0.0, 6.0, 2.0, 0.0, 0.0, 1.0],
+                    "distortion_coefficients": [0.0] * 5,
+                    "resolution": [8, 6],
+                },
+            }
+        )
+    (tmp_path / "calibration_dome.json").write_text(json.dumps({"cameras": cameras}))
+
+    scene = load_calibrated_scene(
+        frame,
+        view_ids=["C0003", "C0001"],
+        test_every=0,
+        load_masks=False,
+    )
+
+    assert scene.view_names == ["C0003", "C0001"]
+    assert scene.n_views == 2
+    assert scene.train_indices == [0, 1]
+
+
 def test_structsplat_adapter_converts_rs_and_pixel_centers(tmp_path):
     path = tmp_path / "field.npz"
     np.savez(

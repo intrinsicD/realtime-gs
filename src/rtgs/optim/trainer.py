@@ -111,6 +111,19 @@ class TrainConfig:
     # (N,) PCA coherence per initial primitive, consumed by the trust schedule's rotation rule.
     # ADR-XXXX §1 supplies it; without it every frame is trusted equally.
     init_coherence: torch.Tensor | None = None
+    # Opt-in train-only plateau stopping. ``None`` preserves the established fixed-iteration
+    # behavior. At evaluation checkpoints, a gain must exceed ``plateau_min_delta`` dB to reset
+    # the patience counter. Held-out/test views are never used by this stopping rule.
+    plateau_patience_evals: int | None = None
+    plateau_min_delta: float = 0.0
+    plateau_min_iterations: int = 0
+    # Keep image, mask, and camera tensors on the host and transfer only the sampled/evaluated
+    # view. This is an opt-in full-resolution multi-view memory control; the eager device copy
+    # remains the default.
+    stream_scene_from_cpu: bool = False
+    # Retain the complete aggregate training-view metric dictionary at evaluation checkpoints.
+    # Plateau stopping and best-train selection enable this automatically.
+    record_train_metrics: bool = False
 
 
 @dataclass(frozen=True)
@@ -255,6 +268,7 @@ class Trainer:
         quaternion_step_callback: (
             Callable[[torch.Tensor, torch.Tensor, torch.Tensor, int], None] | None
         ) = None,
+        density_surgery_callback: (Callable[[torch.Tensor, torch.Tensor, int], None] | None) = None,
     ) -> tuple[Gaussians3D, dict]:
         """Run optimization and return ``(refined, history)``.
 
@@ -271,6 +285,9 @@ class Trainer:
         one quaternion entry policy and before optimizer construction. The quaternion step
         observer receives isolated ``(q_old, q_star, q_new, completed_step)`` clones after policy
         application and before history, decay, density control, callback, or evaluation.
+        ``density_surgery_callback`` receives detached ``(keep_mask, parent_rows, step)`` records
+        after each classic-controller edit, allowing opt-in lineage diagnostics without changing
+        density decisions or optimizer surgery.
         """
         from rtgs.optim.strategies import (
             GsplatStrategyController,
@@ -290,8 +307,29 @@ class Trainer:
             raise ValueError("eval_every must be positive")
         if cfg.checkpoint_policy not in ("final", "best_train_psnr"):
             raise ValueError("checkpoint_policy must be 'final' or 'best_train_psnr'")
+        if cfg.plateau_patience_evals is not None and (
+            isinstance(cfg.plateau_patience_evals, bool)
+            or not isinstance(cfg.plateau_patience_evals, int)
+            or cfg.plateau_patience_evals <= 0
+        ):
+            raise ValueError("plateau_patience_evals must be a positive integer or None")
+        if (
+            isinstance(cfg.plateau_min_iterations, bool)
+            or not isinstance(cfg.plateau_min_iterations, int)
+            or cfg.plateau_min_iterations < 0
+        ):
+            raise ValueError("plateau_min_iterations must be a nonnegative integer")
+        if not math.isfinite(cfg.plateau_min_delta) or cfg.plateau_min_delta < 0:
+            raise ValueError("plateau_min_delta must be finite and nonnegative")
+        if not isinstance(cfg.stream_scene_from_cpu, bool):
+            raise TypeError("stream_scene_from_cpu must be bool")
+        if not isinstance(cfg.record_train_metrics, bool):
+            raise TypeError("record_train_metrics must be bool")
         device = _resolve_device(cfg.device)
-        scene = scene.to(device)
+        if cfg.stream_scene_from_cpu:
+            scene = scene.to("cpu")
+        else:
+            scene = scene.to(device)
         controls = None
         image_pyramid = None
         camera_pyramid = None
@@ -415,7 +453,12 @@ class Trainer:
                 params = classic_controller.step(
                     0, params, optimizers, generator=gen, force_budget=True
                 )
-                _sync_trust_lineage(trust_schedule, classic_controller)
+                _sync_density_lineage(
+                    trust_schedule,
+                    classic_controller,
+                    density_surgery_callback,
+                    iteration=0,
+                )
         elif cfg.densify:
             if cfg.rasterizer == "torch" or device.type != "cuda":
                 raise RuntimeError(f"{strategy_name} requires --rasterizer gsplat and CUDA")
@@ -482,6 +525,8 @@ class Trainer:
             "peak_vram_gb": 0.0,
             "peak_vram_reserved_gb": 0.0,
             "cuda_memory_stats": {},
+            "executed_iterations": 0,
+            "stop_reason": "max_iterations",
         }
         if control_metadata is not None:
             history["step_control_metadata"] = control_metadata
@@ -490,11 +535,17 @@ class Trainer:
             raise ValueError("scene has no training views")
 
         select_best = cfg.checkpoint_policy == "best_train_psnr"
-        if select_best:
+        plateau_enabled = cfg.plateau_patience_evals is not None
+        monitor_train_psnr = select_best or plateau_enabled or cfg.record_train_metrics
+        if monitor_train_psnr:
             history["train_psnr"] = []
+            history["train_metrics"] = []
         best_train_psnr = -float("inf")
         best_snapshot: Gaussians3D | None = None
         best_step: int | None = None
+        plateau_best_train_psnr = -float("inf")
+        plateau_best_step: int | None = None
+        plateau_stale_evals = 0
 
         if device.type == "cuda":
             torch.cuda.reset_peak_memory_stats(device)
@@ -512,11 +563,11 @@ class Trainer:
             history["sampled_train_views"].append(int(v))
             control = None if controls is None else controls[local_it]
             if control is None:
-                target = scene.images[v]
-                render_camera = scene.cameras[v]
+                target = scene.images[v].to(device)
+                render_camera = scene.cameras[v].to(device)
             else:
-                target = image_pyramid[control.loss_downscale][v]
-                render_camera = camera_pyramid[control.render_downscale][v]
+                target = image_pyramid[control.loss_downscale][v].to(device)
+                render_camera = camera_pyramid[control.render_downscale][v].to(device)
                 control_metadata["render_pixels"] += render_camera.height * render_camera.width
                 control_metadata["loss_pixels"] += target.shape[0] * target.shape[1]
                 view_counts = control_metadata["per_view_scale_counts"].setdefault(
@@ -532,7 +583,7 @@ class Trainer:
             mask = None
             background = None
             if cfg.use_masks and scene.masks is not None:
-                mask = scene.masks[v].to(target.dtype).clamp(0, 1)
+                mask = scene.masks[v].to(device=device, dtype=target.dtype).clamp(0, 1)
                 if cfg.random_background:
                     background = torch.rand(3, generator=gen, device=device)
             out = renderer.render(
@@ -567,6 +618,7 @@ class Trainer:
             else:
                 l1 = (color_for_loss - target).abs().mean()
             loss = (1 - cfg.ssim_lambda) * l1 + cfg.mask_alpha_lambda * alpha_loss
+            dssim_loss = target.new_zeros(())
             if cfg.ssim_lambda > 0:
                 if mask is not None:
                     pred_for_ssim = masked_crop(color_for_loss, mask)
@@ -574,11 +626,16 @@ class Trainer:
                 else:
                     pred_for_ssim = color_for_loss
                     target_for_ssim = target_for_loss
-                loss = loss + cfg.ssim_lambda * (1.0 - ssim(pred_for_ssim, target_for_ssim))
+                dssim_loss = 1.0 - ssim(pred_for_ssim, target_for_ssim)
+                loss = loss + cfg.ssim_lambda * dssim_loss
+            opacity_regularization = target.new_zeros(())
             if opacity_reg:
-                loss = loss + opacity_reg * torch.sigmoid(params["opacities"]).mean()
+                opacity_regularization = torch.sigmoid(params["opacities"]).mean()
+                loss = loss + opacity_reg * opacity_regularization
+            scale_regularization = target.new_zeros(())
             if scale_reg:
-                loss = loss + scale_reg * torch.exp(params["scales"]).mean()
+                scale_regularization = torch.exp(params["scales"]).mean()
+                loss = loss + scale_reg * scale_regularization
             loss.backward()
 
             if cfg.collect_sh_color_diagnostics:
@@ -673,9 +730,15 @@ class Trainer:
             history["loss_terms"].append(
                 {
                     "l1": float(l1.detach()),
+                    "dssim": float(dssim_loss.detach()),
                     "alpha": float(alpha_loss.detach()),
+                    "weighted_l1": float(((1 - cfg.ssim_lambda) * l1).detach()),
+                    "weighted_dssim": float((cfg.ssim_lambda * dssim_loss).detach()),
+                    "weighted_alpha": float((cfg.mask_alpha_lambda * alpha_loss).detach()),
                     "opacity_reg": opacity_reg,
+                    "opacity_regularization": float(opacity_regularization.detach()),
                     "scale_reg": scale_reg,
+                    "scale_regularization": float(scale_regularization.detach()),
                 }
             )
 
@@ -688,7 +751,12 @@ class Trainer:
                 )
             elif classic_controller is not None:
                 params = classic_controller.step(completed_step, params, optimizers, generator=gen)
-                _sync_trust_lineage(trust_schedule, classic_controller)
+                _sync_density_lineage(
+                    trust_schedule,
+                    classic_controller,
+                    density_surgery_callback,
+                    iteration=completed_step,
+                )
             elif gsplat_controller is not None:
                 gsplat_controller.post_backward(
                     params,
@@ -700,14 +768,53 @@ class Trainer:
                 )
 
             if completed_step % cfg.eval_every == 0 or local_it == cfg.iterations - 1:
-                history["psnr"].append((completed_step, self.evaluate(scene, build(), renderer)))
-                if select_best:
-                    train_psnr = self.evaluate(scene, build(), renderer, indices=train_views)
+                default_eval_views = scene.testing_views or list(range(scene.n_views))
+                train_metrics = None
+                if monitor_train_psnr and list(train_views) == list(default_eval_views):
+                    train_metrics = self.evaluate_metrics(scene, build(), renderer)
+                    evaluated_psnr = (
+                        train_metrics["psnr_fg"]
+                        if "psnr_fg" in train_metrics
+                        else train_metrics["psnr"]
+                    )
+                else:
+                    evaluated_psnr = self.evaluate(scene, build(), renderer)
+                history["psnr"].append((completed_step, evaluated_psnr))
+                train_psnr = None
+                if monitor_train_psnr:
+                    if train_metrics is None:
+                        train_metrics = self.evaluate_metrics(
+                            scene,
+                            build(),
+                            renderer,
+                            indices=train_views,
+                        )
+                    train_psnr = (
+                        train_metrics["psnr_fg"]
+                        if "psnr_fg" in train_metrics
+                        else train_metrics["psnr"]
+                    )
                     history["train_psnr"].append((completed_step, train_psnr))
+                    history["train_metrics"].append({"step": completed_step, **train_metrics})
+                if select_best:
+                    assert train_psnr is not None
                     if train_psnr > best_train_psnr:
                         best_train_psnr = train_psnr
                         best_step = completed_step
                         best_snapshot = build().detach()
+                should_stop = False
+                if plateau_enabled:
+                    assert train_psnr is not None
+                    if train_psnr > plateau_best_train_psnr + cfg.plateau_min_delta:
+                        plateau_best_train_psnr = train_psnr
+                        plateau_best_step = completed_step
+                        plateau_stale_evals = 0
+                    else:
+                        plateau_stale_evals += 1
+                    should_stop = (
+                        local_it + 1 >= cfg.plateau_min_iterations
+                        and plateau_stale_evals >= cfg.plateau_patience_evals
+                    )
                 if device.type == "cuda":
                     torch.cuda.synchronize(device)
                 if checkpoint_callback is None:
@@ -726,8 +833,23 @@ class Trainer:
                     with torch.no_grad():
                         checkpoint_callback(snapshot, completed_step)
                     callback_seconds += time.perf_counter() - observer_started
+                history["executed_iterations"] = local_it + 1
+                if should_stop:
+                    history["stop_reason"] = "train_psnr_plateau"
+                    break
 
         history["means_lr_final"] = optimizers["means"].param_groups[0]["lr"]
+        if plateau_enabled:
+            history["plateau"] = {
+                "metric": "mean_training_view_foreground_psnr",
+                "patience_evals": cfg.plateau_patience_evals,
+                "min_delta_db": cfg.plateau_min_delta,
+                "min_iterations": cfg.plateau_min_iterations,
+                "best_train_psnr": plateau_best_train_psnr,
+                "best_step": plateau_best_step,
+                "stale_evals": plateau_stale_evals,
+                "converged": history["stop_reason"] == "train_psnr_plateau",
+            }
         if init_controller is not None:
             history["density_stats"] = init_controller.stats
         elif classic_controller is not None:
@@ -1252,20 +1374,31 @@ def _apply_quaternion_update_policy_(
         parameter.copy_(proposed)
 
 
-def _sync_trust_lineage(
-    trust_schedule: TrustSchedule | None, controller: DensityController
+def _sync_density_lineage(
+    trust_schedule: TrustSchedule | None,
+    controller: DensityController,
+    callback: Callable[[torch.Tensor, torch.Tensor, int], None] | None,
+    *,
+    iteration: int,
 ) -> None:
-    """Replay the classic controller's surgery onto the trust schedule's lineage arrays.
+    """Replay one classic surgery onto all opt-in lineage observers.
 
     The classic path is an E12 *comparison* level, so the trust schedule has to survive it:
     a lineage tracker that only works with the new controller cannot measure an interaction
-    between the two.  ``last_surgery`` is a record, not a hook -- the classic controller's
-    numerics are untouched (ADR-YYYY A5).
+    between the two. ``last_surgery`` remains an inert record; observers receive clones and
+    therefore cannot mutate density-controller state.
     """
-    if trust_schedule is None or controller.last_surgery is None:
+    if controller.last_surgery is None:
         return
     surgery = controller.last_surgery
-    trust_schedule.reindex(surgery["keep_mask"], surgery["parent_rows"])
+    if trust_schedule is not None:
+        trust_schedule.reindex(surgery["keep_mask"], surgery["parent_rows"])
+    if callback is not None:
+        callback(
+            surgery["keep_mask"].detach().clone(),
+            surgery["parent_rows"].detach().clone(),
+            iteration,
+        )
     controller.last_surgery = None
 
 

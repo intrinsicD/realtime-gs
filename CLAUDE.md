@@ -81,16 +81,19 @@ src/rtgs/
   image2gs/    stage 1: differentiable 2D splatting (serial + fused batch_views),
                native/StructSplat fitting, adapters; experimental CUDA ext in cuda_backend.py
   lift/        stage 2: gradient/depth/hybrid/carve/field, compact_carve, beam_fusion,
+               carrier_refinement (ADR-002 fixed-lineage covariance/opacity/SH0 repair),
                surfel_init (cover-consistent covariance/opacity post-process),
                surfel_lift (ADR-XXXX closed-form covariance/opacity/colour), field_* and merge
   depth/       DepthBackend protocol, mock (tests), depth_anything (lazy), align (scale/shift)
   render/      dense Rasterizer (torch CPU ref, gsplat CUDA); sparse PointRasterizer (torch CPU)
   optim/       stage 3: RGB trainer.py; RGB-free fixed-topology compact_trainer.py;
                CPU classic density.py; CUDA gsplat strategies.py; ADR-YYYY init_density.py
-               (three-channel appearance-preserving growth) + init_trust.py (trust schedule)
+               (three-channel appearance-preserving growth) + init_trust.py (trust schedule);
+               carrier_schedule.py (ADR-002 protected clone/particle maturation + lineage)
   data/        scenes/loaders plus compact_views.py capped view bundles; field_inputs.py
                explicit compact train/heldout seam; reconstruction_inputs.py fixed-topology seam
-  pipeline.py  strict-split orchestration + image-free run_field_pipeline; visualize.py previews;
+  pipeline.py  strict-split orchestration + image-free run_field_pipeline + opt-in
+               run_carrier_pipeline; visualize.py previews;
                viewer.py browser UI; live.py igsv live-training bridge; cli.py CLI including lift-field
 tests/         CPU-only pytest suite; conftest.py has seeding + tiny-scene fixtures
 benchmarks/    run.py harness + results/*.json, protocols, seals, RESULT/AUDIT notes

@@ -1,6 +1,6 @@
 # ADR-002 — Carrier Refinement Schedule
 
-**Status:** draft
+**Status:** implemented as an opt-in research path; not accepted as a default
 **Date:** 2026-07-27
 **Author:** Alex
 
@@ -267,6 +267,26 @@ parameters."
 
 ## Future Extension
 
+### Error-driven Clone Selection
+
+The first convergence experiment intentionally uses a **clone-every-carrier** schedule. This is a
+mechanism/control experiment: every current Gaussian is cloned at each scheduled wave, parents
+survive, and children receive small perturbations in the parent's tangent plane.
+
+A later, separately preregistered experiment should make clone selection **error-driven**. Candidate
+scores may combine
+
+- multi-view image residual attributed to the carrier,
+- missing projected coverage,
+- cross-view disagreement,
+- insufficient opacity support.
+
+The error-driven variant must be compared with clone-every-carrier under matched clone budgets,
+wave cadence, optimization budgets, and tangent-space perturbations. Selection thresholds and
+stopping rules must be frozen before the run, and reporting/held-out views must not contribute to
+the score. This extension is explicitly **not** part of the all-26-view clone-schedule experiment
+specified below.
+
 ### Carrier-guided Particle Generation
 
 After Clone-only has demonstrated that mature carriers are stable, they may become **particle
@@ -296,3 +316,30 @@ It is a guided local exploration process originating from verified carrier Gauss
 - insufficient opacity support
 
 This should remain an optional late-stage refinement strategy.
+
+---
+
+## Implementation and Evidence Status
+
+The design is implemented in:
+
+- `rtgs.lift.carrier_refinement`: fixed-lineage covariance, optical-density opacity, and robust
+  SH0 appearance repair;
+- `rtgs.optim.carrier_schedule`: warm-up, protected clone/particle maturation, higher-SH
+  expansion, standard handover, and lineage diagnostics;
+- `rtgs.pipeline.run_carrier_pipeline`: typed end-to-end Beam Fusion -> repair -> maturation
+  orchestration.
+
+Every control is opt-in and the incumbent optimizer defaults are unchanged. The native-resolution
+masked-Janelle development experiment and independent scientist pass are recorded in
+`benchmarks/results/20260727_carrier_refinement_fullres_RESULT.md` and
+`benchmarks/results/20260727_carrier_refinement_fullres_AUDIT.md`.
+
+That experiment rejects only its frozen short 30/40/30/60 instantiation on the exposed development
+scene. It did not run any phase to convergence and did not save/render every repair and clone-wave
+boundary, so it does not test the full process specified above. Carrier survival moved as designed,
+but downstream quality did not improve within the short budget; covariance repair also showed a
+local-objective/downstream-quality dissociation. This ADR therefore records an available research
+seam, not an accepted optimization policy. The next implementation must add explicit train-only
+plateau criteria, tangent-only clone waves with recovery between waves, and complete boundary/
+trajectory artifacts before the design itself can be judged.

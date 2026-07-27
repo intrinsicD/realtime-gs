@@ -317,6 +317,19 @@
       SH/color as a separate appearance block. Score incremental alpha-IoU gap closure with an
       outside-alpha guardrail; do not tune or select an opacity rule on the consumed all-fitted
       Janelle screen
+- [x] Implement and independently audit ADR-002 fixed-lineage carrier repair plus a short
+      warm-up/clone/SH/standard screen at native masked-Janelle resolution. The recovered
+      30/40/30/60 schedule lost 1.573 dB to immediate Beam-to-standard despite 94.625% carrier
+      survival; no-covariance beat the complete schedule by 1.268 dB even though covariance repair
+      passed its own residual gate. Retain the path as opt-in research code, reject only this short
+      schedule on the exposed scene, and change no default. The ADR's until-convergence process is
+      still untested. Evidence:
+      `benchmarks/results/20260727_carrier_refinement_fullres_{RESULT,AUDIT}.md`
+- [ ] Revisit the carrier/paper question only with a recovery interval after the final topology
+      event, actual SfM and compressed-RGB SfM baselines, a genuinely compact-only optimization
+      arm, fresh non-outcome-exposed scenes, at least three paired seeds, and separately controlled
+      I/O/idle-GPU measurements. Do not promote covariance repair from its local loss or use the
+      random RGB/JPEG controls as substitutes for Original 3DGS
 - [ ] Before any Beam covariance promotion, persist raw partition receipts and replicate CI versus
       `pou-full` across multiple scenes/seeds with untouched held-out cameras. Only after that may
       a production gsplat split/merge arm test whether better conditioning survives topology.

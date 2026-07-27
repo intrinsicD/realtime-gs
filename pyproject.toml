@@ -24,6 +24,8 @@ depth = ["transformers>=4.45"]
 viewer = ["viser>=1.0.30,<2"]
 # Tracked benchmark experiments and the tests that import them (some use scipy).
 benchmark = ["scipy>=1.10"]
+# Optional perceptual evaluation used by results-bearing image experiments. Imported lazily.
+metrics = ["lpips==0.1.4"]
 dev = [
     "pytest>=8.0",
     "ruff>=0.6",

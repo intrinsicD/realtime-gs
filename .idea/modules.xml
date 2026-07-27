@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/realtime-gs.iml" filepath="$PROJECT_DIR$/.idea/realtime-gs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/rtgs.iml" filepath="$PROJECT_DIR$/.idea/rtgs.iml" />
     </modules>
   </component>
 </project>

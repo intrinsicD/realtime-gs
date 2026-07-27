@@ -2168,3 +2168,24 @@ observations:
     promoted_to: "logic/claims.md:C27"
     crystallized_via: artifact-commitment
     stale: false
+  - id: O140
+    timestamp: "2026-07-27T14:53+02:00"
+    provenance: ai-executed
+    content: >
+      A carrier-preserving schedule can fail downstream even when a repair phase solves its local
+      objective. On the outcome-exposed native-resolution frame_00008 development run, the frozen
+      30/40/30/60 schedule plus uniform 40-update recovery retained 94.625% of original carriers
+      but finished 1.573 dB below immediate Beam-to-standard refinement. Removing covariance
+      repair gained 1.268 dB although the repair reduced its own whitened reprojection residual by
+      50.21%. This rejects only the short treatment and local-objective value mechanism on the
+      exposed scene, not ADR-002's untested convergence-based process.
+    context: >
+      Independent carrier-refinement audit N168 over the bound primary, recovery, and repeat
+      bundles; all machine-checked protocol invariants pass and the reader-facing bundles pass
+      scripts/check_results_bundle.py.
+    potential_type: constraint
+    bound_to: [N168]
+    promoted: true
+    promoted_to: "logic/claims.md:C28"
+    crystallized_via: artifact-commitment
+    stale: false
