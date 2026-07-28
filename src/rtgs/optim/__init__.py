@@ -8,32 +8,32 @@ from rtgs.optim.compact_trainer import CompactTrainConfig, CompactTrainer
 
 if TYPE_CHECKING:
     from rtgs.optim.carrier_schedule import (
-        CarrierLineageTracker,
         CarrierOptimizationConfig,
         CarrierOptimizationResult,
         optimize_carriers,
+        prune_carrier_centers,
     )
     from rtgs.optim.trainer import TrainConfig, Trainer, TrainStepControl
 
 __all__ = [
     "CompactTrainConfig",
     "CompactTrainer",
-    "CarrierLineageTracker",
     "CarrierOptimizationConfig",
     "CarrierOptimizationResult",
     "TrainConfig",
     "Trainer",
     "TrainStepControl",
     "optimize_carriers",
+    "prune_carrier_centers",
 ]
 
 
 def __getattr__(name: str) -> Any:
     if name in {
-        "CarrierLineageTracker",
         "CarrierOptimizationConfig",
         "CarrierOptimizationResult",
         "optimize_carriers",
+        "prune_carrier_centers",
     }:
         from rtgs.optim import carrier_schedule
 

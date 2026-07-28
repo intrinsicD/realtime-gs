@@ -1,19 +1,23 @@
 """End-to-end pipeline: all lifting variants must beat the random baseline and refine."""
 
+import inspect
+import subprocess
+import sys
 from dataclasses import replace
 
 import pytest
 import torch
 
-from rtgs.core.observation2d import GaussianObservationField
-from rtgs.data.reconstruction_inputs import ReconstructionInputs
 from rtgs.image2gs.fit import FitConfig
+from rtgs.lift.beam_fusion import BeamFusionConfig
+from rtgs.lift.carrier_refinement import CarrierRepairConfig
 from rtgs.optim.density import DensityConfig
 from rtgs.optim.trainer import TrainConfig
 from rtgs.pipeline import (
+    CarrierPipelineConfig,
     PipelineConfig,
-    _validate_carrier_input_binding,
     compare_lifters,
+    run_carrier_pipeline,
     run_pipeline,
 )
 
@@ -111,39 +115,42 @@ def test_stage1_fits_training_views_only(tiny_scene):
     assert len(result.fit_histories) == 2
 
 
-def _carrier_inputs(scene, indices: list[int]) -> ReconstructionInputs:
-    names = [f"view-{index:04d}" for index in indices]
-    observations = [
-        GaussianObservationField(
-            width=scene.cameras[index].width,
-            height=scene.cameras[index].height,
-            means=torch.tensor([[16.0, 16.0]]),
-            log_scales=torch.zeros(1, 2),
-            rotations=torch.zeros(1),
-            colors=torch.full((1, 3), 0.5),
-            amplitudes=torch.full((1,), 0.5),
-            view_id=name,
-            provider="synthetic_fixture",
-        )
-        for index, name in zip(indices, names, strict=True)
+def test_carrier_pipeline_api_has_no_scene_or_image_input() -> None:
+    assert list(inspect.signature(run_carrier_pipeline).parameters) == [
+        "inputs",
+        "config",
     ]
-    return ReconstructionInputs(
-        observations=observations,
-        cameras=[scene.cameras[index] for index in indices],
-        view_names=names,
+
+
+def test_carrier_pipeline_rejects_unbounded_or_legacy_policy() -> None:
+    with pytest.raises(ValueError, match="at least three"):
+        CarrierPipelineConfig(beam=BeamFusionConfig(min_views=2))
+    with pytest.raises(ValueError, match="bounded"):
+        CarrierPipelineConfig(beam=BeamFusionConfig(max_components=None))
+    with pytest.raises(ValueError, match="covariance repair only"):
+        CarrierPipelineConfig(
+            repair=CarrierRepairConfig(
+                repair_opacity=True,
+            )
+        )
+
+
+def test_carrier_pipeline_import_keeps_dense_image_modules_out() -> None:
+    code = """
+import importlib
+import sys
+module = importlib.import_module('rtgs.carrier_pipeline')
+pipeline = importlib.import_module('rtgs.pipeline')
+assert module.run_carrier_pipeline is pipeline.run_carrier_pipeline
+assert 'rtgs.data.scene' not in sys.modules
+assert 'rtgs.data.calibrated' not in sys.modules
+assert 'rtgs.image2gs.fit' not in sys.modules
+assert 'rtgs.optim.trainer' not in sys.modules
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        check=False,
+        capture_output=True,
+        text=True,
     )
-
-
-def test_carrier_pipeline_binding_requires_exact_ordered_training_cameras(tiny_scene):
-    split = replace(tiny_scene, train_indices=[0, 2], test_indices=[1, 3])
-    valid = _carrier_inputs(split, [0, 2])
-    _validate_carrier_input_binding(valid, split)
-
-    wrong_view = _carrier_inputs(split, [0, 1])
-    with pytest.raises(ValueError, match="exactly the scene training views"):
-        _validate_carrier_input_binding(wrong_view, split)
-
-    wrong_camera = _carrier_inputs(split, [0, 2])
-    wrong_camera.cameras[1] = split.cameras[1]
-    with pytest.raises(ValueError, match="camera does not match"):
-        _validate_carrier_input_binding(wrong_camera, split)
+    assert completed.returncode == 0, completed.stderr

@@ -29,9 +29,10 @@ primitives, we:
    confidence-gated easy-only, calibrated splat-SfM, tomographic beam fusion, complete field lift,
    and a camera-bounds random control. Classic SfM still requires sparse points; gradient/carve,
    depth, and hybrid require dense RGB and/or depth evidence absent from a compact-only bundle.
-3. **Refine with standard 3DGS optimization** from this dense, structured initialization.
-   CUDA runs can select gsplat's Default (AbsGS/revised opacity) or MCMC
-   (relocation/teleportation + noise) strategy under a hard configurable primitive budget.
+3. **Refine the resulting 3D Gaussians.** Legacy variants can use standard RGB-backed 3DGS.
+   The carrier path is separate and structurally compact-only: Beam Fusion, corrected covariance
+   repair, two fixed-topology point-sampled phases against the frozen 2D Gaussian fields, and
+   strict fitting-view projected-center containment. It never hands off to RGB-backed training.
 
 Rendering/refinement reuses the state-of-the-art CUDA stack ([gsplat](https://github.com/nerfstudio-project/gsplat))
 on GPU; a pure-PyTorch reference rasterizer keeps the whole pipeline testable on CPU.
@@ -45,7 +46,8 @@ python3 -m venv .venv
 
 .venv/bin/rtgs run --scene synthetic --lifter depth   # end-to-end on a synthetic scene
 .venv/bin/rtgs bench --quick                          # compare all lifting variants
-./scripts/verify.sh                                   # lint + tests + docs-sync
+.venv/bin/python scripts/experiment_contract.py validate  # active experiment registry
+./scripts/verify.sh                                   # lint + tests + docs/contracts
 ```
 
 The repository's checked-in captures are stored after Stage 1 rather than as RGB. Each
@@ -57,10 +59,43 @@ Load them without an image decoder or StructSplat runtime:
 from rtgs.data import CompactDataset
 
 compact = CompactDataset.load(
-    "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d"
+    "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d",
+    load_alpha=False,
 )
 inputs = compact.to_reconstruction_inputs()
 ```
+
+Run the carrier path directly from those inputs:
+
+```python
+from rtgs.carrier_pipeline import run_carrier_pipeline
+
+result = run_carrier_pipeline(inputs)
+gaussians3d = result.gaussians
+```
+
+The carrier entry accepts only `ReconstructionInputs`; it does not accept `SceneData`, RGB,
+masks, or packed alpha. Its default sequence is Beam Fusion with at least three input-view
+contributors, renderer-aware covariance repair, compact SH0 all-parameter refinement, strict
+three-sigma projected-center pruning in every fitting view, then compact refinement with means
+frozen. There is no clone, split, insertion, densification, opacity reset, higher-SH phase, or
+dense optimizer handover.
+
+Three independently audited 2026-07-28 experiments selected that policy on one all-fitted-view
+development scene. This establishes the structural no-image boundary and the tested stage
+choice, not a general quality or VRAM advantage. In particular, projected-center containment
+cannot rule out a Gaussian inside the multi-view visual hull but away from the physical surface.
+See the
+[`stage ablation`](benchmarks/results/20260728_compact_only_carrier_stage_ablation_RESULT.md),
+[`policy closure`](benchmarks/results/20260728_compact_only_carrier_policy_closure_RESULT.md),
+and [`sequence interaction`](benchmarks/results/20260728_compact_only_carrier_sequence_interaction_RESULT.md)
+results and their independent audits.
+
+New claim work is organized separately from those immutable historical artifacts. The active
+[three-arm program](docs/THREE_ARM_EXPERIMENT_PROGRAM.md) registers a compact-only VRAM arm, a
+matched Beam Fusion/stage arm, and a matched-initialization RGB-trained 3DGS comparison. Every
+task uses the naming rule `YYYYMMDD_<task>_<data>`, a data/task lock, and the same generated
+`index.html`; see [`experiments/README.md`](experiments/README.md).
 
 Run the native field lift directly from the same compact directory. The command loads no source
 image, preserves optional packed alpha, creates an explicit deterministic held-out split, and
@@ -357,6 +392,8 @@ names are rejected unless their code and weights have been explicitly license-ve
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Milestones and open questions |
 | [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) | How to benchmark + tracked results |
 | [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) | Dated experiment log (positive and negative results) |
+| [`docs/THREE_ARM_EXPERIMENT_PROGRAM.md`](docs/THREE_ARM_EXPERIMENT_PROGRAM.md) | Active compact/Beam/RGB claim program, controls, and math |
+| [`experiments/README.md`](experiments/README.md) | Task-first naming, run lifecycle, shared report, and agent ownership |
 | [`CLAUDE.md`](CLAUDE.md) | Agent guide: hard rules, commands, workflows |
 
 ## Status

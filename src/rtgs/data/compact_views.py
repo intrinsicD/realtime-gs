@@ -323,8 +323,18 @@ class CompactView:
         device: torch.device | str = "cpu",
         *,
         byte_cap: int = COMPACT_VIEW_BYTE_CAP,
+        load_alpha: bool = True,
     ) -> CompactView:
-        """Strictly load one integrity-bound compact view."""
+        """Strictly load one integrity-bound compact view.
+
+        ``load_alpha=False`` leaves the optional packed bitmap unread and returns ``alpha=None``.
+        Its ZIP member layout and metadata declaration are still validated.  This mode is for
+        reconstruction stages whose executable contract permits only the Gaussian teacher and
+        calibrated camera; callers loading through :class:`CompactDataset` additionally get the
+        outer-container digest check from the dataset manifest.
+        """
+        if not isinstance(load_alpha, bool):
+            raise TypeError("load_alpha must be a bool")
         path = Path(path)
         try:
             mode = os.lstat(path).st_mode
@@ -368,7 +378,12 @@ class CompactView:
                     raise ValueError("compact view alpha exceeds its uncompressed safety cap")
                 metadata_payload = archive.read(_METADATA_MEMBER)
                 teacher_payload = archive.read(_TEACHER_MEMBER)
-                alpha_payload = archive.read(_ALPHA_MEMBER) if _ALPHA_MEMBER in by_name else None
+                alpha_member_bytes = (
+                    by_name[_ALPHA_MEMBER].file_size if _ALPHA_MEMBER in by_name else None
+                )
+                alpha_payload = (
+                    archive.read(_ALPHA_MEMBER) if load_alpha and _ALPHA_MEMBER in by_name else None
+                )
         except zipfile.BadZipFile as error:
             raise ValueError("compact view is not a valid ZIP archive") from error
 
@@ -415,10 +430,12 @@ class CompactView:
         if preprocessing["rgb"] != "calibrated_bilinear_undistort":
             raise ValueError("unsupported compact-view RGB preprocessing")
 
-        alpha = _load_alpha(metadata["alpha"], alpha_payload)
-        if (alpha is None) != (preprocessing["alpha"] is None):
+        alpha_declaration = _validate_alpha_record(metadata["alpha"], alpha_member_bytes)
+        alpha = _load_alpha(metadata["alpha"], alpha_payload) if load_alpha else None
+        alpha_declared = alpha_declaration is not None
+        if alpha_declared != (preprocessing["alpha"] is not None):
             raise ValueError("alpha preprocessing declaration mismatch")
-        if alpha is not None and (
+        if alpha_declared and (
             preprocessing["alpha"] != "calibrated_nearest_undistort_threshold_gt_0.5"
         ):
             raise ValueError("unsupported compact-view alpha preprocessing")
@@ -440,9 +457,10 @@ class CompactView:
             raise ValueError("teacher initial count does not match compact-view metadata")
         if observation.width != camera.width or observation.height != camera.height:
             raise ValueError("teacher canvas does not match compact-view camera")
-        if alpha is not None:
+        if alpha_declaration is not None:
+            shape, origin, _foreground_count = alpha_declaration
             fit_x, fit_y, fit_width, fit_height = observation.fit_window
-            if alpha.origin != (fit_x, fit_y) or alpha.shape != (fit_height, fit_width):
+            if origin != (fit_x, fit_y) or shape != (fit_height, fit_width):
                 raise ValueError("alpha crop does not match teacher fit_window")
         return cls(
             observation=observation,
@@ -465,13 +483,16 @@ def _validate_source_file(value: object, *, label: str) -> dict:
     return record
 
 
-def _load_alpha(value: object, payload: bytes | None) -> PackedAlpha | None:
+def _validate_alpha_record(
+    value: object,
+    payload_bytes: int | None,
+) -> tuple[tuple[int, int], tuple[int, int], int] | None:
     if value is None:
-        if payload is not None:
+        if payload_bytes is not None:
             raise ValueError("compact view has undeclared alpha payload")
         return None
     record = _exact_keys(value, _ALPHA_KEYS, label="alpha record")
-    if payload is None:
+    if payload_bytes is None:
         raise ValueError("compact view is missing its declared alpha payload")
     if (
         record["member"] != _ALPHA_MEMBER
@@ -499,10 +520,9 @@ def _load_alpha(value: object, payload: bytes | None) -> PackedAlpha | None:
     expected_bytes = (valid_bits + 7) // 8
     if _positive_int(record["bytes"], label="alpha bytes") != expected_bytes:
         raise ValueError("alpha byte count does not match its bit count")
-    if len(payload) != expected_bytes:
+    if payload_bytes != expected_bytes:
         raise ValueError("alpha payload length mismatch")
-    if _digest(record["sha256"], label="alpha sha256") != _sha256(payload):
-        raise ValueError("alpha digest mismatch")
+    _digest(record["sha256"], label="alpha sha256")
     foreground_count = record["foreground_count"]
     if (
         not isinstance(foreground_count, int)
@@ -510,13 +530,26 @@ def _load_alpha(value: object, payload: bytes | None) -> PackedAlpha | None:
         or not 0 < foreground_count <= valid_bits
     ):
         raise ValueError("alpha foreground_count is invalid")
+    return (shape[0], shape[1]), (origin[0], origin[1]), foreground_count
+
+
+def _load_alpha(value: object, payload: bytes | None) -> PackedAlpha | None:
+    declaration = _validate_alpha_record(value, None if payload is None else len(payload))
+    if declaration is None:
+        return None
+    assert payload is not None
+    record = _exact_keys(value, _ALPHA_KEYS, label="alpha record")
+    if _digest(record["sha256"], label="alpha sha256") != _sha256(payload):
+        raise ValueError("alpha digest mismatch")
+    shape, origin, foreground_count = declaration
+    valid_bits = shape[0] * shape[1]
     remainder = valid_bits % 8
     if remainder and payload[-1] >> remainder:
         raise ValueError("alpha payload has non-zero padding bits")
     alpha = PackedAlpha(
         payload=payload,
-        shape=(shape[0], shape[1]),
-        origin=(origin[0], origin[1]),
+        shape=shape,
+        origin=origin,
         foreground_count=foreground_count,
     )
     if int(alpha.crop_mask().sum()) != foreground_count:
@@ -707,8 +740,16 @@ class CompactDataset:
         device: torch.device | str = "cpu",
         *,
         byte_cap: int = COMPACT_VIEW_BYTE_CAP,
+        load_alpha: bool = True,
     ) -> CompactDataset:
-        """Strictly load and verify every view listed by a frame manifest."""
+        """Strictly load and verify every view listed by a frame manifest.
+
+        Set ``load_alpha=False`` for Gaussian-only reconstruction.  The outer ``.rtgsv`` digest,
+        ZIP member declaration, and alpha metadata remain checked, but packed alpha bytes are not
+        read or decoded and every returned ``CompactView.alpha`` is ``None``.
+        """
+        if not isinstance(load_alpha, bool):
+            raise TypeError("load_alpha must be a bool")
         directory = Path(directory)
         if directory.name != "gaussians2d" and (directory / "gaussians2d").is_dir():
             directory = directory / "gaussians2d"
@@ -780,15 +821,22 @@ class CompactDataset:
             )
             if not isinstance(record["has_alpha"], bool):
                 raise ValueError(f"compact dataset view {index} has_alpha must be boolean")
-            view = CompactView.load(bundle_path, device=device, byte_cap=byte_cap)
+            view = CompactView.load(
+                bundle_path,
+                device=device,
+                byte_cap=byte_cap,
+                load_alpha=load_alpha,
+            )
             if view.view_id != view_id:
                 raise ValueError("compact dataset view identifier mismatch")
             if view.calibration_sha256 != calibration_sha256:
                 raise ValueError("compact dataset calibration binding mismatch")
             if view.observation.n != n_gaussians:
                 raise ValueError("compact dataset Gaussian count mismatch")
-            if (view.alpha is not None) != record["has_alpha"]:
+            if load_alpha and (view.alpha is not None) != record["has_alpha"]:
                 raise ValueError("compact dataset alpha declaration mismatch")
+            if not load_alpha and view.alpha is not None:
+                raise RuntimeError("alpha was materialized despite load_alpha=False")
             views.append(view)
         actual_names = {
             path.name for path in directory.iterdir() if path.is_file() and path.suffix == ".rtgsv"

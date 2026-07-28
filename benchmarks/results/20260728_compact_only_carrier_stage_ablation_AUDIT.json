@@ -1,0 +1,677 @@
+{
+  "contrasts": {
+    "corrected_CA_vs_corrected_C": {
+      "J_Q": {
+        "denominator": "corrected_C_all",
+        "geometric": 0.9992445077241567,
+        "numerator": "corrected_CA_all",
+        "per_seed": [
+          0.995558203275326,
+          0.9987960261487225,
+          1.0033948059566515
+        ],
+        "wins": 2
+      },
+      "J_U": {
+        "denominator": "corrected_C_all",
+        "geometric": 1.001839517785925,
+        "numerator": "corrected_CA_all",
+        "per_seed": [
+          0.9992481486225965,
+          1.0005316258453743,
+          1.0057506050236782
+        ],
+        "wins": 1
+      }
+    },
+    "corrected_C_vs_beam": {
+      "J_Q": {
+        "denominator": "beam_all",
+        "geometric": 0.3684821968614225,
+        "numerator": "corrected_C_all",
+        "per_seed": [
+          0.3708590817119356,
+          0.369256979899639,
+          0.3653523436761069
+        ],
+        "wins": 3
+      },
+      "J_U": {
+        "denominator": "beam_all",
+        "geometric": 0.5049532288265894,
+        "numerator": "corrected_C_all",
+        "per_seed": [
+          0.5147702241562973,
+          0.5059309711748835,
+          0.49436620716820706
+        ],
+        "wins": 3
+      }
+    },
+    "corrected_C_vs_legacy_C": {
+      "J_Q": {
+        "denominator": "legacy_C_all",
+        "geometric": 0.23858147844771682,
+        "numerator": "corrected_C_all",
+        "per_seed": [
+          0.23600959156891543,
+          0.2411328604311011,
+          0.23862949667390324
+        ],
+        "wins": 3
+      },
+      "J_U": {
+        "denominator": "legacy_C_all",
+        "geometric": 0.3845286389110369,
+        "numerator": "corrected_C_all",
+        "per_seed": [
+          0.3839183655508752,
+          0.39028932101298375,
+          0.37945520612383293
+        ],
+        "wins": 3
+      }
+    },
+    "means_fixed_vs_beam": {
+      "J_Q": {
+        "denominator": "beam_all",
+        "geometric": 0.9993058802657301,
+        "numerator": "beam_means_fixed",
+        "per_seed": [
+          1.0145141741423278,
+          0.9963251488214129,
+          0.9872704015997864
+        ],
+        "wins": 2
+      },
+      "J_U": {
+        "denominator": "beam_all",
+        "geometric": 0.9935172141285645,
+        "numerator": "beam_means_fixed",
+        "per_seed": [
+          1.0068390890083234,
+          0.9929774553471444,
+          0.9809045126379126
+        ],
+        "wins": 2
+      }
+    },
+    "means_only_vs_beam": {
+      "J_Q": {
+        "denominator": "beam_all",
+        "geometric": 2.487610031680563,
+        "numerator": "beam_means_only",
+        "per_seed": [
+          2.4980462150617355,
+          2.492818247755171,
+          2.472041826436931
+        ],
+        "wins": 0
+      },
+      "J_U": {
+        "denominator": "beam_all",
+        "geometric": 1.6335186042060694,
+        "numerator": "beam_means_only",
+        "per_seed": [
+          1.6618223304401032,
+          1.6090245588361616,
+          1.6301403289884546
+        ],
+        "wins": 0
+      }
+    },
+    "support_vs_beam": {
+      "J_Q": {
+        "denominator": "beam_all",
+        "geometric": 1.0000898036345809,
+        "numerator": "beam_all_support",
+        "per_seed": [
+          0.9999671275991044,
+          1.0002990338615625,
+          1.0000032825941716
+        ],
+        "wins": 1
+      },
+      "J_U": {
+        "denominator": "beam_all",
+        "geometric": 1.0000291685253992,
+        "numerator": "beam_all_support",
+        "per_seed": [
+          0.9999751000373788,
+          1.0001398556041448,
+          0.999972559123895
+        ],
+        "wins": 2
+      }
+    }
+  },
+  "decisions": {
+    "corrected_appearance_material": false,
+    "corrected_covariance_replacement_gate": true,
+    "default_change_authorized": false,
+    "legacy_appearance_necessary": false,
+    "legacy_covariance_necessary": false,
+    "legacy_opacity_necessary": false,
+    "means_fixed_noninferior_to_beam_all": true,
+    "means_only_noninferior_to_beam_all": false,
+    "no_free_floaters_established": false,
+    "support_barrier_success": false
+  },
+  "heldout_descriptive": {
+    "beam_baseline": {
+      "J_Q": 0.042056694146254264,
+      "J_U": 0.0352439486334618
+    },
+    "beam_means_fixed": {
+      "J_Q": 0.018355777647685215,
+      "J_U": 0.022336212828746926
+    },
+    "corrected_CA_all": {
+      "J_Q": 0.0069393535716700825,
+      "J_U": 0.011781707063283684
+    },
+    "corrected_CA_all_support": {
+      "J_Q": 0.006939666803292049,
+      "J_U": 0.011781481198970987
+    }
+  },
+  "invariants": {
+    "failures": [],
+    "heldout_selection_sha256": "97808cf19d44e92f35cce8e04cd036670417bebc775d725ca11ebb39a4942220",
+    "no_image_boundary": {
+      "forbidden_import_attempts": 0,
+      "forbidden_modules_at_exit": [],
+      "image_open_attempts": 0,
+      "negative_control_denials": 3,
+      "passed": true
+    },
+    "packed_alpha_accessed": false,
+    "passed": true,
+    "proposal_digest": "48720a545a115020c7a2ed775fbb57b08a347a86a408cd2e32bc27f77ca67de3",
+    "teacher_digest": "48720a545a115020c7a2ed775fbb57b08a347a86a408cd2e32bc27f77ca67de3"
+  },
+  "posthoc_source_binding": {
+    "git_revision": "b4ca5d4272a7320a31af66fc6fa118647a1ec0c7",
+    "git_status": [
+      " M ara/logic/claims.md",
+      " M ara/staging/observations.yaml",
+      " M ara/trace/exploration_tree.yaml",
+      " M ara/trace/pm_reasoning_log.yaml",
+      " M benchmarks/results/20260727_carrier_maturation_all26_PREREG_V2.md",
+      " M docs/ADR-002-carrier-refinement.md",
+      " M docs/EXPERIMENTS.md",
+      " M docs/PAPER_PLAN_beam_fusion.md",
+      " M docs/ROADMAP.md",
+      " M src/rtgs/core/observation2d.py",
+      " M src/rtgs/data/compact_views.py",
+      " M src/rtgs/lift/__init__.py",
+      " M src/rtgs/lift/base.py",
+      " M src/rtgs/lift/carrier_refinement.py",
+      " M src/rtgs/optim/compact_trainer.py",
+      " M tests/test_carrier_refinement.py",
+      " M tests/test_compact_trainer.py",
+      " M tests/test_compact_views.py",
+      " M tests/test_observation2d.py",
+      "?? .codex/",
+      "?? benchmarks/audit_carrier_maturation_all26.py",
+      "?? benchmarks/audit_compact_only_carrier_stage_ablation.py",
+      "?? benchmarks/compact_only_carrier_stage_ablation.py",
+      "?? benchmarks/results/.gitattributes",
+      "?? benchmarks/results/20260727_carrier_maturation_all26_AUDIT.json",
+      "?? benchmarks/results/20260727_carrier_maturation_all26_AUDIT.md",
+      "?? benchmarks/results/20260727_carrier_maturation_all26_RESULT.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_stage_ablation_PREREG.md",
+      "?? tests/test_compact_only_carrier_stage_ablation.py"
+    ],
+    "limitation": "The producing manifest did not freeze a revision, dirty diff, command, or executed-source archive. These hashes were collected after execution; mtimes are corroboration, not a cryptographic execution binding.",
+    "source_files": {
+      "benchmarks/compact_only_carrier_stage_ablation.py": {
+        "mtime_ns": 1785233414937810421,
+        "sha256": "5e14a053541957fcbd77e3ade881f0fbb6398c20541d0b7393685c7fd0f190ff"
+      },
+      "src/rtgs/core/observation2d.py": {
+        "mtime_ns": 1785232425235585412,
+        "sha256": "f7d636cff4f3d76fe4de96026195d47ce739586f6c3bc6b8aaecb3451b459790"
+      },
+      "src/rtgs/data/compact_views.py": {
+        "mtime_ns": 1785233221866586466,
+        "sha256": "e69bdc4e06a2abda2b446dd05727635b7e772f35e5c2f87b56cc2bf37419a6f6"
+      },
+      "src/rtgs/data/reconstruction_inputs.py": {
+        "mtime_ns": 1784535918486963909,
+        "sha256": "e4f3f75d9ae75996e7157b3acc9d7ec884157bf42800f5538c7aeec811812a09"
+      },
+      "src/rtgs/lift/__init__.py": {
+        "mtime_ns": 1785233023464371430,
+        "sha256": "f8c1f427626177b3ebb67164f11f90fa2d75973c5abddefc2b889a94f26bb88f"
+      },
+      "src/rtgs/lift/base.py": {
+        "mtime_ns": 1785233059486230088,
+        "sha256": "1989bbcf903f69f866f0772c779d9271a6d63ef15da610998c8854af388f4db8"
+      },
+      "src/rtgs/lift/beam_fusion.py": {
+        "mtime_ns": 1784807882264859289,
+        "sha256": "575c12fdb59ad7a430178ed5899eb9d546cddc965f50617eeed0b40fe9ca2e12"
+      },
+      "src/rtgs/lift/carrier_refinement.py": {
+        "mtime_ns": 1785232265097106041,
+        "sha256": "bb25cf47664b197f62f745348b18e98b58c3a4a4823e18f45e284cb85d78893f"
+      },
+      "src/rtgs/optim/compact_trainer.py": {
+        "mtime_ns": 1785232425235585412,
+        "sha256": "a7b2d533e44d8e8cb3f4d86f211a39b84e8cdd0bba4a45ed949fdd5d681b53e7"
+      },
+      "src/rtgs/render/torch_points.py": {
+        "mtime_ns": 1784535918496963899,
+        "sha256": "3bddec6a96e496619e930cb5db4cc1cf3cf581831e63e6a50059e36f55d2c24e"
+      }
+    },
+    "source_mtime_after_estimated_start": []
+  },
+  "preregistration_sha256": "53df953337bdccb6d5222da9d99827ca24ce0a212970c30fbf965f95045b9b3c",
+  "repair_marginals": {
+    "A": {
+      "J_Q": {
+        "geometric": 0.998782999289071,
+        "per_seed": [
+          0.9988881545915175,
+          0.9983725411563857,
+          0.9990884387121122
+        ],
+        "wins": 3
+      },
+      "J_U": {
+        "geometric": 0.9999593110516836,
+        "per_seed": [
+          0.9996045155280759,
+          0.9995786377438923,
+          1.0006951859520803
+        ],
+        "wins": 2
+      },
+      "necessary_gate": false
+    },
+    "C": {
+      "J_Q": {
+        "geometric": 1.5163371649676396,
+        "per_seed": [
+          1.535319150175417,
+          1.5083080222189895,
+          1.505561951376917
+        ],
+        "wins": 0
+      },
+      "J_U": {
+        "geometric": 1.2959205793557051,
+        "per_seed": [
+          1.3211358760404925,
+          1.2803035711989201,
+          1.286692343296633
+        ],
+        "wins": 0
+      },
+      "necessary_gate": false
+    },
+    "O": {
+      "J_Q": {
+        "geometric": 1.0978467261185603,
+        "per_seed": [
+          1.0938835734793853,
+          1.098600197660342,
+          1.10106855456548
+        ],
+        "wins": 0
+      },
+      "J_U": {
+        "geometric": 1.0598652405876854,
+        "per_seed": [
+          1.0557413391558412,
+          1.0598425773691607,
+          1.0640280028964175
+        ],
+        "wins": 0
+      },
+      "necessary_gate": false
+    }
+  },
+  "resources": {
+    "compact_container_bytes": 4152383,
+    "peak_rss_bytes": 2945548288,
+    "teacher_tensor_bytes": 5720000,
+    "total_seconds": 1234.2625729152933
+  },
+  "run": "runs/compact_only_carrier_stage_ablation_20260728",
+  "run_result_sha256": "a7b6feddd14797f6d2d22024a109a1bbc5aa64b7d114635f0ad28baf7b72fedf",
+  "schema": "rtgs.compact-only-carrier-stage.audit.v1",
+  "scope_limits": [
+    "single real development scene; no cross-scene or confirmatory inference",
+    "held-out metrics are descriptive and do not select stages",
+    "GPU timing had no idle/contended-device control and is non-decisional",
+    "PyTorch allocator peaks are absolute process measurements, not a dense-vs-compact VRAM comparison or general VRAM claim",
+    "the support diagnostic constrains projected centers only and cannot detect a floater inside the multi-view visual hull",
+    "the producing run lacks a pre-execution source-tree seal"
+  ],
+  "status": "PASS_WITH_SCOPE_LIMITS",
+  "summaries": {
+    "beam_all": {
+      "geometric_validation_J_Q": 0.014920362471849613,
+      "geometric_validation_J_U": 0.018703413030701273,
+      "mean_validation_outside_fraction": 0.006799999881574574,
+      "validation_J_Q": [
+        0.014978457159426209,
+        0.014824139771475328,
+        0.014958964757226183
+      ],
+      "validation_J_U": [
+        0.018613736709587807,
+        0.018853871535953484,
+        0.018643544493538985
+      ],
+      "validation_outside_fraction": [
+        0.006599999891477637,
+        0.007149999801185913,
+        0.0066499999520601705
+      ]
+    },
+    "beam_all_support": {
+      "geometric_validation_J_Q": 0.014921702374628835,
+      "geometric_validation_J_U": 0.018703958581679316,
+      "mean_validation_outside_fraction": 0.006816666519929034,
+      "validation_J_Q": [
+        0.014977964781577667,
+        0.014828572691235536,
+        0.014959013861436707
+      ],
+      "validation_J_U": [
+        0.018613273228239496,
+        0.018856508355547613,
+        0.018643032898344382
+      ],
+      "validation_outside_fraction": [
+        0.006649999806541018,
+        0.007149999801185913,
+        0.0066499999520601705
+      ]
+    },
+    "beam_appearance_only": {
+      "geometric_validation_J_Q": 0.021893190532045154,
+      "geometric_validation_J_U": 0.024149876592720877,
+      "mean_validation_outside_fraction": 0.007199999832664616,
+      "validation_J_Q": [
+        0.02216467711209688,
+        0.021689866831149117,
+        0.0218277451915028
+      ],
+      "validation_J_U": [
+        0.024391356843903197,
+        0.024038697574545086,
+        0.02402137448542276
+      ],
+      "validation_outside_fraction": [
+        0.007199999832664616,
+        0.007199999832664616,
+        0.007199999832664616
+      ]
+    },
+    "beam_geometry_only": {
+      "geometric_validation_J_Q": 0.020638196992005843,
+      "geometric_validation_J_U": 0.02251982783170998,
+      "mean_validation_outside_fraction": 0.006666666396389094,
+      "validation_J_Q": [
+        0.021038706710883336,
+        0.020405006418520978,
+        0.020476677263130388
+      ],
+      "validation_J_U": [
+        0.02290046986113536,
+        0.022366639883759483,
+        0.022297186134103048
+      ],
+      "validation_outside_fraction": [
+        0.006599999833269976,
+        0.006849999641417526,
+        0.006549999714479782
+      ]
+    },
+    "beam_means_fixed": {
+      "geometric_validation_J_Q": 0.014910005953815425,
+      "geometric_validation_J_U": 0.018582162808958216,
+      "mean_validation_outside_fraction": 0.007199999832664616,
+      "validation_J_Q": [
+        0.015195857095021519,
+        0.014769663263964582,
+        0.014768543143383744
+      ],
+      "validation_J_U": [
+        0.018741037711722176,
+        0.018721469381213048,
+        0.018287536925278097
+      ],
+      "validation_outside_fraction": [
+        0.007199999832664616,
+        0.007199999832664616,
+        0.007199999832664616
+      ]
+    },
+    "beam_means_only": {
+      "geometric_validation_J_Q": 0.03711604336128327,
+      "geometric_validation_J_U": 0.03055237314780076,
+      "mean_validation_outside_fraction": 0.006566666440145734,
+      "validation_J_Q": [
+        0.037416878214568995,
+        0.036953886129606865,
+        0.036979186560059094
+      ],
+      "validation_J_U": [
+        0.030932723316925707,
+        0.03033634233049122,
+        0.030391593754208534
+      ],
+      "validation_outside_fraction": [
+        0.006349999908707105,
+        0.006749999782186933,
+        0.006599999629543163
+      ]
+    },
+    "corrected_CA_all": {
+      "geometric_validation_J_Q": 0.005493734329722541,
+      "geometric_validation_J_U": 0.009461721847523861,
+      "mean_validation_outside_fraction": 0.00726666641033565,
+      "validation_J_Q": [
+        0.005530223144893935,
+        0.005467326628594766,
+        0.005483846441685257
+      ],
+      "validation_J_U": [
+        0.009574593330793803,
+        0.00954382858663065,
+        0.00926974020146933
+      ],
+      "validation_outside_fraction": [
+        0.006949999777134508,
+        0.007499999774154276,
+        0.007349999679718167
+      ]
+    },
+    "corrected_CA_all_support": {
+      "geometric_validation_J_Q": 0.005494245151436148,
+      "geometric_validation_J_U": 0.009462617604458346,
+      "mean_validation_outside_fraction": 0.007199999779307594,
+      "validation_J_Q": [
+        0.005530410914716588,
+        0.005468539914576201,
+        0.005483973069976274
+      ],
+      "validation_J_U": [
+        0.009577022552809195,
+        0.009544694105285561,
+        0.009269180637328707
+      ],
+      "validation_outside_fraction": [
+        0.006899999862071127,
+        0.007349999796133488,
+        0.007349999679718167
+      ]
+    },
+    "corrected_C_all": {
+      "geometric_validation_J_Q": 0.005497887941595861,
+      "geometric_validation_J_U": 0.009444348799929914,
+      "mean_validation_outside_fraction": 0.007183333102148026,
+      "validation_J_Q": [
+        0.0055548968676063714,
+        0.005473917081625104,
+        0.005465292833020872
+      ],
+      "validation_J_U": [
+        0.009581797418380814,
+        0.00953875753659144,
+        0.00921673837944258
+      ],
+      "validation_outside_fraction": [
+        0.006849999714177102,
+        0.0073999998276121914,
+        0.007299999764654785
+      ]
+    },
+    "legacy_A_all": {
+      "geometric_validation_J_Q": 0.014888940903630703,
+      "geometric_validation_J_U": 0.018687339429541455,
+      "mean_validation_outside_fraction": 0.006799999881574574,
+      "validation_J_Q": [
+        0.014935565158792848,
+        0.014790770675558096,
+        0.014940975513356759
+      ],
+      "validation_J_U": [
+        0.01856143554722693,
+        0.018834153875731455,
+        0.018667439226134487
+      ],
+      "validation_outside_fraction": [
+        0.006599999891477637,
+        0.007149999801185913,
+        0.0066499999520601705
+      ]
+    },
+    "legacy_CA_all": {
+      "geometric_validation_J_Q": 0.023003802969000436,
+      "geometric_validation_J_U": 0.024536736204920927,
+      "mean_validation_outside_fraction": 0.006899999818415381,
+      "validation_J_Q": [
+        0.02350576858947692,
+        0.02265548275692533,
+        0.022858679598172255
+      ],
+      "validation_J_U": [
+        0.024941774896805442,
+        0.02441437579375127,
+        0.02425925173054485
+      ],
+      "validation_outside_fraction": [
+        0.007149999830289744,
+        0.006999999823165126,
+        0.006549999801791273
+      ]
+    },
+    "legacy_COA_all": {
+      "geometric_validation_J_Q": 0.024798088505807996,
+      "geometric_validation_J_U": 0.025675561849077492,
+      "mean_validation_outside_fraction": 0.007033333099874047,
+      "validation_J_Q": [
+        0.025106392128706398,
+        0.024520136653002934,
+        0.02477122152772221
+      ],
+      "validation_J_U": [
+        0.025925140045936,
+        0.025565380961013025,
+        0.02553797678418423
+      ],
+      "validation_outside_fraction": [
+        0.007149999655666761,
+        0.007149999713874422,
+        0.006799999930080958
+      ]
+    },
+    "legacy_CO_all": {
+      "geometric_validation_J_Q": 0.024825611550567343,
+      "geometric_validation_J_U": 0.025680676159205124,
+      "mean_validation_outside_fraction": 0.007049999815838722,
+      "validation_J_Q": [
+        0.02513297910359169,
+        0.024552563673739432,
+        0.024794711008319578
+      ],
+      "validation_J_U": [
+        0.025925912094716192,
+        0.025574257173291617,
+        0.0255436109331426
+      ],
+      "validation_outside_fraction": [
+        0.007199999803560786,
+        0.007149999713874422,
+        0.006799999930080958
+      ]
+    },
+    "legacy_C_all": {
+      "geometric_validation_J_Q": 0.023044068539464117,
+      "geometric_validation_J_U": 0.024560846304389112,
+      "mean_validation_outside_fraction": 0.006899999896025595,
+      "validation_J_Q": [
+        0.02353674200560754,
+        0.022700834186758077,
+        0.022902838539233118
+      ],
+      "validation_J_U": [
+        0.024957903237142937,
+        0.024440221709971188,
+        0.02428939761715841
+      ],
+      "validation_outside_fraction": [
+        0.007099999915226363,
+        0.007049999971059151,
+        0.006549999801791273
+      ]
+    },
+    "legacy_OA_all": {
+      "geometric_validation_J_Q": 0.016670400417904224,
+      "geometric_validation_J_U": 0.02009602636718324,
+      "mean_validation_outside_fraction": 0.0070333331823349,
+      "validation_J_Q": [
+        0.016765057541920377,
+        0.01651022655495577,
+        0.01673709239518763
+      ],
+      "validation_J_U": [
+        0.01995685148286818,
+        0.02022879781090826,
+        0.020103351984879416
+      ],
+      "validation_outside_fraction": [
+        0.007199999832664616,
+        0.0066499999520601705,
+        0.007249999762279913
+      ]
+    },
+    "legacy_O_all": {
+      "geometric_validation_J_Q": 0.016668811255088675,
+      "geometric_validation_J_U": 0.020058315343003466,
+      "mean_validation_outside_fraction": 0.006999999789210658,
+      "validation_J_Q": [
+        0.016751766944421452,
+        0.016525757224748385,
+        0.01672984419036509
+      ],
+      "validation_J_U": [
+        0.019918815499171114,
+        0.020213313145395546,
+        0.02004390570894556
+      ],
+      "validation_outside_fraction": [
+        0.007149999830289744,
+        0.006699999634292908,
+        0.00714999990304932
+      ]
+    }
+  }
+}

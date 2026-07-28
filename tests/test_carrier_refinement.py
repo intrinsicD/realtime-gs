@@ -2,15 +2,20 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
+import pytest
 import torch
 
+from rtgs.carrier_pipeline import CarrierPipelineConfig, run_carrier_pipeline
 from rtgs.core.camera import Camera
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.core.observation2d import GaussianObservationField
+from rtgs.core.sh import sh_to_rgb
 from rtgs.data.reconstruction_inputs import ReconstructionInputs
-from rtgs.data.synthetic import make_synthetic_scene
-from rtgs.lift.beam_fusion import BeamFusionResult
+from rtgs.lift.beam_fusion import BeamFusionConfig, BeamFusionResult
 from rtgs.lift.carrier_refinement import (
+    CarrierObservationTable,
     CarrierRepairConfig,
     appearance_link_residuals,
     build_carrier_observation_table,
@@ -23,9 +28,10 @@ from rtgs.lift.carrier_refinement import (
 from rtgs.optim.carrier_schedule import (
     CarrierOptimizationConfig,
     optimize_carriers,
+    prune_carrier_centers,
 )
+from rtgs.optim.compact_trainer import CompactTrainConfig
 from rtgs.optim.density import DensityConfig, DensityController
-from rtgs.optim.trainer import TrainConfig
 from rtgs.render.projection import project_covariances_ewa
 
 
@@ -48,7 +54,7 @@ def _covariance_to_rs(covariance: torch.Tensor) -> tuple[torch.Tensor, torch.Ten
     return 0.5 * eigenvalues.log(), angle
 
 
-def _fixture() -> tuple[BeamFusionResult, ReconstructionInputs]:
+def _fixture(*, dilation: float = 0.0) -> tuple[BeamFusionResult, ReconstructionInputs]:
     means = torch.tensor([[-0.15, -0.06, 0.02], [0.14, 0.10, 0.16]])
     true_covariances = torch.tensor(
         [
@@ -60,7 +66,12 @@ def _fixture() -> tuple[BeamFusionResult, ReconstructionInputs]:
     colors = torch.tensor([[0.78, 0.20, 0.14], [0.12, 0.68, 0.82]])
     observations = []
     for view, camera in enumerate(cameras):
-        projected = project_covariances_ewa(means, true_covariances, camera, dilation=0.0)
+        projected = project_covariances_ewa(
+            means,
+            true_covariances,
+            camera,
+            dilation=dilation,
+        )
         log_scales, rotations = [], []
         for covariance in projected.covariances2d:
             scale, rotation = _covariance_to_rs(covariance)
@@ -126,6 +137,9 @@ def test_carrier_repairs_reduce_fixed_track_residuals_and_freeze_other_fields():
         opacity_steps=100,
         covariance_prior_weight=0.0,
         opacity_prior_weight=0.0,
+        covariance_residual_mode="legacy_whitened",
+        projection_dilation=0.0,
+        appearance_weight_mode="amplitude",
     )
 
     covariance_before = covariance_reprojection_residuals(
@@ -165,6 +179,123 @@ def test_carrier_repairs_reduce_fixed_track_residuals_and_freeze_other_fields():
     assert diagnostics["higher_sh_bands"] == "disabled"
     assert torch.equal(appearance.means, opacity.means)
     assert torch.equal(appearance.opacity, opacity.opacity)
+
+
+def test_renderer_log_covariance_residual_is_reciprocal_and_includes_ewa_dilation():
+    table = CarrierObservationTable(
+        carrier_indices=torch.tensor([0]),
+        view_indices=torch.tensor([0]),
+        component_indices=torch.tensor([0]),
+        jacobians=torch.tensor([[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]], dtype=torch.float64),
+        covariances2d=torch.eye(2, dtype=torch.float64)[None],
+        amplitudes=torch.ones(1, dtype=torch.float64),
+        colors=torch.ones(1, 3, dtype=torch.float64),
+    )
+    expanded = torch.diag(torch.tensor([4.0, 4.0, 1.0], dtype=torch.float64))[None]
+    contracted = torch.diag(torch.tensor([0.25, 0.25, 1.0], dtype=torch.float64))[None]
+    legacy_expanded = covariance_reprojection_residuals(table, expanded)
+    legacy_contracted = covariance_reprojection_residuals(table, contracted)
+    assert not torch.allclose(legacy_expanded, legacy_contracted)
+
+    log_expanded = covariance_reprojection_residuals(
+        table,
+        expanded,
+        mode="renderer_log",
+    )
+    log_contracted = covariance_reprojection_residuals(
+        table,
+        contracted,
+        mode="renderer_log",
+    )
+    torch.testing.assert_close(log_expanded, log_contracted)
+    rendered_match = torch.diag(torch.tensor([0.7, 0.7, 1.0], dtype=torch.float64))[None]
+    residual = covariance_reprojection_residuals(
+        table,
+        rendered_match,
+        projection_dilation=0.3,
+        mode="renderer_log",
+    )
+    torch.testing.assert_close(residual, torch.zeros_like(residual), atol=1e-12, rtol=0)
+
+
+def test_default_carrier_repair_is_renderer_aware_covariance_only():
+    config = CarrierRepairConfig()
+
+    assert config.repair_covariance
+    assert not config.repair_opacity
+    assert not config.repair_appearance
+    assert config.covariance_residual_mode == "renderer_log"
+    assert config.projection_dilation == 0.3
+    assert config.appearance_weight_mode == "uniform_view"
+
+
+def test_renderer_log_covariance_repair_reduces_rendered_footprint_residual():
+    result, inputs = _fixture(dilation=0.3)
+    table = build_carrier_observation_table(result, inputs)
+    config = CarrierRepairConfig(
+        covariance_steps=180,
+        covariance_prior_weight=0.0,
+        covariance_residual_mode="renderer_log",
+        projection_dilation=0.3,
+    )
+    before = covariance_reprojection_residuals(
+        table,
+        result.gaussians.covariance().double(),
+        projection_dilation=config.projection_dilation,
+        mode=config.covariance_residual_mode,
+    ).mean()
+    repaired, diagnostics = refine_carrier_covariances(
+        result.gaussians,
+        table,
+        extent=1.0,
+        config=config,
+    )
+    after = covariance_reprojection_residuals(
+        table,
+        repaired.covariance().double(),
+        projection_dilation=config.projection_dilation,
+        mode=config.covariance_residual_mode,
+    ).mean()
+    assert after < before * 0.15
+    assert diagnostics["residual_mode"] == "renderer_log"
+    assert diagnostics["projection_dilation"] == 0.3
+
+
+def test_view_uniform_appearance_does_not_treat_normalized_amplitude_as_confidence():
+    base = Gaussians3D.from_means_covs(
+        means=torch.zeros(1, 3),
+        covs=torch.eye(3)[None],
+        colors=torch.full((1, 3), 0.5),
+        opacity=torch.tensor([0.1]),
+    )
+    table = CarrierObservationTable(
+        carrier_indices=torch.tensor([0, 0, 0]),
+        view_indices=torch.tensor([0, 1, 2]),
+        component_indices=torch.tensor([0, 0, 0]),
+        jacobians=torch.zeros(3, 2, 3, dtype=torch.float64),
+        covariances2d=torch.eye(2, dtype=torch.float64).repeat(3, 1, 1),
+        amplitudes=torch.tensor([1.0, 0.01, 0.01], dtype=torch.float64),
+        colors=torch.tensor(
+            [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0]],
+            dtype=torch.float64,
+        ),
+    )
+    amplitude, amplitude_diagnostics = refine_carrier_appearance(
+        base,
+        table,
+        config=CarrierRepairConfig(appearance_weight_mode="amplitude"),
+    )
+    uniform, uniform_diagnostics = refine_carrier_appearance(
+        base,
+        table,
+        config=CarrierRepairConfig(appearance_weight_mode="uniform_view"),
+    )
+    amplitude_rgb = sh_to_rgb(amplitude.sh[:, 0])
+    uniform_rgb = sh_to_rgb(uniform.sh[:, 0])
+    assert amplitude_rgb[0, 0] > amplitude_rgb[0, 1]
+    assert uniform_rgb[0, 1] > uniform_rgb[0, 0]
+    assert amplitude_diagnostics["weight_mode"] == "amplitude"
+    assert uniform_diagnostics["weight_mode"] == "uniform_view"
 
 
 def test_clone_only_density_protects_parents_and_creates_local_low_opacity_children():
@@ -274,36 +405,150 @@ def test_clone_all_tangent_wave_clones_unobserved_rows_without_normal_displaceme
     assert controller.stats[-1]["cloned"] == count
 
 
-def test_tiny_carrier_schedule_records_phase_boundaries_and_lineage():
-    scene = make_synthetic_scene(n_gaussians=4, n_cameras=3, image_size=10, seed=9)
-    template = TrainConfig(
-        rasterizer="torch",
+def test_compact_carrier_schedule_prunes_outside_center_and_freezes_means_afterward():
+    beam, inputs = _fixture()
+    outside = Gaussians3D.from_means_covs(
+        means=torch.tensor([[10.0, 0.0, 0.0]]),
+        covs=torch.eye(3)[None] * 0.01,
+        colors=torch.full((1, 3), 0.5),
+        opacity=torch.tensor([0.1]),
+    )
+    initialization = Gaussians3D.cat([beam.gaussians, outside])
+    template = CompactTrainConfig(
+        iterations=1,
+        attempts_per_step=8,
+        proposal_mode="area_gaussian",
+        schedule_mode="balanced_cycle",
+        target_mode="proposal_attempt",
+        uniform_fraction=0.25,
         device="cpu",
-        eval_every=1,
-        ssim_lambda=0.0,
-        use_masks=False,
-        random_background=False,
-        density=DensityConfig(
-            grad_threshold=0.0,
-            max_gaussians=32,
-            opacity_reset_every=0,
-        ),
+        point_chunk=8,
+        gaussian_chunk=8,
+        outer_microbatch=4,
+        query_component_chunk=8,
+        evaluation_chunk=16,
+        checkpoints=(0, 1),
+        evaluate_checkpoint_risks=False,
     )
     config = CarrierOptimizationConfig(
-        warmup_iterations=1,
-        clone_iterations=1,
-        higher_sh_iterations=1,
-        standard_iterations=1,
-        clone_every=1,
-        standard_every=1,
-        clone_grad_threshold=0.0,
-        clone_growth_factor=2.0,
-        standard_growth_factor=4.0,
+        phase1_iterations=1,
+        phase2_iterations=1,
+        containment_gaussian_chunk=2,
+        containment_component_chunk=2,
         template=template,
     )
-    result = optimize_carriers(scene, scene.gt_gaussians, config)
-    assert set(result.phase_histories) == {"warmup", "clone", "higher-sh", "standard"}
-    assert len(result.diagnostics["phase_boundaries"]) == 5
-    assert result.diagnostics["phase_boundaries"][0]["carrier_survival_rate"] == 1.0
-    assert len(result.diagnostics["final_root_ids"]) == result.gaussians.n
-    assert result.gaussians.sh.shape[1] == 16
+    result = optimize_carriers(inputs, initialization, config)
+
+    assert set(result.phase_histories) == {"phase1", "phase2"}
+    assert set(result.phase_snapshots) == {
+        "initial",
+        "phase1",
+        "contained",
+        "phase2",
+    }
+    assert result.diagnostics["containment"]["removed"] == 1
+    assert result.diagnostics["containment_recheck"]["removed"] == 0
+    assert result.diagnostics["phase2_means_frozen_bit_exact"]
+    assert result.diagnostics["topology_growth"] is False
+    assert result.gaussians.n == 2
+    assert result.gaussians.sh.shape[1] == 1
+    assert result.phase_histories["phase1"]["seed"] == template.seed
+    assert result.phase_histories["phase2"]["seed"] == template.seed + 1000
+    assert result.phase_histories["phase2"]["optimizer_group_motion"]["means"]["max_abs"] == 0.0
+
+
+def test_compact_carrier_policy_cannot_weaken_containment_thresholds():
+    with pytest.raises(ValueError, match="containment_sigma=3.0"):
+        CarrierOptimizationConfig(containment_sigma=4.0)
+    with pytest.raises(ValueError, match="containment_near"):
+        CarrierOptimizationConfig(containment_near=0.001)
+
+
+def test_compact_carrier_schedule_requires_three_sigma_teacher_fields():
+    beam, inputs = _fixture()
+    bad_inputs = ReconstructionInputs(
+        observations=[
+            replace(inputs.observations[0], sigma_cutoff=4.0),
+            *inputs.observations[1:],
+        ],
+        cameras=inputs.cameras,
+        view_names=inputs.view_names,
+        bounds_hint=inputs.bounds_hint,
+        name=inputs.name,
+    )
+    with pytest.raises(ValueError, match="three-sigma"):
+        optimize_carriers(
+            bad_inputs,
+            beam.gaussians,
+            CarrierOptimizationConfig(phase1_iterations=1, phase2_iterations=1),
+        )
+
+
+def test_strict_carrier_center_prune_is_compact_and_reports_scope_limit():
+    beam, inputs = _fixture()
+    outside = beam.gaussians.detach()
+    outside.means[1] = torch.tensor([20.0, 0.0, 0.0])
+
+    pruned, receipt = prune_carrier_centers(
+        inputs,
+        outside,
+        gaussian_chunk=1,
+        component_chunk=1,
+        device="cpu",
+    )
+
+    assert pruned.n == 1
+    assert receipt["removed_rows"] == [1]
+    assert receipt["projected_center_containment_after"]
+    assert receipt["surface_occupancy_proven"] is False
+    assert receipt["interior_visual_hull_floaters_detected"] is False
+
+
+def test_compact_carrier_pipeline_runs_without_scene_data():
+    _beam_fixture, inputs = _fixture(dilation=0.3)
+    template = CompactTrainConfig(
+        iterations=1,
+        attempts_per_step=8,
+        proposal_mode="area_gaussian",
+        schedule_mode="balanced_cycle",
+        target_mode="proposal_attempt",
+        uniform_fraction=0.25,
+        device="cpu",
+        point_chunk=8,
+        gaussian_chunk=8,
+        outer_microbatch=4,
+        query_component_chunk=8,
+        evaluation_chunk=16,
+        checkpoints=(0, 1),
+        evaluate_checkpoint_risks=False,
+    )
+    config = CarrierPipelineConfig(
+        beam=BeamFusionConfig(
+            min_views=3,
+            max_components=8,
+            source_chunk=8,
+            fold_in_chunk=8,
+        ),
+        repair=CarrierRepairConfig(
+            covariance_steps=2,
+            repair_opacity=False,
+            repair_appearance=False,
+        ),
+        optimization=CarrierOptimizationConfig(
+            phase1_iterations=1,
+            phase2_iterations=1,
+            containment_gaussian_chunk=8,
+            containment_component_chunk=8,
+            template=template,
+        ),
+    )
+
+    result = run_carrier_pipeline(inputs, config)
+
+    assert result.metrics["input_views"] == 3
+    assert result.metrics["minimum_contributor_views"] >= 3
+    assert result.metrics["final_n_gaussians"] <= 8
+    assert result.optimization.diagnostics["source_rgb_used"] is False
+    assert result.optimization.diagnostics["source_masks_used"] is False
+    assert result.optimization.diagnostics["projected_center_containment"]
+    assert result.optimization.diagnostics["topology_growth"] is False

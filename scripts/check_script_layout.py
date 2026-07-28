@@ -24,6 +24,7 @@ DURABLE_SCRIPTS: dict[str, str] = {
     "check_ara.py": "ara/ claim-ledger structural checker, part of verify.sh",
     "check_script_layout.py": "this checker, part of verify.sh",
     "check_results_bundle.py": "Hard Rule 7 results-bundle gate, run per results-bearing run",
+    "experiment_contract.py": "task/run contracts and the canonical experiment report renderer",
     "convert_datasets_to_gaussians2d.py": "resumable dataset migration reused across experiments",
     "render_compact_structsplat_gallery.py": "reusable gallery renderer for previews and figures",
     # Grandfathered: both paths are bound by source hash in DECLARED_SOURCE_PATHS in

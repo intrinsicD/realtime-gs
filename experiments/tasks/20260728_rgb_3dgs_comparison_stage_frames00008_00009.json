@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "task_id": "20260728_rgb_3dgs_comparison_stage_frames00008_00009",
+  "date": "20260728",
+  "task_slug": "rgb_3dgs_comparison",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "rgb_3dgs",
+  "status": "draft",
+  "owner": null,
+  "depends_on": [
+    "20260728_vram_claim_stage_frames00008_00009"
+  ],
+  "title": "RGB-trained 3DGS comparison from a matched compact initialization",
+  "question": "At the same frozen 3D initialization and camera split, what image quality, silhouette behavior, runtime, memory, and final capacity does standard image-supervised 3DGS produce relative to the saved compact-only result?",
+  "hypothesis": "Image-supervised 3DGS improves held-out RGB quality at a substantially larger reconstruction-process memory cost than compact-only optimization.",
+  "claim_boundary": "Development comparison of standard image-supervised optimization from a matched compact initialization. It is not Original 3DGS because no COLMAP sparse point model is present, and it does not include RGB-to-2D fitting cost in the compact arm.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    280801,
+    280802,
+    280803
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb"
+    ],
+    "reconstruction_forbidden": [
+      "heldout_rgb_for_training",
+      "heldout_mask_for_training"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb"
+    ]
+  },
+  "execution_guards": [
+    "deny_heldout_training_access",
+    "split_hash_at_exit"
+  ],
+  "stages": [
+    {
+      "id": "load_matched_initialization",
+      "label": "Load matched initialization",
+      "purpose": "Load the exact saved compact-arm initialization and verify its hash, count, and parameters."
+    },
+    {
+      "id": "load_training_images",
+      "label": "Load train RGB/masks",
+      "purpose": "Load only the frozen training cameras with calibrated undistortion and lossless PNG masks."
+    },
+    {
+      "id": "standard_3dgs",
+      "label": "Standard 3DGS optimization",
+      "purpose": "Run the repository's standard RGB trainer and frozen density strategy under a hard Gaussian budget."
+    },
+    {
+      "id": "heldout_evaluation",
+      "label": "Held-out RGB evaluation",
+      "purpose": "Evaluate the RGB-trained and saved compact-only models on identical held-out RGB/mask cameras."
+    },
+    {
+      "id": "resource_contrast",
+      "label": "Paired resource contrast",
+      "purpose": "Join independent process receipts without charging RGB files to the compact reconstruction process."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "compact_only_saved_model",
+      "label": "Saved compact-only model",
+      "purpose": "Offline image evaluation of the immutable compact output; no RGB gradients or post-hoc compact tuning."
+    },
+    {
+      "id": "rgb_3dgs_random_init",
+      "label": "RGB 3DGS from bounded random initialization",
+      "purpose": "Lower-bound image-supervised control at the same initial count and hard final capacity."
+    },
+    {
+      "id": "rgb_3dgs_fixed_topology",
+      "label": "RGB 3DGS with fixed topology",
+      "purpose": "Separates image-supervision value from standard densification and capacity growth."
+    },
+    {
+      "id": "original_3dgs_colmap_unavailable",
+      "label": "Original 3DGS from COLMAP",
+      "purpose": "Explicitly unavailable until a real cameras/images/points3D sparse model is produced and sealed."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "heldout_foreground_psnr",
+      "label": "Held-out foreground PSNR",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_ssim",
+      "label": "Held-out SSIM",
+      "unit": "score",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_lpips",
+      "label": "Held-out LPIPS",
+      "unit": "distance",
+      "direction": "lower",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_alpha_iou",
+      "label": "Held-out alpha IoU",
+      "unit": "score",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_exterior_leakage",
+      "label": "Held-out exterior alpha leakage",
+      "unit": "fraction",
+      "direction": "lower",
+      "aggregation": "maximum and median per view, paired over seeds and scenes"
+    },
+    {
+      "id": "peak_cuda_allocated_bytes",
+      "label": "Peak CUDA allocated",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes"
+    },
+    {
+      "id": "peak_cuda_reserved_bytes",
+      "label": "Peak CUDA reserved",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes"
+    },
+    {
+      "id": "wall_seconds",
+      "label": "Optimization wall time",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes"
+    },
+    {
+      "id": "final_gaussians",
+      "label": "Final Gaussian count",
+      "unit": "gaussians",
+      "direction": "descriptive",
+      "aggregation": "median over seeds and scenes"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh image-supervised process from calibrated train-image open through final PLY save; heldout evaluation is timed and reported separately",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median on the same idle named GPU as the compact arm; retain every raw repeat and report min/max",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "rgb_input_bytes",
+      "mask_input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_rgb.json",
+  "run_command": null,
+  "blockers": [
+    "Finish and hash the direct_compact task output used as the matched Beam-independent initialization.",
+    "Freeze the standard gsplat density strategy, hard count budget, iterations, and per-arm tuning rule before changing status to ready.",
+    "Freeze soft-PNG alpha handling and the threshold used for binary IoU/leakage metrics.",
+    "Use the compact arm's frozen GPU, idle threshold, NVML sampler, repeat count, and fresh-process boundary.",
+    "Implement the task-specific runner and shared report producer without reusing held-out cameras for checkpoint or hyperparameter selection.",
+    "A true Original-3DGS comparator remains unavailable until a real COLMAP sparse model is sealed.",
+    "Add at least one outcome-unseen scene before promoting a general quality or VRAM claim."
+  ]
+}

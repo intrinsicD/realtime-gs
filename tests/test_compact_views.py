@@ -169,6 +169,44 @@ def test_masked_view_round_trip_preserves_teacher_camera_and_lossless_alpha(
     assert members["teacher.npz"] == expected_teacher.read_bytes()
 
 
+def test_gaussian_only_load_does_not_read_or_decode_packed_alpha(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    directory = tmp_path / "gaussians2d"
+    directory.mkdir()
+    path = directory / "masked.rtgsv"
+    observation, _camera_value, _alpha = _save_view(path, "masked", masked=True)
+    write_compact_dataset_manifest(
+        directory,
+        name="gaussian-only",
+        calibration_sha256=_CALIBRATION_SHA256,
+        view_paths=[path],
+        bounds_hint=(torch.zeros(3), 1.0),
+    )
+
+    original_read = compact_views.zipfile.ZipFile.read
+
+    def reject_alpha_read(archive, name, *args, **kwargs):
+        if name == "alpha.packbits":
+            raise AssertionError("packed alpha member was read")
+        return original_read(archive, name, *args, **kwargs)
+
+    def reject_alpha_decode(*_args, **_kwargs):
+        raise AssertionError("packed alpha was decoded")
+
+    monkeypatch.setattr(compact_views.zipfile.ZipFile, "read", reject_alpha_read)
+    monkeypatch.setattr(compact_views.PackedAlpha, "crop_mask", reject_alpha_decode)
+
+    view = CompactView.load(path, load_alpha=False)
+    dataset = CompactDataset.load(directory, load_alpha=False)
+
+    assert view.alpha is None
+    assert dataset.alphas == [None]
+    _assert_field_equal(view.observation, observation)
+    _assert_field_equal(dataset.views[0].observation, observation)
+
+
 def test_unmasked_view_round_trip_has_no_alpha_member(tmp_path) -> None:
     path = tmp_path / "unmasked.rtgsv"
     observation, camera, alpha = _save_view(path, "unmasked", masked=False)

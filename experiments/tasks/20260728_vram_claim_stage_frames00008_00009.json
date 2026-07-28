@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "task_id": "20260728_vram_claim_stage_frames00008_00009",
+  "date": "20260728",
+  "task_slug": "vram_claim",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "direct_compact",
+  "status": "draft",
+  "owner": null,
+  "depends_on": [],
+  "title": "VRAM claim: direct compact 2D Gaussians to 3D Gaussians without Beam",
+  "question": "What peak reconstruction-process memory, runtime, and compact-domain fidelity does a fully image-free 2D-Gaussian to 3D-Gaussian pipeline achieve without Beam Fusion?",
+  "hypothesis": "At a matched Beam-independent initialization and hardware environment, direct compact reconstruction uses materially less peak CUDA memory than image-supervised 3DGS while retaining useful held-out compact-field fidelity.",
+  "claim_boundary": "Development evidence for the post-2D-fit reconstruction process only. It excludes capture, RGB-to-2D fitting, cross-process RGB evaluation, generalization beyond the named scenes, and any Original-3DGS claim.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    280801,
+    280802,
+    280803
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer",
+      "rtgs.carrier_pipeline",
+      "rtgs.lift.beam_fusion",
+      "rtgs.lift.carrier_refinement",
+      "rtgs.optim.carrier_schedule"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "deny_beam_imports"
+  ],
+  "stages": [
+    {
+      "id": "load_compact",
+      "label": "Load compact fields",
+      "purpose": "Load integrity-checked 2D Gaussian bundles and calibrated cameras without any image-capable loader."
+    },
+    {
+      "id": "compact_carve_initialization",
+      "label": "Direct compact initialization",
+      "purpose": "Construct a bounded 3D initialization directly from compact fields with compact carve; fusion lineage and repair are unavailable."
+    },
+    {
+      "id": "direct_compact_optimization",
+      "label": "Direct compact optimization",
+      "purpose": "Optimize the direct compact initialization against sampled 2D Gaussian fields under a separately frozen schedule."
+    },
+    {
+      "id": "save_standard_3dgs",
+      "label": "Save standard 3D Gaussians",
+      "purpose": "Write the final standard Gaussians3D model and compact-domain evaluation without an RGB handover."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "rgb_3dgs_resource_receipt",
+      "label": "RGB-trained 3DGS resource receipt",
+      "purpose": "A cross-task paired resource contrast only; the RGB process never executes inside this arm."
+    },
+    {
+      "id": "compact_input_bytes",
+      "label": "Frozen compact input bytes",
+      "purpose": "Report storage entering the reconstruction boundary without claiming capture-to-model bandwidth."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "peak_cuda_allocated_bytes",
+      "label": "Peak CUDA allocated",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes"
+    },
+    {
+      "id": "peak_cuda_reserved_bytes",
+      "label": "Peak CUDA reserved",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes"
+    },
+    {
+      "id": "peak_process_rss_bytes",
+      "label": "Peak process RSS",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes"
+    },
+    {
+      "id": "wall_seconds",
+      "label": "Reconstruction wall time",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes"
+    },
+    {
+      "id": "heldout_j_pixel",
+      "label": "Held-out compact pixel risk",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_j_area",
+      "label": "Held-out compact area risk",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "final_gaussians",
+      "label": "Final Gaussian count",
+      "unit": "gaussians",
+      "direction": "descriptive",
+      "aggregation": "median over seeds and scenes"
+    },
+    {
+      "id": "compact_input_bytes",
+      "label": "Compact reconstruction input size",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "sum of sealed calibration and 2D Gaussian bundle bytes per scene"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh reconstruction-only process from compact manifest open through final PLY save; RGB-to-2D fitting and any RGB evaluator are excluded",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median on one idle named GPU; retain every raw repeat and report min/max",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_compact.json",
+  "run_command": null,
+  "blockers": [
+    "Implement the task-specific runner around CompactCarveInitializer and CompactTrainer with process-level no-image and no-Beam guards plus the shared report producer.",
+    "Freeze the exact Beam-independent compact-carve initialization, optimizer iteration/chunk settings, topology policy, and stopping rule after a mechanism-only pilot, before changing status to ready.",
+    "Freeze the target GPU, idle threshold, NVML sampling interval, paired VRAM effect floor, and failure policy.",
+    "Add at least one outcome-unseen scene before promoting a general or confirmatory VRAM claim."
+  ]
+}

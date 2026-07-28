@@ -19,10 +19,10 @@ import torch
 from rtgs.core.camera import Camera
 from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.gaussians3d import Gaussians3D
-from rtgs.data.scene import SceneData
 
 if TYPE_CHECKING:
     from rtgs.data.reconstruction_inputs import ReconstructionInputs
+    from rtgs.data.scene import SceneData
     from rtgs.lift.compact_carve import CompactInitializationResult
 
 

@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "task_id": "YYYYMMDD_task_slug_data_slug",
+  "date": "YYYYMMDD",
+  "task_slug": "task_slug",
+  "data_slug": "data_slug",
+  "arm": "direct_compact",
+  "status": "draft",
+  "owner": null,
+  "depends_on": [],
+  "title": "Replace with a specific experiment title",
+  "question": "Replace with one answerable question.",
+  "hypothesis": "Replace with a directional, falsifiable hypothesis.",
+  "claim_boundary": "State exactly what this task can and cannot establish.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_id",
+      "role": "development",
+      "frame_path": "dataset/capture/frame_id",
+      "compact_manifest": "dataset/capture/frame_id/gaussians2d/manifest.json",
+      "calibration": "dataset/capture/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_id": {
+      "train": [
+        "C0001"
+      ],
+      "heldout": [
+        "C0002"
+      ]
+    }
+  },
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer",
+      "rtgs.carrier_pipeline",
+      "rtgs.lift.beam_fusion",
+      "rtgs.lift.carrier_refinement",
+      "rtgs.optim.carrier_schedule"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "deny_beam_imports"
+  ],
+  "stages": [
+    {
+      "id": "stage_id",
+      "label": "Stage label",
+      "purpose": "State the mechanism isolated by this stage."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "comparator_id",
+      "label": "Comparator label",
+      "purpose": "State the confound controlled by this comparator."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "metric_id",
+      "label": "Metric label",
+      "unit": "unit",
+      "direction": "lower",
+      "aggregation": "Freeze the view/seed/scene aggregation."
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "Freeze exact process start and end boundaries.",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median with every raw repeat retained",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds"
+    ]
+  },
+  "data_seal": "experiments/data/data_slug.json",
+  "run_command": null,
+  "blockers": [
+    "Replace every placeholder and freeze the executable command before setting status to ready."
+  ]
+}

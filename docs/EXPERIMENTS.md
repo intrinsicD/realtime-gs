@@ -17,6 +17,93 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-28 — Compact-only carrier stage, policy, and sequence closure
+
+- **Question**: which carrier stages are mathematically valid and empirically necessary when every
+  later-stage objective is restricted to frozen 2D Gaussian fields; can direct fixed-topology or
+  means-only optimization replace repair/maturation; and what enforceable input-view support
+  criterion reduces free-floating carriers without reading RGB masks?
+- **Setup**: three preregistered paired-root experiments on
+  `2025_03_07_stage_with_fabric/frame_00008`, using the 19 fitting-view `.rtgsv` captures with
+  `load_alpha=False`, roots `282701,282702,282703`, and live denials for image opens, image/dense
+  imports, packed alpha, `SceneData`, and the dense trainer. Commands:
+  `.venv/bin/python benchmarks/compact_only_carrier_stage_ablation.py`,
+  `.venv/bin/python benchmarks/compact_only_carrier_policy_closure.py`, and
+  `.venv/bin/python benchmarks/compact_only_carrier_sequence_interaction.py`. The latter two
+  sealed the source tree, inputs, parent artifacts, command, and Git state before execution.
+  Results and independent audits:
+  `benchmarks/results/20260728_compact_only_carrier_stage_ablation_{RESULT,AUDIT}.md`,
+  `benchmarks/results/20260728_compact_only_carrier_policy_closure_{RESULT,AUDIT}.md`, and
+  `benchmarks/results/20260728_compact_only_carrier_sequence_interaction_{RESULT,AUDIT}.md`.
+- **Result**: the legacy covariance residual worsened factorial-marginal validation `J_Q` by
+  51.63%, legacy opacity repair worsened it by 9.78%, and a separate legacy appearance stage
+  improved it by only 0.12%, below the frozen 5% necessity floor. The renderer-aware covariance
+  replacement reduced `J_Q` by 63.15% versus direct Beam optimization with 3/3 paired wins.
+  Means-only was 4.1823× the all-family phase-1 `J_Q`; freezing means in phase 1 failed the 2%
+  non-inferiority gate. A second all-family phase reduced `J_Q` to 0.7170× stop with 3/3 wins;
+  freezing only the phase-2 means cost 1.47% `J_Q` and passed the 2% gate. Neither clone variant
+  passed its frozen 5% materiality gate. Strict prune-before-phase-2 removed 5.32–5.42% of rows,
+  retained 4,729–4,734, ended with zero fitting-view `q>9` or near-plane center violations, and
+  cost 2.69% `J_Q` versus the unpruned selected phase-2 anchor. Joint and separate SH3 gains were
+  only 2.30% and 2.97%, below 5%. The selected geometric validation risks were
+  `J_Q=0.00422499`, `J_U=0.00786318`. Post-hoc no-preview handoffs select one frozen
+  representative root per experiment without changing any audited artifact; all three
+  `scripts/check_results_bundle.py --no-previews` gates and live `rtgs view` smokes pass.
+- **Conclusion**: accept for the carrier implementation:
+  fit-only Beam Fusion → renderer-aware symmetric covariance repair → 380 compact SH0 updates
+  with all parameter families trainable → strict every-fitting-view projected-center prune →
+  380 compact SH0 updates with means frozen. Retire legacy covariance/opacity/appearance repair,
+  sampled soft support, clone/split/insertion/densification, higher SH, and dense RGB handover
+  from this path. The covariance target is `JΣJᵀ+0.3I`; its residual is symmetric in generalized
+  log eigenvalues. Normalized 2D mixture amplitude does not identify 3D opacity. Confidence is
+  high for the executed single-scene stage decision and structural no-image boundary, low for
+  generalization.
+- **Follow-ups**: repeat from pre-execution seals on multiple non-exposed scenes with held-out
+  cameras; run a controlled dense-versus-compact resource comparison before any general VRAM
+  claim; devise an independently measurable surface-occupancy test for visual-hull-interior
+  floaters. Whole mathematical-Gaussian mask containment is not a candidate because Gaussian
+  support is infinite, and an unvalidated finite-footprint rule would erode silhouettes.
+
+## 2026-07-27 — All-26 carrier maturation completes, but four required phases cap
+
+- **Question**: if ADR-002 is run as the intended instrumented all-view process—with fixed-lineage
+  repair, train-PSNR plateau rules, three clone-every-carrier tangent waves and recovery between
+  waves, higher-SH expansion, standard growth, and a final settle—does every maturation phase
+  converge and does it yield a credible carrier-to-3DGS endpoint?
+- **Setup**: exact V2 command
+  `.venv-cuda/bin/python benchmarks/carrier_maturation_all26.py --out
+  runs/carrier_maturation_all26_frame00008_20260727 --protocol
+  benchmarks/results/20260727_carrier_maturation_all26_PREREG_V2.md --raw-frame
+  /home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008`; recorded base
+  `dd84c28`, seed 27027, all 26 cameras fitted/selected/reported, native 5328x4608 masked RGB,
+  CUDA gsplat on RTX 4090. A first V2 process died at step 5,000 during the PyCharm crash; its
+  partial bundle is preserved, and the canonical bundle is a fresh restart with the exact same
+  protocol, implementation hashes, seed, and inputs. Full result:
+  `benchmarks/results/20260727_carrier_maturation_all26_RESULT.md`; scientist pass:
+  `benchmarks/results/20260727_carrier_maturation_all26_AUDIT.md`.
+- **Result**: the canonical run completed 128,000 updates and 100,000 Gaussians. Final all-fitted
+  means are **28.7641 dB** native FG PSNR, **0.973831** native crop SSIM, **0.017323** native
+  LPIPS, **0.980415** native alpha IoU, and **31.7410 dB** compact-teacher FG PSNR. Fixed topology
+  reaches its plateau after 30,000 updates and final standard settle after 8,000, but clone
+  recoveries 1–3 and higher-SH each consume the full 15,000-update cap with
+  `plateau.converged=false`. The model reaches the 100,000-Gaussian cap by the first standard-growth
+  checkpoint; final direct carrier survival is 59.50%, and 88.78% of roots retain a descendant.
+  The historical all-view compact-target endpoint is 37.887 dB, 6.146 dB higher, but targets and
+  schedules differ. The replayable audit passes 22/22 invariants; the page and all 53 local
+  targets return HTTP 200, the comparison viewer loads, and `check_results_bundle.py` passes.
+- **Conclusion**: this is a valid single-scene, single-seed fitted-view development reconstruction,
+  but the frozen process does **not** achieve its mandatory convergence-between-stages behavior.
+  Raw stage IDs ending `_converged` are legacy identifiers; reader labels now mark the four
+  boundaries as cap endpoints. Sequential clone/recovery gains are not causal without matched
+  no-clone continuations. All 26 cameras are fitted and every optimization phase consumes native
+  RGB, so there is no held-out, compact-only, paper, default, or performance authorization.
+  Confidence: high in artifact integrity and the cap outcomes; low for generalization or stage
+  attribution.
+- **Follow-ups**: define a preregistered response to cap exhaustion; compare clone waves with
+  matched no-clone continuations and repair ablations; use fresh non-exposed scenes, held-out
+  cameras, and multiple paired seeds; include actual Original-3DGS/compressed-SfM and compact-only
+  arms; control timing on an idle GPU before revisiting systems claims.
+
 ## 2026-07-27 — Scope correction: ADR-002 convergence pipeline was not tested
 
 - **Question**: did the native-resolution carrier experiment actually implement the iterative

@@ -533,3 +533,99 @@
   recovery with restarted Adam; it is not the ADR's convergence-based maturation process. Every
   optimized arm consumes raw RGB, the Original-3DGS baselines are absent, timing and VRAM are
   uncontrolled, and this claim authorizes no default or paper claim.
+
+## C29: The frozen all-26 carrier maturation fails its intermediate convergence contract
+- **Statement**: On the exact V2 all-26-view native-resolution `frame_00008` development run,
+  fixed topology reached its train-PSNR plateau after 30,000 updates and final standard settle
+  reached its plateau after 8,000, but clone recoveries 1–3 and higher-SH each consumed their full
+  15,000-update safety cap with `plateau.converged=false`. The executed process therefore did not
+  achieve its required convergence-between-stages behavior, even though it completed 128,000
+  updates and emitted a 100,000-Gaussian all-fitted reconstruction at 28.7641 dB native and
+  31.7410 dB compact-teacher foreground PSNR.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing the bound canonical and crash-partial artifacts changes
+  any phase stop reason, plateau flag, update range, final count, or reported metric; the protocol
+  does not in fact require plateau convergence before those handovers; or source/protocol/
+  implementation/checkpoint checks invalidate the 22-invariant scientist audit.
+- **Proof**: [N169, N170,
+  `benchmarks/results/20260727_carrier_maturation_all26_RESULT.md`,
+  `benchmarks/results/20260727_carrier_maturation_all26_AUDIT.md`,
+  `benchmarks/results/20260727_carrier_maturation_all26_AUDIT.json`,
+  `benchmarks/audit_carrier_maturation_all26.py`]
+- **Dependencies**: []
+- **Tags**: beam-fusion, carrier-refinement, convergence, plateau, negative-result, development,
+  calibrated, all-fitted
+- **From staging**: O141
+- **Boundary**: One outcome-exposed scene and one seed; the canonical process is a fresh exact V2
+  restart after a PyCharm crash exposed a step-5,000 partial, not an independent replication. All
+  26 cameras are fitted, selected, and reported; no matched no-clone, repair-ablation, or
+  immediate-standard continuation exists; every optimized phase consumes native RGB; the
+  Original-3DGS baselines are absent; and timing is uncontrolled. The historical 6.146 dB
+  compact-score deficit is contextual because targets and schedules differ. This claim rejects
+  only the frozen execution's convergence contract and authorizes no default, causal-stage,
+  generalization, compact-only, performance, or paper claim.
+
+## C30: Compact carrier ablation selects corrected covariance and two all-family phases
+- **Statement**: In the frozen three-root, single-scene compact-only development experiments, the
+  renderer-aware covariance repair reduced validation `J_Q` by 63.15% versus directly optimizing
+  Beam with 3/3 paired wins, while means-only phase 1 had 4.1823 times the all-family `J_Q`.
+  A second all-family compact phase reduced `J_Q` to 0.7170 times stopping with 3/3 wins, and
+  freezing means only in phase 2 passed the 2% non-inferiority gate at ratios 1.0147 `J_Q` and
+  1.0116 `J_U`. Legacy covariance/opacity repair was harmful, separate appearance repair was
+  immaterial, and neither clone nor incremental SH3 passed its frozen 5% materiality gate.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing the sealed paired-root receipts changes any stated
+  ratio/win count or gate disposition; an audit source/input/arm-integrity check fails; or a
+  preregistered replication on non-outcome-exposed scenes reverses the selected stage decisions.
+- **Proof**: [N171, N172,
+  `benchmarks/results/20260728_compact_only_carrier_stage_ablation_RESULT.md`,
+  `benchmarks/results/20260728_compact_only_carrier_stage_ablation_AUDIT.md`,
+  `benchmarks/results/20260728_compact_only_carrier_policy_closure_RESULT.md`,
+  `benchmarks/results/20260728_compact_only_carrier_policy_closure_AUDIT.md`,
+  `benchmarks/results/20260728_compact_only_carrier_sequence_interaction_RESULT.md`,
+  `benchmarks/results/20260728_compact_only_carrier_sequence_interaction_AUDIT.md`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: beam-fusion, carrier-refinement, compact-only, covariance, ablation, fixed-topology,
+  development, calibrated
+- **From staging**: O142
+- **Boundary**: One outcome-exposed frame, 19 fitting views, three paired roots, and no held-out
+  evaluation in the policy-closure/sequence programs. The decision selects a bounded carrier
+  implementation policy; it does not establish cross-scene or novel-view quality, production
+  readiness, runtime, general VRAM savings, or a paper claim.
+
+## C31: The carrier boundary is compact-only and preserves fitting-view center containment
+- **Statement**: The carrier entry accepts only `ReconstructionInputs` and configuration and runs
+  fit-only Beam Fusion, corrected covariance repair, compact fixed-topology SH0 phase 1, strict
+  projected-center pruning, and compact fixed-topology SH0 phase 2 with means frozen. For the
+  tested selected arms, pruning removed 5.32–5.42% of rows and the final 4,729–4,734 centers had
+  exactly zero fitting-view `q>9` or near-plane violations. The implementation rejects fewer than
+  three Beam contributors, unbounded Beam output, weakened containment thresholds, legacy
+  opacity/appearance repair, and post-prune center motion, without source RGB, masks, packed
+  alpha, `SceneData`, dense training, or topology growth.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: The import/signature/invariant tests admit an image-bearing data
+  path or weakened carrier configuration; the source contains a dense trainer/topology-growth
+  handover; recomputation finds a retained fitting-view center with nonpositive depth or `q>9`;
+  or phase 2 changes a contained mean.
+- **Proof**: [N171, N172,
+  `benchmarks/results/20260728_compact_only_carrier_policy_closure_RESULT.md`,
+  `benchmarks/results/20260728_compact_only_carrier_policy_closure_AUDIT.md`,
+  `benchmarks/results/20260728_compact_only_carrier_sequence_interaction_RESULT.md`,
+  `benchmarks/results/20260728_compact_only_carrier_sequence_interaction_AUDIT.md`,
+  `src/rtgs/carrier_pipeline.py`, `src/rtgs/optim/carrier_schedule.py`,
+  `tests/test_pipeline.py`, `tests/test_carrier_refinement.py`]
+- **Dependencies**: [C30]
+- **Tags**: beam-fusion, carrier-refinement, compact-only, data-boundary, containment,
+  fixed-topology, development
+- **From staging**: O143
+- **Boundary**: The invariant concerns projected centers inside the union of positive-amplitude
+  fitted 2D Gaussian three-sigma ellipses in every fitting view. It neither detects a floater
+  inside the multi-view visual hull nor proves surface occupancy, full Gaussian support
+  containment, exact source-mask containment, cross-scene quality, or general VRAM reduction.

@@ -1,0 +1,668 @@
+{
+  "capped_nonconverged_phases": [
+    "clone_recovery_1",
+    "clone_recovery_2",
+    "clone_recovery_3",
+    "higher_sh"
+  ],
+  "chronology": {
+    "canonical_v2_restart_after_partial_outcome_exposure": true,
+    "first_v2_attempt": "runs/carrier_maturation_all26_frame00008_20260727_crash_partial_step005000",
+    "first_v2_latest_checkpoint_global_step": 5000,
+    "first_v2_status": "started",
+    "protocol_implementation_and_seed_unchanged": true,
+    "v1_failure": "stopped before Beam Fusion or model-quality metrics because the compact-target helper import failed"
+  },
+  "claims": [
+    {
+      "claim": "The all-26-view schedule produced a complete native-resolution fitted-view reconstruction.",
+      "disposition": "confirm",
+      "evidence": {
+        "compact_alpha_iou_mean": 0.9804146931721613,
+        "compact_psnr_fg_mean": 31.741003109858585,
+        "compact_ssim_crop_mean": 0.9849374706928546,
+        "global_optimizer_updates": 128000,
+        "n_gaussians": 100000,
+        "native_alpha_iou_mean": 0.9804148719860957,
+        "native_lpips_mean": 0.01732301260702885,
+        "native_psnr_fg_mean": 28.764149078956017,
+        "native_ssim_crop_mean": 0.9738311217381403
+      },
+      "kind_scope": "measured; one outcome-exposed scene, one seed, all cameras fitted"
+    },
+    {
+      "claim": "Every fixed-topology maturation phase converged before handover.",
+      "disposition": "retire",
+      "evidence": {
+        "capped_nonconverged_phases": [
+          "clone_recovery_1",
+          "clone_recovery_2",
+          "clone_recovery_3",
+          "higher_sh"
+        ],
+        "convergence": {
+          "clone_recovery_1": {
+            "best_step": 15000,
+            "executed_iterations": 15000,
+            "plateau_converged": false,
+            "requested_max_iterations": 15000,
+            "stale_evals": 0,
+            "stop_reason": "max_iterations"
+          },
+          "clone_recovery_2": {
+            "best_step": 12000,
+            "executed_iterations": 15000,
+            "plateau_converged": false,
+            "requested_max_iterations": 15000,
+            "stale_evals": 3,
+            "stop_reason": "max_iterations"
+          },
+          "clone_recovery_3": {
+            "best_step": 14000,
+            "executed_iterations": 15000,
+            "plateau_converged": false,
+            "requested_max_iterations": 15000,
+            "stale_evals": 1,
+            "stop_reason": "max_iterations"
+          },
+          "fixed_topology": {
+            "best_step": 24000,
+            "executed_iterations": 30000,
+            "plateau_converged": true,
+            "requested_max_iterations": 30000,
+            "stale_evals": 6,
+            "stop_reason": "train_psnr_plateau"
+          },
+          "higher_sh": {
+            "best_step": 15000,
+            "executed_iterations": 15000,
+            "plateau_converged": false,
+            "requested_max_iterations": 15000,
+            "stale_evals": 0,
+            "stop_reason": "max_iterations"
+          },
+          "standard_growth": {
+            "best_step": null,
+            "executed_iterations": 30000,
+            "plateau_converged": null,
+            "requested_max_iterations": 30000,
+            "stale_evals": null,
+            "stop_reason": "max_iterations"
+          },
+          "standard_settle": {
+            "best_step": 2000,
+            "executed_iterations": 8000,
+            "plateau_converged": true,
+            "requested_max_iterations": 40000,
+            "stale_evals": 6,
+            "stop_reason": "train_psnr_plateau"
+          }
+        }
+      },
+      "kind_scope": "mechanism behavior under the frozen plateau rules"
+    },
+    {
+      "claim": "Uniform tangent clone waves caused the recovered quality gains.",
+      "disposition": "unverified",
+      "evidence": {
+        "limitation": "each recovery includes 15,000 additional optimizer updates and no matched no-clone continuation exists",
+        "sequential_measurements": {
+          "wave_1": {
+            "after_15000_updates_native_delta_db": 0.5388092627892114,
+            "causal_attribution_valid": false,
+            "immediate_native_delta_db": -0.12540325751671588
+          },
+          "wave_2": {
+            "after_15000_updates_native_delta_db": 0.4695436037503775,
+            "causal_attribution_valid": false,
+            "immediate_native_delta_db": -0.4252788837139434
+          },
+          "wave_3": {
+            "after_15000_updates_native_delta_db": 0.5275829755342905,
+            "causal_attribution_valid": false,
+            "immediate_native_delta_db": -0.39871223156269053
+          }
+        }
+      },
+      "kind_scope": "causal stage attribution"
+    },
+    {
+      "claim": "The final model is competitive with the prior all-view compact-target endpoint.",
+      "disposition": "retire",
+      "evidence": {
+        "current_compact_psnr_fg_db": 31.741003109858585,
+        "delta_db": -6.146371768071102,
+        "historical_compact_psnr_fg_db": 37.88737487792969
+      },
+      "kind_scope": "contextual fitted-view compact-teacher score, not a randomized control"
+    },
+    {
+      "claim": "The run establishes held-out or novel-camera reconstruction quality.",
+      "disposition": "unverified",
+      "evidence": {
+        "limitation": {
+          "fit_views": [
+            "C0001",
+            "C0004",
+            "C0005",
+            "C0006",
+            "C0008",
+            "C0009",
+            "C0012",
+            "C0014",
+            "C0018",
+            "C0019",
+            "C0020",
+            "C0021",
+            "C0022",
+            "C0025",
+            "C0026",
+            "C0028",
+            "C0029",
+            "C0030",
+            "C0031",
+            "C0034",
+            "C0037",
+            "C0039",
+            "C1000",
+            "C1001",
+            "C1002",
+            "C1004"
+          ],
+          "held_out_views": [],
+          "interpretation": "all-fitted-view mechanism and reconstruction diagnostic; no generalization claim",
+          "reporting_views": [
+            "C0001",
+            "C0004",
+            "C0005",
+            "C0006",
+            "C0008",
+            "C0009",
+            "C0012",
+            "C0014",
+            "C0018",
+            "C0019",
+            "C0020",
+            "C0021",
+            "C0022",
+            "C0025",
+            "C0026",
+            "C0028",
+            "C0029",
+            "C0030",
+            "C0031",
+            "C0034",
+            "C0037",
+            "C0039",
+            "C1000",
+            "C1001",
+            "C1002",
+            "C1004"
+          ],
+          "selection_views": [
+            "C0001",
+            "C0004",
+            "C0005",
+            "C0006",
+            "C0008",
+            "C0009",
+            "C0012",
+            "C0014",
+            "C0018",
+            "C0019",
+            "C0020",
+            "C0021",
+            "C0022",
+            "C0025",
+            "C0026",
+            "C0028",
+            "C0029",
+            "C0030",
+            "C0031",
+            "C0034",
+            "C0037",
+            "C0039",
+            "C1000",
+            "C1001",
+            "C1002",
+            "C1004"
+          ],
+          "view_count": 26,
+          "view_ids": [
+            "C0001",
+            "C0004",
+            "C0005",
+            "C0006",
+            "C0008",
+            "C0009",
+            "C0012",
+            "C0014",
+            "C0018",
+            "C0019",
+            "C0020",
+            "C0021",
+            "C0022",
+            "C0025",
+            "C0026",
+            "C0028",
+            "C0029",
+            "C0030",
+            "C0031",
+            "C0034",
+            "C0037",
+            "C0039",
+            "C1000",
+            "C1001",
+            "C1002",
+            "C1004"
+          ]
+        }
+      },
+      "kind_scope": "generalization"
+    },
+    {
+      "claim": "The run establishes a speed, VRAM, storage, or bandwidth advantage.",
+      "disposition": "unverified",
+      "evidence": {
+        "limitation": "single execution, no idle-GPU protocol or repeats, and another GPU process was observed during execution",
+        "peak_phase_vram_gb": 4.945734977722168
+      },
+      "kind_scope": "performance"
+    },
+    {
+      "claim": "The run establishes compact-only sufficiency or authorizes the paper claim.",
+      "disposition": "unverified",
+      "evidence": {
+        "limitation": "all optimization phases consume native masked RGB; Original-3DGS and compressed-RGB SfM baselines are absent"
+      },
+      "kind_scope": "paper/main capability claim"
+    }
+  ],
+  "clone_wave_measurements": {
+    "wave_1": {
+      "after_15000_updates_native_delta_db": 0.5388092627892114,
+      "causal_attribution_valid": false,
+      "immediate_native_delta_db": -0.12540325751671588
+    },
+    "wave_2": {
+      "after_15000_updates_native_delta_db": 0.4695436037503775,
+      "causal_attribution_valid": false,
+      "immediate_native_delta_db": -0.4252788837139434
+    },
+    "wave_3": {
+      "after_15000_updates_native_delta_db": 0.5275829755342905,
+      "causal_attribution_valid": false,
+      "immediate_native_delta_db": -0.39871223156269053
+    }
+  },
+  "convergence": {
+    "clone_recovery_1": {
+      "best_step": 15000,
+      "executed_iterations": 15000,
+      "plateau_converged": false,
+      "requested_max_iterations": 15000,
+      "stale_evals": 0,
+      "stop_reason": "max_iterations"
+    },
+    "clone_recovery_2": {
+      "best_step": 12000,
+      "executed_iterations": 15000,
+      "plateau_converged": false,
+      "requested_max_iterations": 15000,
+      "stale_evals": 3,
+      "stop_reason": "max_iterations"
+    },
+    "clone_recovery_3": {
+      "best_step": 14000,
+      "executed_iterations": 15000,
+      "plateau_converged": false,
+      "requested_max_iterations": 15000,
+      "stale_evals": 1,
+      "stop_reason": "max_iterations"
+    },
+    "fixed_topology": {
+      "best_step": 24000,
+      "executed_iterations": 30000,
+      "plateau_converged": true,
+      "requested_max_iterations": 30000,
+      "stale_evals": 6,
+      "stop_reason": "train_psnr_plateau"
+    },
+    "higher_sh": {
+      "best_step": 15000,
+      "executed_iterations": 15000,
+      "plateau_converged": false,
+      "requested_max_iterations": 15000,
+      "stale_evals": 0,
+      "stop_reason": "max_iterations"
+    },
+    "standard_growth": {
+      "best_step": null,
+      "executed_iterations": 30000,
+      "plateau_converged": null,
+      "requested_max_iterations": 30000,
+      "stale_evals": null,
+      "stop_reason": "max_iterations"
+    },
+    "standard_settle": {
+      "best_step": 2000,
+      "executed_iterations": 8000,
+      "plateau_converged": true,
+      "requested_max_iterations": 40000,
+      "stale_evals": 6,
+      "stop_reason": "train_psnr_plateau"
+    }
+  },
+  "default_change_authorized": false,
+  "disposition": "VALID_DEVELOPMENT_RUN_INTERMEDIATE_CONVERGENCE_FAILED",
+  "failed_invariants": [],
+  "findings": [
+    {
+      "affected_phases": [
+        "clone_recovery_1",
+        "clone_recovery_2",
+        "clone_recovery_3",
+        "higher_sh"
+      ],
+      "finding": "Three clone recoveries and the higher-SH phase reached their safety caps without the frozen plateau, so the intended convergence-between-stages behavior failed.",
+      "severity": "major"
+    },
+    {
+      "affected_boundary_ids": [
+        "clone_wave_1_converged",
+        "clone_wave_2_converged",
+        "clone_wave_3_converged",
+        "higher_sh_converged"
+      ],
+      "finding": "Raw stage identifiers still call four capped boundaries 'converged'; phase stop_reason and plateau.converged are authoritative.",
+      "remediation": "Reader-facing viewer/page labels are corrected; raw identifiers are preserved with this erratum.",
+      "severity": "major"
+    },
+    {
+      "finding": "All 26 cameras were used for fitting, stopping, and reporting; the result has no held-out or novel-camera metric and cannot establish generalization.",
+      "severity": "major"
+    },
+    {
+      "finding": "The run has no matched immediate-standard or no-clone control, so sequential stage gains cannot be attributed causally to carrier repair or clone waves.",
+      "severity": "major"
+    },
+    {
+      "finding": "Covariance repair changed native fitted-view PSNR by -0.443 dB and opacity repair then changed it by +0.612 dB; local repair objectives do not establish endpoint value without matched ablations.",
+      "severity": "moderate"
+    },
+    {
+      "finding": "The model reached the 100,000-Gaussian hard cap by the first 5k growth checkpoint; 59.5% of original carriers survive at the final endpoint and 88.78% retain at least one descendant.",
+      "severity": "moderate"
+    },
+    {
+      "finding": "The final compact-teacher score is 6.146 dB below the bound historical selected 69k endpoint; targets and schedules differ, so this is contextual, not causal.",
+      "severity": "moderate"
+    },
+    {
+      "finding": "Timing and throughput are non-decisional because the single run had no idle-GPU protocol or repeats and another GPU process was observed.",
+      "severity": "moderate"
+    },
+    {
+      "finding": "The canonical result is a fresh exact V2 restart after the first V2 process died at step 5,000. Partial Beam/repair/training outcomes were therefore exposed, but the preserved partial manifest proves the protocol, implementation hashes, and seed were unchanged; this remains development evidence, not an independent confirmatory replication.",
+      "severity": "moderate"
+    }
+  ],
+  "historical_context": {
+    "causal_comparison_valid": false,
+    "current_compact_psnr_fg_db": 31.741003109858585,
+    "current_minus_historical_db": -6.146371768071102,
+    "historical_compact_psnr_fg_db": 37.88737487792969,
+    "selected_global_step": 69000
+  },
+  "invariants": {
+    "all_summary_numbers_finite": true,
+    "checkpoint_hashes_counts_and_steps_exact": true,
+    "clone_waves_all_rows_tangent_only_and_parent_preserving": true,
+    "compact_manifest_view_order_and_archives_hash_exact": true,
+    "crash_partial_preserved_with_identical_frozen_bindings": true,
+    "historical_reference_hashes_exact": true,
+    "implementation_sha256_exact": true,
+    "manifest_schema_and_status": true,
+    "metric_means_models_and_stage_hashes_exact": true,
+    "phase_histories_complete_and_finite": true,
+    "phase_names_exact": true,
+    "phase_protocol_configs_exact": true,
+    "phase_ranges_contiguous_and_total_exact": true,
+    "protocol_sha256_exact": true,
+    "raw_rgb_and_mask_sources_hash_exact": true,
+    "reader_handoff_hash_and_nonconvergence_labels_exact": true,
+    "repair_order_and_frozen_fields_exact": true,
+    "root_initial_and_final_models_match_boundaries": true,
+    "scope_explicitly_all_fitted_no_heldout": true,
+    "stage_names_exact": true,
+    "standard_density_schedule_and_15000_recovery_exact": true,
+    "summary_schema_and_status": true
+  },
+  "lineage": {
+    "final_carrier_survival_rate": 0.5950000286102295,
+    "roots_with_any_descendant_rate": 0.8877999782562256,
+    "surviving_original_carriers": 2975
+  },
+  "mislabelled_boundary_ids": [
+    "clone_wave_1_converged",
+    "clone_wave_2_converged",
+    "clone_wave_3_converged",
+    "higher_sh_converged"
+  ],
+  "paper_claim_authorized": false,
+  "performance_claim_authorized": false,
+  "run": "runs/carrier_maturation_all26_frame00008_20260727",
+  "schema": "rtgs.carrier-maturation-all26.audit.v1",
+  "sequential_deltas": {
+    "beam->covariance_repair": {
+      "compact_psnr_fg_db": -0.4468139134920559,
+      "native_psnr_fg_db": -0.44288646257840547
+    },
+    "clone_wave_1->clone_wave_1_converged": {
+      "compact_psnr_fg_db": 1.0494088392991294,
+      "native_psnr_fg_db": 0.6642125203059273
+    },
+    "clone_wave_1_converged->clone_wave_2": {
+      "compact_psnr_fg_db": -0.7527095354520341,
+      "native_psnr_fg_db": -0.4252788837139434
+    },
+    "clone_wave_2->clone_wave_2_converged": {
+      "compact_psnr_fg_db": 1.4685995395366938,
+      "native_psnr_fg_db": 0.8948224874643209
+    },
+    "clone_wave_2_converged->clone_wave_3": {
+      "compact_psnr_fg_db": -0.8304459498478813,
+      "native_psnr_fg_db": -0.39871223156269053
+    },
+    "clone_wave_3->clone_wave_3_converged": {
+      "compact_psnr_fg_db": 1.6555033463698194,
+      "native_psnr_fg_db": 0.926295207096981
+    },
+    "clone_wave_3_converged->higher_sh_converged": {
+      "compact_psnr_fg_db": 1.1486558180588915,
+      "native_psnr_fg_db": 0.7371875322782095
+    },
+    "covariance_repair->opacity_repair": {
+      "compact_psnr_fg_db": 0.6176205414992104,
+      "native_psnr_fg_db": 0.6118279970609226
+    },
+    "fixed_topology_converged->clone_wave_1": {
+      "compact_psnr_fg_db": -0.33630957970252595,
+      "native_psnr_fg_db": -0.12540325751671588
+    },
+    "higher_sh_converged->standard_growth_complete": {
+      "compact_psnr_fg_db": 1.8416210321279678,
+      "native_psnr_fg_db": 0.9005284676184999
+    },
+    "opacity_repair->sh0_repair": {
+      "compact_psnr_fg_db": -0.002538754389835418,
+      "native_psnr_fg_db": -0.0025097406827487845
+    },
+    "sh0_repair->fixed_topology_converged": {
+      "compact_psnr_fg_db": 14.673469103299654,
+      "native_psnr_fg_db": 13.837308516869179
+    },
+    "standard_growth_complete->standard_converged": {
+      "compact_psnr_fg_db": 0.07232856750488281,
+      "native_psnr_fg_db": 0.04063224792480469
+    }
+  },
+  "source_hashes": {
+    "compact_manifest": "b1c8e256d73e2c05f3cb4797a615bdbb2639a637f12908a5c96a2a9a9f912847",
+    "implementation": {
+      "benchmarks/carrier_maturation_all26.py": "e2e1710038029462a50de55217429db6813131c7f483593a29436ac4c928e545",
+      "benchmarks/full_compact_reconstruction.py": "9ee2688f5d4f18c46790cd572118503bb11d83b86d821ffe749930b1eb8be722",
+      "src/rtgs/lift/beam_fusion.py": "575c12fdb59ad7a430178ed5899eb9d546cddc965f50617eeed0b40fe9ca2e12",
+      "src/rtgs/lift/carrier_refinement.py": "bbd50a727da29663e22415376c8cabf269bf561e929a76ae86a4360dbb5590f5",
+      "src/rtgs/optim/carrier_schedule.py": "97c089c683ba0f86bafa302f674613a34d222b8faca5d697a6366f9eb1a8d17c",
+      "src/rtgs/optim/density.py": "a18be4d1b425177b74db8fb4ef814e53f4b246450d3e8f5f149962328110680a",
+      "src/rtgs/optim/trainer.py": "228a5269d02fe33e8d5981c1fd83ee79211b24d485d10bd6be59b13ff2432fed",
+      "src/rtgs/visualize.py": "0cd822b475fe7a8cf4e8738d28d0ac27f1c06b4bb7cd30f5592b4eff2c5b63d7"
+    },
+    "manifest": "61d680ebb0138e7c5fe186d57020c1570a493e3e79608c6e95eea447e05cf5ef",
+    "protocol": "2becc1cf1f48f3d78bf85f8859b778d861d2f0325732335dbe9aea1bc0e212ef",
+    "summary": "2ae0cbac07c642887283469025ec1bba682525f1cc5489b4c77debec81e0499b"
+  },
+  "stage_metrics": {
+    "beam": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 11.582614055046669,
+      "global_step": 0,
+      "n_gaussians": 5000,
+      "native_alpha_iou_mean": 0.001987833272253808,
+      "native_lpips_mean": 0.49475732216468227,
+      "native_psnr_fg_mean": 11.546124678391676,
+      "native_ssim_crop_mean": 0.7659147771505209
+    },
+    "clone_wave_1": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 26.088041452261116,
+      "global_step": 30000,
+      "n_gaussians": 10000,
+      "native_alpha_iou_mean": 0.9326416918864617,
+      "native_lpips_mean": 0.08138056486271895,
+      "native_psnr_fg_mean": 25.424461731543907,
+      "native_ssim_crop_mean": 0.9547555056902078
+    },
+    "clone_wave_1_converged": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 27.137450291560246,
+      "global_step": 45000,
+      "n_gaussians": 10000,
+      "native_alpha_iou_mean": 0.9632570537237021,
+      "native_lpips_mean": 0.05988710860793407,
+      "native_psnr_fg_mean": 26.088674251849834,
+      "native_ssim_crop_mean": 0.9565525123706231
+    },
+    "clone_wave_2": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 26.38474075610821,
+      "global_step": 45000,
+      "n_gaussians": 20000,
+      "native_alpha_iou_mean": 0.9423265525927911,
+      "native_lpips_mean": 0.06652792944357945,
+      "native_psnr_fg_mean": 25.66339536813589,
+      "native_ssim_crop_mean": 0.9560469480661246
+    },
+    "clone_wave_2_converged": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 27.853340295644905,
+      "global_step": 60000,
+      "n_gaussians": 20000,
+      "native_alpha_iou_mean": 0.9686681972100184,
+      "native_lpips_mean": 0.04672055519544161,
+      "native_psnr_fg_mean": 26.558217855600212,
+      "native_ssim_crop_mean": 0.9591369124559256
+    },
+    "clone_wave_3": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 27.022894345797024,
+      "global_step": 60000,
+      "n_gaussians": 40000,
+      "native_alpha_iou_mean": 0.9506637041385357,
+      "native_lpips_mean": 0.053603173090288274,
+      "native_psnr_fg_mean": 26.15950562403752,
+      "native_ssim_crop_mean": 0.9580349463682908
+    },
+    "clone_wave_3_converged": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 28.678397692166843,
+      "global_step": 75000,
+      "n_gaussians": 40000,
+      "native_alpha_iou_mean": 0.9716113484822787,
+      "native_lpips_mean": 0.03640673474337046,
+      "native_psnr_fg_mean": 27.085800831134502,
+      "native_ssim_crop_mean": 0.9616842659620138
+    },
+    "covariance_repair": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 11.135800141554613,
+      "global_step": 0,
+      "n_gaussians": 5000,
+      "native_alpha_iou_mean": 0.0,
+      "native_lpips_mean": 0.5465934035869745,
+      "native_psnr_fg_mean": 11.10323821581327,
+      "native_ssim_crop_mean": 0.7172892598005441
+    },
+    "fixed_topology_converged": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 26.424351031963642,
+      "global_step": 30000,
+      "n_gaussians": 5000,
+      "native_alpha_iou_mean": 0.9572177598109612,
+      "native_lpips_mean": 0.07524162695671503,
+      "native_psnr_fg_mean": 25.549864989060623,
+      "native_ssim_crop_mean": 0.9545185153300946
+    },
+    "higher_sh_converged": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 29.827053510225735,
+      "global_step": 90000,
+      "n_gaussians": 40000,
+      "native_alpha_iou_mean": 0.9716113484822787,
+      "native_lpips_mean": 0.030308050210945882,
+      "native_psnr_fg_mean": 27.822988363412712,
+      "native_ssim_crop_mean": 0.9634972329323108
+    },
+    "opacity_repair": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 11.753420683053823,
+      "global_step": 0,
+      "n_gaussians": 5000,
+      "native_alpha_iou_mean": 0.18067787473018354,
+      "native_lpips_mean": 0.4634761701409633,
+      "native_psnr_fg_mean": 11.715066212874193,
+      "native_ssim_crop_mean": 0.7543754440087539
+    },
+    "sh0_repair": {
+      "carrier_survival_rate": 1.0,
+      "compact_psnr_fg_mean": 11.750881928663988,
+      "global_step": 0,
+      "n_gaussians": 5000,
+      "native_alpha_iou_mean": 0.18067787473018354,
+      "native_lpips_mean": 0.46309623695336855,
+      "native_psnr_fg_mean": 11.712556472191444,
+      "native_ssim_crop_mean": 0.7544862650907956
+    },
+    "standard_converged": {
+      "carrier_survival_rate": 0.5950000286102295,
+      "compact_psnr_fg_mean": 31.741003109858585,
+      "global_step": 128000,
+      "n_gaussians": 100000,
+      "native_alpha_iou_mean": 0.9804148719860957,
+      "native_lpips_mean": 0.01732301260702885,
+      "native_psnr_fg_mean": 28.764149078956017,
+      "native_ssim_crop_mean": 0.9738311217381403
+    },
+    "standard_growth_complete": {
+      "carrier_survival_rate": 0.5950000286102295,
+      "compact_psnr_fg_mean": 31.668674542353703,
+      "global_step": 120000,
+      "n_gaussians": 100000,
+      "native_alpha_iou_mean": 0.9802561264771682,
+      "native_lpips_mean": 0.017704708089765448,
+      "native_psnr_fg_mean": 28.723516831031212,
+      "native_ssim_crop_mean": 0.9735991886028876
+    }
+  }
+}

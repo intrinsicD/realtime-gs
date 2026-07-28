@@ -2945,3 +2945,111 @@ tree:
       - "runs/carrier_refinement_fullres_frame00008_20260727_recovery/"
     also_depends_on: []
     status: resolved
+  - id: N169
+    type: experiment
+    title: "Does the instrumented all-26 ADR-002 schedule achieve convergence between stages?"
+    provenance: ai-executed
+    timestamp: "2026-07-27T17:02+02:00"
+    description: >
+      Exact V2 native-resolution carrier-maturation run on masked Janelle frame_00008, seed 27027,
+      with all 26 cameras used for fitting, stopping and reporting. The process executes fixed
+      lineage repair, fixed-topology plateau fitting, three clone-every-carrier tangent waves with
+      plateau recovery, higher-SH plateau fitting, standard density growth, and final
+      fixed-topology settle. The first V2 process died at global step 5,000 during a PyCharm crash;
+      that partial bundle is preserved, and the canonical result is a fresh restart with identical
+      protocol hash, eight implementation hashes, seed and inputs. The canonical process completed
+      128,000 updates at 100,000 final Gaussians. Fixed topology and standard settle reached their
+      plateaus; all three clone recoveries and higher-SH hit their 15,000-update caps with
+      plateau.converged false. Final all-fitted means are 28.7641 dB native FG PSNR, 0.973831
+      native crop SSIM, 0.017323 native LPIPS, 0.980415 native alpha IoU and 31.7410 dB
+      compact-teacher FG PSNR. All cameras are fitted and no matched no-clone or
+      immediate-standard control exists, so no generalization or causal stage effect is licensed.
+    evidence:
+      - "benchmarks/results/20260727_carrier_maturation_all26_PREREG_V2.md"
+      - "benchmarks/results/20260727_carrier_maturation_all26_RESULT.md"
+      - "runs/carrier_maturation_all26_frame00008_20260727/"
+      - "runs/carrier_maturation_all26_frame00008_20260727_crash_partial_step005000/"
+    also_depends_on: [N168]
+    status: resolved
+  - id: N170
+    type: decision
+    title: "Referee pass over the all-26 carrier-maturation attempt; reject intermediate convergence"
+    provenance: ai-executed
+    timestamp: "2026-07-28T10:58+02:00"
+    description: >
+      Independent post-run scientist pass over N169 before public-prose promotion. The replayable
+      audit binds the protocol and eight implementation hashes; every raw RGB/mask and compact
+      archive; all phase configs, ranges, histories and finite values; per-view metric means;
+      stage, checkpoint, root and final PLY hashes/counts; tangent-only parent-preserving clone
+      receipts; repair-stage frozen fields; the density schedule; historical references; reader
+      labels; and the crash partial. All 22 invariants pass, the results page and its 53 local
+      targets return HTTP 200, the 14-method comparison viewer serves successfully, and
+      scripts/check_results_bundle.py reports complete. Visual inspection finds a coherent
+      fitted-camera endpoint with residual silhouette/fine-detail errors and a coherent but
+      unscored free orbit. Disposition: promote only O141/C29, the bounded failure of the frozen
+      intermediate-convergence contract. Retain the implementation as opt-in and authorize no
+      default, causal-stage, held-out/generalization, compact-only, performance or paper claim.
+    evidence:
+      - "benchmarks/results/20260727_carrier_maturation_all26_RESULT.md"
+      - "benchmarks/results/20260727_carrier_maturation_all26_AUDIT.md"
+      - "benchmarks/results/20260727_carrier_maturation_all26_AUDIT.json"
+      - "benchmarks/audit_carrier_maturation_all26.py"
+      - "runs/carrier_maturation_all26_frame00008_20260727/smoke_receipt.json"
+    also_depends_on: [N169]
+    status: resolved
+  - id: N171
+    type: experiment
+    title: "Which compact-only carrier stages and containment order survive paired ablation?"
+    provenance: ai-executed
+    timestamp: "2026-07-28T13:42+02:00"
+    description: >
+      Three preregistered programs used only the frozen 2D Gaussian fields and calibrated cameras
+      from 19 fitting-view frame_00008 containers, with load_alpha false and three paired roots.
+      The first audited legacy and corrected repairs, parameter-family freezes, and soft support.
+      The second closed the two-phase policy against stop, means-only/frozen, SH3 alternatives,
+      legacy and optical-density-preserving clones, and strict prune/recovery. The third fixed
+      prune ordering and the incremental SH3 interaction. Legacy covariance and opacity repair
+      were harmful, separate appearance repair was immaterial, means-only was rejected, a second
+      compact phase was necessary, phase-2 means could be frozen, neither clone passed its
+      materiality gate, and incremental SH3 remained below the frozen 5% threshold. The selected
+      prune-before-phase-2 arm retained 4,729 to 4,734 rows with geometric validation J_Q
+      0.00422499 and J_U 0.00786318 and zero fitting-view q>9 or near-plane center violations.
+    evidence:
+      - "benchmarks/results/20260728_compact_only_carrier_stage_ablation_PREREG.md"
+      - "benchmarks/results/20260728_compact_only_carrier_stage_ablation_RESULT.md"
+      - "benchmarks/results/20260728_compact_only_carrier_stage_ablation_AUDIT.md"
+      - "benchmarks/results/20260728_compact_only_carrier_policy_closure_PREREG.md"
+      - "benchmarks/results/20260728_compact_only_carrier_policy_closure_RESULT.md"
+      - "benchmarks/results/20260728_compact_only_carrier_policy_closure_AUDIT.md"
+      - "benchmarks/results/20260728_compact_only_carrier_sequence_interaction_PREREG.md"
+      - "benchmarks/results/20260728_compact_only_carrier_sequence_interaction_RESULT.md"
+      - "benchmarks/results/20260728_compact_only_carrier_sequence_interaction_AUDIT.md"
+    also_depends_on: [N170]
+    status: resolved
+  - id: N172
+    type: decision
+    title: "Accept the bounded compact-only carrier policy and its projected-center scope"
+    provenance: ai-executed
+    timestamp: "2026-07-28T13:42+02:00"
+    description: >
+      The three independent audits each report PASS_WITH_SCOPE_LIMITS and reproduce their frozen
+      gates. Accept the carrier implementation sequence as fit-only Beam Fusion, renderer-aware
+      covariance repair, compact all-family SH0 phase 1, strict every-fitting-view projected-center
+      prune, and compact SH0 phase 2 with means frozen. The public entry accepts only
+      ReconstructionInputs and configuration; tests deny legacy repair, fewer than three Beam
+      contributors, unbounded Beam output, weakened containment thresholds, SceneData signature
+      reintroduction, dense image-module imports, and post-prune mean motion. This is a structural
+      development-policy decision. The absolute compact resource receipts are not a controlled
+      dense comparison, and projected-center visual-hull membership does not prove physical
+      surface occupancy or detect interior floaters.
+    evidence:
+      - "benchmarks/results/20260728_compact_only_carrier_stage_ablation_AUDIT.md"
+      - "benchmarks/results/20260728_compact_only_carrier_policy_closure_AUDIT.md"
+      - "benchmarks/results/20260728_compact_only_carrier_sequence_interaction_AUDIT.md"
+      - "src/rtgs/carrier_pipeline.py"
+      - "src/rtgs/optim/carrier_schedule.py"
+      - "tests/test_pipeline.py"
+      - "tests/test_carrier_refinement.py"
+      - "docs/ADR-002-carrier-refinement.md"
+    also_depends_on: [N171]
+    status: resolved

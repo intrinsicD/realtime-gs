@@ -211,6 +211,43 @@ def test_query_uses_clipped_support_and_zero_outside_image():
     assert torch.equal(outside.color, torch.zeros(2, 3))
 
 
+def test_minimum_mahalanobis_distance_remains_differentiable_outside_clipped_support():
+    field = _field(
+        means=torch.tensor([[3.5, 3.5]]),
+        colors=torch.ones(1, 3),
+        amplitudes=torch.ones(1),
+        log_scales=torch.zeros(1, 2),
+        rotations=torch.zeros(1),
+    )
+    xy = torch.tensor([[8.5, 3.5]], requires_grad=True)
+    assert field.query(xy).weight_sum.item() == 0.0
+    squared = field.minimum_mahalanobis_squared(xy, component_chunk=1)
+    torch.testing.assert_close(squared, torch.tensor([25.0]))
+    squared.sum().backward()
+    assert xy.grad is not None
+    torch.testing.assert_close(xy.grad, torch.tensor([[10.0, 0.0]]))
+
+
+def test_minimum_mahalanobis_distance_ignores_zero_amplitude_components():
+    field = _field(
+        means=torch.tensor([[3.5, 3.5], [7.5, 3.5]]),
+        colors=torch.ones(2, 3),
+        amplitudes=torch.tensor([1.0, 0.0]),
+        log_scales=torch.zeros(2, 2),
+        rotations=torch.zeros(2),
+    )
+    squared = field.minimum_mahalanobis_squared(torch.tensor([[7.5, 3.5]]))
+    torch.testing.assert_close(squared, torch.tensor([16.0]))
+
+    empty = _field(
+        means=torch.tensor([[3.5, 3.5]]),
+        colors=torch.ones(1, 3),
+        amplitudes=torch.zeros(1),
+    )
+    with pytest.raises(ValueError, match="positive-amplitude"):
+        empty.minimum_mahalanobis_squared(torch.tensor([[3.5, 3.5]]))
+
+
 def test_crop_domain_and_patch_queries_share_the_point_equation():
     field = _field(fit_window=(2, 1, 5, 4))
     patch = field.query_patch((1.5, 0.5), (3, 4), component_chunk=1)

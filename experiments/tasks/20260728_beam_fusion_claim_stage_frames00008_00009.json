@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "task_id": "20260728_beam_fusion_claim_stage_frames00008_00009",
+  "date": "20260728",
+  "task_slug": "beam_fusion_claim",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "beam_fusion",
+  "status": "draft",
+  "owner": null,
+  "depends_on": [],
+  "title": "Beam Fusion claim: matched compact initializer and stage ablation",
+  "question": "Does Beam Fusion improve compact-domain initialization or converged reconstruction under matched count, downstream optimizer, samples, seeds, and views, and which repair/optimization stages are necessary?",
+  "hypothesis": "Beam Fusion's multi-view product geometry outperforms compact carve and bounded-random controls at initialization and retains an advantage after the same fixed-topology compact optimizer; unnecessary repair stages can be removed without degrading the frozen primary risks.",
+  "claim_boundary": "Development-stage causal evidence about the named compact initializers and stage sequence on two outcome-exposed scenes. No RGB quality, general VRAM, topology-growth, surface-accuracy, or cross-dataset claim.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    280801,
+    280802,
+    280803
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls"
+  ],
+  "stages": [
+    {
+      "id": "matched_initializers",
+      "label": "Matched initializers",
+      "purpose": "Construct Beam, compact-carve, and calibration-bounded random initializations at identical Gaussian count."
+    },
+    {
+      "id": "repair_factorial",
+      "label": "Repair factorial",
+      "purpose": "Compare no repair, corrected covariance only, and the explicitly retired opacity/appearance controls without changing means or count."
+    },
+    {
+      "id": "trainability_factorial",
+      "label": "Trainability factorial",
+      "purpose": "Compare all fields, means only, and means fixed under identical sampled supervision and updates."
+    },
+    {
+      "id": "containment_ablation",
+      "label": "Containment ablation",
+      "purpose": "Compare no containment, post-fit containment, and containment plus means-frozen recovery."
+    },
+    {
+      "id": "matched_convergence",
+      "label": "Matched convergence",
+      "purpose": "Evaluate initialization, fixed checkpoints, area under the risk curve, and the final frozen checkpoint."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "compact_carve",
+      "label": "Compact carve",
+      "purpose": "Strong image-free structural initializer using the same compact fields and exact final count."
+    },
+    {
+      "id": "bounded_random",
+      "label": "Calibration-bounded random",
+      "purpose": "Lower-bound control with the same count, extent, optimizer, and random roots."
+    },
+    {
+      "id": "no_covariance_repair",
+      "label": "Beam without covariance repair",
+      "purpose": "Tests whether the locally successful corrected covariance stage is needed downstream."
+    },
+    {
+      "id": "means_only",
+      "label": "Beam means-only optimization",
+      "purpose": "Tests whether direct fixed-topology position optimization is sufficient."
+    },
+    {
+      "id": "means_fixed",
+      "label": "Beam means-fixed optimization",
+      "purpose": "Tests whether Beam geometry should be preserved while only non-positional fields adapt."
+    },
+    {
+      "id": "compact_support_barrier",
+      "label": "Differentiable compact-support barrier",
+      "purpose": "Tests a fixed-count push-inside alternative to the hard projected-center prune without reading masks."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "init_heldout_j_pixel",
+      "label": "Initialization held-out compact pixel risk",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "paired median per view, seed, and scene"
+    },
+    {
+      "id": "final_heldout_j_pixel",
+      "label": "Final held-out compact pixel risk",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "paired median per view, seed, and scene"
+    },
+    {
+      "id": "final_heldout_j_area",
+      "label": "Final held-out compact area risk",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "paired median per view, seed, and scene"
+    },
+    {
+      "id": "risk_curve_auc",
+      "label": "Compact-risk curve area",
+      "unit": "loss_steps",
+      "direction": "lower",
+      "aggregation": "trapezoidal checkpoint AUC, paired median over seeds and scenes"
+    },
+    {
+      "id": "seed_win_count",
+      "label": "Paired seed wins",
+      "unit": "wins",
+      "direction": "higher",
+      "aggregation": "Beam wins against the strongest comparator on both primary risks"
+    },
+    {
+      "id": "containment_violation_rate",
+      "label": "Projected-center containment violation",
+      "unit": "fraction",
+      "direction": "lower",
+      "aggregation": "maximum over fitting views, seeds, and scenes"
+    },
+    {
+      "id": "minimum_contributor_views",
+      "label": "Minimum Beam contributors",
+      "unit": "views",
+      "direction": "higher",
+      "aggregation": "minimum over retained Beam carriers"
+    },
+    {
+      "id": "peak_cuda_allocated_bytes",
+      "label": "Peak CUDA allocated",
+      "unit": "bytes",
+      "direction": "descriptive",
+      "aggregation": "median over measured repeats, seeds, and scenes"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh compact-only process per arm from compact manifest open through final checkpoint save",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median on one idle named GPU; retain every raw repeat and report min/max",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_compact.json",
+  "run_command": null,
+  "blockers": [
+    "Reduce the prior exploratory carrier arms to the frozen factorial above and implement one task-specific runner.",
+    "Freeze equal-count compact-carve and bounded-random initialization details before changing status to ready.",
+    "Freeze an effect floor and multiplicity rule without looking at new task outcomes.",
+    "Add an outcome-unseen scene before promoting a general Beam Fusion claim."
+  ]
+}

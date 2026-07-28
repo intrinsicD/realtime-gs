@@ -1,7 +1,7 @@
 # Preregistration V2 — all-26-view Beam carrier maturation
 
-**Frozen:** 2026-07-27, before Beam Fusion or any model-quality metric was computed
-**Status:** execution-only correction to the V1 protocol
+**Frozen:** 2026-07-27, before Beam Fusion or any model-quality metric was computed  
+**Status:** execution-only correction to the V1 protocol  
 **Output:** `runs/carrier_maturation_all26_frame00008_20260727/`
 
 This document incorporates the complete frozen protocol in

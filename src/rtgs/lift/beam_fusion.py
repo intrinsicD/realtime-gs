@@ -51,7 +51,8 @@ from rtgs.lift.inverse_projection_fiber import _camera_ray_geometry
 class BeamFusionConfig:
     """Controls for beam back-projection, pair seeding, CI fusion, and reduction."""
 
-    min_views: int = 2
+    # Tightened for the compact carrier policy selected in docs/EXPERIMENTS.md (2026-07-28).
+    min_views: int = 3
     near: float = 0.05
     bounds_scale: float = 0.5
     transverse_gate_sigma: float = 3.0
@@ -65,7 +66,7 @@ class BeamFusionConfig:
     init_opacity: float = 0.1
     source_chunk: int = 1024
     pair_limit: int | None = None
-    max_components: int | None = None
+    max_components: int | None = 5_000
     seed_budget_multiplier: int = 4
     fold_in_chunk: int = 512
     max_seed_voxels: int = 2_000_000

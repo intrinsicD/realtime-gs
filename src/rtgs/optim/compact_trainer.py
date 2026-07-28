@@ -19,7 +19,9 @@ from pathlib import Path
 from typing import Literal, Protocol
 
 import torch
+import torch.nn.functional as F
 
+from rtgs.core.camera import Camera
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.core.observation2d import (
     GaussianObservationField,
@@ -35,6 +37,7 @@ from rtgs.core.sh import DEFAULT_SMU1_MU
 from rtgs.data.reconstruction_inputs import ReconstructionInputs
 from rtgs.render.base import DEFAULT_VISIBILITY_MARGIN_SIGMA
 from rtgs.render.point_base import PointRasterizer, PointRenderOutput
+from rtgs.render.projection import EWA_NEAR
 from rtgs.render.torch_points import TorchPointRasterizer
 
 ProposalMode = Literal[
@@ -45,6 +48,7 @@ ProposalMode = Literal[
 ]
 ScheduleMode = Literal["iid", "balanced_cycle"]
 TargetMode = Literal["uniform", "proposal_attempt"]
+SupportMode = Literal["none", "teacher_ellipse_center"]
 
 PROPOSAL_MODES: tuple[ProposalMode, ...] = (
     "pixel_uniform",
@@ -54,6 +58,7 @@ PROPOSAL_MODES: tuple[ProposalMode, ...] = (
 )
 SCHEDULE_MODES: tuple[ScheduleMode, ...] = ("iid", "balanced_cycle")
 TARGET_MODES: tuple[TargetMode, ...] = ("uniform", "proposal_attempt")
+SUPPORT_MODES: tuple[SupportMode, ...] = ("none", "teacher_ellipse_center")
 
 
 class CompactTopologyController(Protocol):
@@ -178,6 +183,12 @@ class CompactTrainConfig:
     sh_smu1_mu: float = DEFAULT_SMU1_MU
     kernel_support_mode: str = "hard"
     visibility_margin_sigma: float = DEFAULT_VISIBILITY_MARGIN_SIGMA
+    support_mode: SupportMode = "none"
+    support_loss_weight: float = 0.0
+    support_samples_per_step: int = 256
+    support_component_chunk: int = 512
+    support_sigma: float = 3.0
+    support_near: float = EWA_NEAR
 
     max_views: int = 64
     max_fitted_pixels_per_view: int = 50_000_000
@@ -193,6 +204,11 @@ class CompactTrainConfig:
     max_archive_uncompressed_bytes: int = 1_073_741_824
 
     def __post_init__(self) -> None:
+        if self.device != "auto":
+            try:
+                torch.device(self.device)
+            except (RuntimeError, TypeError) as error:
+                raise ValueError(f"invalid compact trainer device {self.device!r}") from error
         if self.proposal_mode not in PROPOSAL_MODES:
             choices = ", ".join(PROPOSAL_MODES)
             raise ValueError(f"unknown compact proposal mode '{self.proposal_mode}' ({choices})")
@@ -213,6 +229,8 @@ class CompactTrainConfig:
             "query_component_chunk",
             "teacher_tile_size",
             "evaluation_chunk",
+            "support_samples_per_step",
+            "support_component_chunk",
             "max_views",
             "max_fitted_pixels_per_view",
             "max_components_per_view",
@@ -243,12 +261,28 @@ class CompactTrainConfig:
             "lr_opacity",
             "lr_sh",
             "lr_sh_rest",
+        ):
+            value = getattr(self, name)
+            if not math.isfinite(value) or value < 0.0:
+                raise ValueError(f"{name} must be finite and non-negative")
+        for name in (
             "sh_smu1_mu",
             "visibility_margin_sigma",
+            "support_sigma",
+            "support_near",
         ):
             value = getattr(self, name)
             if not math.isfinite(value) or value <= 0.0:
                 raise ValueError(f"{name} must be finite and positive")
+        if self.support_mode not in SUPPORT_MODES:
+            choices = ", ".join(SUPPORT_MODES)
+            raise ValueError(f"unknown compact support mode '{self.support_mode}' ({choices})")
+        if not math.isfinite(self.support_loss_weight) or self.support_loss_weight < 0.0:
+            raise ValueError("support_loss_weight must be finite and non-negative")
+        if self.support_mode == "none" and self.support_loss_weight != 0.0:
+            raise ValueError("support_loss_weight must be zero when support_mode='none'")
+        if self.support_mode != "none" and self.support_loss_weight <= 0.0:
+            raise ValueError("an enabled support mode requires positive support_loss_weight")
         if isinstance(self.sh_degree, bool) or not isinstance(self.sh_degree, int):
             raise ValueError("sh_degree must be a non-negative integer")
         if self.sh_degree < 0 or self.sh_degree > 3:
@@ -274,6 +308,86 @@ def step_sample_seed(seed: int, step: int) -> int:
         raise ValueError("step must be a non-negative integer")
     payload = f"rtgs.compact-point.sample.v1\0{seed}\0{step}".encode()
     return int.from_bytes(hashlib.sha256(payload).digest()[:8], "little") & ((1 << 63) - 1)
+
+
+def support_sample_seed(seed: int, step: int) -> int:
+    """Return an isolated deterministic seed for support-row selection."""
+
+    if isinstance(seed, bool) or not isinstance(seed, int) or seed < 0:
+        raise ValueError("seed must be a non-negative integer")
+    if isinstance(step, bool) or not isinstance(step, int) or step < 0:
+        raise ValueError("step must be a non-negative integer")
+    payload = f"rtgs.compact-point.support.v1\0{seed}\0{step}".encode()
+    return int.from_bytes(hashlib.sha256(payload).digest()[:8], "little") & ((1 << 63) - 1)
+
+
+def _resolved_device(requested: str) -> torch.device:
+    return torch.device(
+        "cuda"
+        if requested == "auto" and torch.cuda.is_available()
+        else ("cpu" if requested == "auto" else requested)
+    )
+
+
+def compact_center_support_loss(
+    field: GaussianObservationField,
+    camera: Camera,
+    means: torch.Tensor,
+    row_indices: torch.Tensor,
+    *,
+    sigma: float,
+    near: float,
+    extent: float,
+    component_chunk: int,
+) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
+    """Soft visual-hull barrier from 2D Gaussian ellipses, without a mask bitmap.
+
+    The ellipse term uses the nearest untruncated teacher component, so centers outside all
+    renderer support rectangles still receive a gradient.  The near term prevents a projected
+    center from evading the ellipse criterion by crossing behind the camera.
+    """
+
+    if means.ndim != 2 or means.shape[1] != 3:
+        raise ValueError("means must have shape (N,3)")
+    if row_indices.ndim != 1 or row_indices.dtype != torch.long:
+        raise ValueError("row_indices must be a one-dimensional long tensor")
+    if row_indices.device != means.device:
+        raise ValueError("row_indices and means must share a device")
+    if row_indices.numel() == 0:
+        raise ValueError("support loss requires at least one selected row")
+    if int(row_indices.min()) < 0 or int(row_indices.max()) >= means.shape[0]:
+        raise IndexError("support row index is out of bounds")
+    for name, value in (("sigma", sigma), ("near", near), ("extent", extent)):
+        if not math.isfinite(value) or value <= 0.0:
+            raise ValueError(f"{name} must be finite and positive")
+
+    selected = means[row_indices]
+    xy, depth = camera.project(selected)
+    squared = field.minimum_mahalanobis_squared(
+        xy.to(dtype=field.dtype),
+        component_chunk=component_chunk,
+    )
+    normalized_violation = torch.relu(torch.sqrt(squared.clamp_min(1e-12)) - sigma) / sigma
+    near_violation = torch.relu((near - depth) / extent)
+    ellipse_loss = F.smooth_l1_loss(
+        normalized_violation,
+        torch.zeros_like(normalized_violation),
+        beta=1.0,
+    )
+    near_loss = F.smooth_l1_loss(
+        near_violation,
+        torch.zeros_like(near_violation),
+        beta=1.0,
+    )
+    return ellipse_loss + near_loss, {
+        "row_indices": row_indices.detach(),
+        "minimum_mahalanobis_squared": squared.detach(),
+        "normalized_violation": normalized_violation.detach(),
+        "depth": depth.detach(),
+        "near_violation": near_violation.detach(),
+        "ellipse_loss": ellipse_loss.detach(),
+        "near_loss": near_loss.detach(),
+    }
 
 
 def build_view_schedule(
@@ -1211,7 +1325,7 @@ class CompactTrainer:
         ``None`` defaults preserve the established fixed-topology path.
         """
         cfg = self.config
-        device = torch.device(cfg.device)
+        device = _resolved_device(cfg.device)
         if stop_after_step is not None and (
             isinstance(stop_after_step, bool)
             or not isinstance(stop_after_step, int)
@@ -1380,6 +1494,18 @@ class CompactTrainer:
             "uniform_fraction": self._effective_uniform_fraction(),
             "extent": extent,
             "extent_source": extent_source,
+            "support": {
+                "mode": cfg.support_mode,
+                "loss_weight": cfg.support_loss_weight,
+                "samples_per_step": cfg.support_samples_per_step,
+                "component_chunk": cfg.support_component_chunk,
+                "sigma": cfg.support_sigma,
+                "near": cfg.support_near,
+                "sample_seed_domain": "rtgs.compact-point.support.v1",
+                "opacity_independent": True,
+            },
+            "trainable_parameter_groups": [name for name in _GROUP_ORDER if lrs[name] > 0.0],
+            "frozen_parameter_groups": [name for name in _GROUP_ORDER if lrs[name] == 0.0],
             "n_init_3d": init.n,
             "n_opt_3d": init.n,
             "view_schedule": list(view_schedule),
@@ -1578,6 +1704,51 @@ class CompactTrainer:
                         height=camera.height,
                     )
 
+            support_record: dict[str, object] | None = None
+            support_weighted_loss = 0.0
+            if cfg.support_mode == "teacher_ellipse_center":
+                current_n = int(params["means"].shape[0])
+                support_count = min(cfg.support_samples_per_step, current_n)
+                support_seed = support_sample_seed(cfg.seed, step_index)
+                support_generator = torch.Generator(device=device).manual_seed(support_seed)
+                support_rows = torch.randperm(
+                    current_n,
+                    generator=support_generator,
+                    device=device,
+                )[:support_count]
+                support_loss, support_diagnostics = compact_center_support_loss(
+                    working_inputs.observations[view_index],
+                    working_inputs.cameras[view_index],
+                    params["means"],
+                    support_rows,
+                    sigma=cfg.support_sigma,
+                    near=cfg.support_near,
+                    extent=extent,
+                    component_chunk=cfg.support_component_chunk,
+                )
+                weighted_support = cfg.support_loss_weight * support_loss
+                if not bool(torch.isfinite(weighted_support)):
+                    raise RuntimeError("compact support loss is non-finite")
+                weighted_support.backward()
+                support_weighted_loss = float(weighted_support.detach())
+                violation = support_diagnostics["normalized_violation"]
+                near_violation = support_diagnostics["near_violation"]
+                support_record = {
+                    "sample_seed": support_seed,
+                    "sample_count": support_count,
+                    "row_indices_sha256": _tensor_sha256(support_diagnostics["row_indices"]),
+                    "minimum_mahalanobis_squared_sha256": _tensor_sha256(
+                        support_diagnostics["minimum_mahalanobis_squared"]
+                    ),
+                    "ellipse_loss": float(support_diagnostics["ellipse_loss"]),
+                    "near_loss": float(support_diagnostics["near_loss"]),
+                    "weighted_loss": support_weighted_loss,
+                    "violating_count": int((violation > 0).sum()),
+                    "behind_near_count": int((near_violation > 0).sum()),
+                    "normalized_violation_mean": float(violation.mean()),
+                    "normalized_violation_max": float(violation.max()),
+                }
+
             gradient_max = {}
             for name, parameter in params.items():
                 if parameter.grad is None:
@@ -1636,6 +1807,8 @@ class CompactTrainer:
                     "gaussian_rejected_count": int((gaussian_attempts & ~samples.active).sum()),
                     "visible_count": 0 if visible_count is None else visible_count,
                     "sampled_loss": detached_loss,
+                    "support": support_record,
+                    "total_sampled_loss": detached_loss + support_weighted_loss,
                     "importance_max": float(samples.importance.max()),
                     "importance_ess": ess,
                     "importance_ess_per_attempt": ess / cfg.attempts_per_step,
@@ -1840,7 +2013,7 @@ class CompactTrainer:
     ) -> dict:
         """Stream exact pixel risk and frozen four-offset area quadrature."""
         cfg = self.config
-        device = torch.device(cfg.device)
+        device = _resolved_device(cfg.device)
         if query_backends is not None and any(
             field.device != device for field in inputs.observations
         ):

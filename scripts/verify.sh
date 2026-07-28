@@ -19,4 +19,6 @@ echo "==> ara claim ledger"
 "$PY" scripts/check_ara.py
 echo "==> script layout"
 "$PY" scripts/check_script_layout.py
+echo "==> experiment contracts"
+"$PY" scripts/experiment_contract.py validate
 echo "==> verify OK"

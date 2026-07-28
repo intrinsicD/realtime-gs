@@ -9,7 +9,7 @@ repository tooling that every agent and CI run may need.
 |---|---|
 | Runs on every commit, or is part of `verify.sh` / CI | `scripts/` |
 | Reusable across experiments (migration, gallery rendering, a validator) | `scripts/` |
-| Drives one experiment, one protocol, or one dataset conversion | `scripts/experiments/` |
+| Drives one registered result-bearing experiment task | `scripts/experiments/<task_id>.py` |
 | Throwaway, never to be committed | the session scratchpad, not the repo |
 
 `scripts/check_script_layout.py` enforces this: any new top-level file in `scripts/` must be
@@ -33,8 +33,10 @@ satisfy a layout rule.
 
 ## Conventions for scripts here
 
-- Name the experiment: `<protocol>_<what>.py` (e.g. `iter2_depth_covariance_sweep.py`).
-- Put the exact invocation in the module docstring, and pin seeds.
-- Reference the `docs/EXPERIMENTS.md` entry or `benchmarks/results/` artifact the script
-  produced, so a reader can get from script to result and back.
+- Register `experiments/tasks/YYYYMMDD_<task_slug>_<data_slug>.json` before creating the script.
+- Name the script exactly `<task_id>.py`.
+- Put the exact invocation in the module docstring; the task pins seeds, splits, metrics, and
+  resource accounting.
+- Write only below `runs/<task_id>/`; use the shared experiment report renderer.
+- Reference the task, `docs/EXPERIMENTS.md` entry, and matching `benchmarks/results/` artifacts.
 - When the experiment closes, leave the script here. It is provenance, not clutter.

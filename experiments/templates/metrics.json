@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "report_template_version": 1,
+  "task_id": "REPLACE_WITH_TASK_ID",
+  "summary": "Replace with the result-first summary generated from exact saved metrics.",
+  "decision": "pending",
+  "claim_boundary": "Copy the frozen task claim_boundary exactly.",
+  "metrics": {
+    "example_metric": 0.0
+  },
+  "metric_metadata": {
+    "example_metric": {
+      "label": "Example metric",
+      "unit": "unit",
+      "group": "Quality",
+      "direction": "descriptive"
+    }
+  },
+  "charts": [
+    {
+      "id": "quality",
+      "title": "Quality",
+      "unit": "task metric",
+      "values": [
+        {
+          "label": "arm",
+          "value": 0.0
+        }
+      ]
+    },
+    {
+      "id": "resources",
+      "title": "Resource use",
+      "unit": "bytes",
+      "values": [
+        {
+          "label": "peak allocated",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "stage_runtime",
+      "title": "Stage runtime",
+      "unit": "seconds",
+      "values": [
+        {
+          "label": "total",
+          "value": 0.0
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "label": "Initial Gaussians",
+      "path": "gaussians_init.ply"
+    },
+    {
+      "label": "Final Gaussians",
+      "path": "gaussians.ply"
+    },
+    {
+      "label": "Training history",
+      "path": "training_history.json"
+    },
+    {
+      "label": "Effective configuration",
+      "path": "gaussians.config.json"
+    },
+    {
+      "label": "Input-boundary receipt",
+      "path": "input_boundary_receipt.json"
+    },
+    {
+      "label": "Resource receipt",
+      "path": "resource_receipt.json"
+    }
+  ],
+  "evidence": [
+    {
+      "label": "Result note",
+      "path": "benchmarks/results/REPLACE_WITH_TASK_ID_RESULT.md"
+    },
+    {
+      "label": "Machine result",
+      "path": "benchmarks/results/REPLACE_WITH_TASK_ID_RESULT.json"
+    },
+    {
+      "label": "Independent audit",
+      "path": "benchmarks/results/REPLACE_WITH_TASK_ID_AUDIT.md"
+    },
+    {
+      "label": "Machine audit",
+      "path": "benchmarks/results/REPLACE_WITH_TASK_ID_AUDIT.json"
+    }
+  ],
+  "viewer_command": [
+    ".venv/bin/rtgs",
+    "view",
+    "--gaussians",
+    "runs/REPLACE_WITH_TASK_ID/gaussians.ply",
+    "--initial",
+    "runs/REPLACE_WITH_TASK_ID/gaussians_init.ply",
+    "--no-open"
+  ],
+  "notes": [
+    "Replace this template; zeroes are examples, not results."
+  ]
+}

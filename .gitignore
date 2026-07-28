@@ -6,9 +6,14 @@ __pycache__/
 venv/
 .pytest_cache/
 .ruff_cache/
+.codex/
 build/
 dist/
-runs/
+runs/*
+!runs/README.md
+dataset/**/rgb/*
+dataset/**/mask/*
+.scratch/
 /external/
 *.ply
 *.npz

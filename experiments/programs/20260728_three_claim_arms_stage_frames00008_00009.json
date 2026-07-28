@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "program_id": "20260728_three_claim_arms_stage_frames00008_00009",
+  "date": "20260728",
+  "data_slug": "stage_frames00008_00009",
+  "title": "Compact reconstruction, Beam Fusion, and RGB-trained 3DGS program",
+  "report_template_version": 1,
+  "arms": {
+    "direct_compact": "20260728_vram_claim_stage_frames00008_00009",
+    "beam_fusion": "20260728_beam_fusion_claim_stage_frames00008_00009",
+    "rgb_3dgs": "20260728_rgb_3dgs_comparison_stage_frames00008_00009"
+  }
+}

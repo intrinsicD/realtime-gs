@@ -7,6 +7,31 @@ description: Run a research experiment on the pipeline (compare lifting variants
 
 This is a research repo — experiments are first-class and must be reproducible and logged.
 
+## Register the task before code or execution
+
+For every result-bearing experiment, first read `experiments/README.md` and create:
+
+`experiments/tasks/YYYYMMDD_<task_slug>_<data_slug>.json`
+
+Freeze the question, claim boundary, evidence phase, data paths/seal, camera splits, seeds, input
+policy, ordered stages, comparators, metrics, diagrams, resource scope, and exact argv command.
+Keep the task `draft` while any blocker remains. Validate it with:
+
+```bash
+.venv/bin/python scripts/experiment_contract.py validate
+.venv/bin/python scripts/experiment_contract.py validate-data experiments/tasks/<task_id>.json
+```
+
+Only a `ready` task may start. Initialize it with:
+
+```bash
+.venv/bin/python scripts/experiment_contract.py init-run experiments/tasks/<task_id>.json
+```
+
+The command refuses a dirty tracked worktree and an existing run root. A protocol change after
+initialization requires a new task id. Keep attempts under the one run root; never create
+`_v2`, `_final`, `_failed`, timestamp, or “latest” siblings.
+
 ## Running
 
 Quick comparisons on synthetic scenes (works on CPU):
@@ -15,6 +40,9 @@ Quick comparisons on synthetic scenes (works on CPU):
 .venv/bin/rtgs run --scene synthetic --lifter depth --refine-iters 200
 .venv/bin/rtgs bench --quick        # all variants side by side
 ```
+
+Without a registered task these are scratch diagnostics only: do not retain their output, log
+their numbers as an experiment, or use them in a claim.
 
 Every R&D branch must include a local calibrated-data interaction before handoff. The supplied
 object captures are directly loadable from `dataset/`; the loader preserves calibrated camera ids,
@@ -50,13 +78,19 @@ preview is qualitative; decision metrics and camera snapshots must come from the
 `Rasterizer` backend. Use Torch snapshots in the current shared environment; its editable
 GaussianImage `gsplat` fork is not the repository's modern 3D gsplat backend.
 
-Every official results-bearing output directory must also contain `index.html`. Generate it from
-the exact saved metrics and visual artifacts, use relative links, and include the protocol,
-summary, result/audit records, viewer manifest, comparison visuals, and saved models relevant to
-the experiment. Bind the page in the machine summary, serve it from the repository root, require
-HTTP 200 for the page and every local target, and preserve a smoke-test receipt. A JSON-only
-handoff is incomplete; synthetic mechanism/unit checks that do not claim an official result are
-exempt.
+Every official task produces `metrics.json` with the shared schema documented by
+`experiments/templates/metrics.json`. Generate the results page; do not hand-write it:
+
+```bash
+.venv/bin/python scripts/experiment_contract.py render runs/<task_id>
+.venv/bin/python scripts/experiment_contract.py check-run runs/<task_id>
+```
+
+The canonical page always carries the input boundary, pipeline diagram, grouped metrics, quality,
+resources, stage-runtime diagrams, provenance, artifacts, and viewer command. Use relative links,
+bind the page in the machine summary, serve it from the repository root, require HTTP 200 for the
+page and every local target, and preserve a smoke-test receipt. A JSON-only handoff is incomplete;
+synthetic mechanism/unit checks that do not claim an official result are exempt.
 
 Gate the bundle before reporting:
 
@@ -70,9 +104,9 @@ that a receipt records both the page smoke test and the exact `rtgs view` comman
 `--no-previews` only for a legitimately preview-free run. A bundle that does not pass is not a
 results-bearing run, and its numbers do not go in a handoff.
 
-For sweeps, write a short script under `benchmarks/` (or a throwaway in the scratchpad if
-it should not be kept) that calls `rtgs.pipeline.run_pipeline` directly with varying
-config, seeds fixed.
+Name a kept task-specific driver `scripts/experiments/<task_id>.py`. Reusable performance cases
+belong in `benchmarks/run.py`; a throwaway belongs in `.scratch/<task_id>/`. Do not add another
+claim-specific file at `benchmarks/` root and do not implement another HTML template.
 
 ## Logging (mandatory)
 
@@ -90,4 +124,4 @@ does *not* establish. Stage a not-yet-promoted finding as an `O<NN>` observation
 `ara/staging/observations.yaml` instead. `.venv/bin/python scripts/check_ara.py` verifies the
 structure; see the "Evidence and claims" section of CLAUDE.md.
 
-One-off sweep drivers go in `scripts/experiments/`, not the top level of `scripts/`.
+One-off task drivers go in `scripts/experiments/`, not the top level of `scripts/`.

@@ -1,11 +1,11 @@
-"""ADR-002 carrier repair on Beam Fusion's fixed contributor tracks.
+"""Compact carrier covariance repair on Beam Fusion's fixed contributor tracks.
 
 Beam Fusion provides useful 3D means and an explicit CSR mapping back to the fitted 2D Gaussian
-components.  This module matures those carriers *before* dense-image 3DGS optimization:
+components.  This module repairs those carriers before compact fixed-topology optimization:
 
 * covariance repair fits a Cholesky-parameterized SPD covariance to associated 2D footprints;
-* opacity repair fits optical density to associated 2D component amplitudes;
-* appearance repair computes a robust amplitude-weighted SH0 color and removes higher bands.
+* the default renderer-aware covariance repair matches the EWA-dilated projected footprint;
+* legacy opacity and appearance repairs remain callable research controls but default off.
 
 No phase discovers correspondences or changes means, contributor assignments, or topology.  The
 2D fitted amplitude is an experimental proxy for per-carrier opacity, not an identifiable physical
@@ -17,6 +17,7 @@ from __future__ import annotations
 import math
 import time
 from dataclasses import dataclass
+from typing import Literal
 
 import torch
 import torch.nn.functional as F
@@ -29,12 +30,17 @@ from rtgs.lift.beam_fusion import (
     _component_covariances_2d,
 )
 from rtgs.lift.compact_carve import _center_and_extent
+from rtgs.render.projection import EWA_DILATION
+
+CovarianceResidualMode = Literal["legacy_whitened", "renderer_log"]
+AppearanceWeightMode = Literal["amplitude", "uniform_view"]
 
 
 @dataclass(frozen=True)
 class CarrierRepairConfig:
     """Controls for the fixed-track carrier repair phases."""
 
+    # Accepted compact-carrier defaults: docs/EXPERIMENTS.md, 2026-07-28 stage/policy closure.
     covariance_steps: int = 120
     covariance_learning_rate: float = 0.03
     covariance_huber_delta: float = 0.25
@@ -51,8 +57,11 @@ class CarrierRepairConfig:
     appearance_irls_steps: int = 5
     appearance_huber_delta: float = 0.10
     repair_covariance: bool = True
-    repair_opacity: bool = True
-    repair_appearance: bool = True
+    repair_opacity: bool = False
+    repair_appearance: bool = False
+    covariance_residual_mode: CovarianceResidualMode = "renderer_log"
+    projection_dilation: float = EWA_DILATION
+    appearance_weight_mode: AppearanceWeightMode = "uniform_view"
 
     def __post_init__(self) -> None:
         for name in ("covariance_steps", "opacity_steps", "appearance_irls_steps"):
@@ -80,6 +89,19 @@ class CarrierRepairConfig:
             raise ValueError("max_aspect_ratio must be at least one")
         if not 0 < self.min_opacity < self.max_opacity < 1:
             raise ValueError("opacity bounds must satisfy 0 < min < max < 1")
+        if self.covariance_residual_mode not in {"legacy_whitened", "renderer_log"}:
+            raise ValueError("unknown covariance_residual_mode")
+        if not math.isfinite(self.projection_dilation) or self.projection_dilation < 0:
+            raise ValueError("projection_dilation must be finite and non-negative")
+        if self.appearance_weight_mode not in {"amplitude", "uniform_view"}:
+            raise ValueError("unknown appearance_weight_mode")
+        if (
+            self.covariance_residual_mode == "renderer_log"
+            and self.projection_dilation != EWA_DILATION
+        ):
+            raise ValueError(
+                "renderer_log covariance repair must use the point renderer's EWA dilation"
+            )
 
 
 @dataclass(frozen=True)
@@ -222,8 +244,21 @@ def _project_links(
 def covariance_reprojection_residuals(
     table: CarrierObservationTable,
     covariances: torch.Tensor,
+    *,
+    projection_dilation: float = 0.0,
+    mode: CovarianceResidualMode = "legacy_whitened",
 ) -> torch.Tensor:
-    """Observation-whitened RMS covariance residual for every contributor link."""
+    """Relative covariance residual for every contributor link.
+
+    ``legacy_whitened`` preserves ADR-002's historical asymmetric Frobenius residual.
+    ``renderer_log`` compares the actual EWA-rendered covariance with the target through
+    generalized log eigenvalues, making scalar expansion and contraction reciprocal.
+    """
+
+    if mode not in {"legacy_whitened", "renderer_log"}:
+        raise ValueError("unknown covariance residual mode")
+    if not math.isfinite(projection_dilation) or projection_dilation < 0:
+        raise ValueError("projection_dilation must be finite and non-negative")
 
     observed = table.covariances2d
     eigenvalues, eigenvectors = torch.linalg.eigh(observed)
@@ -232,7 +267,18 @@ def covariance_reprojection_residuals(
         @ torch.diag_embed(eigenvalues.clamp_min(1e-12).rsqrt())
         @ eigenvectors.transpose(-1, -2)
     )
-    normalized = inverse_sqrt @ _project_links(table, covariances) @ inverse_sqrt
+    projected = _project_links(table, covariances)
+    if projection_dilation:
+        projected = projected + projection_dilation * torch.eye(
+            2,
+            dtype=projected.dtype,
+            device=projected.device,
+        )
+    normalized = inverse_sqrt @ projected @ inverse_sqrt
+    normalized = 0.5 * (normalized + normalized.transpose(-1, -2))
+    if mode == "renderer_log":
+        eigenvalues = torch.linalg.eigvalsh(normalized).clamp_min(1e-30)
+        return eigenvalues.log().square().mean(dim=-1).sqrt()
     identity = torch.eye(2, dtype=normalized.dtype, device=normalized.device)
     return (normalized - identity).square().mean(dim=(-2, -1)).sqrt()
 
@@ -293,11 +339,19 @@ def refine_carrier_covariances(
     log_min_variance = math.log(config.min_sigma_world**2)
     log_max_variance = math.log(max_sigma**2)
 
-    before = covariance_reprojection_residuals(table, initial)
+    residual_kwargs = {
+        "projection_dilation": config.projection_dilation,
+        "mode": config.covariance_residual_mode,
+    }
+    before = covariance_reprojection_residuals(table, initial, **residual_kwargs)
     for step in range(config.covariance_steps):
         optimizer.zero_grad(set_to_none=True)
         covariances = _unpack_cholesky(parameters)
-        residual = covariance_reprojection_residuals(table, covariances)
+        residual = covariance_reprojection_residuals(
+            table,
+            covariances,
+            **residual_kwargs,
+        )
         data_loss = F.huber_loss(
             residual,
             torch.zeros_like(residual),
@@ -337,7 +391,7 @@ def refine_carrier_covariances(
         max_sigma=max_sigma,
         max_aspect_ratio=config.max_aspect_ratio,
     )
-    after = covariance_reprojection_residuals(table, fitted)
+    after = covariance_reprojection_residuals(table, fitted, **residual_kwargs)
     eigenvalues = torch.linalg.eigvalsh(fitted)
     output = _replace_covariances(base, fitted)
     if not (
@@ -351,6 +405,8 @@ def refine_carrier_covariances(
         "learning_rate": config.covariance_learning_rate,
         "huber_delta": config.covariance_huber_delta,
         "prior_weight": config.covariance_prior_weight,
+        "residual_mode": config.covariance_residual_mode,
+        "projection_dilation": config.projection_dilation,
         "min_sigma_world": config.min_sigma_world,
         "max_sigma_world": max_sigma,
         "max_aspect_ratio": config.max_aspect_ratio,
@@ -479,7 +535,11 @@ def refine_carrier_appearance(
 
     count = base.n
     color = sh_to_rgb(base.sh[:, 0]).to(torch.float64).clamp(0.0, 1.0)
-    base_weight = table.amplitudes.clamp_min(0.05)
+    base_weight = (
+        table.amplitudes.clamp_min(0.05)
+        if config.appearance_weight_mode == "amplitude"
+        else torch.ones_like(table.amplitudes)
+    )
     before = appearance_link_residuals(base, table)
     history: list[dict[str, float]] = []
     for step in range(config.appearance_irls_steps):
@@ -521,6 +581,7 @@ def refine_carrier_appearance(
     return output, {
         "irls_steps": config.appearance_irls_steps,
         "huber_delta": config.appearance_huber_delta,
+        "weight_mode": config.appearance_weight_mode,
         "rgb_link_residual_before": _quantiles(before),
         "rgb_link_residual_after": _quantiles(after),
         "higher_sh_bands": "disabled",

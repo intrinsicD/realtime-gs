@@ -1,19 +1,22 @@
-"""ADR-002 phased maturation schedule for Beam Fusion carrier Gaussians.
+"""Compact-only fixed-topology maturation for Beam Fusion carriers.
 
-The schedule deliberately separates representation repair from topology growth:
+The accepted carrier path never consumes RGB, masks, or :class:`SceneData`.  It optimizes
+rendered point samples against frozen fitted 2D Gaussian fields, removes centers outside the
+fitting-view fitted-Gaussian visual hull, and freezes means afterward so containment cannot be
+undone.
 
-1. fixed-topology SH0 warmup;
-2. protected-parent clone-only growth (or the explicit low-opacity particle variant);
-3. higher-order appearance with geometry and opacity frozen;
-4. ordinary 3DGS optimization after the carriers have stabilized.
+The bounded sequence is intentionally small:
 
-Classic density surgery emits an opt-in immutable record through :class:`Trainer`; the lineage
-tracker below uses it to measure original-carrier survival, descendant counts, displacement,
-covariance drift, and opacity drift at every phase boundary.
+1. degree-zero compact optimization with all parameter families trainable;
+2. strict projected-center containment in every input view; and
+3. degree-zero compact optimization with means frozen.
+
+There is no clone, split, insertion, densification, opacity reset, higher-SH phase, or free birth.
 """
 
 from __future__ import annotations
 
+import hashlib
 import math
 import time
 from dataclasses import dataclass, field, replace
@@ -21,96 +24,104 @@ from dataclasses import dataclass, field, replace
 import torch
 
 from rtgs.core.gaussians3d import Gaussians3D
-from rtgs.data.scene import SceneData
-from rtgs.optim.trainer import TrainConfig, Trainer
+from rtgs.data.reconstruction_inputs import ReconstructionInputs
+from rtgs.optim.compact_trainer import CompactTrainConfig, CompactTrainer
+from rtgs.render.projection import EWA_NEAR
+
+
+def _default_compact_template() -> CompactTrainConfig:
+    return CompactTrainConfig(
+        iterations=380,
+        attempts_per_step=256,
+        proposal_mode="area_gaussian",
+        schedule_mode="balanced_cycle",
+        target_mode="proposal_attempt",
+        uniform_fraction=0.25,
+        device="auto",
+        point_chunk=256,
+        gaussian_chunk=512,
+        outer_microbatch=128,
+        query_component_chunk=512,
+        teacher_tile_size=16,
+        evaluation_chunk=8192,
+        checkpoints=(0, 190, 380),
+        evaluate_checkpoint_risks=False,
+        sh_degree=0,
+        sh_color_activation="hard",
+        kernel_support_mode="hard",
+        visibility_margin_sigma=3.0,
+        support_mode="none",
+        support_loss_weight=0.0,
+    )
 
 
 @dataclass(frozen=True)
 class CarrierOptimizationConfig:
-    """Controls for the post-repair carrier-maturation schedule."""
+    """Controls for the audited compact-only carrier sequence.
 
-    warmup_iterations: int = 60
-    clone_iterations: int = 80
-    higher_sh_iterations: int = 40
-    standard_iterations: int = 120
-    clone_every: int = 20
-    clone_grad_threshold: float = 2e-4
-    clone_growth_factor: float = 2.0
-    clone_jitter_fraction: float = 0.10
-    clone_all: bool = False
-    clone_tangent_only: bool = False
-    particle_generation: bool = False
-    particle_child_opacity_scale: float = 0.20
-    particle_prune_opacity: float = 0.02
-    standard_every: int = 40
-    standard_growth_factor: float = 4.0
-    target_sh_degree: int = 3
-    template: TrainConfig = field(default_factory=TrainConfig)
+    ``template`` supplies learning rates, sampling cardinality, device, resource caps, and chunk
+    sizes.  The sequence fixes the proposal/risk semantics, degree-zero representation, phase-2
+    mean freeze, and absence of topology control.
+    """
+
+    # Frozen defaults selected by the three 2026-07-28 entries summarized in
+    # docs/EXPERIMENTS.md; changing them requires a new preregistered experiment.
+    phase1_iterations: int = 380
+    phase2_iterations: int = 380
+    containment_sigma: float = 3.0
+    containment_near: float = EWA_NEAR
+    containment_gaussian_chunk: int = 512
+    containment_component_chunk: int = 512
+    template: CompactTrainConfig = field(default_factory=_default_compact_template)
 
     def __post_init__(self) -> None:
-        for name in (
-            "warmup_iterations",
-            "clone_iterations",
-            "higher_sh_iterations",
-            "standard_iterations",
-        ):
-            value = getattr(self, name)
-            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
-                raise ValueError(f"{name} must be a non-negative integer")
-        for name in ("clone_every", "standard_every"):
+        for name in ("phase1_iterations", "phase2_iterations"):
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
                 raise ValueError(f"{name} must be a positive integer")
-        for name in (
-            "clone_growth_factor",
-            "standard_growth_factor",
-        ):
+        for name in ("containment_gaussian_chunk", "containment_component_chunk"):
             value = getattr(self, name)
-            if not math.isfinite(value) or value < 1:
-                raise ValueError(f"{name} must be finite and at least one")
-        if not math.isfinite(self.clone_grad_threshold) or self.clone_grad_threshold < 0:
-            raise ValueError("clone_grad_threshold must be finite and non-negative")
-        if not math.isfinite(self.clone_jitter_fraction) or self.clone_jitter_fraction < 0:
-            raise ValueError("clone_jitter_fraction must be finite and non-negative")
-        if not isinstance(self.clone_all, bool):
-            raise TypeError("clone_all must be bool")
-        if not isinstance(self.clone_tangent_only, bool):
-            raise TypeError("clone_tangent_only must be bool")
-        if (
-            not math.isfinite(self.particle_child_opacity_scale)
-            or not 0 < self.particle_child_opacity_scale <= 1
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                raise ValueError(f"{name} must be a positive integer")
+        for name in ("containment_sigma", "containment_near"):
+            value = getattr(self, name)
+            if not math.isfinite(value) or value <= 0:
+                raise ValueError(f"{name} must be finite and positive")
+        if self.containment_sigma != 3.0:
+            raise ValueError("compact carrier policy fixes containment_sigma=3.0")
+        if self.containment_near != EWA_NEAR:
+            raise ValueError(f"compact carrier policy fixes containment_near={EWA_NEAR}")
+        required = {
+            "proposal_mode": "area_gaussian",
+            "schedule_mode": "balanced_cycle",
+            "target_mode": "proposal_attempt",
+            "sh_degree": 0,
+            "sh_color_activation": "hard",
+            "kernel_support_mode": "hard",
+            "support_mode": "none",
+            "support_loss_weight": 0.0,
+        }
+        for name, expected in required.items():
+            if getattr(self.template, name) != expected:
+                raise ValueError(f"compact carrier template requires {name}={expected!r}")
+        for name in (
+            "lr_means",
+            "lr_quats",
+            "lr_scales",
+            "lr_opacity",
+            "lr_sh",
         ):
-            raise ValueError("particle_child_opacity_scale must be in (0,1]")
-        if (
-            not math.isfinite(self.particle_prune_opacity)
-            or not 0 <= self.particle_prune_opacity < 1
-        ):
-            raise ValueError("particle_prune_opacity must be in [0,1)")
-        if not 0 <= self.target_sh_degree <= 3:
-            raise ValueError("target_sh_degree must be between zero and three")
-        if not any(
-            (
-                self.warmup_iterations,
-                self.clone_iterations,
-                self.higher_sh_iterations,
-                self.standard_iterations,
-            )
-        ):
-            raise ValueError("the carrier schedule must contain at least one optimization step")
+            if getattr(self.template, name) <= 0:
+                raise ValueError(f"phase-1 compact carrier optimization requires positive {name}")
 
     @property
     def total_iterations(self) -> int:
-        return (
-            self.warmup_iterations
-            + self.clone_iterations
-            + self.higher_sh_iterations
-            + self.standard_iterations
-        )
+        return self.phase1_iterations + self.phase2_iterations
 
 
 @dataclass(frozen=True)
 class CarrierOptimizationResult:
-    """Final model and complete phase/lineage diagnostics."""
+    """Final carrier model plus compact phase and containment receipts."""
 
     gaussians: Gaussians3D
     phase_histories: dict[str, dict]
@@ -118,292 +129,291 @@ class CarrierOptimizationResult:
     diagnostics: dict[str, object]
 
 
-def _quantiles(values: torch.Tensor) -> dict[str, float] | None:
-    values = values.detach().to(torch.float64).reshape(-1)
-    if values.numel() == 0:
-        return None
-    return {
-        "mean": float(values.mean()),
-        "median": float(values.median()),
-        "p90": float(values.quantile(0.90)),
-        "max": float(values.max()),
-    }
+def _resolved_device(requested: str) -> torch.device:
+    return torch.device(
+        "cuda"
+        if requested == "auto" and torch.cuda.is_available()
+        else ("cpu" if requested == "auto" else requested)
+    )
 
 
-class CarrierLineageTracker:
-    """Track original carriers and descendants across classic density surgery."""
-
-    def __init__(self, initial: Gaussians3D):
-        self.initial_n = initial.n
-        self.initial_means = initial.means.detach().cpu().to(torch.float64)
-        self.initial_covariances = initial.covariance().detach().cpu().to(torch.float64)
-        self.initial_opacity = initial.opacity.detach().cpu().to(torch.float64)
-        self.root_ids = torch.arange(initial.n, dtype=torch.int64)
-        self.generations = torch.zeros(initial.n, dtype=torch.int64)
-        self.surgeries: list[dict[str, int]] = []
-
-    def apply_surgery(
-        self,
-        keep_mask: torch.Tensor,
-        parent_rows: torch.Tensor,
-        iteration: int,
-    ) -> None:
-        """Replay one survivors-then-newborns row edit."""
-
-        keep = keep_mask.detach().cpu().to(torch.bool)
-        parents = parent_rows.detach().cpu().to(torch.int64)
-        if keep.shape != self.root_ids.shape:
-            raise RuntimeError("lineage keep mask does not match the current carrier rows")
-        if parents.numel() and (
-            int(parents.min()) < 0 or int(parents.max()) >= self.root_ids.numel()
-        ):
-            raise RuntimeError("lineage parent row is out of bounds")
-        old_roots = self.root_ids
-        old_generations = self.generations
-        self.root_ids = torch.cat([old_roots[keep], old_roots[parents]])
-        self.generations = torch.cat([old_generations[keep], old_generations[parents] + 1])
-        self.surgeries.append(
-            {
-                "iteration": int(iteration),
-                "n_before": int(keep.numel()),
-                "n_after": int(self.root_ids.numel()),
-                "removed": int((~keep).sum()),
-                "newborns": int(parents.numel()),
-            }
-        )
-
-    def snapshot(self, name: str, gaussians: Gaussians3D, iteration: int) -> dict[str, object]:
-        """Summarize mechanism state at one phase boundary."""
-
-        if gaussians.n != self.root_ids.numel():
-            raise RuntimeError("lineage state and Gaussian row count disagree")
-        means = gaussians.means.detach().cpu().to(torch.float64)
-        covariances = gaussians.covariance().detach().cpu().to(torch.float64)
-        opacity = gaussians.opacity.detach().cpu().to(torch.float64)
-        roots = self.root_ids
-        generation_zero = self.generations == 0
-        surviving_root = roots[generation_zero]
-        original_displacement = (
-            (means[generation_zero] - self.initial_means[surviving_root]).norm(dim=-1)
-            if bool(generation_zero.any())
-            else means.new_empty(0)
-        )
-        all_displacement = (means - self.initial_means[roots]).norm(dim=-1)
-        original_logdet_drift = (
-            (
-                torch.linalg.slogdet(covariances[generation_zero]).logabsdet
-                - torch.linalg.slogdet(self.initial_covariances[surviving_root]).logabsdet
-            ).abs()
-            if bool(generation_zero.any())
-            else means.new_empty(0)
-        )
-        original_opacity_drift = (
-            (opacity[generation_zero] - self.initial_opacity[surviving_root]).abs()
-            if bool(generation_zero.any())
-            else opacity.new_empty(0)
-        )
-        descendant_counts = torch.bincount(roots, minlength=self.initial_n)
-        return {
-            "phase": name,
-            "iteration": int(iteration),
-            "n_gaussians": gaussians.n,
-            "surviving_original_carriers": int(generation_zero.sum()),
-            "carrier_survival_rate": float(generation_zero.sum() / self.initial_n),
-            "roots_with_any_descendant": int((descendant_counts > 0).sum()),
-            "roots_with_any_descendant_rate": float((descendant_counts > 0).sum() / self.initial_n),
-            "newborn_rows": int((self.generations > 0).sum()),
-            "max_generation": int(self.generations.max()) if self.generations.numel() else 0,
-            "descendants_per_root": _quantiles(descendant_counts),
-            "original_mean_displacement": _quantiles(original_displacement),
-            "all_rows_displacement_from_root": _quantiles(all_displacement),
-            "original_covariance_abs_logdet_drift": _quantiles(original_logdet_drift),
-            "original_opacity_abs_drift": _quantiles(original_opacity_drift),
-            "opacity": _quantiles(opacity),
-        }
-
-
-def _density_maximum(initial_n: int, factor: float) -> int:
-    return max(initial_n, int(math.ceil(initial_n * factor)))
+def _checkpoints(iterations: int) -> tuple[int, ...]:
+    return tuple(sorted({0, iterations // 2, iterations}))
 
 
 def _phase_config(
-    schedule: CarrierOptimizationConfig,
+    config: CarrierOptimizationConfig,
     *,
-    name: str,
-    iterations: int,
-    offset: int,
-    initial_carriers: int,
-) -> TrainConfig:
-    template = schedule.template
-    common = {
-        "iterations": iterations,
-        "iteration_offset": offset,
-        "schedule_iterations": schedule.total_iterations,
-        "device": template.device,
-        "rasterizer": template.rasterizer,
-        "eval_every": min(template.eval_every, iterations),
-        "checkpoint_policy": "final",
-        "seed": template.seed + offset,
+    phase: int,
+) -> CompactTrainConfig:
+    if phase not in {1, 2}:
+        raise ValueError("carrier phase must be one or two")
+    iterations = config.phase1_iterations if phase == 1 else config.phase2_iterations
+    return replace(
+        config.template,
+        iterations=iterations,
+        checkpoints=_checkpoints(iterations),
+        # The audited paired-root policy used an isolated +1000 phase-2 RNG domain.
+        seed=config.template.seed + (phase - 1) * 1000,
+        lr_means=config.template.lr_means if phase == 1 else 0.0,
+        lr_sh_rest=0.0,
+        sh_degree=0,
+        support_mode="none",
+        support_loss_weight=0.0,
+    )
+
+
+def _tensor_sha256(value: torch.Tensor) -> str:
+    tensor = value.detach().cpu().contiguous()
+    digest = hashlib.sha256()
+    digest.update(str(tensor.dtype).encode())
+    digest.update(str(tuple(tensor.shape)).encode())
+    digest.update(tensor.numpy().tobytes())
+    return digest.hexdigest()
+
+
+def _compact_geometry_inputs(
+    inputs: ReconstructionInputs,
+    device: torch.device,
+) -> ReconstructionInputs:
+    return ReconstructionInputs(
+        observations=[
+            field if field.device == device else field.to(device) for field in inputs.observations
+        ],
+        cameras=[
+            camera if camera.R.device == device and camera.t.device == device else camera.to(device)
+            for camera in inputs.cameras
+        ],
+        view_names=list(inputs.view_names),
+        bounds_hint=None,
+        name=f"{inputs.name}-containment",
+    )
+
+
+def prune_carrier_centers(
+    inputs: ReconstructionInputs,
+    gaussians: Gaussians3D,
+    *,
+    sigma: float = 3.0,
+    near: float = EWA_NEAR,
+    gaussian_chunk: int = 512,
+    component_chunk: int = 512,
+    device: str = "auto",
+) -> tuple[Gaussians3D, dict[str, object]]:
+    """Remove centers outside any input-view fitted-Gaussian support union.
+
+    A row is retained only when its projected center has positive depth and nearest-component
+    Mahalanobis distance at most ``sigma`` in every input view.  This proves projected-center
+    membership in the fitted-view Gaussian visual hull; it does not prove physical surface
+    occupancy or constrain the full infinite-support Gaussian footprint.
+    """
+
+    inputs.validate()
+    if gaussians.n <= 0:
+        raise ValueError("carrier containment requires at least one Gaussian")
+    for name, value in (("sigma", sigma), ("near", near)):
+        if not math.isfinite(value) or value <= 0:
+            raise ValueError(f"{name} must be finite and positive")
+    for name, value in (
+        ("gaussian_chunk", gaussian_chunk),
+        ("component_chunk", component_chunk),
+    ):
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise ValueError(f"{name} must be a positive integer")
+
+    target_device = _resolved_device(device)
+    working_inputs = _compact_geometry_inputs(inputs, target_device)
+    model = gaussians.to(target_device)
+    keep = torch.ones(model.n, dtype=torch.bool, device=target_device)
+    violating_view_count = torch.zeros(
+        model.n,
+        dtype=torch.int64,
+        device=target_device,
+    )
+    per_view: list[dict[str, object]] = []
+    threshold = sigma * sigma
+    with torch.no_grad():
+        for view_name, field, camera in zip(
+            working_inputs.view_names,
+            working_inputs.observations,
+            working_inputs.cameras,
+            strict=True,
+        ):
+            squared_parts: list[torch.Tensor] = []
+            depth_parts: list[torch.Tensor] = []
+            for start in range(0, model.n, gaussian_chunk):
+                end = min(start + gaussian_chunk, model.n)
+                xy, depth = camera.project(model.means[start:end])
+                squared_parts.append(
+                    field.minimum_mahalanobis_squared(
+                        xy.to(dtype=field.dtype),
+                        component_chunk=component_chunk,
+                    )
+                )
+                depth_parts.append(depth)
+            squared = torch.cat(squared_parts)
+            depth = torch.cat(depth_parts)
+            valid = (squared <= threshold) & (depth > near)
+            keep &= valid
+            violating_view_count += ~valid
+            per_view.append(
+                {
+                    "view_name": view_name,
+                    "outside_rows": int((squared > threshold).sum()),
+                    "behind_near_rows": int((depth <= near).sum()),
+                    "minimum_q_max": float(squared.max()),
+                }
+            )
+    if not bool(keep.any()):
+        raise RuntimeError("strict carrier containment removed every Gaussian")
+
+    output = model.subset(keep).to(gaussians.means.device)
+    removed_rows = (~keep).nonzero(as_tuple=True)[0].detach().cpu()
+    receipt = {
+        "schema": "rtgs.compact-carrier-containment.v1",
+        "criterion": (
+            "positive depth and nearest positive-amplitude fitted 2D Gaussian "
+            f"Mahalanobis q<={threshold:g} in every input view"
+        ),
+        "n_before": model.n,
+        "n_after": output.n,
+        "removed": int(removed_rows.numel()),
+        "removed_fraction": float((~keep).float().mean()),
+        "removed_rows": removed_rows.tolist(),
+        "keep_mask_sha256": _tensor_sha256(keep),
+        "violating_view_count_sha256": _tensor_sha256(violating_view_count),
+        "max_violating_views_before": int(violating_view_count.max()),
+        "sigma": sigma,
+        "near": near,
+        "input_views": inputs.n_views,
+        "per_view_before": per_view,
+        "projected_center_containment_after": True,
+        "surface_occupancy_proven": False,
+        "interior_visual_hull_floaters_detected": False,
     }
-    if name == "warmup":
-        return replace(
-            template,
-            **common,
-            densify=False,
-            target_sh_degree=0,
-        )
-    if name == "clone":
-        particle = schedule.particle_generation
-        density = replace(
-            template.density,
-            start_iter=offset + 1,
-            stop_iter=offset + iterations,
-            every=schedule.clone_every,
-            grad_threshold=schedule.clone_grad_threshold,
-            max_gaussians=_density_maximum(
-                initial_carriers,
-                schedule.clone_growth_factor,
-            ),
-            opacity_reset_every=0,
-            clone_only=True,
-            clone_all=schedule.clone_all,
-            clone_jitter_fraction=(
-                max(schedule.clone_jitter_fraction, 0.25)
-                if particle
-                else schedule.clone_jitter_fraction
-            ),
-            clone_tangent_only=schedule.clone_tangent_only,
-            clone_child_opacity_scale=(schedule.particle_child_opacity_scale if particle else 1.0),
-            prune_opacity=(
-                schedule.particle_prune_opacity if particle else template.density.prune_opacity
-            ),
-            protect_first_n=initial_carriers,
-        )
-        return replace(
-            template,
-            **common,
-            densify=True,
-            density_strategy="classic",
-            density=density,
-            target_sh_degree=0,
-        )
-    if name == "higher-sh":
-        return replace(
-            template,
-            **common,
-            densify=False,
-            lr_means=0.0,
-            lr_quats=0.0,
-            lr_scales=0.0,
-            lr_opacity=0.0,
-            target_sh_degree=schedule.target_sh_degree,
-            sh_degree_interval=1,
-        )
-    if name == "standard":
-        density = replace(
-            template.density,
-            start_iter=offset + 1,
-            stop_iter=offset + iterations,
-            every=schedule.standard_every,
-            max_gaussians=_density_maximum(
-                initial_carriers,
-                schedule.standard_growth_factor,
-            ),
-            clone_only=False,
-            clone_all=False,
-            clone_jitter_fraction=0.0,
-            clone_tangent_only=False,
-            clone_child_opacity_scale=1.0,
-            protect_first_n=0,
-        )
-        return replace(
-            template,
-            **common,
-            densify=True,
-            density_strategy="classic",
-            density=density,
-            target_sh_degree=schedule.target_sh_degree,
-            sh_degree_interval=1,
-        )
-    raise ValueError(f"unknown carrier phase {name!r}")
+    return output, receipt
+
+
+def _phase_resources(device: torch.device) -> dict[str, int] | None:
+    if device.type != "cuda":
+        return None
+    torch.cuda.synchronize(device)
+    return {
+        "peak_allocated_bytes": torch.cuda.max_memory_allocated(device),
+        "peak_reserved_bytes": torch.cuda.max_memory_reserved(device),
+    }
 
 
 def optimize_carriers(
-    scene: SceneData,
+    inputs: ReconstructionInputs,
     initialization: Gaussians3D,
     config: CarrierOptimizationConfig | None = None,
 ) -> CarrierOptimizationResult:
-    """Run the complete ADR-002 phased carrier-maturation schedule."""
+    """Run the complete image-free, fixed-topology carrier sequence."""
 
     config = config or CarrierOptimizationConfig()
-    scene.validate()
+    inputs.validate()
+    if initialization.n <= 0:
+        raise ValueError("carrier optimization requires at least one Gaussian")
+    if any(field.sigma_cutoff != config.containment_sigma for field in inputs.observations):
+        raise ValueError("compact carrier policy requires three-sigma fitted 2D Gaussian fields")
+    device = _resolved_device(config.template.device)
     current = initialization.with_sh_degree(0)
-    tracker = CarrierLineageTracker(current)
+    phase_snapshots: dict[str, Gaussians3D] = {"initial": current.detach().to("cpu")}
     phase_histories: dict[str, dict] = {}
-    phase_snapshots: dict[str, Gaussians3D] = {"repaired": current.detach()}
-    boundaries: list[dict[str, object]] = [tracker.snapshot("repaired", current, 0)]
     phase_seconds: dict[str, float] = {}
-    offset = 0
-    phase_specs = (
-        ("warmup", config.warmup_iterations),
-        ("clone", config.clone_iterations),
-        ("higher-sh", config.higher_sh_iterations),
-        ("standard", config.standard_iterations),
-    )
-    for name, iterations in phase_specs:
-        if iterations == 0:
-            continue
-        phase_config = _phase_config(
-            config,
-            name=name,
-            iterations=iterations,
-            offset=offset,
-            initial_carriers=initialization.n,
-        )
-        started = time.perf_counter()
-        current, history = Trainer(phase_config).train(
-            scene,
-            current,
-            density_surgery_callback=tracker.apply_surgery,
-        )
-        phase_seconds[name] = time.perf_counter() - started
-        offset += iterations
-        phase_histories[name] = history
-        phase_snapshots[name] = current.detach()
-        boundaries.append(tracker.snapshot(name, current, offset))
+    phase_resources: dict[str, dict[str, int] | None] = {}
 
-    peak_vram = max(
-        (float(history.get("peak_vram_gb", 0.0)) for history in phase_histories.values()),
-        default=0.0,
+    phase1_config = _phase_config(config, phase=1)
+    if device.type == "cuda":
+        torch.cuda.empty_cache()
+        torch.cuda.reset_peak_memory_stats(device)
+    started = time.perf_counter()
+    current, phase1_history = CompactTrainer(phase1_config).train(inputs, current)
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+    phase_seconds["phase1"] = time.perf_counter() - started
+    phase_resources["phase1"] = _phase_resources(device)
+    phase_histories["phase1"] = phase1_history
+    phase_snapshots["phase1"] = current.detach().to("cpu")
+    if phase1_history["n_init_3d"] != phase1_history["n_opt_3d"]:
+        raise RuntimeError("compact carrier phase 1 changed topology")
+
+    started = time.perf_counter()
+    contained, containment = prune_carrier_centers(
+        inputs,
+        current,
+        sigma=config.containment_sigma,
+        near=config.containment_near,
+        gaussian_chunk=config.containment_gaussian_chunk,
+        component_chunk=config.containment_component_chunk,
+        device=config.template.device,
     )
-    peak_reserved = max(
-        (float(history.get("peak_vram_reserved_gb", 0.0)) for history in phase_histories.values()),
-        default=0.0,
+    phase_seconds["containment"] = time.perf_counter() - started
+    phase_snapshots["contained"] = contained.detach().to("cpu")
+
+    phase2_config = _phase_config(config, phase=2)
+    if phase2_config.lr_means != 0.0:
+        raise RuntimeError("carrier phase 2 must freeze means")
+    if device.type == "cuda":
+        torch.cuda.empty_cache()
+        torch.cuda.reset_peak_memory_stats(device)
+    started = time.perf_counter()
+    final, phase2_history = CompactTrainer(phase2_config).train(inputs, contained)
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+    phase_seconds["phase2"] = time.perf_counter() - started
+    phase_resources["phase2"] = _phase_resources(device)
+    phase_histories["phase2"] = phase2_history
+    phase_snapshots["phase2"] = final.detach().to("cpu")
+    if phase2_history["n_init_3d"] != phase2_history["n_opt_3d"]:
+        raise RuntimeError("compact carrier phase 2 changed topology")
+    if phase2_history["optimizer_group_motion"]["means"]["max_abs"] != 0.0:
+        raise RuntimeError("carrier phase 2 moved frozen means")
+
+    rechecked, containment_recheck = prune_carrier_centers(
+        inputs,
+        final,
+        sigma=config.containment_sigma,
+        near=config.containment_near,
+        gaussian_chunk=config.containment_gaussian_chunk,
+        component_chunk=config.containment_component_chunk,
+        device=config.template.device,
     )
+    if containment_recheck["removed"] != 0 or rechecked.n != final.n:
+        raise RuntimeError("carrier phase 2 violated projected-center containment")
+
     return CarrierOptimizationResult(
-        gaussians=current.detach(),
+        gaussians=final.detach(),
         phase_histories=phase_histories,
         phase_snapshots=phase_snapshots,
         diagnostics={
-            "schema": "rtgs.carrier-optimization.v1",
+            "schema": "rtgs.compact-carrier-optimization.v2",
+            "supervision": "fitted_2d_gaussian_fields_only",
+            "source_rgb_used": False,
+            "source_masks_used": False,
+            "packed_alpha_used": False,
+            "fixed_topology_within_each_phase": True,
+            "topology_growth": False,
             "initial_carriers": initialization.n,
-            "total_iterations": offset,
-            "particle_generation": config.particle_generation,
+            "contained_carriers": contained.n,
+            "final_carriers": final.n,
+            "total_iterations": config.total_iterations,
             "phase_seconds": phase_seconds,
             "total_seconds": sum(phase_seconds.values()),
-            "peak_vram_gb": peak_vram,
-            "peak_vram_reserved_gb": peak_reserved,
-            "phase_boundaries": boundaries,
-            "density_surgeries": tracker.surgeries,
-            "final_root_ids": tracker.root_ids.tolist(),
-            "final_generations": tracker.generations.tolist(),
+            "phase_resources": phase_resources,
+            "containment": containment,
+            "containment_recheck": containment_recheck,
+            "phase2_means_frozen_bit_exact": True,
+            "projected_center_containment": True,
+            "surface_occupancy_proven": False,
         },
     )
 
 
 __all__ = [
-    "CarrierLineageTracker",
     "CarrierOptimizationConfig",
     "CarrierOptimizationResult",
     "optimize_carriers",
+    "prune_carrier_centers",
 ]

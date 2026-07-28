@@ -2189,3 +2189,65 @@ observations:
     promoted_to: "logic/claims.md:C28"
     crystallized_via: artifact-commitment
     stale: false
+  - id: O141
+    timestamp: "2026-07-28T10:58+02:00"
+    provenance: ai-executed
+    content: >
+      A convergence-gated carrier-maturation process can complete end to end without satisfying
+      its own convergence-between-stages contract. In the exact all-26-view V2 development run,
+      fixed topology and final standard settle reached their frozen train-PSNR plateaus, while
+      clone recoveries 1 through 3 and higher-SH each exhausted the full 15,000-update safety cap
+      with plateau.converged false. The run still emitted a coherent 100,000-Gaussian all-fitted
+      endpoint after 128,000 updates, so artifact completion and reconstruction quality must be
+      reported separately from process convergence.
+    context: >
+      Independent scientist audit N170 over canonical experiment N169; 22/22 machine invariants,
+      all 53 results-page targets, the interactive comparison viewer, and the formal result-bundle
+      gate pass. Scope remains one outcome-exposed scene, one seed, and no held-out cameras or
+      matched causal controls.
+    potential_type: constraint
+    bound_to: [N169, N170]
+    promoted: true
+    promoted_to: "logic/claims.md:C29"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O142
+    timestamp: "2026-07-28T13:42+02:00"
+    provenance: ai-executed
+    content: >
+      The compact carrier stage ablations reject the old repair chain and means-only refinement.
+      The old covariance residual omitted the renderer's 0.3-pixel EWA dilation and was asymmetric
+      under scale inversion; legacy opacity and appearance inference use normalized fitted-mixture
+      amplitudes that do not identify physical 3D alpha across views. A renderer-aware symmetric
+      log-eigenvalue covariance residual followed by all-family compact SH0 refinement is the only
+      tested repair/refinement combination that passes the frozen development gates.
+    context: >
+      Three paired roots on one outcome-exposed all-fitted-view scene, independently audited with
+      scope limits. The result selects a development implementation policy, not cross-scene
+      quality, production readiness, or a general VRAM claim.
+    potential_type: constraint
+    bound_to: [N171, N172]
+    promoted: true
+    promoted_to: "logic/claims.md:C30"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O143
+    timestamp: "2026-07-28T13:42+02:00"
+    provenance: ai-executed
+    content: >
+      The accepted carrier path can be made structurally compact-only and can exactly preserve a
+      fitting-view projected-center invariant: Beam Fusion with at least three contributors,
+      corrected covariance repair, one all-family fixed-topology phase, strict q<=9 and
+      positive-depth pruning in every fitting view, then a fixed-topology phase with means frozen.
+      This removes outside-visual-hull centers without source RGB, masks, packed alpha, SceneData,
+      a dense trainer, or topology growth.
+    context: >
+      Source-sealed policy-closure and sequence-interaction experiments plus import/signature/
+      invariant tests. The criterion cannot detect floaters inside the multi-view visual hull,
+      prove surface occupancy, or contain the infinite support of a whole mathematical Gaussian.
+    potential_type: constraint
+    bound_to: [N171, N172]
+    promoted: true
+    promoted_to: "logic/claims.md:C31"
+    crystallized_via: artifact-commitment
+    stale: false

@@ -149,7 +149,7 @@ def test_covariance_intersection_is_never_overconfident_but_naive_product_is(mon
     gt_cov = (torch.eye(3, dtype=torch.float64) * 4e-4)[None]
     gt_colors = torch.tensor([[0.6, 0.3, 0.2]], dtype=torch.float64)
     inputs = _build_inputs(gt_means, gt_cov, gt_colors, cameras)
-    config = BeamFusionConfig(min_views=5)
+    config = BeamFusionConfig(min_views=5, max_components=None)
     gt_eigen = torch.linalg.eigvalsh(gt_cov[0])
 
     ci = fuse_gaussian_beams(inputs, config)

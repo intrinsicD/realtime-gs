@@ -1,0 +1,579 @@
+{
+  "analysis": {
+    "comparisons": {
+      "post_joint_sh3": {
+        "J_Q": {
+          "geometric": 0.9769721846379797,
+          "per_seed": [
+            0.9794831040633525,
+            0.9773858845567441,
+            0.974055237257425
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.9920385017632959,
+          "per_seed": [
+            0.9916281688258399,
+            0.9932764132898504,
+            0.9912121241610026
+          ],
+          "wins": 3
+        }
+      },
+      "post_joint_vs_separate": {
+        "J_Q": {
+          "geometric": 1.0012922132577184,
+          "per_seed": [
+            0.985761946873541,
+            1.0104837457383824,
+            1.0078157362096005
+          ],
+          "wins": 1
+        },
+        "J_U": {
+          "geometric": 1.0030967046785162,
+          "per_seed": [
+            1.0011670725396407,
+            1.006759726389614,
+            1.0013733275254793
+          ],
+          "wins": 0
+        }
+      },
+      "post_prune_vs_unpruned": {
+        "J_Q": {
+          "geometric": 1.0382899894025575,
+          "per_seed": [
+            1.048249178122935,
+            1.012940657200603,
+            1.0541622667157993
+          ],
+          "wins": 0
+        },
+        "J_U": {
+          "geometric": 1.0229168707604974,
+          "per_seed": [
+            1.0284372513719564,
+            1.0027175479783013,
+            1.0379217429143246
+          ],
+          "wins": 0
+        }
+      },
+      "post_separate_sh3": {
+        "J_Q": {
+          "geometric": 0.9757113574861299,
+          "per_seed": [
+            0.9936304674469302,
+            0.9672455283707182,
+            0.9665013179104062
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.9889759353573349,
+          "per_seed": [
+            0.9904722159013843,
+            0.9866072184391834,
+            0.9898527321577595
+          ],
+          "wins": 3
+        }
+      },
+      "pre_joint_sh3": {
+        "J_Q": {
+          "geometric": 0.9769953473601604,
+          "per_seed": [
+            0.9830332224863855,
+            0.9756334284717847,
+            0.9723500007206832
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.9920648074150579,
+          "per_seed": [
+            0.9928744017657498,
+            0.9934628378407745,
+            0.9898609484918094
+          ],
+          "wins": 3
+        }
+      },
+      "pre_joint_vs_separate": {
+        "J_Q": {
+          "geometric": 1.0068867968717716,
+          "per_seed": [
+            0.9994155802549031,
+            1.0104641275918618,
+            1.0108225512913704
+          ],
+          "wins": 1
+        },
+        "J_U": {
+          "geometric": 1.0048636799603314,
+          "per_seed": [
+            1.0041153173338797,
+            1.0068719529398746,
+            1.0036068392209385
+          ],
+          "wins": 0
+        }
+      },
+      "pre_prune_vs_post_prune": {
+        "J_Q": {
+          "geometric": 0.9890086044859872,
+          "per_seed": [
+            0.9979581425402306,
+            0.993343375265282,
+            0.9758621738480122
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.9936105943856053,
+          "per_seed": [
+            0.9914923546350335,
+            1.001317136164628,
+            0.9880697928012664
+          ],
+          "wins": 2
+        }
+      },
+      "pre_prune_vs_unpruned": {
+        "J_Q": {
+          "geometric": 1.026877733470794,
+          "per_seed": [
+            1.0461088027188878,
+            1.00619789136708,
+            1.0287170811858282
+          ],
+          "wins": 0
+        },
+        "J_U": {
+          "geometric": 1.0163810399634012,
+          "per_seed": [
+            1.019687671957163,
+            1.0040382635236504,
+            1.025539121465286
+          ],
+          "wins": 0
+        }
+      },
+      "pre_separate_sh3": {
+        "J_Q": {
+          "geometric": 0.9703129988351431,
+          "per_seed": [
+            0.9836080624595234,
+            0.9655299993646627,
+            0.961939362629438
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.9872630757778221,
+          "per_seed": [
+            0.9888051547724849,
+            0.9866824028021159,
+            0.9863035103070844
+          ],
+          "wins": 3
+        }
+      }
+    },
+    "containment": {
+      "phase2_sh3_joint_then_prune": {
+        "fit_behind_near_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "fit_outside_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "removed_fraction": [
+          0.053199999034404755,
+          0.053599998354911804,
+          0.05419999733567238
+        ]
+      },
+      "prune_then_phase2_d0": {
+        "fit_behind_near_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "fit_outside_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "removed_fraction": [
+          0.053199999034404755,
+          0.053599998354911804,
+          0.05419999733567238
+        ]
+      },
+      "prune_then_phase2_d0_then_sh3": {
+        "fit_behind_near_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "fit_outside_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "removed_fraction": [
+          0.053199999034404755,
+          0.053599998354911804,
+          0.05419999733567238
+        ]
+      },
+      "prune_then_phase2_sh3_joint": {
+        "fit_behind_near_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "fit_outside_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "removed_fraction": [
+          0.053199999034404755,
+          0.053599998354911804,
+          0.05419999733567238
+        ]
+      },
+      "unpruned_phase2_d0_then_prune": {
+        "fit_behind_near_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "fit_outside_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "removed_fraction": [
+          0.053199999034404755,
+          0.053599998354911804,
+          0.05419999733567238
+        ]
+      },
+      "unpruned_phase2_d0_then_sh3_then_prune": {
+        "fit_behind_near_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "fit_outside_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "removed_fraction": [
+          0.053199999034404755,
+          0.053599998354911804,
+          0.05419999733567238
+        ]
+      }
+    },
+    "decisions": {
+      "containment_order": "pre",
+      "joint_sh3_material": false,
+      "post_phase2_prune_viable": true,
+      "pre_phase2_prune_viable": true,
+      "selected_arm": "prune_then_phase2_d0",
+      "separate_sh3_material": false,
+      "sh_choice": "none"
+    },
+    "validation_ranking": [
+      "unpruned_phase2_d0_then_sh3",
+      "phase2_sh3_joint_unpruned",
+      "prune_then_phase2_d0_then_sh3",
+      "unpruned_phase2_d0",
+      "prune_then_phase2_sh3_joint",
+      "unpruned_phase2_d0_then_sh3_then_prune",
+      "phase2_sh3_joint_then_prune",
+      "prune_then_phase2_d0",
+      "unpruned_phase2_d0_then_prune"
+    ],
+    "validation_summaries": {
+      "phase2_sh3_joint_then_prune": {
+        "J_Q": {
+          "geometric": 0.00417356819770911,
+          "per_seed": [
+            0.004146154908635033,
+            0.004350956882257677,
+            0.004029881164983426
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007850736878946527,
+          "per_seed": [
+            0.007924296003213758,
+            0.007907493985289147,
+            0.007722033939297122
+          ]
+        }
+      },
+      "phase2_sh3_joint_unpruned": {
+        "J_Q": {
+          "geometric": 0.0040167458747242734,
+          "per_seed": [
+            0.003958629973790643,
+            0.004288355341082976,
+            0.00381757339751522
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007676400585457628,
+          "per_seed": [
+            0.0077087725464050775,
+            0.007887544796625566,
+            0.007439535478353723
+          ]
+        }
+      },
+      "prune_then_phase2_d0": {
+        "J_Q": {
+          "geometric": 0.004224987081359854,
+          "per_seed": [
+            0.004224359801757084,
+            0.004421993670407491,
+            0.00403735685984569
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007863178014552804,
+          "per_seed": [
+            0.00792321068526574,
+            0.00797150634571467,
+            0.007697553619881196
+          ]
+        }
+      },
+      "prune_then_phase2_d0_then_sh3": {
+        "J_Q": {
+          "geometric": 0.004099559884954019,
+          "per_seed": [
+            0.004155114359738182,
+            0.004269567545779087,
+            0.0038836924844675522
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007763025312035951,
+          "per_seed": [
+            0.007834511567939196,
+            0.007865345035142066,
+            0.007592124156065828
+          ]
+        }
+      },
+      "prune_then_phase2_sh3_joint": {
+        "J_Q": {
+          "geometric": 0.004127792721145359,
+          "per_seed": [
+            0.004152686028863215,
+            0.004314244845340191,
+            0.003925723945580612
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007800782182677652,
+          "per_seed": [
+            0.007866753069197218,
+            0.007919395316079438,
+            0.007619507727242162
+          ]
+        }
+      },
+      "unpruned_phase2_d0": {
+        "J_Q": {
+          "geometric": 0.0041144012998311046,
+          "per_seed": [
+            0.0040381648551066265,
+            0.004394755453521681,
+            0.003924652301089166
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007736446967601787,
+          "per_seed": [
+            0.007770232889114103,
+            0.007939444775479813,
+            0.007505860535952021
+          ]
+        }
+      },
+      "unpruned_phase2_d0_then_prune": {
+        "J_Q": {
+          "geometric": 0.004271941681999509,
+          "per_seed": [
+            0.004233002990490443,
+            0.004451626477326186,
+            0.004137220365787533
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007913742122903756,
+          "per_seed": [
+            0.007991196955000484,
+            0.007961020597578252,
+            0.007790495849547168
+          ]
+        }
+      },
+      "unpruned_phase2_d0_then_sh3": {
+        "J_Q": {
+          "geometric": 0.003988544441154951,
+          "per_seed": [
+            0.0039759518018391855,
+            0.004241133328770477,
+            0.0037628791410902122
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007645464056597069,
+          "per_seed": [
+            0.007683617586835445,
+            0.007835751981705521,
+            0.007422755058605112
+          ]
+        }
+      },
+      "unpruned_phase2_d0_then_sh3_then_prune": {
+        "J_Q": {
+          "geometric": 0.0041681820176453195,
+          "per_seed": [
+            0.004206040740145272,
+            0.004305815804170446,
+            0.003998628936019423
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007826500518175485,
+          "per_seed": [
+            0.007915058555723725,
+            0.007854400387713725,
+            0.00771144360153795
+          ]
+        }
+      }
+    }
+  },
+  "decisions": {
+    "containment_order": "pre",
+    "general_vram_claim_established": false,
+    "implement_compact_only_sequence": true,
+    "joint_sh3_material": false,
+    "no_visual_hull_interior_floaters_established": false,
+    "post_phase2_prune_viable": true,
+    "pre_phase2_prune_viable": true,
+    "projected_center_containment_established": true,
+    "retain_higher_sh_stage": false,
+    "retain_topology_growth": false,
+    "selected_arm": "prune_then_phase2_d0",
+    "separate_sh3_material": false,
+    "sh_choice": "none"
+  },
+  "invariants": {
+    "command": [
+      "/home/alex/Documents/realtime-gs/.venv/bin/python",
+      "benchmarks/compact_only_carrier_sequence_interaction.py"
+    ],
+    "failures": [],
+    "git_revision": "b4ca5d4272a7320a31af66fc6fa118647a1ec0c7",
+    "git_status_at_seal": [
+      " M ara/logic/claims.md",
+      " M ara/staging/observations.yaml",
+      " M ara/trace/exploration_tree.yaml",
+      " M ara/trace/pm_reasoning_log.yaml",
+      " M benchmarks/results/20260727_carrier_maturation_all26_PREREG_V2.md",
+      " M docs/ADR-002-carrier-refinement.md",
+      " M docs/EXPERIMENTS.md",
+      " M docs/PAPER_PLAN_beam_fusion.md",
+      " M docs/ROADMAP.md",
+      " M src/rtgs/core/observation2d.py",
+      " M src/rtgs/data/compact_views.py",
+      " M src/rtgs/lift/__init__.py",
+      " M src/rtgs/lift/base.py",
+      " M src/rtgs/lift/carrier_refinement.py",
+      " M src/rtgs/optim/compact_trainer.py",
+      " M tests/test_carrier_refinement.py",
+      " M tests/test_compact_trainer.py",
+      " M tests/test_compact_views.py",
+      " M tests/test_observation2d.py",
+      "?? .codex/",
+      "?? benchmarks/audit_carrier_maturation_all26.py",
+      "?? benchmarks/audit_compact_only_carrier_policy_closure.py",
+      "?? benchmarks/audit_compact_only_carrier_stage_ablation.py",
+      "?? benchmarks/compact_only_carrier_policy_closure.py",
+      "?? benchmarks/compact_only_carrier_sequence_interaction.py",
+      "?? benchmarks/compact_only_carrier_stage_ablation.py",
+      "?? benchmarks/results/.gitattributes",
+      "?? benchmarks/results/20260727_carrier_maturation_all26_AUDIT.json",
+      "?? benchmarks/results/20260727_carrier_maturation_all26_AUDIT.md",
+      "?? benchmarks/results/20260727_carrier_maturation_all26_RESULT.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_policy_closure_AUDIT.json",
+      "?? benchmarks/results/20260728_compact_only_carrier_policy_closure_AUDIT.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_policy_closure_PREREG.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_policy_closure_RESULT.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_sequence_interaction_PREREG.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_stage_ablation_AUDIT.json",
+      "?? benchmarks/results/20260728_compact_only_carrier_stage_ablation_AUDIT.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_stage_ablation_PREREG.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_stage_ablation_RESULT.md",
+      "?? tests/test_compact_only_carrier_policy_closure.py",
+      "?? tests/test_compact_only_carrier_sequence_interaction.py",
+      "?? tests/test_compact_only_carrier_stage_ablation.py"
+    ],
+    "heldout_evaluated": false,
+    "no_image_boundary": {
+      "forbidden_import_attempts": 0,
+      "forbidden_modules_at_exit": [],
+      "image_open_attempts": 0,
+      "negative_control_denials": 3,
+      "passed": true
+    },
+    "packed_alpha_accessed": false,
+    "parent_binding_matches": true,
+    "parent_binding_sha256": "e330abd28e7882b837fe09e70b587fcd2d34396704e2f1740cd3d844598c526b",
+    "parent_file_count": 23,
+    "passed": true,
+    "proposal_digest": "48720a545a115020c7a2ed775fbb57b08a347a86a408cd2e32bc27f77ca67de3",
+    "source_binding_sha256": "36c21ace397edfc0a1387b075b16943aeddad2eb08a89fb31b8b847e56a9dfe3",
+    "source_file_count": 91,
+    "source_seal_matches_current_tree": true,
+    "teacher_digest": "48720a545a115020c7a2ed775fbb57b08a347a86a408cd2e32bc27f77ca67de3"
+  },
+  "preregistration_sha256": "2f0a69f523aee5bd480b0219d28d536294c2c38159805a404b041e5e3b91af0b",
+  "resources": {
+    "compact_container_bytes": 4152383,
+    "development_teacher_tensor_bytes": 5060000,
+    "peak_rss_bytes": 1641463808,
+    "total_seconds": 350.9587057027966
+  },
+  "run": "runs/compact_only_carrier_sequence_interaction_20260728",
+  "run_result_sha256": "f263031156c88b9115a0874a438d18987b7a46c0f05dc0ae236ce7b87584c245",
+  "schema": "rtgs.compact-carrier-sequence.audit.v1",
+  "scope_limits": [
+    "single real development scene; no cross-scene or confirmatory inference",
+    "held-out cameras were not evaluated",
+    "fitting-view fitted-Gaussian visual-hull center containment is not surface occupancy",
+    "a floater inside the visual hull remains undetectable",
+    "full Gaussian support is infinite, and finite-footprint containment was not tested",
+    "absolute allocator/RSS receipts are not a controlled dense-vs-compact or general VRAM claim",
+    "the no-image guard is an executable Python boundary, not an OS-level information-flow proof"
+  ],
+  "status": "PASS_WITH_SCOPE_LIMITS"
+}

@@ -322,14 +322,53 @@
       30/40/30/60 schedule lost 1.573 dB to immediate Beam-to-standard despite 94.625% carrier
       survival; no-covariance beat the complete schedule by 1.268 dB even though covariance repair
       passed its own residual gate. Retain the path as opt-in research code, reject only this short
-      schedule on the exposed scene, and change no default. The ADR's until-convergence process is
-      still untested. Evidence:
+      schedule on the exposed scene, and change no default. Evidence:
       `benchmarks/results/20260727_carrier_refinement_fullres_{RESULT,AUDIT}.md`
-- [ ] Revisit the carrier/paper question only with a recovery interval after the final topology
-      event, actual SfM and compressed-RGB SfM baselines, a genuinely compact-only optimization
-      arm, fresh non-outcome-exposed scenes, at least three paired seeds, and separately controlled
-      I/O/idle-GPU measurements. Do not promote covariance repair from its local loss or use the
-      random RGB/JPEG controls as substitutes for Original 3DGS
+- [x] Execute and independently audit the instrumented all-26-view ADR-002 maturation attempt.
+      The exact V2 restart completed 128,000 updates at 100,000 final Gaussians and reached
+      28.7641 dB native / 31.7410 dB compact-teacher fitted-view FG PSNR. Fixed topology and final
+      settle reached the frozen plateau; clone recoveries 1–3 and higher-SH each hit their
+      15,000-update safety cap without convergence. Treat this as a valid development
+      reconstruction and a failed convergence-between-stages contract, not a causal carrier-value
+      or generalization result: every camera was fitted, no matched no-clone/immediate-standard
+      control exists, and every optimized phase consumed native RGB. Keep the path opt-in and
+      change no default. Evidence:
+      `benchmarks/results/20260727_carrier_maturation_all26_{RESULT,AUDIT}.md`
+- [x] Audit the carrier-stage mathematics and execute a three-root compact-only repair/optimizer
+      ablation. Retire the shrink-biased, dilation-omitting covariance residual; gauge-dependent
+      opacity/appearance repair; means-only optimization; and ineffective tested soft support.
+      Retain renderer-aware symmetric covariance repair and all-family fixed-topology SH0
+      optimization. Evidence:
+      `benchmarks/results/20260728_compact_only_carrier_stage_ablation_{RESULT,AUDIT}.md`
+- [x] Close the bounded compact carrier policy and final stage interaction. Select two
+      380-update SH0 phases, strict fitting-view projected-center pruning between them, and frozen
+      means in phase 2. Reject clone-all and an incremental SH3 stage at the frozen materiality
+      gates. Implement `run_carrier_pipeline(ReconstructionInputs, config)` as a hard no-image,
+      no-`SceneData`, no-topology-growth boundary. Evidence:
+      `benchmarks/results/20260728_compact_only_carrier_policy_closure_{RESULT,AUDIT}.md` and
+      `benchmarks/results/20260728_compact_only_carrier_sequence_interaction_{RESULT,AUDIT}.md`
+- [ ] Make the no-Beam compact reconstruction arm first-class before testing Beam again. It must
+      consume the same frozen per-view 2D Gaussians, use a Beam-independent initialization shared
+      with the RGB control, query or stream compact supervision without retaining dense all-view
+      RGB, and emit a standard 3D Gaussian model. Beam contributor lineage, covariance repair, and
+      Beam-selected schedule choices are forbidden in this arm.
+- [ ] Replicate the accepted compact carrier sequence on fresh non-outcome-exposed scenes with
+      genuinely held-out cameras and at least three paired roots. Preserve pre-execution source
+      seals and test the projected-center invariant separately from physical surface occupancy.
+- [ ] Measure the VRAM selling point with a controlled dense-RGB-versus-compact experiment on an
+      otherwise idle GPU using the no-Beam arm. Match cameras, student initialization/count,
+      updates, renderer, topology budget, stopping rule, and reporting scope; report allocator
+      peaks plus process RSS and include teacher/input storage. The current absolute compact
+      allocator receipts do not prove a general saving.
+- [ ] Only after the no-Beam compact arm is stable, compare Beam against it as a paired optional
+      initializer on the exact same compact inputs, splits, seeds, optimizer, capacity, and
+      update/equal-wall-clock budgets. Account for Beam construction time and peak memory
+      separately. A null Beam result leaves the VRAM claim unchanged.
+- [ ] Revisit the paper question only after the no-Beam controlled resource experiment and the
+      separately matched Beam comparison, with actual SfM and compressed-RGB SfM baselines in
+      their applicable cohort. Do not use random RGB/JPEG controls as substitutes for Original
+      3DGS or claim that projected-center visual-hull containment proves absence of interior
+      floaters.
 - [ ] Before any Beam covariance promotion, persist raw partition receipts and replicate CI versus
       `pou-full` across multiple scenes/seeds with untouched held-out cameras. Only after that may
       a production gsplat split/merge arm test whether better conditioning survives topology.

@@ -1,0 +1,612 @@
+{
+  "analysis": {
+    "comparisons": {
+      "continue_all": {
+        "J_Q": {
+          "geometric": 0.7169971702289016,
+          "per_seed": [
+            0.7397339286684275,
+            0.6925234284690639,
+            0.719519081752137
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.8028645640360409,
+          "per_seed": [
+            0.8044177248034547,
+            0.7811355980810303,
+            0.8236046848633685
+          ],
+          "wins": 3
+        }
+      },
+      "continue_means_fixed_vs_all": {
+        "J_Q": {
+          "geometric": 1.0147359062649042,
+          "per_seed": [
+            1.0097812913993687,
+            1.0187093203328235,
+            1.0157374955480014
+          ],
+          "wins": 0
+        },
+        "J_U": {
+          "geometric": 1.011556939976273,
+          "per_seed": [
+            1.0096721961449795,
+            1.0153834829739266,
+            1.0096259635861937
+          ],
+          "wins": 0
+        }
+      },
+      "higher_sh": {
+        "J_Q": {
+          "geometric": 0.9158980216844436,
+          "per_seed": [
+            0.9139198504990191,
+            0.9284415791617625,
+            0.9054796011947336
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.9520744461781728,
+          "per_seed": [
+            0.9440908982700289,
+            0.958232527269829,
+            0.9539552593168501
+          ],
+          "wins": 3
+        }
+      },
+      "legacy_clone_vs_half_continue": {
+        "J_Q": {
+          "geometric": 0.9754129707949071,
+          "per_seed": [
+            0.956998650970857,
+            0.9693844588749202,
+            1.0003643373107367
+          ],
+          "wins": 2
+        },
+        "J_U": {
+          "geometric": 0.9997024097335558,
+          "per_seed": [
+            0.9880101336796022,
+            0.9958427404681809,
+            1.0154535356236942
+          ],
+          "wins": 2
+        }
+      },
+      "legacy_clone_vs_stop": {
+        "J_Q": {
+          "geometric": 0.7525067682210774,
+          "per_seed": [
+            0.7599359560597322,
+            0.7228895097035837,
+            0.7756795026398722
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.8296753294568735,
+          "per_seed": [
+            0.8210595525748409,
+            0.8094581655713341,
+            0.8593210742412991
+          ],
+          "wins": 3
+        }
+      },
+      "mass_clone_vs_half_continue": {
+        "J_Q": {
+          "geometric": 0.9699084444715779,
+          "per_seed": [
+            0.9512500314891811,
+            0.9714393816342323,
+            0.9873743293125816
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.9956723012288985,
+          "per_seed": [
+            0.9862303577934404,
+            0.9920678479575993,
+            1.0088568224882366
+          ],
+          "wins": 2
+        }
+      },
+      "mass_clone_vs_stop": {
+        "J_Q": {
+          "geometric": 0.7482601635129396,
+          "per_seed": [
+            0.7553710774808552,
+            0.7244219069814212,
+            0.7656070894525085
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.8263306525122218,
+          "per_seed": [
+            0.8195805171449781,
+            0.8063897919791263,
+            0.8537386478484053
+          ],
+          "wins": 3
+        }
+      },
+      "mass_vs_legacy_clone": {
+        "J_Q": {
+          "geometric": 0.9943567222416129,
+          "per_seed": [
+            0.9939930746236224,
+            1.0021198222650454,
+            0.987014723022738
+          ],
+          "wins": 2
+        },
+        "J_U": {
+          "geometric": 0.9959686918172664,
+          "per_seed": [
+            0.9981986258789336,
+            0.9962093487684542,
+            0.9935036780078708
+          ],
+          "wins": 3
+        }
+      },
+      "phase1_means_fixed": {
+        "J_Q": {
+          "geometric": 1.0223832190302364,
+          "per_seed": [
+            1.0175168239500136,
+            1.0255982480622465,
+            1.0240526095557247
+          ],
+          "wins": 0
+        },
+        "J_U": {
+          "geometric": 1.0027304394636423,
+          "per_seed": [
+            1.0091084227515024,
+            1.0027662482405648,
+            0.9963571864924808
+          ],
+          "wins": 1
+        }
+      },
+      "phase1_means_only": {
+        "J_Q": {
+          "geometric": 4.182265564659522,
+          "per_seed": [
+            4.305799391813622,
+            3.9300317514696927,
+            4.322997327868848
+          ],
+          "wins": 0
+        },
+        "J_U": {
+          "geometric": 2.671172104142753,
+          "per_seed": [
+            2.6953867732760566,
+            2.608407281488966,
+            2.7108726440122024
+          ],
+          "wins": 0
+        }
+      },
+      "strict_prune": {
+        "J_Q": {
+          "geometric": 1.0404093620687802,
+          "per_seed": [
+            1.04664362142784,
+            1.0215374650460118,
+            1.0533182875641107
+          ],
+          "wins": 0
+        },
+        "J_U": {
+          "geometric": 1.0353926435908576,
+          "per_seed": [
+            1.0382626458413144,
+            1.0218654348849456,
+            1.0461989659620634
+          ],
+          "wins": 0
+        }
+      },
+      "strict_prune_recover": {
+        "J_Q": {
+          "geometric": 0.8068674696714572,
+          "per_seed": [
+            0.8381038133909009,
+            0.7713147102744641,
+            0.812600693186182
+          ],
+          "wins": 3
+        },
+        "J_U": {
+          "geometric": 0.8564638403572721,
+          "per_seed": [
+            0.8624075006245963,
+            0.8291286980969683,
+            0.878602881601327
+          ],
+          "wins": 3
+        }
+      }
+    },
+    "decisions": {
+      "continue_all_necessary": true,
+      "continue_means_fixed_noninferior": true,
+      "higher_sh_necessary": true,
+      "legacy_clone_necessary": false,
+      "mass_clone_necessary": false,
+      "mass_clone_replaces_legacy": false,
+      "phase1_means_fixed_noninferior": false,
+      "phase1_means_only_noninferior": false,
+      "strict_prune_recover_viable": true,
+      "strict_prune_viable": true
+    },
+    "strict_containment": {
+      "strict_prune": {
+        "fit_behind_near_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "fit_outside_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "removed_fraction": [
+          0.053199999034404755,
+          0.053599998354911804,
+          0.05419999733567238
+        ],
+        "viable": true
+      },
+      "strict_prune_recover_190": {
+        "fit_behind_near_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "fit_outside_fraction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "removed_fraction": [
+          0.053199999034404755,
+          0.053599998354911804,
+          0.05419999733567238
+        ],
+        "viable": true
+      }
+    },
+    "validation_ranking": [
+      "continue_all_380",
+      "continue_means_fixed_380",
+      "mass_tangent_clone_all_recover_190",
+      "legacy_clone_all_recover_190",
+      "strict_prune_recover_190",
+      "higher_sh_only_380",
+      "corrected_C_all_380",
+      "stop_380",
+      "corrected_C_means_fixed_380",
+      "strict_prune",
+      "corrected_C_means_only_380"
+    ],
+    "validation_summaries": {
+      "continue_all_380": {
+        "J_Q": {
+          "geometric": 0.0040546523232587945,
+          "per_seed": [
+            0.003999048991599441,
+            0.0043140426476964665,
+            0.003863845056711009
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007648058810988192,
+          "per_seed": [
+            0.007695797624993102,
+            0.007819158878009526,
+            0.007434298251692327
+          ]
+        }
+      },
+      "continue_means_fixed_380": {
+        "J_Q": {
+          "geometric": 0.0041144012998311046,
+          "per_seed": [
+            0.0040381648551066265,
+            0.004394755453521681,
+            0.003924652301089166
+          ]
+        },
+        "J_U": {
+          "geometric": 0.007736446967601787,
+          "per_seed": [
+            0.007770232889114103,
+            0.007939444775479813,
+            0.007505860535952021
+          ]
+        }
+      },
+      "corrected_C_all_380": {
+        "J_Q": {
+          "geometric": 0.005655046479422426,
+          "per_seed": [
+            0.005406064040888334,
+            0.006229453720047223,
+            0.005370038341862966
+          ]
+        },
+        "J_U": {
+          "geometric": 0.00952596384692956,
+          "per_seed": [
+            0.009566917022960222,
+            0.010009989171173855,
+            0.009026537109761144
+          ]
+        }
+      },
+      "corrected_C_means_fixed_380": {
+        "J_Q": {
+          "geometric": 0.005781624623397506,
+          "per_seed": [
+            0.005500761112955074,
+            0.006388916821665276,
+            0.0054992017773990666
+          ]
+        },
+        "J_U": {
+          "geometric": 0.009551973914546449,
+          "per_seed": [
+            0.009654056547633887,
+            0.010037679286106688,
+            0.008993655118451583
+          ]
+        }
+      },
+      "corrected_C_means_only_380": {
+        "J_Q": {
+          "geometric": 0.023650906157437465,
+          "per_seed": [
+            0.02327742725936248,
+            0.02448195091409658,
+            0.023214661402426857
+          ]
+        },
+        "J_U": {
+          "geometric": 0.025445488892990635,
+          "per_seed": [
+            0.02578654160471653,
+            0.026110128641715583,
+            0.024469792521012456
+          ]
+        }
+      },
+      "higher_sh_only_380": {
+        "J_Q": {
+          "geometric": 0.0051794458830365766,
+          "per_seed": [
+            0.00494070924003679,
+            0.005783683849155759,
+            0.0048624601761905065
+          ]
+        },
+        "J_U": {
+          "geometric": 0.009069426753878763,
+          "per_seed": [
+            0.009032039285881347,
+            0.009591897221437544,
+            0.008610912549275363
+          ]
+        }
+      },
+      "legacy_clone_all_recover_190": {
+        "J_Q": {
+          "geometric": 0.0042554607503701505,
+          "per_seed": [
+            0.004108262445432615,
+            0.004503206745406102,
+            0.004165428670173309
+          ]
+        },
+        "J_U": {
+          "geometric": 0.00790345719309555,
+          "per_seed": [
+            0.007855008610392348,
+            0.008102667471887308,
+            0.007756693565838898
+          ]
+        }
+      },
+      "mass_tangent_clone_all_recover_190": {
+        "J_Q": {
+          "geometric": 0.004231446003365896,
+          "per_seed": [
+            0.004083584419496327,
+            0.004512752743329117,
+            0.00411133942516208
+          ]
+        },
+        "J_U": {
+          "geometric": 0.00787159592144114,
+          "per_seed": [
+            0.007840858801160833,
+            0.008071953085456192,
+            0.007706303586840931
+          ]
+        }
+      },
+      "stop_380": {
+        "J_Q": {
+          "geometric": 0.005655046479422426,
+          "per_seed": [
+            0.005406064040888334,
+            0.006229453720047223,
+            0.005370038341862966
+          ]
+        },
+        "J_U": {
+          "geometric": 0.00952596384692956,
+          "per_seed": [
+            0.009566917022960222,
+            0.010009989171173855,
+            0.009026537109761144
+          ]
+        }
+      },
+      "strict_prune": {
+        "J_Q": {
+          "geometric": 0.005883563300125185,
+          "per_seed": [
+            0.005658222445426188,
+            0.006363620361798488,
+            0.005656359590404715
+          ]
+        },
+        "J_U": {
+          "geometric": 0.009863112890223335,
+          "per_seed": [
+            0.00993297258080299,
+            0.010228861937595167,
+            0.009443553790450301
+          ]
+        }
+      },
+      "strict_prune_recover_190": {
+        "J_Q": {
+          "geometric": 0.004562873043726052,
+          "per_seed": [
+            0.004530842888103936,
+            0.004804869291246406,
+            0.0043636968790342215
+          ]
+        },
+        "J_U": {
+          "geometric": 0.008158643579445823,
+          "per_seed": [
+            0.008250580998454028,
+            0.00829956928946013,
+            0.007930741515517455
+          ]
+        }
+      }
+    }
+  },
+  "decisions": {
+    "compact_only_pipeline_change_supported_for_development": true,
+    "continue_all_necessary": true,
+    "continue_means_fixed_noninferior": true,
+    "freeze_means_in_second_phase": true,
+    "general_vram_claim_established": false,
+    "higher_sh_necessary": true,
+    "legacy_clone_necessary": false,
+    "mass_clone_necessary": false,
+    "mass_clone_replaces_legacy": false,
+    "no_free_floaters_established": false,
+    "phase1_means_fixed_noninferior": false,
+    "phase1_means_only_noninferior": false,
+    "retain_clone_stage": false,
+    "retain_corrected_covariance": true,
+    "retain_phase1_all_parameter_optimization": true,
+    "retain_second_fixed_topology_phase": true,
+    "strict_projected_center_prune_available": true,
+    "strict_prune_recover_viable": true,
+    "strict_prune_viable": true
+  },
+  "invariants": {
+    "command": [
+      "/home/alex/Documents/realtime-gs/.venv/bin/python",
+      "benchmarks/compact_only_carrier_policy_closure.py"
+    ],
+    "failures": [],
+    "git_revision": "b4ca5d4272a7320a31af66fc6fa118647a1ec0c7",
+    "git_status_at_seal": [
+      " M ara/logic/claims.md",
+      " M ara/staging/observations.yaml",
+      " M ara/trace/exploration_tree.yaml",
+      " M ara/trace/pm_reasoning_log.yaml",
+      " M benchmarks/results/20260727_carrier_maturation_all26_PREREG_V2.md",
+      " M docs/ADR-002-carrier-refinement.md",
+      " M docs/EXPERIMENTS.md",
+      " M docs/PAPER_PLAN_beam_fusion.md",
+      " M docs/ROADMAP.md",
+      " M src/rtgs/core/observation2d.py",
+      " M src/rtgs/data/compact_views.py",
+      " M src/rtgs/lift/__init__.py",
+      " M src/rtgs/lift/base.py",
+      " M src/rtgs/lift/carrier_refinement.py",
+      " M src/rtgs/optim/compact_trainer.py",
+      " M tests/test_carrier_refinement.py",
+      " M tests/test_compact_trainer.py",
+      " M tests/test_compact_views.py",
+      " M tests/test_observation2d.py",
+      "?? .codex/",
+      "?? benchmarks/audit_carrier_maturation_all26.py",
+      "?? benchmarks/audit_compact_only_carrier_stage_ablation.py",
+      "?? benchmarks/compact_only_carrier_policy_closure.py",
+      "?? benchmarks/compact_only_carrier_stage_ablation.py",
+      "?? benchmarks/results/.gitattributes",
+      "?? benchmarks/results/20260727_carrier_maturation_all26_AUDIT.json",
+      "?? benchmarks/results/20260727_carrier_maturation_all26_AUDIT.md",
+      "?? benchmarks/results/20260727_carrier_maturation_all26_RESULT.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_policy_closure_PREREG.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_stage_ablation_AUDIT.json",
+      "?? benchmarks/results/20260728_compact_only_carrier_stage_ablation_AUDIT.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_stage_ablation_PREREG.md",
+      "?? benchmarks/results/20260728_compact_only_carrier_stage_ablation_RESULT.md",
+      "?? tests/test_compact_only_carrier_policy_closure.py",
+      "?? tests/test_compact_only_carrier_stage_ablation.py"
+    ],
+    "heldout_evaluated": false,
+    "no_image_boundary": {
+      "forbidden_import_attempts": 0,
+      "forbidden_modules_at_exit": [],
+      "image_open_attempts": 0,
+      "negative_control_denials": 3,
+      "passed": true
+    },
+    "packed_alpha_accessed": false,
+    "passed": true,
+    "proposal_digest": "48720a545a115020c7a2ed775fbb57b08a347a86a408cd2e32bc27f77ca67de3",
+    "source_binding_sha256": "0271d28a98b9edf1ecb79931de11fdf4bbbf126a438ecdb9ad489734766a294b",
+    "source_file_count": 90,
+    "source_seal_matches_current_tree": true,
+    "teacher_digest": "48720a545a115020c7a2ed775fbb57b08a347a86a408cd2e32bc27f77ca67de3"
+  },
+  "preregistration_sha256": "d17614eadc20164b33c6744bf128d6b98ad7e37a81d8107022f80b43df8f46e9",
+  "resources": {
+    "compact_container_bytes": 4152383,
+    "development_teacher_tensor_bytes": 5060000,
+    "peak_rss_bytes": 2918330368,
+    "total_seconds": 645.012305255048
+  },
+  "run": "runs/compact_only_carrier_policy_closure_20260728",
+  "run_result_sha256": "21d537c27fc0d9879cfe17f6d23f620f8a3f3056ab2be2958add9e0a66b9aec3",
+  "schema": "rtgs.compact-carrier-policy.audit.v1",
+  "scope_limits": [
+    "single real development scene; no cross-scene or confirmatory inference",
+    "held-out cameras were not evaluated in this closure experiment",
+    "strict pruning proves projected-center containment only in the fitting-view fitted-Gaussian visual hull",
+    "a floater inside that visual hull remains undetectable without additional geometry",
+    "full Gaussian-footprint containment was not tested and would bias boundary carriers",
+    "absolute PyTorch/RSS measurements are not a controlled dense-vs-compact or general VRAM claim",
+    "the no-image guard is an executable Python boundary, not an OS-level information-flow proof",
+    "higher SH was tested as an alternative to the second fixed phase, not incrementally after it",
+    "strict pruning was tested immediately after phase 1, not after the selected full second phase"
+  ],
+  "status": "PASS_WITH_SCOPE_LIMITS"
+}

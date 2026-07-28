@@ -518,6 +518,50 @@ class GaussianObservationField:
             denominator = denominator + self._cross_weights(xy, component_ids).sum(dim=1)
         return denominator
 
+    def minimum_mahalanobis_squared(
+        self,
+        xy: torch.Tensor,
+        component_chunk: int = 4096,
+    ) -> torch.Tensor:
+        """Return distance to the nearest positive-amplitude component ellipse.
+
+        Unlike :meth:`query_weight_sum`, this geometric helper intentionally ignores the
+        renderer's clipped AABB support.  It evaluates the untruncated quadratic form so a point
+        outside every clipped support still receives a finite, loss-directed gradient toward the
+        nearest fitted 2D Gaussian.  The reduction is streamed over components and remains
+        differentiable with respect to ``xy`` except at ordinary nearest-component ties.
+        """
+
+        xy = self._validate_xy(xy)
+        if (
+            isinstance(component_chunk, bool)
+            or not isinstance(component_chunk, int)
+            or component_chunk <= 0
+        ):
+            raise ValueError("component_chunk must be a positive integer")
+        positive = (self.amplitudes > 0).nonzero(as_tuple=True)[0]
+        if positive.numel() == 0:
+            raise ValueError("minimum Mahalanobis distance requires a positive-amplitude component")
+        minimum = torch.full(
+            (xy.shape[0],),
+            torch.inf,
+            dtype=self.dtype,
+            device=self.device,
+        )
+        for start in range(0, positive.numel(), component_chunk):
+            component_ids = positive[start : start + component_chunk]
+            dx = self._cross_displacements(xy, component_ids)
+            conics = self.conics()[component_ids]
+            quadratic = (
+                conics[None, :, 0] * dx[..., 0].square()
+                + 2.0 * conics[None, :, 1] * dx[..., 0] * dx[..., 1]
+                + conics[None, :, 2] * dx[..., 1].square()
+            )
+            minimum = torch.minimum(minimum, quadratic.amin(dim=1))
+        if not bool(torch.isfinite(minimum).all()):
+            raise RuntimeError("minimum Mahalanobis distance is non-finite")
+        return minimum.clamp_min(0.0)
+
     def valid_domain(self, xy: torch.Tensor) -> torch.Tensor:
         """Whether coordinates lie in the fitted window, not merely the source canvas."""
         xy = self._validate_xy(xy)

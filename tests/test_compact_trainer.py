@@ -30,9 +30,11 @@ from rtgs.optim.compact_trainer import (
     CompactTrainConfig,
     CompactTrainer,
     build_view_schedule,
+    compact_center_support_loss,
     observation_digest,
     preflight_observations,
     step_sample_seed,
+    support_sample_seed,
 )
 from rtgs.optim.density import apply_selected_birth_surgery
 from rtgs.render.torch_points import TorchPointRasterizer
@@ -494,6 +496,72 @@ def test_proposal_attempt_target_rejects_noncontinuous_gaussian_modes():
         CompactTrainConfig(
             proposal_mode="pixel_gaussian",
             target_mode="proposal_attempt",
+        )
+
+
+def test_support_config_accepts_zero_learning_rates_and_rejects_incoherent_modes():
+    config = CompactTrainConfig(
+        lr_means=0.0,
+        lr_quats=0.0,
+        support_mode="teacher_ellipse_center",
+        support_loss_weight=0.01,
+    )
+    assert config.lr_means == 0.0
+    assert config.lr_quats == 0.0
+    with pytest.raises(ValueError, match="must be zero"):
+        CompactTrainConfig(support_loss_weight=0.01)
+    with pytest.raises(ValueError, match="requires positive"):
+        CompactTrainConfig(support_mode="teacher_ellipse_center")
+    with pytest.raises(ValueError, match="non-negative"):
+        CompactTrainConfig(lr_means=-1e-4)
+
+
+def test_compact_center_support_loss_has_outside_and_near_plane_gradients():
+    inputs = _inputs()
+    means = torch.tensor([[2.0, 0.0, 0.0], [0.0, 0.0, -3.0]], requires_grad=True)
+    loss, diagnostics = compact_center_support_loss(
+        inputs.observations[0],
+        inputs.cameras[0],
+        means,
+        torch.tensor([0, 1]),
+        sigma=3.0,
+        near=0.05,
+        extent=1.0,
+        component_chunk=1,
+    )
+    assert float(loss.detach()) > 0.0
+    assert int((diagnostics["normalized_violation"] > 0).sum()) >= 1
+    assert int((diagnostics["near_violation"] > 0).sum()) == 1
+    loss.backward()
+    assert means.grad is not None
+    assert bool(torch.isfinite(means.grad).all())
+    assert bool((means.grad.norm(dim=-1) > 0).all())
+
+
+def test_support_training_records_isolated_rows_and_keeps_zero_lr_means_bit_exact():
+    base = _config("area_gaussian")
+    config = replace(
+        base,
+        lr_means=0.0,
+        support_mode="teacher_ellipse_center",
+        support_loss_weight=0.01,
+        support_samples_per_step=2,
+        support_component_chunk=1,
+    )
+    initial = _init()
+    final, history = CompactTrainer(config).train(_inputs(), initial)
+    assert torch.equal(final.means, initial.means)
+    assert history["frozen_parameter_groups"] == ["means"]
+    assert "quats" in history["trainable_parameter_groups"]
+    assert history["parameter_motion"]["means"]["max_abs"] == 0.0
+    for step_index, record in enumerate(history["steps"]):
+        support = record["support"]
+        assert support is not None
+        assert support["sample_seed"] == support_sample_seed(config.seed, step_index)
+        assert support["sample_count"] == 2
+        assert math.isfinite(support["weighted_loss"])
+        assert record["total_sampled_loss"] == pytest.approx(
+            record["sampled_loss"] + support["weighted_loss"]
         )
 
 
