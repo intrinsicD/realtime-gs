@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "20260729_field_sweep_placement_stage_frames00008_00009",
+  "status": "failed_before_measured_outcomes",
+  "source_commit": "ec5735d5a549147f64490e57832578e72ae51400",
+  "source_dirty": false,
+  "protocol_sha256": "9ff7057e47e3ea6a2af0532edbecf13036a892d9805e02cfe26aee7f33732844",
+  "data_seal_sha256": "571e71c67e8e9793b8d2360a8f7720deecfc224dab11b2d8d57766609057feb7",
+  "run_root": "runs/20260729_field_sweep_placement_stage_frames00008_00009",
+  "attempt": "attempts/attempt-001/failure.json",
+  "completed_warmups": 0,
+  "completed_measured_cells": 0,
+  "heldout_metrics_produced": false,
+  "disposition": "inconclusive_implementation_failure",
+  "failure": "The first discarded frame_00008 bounded-midpoint warmup failed at refit step 0 because native-resolution float32 source reprojection exceeded the frozen 0.0002 absolute invariant.",
+  "claim_boundary": "This attempt supports no comparison, quality, performance, generalization, geometry, GPU, or default claim."
+}

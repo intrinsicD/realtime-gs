@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "task_id": "20260729_field_sweep_placement_stage_frames00008_00009",
+  "audit_date": "2026-07-30",
+  "auditor": "Codex-results-auditor",
+  "verdict": "confirmed_failed_before_measured_outcomes_postmortem_narrowed",
+  "official_attempt_consumed": true,
+  "same_task_rerun_permitted": false,
+  "binding": {
+    "task": {
+      "path": "experiments/tasks/20260729_field_sweep_placement_stage_frames00008_00009.json",
+      "sha256": "a08e7111a344e91d331f8e604101319e1ccf7f06b0d7f2e860e4fd5a0758eefe"
+    },
+    "protocol": {
+      "sha256": "9ff7057e47e3ea6a2af0532edbecf13036a892d9805e02cfe26aee7f33732844",
+      "review_path": "experiments/reviews/20260729_field_sweep_placement_stage_frames00008_00009_PROTOCOL_REVIEW.md",
+      "review_sha256": "3e6a0c63a01982fa0312dde27bc86ff75ca2170b1e8b80bf5c2625af9f9b2edb"
+    },
+    "data_seal": {
+      "path": "experiments/data/stage_frames00008_00009_compact.json",
+      "sha256": "571e71c67e8e9793b8d2360a8f7720deecfc224dab11b2d8d57766609057feb7",
+      "validation": "pass",
+      "file_count": 55,
+      "bytes": 8373380
+    },
+    "task_lock": {
+      "path": "runs/20260729_field_sweep_placement_stage_frames00008_00009/task.lock.json",
+      "sha256": "2a26e533e76084a53447e8e7171e59ece4829afa9007e38cf623f5046f45a113"
+    },
+    "source": {
+      "commit": "ec5735d5a549147f64490e57832578e72ae51400",
+      "committed_at_utc": "2026-07-29T22:26:42Z",
+      "source_dirty": false,
+      "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "locked_file_sha256": {
+        "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py": "baab94f1eb34a40c19a8df0f20c20d9704084a607293834b42328e5a41976107",
+        "src/rtgs/lift/field_refit.py": "32330b8c1483c58e220a0b91e0204efc6ce4ea3bc09c5d67f210f8ed224faa84",
+        "src/rtgs/lift/field_lifter.py": "8164ca12485b53bca2025d1e8bb06597ff86126dec8f084bed319610bbcb0ca7",
+        "src/rtgs/lift/inverse_projection_fiber.py": "4e9bd0c62954b2361d2cb79491d97cdfbad29c7c2dd23be0e5f5bff7e75cdd8b"
+      }
+    }
+  },
+  "chronology": [
+    {
+      "event": "source_commit",
+      "at_utc": "2026-07-29T22:26:42Z"
+    },
+    {
+      "event": "run_initialized",
+      "at_utc": "2026-07-29T22:26:49.546653Z"
+    },
+    {
+      "event": "official_warmup_failure_marker",
+      "at_utc": "2026-07-29T22:26:59.997596Z"
+    },
+    {
+      "event": "diagnostic_replay_failure_marker",
+      "at_utc": "2026-07-29T22:29:12.586355Z"
+    },
+    {
+      "event": "failure_receipt_declared_failed_at",
+      "at_utc": "2026-07-29T22:29:37Z",
+      "note": "Post-diagnostic disposition time, not the first crash time."
+    },
+    {
+      "event": "failure_receipt_and_producer_results_written",
+      "at_utc": "2026-07-29T22:30:18.749344Z"
+    }
+  ],
+  "attempt": {
+    "id": "attempt-001",
+    "status": "failed_before_measured_outcomes",
+    "attempted_cell": {
+      "phase": "warmup",
+      "dataset_id": "frame_00008",
+      "seed": 290900,
+      "arm": "bounded_midpoint"
+    },
+    "completed_warmups": 0,
+    "completed_measured_cells": 0,
+    "heldout_metrics_computed": false,
+    "heldout_metrics_published": false,
+    "failure": {
+      "type": "RuntimeError",
+      "message": "fiber optimizer violated the exact source projection",
+      "locked_location": "src/rtgs/lift/field_refit.py:533",
+      "step": 0
+    }
+  },
+  "artifact_inventory": {
+    "run_file_count": 4,
+    "completed_warmup_directories": 0,
+    "measured_cell_directories": 0,
+    "metrics_json_present": false,
+    "model_artifacts_present": false,
+    "training_history_present": false,
+    "input_boundary_receipt_present": false,
+    "resource_receipt_present": false,
+    "index_html_present": false,
+    "failed_temp_directories": [
+      {
+        "path": "runs/20260729_field_sweep_placement_stage_frames00008_00009/warmups/frame_00008/.bounded_midpoint.worker-1858421.h1b7qj09",
+        "role": "official_failed_warmup",
+        "files": [
+          "WORKER_FAILED.txt"
+        ],
+        "marker_sha256": "dfb230e63f5a307cec55c6e67163855bc54c172ffd92b53f11b9deef6146e183"
+      },
+      {
+        "path": "runs/20260729_field_sweep_placement_stage_frames00008_00009/warmups/frame_00008/.bounded_midpoint.worker-1859001.ualdxvk1",
+        "role": "producer_described_outcome_free_diagnostic_replay",
+        "files": [
+          "WORKER_FAILED.txt"
+        ],
+        "marker_sha256": "dfb230e63f5a307cec55c6e67163855bc54c172ffd92b53f11b9deef6146e183"
+      }
+    ],
+    "marker_hash_uniquely_identifies_directory": false
+  },
+  "postmortem": {
+    "producer_record": {
+      "dtype": "float32",
+      "step": 0,
+      "absolute_gate": 0.0002,
+      "displayed_max_mean_error": 0.0009,
+      "displayed_max_covariance_error": 0.0234,
+      "target_covariance": [
+        [
+          5159.2617,
+          19926.5391
+        ],
+        [
+          19926.5391,
+          83616.4531
+        ]
+      ],
+      "reprojected_covariance": [
+        [
+          5159.2622,
+          19926.5391
+        ],
+        [
+          19926.541,
+          83616.4766
+        ]
+      ]
+    },
+    "independent_float32_calculation": {
+      "absolute_difference": [
+        [
+          0.00048828125,
+          0.0
+        ],
+        [
+          0.001953125,
+          0.0234375
+        ]
+      ],
+      "maximum_absolute_difference": 0.0234375,
+      "maximum_relative_difference": 2.8029771215187793e-07,
+      "maximum_difference_over_gate": 117.1875,
+      "target_float32_spacing": {
+        "5159.26171875": 0.00048828125,
+        "19926.5390625": 0.001953125,
+        "83616.453125": 0.0078125
+      },
+      "maximum_difference_ulps_at_largest_term": 3.0,
+      "float32_epsilon_times_largest_term": 0.009967857971787453
+    },
+    "assessment": "strongly_consistent_with_native_scale_float32_roundoff_but_not_replay_complete",
+    "causal_proof": false,
+    "limitations": [
+      "The diagnostic replay retained no raw tensors, traceback, command, environment, script, or structured receipt.",
+      "The recorded matrices are rounded displayed values supplied by the producing session.",
+      "The generic failure-marker hash is identical in both temp directories and does not bind the postmortem values to one directory."
+    ]
+  },
+  "evidence": {
+    "failure_receipt": {
+      "path": "runs/20260729_field_sweep_placement_stage_frames00008_00009/attempts/attempt-001/failure.json",
+      "sha256": "f0bf70eef553f3cbde15591a0e382ef8621ff36634a6a432bc69db4049105435"
+    },
+    "producer_result_markdown": {
+      "path": "benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_RESULT.md",
+      "sha256": "0e953c01301038bcc2e56ba513993fd6cde9d5a4c72ce65b6422739088b25cf8"
+    },
+    "producer_result_json": {
+      "path": "benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_RESULT.json",
+      "sha256": "cc425a241a961a81de6057d95ce59e368dd9a30ddbc3dbac983db61190bf6fb8"
+    }
+  },
+  "claim_disposition": {
+    "confirmed": [
+      "The official attempt was bound to the approved protocol, compact seal, exact frozen command, and clean source commit.",
+      "The first discarded bounded-midpoint warmup failed inside the locked source-projection invariant before publication.",
+      "No warmup completed, no measured cell ran, and no held-out metric was computed or published."
+    ],
+    "narrowed": [
+      "The recorded failure is strongly consistent with native-scale float32 round-off defeating a scale-independent absolute gate, but the diagnostic is not replay-complete causal proof."
+    ],
+    "unresolved": [
+      "All preregistered arm comparisons and compact-field quality hypotheses."
+    ],
+    "retired_for_this_attempt": [
+      "CPU resource, RGB, geometry, generalization, GPU, performance, and default claims.",
+      "Permission to resume or rerun the same official task."
+    ]
+  },
+  "checks": [
+    "Recomputed task, protocol-review, data-seal, task-lock, failure, result, marker, and locked-source hashes.",
+    "Validated the compact data seal: 55 files and 8373380 bytes.",
+    "Inspected locked warmup-first ordering, check=True fail-closed orchestration, refit exception, and held-out-validation control flow.",
+    "Enumerated the complete run tree and verified absence of measured/result artifacts.",
+    "Recomputed float32 covariance differences, relative error, ULP spacing, and gate ratio from the producer-recorded matrix."
+  ],
+  "not_performed": [
+    "No execution or replay of this experiment.",
+    "No inspection or execution of any successor experiment.",
+    "No RGB or mask access.",
+    "No edits to immutable task, review, run, result, source, docs/EXPERIMENTS.md, ARA, or active task."
+  ]
+}

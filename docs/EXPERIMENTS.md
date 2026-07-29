@@ -17,6 +17,39 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-30 — Fixed-anchor compact-field sweep fails before measured outcomes
+
+- **Question**: Does source-excluded robust coarse-to-fine compact-field placement improve
+  post-refit held-out compact-field error over matched bounded-midpoint and all-view-consensus
+  placement on frames 00008 and 00009?
+- **Setup**: Official task
+  `experiments/tasks/20260729_field_sweep_placement_stage_frames00008_00009.json`, approved
+  protocol digest `9ff7057e47e3ea6a2af0532edbecf13036a892d9805e02cfe26aee7f33732844`,
+  clean source `ec5735d5a549147f64490e57832578e72ae51400`, and exact command
+  `.venv/bin/python
+  scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py --task
+  experiments/tasks/20260729_field_sweep_placement_stage_frames00008_00009.json --run-dir
+  runs/20260729_field_sweep_placement_stage_frames00008_00009`. The compact seal revalidated
+  55 files and 8,373,380 bytes.
+- **Result**: The first discarded `frame_00008`, seed `290900`, `bounded_midpoint` warmup failed
+  at refit step 0 with `RuntimeError: fiber optimizer violated the exact source projection`.
+  No warmup completed, no measured cell ran, and no held-out metric was computed or published.
+  The independent audit reproduced the task/source/seal chronology and found the recorded
+  covariance discrepancies were one to three float32 ULPs: maximum absolute difference
+  `0.0234375`, maximum relative difference `2.803e-7`, and `117.1875×` the frozen absolute
+  `0.0002` gate. Result:
+  `benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_RESULT.md`;
+  audit:
+  `benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_AUDIT.md`.
+- **Conclusion**: This attempt is consumed and inconclusive due to a pre-measurement
+  implementation failure. Native-scale float32 round-off is strongly consistent with the
+  failure, but the diagnostic replay did not preserve raw tensors and therefore does not prove a
+  sole cause. The attempt supports no placement, quality, resource, geometry, generalization,
+  GPU, performance, or default conclusion.
+- **Follow-ups**: Preserve the run unchanged. Add an opt-in float64 CPU compute path with a
+  native-scale regression that retains the same absolute projection gate and structured failure
+  values. Any rerun requires a new task id, source state, protocol digest, and prospective review.
+
 ## 2026-07-28 — Compact-only carrier stage, policy, and sequence closure
 
 - **Question**: which carrier stages are mathematically valid and empirically necessary when every
