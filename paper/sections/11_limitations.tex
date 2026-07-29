@@ -1,0 +1,55 @@
+\section{Limitations}
+\label{sec:limitations}
+
+\paragraph{Claim boundary.}
+The VRAM claim covers post-fit reconstruction only.  Capture-time fitting costs real compute
+(disclosed, \toshow{table pending, O-2}) and requires access to the full-resolution images
+once.  Scenarios that need repeated access to original pixels (relighting, re-editing,
+re-fitting at higher budgets) must retain the source data somewhere --- the claim is about
+the reconstruction working set, not about deleting archives.
+
+\paragraph{Teacher ceiling.}
+Compact supervision can at best reproduce what the captures preserved.  Fit quality bounds
+reconstruction quality; high-frequency texture beyond the component budget is unrecoverable
+downstream.  The parity question of Part~I is therefore jointly a question about Stage-1
+budgets, and the rate--distortion analysis (\cref{fig:rd}) is part of the claim's support,
+not decoration.
+
+\paragraph{View-dependent appearance.}
+Current captures store one color model per 2D component fitted from one photograph; the
+carrier path trains SH0 and found incremental SH3 immaterial \emph{under compact
+supervision on one scene} (\cref{tab:ablations}).  Strongly view-dependent scenes
+(specular, glass) may expose this as the binding constraint.
+\toshow{Either demonstrate SH growth under compact supervision on a specular scene or scope
+the claim to approximately-diffuse captures (O-11).}
+
+\paragraph{Geometry guarantees.}
+The containment invariant is a visual-hull center rule (\cref{sec:containment}): it cannot
+detect hull-interior floaters and does not prove surface occupancy.  ``No free-floating
+Gaussians'' in the physical sense requires an independent occupancy test
+(\toshow{O-12}).
+
+\paragraph{Gauge non-identifiability.}
+Amplitude/color gauge freedom in the captures (\cref{sec:field-model}) means some 2D
+quantities have no physical 3D reading; every stage that consumes raw amplitudes must be
+gauge-audited.  Two former repair stages failed exactly this audit and are retired.
+
+\paragraph{Association risk in Beam Fusion.}
+CI fusion is conservative by construction, so Beam's principal failure mode is false
+contributor association across views (repetitive texture, thin structures).  The gates of
+\cref{eq:gates} are analytic but heuristic; the diagnostics of \cref{sec:exp2-diagnostics}
+make failures visible, and the matched carve control quantifies what the tomographic step
+adds.
+
+\paragraph{Evidence maturity.}
+All quantitative statements outside the mechanism results are single-scene, outcome-exposed
+development evidence, and are labelled as such where they appear.  The confirmatory program
+(\cref{sec:obligations}) --- fresh scenes, held-out cameras, paired seeds, preregistered
+gates, controlled resource measurement, standard benchmarks, and independent audit --- is
+the difference between this draft and a submittable paper.
+
+\paragraph{Static scenes.}
+The pipeline is static by design.  The carrier concept extends naturally toward dynamic
+capture (per-frame 2D Gaussian video $\to$ space--time Beam Fusion $\to$ 4D carriers
+$\to$ standard 4D Gaussian splatting); this paper intentionally establishes the static
+foundation and defers temporal modeling.
