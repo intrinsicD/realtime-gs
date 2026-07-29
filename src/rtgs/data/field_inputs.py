@@ -12,16 +12,18 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import TypeAlias
+from typing import TYPE_CHECKING, TypeAlias
 
 import torch
 
 from rtgs.core.camera import Camera
-from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.observation2d import GaussianObservationField
 from rtgs.data.compact_views import CompactDataset, PackedAlpha
 from rtgs.data.reconstruction_inputs import ReconstructionInputs
-from rtgs.data.scene import SceneData
+
+if TYPE_CHECKING:
+    from rtgs.core.gaussians2d import Gaussians2D
+    from rtgs.data.scene import SceneData
 
 AlphaData: TypeAlias = PackedAlpha | torch.Tensor | None
 

@@ -13,16 +13,15 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Literal
 
 import torch
 
-from rtgs.core.gaussians2d import Gaussians2D
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.core.observation2d import GaussianObservationField
 from rtgs.data.compact_views import CompactDataset, PackedAlpha
 from rtgs.data.field_inputs import SceneFits
 from rtgs.data.reconstruction_inputs import ReconstructionInputs
-from rtgs.data.scene import SceneData
 from rtgs.lift.compact_carve import (
     CompactCarveConfig,
     CompactCarveInitializer,
@@ -39,6 +38,7 @@ from rtgs.lift.field_refit import (
     FieldRefitResult,
     fit_field_fibers,
 )
+from rtgs.lift.field_sweep import FieldSweepConfig, FieldSweepInitializer
 from rtgs.lift.field_topology import (
     DeterministicTopologyScheduler,
     FieldComponent,
@@ -62,17 +62,34 @@ from rtgs.lift.field_visibility import center_transmittance_visibility
 from rtgs.lift.inverse_projection_fiber import InverseProjectionFiber
 from rtgs.render.projection import EWA_DILATION, project_gaussians_ewa
 
+if TYPE_CHECKING:
+    from rtgs.core.gaussians2d import Gaussians2D
+    from rtgs.data.scene import SceneData
+
+FieldPlacementMode = Literal[
+    "compact_carve",
+    "fixed_bounded_midpoint",
+    "fixed_all_view_consensus",
+    "fixed_source_excluded_robust",
+]
+
 
 @dataclass(frozen=True)
 class FieldLiftConfig:
     """CPU-bounded controls for placement, refit, and correspondence output."""
 
+    placement_mode: FieldPlacementMode = "compact_carve"
     max_tracks: int = 128
     max_train_views: int = 8
     depth_samples: int = 32
     candidate_multiplier: int = 3
+    sweep_anchor_pool_multiplier: int = 2
+    sweep_rounds: int = 3
     min_views: int = 2
     robust_view_fraction: float = 0.60
+    sweep_refine_ratio: float = 0.30
+    sweep_color_sigma: float = 0.20
+    sweep_cost_tau: float = 0.01
     min_placement_score: float = 0.01
     projection_dilation: float = EWA_DILATION
     init_opacity: float = 0.10
@@ -93,6 +110,8 @@ class FieldLiftConfig:
             "max_train_views",
             "depth_samples",
             "candidate_multiplier",
+            "sweep_anchor_pool_multiplier",
+            "sweep_rounds",
             "min_views",
             "validation_sample_cap",
             "seed",
@@ -107,6 +126,8 @@ class FieldLiftConfig:
             or self.max_train_views <= 0
             or self.depth_samples < 2
             or self.candidate_multiplier <= 0
+            or self.sweep_anchor_pool_multiplier <= 0
+            or self.sweep_rounds <= 0
             or self.min_views <= 0
             or self.validation_sample_cap <= 0
             or self.seed < 0
@@ -114,8 +135,18 @@ class FieldLiftConfig:
             or self.topology_merge_candidates <= 0
         ):
             raise ValueError("integer field-lift controls are outside their valid range")
+        if self.placement_mode not in {
+            "compact_carve",
+            "fixed_bounded_midpoint",
+            "fixed_all_view_consensus",
+            "fixed_source_excluded_robust",
+        }:
+            raise ValueError("placement_mode is not supported")
         for name in (
             "robust_view_fraction",
+            "sweep_refine_ratio",
+            "sweep_color_sigma",
+            "sweep_cost_tau",
             "min_placement_score",
             "projection_dilation",
             "init_opacity",
@@ -129,6 +160,10 @@ class FieldLiftConfig:
                 raise ValueError(f"{name} must be finite")
         if not 0.0 < self.robust_view_fraction <= 1.0:
             raise ValueError("robust_view_fraction must be in (0,1]")
+        if not 0.0 < self.sweep_refine_ratio <= 0.5:
+            raise ValueError("sweep_refine_ratio must be in (0,0.5]")
+        if self.sweep_color_sigma <= 0 or self.sweep_cost_tau <= 0:
+            raise ValueError("sweep_color_sigma and sweep_cost_tau must be positive")
         if self.min_placement_score < 0 or self.projection_dilation < 0:
             raise ValueError("placement score and projection dilation must be non-negative")
         if not 0.0 < self.init_opacity < 1.0:
@@ -165,12 +200,14 @@ class FieldPlacementResult:
 class FieldLiftResult:
     """Complete image-free Stage-2 output and reproducibility diagnostics."""
 
+    gaussians_init: Gaussians3D
     gaussians: Gaussians3D
     placement: FieldPlacementResult
     refit: FieldRefitResult
     correspondences: tuple[torch.Tensor, ...]
     correspondence_visibility: torch.Tensor
     topology_receipts: tuple[MoveReceipt, ...]
+    placement_semantic_validation: FieldValidationResult
     semantic_validation: FieldValidationResult
     optimized_view_indices: tuple[int, ...]
     heldout_view_indices: tuple[int, ...]
@@ -563,28 +600,61 @@ def _place(
     inputs, bounds_source = _training_inputs(fits, selected_global_views)
     total_components = sum(field.n for field in inputs.observations)
     count = min(config.max_tracks, total_components)
-    carve_config = CompactCarveConfig(
-        n_init_3d=count,
-        candidate_multiplier=config.candidate_multiplier,
-        anchor_mode="component_centers",
-        samples_per_ray=config.depth_samples,
-        query_batch_size=max(config.depth_samples, min(4096, count * config.depth_samples)),
-        min_views=min(config.min_views, len(selected_global_views)),
-        hull_fraction=config.robust_view_fraction,
-        min_score=config.min_placement_score,
-        init_opacity=config.init_opacity,
-        seed=config.seed,
-    )
     fallback_reason: str | None = None
-    try:
-        initialization = CompactCarveInitializer(carve_config).initialize(inputs)
-    except ValueError as error:
-        fallback_reason = str(error)
-        initialization = _fallback_initialization(
-            inputs,
-            count=count,
-            opacity=config.init_opacity,
+    if config.placement_mode == "compact_carve":
+        carve_config = CompactCarveConfig(
+            n_init_3d=count,
+            candidate_multiplier=config.candidate_multiplier,
+            anchor_mode="component_centers",
+            samples_per_ray=config.depth_samples,
+            query_batch_size=max(
+                config.depth_samples,
+                min(4096, count * config.depth_samples),
+            ),
+            min_views=min(config.min_views, len(selected_global_views)),
+            hull_fraction=config.robust_view_fraction,
+            min_score=config.min_placement_score,
+            init_opacity=config.init_opacity,
+            seed=config.seed,
         )
+        try:
+            initialization = CompactCarveInitializer(carve_config).initialize(inputs)
+        except ValueError as error:
+            fallback_reason = str(error)
+            initialization = _fallback_initialization(
+                inputs,
+                count=count,
+                opacity=config.init_opacity,
+            )
+    else:
+        sweep_mode = {
+            "fixed_bounded_midpoint": "bounded_midpoint",
+            "fixed_all_view_consensus": "all_view_consensus",
+            "fixed_source_excluded_robust": "source_excluded_robust",
+        }[config.placement_mode]
+        initialization = FieldSweepInitializer(
+            FieldSweepConfig(
+                n_init_3d=count,
+                mode=sweep_mode,
+                anchor_pool_multiplier=config.sweep_anchor_pool_multiplier,
+                samples_per_round=config.depth_samples,
+                coarse_to_fine_rounds=config.sweep_rounds,
+                refine_ratio=config.sweep_refine_ratio,
+                robust_keep_fraction=config.robust_view_fraction,
+                min_neighbor_views=min(
+                    config.min_views,
+                    max(1, len(selected_global_views) - 1),
+                ),
+                color_sigma=config.sweep_color_sigma,
+                cost_tau=config.sweep_cost_tau,
+                init_opacity=config.init_opacity,
+                query_batch_size=max(
+                    config.depth_samples,
+                    min(4096, count * config.depth_samples),
+                ),
+                seed=config.seed,
+            )
+        ).initialize(inputs)
 
     global_map = torch.tensor(selected_global_views, dtype=torch.long)
     global_views = global_map[initialization.lineage.source_view_indices]
@@ -689,6 +759,7 @@ def _place(
 
     diagnostics: dict[str, object] = {
         "placement": dict(initialization.diagnostics),
+        "placement_mode": config.placement_mode,
         "placement_fallback_reason": fallback_reason,
         "bounds_source": bounds_source,
         "geometry_is_train_only": fits.geometry_is_train_only,
@@ -1342,6 +1413,18 @@ class FieldLifter:
             self.config.max_train_views,
         )
         placement = _place(working, selected, self.config)
+        gaussians_init = placement.fiber.as_gaussians(
+            colors=placement.source_colors,
+            opacity=placement.render_opacity,
+        ).detach()
+        initial_source_global_view_indices = placement.source_global_view_indices.detach().clone()
+        initial_field_masses = placement.field_masses.detach().clone()
+        initial_projection_dilation = placement.fiber.dilation
+        validation_config = FieldValidationConfig(
+            sample_cap_per_view=self.config.validation_sample_cap,
+            seed=self.config.seed,
+            component_chunk=self.config.refit.chunk_size,
+        )
         references = tuple(
             _analytic_field(
                 working.observations[index],
@@ -1381,16 +1464,29 @@ class FieldLifter:
             dustbin=self.config.correspondence_dustbin,
         )
         validation_masses = all_view_visibility.weights * refit.field_masses[None, :]
+        # Held-out compact teachers remain untouched until placement and refit have both
+        # completed. The initial model is retained above, then evaluated post hoc here under
+        # the same immutable samples as the final model.
+        placement_visibility = center_transmittance_visibility(
+            gaussians_init,
+            working.cameras,
+            source_view_indices=initial_source_global_view_indices,
+            force_source_visible=self.config.refit.force_source_visible,
+            dilation=initial_projection_dilation,
+        )
+        placement_semantic_validation = validate_field_semantics(
+            working,
+            working.cameras,
+            gaussians_init,
+            placement_visibility.weights * initial_field_masses[None, :],
+            config=validation_config,
+        )
         semantic_validation = validate_field_semantics(
             working,
             working.cameras,
             refit.gaussians,
             validation_masses,
-            config=FieldValidationConfig(
-                sample_cap_per_view=self.config.validation_sample_cap,
-                seed=self.config.seed,
-                component_chunk=self.config.refit.chunk_size,
-            ),
+            config=validation_config,
         )
         ranks = [report.rank for report in refit.observability]
         finite_conditions = [
@@ -1430,6 +1526,20 @@ class FieldLifter:
             "source_projection_max_error": refit.source_projection_max_error,
             "source_color_max_error": refit.source_color_max_error,
             "correspondence_visibility_mean": float(all_view_visibility.weights.mean()),
+            "placement_semantic_train_density_mse": (
+                placement_semantic_validation.train.density_mse
+            ),
+            "placement_semantic_train_rgb_mse": placement_semantic_validation.train.rgb_mse,
+            "placement_semantic_heldout_density_mse": (
+                None
+                if placement_semantic_validation.heldout is None
+                else placement_semantic_validation.heldout.density_mse
+            ),
+            "placement_semantic_heldout_rgb_mse": (
+                None
+                if placement_semantic_validation.heldout is None
+                else placement_semantic_validation.heldout.rgb_mse
+            ),
             "semantic_train_density_mse": semantic_validation.train.density_mse,
             "semantic_train_rgb_mse": semantic_validation.train.rgb_mse,
             "semantic_heldout_density_mse": (
@@ -1442,20 +1552,24 @@ class FieldLifter:
             ),
         }
         if original_device.type != "cpu":
+            initial_gaussians_output = gaussians_init.to(original_device)
             gaussians = refit.gaussians.to(original_device)
             correspondence_output = tuple(plan.to(original_device) for plan in correspondences)
             correspondence_visibility = all_view_visibility.weights.to(original_device)
         else:
+            initial_gaussians_output = gaussians_init
             gaussians = refit.gaussians
             correspondence_output = correspondences
             correspondence_visibility = all_view_visibility.weights
         return FieldLiftResult(
+            gaussians_init=initial_gaussians_output,
             gaussians=gaussians,
             placement=placement,
             refit=refit,
             correspondences=correspondence_output,
             correspondence_visibility=correspondence_visibility,
             topology_receipts=topology_receipts,
+            placement_semantic_validation=placement_semantic_validation,
             semantic_validation=semantic_validation,
             optimized_view_indices=selected,
             heldout_view_indices=working.heldout_view_indices,
@@ -1492,5 +1606,6 @@ __all__ = [
     "FieldLiftConfig",
     "FieldLiftResult",
     "FieldLifter",
+    "FieldPlacementMode",
     "FieldPlacementResult",
 ]

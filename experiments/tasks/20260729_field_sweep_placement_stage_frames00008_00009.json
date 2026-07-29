@@ -1,0 +1,287 @@
+{
+  "schema_version": 2,
+  "task_id": "20260729_field_sweep_placement_stage_frames00008_00009",
+  "date": "20260729",
+  "task_slug": "field_sweep_placement",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "direct_compact",
+  "status": "ready",
+  "owner": "Codex-field-sweep-driver",
+  "protocol_review": {
+    "reviewer": "Codex-protocol-reviewer",
+    "verdict": "approved",
+    "protocol_sha256": "9ff7057e47e3ea6a2af0532edbecf13036a892d9805e02cfe26aee7f33732844",
+    "artifact": "experiments/reviews/20260729_field_sweep_placement_stage_frames00008_00009_PROTOCOL_REVIEW.md"
+  },
+  "depends_on": [],
+  "title": "Robust compact-field plane-sweep placement",
+  "question": "Does coarse-to-fine source-excluded robust compact-field agreement improve held-out compact-field reconstruction relative to the same fixed source rays placed at their bounded midpoint or scored by all-view consensus?",
+  "hypothesis": "With identical deterministic source anchors, bounds, field refit, topology, and evaluation samples, robust source-excluded sweep reduces final held-out compact RGB MSE by at least 5% relative to bounded midpoint and wins at least two of three paired seeds on both outcome-exposed scenes, while retaining at least 95% supported tracks and preserving source projection.",
+  "claim_boundary": "Development and replication evidence about three named CPU compact-field placement arms on outcome-exposed frames 00008 and 00009. The task cannot establish RGB image quality, physical surface accuracy, GPU behavior, speed, cross-dataset generalization, topology utility, or a production-default change.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    290901,
+    290902,
+    290903
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer",
+      "rtgs.carrier_pipeline",
+      "rtgs.lift.beam_fusion",
+      "rtgs.lift.carrier_refinement",
+      "rtgs.optim.carrier_schedule"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "deny_beam_imports"
+  ],
+  "frozen_configuration": {
+    "driver": "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py",
+    "arms": {
+      "bounded_midpoint": "fixed_bounded_midpoint",
+      "all_view_consensus": "fixed_all_view_consensus",
+      "source_excluded_robust": "fixed_source_excluded_robust"
+    },
+    "compact_loading": {
+      "load_alpha": false,
+      "embedded_alpha_used_for_reconstruction": false
+    },
+    "field_lift": {
+      "max_tracks": 128,
+      "max_train_views": 8,
+      "depth_samples": 32,
+      "sweep_anchor_pool_multiplier": 2,
+      "sweep_rounds": 3,
+      "min_views": 2,
+      "robust_view_fraction": 0.6,
+      "sweep_refine_ratio": 0.3,
+      "sweep_color_sigma": 0.2,
+      "sweep_cost_tau": 0.01,
+      "background_fraction": 0.0,
+      "topology_rounds": 0,
+      "validation_sample_cap": 512
+    },
+    "refit": {
+      "iterations": 20,
+      "learning_rate": 0.025,
+      "appearance_start": 20,
+      "sh_degree": 1,
+      "density_weight": 1.0,
+      "rgb_weight": 0.25,
+      "null_prior_weight": 0.05,
+      "observability_condition_limit": 100000.0,
+      "visibility_refresh": 5,
+      "gain_ridge": 1e-06,
+      "chunk_size": 256,
+      "gradient_clip": 10.0,
+      "force_source_visible": true
+    }
+  },
+  "stages": [
+    {
+      "id": "fixed_anchor_placement",
+      "label": "Fixed-anchor placement",
+      "purpose": "Select one deterministic balanced top-mass source-ray set per seed and place it by bounded midpoint, all-view consensus sweep, or source-excluded robust sweep."
+    },
+    {
+      "id": "matched_field_refit",
+      "label": "Matched field refit",
+      "purpose": "Run identical continuous field-fiber refit with topology disabled so later metrics isolate placement and its interaction with the same optimizer."
+    },
+    {
+      "id": "heldout_compact_evaluation",
+      "label": "Held-out compact evaluation",
+      "purpose": "Evaluate immutable held-out compact teachers only after each arm finishes and preserve per-view, seed, scene, and source-projection diagnostics."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "bounded_midpoint",
+      "label": "Bounded midpoint",
+      "purpose": "No-sweep lower control using the exact same source rays, AABB intervals, covariance construction, count, and refit."
+    },
+    {
+      "id": "all_view_consensus",
+      "label": "All-view consensus sweep",
+      "purpose": "Controls source-view exclusion and robust trimming while retaining the same coarse-to-fine depth grid and fixed anchors."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "placement_heldout_rgb_mse",
+      "label": "Placement held-out compact RGB MSE",
+      "unit": "mse",
+      "direction": "lower",
+      "aggregation": "sample-weighted held-out views, paired by scene and seed; the root summary is the robust-arm geometric mean, with every arm cell and the robust-to-midpoint geometric mean ratio retained"
+    },
+    {
+      "id": "final_heldout_rgb_mse",
+      "label": "Final held-out compact RGB MSE",
+      "unit": "mse",
+      "direction": "lower",
+      "aggregation": "sample-weighted held-out views, paired by scene and seed; robust sweep must win at least two of three seeds on each scene"
+    },
+    {
+      "id": "final_heldout_density_mse",
+      "label": "Final held-out compact density MSE",
+      "unit": "mse",
+      "direction": "lower",
+      "aggregation": "sample-weighted held-out views, paired by scene and seed"
+    },
+    {
+      "id": "supported_track_fraction",
+      "label": "Supported track fraction",
+      "unit": "fraction",
+      "direction": "higher",
+      "aggregation": "minimum over robust-sweep scene and seed cells; frozen guardrail at 0.95"
+    },
+    {
+      "id": "source_projection_max_error",
+      "label": "Source projection maximum error",
+      "unit": "pixels",
+      "direction": "lower",
+      "aggregation": "maximum over every arm, scene, and seed; structural guardrail at 0.0002 pixels"
+    },
+    {
+      "id": "wall_seconds",
+      "label": "CPU wall time",
+      "unit": "seconds",
+      "direction": "descriptive",
+      "aggregation": "descriptive per-arm and per-scene medians over three measured seeds; the root summary is the median of all measured cells and supports no performance claim"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh single-thread CPU process per scene, seed, and arm from compact-manifest open through final field validation and atomic artifact save; arm order is counterbalanced across measured seeds",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "one discarded warmup per scene and arm, followed by three paired measured seeds; retain every raw scene, seed, arm, end-to-end time, worker time, output size, and ru_maxrss; timings are descriptive only",
+    "cuda_metrics": [
+      "cuda_not_used_cpu_reference_experiment"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_compact.json",
+  "run_command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py",
+    "--task",
+    "experiments/tasks/20260729_field_sweep_placement_stage_frames00008_00009.json",
+    "--run-dir",
+    "runs/20260729_field_sweep_placement_stage_frames00008_00009"
+  ],
+  "blockers": []
+}

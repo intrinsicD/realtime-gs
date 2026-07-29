@@ -516,3 +516,17 @@ entries:
       - "Created no merge commit because local main and origin/main were synchronized before the new commit; no branch or pull request was needed for the user's explicitly requested direct-main publication."
       - "Treated the user's publish authorization as authority for the Git operation, not as a distinct technical review; RTGS-001 remains provisionally accepted and unarchived."
       - "No staged observation received a closure signal, contradiction, or new stale disposition, and no exploration node, claim, heuristic, or evidence artifact was added."
+  - turn: "2026-07-29_001#4"
+    notes:
+      - "Routed the user's merge-versus-drop question as open N173 and the reproducible branch audit as resolved experiment N174."
+      - "Staged O144 as a constraint rather than a retirement decision: the recommendation is AI-generated and the user has not adopted it."
+      - "Separated historical CPU mechanism evidence from merge readiness: three focused tests pass with CUDA hidden, while current-main integration, CUDA execution, source binding, and calibrated utility fail or remain absent."
+      - "Did not promote the branch prose's geometry, confidence, polish, quality, or speed statements; its tracked JSON neither contains several claimed measurements nor matches the approximately 23.9 dB cost endpoint."
+      - "Found no contradiction with the current field-lift design, which already labels the raw-RGB lifter unmerged and calls for a distinct compact-field port. No existing observation received a closure signal or new stale disposition."
+  - turn: "2026-07-29_001#5"
+    notes:
+      - "Routed the user's adoption of the modern-port recommendation as decision N175, resolving N173 while keeping operational branch deletion open until explicitly authorized."
+      - "Recorded the independent prospective protocol disposition as N176 rather than as an experiment result: the reviewer initially rejected held-out timing, resource scope, runtime seal binding and alpha ambiguity, then approved the corrected frozen protocol without protected outcome access."
+      - "Staged O145 and crystallized it as architecture A16 via artifact commitment because code, tests, design docs, accepted task, exact contract and review now depend on the fixed-anchor compact-field seam."
+      - "Did not promote O144 wholesale: the user adopted the reimplementation/retirement direction, but its bundled archive/delete operation has not occurred."
+      - "Introduced no scientific result, quality, generalization, performance, CUDA or default claim; synthetic tests and full verification establish implementation and protocol integrity only."

@@ -2,11 +2,47 @@ session:
   id: "2026-07-29_001"
   date: "2026-07-29"
   started: "2026-07-29T12:46+02:00"
-  last_turn: "2026-07-29T13:25+02:00"
-  turn_count: 3
-  summary: "Completed, CPU-verified, and published bounded agent-workflow hardening to origin/main; RTGS-001 remains provisionally accepted pending distinct review."
+  last_turn: "2026-07-29T20:49+02:00"
+  turn_count: 5
+  summary: "Implemented and prospectively approved a fixed-anchor compact-field sweep experiment; protected execution and branch deletion remain pending."
 
-events_logged: []
+events_logged:
+  - turn: 4
+    type: question
+    id: N173
+    routing: direct
+    provenance: user
+    summary: "Opened the merge-versus-retire decision for the unmerged cost-volume branch."
+  - turn: 4
+    type: experiment
+    id: N174
+    routing: direct
+    provenance: ai-executed
+    summary: "Audited merge conflicts, CPU tests, CUDA behavior, and claim/source binding."
+  - turn: 4
+    type: observation
+    id: O144
+    routing: staged
+    provenance: ai-suggested
+    summary: "Recommended archiving the prototype and deleting the branch rather than merging it."
+  - turn: 5
+    type: decision
+    id: N175
+    routing: direct
+    provenance: user
+    summary: "Chose a modern compact-field reimplementation on main before retiring the branch."
+  - turn: 5
+    type: decision
+    id: N176
+    routing: direct
+    provenance: ai-executed
+    summary: "Approved the corrected, sealed and outcome-blind fixed-anchor sweep protocol."
+  - turn: 5
+    type: observation
+    id: O145
+    routing: staged
+    provenance: ai-executed
+    summary: "Crystallized the implemented fixed-anchor compact-field experiment seam as A16."
 
 ai_actions:
   - turn: 1
@@ -74,12 +110,50 @@ ai_actions:
     provenance: ai-executed
     files_changed:
       - ".agents/state/current-task.md"
+  - turn: 4
+    action: >
+      Compared the sole unique cost-volume commit against current main, previewed the merge,
+      audited the code and historical claims, ran its focused tests in an isolated detached
+      worktree with and without CUDA visibility, reproduced a CUDA device mismatch, and removed
+      the temporary worktrees. No branch, source, task, or remote state was changed.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 5
+    action: >
+      Reimplemented the useful plane-sweep mechanism as a CPU-first fixed-anchor compact-field
+      placement module and three opt-in FieldLifter modes; added deterministic parity, exclusion,
+      bounds, held-out timing and live access-denial tests; froze a two-scene, three-seed paired
+      experiment contract and exact driver; obtained a distinct prospective review, corrected
+      every blocking finding, sealed the data and task lock, archived accepted RTGS-002, and ran
+      the full repository verification successfully. No protected experiment outcome was opened,
+      no default changed, and no branch was deleted.
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/lift/field_sweep.py"
+      - "src/rtgs/lift/field_lifter.py"
+      - "src/rtgs/data/field_inputs.py"
+      - "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py"
+      - "experiments/tasks/20260729_field_sweep_placement_stage_frames00008_00009.json"
+      - "experiments/reviews/20260729_field_sweep_placement_stage_frames00008_00009_PROTOCOL_REVIEW.md"
+      - "tests/test_field_lifter.py"
+      - "tests/test_field_sweep_experiment_driver.py"
+      - "docs/DESIGN_field_lift.md"
+      - "docs/ARCHITECTURE.md"
+      - "docs/tasks/RTGS-002-field-sweep-experiment.md"
 
 key_context:
   - turn: 2
     excerpt: "The user explicitly resumed the paused repository-workflow task."
   - turn: 3
     excerpt: "The user explicitly authorized committing all changes on main and pushing them to the remote."
+  - turn: 4
+    excerpt: "The user asked whether the unmerged cost-volume branch should be merged or dropped."
+  - turn: 5
+    excerpt: "The user chose to reimplement the idea as an experiment on main, then retire the historical branch."
 
 open_threads:
-  - "A distinct reviewer or human may review and archive RTGS-001; no scientific or runtime work is blocked."
+  - "Commit a clean source state, initialize and execute the exact ready RTGS-002 task, then obtain an independent results audit before interpreting outcomes."
+  - "Delete claude/3d-gaussian-splatting-pipeline-twa00k only after explicit operational authorization; the replacement is present but the branch remains intact."
+
+ai_suggestions_pending:
+  - "Run the exact ready task from a clean committed source state, audit the protected results independently, and retire the historical branch only when the user explicitly authorizes deletion."

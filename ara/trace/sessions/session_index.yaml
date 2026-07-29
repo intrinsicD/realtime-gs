@@ -99,8 +99,8 @@ sessions:
     open_threads: 3
   - id: "2026-07-29_001"
     date: "2026-07-29"
-    summary: "Completed, CPU-verified, and published bounded agent-workflow hardening to origin/main; RTGS-001 remains provisionally accepted pending distinct review."
-    turn_count: 3
-    events_count: 0
+    summary: "Implemented and prospectively approved a fixed-anchor compact-field sweep experiment; protected execution and branch deletion remain pending."
+    turn_count: 5
+    events_count: 6
     claims_touched: []
-    open_threads: 1
+    open_threads: 2

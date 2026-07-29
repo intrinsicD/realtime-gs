@@ -243,3 +243,24 @@
   `rtgs lift-field`, but remains research-only. Unit tests and bounded compact-input smokes establish
   mechanism/integration behavior only; calibrated reconstruction quality, topology utility,
   runtime/memory scaling, CUDA behavior, and default status remain open.
+
+## A16: Fixed-anchor compact-field placement experiment seam
+- **Design**: A seeded, view-balanced anchor sampler fixes the source components, bounded inverse-
+  projection rays and anchor identity before the arm is chosen. `FieldLifter` can then place those
+  exact anchors at bounded midpoints, by all-view compact-field consensus, or by source-excluded
+  robust coarse-to-fine consensus. Unsupported anchors remain explicit and reduce support; every
+  refinement interval is clamped to the original ray bound. Refit and topology operate on the
+  resulting training-only model before any held-out semantic validation.
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Evidence**: [N175, N176, `docs/tasks/RTGS-002-field-sweep-experiment.md`,
+  `experiments/tasks/20260729_field_sweep_placement_stage_frames00008_00009.json`,
+  `experiments/reviews/20260729_field_sweep_placement_stage_frames00008_00009_PROTOCOL_REVIEW.md`]
+- **Code ref**: [`src/rtgs/lift/field_sweep.py`, `src/rtgs/lift/field_lifter.py`,
+  `scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py`,
+  `tests/test_field_lifter.py`, `tests/test_field_sweep_experiment_driver.py`]
+- **From staging**: O145
+- **Boundary**: This is an opt-in CPU experiment seam. `compact_carve` remains the production
+  default, protected outcomes have not been opened, and no quality, generalization, runtime,
+  CUDA, branch-retirement or default-change conclusion follows from implementation and protocol
+  verification alone.

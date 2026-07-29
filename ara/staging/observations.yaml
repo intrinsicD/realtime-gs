@@ -2251,3 +2251,43 @@ observations:
     promoted_to: "logic/claims.md:C31"
     crystallized_via: artifact-commitment
     stale: false
+  - id: O144
+    timestamp: "2026-07-29T13:43+02:00"
+    provenance: ai-suggested
+    content: >
+      Commit d5accb7 should not be merged into current main. Its raw-RGB plane-sweep
+      mechanism remains a useful historical code donor, but the implementation conflicts
+      with the modern bounded-ray lifter and lazy registry, fails its stated CUDA direction,
+      and lacks source-bound evidence for its strongest prose claims. Preserve the commit
+      through an archive tag or patch, delete the active branch, and open a fresh task only
+      if the compact-field sweep already described in DESIGN_field_lift is reprioritized.
+    context: >
+      Merge-worthiness and results audit N174 in response to the user's open branch decision
+      N173. This is an AI recommendation, not a user-adopted retirement decision.
+    potential_type: constraint
+    bound_to: [N173, N174]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O145
+    timestamp: "2026-07-29T20:49+02:00"
+    provenance: ai-executed
+    content: >
+      The historical plane-sweep mechanism can be expressed without source rasters or mutable
+      production behavior as a fixed-anchor compact-field placement seam. Seeded balanced source
+      anchors, their original bounded ray intervals, downstream refit/topology, held-out cameras,
+      seeds and evaluation are shared exactly; only midpoint placement, all-view compact-field
+      consensus, or source-excluded robust coarse-to-fine scoring varies. Unsupported anchors stay
+      explicit and count against support, source exclusion is structural, and held-out evaluation
+      occurs only after fitting. The existing compact_carve path remains the default.
+    context: >
+      Implemented, CPU-tested, documentation-bound and prospectively approved in RTGS-002 without
+      opening protected outcomes. This records an experiment architecture, not evidence that any
+      placement arm improves reconstruction quality, runtime or generalization.
+    potential_type: architecture
+    bound_to: [N175, N176]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A16"
+    crystallized_via: artifact-commitment
+    stale: false

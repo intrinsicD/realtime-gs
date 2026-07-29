@@ -3053,3 +3053,79 @@ tree:
       - "docs/ADR-002-carrier-refinement.md"
     also_depends_on: [N171]
     status: resolved
+  - id: N173
+    type: question
+    title: "Should the unmerged raw-RGB plane-sweep prototype be merged or retired?"
+    provenance: user
+    timestamp: "2026-07-29T13:43+02:00"
+    description: >
+      The user asked whether remote branch claude/3d-gaussian-splatting-pipeline-twa00k,
+      whose sole main-unique commit is d5accb7502a13ef69ad56d953c27a2711fe9ab9c, should
+      be merged into main or dropped. N175 resolves the choice in favor of a modern
+      compact-field reimplementation on main followed by retirement of the historical branch.
+    status: resolved
+  - id: N174
+    type: experiment
+    title: "Merge-worthiness and evidence audit of the unmerged cost-volume commit"
+    provenance: ai-executed
+    timestamp: "2026-07-29T13:43+02:00"
+    result: >
+      A three-way merge preview found seven content conflicts against current main. The
+      branch's three cost-volume tests and Ruff check pass only with CUDA hidden; on the
+      GPU-visible host the focused suite selects an incompatible automatic gsplat path,
+      and a direct CUDA sweep probe fails because newly allocated depth tensors remain on
+      CPU. The checked-in JSON records the pre-commit parent revision and a default cost
+      endpoint of 18.4755 dB, while branch prose cites approximately 23.9 dB and exact
+      geometry/confidence/polish numbers absent from that artifact. Current main explicitly
+      describes the intended successor as a port of the unmerged idea to compact-field
+      evaluation, not a raw-RGB merge.
+    evidence:
+      - "git commit d5accb7502a13ef69ad56d953c27a2711fe9ab9c"
+      - "docs/DESIGN_field_lift.md"
+    also_depends_on: [N173]
+    status: resolved
+  - id: N175
+    type: decision
+    title: "Reimplement the plane-sweep idea as a compact-field experiment and retire the branch"
+    provenance: user
+    timestamp: "2026-07-29T20:49+02:00"
+    choice: >
+      Preserve the useful fixed-anchor plane-sweep mechanism without merging the historical
+      raw-RGB implementation. Reimplement it against current compact observation fields on main
+      as a frozen, runnable experiment; compare bounded midpoint, all-view consensus and
+      source-excluded robust coarse-to-fine placement under shared anchors; leave the production
+      compact_carve default unchanged; and retire the historical branch after the replacement is
+      safely present. Operational branch deletion remains pending explicit authorization.
+    alternatives:
+      - "Merge d5accb7 and resolve its raw-RGB, device, registry and pipeline conflicts."
+      - "Delete the historical branch without preserving the mechanism in the current architecture."
+      - "Keep the historical branch indefinitely as the active implementation."
+    evidence:
+      - N173
+      - N174
+      - O144
+      - "docs/tasks/RTGS-002-field-sweep-experiment.md"
+      - "experiments/tasks/20260729_field_sweep_placement_stage_frames00008_00009.json"
+    status: resolved
+  - id: N176
+    type: decision
+    title: "Approve the corrected fixed-anchor compact-field sweep protocol prospectively"
+    provenance: ai-executed
+    timestamp: "2026-07-29T20:49+02:00"
+    choice: >
+      Accept RTGS-002 at pipeline-integrated maturity and mark its exact protocol ready only after
+      moving held-out evaluation after all fitting and topology work, binding the task lock and
+      exact compact-data seal in both orchestrator and workers, disabling alpha, constraining
+      resources per worker, and adding live import/image-access negative controls. No protected
+      outcome was opened and no result or default-change claim is authorized.
+    alternatives:
+      - "Approve the first draft despite pre-refit held-out access and incomplete runtime binding."
+      - "Reject the mechanism without allowing bounded protocol corrections."
+      - "Run the protected experiment before prospective review passes."
+    evidence:
+      - "experiments/reviews/20260729_field_sweep_placement_stage_frames00008_00009_PROTOCOL_REVIEW.md"
+      - "docs/tasks/RTGS-002-field-sweep-experiment.md"
+      - "tests/test_field_lifter.py"
+      - "tests/test_field_sweep_experiment_driver.py"
+    also_depends_on: [N175]
+    status: resolved

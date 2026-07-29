@@ -286,11 +286,39 @@ Maskless is the **main** path for casual/outside-in captures (e.g. the roadmap's
   photo-consistency.
 - **Tier 3 — identical to the masked field-fit loop (§4).** A mediocre maskless init is
   recoverable because birth/teleport targets unexplained field mass. Random-in-bounds is the
-  honest floor; **per-ray gradient descent stays off the ladder** (the log is the argument).
+honest floor; **per-ray gradient descent stays off the ladder** (the log is the argument).
 
 Maskless-specific cautions: the observability gate matters *more* (outside-in arcs are
 two-view-conditioned over large regions); expect a **foreground/background split** to replace the
 mask semantically (far-shell gaussians as a separate population with a coarser budget).
+
+### 5.1 Fixed-anchor sweep experiment seam
+
+`rtgs.lift.field_sweep` now implements the Tier-2 mechanism as bounded CPU reference code, while
+`FieldLiftConfig.placement_mode="compact_carve"` remains the unchanged default. Three opt-in
+treatments make placement falsifiable without changing later stages:
+
+- `fixed_bounded_midpoint` places each selected source ray at the midpoint of its original
+  ray/AABB interval;
+- `fixed_all_view_consensus` searches the same interval coarse-to-fine using all-view compact
+  field consensus;
+- `fixed_source_excluded_robust` uses the source field as the color target, excludes that source
+  view from neighbor support, and retains a fixed lowest-cost fraction of the remaining views.
+
+For a given seed, every treatment receives the same balanced top-mass source components, source
+rays, covariance construction, track count, bounds, refit, and evaluation samples. Refinement is
+clamped to each original ray interval; unsupported robust rays remain at the explicit midpoint
+and count against the reported support guardrail rather than disappearing through an unreported
+fallback. `FieldLifter.fit` retains the pre-refit model as `gaussians_init`, completes placement
+and refit before querying any held-out compact teacher, then evaluates the retained initial and
+final models post hoc under identical frozen samples.
+
+The prospective protocol is
+`experiments/tasks/20260729_field_sweep_placement_stage_frames00008_00009.json`. Its runner uses
+fresh single-thread workers, rehashes the locked compact data seal, denies image/legacy/Beam
+imports and image-file opens, and sets `load_alpha=False`, so packed mask-derived alpha cannot
+affect an arm. This registration is an experiment mechanism, not evidence that robust placement
+wins and not authorization to change the default.
 
 ---
 

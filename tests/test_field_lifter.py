@@ -6,6 +6,7 @@ from dataclasses import replace
 
 import torch
 
+import rtgs.lift.field_lifter as field_lifter_module
 from rtgs.core.camera import Camera
 from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.core.observation2d import GaussianObservationField
@@ -13,6 +14,7 @@ from rtgs.data.field_inputs import SceneFits
 from rtgs.data.reconstruction_inputs import ReconstructionInputs
 from rtgs.lift.field_lifter import FieldLiftConfig, FieldLifter, _place
 from rtgs.lift.field_refit import FieldRefitConfig
+from rtgs.lift.field_sweep import FieldSweepConfig, FieldSweepInitializer
 from rtgs.render.projection import EWA_DILATION, project_gaussians_ewa
 
 
@@ -143,6 +145,32 @@ def test_field_lifter_is_deterministic_for_the_same_compact_fields() -> None:
         assert torch.equal(left, right)
 
 
+def test_heldout_semantic_validation_runs_only_after_refit(monkeypatch) -> None:
+    events: list[str] = []
+    original_refit = field_lifter_module.fit_field_fibers
+    original_validate = field_lifter_module.validate_field_semantics
+
+    def tracked_refit(*args, **kwargs):
+        events.append("refit")
+        return original_refit(*args, **kwargs)
+
+    def tracked_validate(*args, **kwargs):
+        events.append("validate")
+        return original_validate(*args, **kwargs)
+
+    monkeypatch.setattr(field_lifter_module, "fit_field_fibers", tracked_refit)
+    monkeypatch.setattr(field_lifter_module, "validate_field_semantics", tracked_validate)
+    config = replace(
+        _config(),
+        topology_rounds=0,
+        refit=FieldRefitConfig(iterations=0, appearance_start=0, chunk_size=8),
+    )
+
+    FieldLifter(config).fit(_fits())
+
+    assert events == ["refit", "validate", "validate"]
+
+
 def test_maskless_placement_uses_frustum_consensus_and_far_shell() -> None:
     fits = replace(_fits(), bounds_hint=None)
     config = replace(
@@ -230,3 +258,148 @@ def test_trusted_sparse_points_anchor_source_ray_depths() -> None:
             rtol=0.0,
             atol=2e-5,
         )
+
+
+def _sweep_inputs() -> ReconstructionInputs:
+    fits = _fits()
+    return ReconstructionInputs(
+        observations=list(fits.observations),
+        cameras=list(fits.cameras),
+        view_names=list(fits.view_names),
+        bounds_hint=(torch.zeros(3), 2.0),
+        name="field-sweep-tiny",
+    )
+
+
+def _sweep_config(mode: str) -> FieldSweepConfig:
+    return FieldSweepConfig(
+        n_init_3d=6,
+        mode=mode,
+        anchor_pool_multiplier=1,
+        samples_per_round=9,
+        coarse_to_fine_rounds=3,
+        min_neighbor_views=1,
+        query_batch_size=54,
+        max_query_pairs=4096,
+        seed=11,
+    )
+
+
+def test_fixed_field_sweep_modes_share_anchors_and_stay_in_original_bounds() -> None:
+    inputs = _sweep_inputs()
+    results = {
+        mode: FieldSweepInitializer(_sweep_config(mode)).initialize(inputs)
+        for mode in (
+            "bounded_midpoint",
+            "all_view_consensus",
+            "source_excluded_robust",
+        )
+    }
+    midpoint = results["bounded_midpoint"]
+    for result in results.values():
+        assert torch.equal(
+            result.lineage.source_view_indices,
+            midpoint.lineage.source_view_indices,
+        )
+        assert torch.equal(
+            result.lineage.source_component_indices,
+            midpoint.lineage.source_component_indices,
+        )
+        assert torch.equal(result.lineage.source_xy, midpoint.lineage.source_xy)
+        assert result.diagnostics["anchor_sha256"] == midpoint.diagnostics["anchor_sha256"]
+        assert result.diagnostics["depth_within_original_bounds"] is True
+        assert result.gaussians.n == 6
+        assert torch.isfinite(result.gaussians.means).all()
+        assert torch.isfinite(result.gaussians.log_scales).all()
+
+    robust = results["source_excluded_robust"]
+    assert robust.diagnostics["source_view_counted_as_neighbor"] is False
+    assert robust.diagnostics["robust_keep_view_count"] == 2
+    assert robust.diagnostics["supported_track_fraction"] == 1.0
+    assert not torch.equal(robust.depths, midpoint.depths)
+    for row, source_view in enumerate(robust.lineage.source_view_indices):
+        projected, _depth = inputs.cameras[int(source_view)].project(
+            robust.gaussians.means[row : row + 1]
+        )
+        torch.testing.assert_close(
+            projected[0],
+            robust.lineage.source_xy[row],
+            rtol=0.0,
+            atol=2e-5,
+        )
+
+
+def test_fixed_field_sweep_is_deterministic_and_seed_changes_only_the_anchor_draw() -> None:
+    inputs = _sweep_inputs()
+    config = _sweep_config("source_excluded_robust")
+    first = FieldSweepInitializer(config).initialize(inputs)
+    repeated = FieldSweepInitializer(config).initialize(inputs)
+    assert torch.equal(
+        first.lineage.source_component_indices, repeated.lineage.source_component_indices
+    )
+    assert torch.equal(first.depths, repeated.depths)
+    assert torch.equal(first.gaussians.means, repeated.gaussians.means)
+
+    # A larger top-mass pool lets the seed vary the fixed ray set while every arm under that
+    # seed still receives the same lineage.
+    varied_config = replace(config, n_init_3d=3, anchor_pool_multiplier=2)
+    other_seed = replace(varied_config, seed=13)
+    varied = FieldSweepInitializer(varied_config).initialize(inputs)
+    other = FieldSweepInitializer(other_seed).initialize(inputs)
+    assert varied.diagnostics["anchor_sha256"] != other.diagnostics["anchor_sha256"]
+
+
+def test_field_lifter_pipeline_exercises_opt_in_robust_sweep_without_heldout_leakage() -> None:
+    config = replace(
+        _config(),
+        placement_mode="fixed_source_excluded_robust",
+        max_tracks=4,
+        min_views=1,
+        sweep_anchor_pool_multiplier=1,
+        sweep_rounds=2,
+        topology_rounds=0,
+        refit=FieldRefitConfig(iterations=0, appearance_start=0, chunk_size=8),
+    )
+    result = FieldLifter(config).fit(_fits())
+    assert result.optimized_view_indices == (0, 1)
+    assert result.heldout_view_indices == (2,)
+    assert result.diagnostics["placement_mode"] == "fixed_source_excluded_robust"
+    assert result.diagnostics["placement"]["initializer"] == "fixed_anchor_field_sweep"
+    assert result.diagnostics["placement"]["source_view_counted_as_neighbor"] is False
+    assert result.diagnostics["placement_fallback_reason"] is None
+    assert result.gaussians_init.n == result.placement.fiber.n
+    assert result.placement_semantic_validation.heldout is not None
+
+
+def test_fixed_sweep_reconstruction_is_invariant_to_heldout_teacher_values() -> None:
+    fits = _fits()
+    heldout = fits.heldout_view_indices[0]
+    changed_observations = list(fits.observations)
+    changed_observations[heldout] = replace(
+        changed_observations[heldout],
+        colors=1.0 - changed_observations[heldout].colors,
+    )
+    changed = replace(fits, observations=tuple(changed_observations))
+    config = replace(
+        _config(),
+        placement_mode="fixed_source_excluded_robust",
+        max_tracks=4,
+        min_views=1,
+        sweep_anchor_pool_multiplier=1,
+        sweep_rounds=2,
+        topology_rounds=0,
+        refit=FieldRefitConfig(iterations=0, appearance_start=0, chunk_size=8),
+    )
+
+    baseline = FieldLifter(config).fit(fits)
+    perturbed = FieldLifter(config).fit(changed)
+
+    assert torch.equal(baseline.gaussians_init.means, perturbed.gaussians_init.means)
+    assert torch.equal(baseline.gaussians.means, perturbed.gaussians.means)
+    assert torch.equal(baseline.gaussians.sh, perturbed.gaussians.sh)
+    assert baseline.semantic_validation.heldout is not None
+    assert perturbed.semantic_validation.heldout is not None
+    assert (
+        baseline.semantic_validation.heldout.rgb_mse
+        != perturbed.semantic_validation.heldout.rgb_mse
+    )
