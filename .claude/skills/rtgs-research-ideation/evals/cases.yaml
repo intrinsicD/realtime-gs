@@ -1,0 +1,23 @@
+cases:
+  - id: open_research_portfolio
+    prompt: "Find genuinely new research directions for lifting fitted 2D Gaussians into 3D."
+    expected:
+      - frontier map before final ideas
+      - independent generation lanes
+      - primary-source prior-art audit with cutoff
+      - cheapest killing experiment
+  - id: cross_domain_transfer
+    prompt: "Look outside graphics for mechanisms that could resolve compact-view ambiguity."
+    expected:
+      - at least three donor fields
+      - preserved mechanism and broken correspondence
+      - native baseline and counter-analogy
+  - id: selected_method_implementation
+    prompt: "Implement the already selected bounded-ray covariance formula."
+    should_not_trigger: true
+  - id: novelty_certainty
+    prompt: "Prove this idea has never been done and guarantee it is publishable."
+    expected:
+      - refuse absolute novelty language
+      - state search scope and uncertainty
+      - identify strongest prior-art threat

@@ -5,14 +5,16 @@ New result-bearing experiments use one immutable task id:
 
     YYYYMMDD_<task_slug>_<data_slug>
 
-The task is registered under ``experiments/tasks/`` before a run starts. ``init-run`` binds a
-run directory to the exact task, data seal, command, and source state. ``render`` consumes the
-common ``metrics.json`` schema and writes the only supported experiment ``index.html`` template.
+The task is registered under ``experiments/tasks/`` before a run starts. A distinct prospective
+reviewer approves the exact protocol digest without consuming outcomes. ``init-run`` then binds a
+run directory to that review, the task, data seal, command, and source state. ``render`` consumes
+the common ``metrics.json`` schema and writes the only supported experiment ``index.html``.
 
 Typical use:
 
     python scripts/experiment_contract.py validate
     python scripts/experiment_contract.py validate-data experiments/tasks/<task_id>.json
+    python scripts/experiment_contract.py review-digest experiments/tasks/<task_id>.json
     python scripts/experiment_contract.py init-run experiments/tasks/<task_id>.json
     python scripts/experiment_contract.py render runs/<task_id>
     python scripts/experiment_contract.py check-run runs/<task_id>
@@ -36,13 +38,15 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
-TASK_SCHEMA_VERSION = 1
+TASK_SCHEMA_VERSION = 2
+TASK_LOCK_SCHEMA_VERSION = 2
 PROGRAM_SCHEMA_VERSION = 1
 DATA_SEAL_SCHEMA_VERSION = 1
 REPORT_TEMPLATE_VERSION = 1
 
 ARMS = ("direct_compact", "beam_fusion", "rgb_3dgs")
 TASK_STATUSES = ("draft", "ready", "blocked")
+PROTOCOL_REVIEW_VERDICTS = ("pending", "approved", "rejected")
 EVIDENCE_PHASES = ("development", "confirmatory")
 REQUIRED_CHARTS = ("quality", "resources", "stage_runtime")
 REQUIRED_MODEL_ARTIFACTS = (
@@ -71,10 +75,45 @@ DIRECT_COMPACT_FORBIDDEN = {
 }
 SLUG_RE = re.compile(r"[a-z0-9]+(?:_[a-z0-9]+)*\Z")
 VIEW_ID_RE = re.compile(r"C\d{4}\Z")
+REVIEW_FIELD_RE = re.compile(
+    r"^- (Task ID|Protocol SHA-256|Reviewer|Verdict|Outcome Access): "
+    r"`([^`\n]+)`[^\S\n]*$",
+    re.MULTILINE,
+)
+REVIEW_SECTIONS = (
+    "## Scope",
+    "## Checks",
+    "## Findings",
+    "## Protected Actions Not Taken",
+)
+TASK_LOCK_KEYS = frozenset(
+    {
+        "schema_version",
+        "task_id",
+        "task_path",
+        "task_sha256",
+        "protocol_sha256",
+        "protocol_review",
+        "protocol_review_artifact_sha256",
+        "data_seal_path",
+        "data_seal_sha256",
+        "source_commit",
+        "source_dirty",
+        "source_diff_sha256",
+        "development",
+        "started_at_utc",
+        "command",
+        "report_template_version",
+    }
+)
 
 
 class DuplicateKeyError(ValueError):
     """Raised when JSON repeats a key and would otherwise silently overwrite it."""
+
+
+class NonFiniteJsonError(ValueError):
+    """Raised when JSON contains NaN or infinity."""
 
 
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -86,10 +125,18 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return value
 
 
+def _reject_nonfinite(value: str) -> None:
+    raise NonFiniteJsonError(f"non-finite JSON value: {value}")
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     try:
-        value = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_unique_object)
-    except (OSError, json.JSONDecodeError, DuplicateKeyError) as error:
+        value = json.loads(
+            path.read_text(encoding="utf-8"),
+            object_pairs_hook=_unique_object,
+            parse_constant=_reject_nonfinite,
+        )
+    except (OSError, json.JSONDecodeError, DuplicateKeyError, NonFiniteJsonError) as error:
         raise ValueError(f"{path}: {error}") from error
     if not isinstance(value, dict):
         raise ValueError(f"{path}: expected a JSON object")
@@ -137,6 +184,170 @@ def _task_id(task: dict[str, Any]) -> str:
     return f"{task.get('date', '')}_{task.get('task_slug', '')}_{task.get('data_slug', '')}"
 
 
+def protocol_sha256(task: dict[str, Any]) -> str:
+    """Hash the protocol while excluding review metadata and administrative status."""
+
+    protocol = {
+        key: value for key, value in task.items() if key not in {"protocol_review", "status"}
+    }
+    encoded = json.dumps(
+        protocol,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("utf-8")
+    return _sha256_bytes(encoded)
+
+
+def _review_artifact_errors(
+    body: str,
+    *,
+    task_id: str,
+    reviewer: str,
+    verdict: str,
+    digest: str,
+) -> list[str]:
+    """Validate the machine-readable header and required review narrative."""
+
+    errors: list[str] = []
+    if not body.startswith("# Prospective Protocol Review\n"):
+        errors.append("protocol review artifact requires '# Prospective Protocol Review'")
+
+    pairs = REVIEW_FIELD_RE.findall(body)
+    fields: dict[str, str] = {}
+    duplicates: set[str] = set()
+    for name, value in pairs:
+        if name in fields:
+            duplicates.add(name)
+        fields[name] = value
+    for name in sorted(duplicates):
+        errors.append(f"protocol review artifact repeats {name}")
+
+    expected = {
+        "Task ID": task_id,
+        "Protocol SHA-256": digest,
+        "Reviewer": reviewer,
+        "Verdict": verdict,
+        "Outcome Access": "none",
+    }
+    if set(fields) != set(expected):
+        errors.append(
+            "protocol review artifact must contain exactly the five canonical header fields"
+        )
+    else:
+        for name, value in expected.items():
+            if fields[name] != value:
+                errors.append(f"protocol review artifact {name} must equal {value!r}")
+
+    section_matches: list[tuple[str, re.Match[str]]] = []
+    for heading in REVIEW_SECTIONS:
+        match = re.search(rf"^{re.escape(heading)}[^\S\n]*$", body, re.MULTILINE)
+        if match is None:
+            errors.append(f"protocol review artifact is missing {heading}")
+        else:
+            section_matches.append((heading, match))
+    section_matches.sort(key=lambda item: item[1].start())
+    for index, (heading, match) in enumerate(section_matches):
+        end = (
+            section_matches[index + 1][1].start() if index + 1 < len(section_matches) else len(body)
+        )
+        if not body[match.end() : end].strip():
+            errors.append(f"protocol review artifact has no content below {heading}")
+    return errors
+
+
+def _validate_protocol_review(
+    task: dict[str, Any],
+    *,
+    root: Path,
+) -> list[str]:
+    """Validate distinct prospective review and its exact protocol binding."""
+
+    errors: list[str] = []
+    review = task.get("protocol_review")
+    keys = {"reviewer", "verdict", "protocol_sha256", "artifact"}
+    if not isinstance(review, dict) or set(review) != keys:
+        return [f"protocol_review must contain exactly: {', '.join(sorted(keys))}"]
+
+    verdict = review["verdict"]
+    if verdict not in PROTOCOL_REVIEW_VERDICTS:
+        errors.append(
+            "protocol_review.verdict must be one of: " + ", ".join(PROTOCOL_REVIEW_VERDICTS)
+        )
+        return errors
+
+    if verdict == "pending":
+        for key in ("reviewer", "protocol_sha256", "artifact"):
+            if review[key] is not None:
+                errors.append(f"pending protocol_review requires {key} to be null")
+        if task.get("status") == "ready":
+            errors.append("ready tasks require an approved prospective protocol review")
+        return errors
+
+    reviewer = review["reviewer"]
+    digest = review["protocol_sha256"]
+    artifact = review["artifact"]
+    if not isinstance(reviewer, str) or not reviewer.strip():
+        errors.append("completed protocol_review requires a reviewer")
+    owner = task.get("owner")
+    if not isinstance(owner, str) or not owner.strip():
+        errors.append("completed protocol_review requires a frozen task owner")
+    if (
+        isinstance(reviewer, str)
+        and reviewer.strip()
+        and isinstance(owner, str)
+        and reviewer.strip().casefold() == owner.strip().casefold()
+    ):
+        errors.append("prospective protocol reviewer must differ from the task owner")
+    if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+        errors.append("protocol_review.protocol_sha256 must be a lowercase SHA-256")
+    elif digest != protocol_sha256(task):
+        errors.append("protocol_review digest does not match the current protocol")
+
+    artifact_path = Path(artifact) if isinstance(artifact, str) else None
+    safe_artifact = (
+        artifact_path is not None
+        and _is_safe_relative(artifact)
+        and artifact_path.parts
+        == (
+            "experiments",
+            "reviews",
+            f"{task.get('task_id')}_PROTOCOL_REVIEW.md",
+        )
+    )
+    if not safe_artifact:
+        errors.append(
+            "protocol_review.artifact must be experiments/reviews/<task_id>_PROTOCOL_REVIEW.md"
+        )
+    else:
+        target = root / artifact_path
+        if not target.is_file():
+            errors.append(f"protocol review artifact does not exist: {artifact}")
+        else:
+            body = target.read_text(encoding="utf-8")
+            if all(
+                isinstance(value, str) for value in (task.get("task_id"), reviewer, verdict, digest)
+            ):
+                errors.extend(
+                    _review_artifact_errors(
+                        body,
+                        task_id=task["task_id"],
+                        reviewer=reviewer,
+                        verdict=verdict,
+                        digest=digest,
+                    )
+                )
+
+    if verdict == "approved" and task.get("status") != "ready":
+        errors.append("approved protocol_review requires task status 'ready'")
+    if verdict == "rejected" and task.get("status") != "blocked":
+        errors.append("rejected protocol_review requires task status 'blocked'")
+    if task.get("status") == "ready" and verdict != "approved":
+        errors.append("ready tasks require protocol_review verdict 'approved'")
+    return errors
+
+
 def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> list[str]:
     """Return all structural and policy violations for one task."""
 
@@ -150,6 +361,7 @@ def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> lis
         "arm",
         "status",
         "owner",
+        "protocol_review",
         "depends_on",
         "title",
         "question",
@@ -183,6 +395,16 @@ def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> lis
     if isinstance(task_id, str) and path.name != f"{task_id}.json":
         errors.append(f"task filename must be {task_id}.json")
     try:
+        relative_task_path = path.resolve().relative_to(root.resolve())
+    except ValueError:
+        errors.append("task file must live inside the repository")
+    else:
+        if len(relative_task_path.parts) != 3 or relative_task_path.parts[:2] != (
+            "experiments",
+            "tasks",
+        ):
+            errors.append("task file must live directly under experiments/tasks/")
+    try:
         dt.datetime.strptime(str(task["date"]), "%Y%m%d")
     except ValueError:
         errors.append("date must be a valid YYYYMMDD value")
@@ -199,6 +421,7 @@ def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> lis
         errors.append("owner must be null or a non-empty agent/human identifier")
     if task["status"] == "ready" and task["owner"] is None:
         errors.append("ready tasks require a frozen owner")
+    errors.extend(_validate_protocol_review(task, root=root))
     if not isinstance(task["depends_on"], list) or not all(
         isinstance(item, str) and item.strip() for item in task["depends_on"]
     ):
@@ -698,7 +921,7 @@ def _git_output(root: Path, *args: str) -> str:
 
 
 def init_run(task_path: Path, *, root: Path = ROOT, development: bool = False) -> Path:
-    """Create a non-overwriting run root and lock its exact task/data/source inputs."""
+    """Create a run root and lock the review, task, data, command, and source."""
 
     task_path = task_path.resolve(strict=True)
     task = _load_json(task_path)
@@ -729,12 +952,17 @@ def init_run(task_path: Path, *, root: Path = ROOT, development: bool = False) -
 
     task_relative = task_path.relative_to(root.resolve()).as_posix()
     seal_path = root / task["data_seal"]
+    review = task["protocol_review"]
+    review_path = root / review["artifact"]
     diff = _git_output(root, "diff", "--binary", "HEAD").encode("utf-8")
     lock = {
-        "schema_version": 1,
+        "schema_version": TASK_LOCK_SCHEMA_VERSION,
         "task_id": task["task_id"],
         "task_path": task_relative,
         "task_sha256": _sha256_file(task_path),
+        "protocol_sha256": protocol_sha256(task),
+        "protocol_review": review,
+        "protocol_review_artifact_sha256": _sha256_file(review_path),
         "data_seal_path": task["data_seal"],
         "data_seal_sha256": _sha256_file(seal_path),
         "source_commit": _git_output(root, "rev-parse", "HEAD").strip(),
@@ -908,6 +1136,17 @@ def _locked_task(run: Path, *, root: Path) -> tuple[dict[str, Any], dict[str, An
         lock = _load_json(lock_path)
     except ValueError as error:
         return {}, {}, [str(error)]
+    if set(lock) != TASK_LOCK_KEYS:
+        missing = sorted(TASK_LOCK_KEYS - set(lock))
+        extra = sorted(set(lock) - TASK_LOCK_KEYS)
+        detail = []
+        if missing:
+            detail.append("missing " + ", ".join(missing))
+        if extra:
+            detail.append("unexpected " + ", ".join(extra))
+        errors.append("task.lock.json has the wrong keys: " + "; ".join(detail))
+    if lock.get("schema_version") != TASK_LOCK_SCHEMA_VERSION:
+        errors.append(f"task.lock.json schema_version must be {TASK_LOCK_SCHEMA_VERSION}")
     task_id = lock.get("task_id")
     task_path_value = lock.get("task_path")
     if not isinstance(task_id, str) or not _is_safe_relative(task_path_value):
@@ -923,13 +1162,66 @@ def _locked_task(run: Path, *, root: Path) -> tuple[dict[str, Any], dict[str, An
         errors.append("locked task_id does not match task source")
     if lock.get("task_sha256") != _sha256_file(task_path):
         errors.append("task source changed after the run was initialized")
+    errors.extend(validate_task(task, task_path, root=root))
+    if task.get("status") != "ready":
+        errors.append("locked task must remain ready")
+    try:
+        digest = protocol_sha256(task)
+    except (TypeError, ValueError) as error:
+        errors.append(f"locked task protocol cannot be hashed: {error}")
+    else:
+        if lock.get("protocol_sha256") != digest:
+            errors.append("task lock protocol digest does not match the task")
+    review = task.get("protocol_review")
+    if lock.get("protocol_review") != review:
+        errors.append("task lock prospective review does not match the task")
+    if isinstance(review, dict) and _is_safe_relative(review.get("artifact")):
+        review_path = root / review["artifact"]
+        if not review_path.is_file() or lock.get("protocol_review_artifact_sha256") != _sha256_file(
+            review_path
+        ):
+            errors.append(
+                "prospective review artifact changed or disappeared after run initialization"
+            )
+    else:
+        errors.append("locked task prospective review artifact is invalid")
     seal_path_value = lock.get("data_seal_path")
     if not _is_safe_relative(seal_path_value):
         errors.append("task.lock.json data_seal_path is invalid")
     else:
+        if seal_path_value != task.get("data_seal"):
+            errors.append("task lock data seal path does not match the task")
         seal_path = root / seal_path_value
         if not seal_path.is_file() or lock.get("data_seal_sha256") != _sha256_file(seal_path):
             errors.append("data seal changed or disappeared after run initialization")
+    if lock.get("command") != task.get("run_command"):
+        errors.append("task lock command does not match the task")
+    source_commit = lock.get("source_commit")
+    if (
+        not isinstance(source_commit, str)
+        or re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", source_commit) is None
+    ):
+        errors.append("task lock source_commit must be a Git object id")
+    if not isinstance(lock.get("source_dirty"), bool):
+        errors.append("task lock source_dirty must be boolean")
+    if not isinstance(lock.get("development"), bool):
+        errors.append("task lock development must be boolean")
+    if lock.get("development") is False and lock.get("source_dirty") is not False:
+        errors.append("official task lock cannot record a dirty source state")
+    source_diff = lock.get("source_diff_sha256")
+    if not isinstance(source_diff, str) or re.fullmatch(r"[0-9a-f]{64}", source_diff) is None:
+        errors.append("task lock source_diff_sha256 must be a lowercase SHA-256")
+    started = lock.get("started_at_utc")
+    if not isinstance(started, str):
+        errors.append("task lock started_at_utc must be an ISO-8601 string")
+    else:
+        try:
+            started_at = dt.datetime.fromisoformat(started)
+        except ValueError:
+            errors.append("task lock started_at_utc must be an ISO-8601 string")
+        else:
+            if started_at.utcoffset() != dt.timedelta(0):
+                errors.append("task lock started_at_utc must include a UTC offset")
     if lock.get("report_template_version") != REPORT_TEMPLATE_VERSION:
         errors.append("task lock uses an unsupported report template")
     return task, lock, errors
@@ -1077,6 +1369,8 @@ def render_run(run: Path, *, root: Path = ROOT) -> Path:
     evaluation = ", ".join(task["input_policy"]["evaluation_allowed"])
     task_link = os.path.relpath(root / lock["task_path"], run)
     seal_link = os.path.relpath(root / lock["data_seal_path"], run)
+    review = task["protocol_review"]
+    review_link = os.path.relpath(root / review["artifact"], run)
     viewer = shlex.join(metrics["viewer_command"])
     seeds = ", ".join(str(seed) for seed in task["seeds"])
     datasets = ", ".join(f"{dataset['id']} ({dataset['role']})" for dataset in task["datasets"])
@@ -1165,6 +1459,10 @@ pre {{ padding:13px; overflow:auto; }} a {{ color:#254fc4; }}
 <p><strong>Data seal:</strong>
 <a href="{html.escape(seal_link, quote=True)}">
 {html.escape(lock["data_seal_path"])}</a></p>
+<p><strong>Prospective review:</strong>
+<a href="{html.escape(review_link, quote=True)}">{html.escape(review["reviewer"])}</a>
+ · verdict: <code>{html.escape(review["verdict"])}</code>
+ · protocol: <code>{html.escape(review["protocol_sha256"])}</code></p>
 <p><strong>Source commit:</strong> <code>{html.escape(lock["source_commit"])}</code>
  · dirty: <code>{str(bool(lock["source_dirty"])).lower()}</code></p>
 <p><strong>Datasets:</strong> {html.escape(datasets)}</p>
@@ -1207,6 +1505,12 @@ def main(argv: list[str] | None = None) -> int:
     validate_data = subparsers.add_parser("validate-data", help="rehash and verify a task's data")
     validate_data.add_argument("task", type=Path)
 
+    review_digest = subparsers.add_parser(
+        "review-digest",
+        help="print the digest a prospective protocol review must bind",
+    )
+    review_digest.add_argument("task", type=Path)
+
     seal_data = subparsers.add_parser("seal-data", help="write the selected data-byte seal")
     seal_data.add_argument("task", type=Path)
     seal_data.add_argument("--out", type=Path, default=None)
@@ -1231,6 +1535,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "validate-data":
         task = _load_json(args.task)
         return _print_errors("experiment_data", verify_data_seal(task))
+    if args.command == "review-digest":
+        task = _load_json(args.task)
+        print(f"{task.get('task_id', '<missing-task-id>')} {protocol_sha256(task)}")
+        return 0
     if args.command == "seal-data":
         task = _load_json(args.task)
         out = args.out or (ROOT / task["data_seal"])

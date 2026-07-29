@@ -1,0 +1,4 @@
+interface:
+  display_name: "RTGS Task Workflow"
+  short_description: "Coordinate substantial realtime-gs tasks"
+  default_prompt: "Use $rtgs-task-workflow to frame, hand off, review, and close a substantial realtime-gs task."

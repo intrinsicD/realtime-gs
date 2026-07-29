@@ -1,0 +1,4 @@
+interface:
+  display_name: "RTGS Research Ideation"
+  short_description: "Generate falsifiable 3DGS research directions"
+  default_prompt: "Use $rtgs-research-ideation to build and audit a falsifiable realtime-gs research portfolio."

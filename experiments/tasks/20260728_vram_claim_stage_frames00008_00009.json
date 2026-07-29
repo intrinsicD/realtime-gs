@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "task_id": "20260728_vram_claim_stage_frames00008_00009",
   "date": "20260728",
   "task_slug": "vram_claim",
@@ -7,6 +7,12 @@
   "arm": "direct_compact",
   "status": "draft",
   "owner": null,
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
   "depends_on": [],
   "title": "VRAM claim: direct compact 2D Gaussians to 3D Gaussians without Beam",
   "question": "What peak reconstruction-process memory, runtime, and compact-domain fidelity does a fully image-free 2D-Gaussian to 3D-Gaussian pipeline achieve without Beam Fusion?",

@@ -37,8 +37,65 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _review_body(task_id: str, digest: str, reviewer: str, verdict: str) -> str:
+    return (
+        "# Prospective Protocol Review\n\n"
+        f"- Task ID: `{task_id}`\n"
+        f"- Protocol SHA-256: `{digest}`\n"
+        f"- Reviewer: `{reviewer}`\n"
+        f"- Verdict: `{verdict}`\n"
+        "- Outcome Access: `none`\n\n"
+        "## Scope\n\nFixture scope.\n\n"
+        "## Checks\n\nFixture checks.\n\n"
+        "## Findings\n\nFixture findings.\n\n"
+        "## Protected Actions Not Taken\n\nNo protected run or outcome access.\n"
+    )
+
+
 def test_registered_three_arm_program_is_valid() -> None:
     assert CONTRACT.validate_repository(root=REPO) == []
+
+
+def test_protocol_digest_ignores_only_review_and_status() -> None:
+    task = json.loads(LIVE_TASK.read_text(encoding="utf-8"))
+    initial = CONTRACT.protocol_sha256(task)
+    task["status"] = "ready"
+    task["protocol_review"] = {
+        "reviewer": "reviewer",
+        "verdict": "approved",
+        "protocol_sha256": initial,
+        "artifact": f"experiments/reviews/{task['task_id']}_PROTOCOL_REVIEW.md",
+    }
+    assert CONTRACT.protocol_sha256(task) == initial
+    task["seeds"].append(999)
+    assert CONTRACT.protocol_sha256(task) != initial
+
+
+def test_protocol_review_requires_distinct_identity_and_no_outcome_access(
+    tmp_path: Path,
+) -> None:
+    task = json.loads(LIVE_TASK.read_text(encoding="utf-8"))
+    task["owner"] = "Driver"
+    task["status"] = "ready"
+    digest = CONTRACT.protocol_sha256(task)
+    artifact = f"experiments/reviews/{task['task_id']}_PROTOCOL_REVIEW.md"
+    task["protocol_review"] = {
+        "reviewer": "driver",
+        "verdict": "approved",
+        "protocol_sha256": digest,
+        "artifact": artifact,
+    }
+    path = tmp_path / artifact
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        _review_body(task["task_id"], digest, "driver", "approved").replace(
+            "Outcome Access: `none`", "Outcome Access: `results-read`"
+        ),
+        encoding="utf-8",
+    )
+    errors = CONTRACT._validate_protocol_review(task, root=tmp_path)
+    assert any("must differ from the task owner" in error for error in errors)
+    assert any("Outcome Access must equal 'none'" in error for error in errors)
 
 
 def test_task_name_is_composed_from_date_task_and_data() -> None:
@@ -96,9 +153,23 @@ def _report_fixture(tmp_path: Path) -> tuple[Path, dict, dict]:
             "blockers": [],
         }
     )
+    digest = CONTRACT.protocol_sha256(task)
+    review_artifact = f"experiments/reviews/{task['task_id']}_PROTOCOL_REVIEW.md"
+    task["protocol_review"] = {
+        "reviewer": "test-reviewer",
+        "verdict": "approved",
+        "protocol_sha256": digest,
+        "artifact": review_artifact,
+    }
     task_path = root / "experiments" / "tasks" / "20260728_report_contract_fixture.json"
     seal_path = root / "experiments" / "data" / "fixture.json"
+    review_path = root / review_artifact
     _json(task_path, task)
+    review_path.parent.mkdir(parents=True, exist_ok=True)
+    review_path.write_text(
+        _review_body(task["task_id"], digest, "test-reviewer", "approved"),
+        encoding="utf-8",
+    )
     _json(
         seal_path,
         {
@@ -108,14 +179,20 @@ def _report_fixture(tmp_path: Path) -> tuple[Path, dict, dict]:
             "files": [],
         },
     )
+    driver = root / "scripts" / "experiments" / f"{task['task_id']}.py"
+    driver.parent.mkdir(parents=True)
+    driver.write_text('"""Fixture driver."""\n', encoding="utf-8")
 
     run = root / "runs" / task["task_id"]
     run.mkdir(parents=True)
     lock = {
-        "schema_version": 1,
+        "schema_version": CONTRACT.TASK_LOCK_SCHEMA_VERSION,
         "task_id": task["task_id"],
         "task_path": task_path.relative_to(root).as_posix(),
         "task_sha256": _sha256(task_path),
+        "protocol_sha256": digest,
+        "protocol_review": task["protocol_review"],
+        "protocol_review_artifact_sha256": _sha256(review_path),
         "data_seal_path": seal_path.relative_to(root).as_posix(),
         "data_seal_sha256": _sha256(seal_path),
         "source_commit": "a" * 40,
@@ -233,6 +310,8 @@ def test_shared_report_renders_every_required_section(tmp_path: Path) -> None:
     assert "Quality" in body
     assert "Resource use" in body
     assert "Stage runtime" in body
+    assert "Prospective review" in body
+    assert task["protocol_review"]["protocol_sha256"] in body
     assert "gaussians.ply" in body
     assert CONTRACT.validate_run(run, root=tmp_path) == []
     assert BUNDLE.check_bundle(run, previews=False) == []
@@ -244,3 +323,24 @@ def test_report_rejects_a_missing_required_diagram(tmp_path: Path) -> None:
     _json(run / "metrics.json", metrics)
     errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
     assert any("required_charts order" in error for error in errors)
+
+
+def test_run_lock_rejects_review_artifact_drift(tmp_path: Path) -> None:
+    run, task, _metrics = _report_fixture(tmp_path)
+    review_path = tmp_path / task["protocol_review"]["artifact"]
+    review_path.write_text(
+        review_path.read_text(encoding="utf-8") + "\nPost-run edit.\n",
+        encoding="utf-8",
+    )
+    errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
+    assert any("review artifact changed or disappeared" in error for error in errors)
+
+
+def test_run_lock_rejects_command_drift(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    lock_path = run / "task.lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["command"] = ["python", "different_driver.py"]
+    _json(lock_path, lock)
+    errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
+    assert any("lock command does not match" in error for error in errors)

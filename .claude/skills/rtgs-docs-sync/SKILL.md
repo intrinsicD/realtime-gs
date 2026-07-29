@@ -15,11 +15,12 @@ match their documentation, `.claude/skills/*` are listed in CLAUDE.md, paths ref
 CLAUDE.md exist, every `docs/*.md` is reachable by name from an entrypoint, all modules have
 docstrings, and the benchmark markers are intact.
 
-Two sibling checkers cover the surfaces `docs_sync.py` deliberately does not:
+Three sibling checkers cover the surfaces `docs_sync.py` deliberately does not:
 
 ```bash
 .venv/bin/python scripts/check_ara.py            # ara/ claim-ledger structure
 .venv/bin/python scripts/check_script_layout.py  # scripts/ vs scripts/experiments/
+.venv/bin/python scripts/check_agent_workflow.py # task/skill/authority/CI structure
 ```
 
 ## Resolving drift

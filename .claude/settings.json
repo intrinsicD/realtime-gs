@@ -21,7 +21,9 @@
       "Bash(.venv/bin/python scripts/docs_sync.py)",
       "Bash(.venv/bin/python scripts/check_ara.py)",
       "Bash(.venv/bin/python scripts/check_script_layout.py)",
+      "Bash(.venv/bin/python scripts/check_agent_workflow.py)",
       "Bash(.venv/bin/python scripts/check_results_bundle.py:*)",
+      "Bash(.venv/bin/python scripts/experiment_contract.py:*)",
       "Bash(.venv/bin/python benchmarks/run.py:*)",
       "Bash(.venv/bin/rtgs:*)"
     ]

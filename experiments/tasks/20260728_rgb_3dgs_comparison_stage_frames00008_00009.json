@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "task_id": "20260728_rgb_3dgs_comparison_stage_frames00008_00009",
   "date": "20260728",
   "task_slug": "rgb_3dgs_comparison",
@@ -7,6 +7,12 @@
   "arm": "rgb_3dgs",
   "status": "draft",
   "owner": null,
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
   "depends_on": [
     "20260728_vram_claim_stage_frames00008_00009"
   ],

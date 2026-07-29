@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "task_id": "YYYYMMDD_task_slug_data_slug",
   "date": "YYYYMMDD",
   "task_slug": "task_slug",
@@ -7,6 +7,12 @@
   "arm": "direct_compact",
   "status": "draft",
   "owner": null,
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
   "depends_on": [],
   "title": "Replace with a specific experiment title",
   "question": "Replace with one answerable question.",

@@ -27,14 +27,19 @@ The current RGB arm is a **matched-initialization, image-supervised 3DGS compari
 3. Run `python scripts/experiment_contract.py validate`.
 4. Rehash local inputs with `validate-data`. Change the task or its data seal before execution if
    it fails.
-5. Set the task to `ready`, then run `init-run`. Official initialization fails on a dirty tracked
-   worktree and never overwrites an existing run.
-6. Write every attempt/cell below the one canonical `runs/<task_id>/` root. Do not create
+5. Have a reviewer whose stable label differs from the owner run `review-digest`, write
+   `reviews/<task_id>_PROTOCOL_REVIEW.md` from the template, and record `Outcome Access: none`.
+   The reviewer must not execute the protected run or inspect sealed outcomes.
+6. Copy the approved/rejected metadata into `protocol_review`, set status to `ready`/`blocked`,
+   and re-run `validate`. A protocol edit requires a new digest and review.
+7. Run `init-run`. Official initialization fails on a dirty tracked worktree, binds the review
+   artifact hash, and never overwrites an existing run.
+8. Write every attempt/cell below the one canonical `runs/<task_id>/` root. Do not create
    `_v2`, `_final`, `_failed`, timestamp, or “latest” sibling directories.
-7. Produce the shared `metrics.json`, initial/final PLYs, history, config, input-boundary and
+9. Produce the shared `metrics.json`, initial/final PLYs, history, config, input-boundary and
    resource receipts, previews, and the canonically named RESULT/AUDIT Markdown+JSON records.
    Generate (never hand-edit) the page with `render`.
-8. Gate the run with both `check-run` and `scripts/check_results_bundle.py`, then perform the
+10. Gate the run with both `check-run` and `scripts/check_results_bundle.py`, then perform the
    independent results audit and append the outcome to `docs/EXPERIMENTS.md`.
 
 The task remains `ready` and immutable after `init-run`; run/result status lives in the run
@@ -45,6 +50,7 @@ require a new task id. Failed attempts stay under
 ## Naming and file ownership
 
 - Task/run id: `YYYYMMDD_<task_slug>_<data_slug>`.
+- Prospective review: `reviews/<task_id>_PROTOCOL_REVIEW.md`.
 - Task-specific driver: `scripts/experiments/<task_id>.py`.
 - Local outputs: `runs/<task_id>/` (ignored except `runs/README.md`).
 - Human evidence: `benchmarks/results/<task_id>_RESULT.md` and `<task_id>_AUDIT.md`.
@@ -65,9 +71,11 @@ Every arm uses report template v1 from `scripts/experiment_contract.py`. The pag
 - grouped numeric metrics;
 - quality, resource, and stage-runtime diagrams;
 - task/data/source provenance, artifacts, and the exact viewer command.
+- prospective reviewer, verdict, exact protocol digest, and linked review artifact.
 
-`templates/metrics.json` documents the producer schema. The arm may choose its own metric rows and
-chart values, but it may not replace the template or omit one of the three diagrams.
+`templates/task.json`, `templates/protocol_review.md`, and `templates/metrics.json` document the
+producer schemas. The arm may choose its own metric rows and chart values, but it may not replace
+the report template or omit one of the three diagrams.
 
 ## Evidence boundary still missing
 

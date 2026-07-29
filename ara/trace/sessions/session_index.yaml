@@ -97,3 +97,10 @@ sessions:
     events_count: 1
     claims_touched: [C25, C26, C27]
     open_threads: 3
+  - id: "2026-07-29_001"
+    date: "2026-07-29"
+    summary: "Completed and CPU-verified bounded agent-workflow hardening after the requested pause; RTGS-001 remains provisionally accepted pending distinct review."
+    turn_count: 2
+    events_count: 0
+    claims_touched: []
+    open_threads: 1

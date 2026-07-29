@@ -1,0 +1,4 @@
+interface:
+  display_name: "RTGS Core"
+  short_description: "Orient and route work in realtime-gs"
+  default_prompt: "Use $rtgs-core to orient in realtime-gs and choose the correct repository workflow."

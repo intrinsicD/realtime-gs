@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "task_id": "20260728_beam_fusion_claim_stage_frames00008_00009",
   "date": "20260728",
   "task_slug": "beam_fusion_claim",
@@ -7,6 +7,12 @@
   "arm": "beam_fusion",
   "status": "draft",
   "owner": null,
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
   "depends_on": [],
   "title": "Beam Fusion claim: matched compact initializer and stage ablation",
   "question": "Does Beam Fusion improve compact-domain initialization or converged reconstruction under matched count, downstream optimizer, samples, seeds, and views, and which repair/optimization stages are necessary?",

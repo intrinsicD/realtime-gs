@@ -1,6 +1,6 @@
 ---
 name: rtgs-review
-description: Pre-commit self-review checklist for a realtime-gs diff. Use before every commit or PR, after a refactor, or when asked to review changes. Covers the five hard-rule gates (CPU-first imports, backend pluggability, test determinism, docs sync, benchmark/experiment logging), gradient-safety and numerical-stability review for differentiable code, and the claim-hygiene check that keeps prose in step with ara/logic/claims.md. Do not use to audit result numbers or promote a quantitative claim; use realtime-gs-results-audit for that.
+description: Pre-commit self-review checklist for a realtime-gs diff. Use before every commit or PR, after a refactor, or when asked to review changes. Covers repository hard rules, task and experiment workflow integrity, gradient safety, numerical stability, and claim hygiene. Do not use to audit result numbers or promote a quantitative claim; use realtime-gs-results-audit for that.
 ---
 
 # Review (pre-commit self-review)
@@ -23,6 +23,9 @@ Review the whole diff, not just the file you were last editing. If the diff has 
 beyond the task you started, split it — mechanical moves and semantic edits do not belong
 in one commit.
 
+Confirm the diff matches `.agents/state/current-task.md`: goal, non-goals, risk, maturity, and
+turn. A green diff for the wrong task is not accepted work.
+
 ## 1. Hard-rule gates (CLAUDE.md)
 
 - **CPU-first imports.** No new module-level `import gsplat`, `import transformers`, or other
@@ -38,6 +41,9 @@ in one commit.
   and the `CLAUDE.md` map updated in the same commit.
 - **Benchmarks and experiments.** A performance claim cites `benchmarks/run.py` output; a
   research finding (including a negative one) has a dated `docs/EXPERIMENTS.md` entry.
+- **Task and protocol state.** Substantial work has one matching active task. Result-bearing work
+  has a distinct prospective reviewer, exact digest, no outcome access, and a locked review
+  artifact before execution.
 
 ## 2. Differentiable-code review
 
@@ -78,6 +84,7 @@ promoted.
   `scripts/experiments/` (see `scripts/experiments/README.md`).
 - No results-bearing artifact overwritten. Official JSON, seals, receipts, and audit notes in
   `benchmarks/results/` are append-only.
+- No stale active-task status, incomplete handoff/review block, or false maturity promotion.
 - `git diff --check` is clean (no whitespace errors, no conflict markers).
 
 ## 5. Gate
@@ -89,7 +96,7 @@ promoted.
 Then, if the change is substantial and touched `src/rtgs`, run the slow suite once:
 
 ```bash
-.venv/bin/pytest -q
+CUDA_VISIBLE_DEVICES="" .venv/bin/python -m pytest -q
 ```
 
 If the change is results-bearing, hand off to `realtime-gs-results-audit` before the claim

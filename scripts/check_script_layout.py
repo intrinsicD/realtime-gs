@@ -23,6 +23,7 @@ DURABLE_SCRIPTS: dict[str, str] = {
     "docs_sync.py": "docs<->code structural checker, part of verify.sh",
     "check_ara.py": "ara/ claim-ledger structural checker, part of verify.sh",
     "check_script_layout.py": "this checker, part of verify.sh",
+    "check_agent_workflow.py": "task, skill-discovery, authority, and CI-parity gate",
     "check_results_bundle.py": "Hard Rule 7 results-bundle gate, run per results-bearing run",
     "experiment_contract.py": "task/run contracts and the canonical experiment report renderer",
     "convert_datasets_to_gaussians2d.py": "resumable dataset migration reused across experiments",

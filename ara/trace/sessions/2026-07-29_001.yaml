@@ -1,0 +1,71 @@
+session:
+  id: "2026-07-29_001"
+  date: "2026-07-29"
+  started: "2026-07-29T12:46+02:00"
+  last_turn: "2026-07-29T13:16+02:00"
+  turn_count: 2
+  summary: "Completed and CPU-verified bounded agent-workflow hardening after the requested pause; RTGS-001 remains provisionally accepted pending distinct review."
+
+events_logged: []
+
+ai_actions:
+  - turn: 1
+    action: >
+      Read the canonical repository guide and applicable workflow skills; compared the agentic
+      workflows in agent-kit, IntrinsicEngine, structsplat and prospect; documented a bounded
+      repository-native design; initialized core-routing, task-lifecycle and research-ideation
+      skills; added a workflow checker and task-state scaffold; and partially migrated the
+      experiment contract toward prospective digest-bound review. Stopped before applying the
+      second prepared experiment-contract patch or running verification when the user requested
+      an immediate pause. The worktree is not a completed or green migration.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/skills/rtgs-core"
+      - ".agents/skills/rtgs-research-ideation"
+      - ".agents/skills/rtgs-task-workflow"
+      - ".agents/state/current-task.md"
+      - ".claude/skills/rtgs-core/"
+      - ".claude/skills/rtgs-research-ideation/"
+      - ".claude/skills/rtgs-task-workflow/"
+      - ".tmp_experiment_contract.patch"
+      - ".tmp_experiment_contract_2.patch"
+      - "docs/AGENT_WORKFLOW.md"
+      - "docs/tasks/README.md"
+      - "scripts/check_agent_workflow.py"
+      - "scripts/experiment_contract.py"
+  - turn: 2
+    action: >
+      Resumed the preserved migration; opened RTGS-001; completed and tested the durable
+      task/review state machine, core router, research-ideation workflow, exact skill mirror,
+      prospective digest-bound experiment review, review-artifact/run-lock binding, PR prompts,
+      settings exposure, and CI delegation to the canonical verifier. Migrated every registered
+      experiment task/template to schema 2. Full verification initially exposed ambient CUDA in
+      the nominal CPU gate; reproduced the suite with CUDA hidden, made that boundary explicit,
+      and reran the complete gate successfully. Recorded a structured handoff and self-review at
+      CPU-contracted maturity without claiming independent acceptance.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+      - ".claude/skills/"
+      - ".github/pull_request_template.md"
+      - ".github/workflows/ci.yml"
+      - "CLAUDE.md"
+      - "docs/AGENT_WORKFLOW.md"
+      - "docs/tasks/README.md"
+      - "experiments/README.md"
+      - "experiments/reviews/README.md"
+      - "experiments/tasks/"
+      - "experiments/templates/"
+      - "scripts/check_agent_workflow.py"
+      - "scripts/check_script_layout.py"
+      - "scripts/experiment_contract.py"
+      - "scripts/verify.sh"
+      - "tests/test_agent_workflow.py"
+      - "tests/test_experiment_contract.py"
+
+key_context:
+  - turn: 2
+    excerpt: "The user explicitly resumed the paused repository-workflow task."
+
+open_threads:
+  - "A distinct reviewer or human may review and archive RTGS-001; no scientific or runtime work is blocked."
