@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "task_id": "20260730_field_sweep_placement_f64_stage_frames00008_00009",
+  "protocol_sha256": "a45ee0da9f2282cdeebfa93a9321408a9d1a7ce4b64ba6a2746f61e30546a1e0",
+  "reviewer": "Codex-protocol-reviewer",
+  "verdict": "approved",
+  "outcome_access": "none",
+  "canonical_artifact": "experiments/reviews/20260730_field_sweep_placement_f64_stage_frames00008_00009_PROTOCOL_REVIEW.md",
+  "scope": "Development and replication evidence for the three named CPU compact-field placement arms on outcome-exposed frames 00008 and 00009 after a shared opt-in float64 precision repair; no RGB, physical-geometry, GPU, speed, topology, cross-dataset, production-default, or confirmatory claim.",
+  "checks": {
+    "consumed_predecessor_inspected": true,
+    "successor_outcome_access": false,
+    "executable_dependencies_ready": true,
+    "task_contract_valid": true,
+    "data_seal_valid": true,
+    "protocol_digest_recomputed": true,
+    "data_splits_seeds_arms_refit_metrics_gates_resources_unchanged": true,
+    "only_common_compute_precision_changed": true,
+    "only_structured_failure_observability_added": true,
+    "input_dtype_default_preserved": true,
+    "production_placement_default_preserved": true,
+    "native_scale_float32_failure_reproduced": true,
+    "native_scale_float64_unchanged_gate_passed": true,
+    "crop_residual_semantics_preserved": true,
+    "heldout_ordering_and_isolation_preserved": true,
+    "no_image_guards_preserved": true,
+    "successor_subprocess_identity_verified": true,
+    "structured_failure_receipt_verified": true,
+    "focused_tests_passed": 59,
+    "ruff_check_and_format_passed": true,
+    "full_verify_passed": true
+  },
+  "findings": "Approved prospectively. The corrected successor isolates the shared precision repair, preserves the matched comparison and reporting boundaries, and is fit to initialize only after the exact approval metadata is recorded.",
+  "protected_actions_not_taken": [
+    "Did not initialize or execute the successor experiment.",
+    "Did not inspect any successor run or result artifact.",
+    "Did not open protected RGB or mask outcomes.",
+    "Did not render or interpret a successor report."
+  ]
+}

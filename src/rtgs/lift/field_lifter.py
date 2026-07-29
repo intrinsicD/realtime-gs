@@ -72,6 +72,7 @@ FieldPlacementMode = Literal[
     "fixed_all_view_consensus",
     "fixed_source_excluded_robust",
 ]
+FieldComputeDtype = Literal["input", "float64"]
 
 
 @dataclass(frozen=True)
@@ -79,6 +80,7 @@ class FieldLiftConfig:
     """CPU-bounded controls for placement, refit, and correspondence output."""
 
     placement_mode: FieldPlacementMode = "compact_carve"
+    compute_dtype: FieldComputeDtype = "input"
     max_tracks: int = 128
     max_train_views: int = 8
     depth_samples: int = 32
@@ -142,6 +144,8 @@ class FieldLiftConfig:
             "fixed_source_excluded_robust",
         }:
             raise ValueError("placement_mode is not supported")
+        if self.compute_dtype not in {"input", "float64"}:
+            raise ValueError("compute_dtype must be 'input' or 'float64'")
         for name in (
             "robust_view_fraction",
             "sweep_refine_ratio",
@@ -1407,7 +1411,10 @@ class FieldLifter:
         if not isinstance(fits, SceneFits):
             raise TypeError("fits must be SceneFits")
         original_device = fits.observations[0].device
-        working = fits.to("cpu")
+        working = fits.to(
+            "cpu",
+            dtype=torch.float64 if self.config.compute_dtype == "float64" else None,
+        )
         selected = _even_subset(
             working.train_view_indices,
             self.config.max_train_views,
@@ -1510,6 +1517,7 @@ class FieldLifter:
             ),
             "optimized_views": list(selected),
             "heldout_views": list(working.heldout_view_indices),
+            "compute_dtype": str(working.observations[0].dtype).removeprefix("torch."),
             "objective_initial": refit.objective_history[0],
             "objective_final": refit.objective_history[-1],
             "accepted_continuous_steps": refit.accepted_steps,
@@ -1603,6 +1611,7 @@ class FieldLifter:
 
 
 __all__ = [
+    "FieldComputeDtype",
     "FieldLiftConfig",
     "FieldLiftResult",
     "FieldLifter",

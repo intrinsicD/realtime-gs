@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+import pytest
 import torch
 
 import rtgs.lift.field_lifter as field_lifter_module
@@ -46,7 +47,9 @@ def _observation(
     )
 
 
-def _fits() -> SceneFits:
+def _fits(*, camera_scale: int = 1) -> SceneFits:
+    if camera_scale <= 0:
+        raise ValueError("camera_scale must be positive")
     dtype = torch.float64
     means = torch.tensor(
         [[-0.30, 0.0, 0.0], [0.35, 0.05, 0.05]],
@@ -61,10 +64,27 @@ def _fits() -> SceneFits:
     colors = torch.tensor([[0.8, 0.2, 0.1], [0.1, 0.5, 0.9]], dtype=dtype)
     opacity = torch.tensor([0.8, 0.7], dtype=dtype)
     gaussians = Gaussians3D.from_means_covs(means, covariances, colors, opacity)
+    width = 40 * camera_scale
+    height = 40 * camera_scale
     cameras = [
-        Camera.look_at(torch.tensor([1.4, 0.2, 1.5]), torch.zeros(3), width=40, height=40),
-        Camera.look_at(torch.tensor([-1.4, 0.3, 1.6]), torch.zeros(3), width=40, height=40),
-        Camera.look_at(torch.tensor([0.1, -1.5, 1.5]), torch.zeros(3), width=40, height=40),
+        Camera.look_at(
+            torch.tensor([1.4, 0.2, 1.5]),
+            torch.zeros(3),
+            width=width,
+            height=height,
+        ),
+        Camera.look_at(
+            torch.tensor([-1.4, 0.3, 1.6]),
+            torch.zeros(3),
+            width=width,
+            height=height,
+        ),
+        Camera.look_at(
+            torch.tensor([0.1, -1.5, 1.5]),
+            torch.zeros(3),
+            width=width,
+            height=height,
+        ),
     ]
     names = ["v0", "v1", "v2"]
     inputs = ReconstructionInputs(
@@ -131,6 +151,36 @@ def test_field_lifter_runs_without_images_and_keeps_heldout_out_of_fitting() -> 
     assert result.semantic_validation.heldout is not None
     assert result.semantic_validation.heldout.n_views == 1
     assert torch.isfinite(torch.tensor(result.semantic_validation.heldout.density_mse))
+
+
+def test_float64_compute_dtype_preserves_native_scale_source_projection() -> None:
+    native = _fits(camera_scale=128)
+    config = replace(
+        _config(),
+        placement_mode="fixed_bounded_midpoint",
+        topology_rounds=0,
+        validation_sample_cap=8,
+        refit=FieldRefitConfig(
+            iterations=1,
+            appearance_start=1,
+            learning_rate=0.01,
+            visibility_refresh=1,
+            chunk_size=8,
+        ),
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"dtype=torch\.float32, max_mean_error=.*max_covariance_error=.*tolerance=",
+    ):
+        FieldLifter(config).fit(native)
+
+    result = FieldLifter(replace(config, compute_dtype="float64")).fit(native)
+
+    assert native.observations[0].dtype == torch.float32
+    assert result.gaussians.means.dtype == torch.float64
+    assert result.diagnostics["compute_dtype"] == "float64"
+    assert result.refit.source_projection_max_error <= 2e-9
 
 
 def test_field_lifter_is_deterministic_for_the_same_compact_fields() -> None:

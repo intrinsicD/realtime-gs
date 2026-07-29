@@ -461,15 +461,27 @@ class SceneFits:
             name=scene.name,
         )
 
-    def to(self, device: torch.device | str) -> SceneFits:
+    def to(
+        self,
+        device: torch.device | str,
+        *,
+        dtype: torch.dtype | None = None,
+    ) -> SceneFits:
+        """Copy image-free inputs to one device and optional floating compute dtype."""
+        if dtype is not None and dtype not in {torch.float32, torch.float64}:
+            raise TypeError("SceneFits dtype must be torch.float32 or torch.float64")
+
+        def floating(value: torch.Tensor) -> torch.Tensor:
+            return value.to(device=device, dtype=value.dtype if dtype is None else dtype)
+
         alphas: list[AlphaData] = []
         for alpha in self.alphas:
             alphas.append(alpha.to(device) if torch.is_tensor(alpha) else alpha)
         hint = None
         if self.bounds_hint is not None:
-            hint = (self.bounds_hint[0].to(device), self.bounds_hint[1])
+            hint = (floating(self.bounds_hint[0]), self.bounds_hint[1])
         return SceneFits(
-            observations=tuple(field.to(device) for field in self.observations),
+            observations=tuple(field.to(device, dtype=dtype) for field in self.observations),
             cameras=tuple(camera.to(device) for camera in self.cameras),
             view_names=self.view_names,
             alphas=tuple(alphas),
@@ -479,18 +491,18 @@ class SceneFits:
                 None
                 if self.depth_priors is None
                 else tuple(
-                    None if value is None else value.to(device) for value in self.depth_priors
+                    None if value is None else floating(value) for value in self.depth_priors
                 )
             ),
             depth_confidences=(
                 None
                 if self.depth_confidences is None
                 else tuple(
-                    None if value is None else value.to(device) for value in self.depth_confidences
+                    None if value is None else floating(value) for value in self.depth_confidences
                 )
             ),
             neighbors=self.neighbors,
-            points=None if self.points is None else self.points.to(device),
+            points=None if self.points is None else floating(self.points),
             point_visibility=(
                 None
                 if self.point_visibility is None

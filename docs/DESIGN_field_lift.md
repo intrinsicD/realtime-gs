@@ -320,6 +320,21 @@ imports and image-file opens, and sets `load_alpha=False`, so packed mask-derive
 affect an arm. This registration is an experiment mechanism, not evidence that robust placement
 wins and not authorization to change the default.
 
+The first official task is consumed and inconclusive: its first discarded warmup failed before
+measurement because native-scale float32 source reprojection exceeded the frozen absolute
+invariant. The independent audit found the recorded discrepancy strongly consistent with
+one-to-three-ULP round-off, but the diagnostic was not replay-complete causal proof. The failed
+run, result, and audit remain append-only.
+
+`FieldLiftConfig.compute_dtype` therefore exposes a default-preserving precision boundary:
+`"input"` retains the incoming field dtype, while the CPU-only `"float64"` option promotes compact
+fields, bounds, priors, placement, refit, and validation together. Crop-local mean residuals
+remain their archived float32 corrections and are cast only when applied. The repaired successor
+is registered separately as
+`experiments/tasks/20260730_field_sweep_placement_f64_stage_frames00008_00009.json`; it retains
+the original data, splits, seeds, arms, optimizer, metrics, decision rules, and `0.0002` guardrail.
+It cannot run until its distinct prospective review approves the new digest.
+
 ---
 
 ## 6. Preprocessing artifact schema

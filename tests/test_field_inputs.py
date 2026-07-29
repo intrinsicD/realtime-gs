@@ -132,6 +132,14 @@ def test_compact_adapter_preserves_packed_alpha_and_all_optional_evidence(tmp_pa
     assert not fits.geometry_is_train_only
     assert not hasattr(fits, "images")
 
+    promoted = fits.to("cpu", dtype=torch.float64)
+    assert all(field.dtype == torch.float64 for field in promoted.observations)
+    assert promoted.cameras[0].R.dtype == torch.float32
+    assert promoted.alphas[0] is alpha
+    assert promoted.depth_priors[0].dtype == torch.float64
+    assert promoted.depth_confidences[0].dtype == torch.float64
+    assert promoted.bounds_hint[0].dtype == torch.float64
+
 
 def test_reconstruction_adapter_carries_sparse_geometry_and_derives_split() -> None:
     points = torch.tensor([[0.0, 0.0, 0.0], [0.2, -0.1, 0.4]])

@@ -324,22 +324,40 @@ class GaussianObservationField:
     def dtype(self) -> torch.dtype:
         return self.means.dtype
 
-    def to(self, device: torch.device | str) -> GaussianObservationField:
-        """Copy the field to ``device`` without changing its renderer semantics."""
+    def to(
+        self,
+        device: torch.device | str,
+        *,
+        dtype: torch.dtype | None = None,
+    ) -> GaussianObservationField:
+        """Copy the field to ``device`` and optionally promote its compute dtype.
+
+        Crop-local ``mean_residuals`` deliberately remain float32: they encode exact corrections
+        to the archived float32 means and are cast only when :meth:`native_means` applies them.
+        """
+        target_dtype = self.dtype if dtype is None else dtype
+        if target_dtype not in {torch.float32, torch.float64}:
+            raise TypeError("observation dtype must be torch.float32 or torch.float64")
         return GaussianObservationField(
             width=self.width,
             height=self.height,
-            means=self.means.to(device),
-            log_scales=self.log_scales.to(device),
-            rotations=self.rotations.to(device),
-            colors=self.colors.to(device),
-            amplitudes=self.amplitudes.to(device),
+            means=self.means.to(device=device, dtype=target_dtype),
+            log_scales=self.log_scales.to(device=device, dtype=target_dtype),
+            rotations=self.rotations.to(device=device, dtype=target_dtype),
+            colors=self.colors.to(device=device, dtype=target_dtype),
+            amplitudes=self.amplitudes.to(device=device, dtype=target_dtype),
             mean_residuals=(
-                None if self.mean_residuals is None else self.mean_residuals.to(device)
+                None if self.mean_residuals is None else self.mean_residuals.to(device=device)
             ),
-            color_grads=None if self.color_grads is None else self.color_grads.to(device),
+            color_grads=(
+                None
+                if self.color_grads is None
+                else self.color_grads.to(device=device, dtype=target_dtype)
+            ),
             filter_variance=(
-                None if self.filter_variance is None else self.filter_variance.to(device)
+                None
+                if self.filter_variance is None
+                else self.filter_variance.to(device=device, dtype=target_dtype)
             ),
             blend_mode=self.blend_mode,
             epsilon=self.epsilon,

@@ -14,14 +14,28 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = ROOT / "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py"
 TASK = ROOT / "experiments/tasks/20260729_field_sweep_placement_stage_frames00008_00009.json"
+SUCCESSOR_DRIVER = (
+    ROOT / "scripts/experiments/20260730_field_sweep_placement_f64_stage_frames00008_00009.py"
+)
+SUCCESSOR_TASK = (
+    ROOT / "experiments/tasks/20260730_field_sweep_placement_f64_stage_frames00008_00009.json"
+)
 
 
-def _driver():
-    spec = importlib.util.spec_from_file_location("field_sweep_experiment_driver", DRIVER)
+def _load_driver(path: Path, name: str):
+    spec = importlib.util.spec_from_file_location(name, path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _driver():
+    return _load_driver(DRIVER, "field_sweep_experiment_driver")
+
+
+def _successor_driver():
+    return _load_driver(SUCCESSOR_DRIVER, "field_sweep_f64_experiment_driver")
 
 
 def _summaries(module, *, robust_rgb: float = 0.90) -> tuple[dict, list[dict]]:
@@ -69,6 +83,63 @@ def test_task_frozen_configuration_matches_driver_constants() -> None:
         module._protocol_sha256(task)
         == "9ff7057e47e3ea6a2af0532edbecf13036a892d9805e02cfe26aee7f33732844"
     )
+
+
+def test_successor_changes_only_common_precision_and_failure_observability() -> None:
+    original = json.loads(TASK.read_text(encoding="utf-8"))
+    successor = json.loads(SUCCESSOR_TASK.read_text(encoding="utf-8"))
+    module = _successor_driver()
+    frozen = successor["frozen_configuration"]
+
+    assert successor["depends_on"] == []
+    assert successor["status"] in {"draft", "ready"}
+    assert frozen["driver"] == SUCCESSOR_DRIVER.relative_to(ROOT).as_posix()
+    assert frozen["arms"] == module.ARM_MODES == original["frozen_configuration"]["arms"]
+    assert frozen["compact_loading"] == module.COMPACT_LOADING
+    assert frozen["refit"] == module.REFIT_CONFIG == original["frozen_configuration"]["refit"]
+    assert frozen["field_lift"] == module.FIELD_CONFIG
+    assert frozen["field_lift"] == {
+        **original["frozen_configuration"]["field_lift"],
+        "compute_dtype": "float64",
+    }
+    assert successor["splits"] == original["splits"]
+    assert successor["seeds"] == original["seeds"]
+    assert successor["primary_metrics"] == original["primary_metrics"]
+    assert "structured_worker_failure_receipt" in successor["execution_guards"]
+
+
+def test_successor_worker_retains_structured_exception_receipt(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    module = _successor_driver()
+
+    def fail(**_kwargs):
+        raise RuntimeError(
+            "fiber optimizer violated the exact source projection "
+            "(step=0, dtype=torch.float64, max_mean_error=1e-10, "
+            "max_covariance_error=3e-9, tolerance=2e-9)"
+        )
+
+    monkeypatch.setattr(module, "_BASE_WORKER", fail)
+    run = tmp_path / "run"
+    with pytest.raises(RuntimeError, match="max_covariance_error=3e-9"):
+        module._worker(
+            task={},
+            run=run,
+            dataset_id="frame_00008",
+            seed=290900,
+            arm="bounded_midpoint",
+            warmup=True,
+        )
+
+    receipts = list(run.rglob("failure.json"))
+    assert len(receipts) == 1
+    payload = json.loads(receipts[0].read_text(encoding="utf-8"))
+    assert payload["task_id"] == module.TASK_ID
+    assert payload["error_type"] == "RuntimeError"
+    assert "max_mean_error=1e-10" in payload["error_message"]
+    assert "RuntimeError" in payload["traceback"]
 
 
 def test_run_binding_rejects_data_seal_drift_after_initialization(tmp_path) -> None:

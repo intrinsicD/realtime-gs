@@ -568,6 +568,13 @@ def test_mean_residual_recovers_exact_local_float32_and_near_half_support():
     assert torch.round(native[0, 0] - origin[0]).item() == 0
     assert bool((field.mean_residuals != 0).any())
     assert field.to("cpu").mean_residuals.data_ptr() != field.mean_residuals.data_ptr()
+    promoted = field.to("cpu", dtype=torch.float64)
+    assert promoted.dtype == torch.float64
+    assert promoted.mean_residuals.dtype == torch.float32
+    assert torch.equal(
+        promoted.native_means(),
+        local.double() + origin.double(),
+    )
 
     with pytest.raises(TypeError, match="mean_residuals must use float32"):
         GaussianObservationField(

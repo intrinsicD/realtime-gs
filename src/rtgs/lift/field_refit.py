@@ -520,17 +520,22 @@ def fit_field_fibers(
             history.append(float(before.detach()))
 
         source_means, source_covariances, _depth = fiber.source_projection()
-        source_error = torch.maximum(
-            (source_means - fiber.source_means2d).abs().amax(),
-            (source_covariances - fiber.source_covariances2d).abs().amax(),
-        )
+        source_mean_error = (source_means - fiber.source_means2d).abs().amax()
+        source_covariance_error = (source_covariances - fiber.source_covariances2d).abs().amax()
+        source_error = torch.maximum(source_mean_error, source_covariance_error)
         tolerance = 2e-9 if source_means.dtype == torch.float64 else 2e-4
         detached_source_error = source_error.detach()
         if (
             not bool(torch.isfinite(detached_source_error))
             or float(detached_source_error) > tolerance
         ):
-            raise RuntimeError("fiber optimizer violated the exact source projection")
+            raise RuntimeError(
+                "fiber optimizer violated the exact source projection "
+                f"(step={step}, dtype={source_means.dtype}, "
+                f"max_mean_error={float(source_mean_error.detach()):.17g}, "
+                f"max_covariance_error={float(source_covariance_error.detach()):.17g}, "
+                f"tolerance={tolerance:.17g})"
+            )
 
     gaussians = _materialize(fiber, appearance, render_opacity).detach()
     source_means, source_covariances, _depth = fiber.source_projection()
