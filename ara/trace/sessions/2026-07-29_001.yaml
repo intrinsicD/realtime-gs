@@ -2,9 +2,9 @@ session:
   id: "2026-07-29_001"
   date: "2026-07-29"
   started: "2026-07-29T12:46+02:00"
-  last_turn: "2026-07-29T13:16+02:00"
-  turn_count: 2
-  summary: "Completed and CPU-verified bounded agent-workflow hardening after the requested pause; RTGS-001 remains provisionally accepted pending distinct review."
+  last_turn: "2026-07-29T13:25+02:00"
+  turn_count: 3
+  summary: "Completed, CPU-verified, and published bounded agent-workflow hardening to origin/main; RTGS-001 remains provisionally accepted pending distinct review."
 
 events_logged: []
 
@@ -62,10 +62,24 @@ ai_actions:
       - "scripts/verify.sh"
       - "tests/test_agent_workflow.py"
       - "tests/test_experiment_contract.py"
+  - turn: 3
+    action: >
+      Re-read the canonical repository and publishing instructions, confirmed the complete
+      worktree belonged to RTGS-001, recorded the user's publication authorization without
+      promoting the self-review, fetched origin/main, reviewed the exact diff, reran the complete
+      CPU/local/CI verification gate and focused skill validators, committed the 42-file snapshot
+      as 31fad87, confirmed main had no remote divergence, and fast-forward pushed it to
+      origin/main. No merge commit or pull-request branch was created because the checkout and
+      remote default branch were already main and synchronized.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
 
 key_context:
   - turn: 2
     excerpt: "The user explicitly resumed the paused repository-workflow task."
+  - turn: 3
+    excerpt: "The user explicitly authorized committing all changes on main and pushing them to the remote."
 
 open_threads:
   - "A distinct reviewer or human may review and archive RTGS-001; no scientific or runtime work is blocked."

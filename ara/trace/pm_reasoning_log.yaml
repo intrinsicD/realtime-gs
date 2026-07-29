@@ -510,3 +510,9 @@ entries:
       - "Did not add an ARA solution/claim entry for repository coordination mechanics; their artifact commitment is durable process policy, not a statement about the researched reconstruction method."
       - "Treated the ambient-CUDA verification failure and explicit CPU-only repair as gate engineering, not an empirical research dead end."
       - "Preserved the independent-review boundary: RTGS-001 is provisionally accepted by self-review and remains the sole open workflow thread."
+  - turn: "2026-07-29_001#3"
+    notes:
+      - "Recorded commit 31fad87 and its fast-forward push to origin/main as an AI action only; publication is process provenance, not a scientific experiment or capability result."
+      - "Created no merge commit because local main and origin/main were synchronized before the new commit; no branch or pull request was needed for the user's explicitly requested direct-main publication."
+      - "Treated the user's publish authorization as authority for the Git operation, not as a distinct technical review; RTGS-001 remains provisionally accepted and unarchived."
+      - "No staged observation received a closure signal, contradiction, or new stale disposition, and no exploration node, claim, heuristic, or evidence artifact was added."
