@@ -1,0 +1,303 @@
+{
+  "schema_version": 2,
+  "task_id": "20260730_additive_analytic_objective_stage_frames00008_00009",
+  "date": "20260730",
+  "task_slug": "additive_analytic_objective",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "direct_compact",
+  "status": "draft",
+  "owner": "Claude-additive-objective-driver",
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
+  "depends_on": [],
+  "title": "Additive-field exact analytic refinement objective (surfel plus visibility weighting) versus point-sampled compositing supervision",
+  "question": "On native additive 2D Gaussian fields, does refining a matched image-free 3D initialization with the exact analytic density/RGB-numerator objective under surfel-constrained covariances and detached transmittance-times-incidence per-view weighting improve held-out compact reconstruction over the incumbent point-sampled compositing objective, and does an analytic-warmup-then-sampled-finish hybrid beat both?",
+  "hypothesis": "At matched initialization, fixed topology, and matched optimizer budget, the hybrid arm reduces final held-out additive-field RGB MSE by at least 5% geometric mean versus the point-sampled baseline and wins at least two of three paired seeds on each of the two outcome-exposed scenes; the visibility-weighted analytic arm outperforms the unweighted analytic arm on the same paired cells; and under weighting the residual-energy share carried by occluded primitives drops relative to the unweighted arm (descriptive diagnostic).",
+  "claim_boundary": "Development and replication evidence about four named CPU refinement-objective arms on outcome-exposed frames 00008 and 00009 using native additive 2D Gaussian fields with zero support fade, where the analytic density/RGB-numerator objective is exact rather than the normalized-blend proxy. It cannot establish StructSplat or normalized-blend behavior, RGB quality against photographs, GPU behavior, speed, cross-dataset generalization, topology or densification effects, or a production-default change. The additive-versus-StructSplat stage-1 quality trade is explicitly deferred by owner decision of 2026-07-30.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_additive/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    300731,
+    300732,
+    300733
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer",
+      "rtgs.carrier_pipeline",
+      "rtgs.lift.beam_fusion",
+      "rtgs.lift.carrier_refinement",
+      "rtgs.optim.carrier_schedule"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "deny_beam_imports",
+    "structured_worker_failure_receipt",
+    "additive_blend_mode_assertion"
+  ],
+  "frozen_configuration": {
+    "driver": "scripts/experiments/20260730_additive_analytic_objective_stage_frames00008_00009.py",
+    "arms": {
+      "point_sampled_baseline": "incumbent_point_sampled_compositing_objective",
+      "analytic_unweighted": "exact_additive_density_rgb_objective_without_view_weighting",
+      "analytic_weighted": "exact_additive_density_rgb_objective_with_detached_transmittance_times_incidence_weighting",
+      "hybrid_analytic_warmup": "analytic_weighted_warmup_then_point_sampled_finish"
+    },
+    "compact_loading": {
+      "load_alpha": false,
+      "embedded_alpha_used_for_reconstruction": false,
+      "required_blend_mode": "additive",
+      "required_support_fade_alpha": 0.0
+    },
+    "shared_initialization": {
+      "placement": "fixed_bounded_midpoint",
+      "max_tracks": 128,
+      "max_train_views": 8,
+      "min_views": 2,
+      "topology_rounds": 0,
+      "validation_sample_cap": 512,
+      "compute_dtype": "float64",
+      "note": "one deterministic placement per scene and seed, shared bit-exact across all four arms"
+    },
+    "refinement_provisional_until_implementation": {
+      "total_iterations": 40,
+      "hybrid_analytic_warmup_iterations": 20,
+      "learning_rate": 0.025,
+      "density_weight": 1.0,
+      "rgb_weight": 0.25,
+      "null_prior_weight": 0.05,
+      "observability_condition_limit": 100000.0,
+      "visibility_refresh": 5,
+      "gain_ridge": 1e-06,
+      "chunk_size": 256,
+      "gradient_clip": 10.0,
+      "force_source_visible": true,
+      "surfel": {
+        "thickness_ratio_rho": 0.1,
+        "min_projected_sigma_px": 0.3,
+        "incidence_weight": "clamped_cosine",
+        "max_incidence_deg": 70.0,
+        "normal_orientation": "source_view_camera"
+      },
+      "point_sampled_budget_rule": "matched to the analytic arms by equal optimizer steps and equal per-step supervision sample count; the exact sampler fields are frozen together with the driver before review"
+    }
+  },
+  "stages": [
+    {
+      "id": "additive_teacher_load",
+      "label": "Additive teacher load",
+      "purpose": "Load the frozen additive native fields and hard-assert blend_mode additive with zero support fade so the analytic objective is exact rather than the documented normalized-blend proxy."
+    },
+    {
+      "id": "matched_initialization",
+      "label": "Matched image-free initialization",
+      "purpose": "Build one deterministic source-anchored bounded-midpoint placement per scene and seed, shared bit-exact across arms, so later metrics isolate the refinement objective and not placement."
+    },
+    {
+      "id": "objective_refinement",
+      "label": "Per-arm objective refinement",
+      "purpose": "Refine the shared initialization under each arm's supervision surface at matched iteration and supervision budget with fixed topology, so the objective is the only manipulated factor."
+    },
+    {
+      "id": "heldout_compact_evaluation",
+      "label": "Held-out compact evaluation",
+      "purpose": "Evaluate immutable held-out additive teachers only after each arm finishes, preserving per-view, per-seed, per-scene diagnostics and the per-primitive transmittance-times-energy conflict-score table."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "point_sampled_baseline",
+      "label": "Point-sampled compositing baseline",
+      "purpose": "Incumbent supervision surface; controls whether analytic supervision adds value over sampled true-semantics supervision at matched initialization and budget."
+    },
+    {
+      "id": "analytic_unweighted",
+      "label": "Unweighted analytic objective",
+      "purpose": "Controls the occlusion mechanism; runs the same exact additive objective without per-view transmittance-times-incidence weights, so any weighted-arm gain is attributable to visibility handling."
+    },
+    {
+      "id": "analytic_weighted",
+      "label": "Visibility-weighted analytic objective",
+      "purpose": "Isolates the analytic-only endpoint run to full budget, so the hybrid arm's sampled finish is attributable rather than confounded with the warm-up."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "final_heldout_rgb_mse",
+      "label": "Final held-out compact RGB MSE",
+      "unit": "mse",
+      "direction": "lower",
+      "aggregation": "sample-weighted held-out views, paired by scene and seed; the decision rule is hybrid versus point-sampled baseline with at least 5% geometric-mean improvement and at least two of three paired seed wins per scene"
+    },
+    {
+      "id": "final_heldout_density_mse",
+      "label": "Final held-out compact density MSE",
+      "unit": "mse",
+      "direction": "lower",
+      "aggregation": "sample-weighted held-out views, paired by scene and seed"
+    },
+    {
+      "id": "init_heldout_rgb_mse",
+      "label": "Shared-initialization held-out RGB MSE",
+      "unit": "mse",
+      "direction": "descriptive",
+      "aggregation": "recorded once per scene and seed as the matched-start receipt; must be bit-identical across arms within a cell"
+    },
+    {
+      "id": "occluded_penalty_share",
+      "label": "Occluded-primitive penalty share",
+      "unit": "fraction",
+      "direction": "descriptive",
+      "aggregation": "per arm, scene, and seed: the share of training-view analytic residual energy carried by primitives whose detached center transmittance in that view is below 0.1; diagnostic for the occlusion hypothesis with no decision authority"
+    },
+    {
+      "id": "source_projection_max_error",
+      "label": "Source projection maximum error",
+      "unit": "pixels",
+      "direction": "lower",
+      "aggregation": "maximum over every arm, scene, and seed; structural guardrail at 0.0002 pixels"
+    },
+    {
+      "id": "wall_seconds",
+      "label": "CPU wall time",
+      "unit": "seconds",
+      "direction": "descriptive",
+      "aggregation": "descriptive per-arm and per-scene medians over three measured seeds; the root summary is the median of all measured cells and supports no performance claim"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh single-thread CPU process per scene, seed, and arm from additive-manifest open through final field validation and atomic artifact save; arm order is counterbalanced across measured seeds",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "one discarded warmup per scene and arm, followed by three paired measured seeds; retain every raw scene, seed, arm, end-to-end time, worker time, output size, and ru_maxrss; timings are descriptive only",
+    "cuda_metrics": [
+      "cuda_not_used_cpu_reference_experiment"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_compact.json",
+  "run_command": null,
+  "blockers": [
+    "Additive native 2D bundles do not exist yet: produce dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/ and frame_00009/gaussians2d_additive/ with frozen deterministic mask-aware stage-1 native fitting (per-view image isolation, recorded fit config and seed in each manifest, blend_mode additive, support_fade_alpha 0).",
+    "data_seal currently points at the existing StructSplat compact seal as a structural placeholder only; build experiments/data/stage_frames00008_00009_additive.json from the additive bundles with build-seal and repoint data_seal before review (validate-data is expected to fail until then).",
+    "The surfel-constrained visibility-weighted exact analytic objective, the hybrid schedule, and the matched point-sampled budget rule are not implemented; land them behind existing seams with CPU tests (analytic-equals-rendered-image exactness on additive fields, occlusion-weighting behavior, determinism), then confirm or amend every value under frozen_configuration.refinement_provisional_until_implementation.",
+    "Write scripts/experiments/20260730_additive_analytic_objective_stage_frames00008_00009.py and freeze the exact run_command.",
+    "Obtain the distinct prospective protocol review (review-digest, experiments/reviews/20260730_additive_analytic_objective_stage_frames00008_00009_PROTOCOL_REVIEW.md, Outcome Access: none) and set status ready."
+  ]
+}
