@@ -561,3 +561,10 @@ entries:
       - "Preserved five exact v1 task ids instead of silently reinterpreting historical evidence; all new tasks fail unless they explicitly freeze report template v2."
       - "Kept RTGS-006 at draft/scaffolded maturity: no additive teachers, prospective review, protected run, viewer smoke, result audit or scientific outcome was produced."
       - "Did not mass-promote or stale unrelated observations, and found no contradiction with existing scientific claims."
+  - turn: "2026-07-31_001#1"
+    notes:
+      - "Recorded commit 008e43c and its fast-forward push to origin/main as an AI action only; publication is process provenance, not a scientific experiment or capability result."
+      - "Created no merge commit because local main and refreshed origin/main were synchronized before the commit; the user's explicit direct-main request superseded the draft-PR default."
+      - "The exact pre-commit/CI gate passed before publication; its two PyTorch warnings predate and are outside this workflow-contract change."
+      - "Created no exploration node, observation, claim, heuristic or evidence artifact, and found no closure signal, contradiction or new stale disposition in this publication-only turn."
+      - "Started a new calendar-day session because the required epilogue ran after local midnight."

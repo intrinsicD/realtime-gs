@@ -111,3 +111,10 @@ sessions:
     events_count: 11
     claims_touched: [C32, C33]
     open_threads: 3
+  - id: "2026-07-31_001"
+    date: "2026-07-31"
+    summary: "Published verified Experiment Bundle Contract v2 commit 008e43c directly to origin/main; no merge commit was needed."
+    turn_count: 1
+    events_count: 0
+    claims_touched: []
+    open_threads: 3

@@ -1,0 +1,33 @@
+session:
+  id: "2026-07-31_001"
+  date: "2026-07-31"
+  started: "2026-07-31T00:04+02:00"
+  last_turn: "2026-07-31T00:04+02:00"
+  turn_count: 1
+  summary: "Published verified Experiment Bundle Contract v2 commit 008e43c directly to origin/main; no merge commit was needed."
+
+events_logged: []
+
+ai_actions:
+  - turn: 1
+    action: >
+      Refreshed origin/main, confirmed the complete Bundle Contract v2 worktree belonged to
+      RTGS-006/A17, reran the repository's exact pre-commit verification gate, committed the
+      twenty-file implementation as 008e43c, and fast-forward pushed local main to origin/main.
+    provenance: ai-executed
+    files_changed: []
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The user explicitly requested: 'commit all changes. merge to main and push to remote'."
+
+open_threads:
+  - "Run a fresh cross-capture protocol with an explicit all-view comparator gate before considering any placement default."
+  - "Delete claude/3d-gaussian-splatting-pipeline-twa00k only after explicit operational authorization; the replacement experiment is now complete."
+  - "Obtain independent review of implemented A17, then resume RTGS-006 at additive teacher generation and data-seal construction."
+
+ai_suggestions_pending:
+  - "Separate mean-coordinate and covariance-entry projection invariants and retain a replay-complete environment fingerprint in the next protocol."
+  - "Retire the historical branch only when the user explicitly authorizes the destructive ref deletion."
