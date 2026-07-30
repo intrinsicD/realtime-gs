@@ -17,6 +17,44 @@ comment at the changed default. Threshold changes in tests must cite an entry he
 
 ---
 
+## 2026-07-30 — Float64 successor confirms robust placement over bounded midpoint
+
+- **Question**: Does source-excluded robust coarse-to-fine compact-field placement improve
+  post-refit held-out compact-field error over matched bounded-midpoint and all-view-consensus
+  placement on frames 00008 and 00009 after repairing the predecessor's native-scale precision
+  failure without weakening its projection invariant?
+- **Setup**: Official successor task
+  `experiments/tasks/20260730_field_sweep_placement_f64_stage_frames00008_00009.json`, approved
+  protocol digest `a45ee0da9f2282cdeebfa93a9321408a9d1a7ce4b64ba6a2746f61e30546a1e0`,
+  clean source `a69337346fbecd156c20211abd638f976e327d62`, two outcome-exposed same-capture
+  compact-field frames, three paired measured seeds per arm, six discarded warmups, float64 field
+  computation, unchanged 20-step refit and `0.0002` mixed-unit projection invariant, and topology
+  disabled. The exact command and all source/data/review hashes are retained in
+  `runs/20260730_field_sweep_placement_f64_stage_frames00008_00009/task.lock.json`.
+- **Result**: All 24 cells completed. Independent raw-cell recomputation confirmed the frozen
+  robust-versus-midpoint rule: pooled final held-out compact RGB MSE geometric-mean ratio
+  `0.8976637924784316` (robust `0.0240177925`, midpoint `0.0267558887`, a `10.2336%`
+  reduction), with robust wins `3/3` on both frames. Minimum robust support was `0.9921875`, and
+  maximum measured projection invariant was `5.8207661e-11`. The all-view comparison was
+  heterogeneous: robust won `3/3` on frame 00008, but its frame-00009 ratio was
+  `1.0310499997` with only `1/3` wins; the pooled robust/all-view ratio of `0.9307899264` must
+  not erase that reversal. Timings and RSS are descriptive only. Result:
+  `benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_RESULT.md`;
+  audit:
+  `benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md`;
+  report:
+  `runs/20260730_field_sweep_placement_f64_stage_frames00008_00009/index.html`.
+- **Conclusion**: Accept the bounded development result that the tested robust placement improves
+  over bounded midpoint on both named frames under matched anchors, refit, and evaluation. Do not
+  claim that it beats both controls on both scenes, that float64 was the predecessor's sole
+  necessary repair, or that this establishes RGB-image quality, physical geometry, GPU or speed
+  behavior, topology utility, cross-dataset generalization, or a production-default change. The
+  production `compact_carve` default remains unchanged.
+- **Follow-ups**: Make the all-view comparator an explicit gate in a fresh protocol; separate mean
+  and covariance projection invariants with dimensionally correct units; record a replay-complete
+  host/package fingerprint; and replicate on non-exposed, cross-capture scenes before considering
+  any default change.
+
 ## 2026-07-30 — Fixed-anchor compact-field sweep fails before measured outcomes
 
 - **Question**: Does source-excluded robust coarse-to-fine compact-field placement improve

@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "task_id": "20260730_field_sweep_placement_f64_stage_frames00008_00009",
+  "audit_date": "2026-07-30",
+  "auditor": "Codex-results-auditor",
+  "verdict": "confirmed_frozen_midpoint_rule_with_all_view_scope_narrowing",
+  "official_attempt_consumed": true,
+  "binding": {
+    "task": {
+      "path": "experiments/tasks/20260730_field_sweep_placement_f64_stage_frames00008_00009.json",
+      "sha256": "7fe68d79fffb50bebe2a7f728f09bdb2d5a3f7c92fe0725f425f57a728486570"
+    },
+    "protocol": {
+      "sha256": "a45ee0da9f2282cdeebfa93a9321408a9d1a7ce4b64ba6a2746f61e30546a1e0",
+      "review_path": "experiments/reviews/20260730_field_sweep_placement_f64_stage_frames00008_00009_PROTOCOL_REVIEW.md",
+      "review_sha256": "bea7eacc1f09976666c0218060d29020d18319db9ba76394f94e7540b7a35294"
+    },
+    "data_seal": {
+      "path": "experiments/data/stage_frames00008_00009_compact.json",
+      "sha256": "571e71c67e8e9793b8d2360a8f7720deecfc224dab11b2d8d57766609057feb7",
+      "validation": "pass",
+      "file_count": 55,
+      "bytes": 8373380
+    },
+    "task_lock": {
+      "path": "runs/20260730_field_sweep_placement_f64_stage_frames00008_00009/task.lock.json",
+      "sha256": "f933e481b3e95b6a59c470b3f50dd84b27667a8450e4ff8b0f476d601a3cbc4b"
+    },
+    "source": {
+      "commit": "a69337346fbecd156c20211abd638f976e327d62",
+      "committed_at_utc": "2026-07-29T23:05:53Z",
+      "source_dirty": false,
+      "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "locked_file_sha256": {
+        "scripts/experiments/20260730_field_sweep_placement_f64_stage_frames00008_00009.py": "509895a3359106eecfca9759dd8984382dacb03f83e3fa8fa62739dd8034541a",
+        "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py": "baab94f1eb34a40c19a8df0f20c20d9704084a607293834b42328e5a41976107",
+        "src/rtgs/core/observation2d.py": "ae6e1a026188f94bb9b893321c269aef36d3be4b266a169b4c71e0d82b155b75",
+        "src/rtgs/data/field_inputs.py": "84621d861da67e05b8b13f8e4c10dcdbeaa463d2895c7b9fecf53993a2df4ea8",
+        "src/rtgs/lift/field_sweep.py": "09b41543b38a0ddb6e164ba054287bb615cd000c5fe4278cdd375375c9088b17",
+        "src/rtgs/lift/field_lifter.py": "9514898f6e54790ae1723596daaf32bc96e4470de0c9c8ecc9401179ff4a8d4f",
+        "src/rtgs/lift/field_refit.py": "ec04d31786b28c7063c60ea7eff4bc8db812a51dfa37bdea76b05e1f5568ee56",
+        "src/rtgs/lift/inverse_projection_fiber.py": "4e9bd0c62954b2361d2cb79491d97cdfbad29c7c2dd23be0e5f5bff7e75cdd8b"
+      }
+    },
+    "exact_command": [
+      ".venv/bin/python",
+      "scripts/experiments/20260730_field_sweep_placement_f64_stage_frames00008_00009.py",
+      "--task",
+      "experiments/tasks/20260730_field_sweep_placement_f64_stage_frames00008_00009.json",
+      "--run-dir",
+      "runs/20260730_field_sweep_placement_f64_stage_frames00008_00009"
+    ]
+  },
+  "chronology": [
+    {
+      "event": "source_commit",
+      "at_utc": "2026-07-29T23:05:53Z"
+    },
+    {
+      "event": "run_initialized",
+      "at_utc": "2026-07-29T23:06:05.157086Z"
+    },
+    {
+      "event": "first_warmup_published",
+      "at_utc": "2026-07-29T23:07:13Z",
+      "precision": "seconds"
+    },
+    {
+      "event": "last_measured_cell_published",
+      "at_utc": "2026-07-29T23:28:01.293Z"
+    },
+    {
+      "event": "producer_aggregate_bundle_published",
+      "at_utc": "2026-07-29T23:28:01Z",
+      "precision": "seconds"
+    }
+  ],
+  "artifact_inventory": {
+    "run_root": "runs/20260730_field_sweep_placement_f64_stage_frames00008_00009",
+    "pre_audit_file_count": 177,
+    "pre_audit_bytes": 2269149,
+    "discarded_warmup_directories": 6,
+    "measured_cell_directories": 18,
+    "files_per_cell_directory": 7,
+    "failed_cells": 0,
+    "hidden_worker_directories": 0,
+    "inventory_sha256": "404cdeac3453af78f7c2b16c0e603617fb39ddbb0e6841f689c2681c76de325e",
+    "inventory_definition": "SHA-256 of compact canonical JSON for sorted path, byte-count, and SHA-256 records over every file under cells/ and warmups/ plus task.lock.json, cell_results.json, metrics.json, gaussians_init.ply, gaussians.ply, gaussians.config.json, training_history.json, input_boundary_receipt.json, and resource_receipt.json at the run root.",
+    "root_artifact_sha256": {
+      "task.lock.json": "f933e481b3e95b6a59c470b3f50dd84b27667a8450e4ff8b0f476d601a3cbc4b",
+      "cell_results.json": "19d3a3e3df071bb3a6e2c35b024f71e8ffcd01b03189fed77cffa9cbf33733e2",
+      "metrics.json": "d4d56e387224b04fed2b7b3dc7663bd30b50b8c0200d7f8a5568472b7cbebbe0",
+      "gaussians_init.ply": "f520126ff9dfbbff622d33c1ccbe6daa20f6b010157183dcfc9e2e001dcbe3a8",
+      "gaussians.ply": "9b673b0ca562e343ccb15d1a50725f74291030f4a6d90ac9ded2d815a14e39b9",
+      "gaussians.config.json": "b5c89fc0846a47d1b11bf7156f4a493ef7fada2599a2818e200c372be5c9b3c6",
+      "training_history.json": "c93bd8add7c18d92749a9efaa88cff5197938093c56a82487187274034da2833",
+      "input_boundary_receipt.json": "c48959040b8863f6af5cd46984221bcdead343ee58cb6160e12cd53d913c9df2",
+      "resource_receipt.json": "64ea467b2c7c70196db8cd1b09932a1f9e66339f897ae81997ca01520d1b196d"
+    },
+    "producer_result_sha256": {
+      "benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_RESULT.json": "e573cb8c6f00cfc48e18fe3c8fad0f091323faf66f4a98fadb0b835e2b5b565b",
+      "benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_RESULT.md": "c606f304690422bc18200815aa00b4a39c09d0f9f378d4faa5911d8c042a4a7b"
+    }
+  },
+  "cardinality_and_schedule": {
+    "expected_warmups": 6,
+    "observed_warmups": 6,
+    "expected_measured_cells": 18,
+    "observed_measured_cells": 18,
+    "datasets": [
+      "frame_00008",
+      "frame_00009"
+    ],
+    "measured_seeds": [
+      290901,
+      290902,
+      290903
+    ],
+    "arms": [
+      "bounded_midpoint",
+      "all_view_consensus",
+      "source_excluded_robust"
+    ],
+    "warmup_seed": 290900,
+    "warmups_precede_measured_cells": true,
+    "measured_arm_order_matches_frozen_rotation": true,
+    "cell_results_exactly_matches_raw_summaries_with_scoped_resources": true
+  },
+  "independent_recomputation": {
+    "method": "Read raw cell summary, validation, input-boundary, resource, config, history, and PLY artifacts. Recomputed sample-weighted validation aggregates, arm and scene geometric means, paired-seed wins, extrema, medians, and the frozen producer predicate without relying on producer aggregate values.",
+    "aggregate_metrics": {
+      "robust_placement_heldout_rgb_mse_geometric_mean": 0.024161517300452903,
+      "robust_final_heldout_rgb_mse_geometric_mean": 0.024017792485982237,
+      "robust_final_heldout_density_mse_geometric_mean": 4.91362609353891,
+      "maximum_measured_source_projection_invariant": 5.820766091346741e-11,
+      "minimum_measured_robust_supported_track_fraction": 0.9921875,
+      "median_measured_wall_seconds": 52.66802911751438
+    },
+    "final_heldout_rgb_mse_geometric_mean_by_arm": {
+      "bounded_midpoint": 0.026755888660351994,
+      "all_view_consensus": 0.02580366611690199,
+      "source_excluded_robust": 0.024017792485982237
+    },
+    "median_wall_seconds_by_arm": {
+      "bounded_midpoint": 52.37958948701271,
+      "all_view_consensus": 52.65091423000558,
+      "source_excluded_robust": 52.75939034897601
+    },
+    "median_peak_rss_mib_by_arm": {
+      "bounded_midpoint": 3236.466796875,
+      "all_view_consensus": 3234.86328125,
+      "source_excluded_robust": 3233.79296875
+    },
+    "per_dataset": {
+      "frame_00008": {
+        "placement_heldout_rgb_mse_geometric_mean_by_arm": {
+          "bounded_midpoint": 0.031230997328780735,
+          "all_view_consensus": 0.02846811301345287,
+          "source_excluded_robust": 0.023508500116422346
+        },
+        "final_heldout_rgb_mse_geometric_mean_by_arm": {
+          "bounded_midpoint": 0.027857791252287118,
+          "all_view_consensus": 0.02989098114351534,
+          "source_excluded_robust": 0.025116770249797894
+        },
+        "robust_to_midpoint_final_ratio": 0.9016066644456535,
+        "robust_to_all_view_final_ratio": 0.8402792176410981,
+        "robust_seed_wins_over_midpoint": 3,
+        "robust_seed_wins_over_all_view": 3
+      },
+      "frame_00009": {
+        "placement_heldout_rgb_mse_geometric_mean_by_arm": {
+          "bounded_midpoint": 0.03150247098044282,
+          "all_view_consensus": 0.02456729056497608,
+          "source_excluded_robust": 0.02483267394214887
+        },
+        "final_heldout_rgb_mse_geometric_mean_by_arm": {
+          "bounded_midpoint": 0.025697571337296124,
+          "all_view_consensus": 0.022275253591567134,
+          "source_excluded_robust": 0.02296690020900861
+        },
+        "robust_to_midpoint_final_ratio": 0.8937381633289072,
+        "robust_to_all_view_final_ratio": 1.0310499997047535,
+        "robust_seed_wins_over_midpoint": 3,
+        "robust_seed_wins_over_all_view": 1
+      }
+    },
+    "pooled_robust_to_midpoint_final_ratio": 0.8976637924784316,
+    "pooled_robust_to_all_view_final_ratio": 0.9307899264070091,
+    "producer_values_reproduced_exactly": true
+  },
+  "frozen_decision_rule": {
+    "requirements": {
+      "maximum_robust_to_midpoint_final_ratio": 0.95,
+      "minimum_robust_seed_wins_over_midpoint_per_dataset": 2,
+      "minimum_robust_supported_track_fraction": 0.95,
+      "maximum_source_projection_invariant": 0.0002
+    },
+    "observed": {
+      "robust_to_midpoint_final_ratio": 0.8976637924784316,
+      "robust_seed_wins_over_midpoint_by_dataset": {
+        "frame_00008": 3,
+        "frame_00009": 3
+      },
+      "minimum_robust_supported_track_fraction": 0.9921875,
+      "maximum_source_projection_invariant": 5.820766091346741e-11
+    },
+    "passed": true,
+    "producer_rule_confirmed": true
+  },
+  "input_and_evaluation_isolation": {
+    "cell_input_receipts_checked": 24,
+    "cell_resource_receipts_checked": 24,
+    "validation_reports_recomputed": 48,
+    "selected_sealed_records_per_cell": 28,
+    "allowed_reconstruction_modalities": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "image_capable_import_guard_passed": true,
+    "image_suffix_open_guard_passed": true,
+    "forbidden_modules_absent_at_exit": true,
+    "negative_controls_passed_per_cell": 5,
+    "alpha_loaded": false,
+    "heldout_training_access": false,
+    "heldout_view_indices": [
+      7,
+      15,
+      23
+    ],
+    "heldout_view_names": [
+      "C0014",
+      "C0028",
+      "C1001"
+    ],
+    "optimized_view_indices": [
+      0,
+      3,
+      6,
+      10,
+      14,
+      18,
+      21,
+      25
+    ],
+    "optimized_views_are_training_only": true,
+    "placement_and_final_sample_hashes_match": true,
+    "sample_hashes_match_across_arms_within_scene_and_seed": true
+  },
+  "parity_and_invariants": {
+    "anchor_digest_matches_across_arms_for_all_measured_scene_seed_groups": true,
+    "source_lineage_digest_matches_across_arms_for_all_measured_scene_seed_groups": true,
+    "aabb_and_depth_bounds_match_across_arms_for_all_measured_scene_seed_groups": true,
+    "normalized_configuration_matches_after_seed_and_arm_placement_fields": true,
+    "compute_dtype": "float64",
+    "refit_iterations": 20,
+    "topology_rounds": 0,
+    "all_placement_depths_within_original_bounds": true,
+    "placement_fallbacks": 0,
+    "background_tracks": 0,
+    "sparse_depth_anchor_tracks": 0,
+    "topology_proposals": 0,
+    "topology_accepted": 0,
+    "maximum_source_projection_invariant_including_warmups": 7.275957614183426e-11,
+    "minimum_robust_supported_track_fraction_including_warmups": 0.984375,
+    "all_projection_and_support_guards_passed": true
+  },
+  "resource_accounting": {
+    "cpu_threads_per_cell": 1,
+    "cuda_used": false,
+    "scoped_wall_contains_worker_fit_time": true,
+    "process_wall_contains_scoped_wall": true,
+    "output_byte_counts_match_files": true,
+    "resource_scope_matches_protocol": true,
+    "performance_claim_supported": false,
+    "limitation": "The run does not retain a complete host and package fingerprint, so timings and ru_maxrss remain descriptive and are not replay-complete performance evidence."
+  },
+  "model_and_history_integrity": {
+    "parsed_ply_files": 48,
+    "all_ply_values_finite": true,
+    "all_quaternions_nonzero": true,
+    "vertex_count_per_ply": 128,
+    "initial_ply_float_properties": 17,
+    "final_ply_float_properties": 26,
+    "initial_ply_sh_degree": 0,
+    "final_ply_sh_degree": 1,
+    "training_histories_checked": 24,
+    "history_entries_per_cell": 21,
+    "history_values_finite": true,
+    "history_endpoints_match_cell_diagnostics": true,
+    "root_model_bundle_matches_representative_cell_bytes": true,
+    "representative_cell": "cells/frame_00008/seed_290901/source_excluded_robust",
+    "semantic_hash_note": "Summary semantic hashes bind in-memory tensors and cannot be regenerated byte-for-byte from the lossy float32 PLY export. This audit therefore binds exact PLY bytes and parses their structure; decisive metrics do not depend on round-tripping the PLY."
+  },
+  "claim_disposition": {
+    "confirmed": [
+      "The completed run is bound to the prospectively approved protocol, compact data seal, clean source commit, and exact frozen command.",
+      "All six discarded warmups and eighteen measured cells completed in the frozen schedule with valid no-image, held-out-isolation, parity, resource, projection, and support evidence.",
+      "The frozen producer rule against bounded midpoint passed: robust final held-out compact RGB MSE was 10.233620752156836 percent lower in pooled geometric mean and won all three paired seeds on both named frames.",
+      "The opt-in float64 successor completed and preserved the unchanged source-projection invariant at every cell."
+    ],
+    "narrowed": [
+      "Robust was better than all-view consensus in pooled geometric mean and on every frame-00008 seed, but it was 3.10499997047535 percent worse in frame-00009 geometric mean and won only one of three frame-00009 paired seeds. The result therefore does not support a claim that robust beats both controls on both scenes.",
+      "Successful float64 execution strengthens the predecessor round-off diagnosis, but the predecessor did not retain replay-complete raw tensors; float64 is not proven to have been its sole necessary repair."
+    ],
+    "unresolved": [
+      "Whether source exclusion or robust trimming generalizes beyond the two outcome-exposed same-capture compact-field frames.",
+      "Whether the all-view comparator difference is stable with more scenes and seeds."
+    ],
+    "retired_for_this_attempt": [
+      "RGB image-quality, physical-geometry, GPU, speed, topology-utility, production-default, and cross-dataset claims."
+    ]
+  },
+  "limitations": [
+    "This is outcome-exposed development and same-capture replication evidence with three measured seeds per scene and arm, not confirmatory evidence.",
+    "The source_projection_max_error field combines mean-coordinate errors measured in pixels with covariance-entry errors measured in squared-pixel units. The frozen numerical threshold passes, but the task's single pixel unit is dimensionally imprecise.",
+    "One objective-history increase occurs exactly at a frozen visibility and gain refresh, so no global-monotonicity claim is made.",
+    "The canonical report and viewer smoke test intentionally remain downstream of this audit."
+  ],
+  "checks": [
+    "Recomputed task, protocol-review, data-seal, task-lock, producer-result, root-artifact, locked-source, and canonical run-inventory hashes.",
+    "Validated all 55 compact data-seal records and all per-cell selected input records against current file size and SHA-256.",
+    "Recomputed decisive aggregates from raw validation rows and paired scene-seed cells; reproduced every producer aggregate and predicate exactly.",
+    "Validated warmup and measured cardinality, frozen schedule, arm rotation, cell-summary aggregation, receipt consolidation, and representative root artifacts.",
+    "Parsed all PLY files and checked finite values, vertex/property cardinality, quaternion validity, configuration parity, and training-history endpoints.",
+    "Passed 66 focused tests covering observation2d, field inputs, field lifting, field refit, field validation, and the experiment driver.",
+    "Passed experiment task/data/digest/workflow checks, diff validation, and the complete ./scripts/verify.sh suite."
+  ],
+  "not_performed": [
+    "No experiment execution, rerun, or diagnostic replay.",
+    "No producer artifact mutation.",
+    "No source, task protocol/status, prospective review, docs/EXPERIMENTS.md, or ARA edit.",
+    "No report rendering, viewer launch, or visual interpretation.",
+    "No branch deletion, merge, commit, or push."
+  ]
+}

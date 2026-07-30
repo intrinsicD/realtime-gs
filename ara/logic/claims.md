@@ -629,3 +629,58 @@
   fitted 2D Gaussian three-sigma ellipses in every fitting view. It neither detects a floater
   inside the multi-view visual hull nor proves surface occupancy, full Gaussian support
   containment, exact source-mask containment, cross-scene quality, or general VRAM reduction.
+
+## C32: Source-excluded robust placement beats bounded midpoint on the two named compact frames
+- **Statement**: In the prospectively reviewed float64 successor with two named same-capture
+  compact-field frames and three paired measured seeds per arm, source-excluded robust placement
+  reduced final held-out compact RGB MSE by `10.233620752156836%` relative to bounded midpoint in
+  pooled geometric mean (`0.024017792485982237` versus `0.026755888660351994`) and won all three
+  paired seeds on each frame. Minimum robust support was `0.9921875`, and the maximum measured
+  source-projection implementation invariant was `5.820766091346741e-11`.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing the source-, protocol-, task-, seal-, and
+  audit-bound raw cells changes the pooled robust/midpoint ratio, either frame's `3/3` paired-win
+  count, the support minimum, the projection maximum, or any frozen producer-rule operand; or an
+  audit finds held-out leakage, unmatched anchors, or invalid no-image receipts.
+- **Proof**: [N179, N180,
+  `benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_RESULT.md`,
+  `benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md`,
+  `benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.json`,
+  `ara/evidence/tables/20260730_field_sweep_placement.md`, `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: field-lift, compact-field, plane-sweep, fixed-anchor, held-out, development,
+  calibrated
+- **From staging**: O146
+- **Boundary**: This is outcome-exposed development and same-capture replication evidence against
+  immutable compact Gaussian-field teachers, with topology disabled and three seeds per arm. It
+  is not rendered RGB-image quality, physical geometry, GPU, speed, cross-dataset, topology, or
+  production-default evidence. The projection field combines coordinate and covariance-entry
+  discrepancies and is treated only as the frozen mixed-unit implementation invariant.
+
+## C33: Robust placement does not consistently beat all-view consensus across the two scenes
+- **Statement**: In the same frozen successor, source-excluded robust placement beat all-view
+  consensus on every frame-00008 seed (`0.8402792176410981` scene geometric-mean ratio), but on
+  frame 00009 it was `1.0310499997047535` times all-view in final held-out compact RGB MSE and won
+  only one of three paired seeds. The pooled robust/all-view ratio
+  `0.9307899264070091` therefore does not support a claim that robust beats both fixed-anchor
+  controls on both scenes.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: A bound raw-cell recomputation changes either scene ratio or paired
+  win count, or shows the frame-00009 comparison was not matched in anchors, refit, samples, or
+  evaluation. A fresh cross-capture experiment finding consistent robust gains would extend or
+  revise this scoped result rather than invalidate its recorded cells.
+- **Proof**: [N179, N180,
+  `benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md`,
+  `benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.json`,
+  `ara/evidence/tables/20260730_field_sweep_placement.md`, `docs/EXPERIMENTS.md`]
+- **Dependencies**: [C32]
+- **Tags**: field-lift, compact-field, comparator, heterogeneity, negative-result, development,
+  calibrated
+- **From staging**: O147
+- **Boundary**: The claim is the scene-level heterogeneity of this exact two-frame experiment.
+  It does not establish that all-view consensus is generally superior, nor does it erase the
+  independently supported robust-versus-midpoint result.

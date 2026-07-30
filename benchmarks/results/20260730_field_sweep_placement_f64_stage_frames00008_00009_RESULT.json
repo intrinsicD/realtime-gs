@@ -1,0 +1,41 @@
+{
+  "aggregate_metrics": {
+    "final_heldout_density_mse": 4.91362609353891,
+    "final_heldout_rgb_mse": 0.024017792485982237,
+    "placement_heldout_rgb_mse": 0.024161517300452903,
+    "source_projection_max_error": 5.820766091346741e-11,
+    "supported_track_fraction": 0.9921875,
+    "wall_seconds": 52.66802911751438
+  },
+  "arm_peak_rss_mib": {
+    "all_view_consensus": 3234.86328125,
+    "bounded_midpoint": 3236.466796875,
+    "source_excluded_robust": 3233.79296875
+  },
+  "arm_quality": {
+    "all_view_consensus": 0.02580366611690199,
+    "bounded_midpoint": 0.026755888660351994,
+    "source_excluded_robust": 0.024017792485982237
+  },
+  "arm_seconds": {
+    "all_view_consensus": 52.65091423000558,
+    "bounded_midpoint": 52.37958948701271,
+    "source_excluded_robust": 52.75939034897601
+  },
+  "cell_results": "runs/20260730_field_sweep_placement_f64_stage_frames00008_00009/cell_results.json",
+  "claim_boundary": "Development and replication evidence about three named CPU compact-field placement arms on outcome-exposed frames 00008 and 00009. This repaired successor changes only the shared compute precision and failure observability after the predecessor failed before measurement. It cannot establish RGB image quality, physical surface accuracy, GPU behavior, speed, cross-dataset generalization, topology utility, or a production-default change.",
+  "producer_decision": {
+    "audit_status": "pending_independent_audit",
+    "maximum_source_projection_error": 5.820766091346741e-11,
+    "minimum_robust_supported_track_fraction": 0.9921875,
+    "producer_rule_passed": true,
+    "robust_seed_wins_by_dataset": {
+      "frame_00008": 3,
+      "frame_00009": 3
+    },
+    "robust_to_midpoint_final_rgb_geometric_mean_ratio": 0.8976637924784316
+  },
+  "schema_version": 1,
+  "status": "pending_independent_audit",
+  "task_id": "20260730_field_sweep_placement_f64_stage_frames00008_00009"
+}

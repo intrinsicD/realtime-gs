@@ -3129,3 +3129,91 @@ tree:
       - "tests/test_field_sweep_experiment_driver.py"
     also_depends_on: [N175]
     status: resolved
+  - id: N177
+    type: dead_end
+    title: "The first official fixed-anchor sweep fails before measurement"
+    provenance: ai-executed
+    timestamp: "2026-07-30T01:58+02:00"
+    hypothesis: >
+      The prospectively approved float32 fixed-anchor compact-field sweep can execute its six
+      discarded warmups and eighteen measured cells under the frozen source-projection invariant.
+    failure_mode: >
+      The first bounded-midpoint warmup failed at refit step zero before any held-out outcome was
+      computed. The retained diagnostic showed one-to-three-ULP native-scale float32 covariance
+      discrepancies, with maximum absolute error 0.0234375 against the unchanged 0.0002 gate.
+      Independent audit found that pattern strongly consistent with round-off but not
+      replay-complete proof of a sole cause.
+    lesson: >
+      Consume the failed task rather than weakening its gate or reusing its run root. A successor
+      needs a new task, source checkpoint, digest and prospective review, plus a native-scale
+      regression and structured failure receipt.
+    evidence:
+      - "benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_RESULT.md"
+      - "benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_AUDIT.md"
+      - "docs/tasks/RTGS-003-field-sweep-execution.md"
+      - "docs/EXPERIMENTS.md"
+    also_depends_on: [N176]
+    status: resolved
+  - id: N178
+    type: pivot
+    title: "Pivot from consumed float32 execution to an opt-in float64 successor"
+    provenance: ai-executed
+    timestamp: "2026-07-30T01:58+02:00"
+    from: "The consumed float32 task and its pre-measurement projection-invariant failure"
+    to: >
+      A separately identified successor that promotes the complete CPU field path to float64,
+      retains the input-dtype and compact_carve defaults, preserves every treatment and decision
+      gate, and records structured worker failures.
+    trigger: >
+      N177 failed before measurement, while a native-scale regression reproduced the float32
+      failure and passed the unchanged invariant in float64. The successor received independent
+      prospective approval at digest a45ee0da9f2282cdeebfa93a9321408a9d1a7ce4b64ba6a2746f61e30546a1e0
+      before initialization.
+    evidence:
+      - "experiments/tasks/20260730_field_sweep_placement_f64_stage_frames00008_00009.json"
+      - "experiments/reviews/20260730_field_sweep_placement_f64_stage_frames00008_00009_PROTOCOL_REVIEW.md"
+      - "docs/tasks/RTGS-004-field-sweep-f64-successor.md"
+    also_depends_on: [N177]
+    status: resolved
+  - id: N179
+    type: experiment
+    title: "Official float64 fixed-anchor compact-field placement successor"
+    provenance: ai-executed
+    timestamp: "2026-07-30T01:58+02:00"
+    result: >
+      The clean-source successor completed six discarded warmups and all eighteen measured cells.
+      Independent raw-cell audit reproduced the producer exactly. Source-excluded robust versus
+      bounded midpoint final held-out compact RGB MSE ratio was 0.8976637924784316, with robust
+      wins 3/3 on frame 00008 and 3/3 on frame 00009; minimum robust support was 0.9921875 and
+      maximum measured projection invariant was 5.820766091346741e-11. Robust versus all-view
+      consensus was heterogeneous: ratio 0.8402792176410981 and 3/3 wins on frame 00008, but
+      ratio 1.0310499997047535 and only 1/3 wins on frame 00009.
+    evidence:
+      - "benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_RESULT.md"
+      - "benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md"
+      - "benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.json"
+      - "ara/evidence/tables/20260730_field_sweep_placement.md"
+      - "runs/20260730_field_sweep_placement_f64_stage_frames00008_00009/index.html"
+    also_depends_on: [N178]
+    status: resolved
+  - id: N180
+    type: decision
+    title: "Accept the bounded midpoint result and narrow the all-view comparator claim"
+    provenance: ai-executed
+    timestamp: "2026-07-30T01:58+02:00"
+    choice: >
+      Accept at development scope that source-excluded robust placement improves over bounded
+      midpoint on both named frames under matched anchors, refit and evaluation. Do not claim it
+      beats both controls on both scenes; retain compact_carve and input-dtype defaults; require
+      fresh cross-capture evidence with an explicit all-view gate before any default change.
+    alternatives:
+      - "Promote the pooled robust/all-view direction despite the frame-00009 reversal."
+      - "Change the production placement default from the two outcome-exposed frames."
+      - "Discard the valid midpoint result because the broader comparator interpretation failed."
+    evidence:
+      - N179
+      - "benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md"
+      - "docs/EXPERIMENTS.md"
+      - "docs/DESIGN_field_lift.md"
+      - "docs/tasks/RTGS-004-field-sweep-f64-successor.md"
+    status: resolved

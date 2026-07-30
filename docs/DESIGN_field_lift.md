@@ -333,7 +333,13 @@ remain their archived float32 corrections and are cast only when applied. The re
 is registered separately as
 `experiments/tasks/20260730_field_sweep_placement_f64_stage_frames00008_00009.json`; it retains
 the original data, splits, seeds, arms, optimizer, metrics, decision rules, and `0.0002` guardrail.
-It cannot run until its distinct prospective review approves the new digest.
+Its distinct prospective review approved the frozen digest, and the complete official run passed
+independent results audit. Source-excluded robust placement beat bounded midpoint on all three
+paired seeds in both named frames, with pooled final held-out compact RGB MSE ratio `0.897664`.
+The result does not support the broader claim that robust beats both controls on both scenes:
+all-view consensus was better on frame 00009 in two of three seeds. This remains outcome-exposed,
+same-capture development evidence; the production `compact_carve` default is unchanged. See
+`benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md`.
 
 ---
 

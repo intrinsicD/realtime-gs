@@ -264,3 +264,12 @@
   default, protected outcomes have not been opened, and no quality, generalization, runtime,
   CUDA, branch-retirement or default-change conclusion follows from implementation and protocol
   verification alone.
+- **Outcome update (2026-07-30)**: N177 consumed the first official task after a
+  pre-measurement native-scale float32 invariant failure. The separately reviewed float64
+  successor N179 completed, independently supporting C32 against bounded midpoint while C33
+  narrows the all-view comparison. The seam remains opt-in; `compute_dtype="input"` and
+  `compact_carve` remain defaults, and the result authorizes no RGB-image, physical-geometry,
+  performance, GPU, cross-dataset, topology, or branch-deletion conclusion.
+- **Additional evidence**: [N177, N178, N179, N180,
+  `benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md`,
+  `ara/evidence/tables/20260730_field_sweep_placement.md`]

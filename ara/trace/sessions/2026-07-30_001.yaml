@@ -1,0 +1,103 @@
+session:
+  id: "2026-07-30_001"
+  date: "2026-07-30"
+  started: "2026-07-30T00:26+02:00"
+  last_turn: "2026-07-30T01:58+02:00"
+  turn_count: 1
+  summary: "Consumed the failed float32 field sweep, executed and independently audited its float64 successor, confirmed the bounded midpoint rule, narrowed the all-view claim, and completed the visual handoff."
+
+events_logged:
+  - turn: 1
+    type: dead_end
+    id: N177
+    routing: direct
+    provenance: ai-executed
+    summary: "Consumed the first official sweep after its first discarded warmup failed before measurement."
+  - turn: 1
+    type: pivot
+    id: N178
+    routing: direct
+    provenance: ai-executed
+    summary: "Moved to a separately reviewed opt-in float64 successor without weakening the invariant."
+  - turn: 1
+    type: experiment
+    id: N179
+    routing: direct
+    provenance: ai-executed
+    summary: "Completed and independently recomputed all six warmups and eighteen measured successor cells."
+  - turn: 1
+    type: decision
+    id: N180
+    routing: direct
+    provenance: ai-executed
+    summary: "Accepted the bounded robust-versus-midpoint result and narrowed the all-view comparator claim."
+  - turn: 1
+    type: observation
+    id: O146
+    routing: crystallized
+    provenance: ai-executed
+    summary: "Crystallized the audited robust-versus-midpoint development result as C32."
+  - turn: 1
+    type: observation
+    id: O147
+    routing: crystallized
+    provenance: ai-executed
+    summary: "Crystallized the scene-level all-view comparator reversal as C33."
+
+ai_actions:
+  - turn: 1
+    action: >
+      Opened RTGS-003, initialized and executed the original prospectively approved task from
+      clean source, retained its first-warmup failure without measured outcome access, commissioned
+      an independent failure audit, logged the inconclusive attempt, archived the task, and
+      committed the append-only evidence.
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_RESULT.md"
+      - "benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_RESULT.json"
+      - "benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_AUDIT.md"
+      - "benchmarks/results/20260729_field_sweep_placement_stage_frames00008_00009_AUDIT.json"
+      - "docs/tasks/RTGS-003-field-sweep-execution.md"
+      - "docs/EXPERIMENTS.md"
+  - turn: 1
+    action: >
+      Added a default-preserving float64 field-compute path, native-scale regression and structured
+      failure receipt; froze and independently reviewed a successor; committed clean source
+      a693373; executed all 24 cells; commissioned an independent raw-cell results audit; corrected
+      two audit JSON path labels; rendered and HTTP-smoked the canonical report; launched the exact
+      initial/final Viser command; passed the formal no-preview bundle gate; recorded the bounded
+      result; and closed RTGS-004 at Claim-ready scope.
+    provenance: ai-executed
+    files_changed:
+      - "src/rtgs/core/observation2d.py"
+      - "src/rtgs/data/field_inputs.py"
+      - "src/rtgs/lift/field_lifter.py"
+      - "src/rtgs/lift/field_refit.py"
+      - "scripts/experiments/20260730_field_sweep_placement_f64_stage_frames00008_00009.py"
+      - "experiments/tasks/20260730_field_sweep_placement_f64_stage_frames00008_00009.json"
+      - "experiments/reviews/20260730_field_sweep_placement_f64_stage_frames00008_00009_PROTOCOL_REVIEW.md"
+      - "benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_RESULT.md"
+      - "benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md"
+      - "docs/DESIGN_field_lift.md"
+      - "docs/EXPERIMENTS.md"
+      - "docs/tasks/RTGS-004-field-sweep-f64-successor.md"
+
+claims_touched:
+  - id: C32
+    action: crystallized
+    turn: 1
+  - id: C33
+    action: crystallized
+    turn: 1
+
+key_context:
+  - turn: 1
+    excerpt: "The user explicitly authorized execution with: 'ok run it'."
+
+open_threads:
+  - "Run a fresh cross-capture protocol with an explicit all-view comparator gate before considering any placement default."
+  - "Delete claude/3d-gaussian-splatting-pipeline-twa00k only after explicit operational authorization; the replacement experiment is now complete."
+
+ai_suggestions_pending:
+  - "Separate mean-coordinate and covariance-entry projection invariants and retain a replay-complete environment fingerprint in the next protocol."
+  - "Retire the historical branch only when the user explicitly authorizes the destructive ref deletion."

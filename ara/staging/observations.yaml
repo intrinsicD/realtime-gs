@@ -2291,3 +2291,40 @@ observations:
     promoted_to: "logic/solution/architecture.md:A16"
     crystallized_via: artifact-commitment
     stale: false
+  - id: O146
+    timestamp: "2026-07-30T01:58+02:00"
+    provenance: ai-executed
+    content: >
+      In the frozen two-frame, three-paired-seed float64 successor, source-excluded robust
+      placement improves final held-out compact-field RGB MSE over bounded midpoint: pooled
+      geometric-mean ratio 0.8976637924784316, with 3/3 paired wins on each named frame, minimum
+      robust support 0.9921875 and maximum measured projection invariant
+      5.820766091346741e-11.
+    context: >
+      Official clean-source experiment N179 and independent results decision N180. The statement
+      concerns immutable compact Gaussian-field teachers on two outcome-exposed same-capture
+      frames, not source RGB, physical geometry, performance, or a production default.
+    potential_type: claim
+    bound_to: [N179, N180]
+    promoted: true
+    promoted_to: "logic/claims.md:C32"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O147
+    timestamp: "2026-07-30T01:58+02:00"
+    provenance: ai-executed
+    content: >
+      The same experiment does not support a claim that source-excluded robust placement beats
+      both fixed-anchor controls on both scenes. Robust beat all-view consensus on all three
+      frame-00008 seeds, but its frame-00009 final compact RGB MSE geometric mean was
+      1.0310499997047535 times all-view and it won only one of three paired seeds there. The pooled
+      robust/all-view ratio 0.9307899264070091 cannot erase that scene-level reversal.
+    context: >
+      Independently audited raw-cell comparison in N179/N180. The experiment log, field-lift
+      design and closed task all depend on this narrowed comparator boundary.
+    potential_type: claim
+    bound_to: [N179, N180]
+    promoted: true
+    promoted_to: "logic/claims.md:C33"
+    crystallized_via: artifact-commitment
+    stale: false

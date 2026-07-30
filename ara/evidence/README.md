@@ -65,3 +65,7 @@
   `20260727_carrier_refinement_fullres_AUDIT.json`: source-bound native-resolution
   carrier-refinement screen, immature-parent correction, uniform recovery, independent repeats,
   scoped negative result, and explicit no-default/no-paper-claim boundary.
+- `tables/20260730_field_sweep_placement.md`: prospectively reviewed float64 successor to the
+  consumed fixed-anchor field-sweep attempt, independently recomputed robust-versus-midpoint pass,
+  scene-level all-view reversal, exact source/protocol/audit bindings, and the no-default/no-RGB-
+  quality boundary.
