@@ -2,26 +2,47 @@
 
 LaTeX working draft implementing `docs/PAPER_PLAN_beam_fusion.md` as a full paper skeleton.
 
-Two claim-separated parts, per the plan's firewall rule:
+Storyline (one thread, owner decision 2026-07-30):
 
-- **Part I** (`sections/04–07`): the systems / VRAM claim — image-free compact-field
-  supervision, the memory-measurement protocol, and the (pending) controlled experiment.
-- **Part II** (`sections/08–10`): Beam Fusion — tomographic initialization, carrier
-  refinement, and the (pending) matched Beam-versus-no-Beam evaluation.
+1. Per-view 2D Gaussian fields replace the images (`sections/04_fields.tex`).
+2. A standard 3DGS optimizer reconstructs from the fields alone, initialized from random
+   points or SfM (`05_reconstruction.tex`).
+3. Memory is measured under a controlled protocol (`06_memory.tex`).
+4. Rendering projects 3D Gaussians to 2D Gaussians, so initialization can also be obtained
+   by inverting the projection — the tomographic initializer Beam Fusion
+   (`07_tomography.tex`).
+5. The naive inversion fails in identifiable ways; the carrier refinement addresses them
+   (`08_refinement.tex`).
+6. Experiments show the full pipeline and end with the ablation study
+   (`09_experiments.tex`).
+
+The reconstruction result is established with the standard initializations alone, so a weak
+tomographic-initializer outcome cannot weaken it (evaluation rules in `03_overview.tex`).
 
 ## Draft conventions
 
 - **Black text** is explained and evidence-bound. Statements backed by repository artifacts
-  carry gray `[evidence: …]` notes pointing at `ara/logic/claims.md` rows, ADRs, or sealed
+  carry gray `[evidence …]` notes pointing at `ara/logic/claims.md` rows, ADRs, or sealed
   results under `benchmarks/results/`. Single-scene development evidence is always labelled
   as such in the text.
-- **Red text** (`\toshow{…}`, `ToShowBlock` environments) marks everything that still has to
-  be shown, measured, frozen, or verified. Red framed boxes inside figure floats are figure
-  slots specifying exactly which figure/image is needed and from which data.
-- Appendix A (`sections/13_appendix_obligations.tex`) tracks every red item as obligations
-  O-1 … O-15 plus the consolidated figure production list.
+- **Red text** is a TODO and always starts with `TODO:` (`\todo{…}`, `TodoBlock`
+  environments, `\tbd` table cells). Red framed boxes inside figure floats are figure slots
+  specifying exactly which figure is needed and from which data.
+- Appendix A (`sections/12_appendix_todo.tex`) tracks every red item as TODOs T-1 … T-15
+  plus the consolidated figure production list.
+- Style rules for the running text (owner decision 2026-07-30): no em dashes, no
+  semicolons, no colons (the `TODO:` prefix and bold `**Left:**`-style caption panel
+  markers are the exceptions), no marketing vocabulary, and negative results appear only
+  where an obvious approach does not apply and an alternative is given. Citation titles in
+  `references.bib` keep their original punctuation.
+- The prose voice follows the owner's VMV 2018 paper (provided 2026-07-30 as the style
+  reference): short declarative sentences, "We" as subject, procedural method
+  descriptions, connectives like "thus", "since", "due to", "yields", references as
+  "see Section/Figure X", contributions as flowing prose in the introduction, related work
+  in subsections that relate back to our approach, plain matter-of-fact limitation
+  statements, and multi-panel figure captions with bold position markers.
 - `references.bib` is reconstructed from memory and must be verified before submission
-  (obligation O-13); the same goes for the novelty ledger N1–N5 in the related-work section.
+  (T-13), as must the literature gaps N1–N5 in the related-work section.
 
 Toggle the gray evidence notes off with `\evidencenotesfalse` in `preamble.tex` for a clean
 read.
@@ -39,10 +60,10 @@ make clean
 
 ## Editing rules (repository policy)
 
-- The draft must never promote a claim beyond its `ara/logic/claims.md` status: turning a red
-  passage black requires the artifact, an independent audit, and a ledger row first
+- The draft must never promote a claim beyond its `ara/logic/claims.md` status: turning a
+  red passage black requires the artifact, an independent audit, and a ledger row first
   (Hard Rules 8–9 in `CLAUDE.md`).
 - Numbers quoted in black are copied from audited artifacts; if a result is re-run, update
   the number and its evidence note together.
-- The figure slots name their data sources; produced figures go to `figures/` and replace the
-  `\figplaceholder` box in place.
+- The figure slots name their data sources; produced figures go to `figures/` and replace
+  the `\figslot` box in place.

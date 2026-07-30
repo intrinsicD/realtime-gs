@@ -1,17 +1,16 @@
 % ---------------------------------------------------------------------------
-% Preamble and draft macros for the realtime-gs paper draft.
+% Preamble and draft macros.
 %
-% Draft conventions (requested workflow):
-%   * Everything in BLACK is explained and is either established mechanism,
-%     definition, or evidence-backed (single-scene development evidence is
-%     always labelled as such in the text).
-%   * Everything in RED still has to be shown, measured, frozen, or verified
-%     before submission.  Red text is a work item, not a claim.
-%   * Red framed boxes inside figure floats are figure slots: they specify
-%     exactly which figure/image has to be produced, from which data.
-%   * \evidence{...} notes bind black statements to artifacts in the
-%     repository (benchmarks/results, ara/, docs/).  They are draft-only and
-%     can be disabled with \evidencenotesfalse below.
+% Draft conventions (owner decision, 2026-07-30):
+%   * Black text is explained and evidence-bound. Statements backed by
+%     repository artifacts carry gray [evidence ...] notes.
+%   * Red text is a TODO. Every red item starts with "TODO:". Red framed
+%     boxes inside figure floats are figure slots that specify which figure
+%     has to be produced and from which data.
+%   * Style rules for the running text: no em dashes, no semicolons, no
+%     colons (the "TODO:" prefix is the one exception), no marketing
+%     vocabulary. Negative results appear only where an obvious approach
+%     does not apply and an alternative is given.
 % ---------------------------------------------------------------------------
 
 \usepackage[T1]{fontenc}
@@ -30,63 +29,47 @@
 \usepackage{subcaption}
 \usepackage{enumitem}
 \usepackage[round]{natbib}
-% obeyspaces/spaces: \path must print (and break at) spaces inside evidence notes.
+% obeyspaces/spaces let \path print and break at spaces inside evidence notes.
 \PassOptionsToPackage{obeyspaces,spaces}{url}
 \usepackage[colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,urlcolor=blue!55!black]{hyperref}
 \usepackage[capitalize,noabbrev]{cleveref}
 
 % ---------------------------------------------------------------------------
-% Draft-status colors and markers
+% TODO markers
 % ---------------------------------------------------------------------------
-\definecolor{ToShow}{RGB}{190,0,0}      % red: still to be shown / measured / frozen
+\definecolor{TodoRed}{RGB}{190,0,0}
 \definecolor{EvidenceGray}{RGB}{110,110,110}
 
-% Inline red marker: a statement or number that still has to be established.
-\newcommand{\toshow}[1]{{\color{ToShow}#1}}
+% Inline TODO sentence. Usage at sentence level, never mid-clause.
+\newcommand{\todo}[1]{{\color{TodoRed}TODO: #1}}
 
-% Red "to be determined" table cell.
-\newcommand{\tbd}{{\color{ToShow}t.b.d.}}
+% Red table cell for pending values.
+\newcommand{\tbd}{{\color{TodoRed}TODO}}
 
-% Block of red text: a work item with an optional label.
-%   \begin{ToShowBlock}[label] ... \end{ToShowBlock}
-\newenvironment{ToShowBlock}[1][Still to be shown]
+% TODO paragraph block.
+\newenvironment{TodoBlock}
   {\par\medskip\noindent
-   \begin{quote}\color{ToShow}\small\textbf{[#1]}\enskip\ignorespaces}
+   \begin{quote}\color{TodoRed}\small\textbf{TODO:}\enskip\ignorespaces}
   {\end{quote}\medskip}
 
-% Figure slot: a red framed box inside a {figure} float describing exactly
-% which figure has to be produced.  Usage:
-%   \figplaceholder{5cm}{description of the required figure content}
-\newcommand{\figplaceholder}[2]{%
+% Figure slot. A red framed box inside a {figure} float describing the
+% figure that has to be produced. Usage \figslot{height}{description}.
+\newcommand{\figslot}[2]{%
   \setlength{\fboxsep}{10pt}%
   \setlength{\fboxrule}{1pt}%
-  \fcolorbox{ToShow}{ToShow!4}{%
-    \parbox[c][#1][c]{0.92\linewidth}{\color{ToShow}\small\centering
-      \textbf{[FIGURE NEEDED]}\\[4pt] #2}}}
+  \fcolorbox{TodoRed}{TodoRed!4}{%
+    \parbox[c][#1][c]{0.92\linewidth}{\color{TodoRed}\small\centering
+      \textbf{TODO: produce this figure.}\\[4pt] #2}}}
 
 % Red caption text for figure slots.
-\newcommand{\redcaption}[1]{{\color{ToShow}#1}}
+\newcommand{\redcaption}[1]{{\color{TodoRed}TODO: #1}}
 
 % Draft-only evidence notes binding statements to repository artifacts.
 \newif\ifevidencenotes
 \evidencenotestrue   % switch to \evidencenotesfalse for a clean read
-% \path (from url/hyperref) handles underscores and breaks lines at slashes;
-% robust declaration keeps it usable inside captions and other moving arguments.
 \DeclareRobustCommand{\repopath}[1]{{\small\path{#1}}}
 \newcommand{\evidence}[1]{%
-  \ifevidencenotes{\color{EvidenceGray}\footnotesize\ [evidence: \repopath{#1}]}\fi}
-
-% ---------------------------------------------------------------------------
-% Part headers (the draft is organised into two claim-separated parts)
-% ---------------------------------------------------------------------------
-\newcommand{\paperpart}[2]{%
-  \par\bigskip\bigskip
-  \begin{center}
-    {\Large\bfseries Part #1}\\[4pt]
-    {\large\itshape #2}
-  \end{center}
-  \addcontentsline{toc}{section}{Part #1: #2}
-  \bigskip}
+  \ifevidencenotes{\color{EvidenceGray}\footnotesize\ [evidence \repopath{#1}]}\fi}
 
 % ---------------------------------------------------------------------------
 % Math notation
@@ -109,10 +92,5 @@
 \newcommand{\Jpix}{J_{\mathrm{pixel}}}
 \newcommand{\Jarea}{J_{\mathrm{area}}}
 
-% Draft typography: absorb marginal overfulls instead of spilling into the margin.
+% Draft typography. Absorb marginal overfulls instead of spilling into the margin.
 \emergencystretch=1.5em
-
-% Theorem-like environments
-\newtheorem{proposition}{Proposition}
-\newtheorem{definition}{Definition}
-\newtheorem{claimstmt}{Claim}

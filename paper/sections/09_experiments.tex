@@ -1,0 +1,241 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Setup}
+\label{sec:exp-setup}
+
+For development we used one calibrated multi-camera capture of a masked studio subject
+with 26 cameras at $5328 \times 4608$, fitted compact captures for all views and split
+them into 19 fitting views and 7 compact validation views.  This scene is outcome-exposed,
+since it drove the design decisions, and is thus reported as development evidence only.
+\todo{Add the confirmatory data.  At least one fresh calibrated dome scene with untouched
+test cameras, plus Mip-NeRF~360~\citep{barron2022_mipnerf360} and Tanks and
+Temples~\citep{knapitsch2017_tanks} scenes with the capture stage run at benchmark
+resolution.  Freeze the train, validation and test protocol per scene before any
+confirmatory run and touch the test cameras exactly once for the final tables, see T-4
+and T-5.}
+
+We report held-out PSNR, SSIM~\citep{wang2004_ssim} and LPIPS~\citep{zhang2018_lpips} in
+every cell, alpha IoU and exterior leakage for masked subjects, the resource metrics of
+\cref{sec:protocol} and the compact-domain risks $\Ju$ and $\Jq$ for diagnostics.
+Geometry error against a reference depth or mesh is reported wherever a reference exists,
+since PSNR is blind to floaters and floaters are the failure mode initialization is
+supposed to prevent.
+
+\subsection{Arms and baselines}
+\label{sec:exp-baselines}
+
+\begin{table}[t]
+  \centering\footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lp{3.1cm}p{3.6cm}p{3.6cm}@{}}
+    \toprule
+    Arm & Supervision & Initialization & Status \\
+    \midrule
+    Original 3DGS            & RGB & COLMAP sparse
+      & \tbd, needs COLMAP (T-7) \\
+    Orig.\ 3DGS, compr.\ RGB & matched-byte JPEG or AVIF & COLMAP sparse
+      & \tbd \\
+    RGB control              & RGB & frozen direct-path init, byte-identical
+      & \tbd \\
+    Direct, random init      & compact fields & bounded random
+      & \tbd, schedule to freeze (T-3) \\
+    Direct, SfM init         & compact fields & COLMAP sparse
+      & \tbd, needs COLMAP (T-7) \\
+    Tomographic              & compact fields & Beam Fusion + refinement
+      & \tbd \\
+    \bottomrule
+  \end{tabular}
+  \caption{Arms of the comparison.  The RGB control isolates the supervision variable
+    through an identical initialization, and the Original-3DGS rows anchor against the
+    community-standard pipeline.  \todo{All quantitative cells are pending.  A
+    fixed-topology RGB control is added to separate supervision value from capacity
+    growth.}}
+  \label{tab:arms}
+\end{table}
+
+\subsection{Main results}
+\label{sec:exp-main}
+
+\begin{table}[t]
+  \centering\footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lcccccccc@{}}
+    \toprule
+    & \multicolumn{3}{c}{Held-out quality} & \multicolumn{3}{c}{Resources (peak)} & & \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    Arm & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$
+        & GPU mem & host RAM & disk & IO & time \\
+    \midrule
+    Original 3DGS            & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    Orig.\ 3DGS, compr.\ RGB & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    RGB control (same init)  & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    Direct, random init      & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    Direct, SfM init         & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    Tomographic              & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    \bottomrule
+  \end{tabular}
+  \caption{\redcaption{Main table with held-out quality and measured resource peaks per
+    arm, as the median over at least three fresh-process repeats with the spread in the
+    appendix and per-scene sub-tables.  Entirely pending the controlled experiment, see
+    T-6.}}
+  \label{tab:main-results}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \figslot{6cm}{%
+    \textbf{Figure 9, qualitative comparison.}  Two to three held-out test cameras per
+    scene.  \textbf{Left:} RGB-control render.  \textbf{Middle:} direct-path render.
+    \textbf{Right:} difference maps and crops of the hardest regions like hair, fabric
+    edges and specular highlights.  The purpose is to make the parity or its failure
+    inspectable.  Uses the final models of \cref{tab:main-results}.}
+  \caption{\redcaption{Qualitative held-out comparison of RGB-backed and
+    compact-supervised training.}}
+  \label{fig:parity-grid}
+\end{figure}
+
+Two development results bound the expectations.  A full-scale development run on the
+exposed scene, with all 26 views fitted and RGB-based optimization, reached $28.76$~dB
+native foreground PSNR, $0.974$ SSIM and $0.0173$ LPIPS at 100k Gaussians after 128k
+updates, which confirms that the capture and optimization machinery scales to native
+resolution.\evidence{ara/logic/claims.md C29}  The compact-only carrier pipeline reached
+compact validation risks $\Jq = 0.00422$ and $\Ju = 0.00786$ on the same scene under the
+strict no-image boundary, which confirms that the compact objective optimizes stably end
+to end.\evidence{ara/logic/claims.md C30, C31}  Neither run includes held-out cameras or a
+resource comparison, so neither substitutes for \cref{tab:main-results}.
+
+\subsection{Initialization comparison}
+\label{sec:init-comparison}
+
+The value of the tomographic initializer cannot be inferred from its own result alone.  We
+test it by a matched comparison at exact count and compute with all downstream settings
+identical.  The arms are the tomographic initialization with refinement, the image-free
+placement control which scores rays by querying all fields, and calibration-bounded
+random as the lower anchor.  All three feed the identical compact optimizer and evaluation
+samples.  We report initialization quality, fixed intermediate checkpoints, the risk-curve
+area, the selected endpoint and paired seed wins on all scenes.  The construction time and
+peak memory of the initializer are accounted separately, since the initializer must pay
+for itself end to end.  A converged tie after an initialization win means the initializer
+improves startup but not final capacity, and the text will say exactly that if it
+happens.
+
+\begin{table}[t]
+  \centering\small
+  \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    Initialization & init $\Jq$ & AUC($\Jq$) & final $\Jq$ & held-out PSNR & seed wins \\
+    \midrule
+    Tomographic + refinement & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    Field-query placement    & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    Bounded random           & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    \bottomrule
+  \end{tabular}
+  \caption{\redcaption{Matched initialization comparison per scene with paired seeds,
+    including a companion column for initializer build time and peak memory.  Entirely
+    pending, see T-8.}}
+  \label{tab:beam-value}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \figslot{5.5cm}{%
+    \textbf{Figure 10, risk trajectories.}  Validation $\Jq$ on a logarithmic axis over
+    optimizer updates for the three initializations of \cref{tab:beam-value}, seeds as
+    thin lines, medians bold, with initialization points and the fixed checkpoints
+    annotated.  A second panel shows held-out PSNR over wall clock, where the tomographic
+    arm starts with an offset equal to its construction time, which makes the
+    pay-for-itself question visible.  Uses the matched comparison runs.}
+  \caption{\redcaption{Risk trajectories for the tomographic, placement and random
+    initializations.}}
+  \label{fig:time-to-quality}
+\end{figure}
+
+\todo{Freeze the primary endpoint, the materiality margin and the seed-win rule of this
+comparison before the confirmatory runs, see T-9.  If the tomographic arm ties or loses,
+the direct path remains the recommended pipeline, the outcome is reported in full and the
+result of \cref{sec:memory} is unaffected, see \cref{sec:rules}.}
+
+\subsection{Ablation study}
+\label{sec:ablations}
+
+\begin{table}[t]
+  \centering\footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lp{7.1cm}l@{}}
+    \toprule
+    Ablation & Development verdict (single scene) & Confirmatory \\
+    \midrule
+    Without covariance repair
+      & repair lowers validation $\Jq$ by $63.2\%$, 3/3 paired wins \evidence{C30}
+      & \tbd \\
+    One-sided repair residual
+      & shrink-biased, worsens $\Jq$ by $51.6\%$, replaced by \cref{eq:cov-residual}
+        \evidence{C30}
+      & \tbd \\
+    One compact phase versus two
+      & second phase reaches $0.717\times$ its stopping $\Jq$, 3/3 \evidence{C30}
+      & \tbd \\
+    Phase-one means frozen
+      & fails the $2\%$ non-inferiority gate \evidence{C30}
+      & \tbd \\
+    Means-only optimization
+      & $4.18\times$ the all-family $\Jq$ \evidence{C30}
+      & \tbd \\
+    Without containment prune
+      & prune removes $5.3$ to $5.4\%$ at $2.7\%$ $\Jq$ cost, zero violations
+        \evidence{C30, C31}
+      & \tbd \\
+    Prune before versus after phase two
+      & before selected \evidence{C30}
+      & \tbd \\
+    Phase-two means trainable versus frozen
+      & frozen passes at ratio $1.015$ $\Jq$ \evidence{C30}
+      & \tbd \\
+    Clone stage (density-preserving)
+      & fails the $5\%$ materiality gate, no growth \evidence{C30}
+      & \tbd \\
+    SH0 versus incremental SH3
+      & SH3 gains $2.3$ to $3.0\%$, below the $5\%$ floor \evidence{C30}
+      & \tbd \\
+    Soft support barrier \cref{eq:soft-support}
+      & \todo{freeze, then test}
+      & \tbd \\
+    \bottomrule
+  \end{tabular}
+  \caption{Ablation grid for the tomographic path.  Development verdicts are frozen
+    paired-root results on one outcome-exposed scene with 19 fitting views and compact
+    validation.  Evidence keys refer to rows of \repopath{ara/logic/claims.md}.
+    \todo{The confirmatory column with fresh scenes, held-out cameras and at least three
+    paired seeds under preregistered gates is entirely pending, see T-10.}}
+  \label{tab:ablations}
+\end{table}
+
+The development column of \cref{tab:ablations} closes the implementation-policy question
+on one scene, i.e.\ which stages the refinement runs and in which order.  It does not
+close the value question of \cref{tab:beam-value}, which is a comparison against the
+non-tomographic arms, and it does not establish cross-scene generalization.
+
+\subsection{Diagnostics}
+\label{sec:diagnostics}
+
+Per initializer run we report the contributor-count histogram, per-view uniqueness, gate
+survival rates, covariance eigenvalue spectra and lineage hashes.  Per refinement we
+report carrier survival, per-family optimizer motion, the covariance residual
+distribution of \cref{eq:cov-residual}, containment violation counts before and after the
+prune and the fixed-topology recheck.  These quantities make a false-association failure,
+the designed risk of \cref{sec:ci-fusion}, visible instead of silent.
+
+\begin{figure}[t]
+  \centering
+  \figslot{5cm}{%
+    \textbf{Figure 11, diagnostics panel.}  Four panels.  \textbf{Top left:} the
+    contributor-count histogram.  \textbf{Top right:} carrier survival across stages as
+    bars.  \textbf{Bottom left:} the distribution of covariance residuals
+    \cref{eq:cov-residual} before and after repair.  \textbf{Bottom right:} containment
+    violations per view before the prune.  Uses the diagnostics dictionaries already
+    emitted by the implementation on the development scene under \repopath{runs/}.}
+  \caption{\redcaption{Initializer and refinement diagnostics.  Producible from existing
+    run artifacts.}}
+  \label{fig:beam-diagnostics}
+\end{figure}

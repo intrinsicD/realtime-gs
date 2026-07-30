@@ -1,0 +1,116 @@
+\section{Compact 2D Gaussian Fields}
+\label{sec:fields}
+
+\subsection{Image model}
+\label{sec:field-model}
+
+A compact capture for view $v$ is a mixture of $N_v$ anisotropic 2D Gaussians with an
+exact, self-describing evaluation semantics.  The capture is a frozen renderer and not a
+loose point set.  Component $j$ carries a mean $\bm{m}_j \in \Omega_v$ and a rotated
+anisotropic covariance
+\begin{equation}
+  C_j \;=\; R(\theta_j)\,\diag\!\big(s_{j,1}^2,\, s_{j,2}^2\big)\,R(\theta_j)\T
+  \;+\; \sigma_{f,j}^2\, I_2
+  \label{eq:cov2d}
+\end{equation}
+with scales $s_j$, rotation $\theta_j$ and an optional isotropic filter variance
+$\sigma_{f,j}^2$ acting as an anti-aliasing floor.  It further carries a non-negative
+amplitude $a_j \ge 0$, a base color $\bm{c}_j \in \R^3$, which is intentionally unbounded,
+and optionally a local affine color model
+$\bm{c}_j(\bm{x}) = \bm{c}_j + G_j\T(\bm{x} - \bm{m}_j)$ with per-component gradients
+$G_j \in \R^{2\times 3}$.  With the unnormalized kernel
+$w_j(\bm{x}) = a_j \exp\!\big({-\tfrac12 (\bm{x}-\bm{m}_j)\T C_j^{-1} (\bm{x}-\bm{m}_j)}\big)$,
+truncated at a $3\sigma$ support box, the field renders by normalized blending as
+\begin{equation}
+  \field_v(\bm{x})
+  \;=\;
+  \frac{\sum_j w_j(\bm{x})\, \bm{c}_j(\bm{x})}
+       {\varepsilon + \sum_j w_j(\bm{x})},
+  \qquad \varepsilon = 10^{-8}.
+  \label{eq:field}
+\end{equation}
+Every constant in \cref{eq:cov2d,eq:field}, including the cutoff, $\varepsilon$, the blend
+mode, the fit window and the producer version and configuration digests, is stored inside
+the capture container.  A consumer thus reproduces the fitted image bit-consistently
+without any out-of-band convention.\evidence{src/rtgs/core/observation2d.py}
+
+\subsection{Gauge freedom}
+\label{sec:gauge}
+
+The normalized blend makes the pair $(a_j, \bm{c}_j)$ non-identifiable up to
+product-preserving rescalings.  Transformations which leave every rendered color unchanged
+can still change downstream algorithms which read raw amplitudes.  We measured exactly
+this failure mode.  In a frozen audit, 54 product-preserving re-gaugings left all source
+renders equivalent while materially changing coverage and retention of two downstream
+lifters.\evidence{ara/logic/claims.md C15}  Downstream stages therefore consume rendered
+quantities, i.e.\ field queries and normalized weights, or fix an explicit gauge.  No
+stage may attach physical meaning to a raw amplitude.  In particular a fitted 2D amplitude
+is not a 3D opacity, which becomes important again in \cref{sec:refinement}.
+
+\subsection{Fitting and storage}
+\label{sec:fitting}
+
+We fit each view independently by differentiable 2D splatting in the style of
+GaussianImage~\citep{zhang2024_gaussianimage}.  The fits are independent per image and can
+run in parallel across views.  Our implementation provides two interchangeable backends, a
+native accumulated-splatting fitter and a structured fitter with the affine color basis of
+\cref{eq:field}.  The fit is a standard robust photometric minimization over all component
+parameters with a fixed component budget.  Masked captures restrict the fit window to the
+subject.  After fitting, the field is frozen and every later stage treats it as an
+immutable measurement.
+
+Captures serialize to a small container, one file per view, holding the parameter arrays
+plus integrity digests.  The current capture format caps at $168\,\mathrm{kB}$ per
+view.\evidence{benchmarks/results/20260725_init_value_program_PREREG.md}  For the
+development scene used throughout, see \cref{sec:exp-setup}, the native resolution is
+$5328 \times 4608$.  One raw float32 frame is therefore $294.6$~MB and one 8-bit frame
+$73.7$~MB, against at most $0.168$~MB per capture.  This is a $440\times$ (8-bit) to
+$1750\times$ (float32) reduction of the static input working set.  These numbers are
+format arithmetic.  The measured process peaks of \cref{sec:memory} decide the actual
+memory result.
+
+\begin{TodoBlock}
+Report a capture statistics table over all evaluation scenes with components per view
+$N_v$, bytes per view, fit PSNR and SSIM on the fitted image, fit wall time per view and
+the backend configuration.  Freeze the final fitter choice before the confirmatory runs.
+Fit quality upper-bounds everything downstream, so this table is required for
+interpreting the parity results, see T-15.
+\end{TodoBlock}
+
+\begin{figure}[t]
+  \centering
+  \figslot{6cm}{%
+    \textbf{Figure 2, what a compact capture looks like.}  Two representative views, four
+    panels each.  \textbf{Left:} source photograph.  \textbf{Middle left:} rendered
+    compact field $\field_v$ at native resolution.  \textbf{Middle right:} signed error
+    map with PSNR inset.  \textbf{Right:} ellipse visualization of the fitted 2D
+    Gaussians, where color is the base color and each ellipse the $1\sigma$ contour of
+    $C_j$, with a zoom crop showing anisotropic components following image structure.
+    Uses the existing captures under \repopath{dataset/} and the repository preview
+    tooling.}
+  \caption{\redcaption{Compact captures, showing source, field render, error and
+    component structure.  Producible from the checked-in captures.}}
+  \label{fig:capture}
+\end{figure}
+
+\subsection{Compression behaviour}
+\label{sec:rate-distortion}
+
+Conventional codecs decode to full frames, so supervision from a JPEG still costs a dense
+RGB tensor in device memory.  The compact capture is competitive on bytes and its
+evaluation is at the same time a closed-form differentiable function at exactly the sample
+locations the optimizer requests.  This property enables the streaming supervision of
+\cref{sec:reconstruction}.
+
+\begin{figure}[t]
+  \centering
+  \figslot{5cm}{%
+    \textbf{Figure 3, capture rate-distortion curve.}  Fit PSNR over bytes per view on a
+    logarithmic axis while the component budget sweeps, one curve per backend, with
+    horizontal reference lines for JPEG, WebP and AVIF at matched byte budgets.  The
+    caption should make the argument that the capture does not need to win as a codec but
+    needs to be queryable and differentiable at a competitive rate.  Requires a fit sweep
+    on three to five views per evaluation scene.}
+  \caption{\redcaption{Rate-distortion of compact captures versus conventional codecs.}}
+  \label{fig:rd}
+\end{figure}

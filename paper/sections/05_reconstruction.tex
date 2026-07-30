@@ -1,0 +1,105 @@
+\section{Reconstruction from 2D Gaussian Fields}
+\label{sec:reconstruction}
+
+The optimizer never sees an image.  It compares two point-evaluable functions.  The
+teacher is the frozen field $\field_v$ of \cref{eq:field}.  The student is the current 3D
+Gaussian set, rendered at arbitrary image points by a sparse point rasterizer.
+
+\subsection{Point rendering}
+\label{sec:point-rasterizer}
+
+Given sample locations $\bm{x} \in \Omega_v$, the point rasterizer projects the 3D
+Gaussians into view $v$ exactly as the dense renderer does, using the EWA projection
+$P_{iv} = J_{iv} \Sigma_i J_{iv}\T + 0.3\,I_2$ including the $0.3$-pixel dilation, sorts
+by view depth and alpha-composites front to back at each requested point,
+\begin{equation}
+  \student_v(\bm{x}) \;=\; \sum_{i} T_i(\bm{x})\, \alpha_i(\bm{x})\, \bm{c}_i(\bm{d}_{iv}),
+  \qquad
+  T_i(\bm{x}) = \prod_{i' < i} \big(1 - \alpha_{i'}(\bm{x})\big),
+  \label{eq:student}
+\end{equation}
+with $\alpha_i(\bm{x}) = o_i \exp(-\tfrac12 q_{iv}(\bm{x}))$, where $q_{iv}$ is the
+Mahalanobis form of $P_{iv}$ and $\bm{c}_i(\bm{d}_{iv})$ the view-dependent SH color.  The
+point path matches the dense CPU reference renderer on color, alpha, depth, global visible
+order, five parameter-gradient families and retained screen-space gradients within sealed
+tolerances, on synthetic grids and on a calibrated 4{,}096-point replacement draw.  Due to
+this parity we can treat sampled training as subsampled dense
+training.\evidence{ara/logic/claims.md C18,
+benchmarks/results/20260716_point_rasterizer_parity_RESULT.json}
+\todo{Full-image calibrated parity, CUDA point parity and active off-grid coordinate
+gradients are not yet established.  Verify them or scope them out explicitly, see T-14.}
+
+\subsection{Training objective}
+\label{sec:objective}
+
+Let $p$ be the target risk measure on $\Omega_v$, either uniform over pixels or a
+continuous area measure, and let $q$ be a proposal distribution.  Each training step draws
+a fixed number $A$ of attempts $\bm{x}_1, \dots, \bm{x}_A \sim q$ and minimizes the
+importance-corrected squared error with rejected attempts retained in the denominator,
+\begin{equation}
+  \widehat{L}_v \;=\;
+  \frac{1}{A} \sum_{a=1}^{A}
+  \mathbf{1}[\bm{x}_a \text{ accepted}]\;
+  \frac{p(\bm{x}_a)}{q(\bm{x}_a)}\;
+  \norm{\student_v(\bm{x}_a) - \field_v(\bm{x}_a)}_2^2 .
+  \label{eq:sampled-loss}
+\end{equation}
+Keeping the denominator at the fixed attempt count $A$ instead of the accepted count makes
+\cref{eq:sampled-loss} an unbiased estimator of the target risk under rejection-mixture
+proposals.  We verified the estimator identity by exact enumeration on finite pixel
+grids, including invariance to attempt micro-chunking within
+$2\times10^{-12}$.\evidence{ara/logic/claims.md C19}
+
+Two evaluation risks are computed exactly and are never replaced by the training loss.
+$\Jpix$ is the mean over all pixel centers and $\Jarea$ a fixed four-offset quadrature per
+pixel.  Our experiment tables report the validation risks $\Ju$ under uniform sampling and
+$\Jq$ under the proposal correction, both against the frozen fields of validation
+views.\evidence{benchmarks/compact_only_carrier_stage_ablation.py}
+The obvious importance choice for $q$ are teacher-shaped Gaussian proposals.  In a sealed
+three-seed comparison they produced no material win over uniform sampling, so we sample
+uniformly.\evidence{ara/logic/claims.md C20}
+
+\subsection{Streaming behaviour}
+\label{sec:streaming}
+
+Both sides of \cref{eq:sampled-loss} are point queries.  A training step thus touches the
+compact fields of the sampled views at kilobyte scale, the sampled coordinate batch, the
+projected student parameters and the model and optimizer state.  No dense render target,
+no image cache and no all-view RGB tensor exist anywhere in the loop.  The fields are
+queried on demand, and the data boundary of \cref{sec:overview} forbids materializing
+dense frames.  This is the mechanism behind the memory result, which is quantified only by
+the protocol of \cref{sec:memory}.
+
+\subsection{Initialization}
+\label{sec:init}
+
+The direct path uses the two standard 3DGS initializations unchanged, since
+initialization is independent of the supervision signal.  Random initialization draws
+points uniformly inside the camera-derived scene bounds.  SfM initialization loads a
+sparse COLMAP point cloud when one exists for the scene.  \todo{Measure both
+initializations on the confirmatory scenes.  SfM requires a real COLMAP reconstruction
+per scene, see T-7.}  An image-free placement alternative, which scores rays by querying
+all fields, serves as an additional control in the ablation study, see
+\cref{sec:init-comparison}.
+
+\begin{TodoBlock}
+Freeze the direct-path optimizer configuration before the confirmatory runs, including the
+sample budget per step, the view schedule, learning rates, the topology policy and the
+stopping rule.  These are deliberately not chosen in this text, see T-3.  Also show a
+sampled-versus-dense equivalence curve, i.e.\ quality of compact-supervised training as a
+function of samples per step against dense RGB training at matched update counts, see
+\cref{fig:sample-budget}.
+\end{TodoBlock}
+
+\begin{figure}[t]
+  \centering
+  \figslot{5cm}{%
+    \textbf{Figure 4, sample-budget sweep.}  Held-out PSNR over samples per step on a
+    logarithmic axis for compact-field supervision, with the dense RGB control as a
+    horizontal band at matched update counts.  One panel per scene, seeds as thin lines,
+    medians bold.  The purpose is to locate the budget where sampled supervision
+    saturates and to justify the chosen default.  Requires the frozen direct-path
+    schedule.}
+  \caption{\redcaption{Quality versus sample budget for compact-field supervision.}}
+  \label{fig:sample-budget}
+\end{figure}

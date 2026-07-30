@@ -1,0 +1,141 @@
+\section{Carrier Refinement}
+\label{sec:refinement}
+
+\subsection{Problems of the naive inversion}
+\label{sec:naive-problems}
+
+The fused Gaussians of \cref{sec:tomography} have accurate means early, but their
+remaining parameters are only geometrically motivated.  Handing them directly to a
+standard optimizer with densification makes the optimizer replace the initialization
+instead of refining it, and the experiment then measures the recovery ability of
+densification and not the initializer.  Three concrete mismatches cause this.  First, the
+fused covariance targets the raw tangent lift, while the renderer displays
+$P_{iv} = J_{iv} \Sigma_i J_{iv}\T + 0.3\,I_2$ with the EWA dilation.  The initialization
+is thus inconsistent with what the optimizer will render.  Second, opacity cannot be
+inferred from the captures, since a fitted 2D amplitude is a normalized-blend gauge
+quantity, see \cref{sec:gauge}, and does not identify a per-Gaussian 3D alpha under
+compositing.  Third, false contributor associations and silhouette leakage place a small
+fraction of components outside the fitted image support.
+
+We therefore treat the fused Gaussians as carriers and mature them with a short,
+compact-only schedule before any comparison.  The accepted sequence consists of five
+stages.\evidence{docs/ADR-002-carrier-refinement.md, ara/logic/claims.md C30, C31}
+\begin{enumerate}[leftmargin=1.6em,itemsep=1pt]
+  \item Fit-only Beam Fusion from the reconstruction inputs with $K \ge 3$ and no free
+        primitive birth.
+  \item Renderer-aware covariance repair, see \cref{sec:cov-repair}.
+  \item 380 compact fixed-topology SH0 updates with means, rotations, scales, opacity and
+        SH0 all trainable.
+  \item Strict projected-center pruning against every fitting view, see
+        \cref{sec:containment}.
+  \item 380 further compact SH0 updates with means frozen, so the pruning invariant cannot
+        be undone.
+\end{enumerate}
+No clone, split, insertion, densification, opacity reset, higher-SH phase or dense
+handover exists on this path, and its entry point accepts no image-bearing argument.
+
+\subsection{Covariance repair}
+\label{sec:cov-repair}
+
+For carrier $i$ with contributor set $\mathcal{V}_i$ from the lineage and observed 2D
+covariances $C_{iv}$ we define the whitened projection
+\begin{equation}
+  M_{iv} \;=\; C_{iv}^{-1/2}\,\big(J_{iv}\, \Sigma_i\, J_{iv}\T + 0.3\, I_2\big)\,
+               C_{iv}^{-1/2}
+  \label{eq:whitened}
+\end{equation}
+and minimize, over $\Sigma_i$ only, the symmetric generalized-log residual
+\begin{equation}
+  r_i \;=\; \sqrt{\;\frac{1}{|\mathcal{V}_i|}\sum_{v \in \mathcal{V}_i}
+        \operatorname{mean}_k \log^2 \lambda_k(M_{iv})\;}
+  \label{eq:cov-residual}
+\end{equation}
+with a Huber data term, a prior toward the beam covariance and explicit SPD and aspect
+bounds.  Means, opacity, appearance, lineage and count stay bit-frozen.  Two properties
+of \cref{eq:whitened,eq:cov-residual} matter.  First, the target includes the renderer's
+$0.3$-pixel dilation, so the repair aims at what will actually be displayed.  Some fitted
+targets are sharper than this floor, so zero residual is not always attainable and the
+repair aims at consistency and not perfection.  Second, the log-eigenvalue form penalizes
+a projection twice as large and half as large equally.  The obvious alternative, a
+one-sided whitened Frobenius residual, penalizes expansion more than collapse and omits
+the dilation.  It is shrink-biased and cannot serve as the repair objective here.  The
+ablation study quantifies the difference, see \cref{sec:ablations}.  On the development
+scene the repair of \cref{eq:cov-residual} lowers the validation risk $\Jq$ by $63.2\%$
+against optimizing the raw fused output directly, with three of three paired-root
+wins.\evidence{ara/logic/claims.md C30}  A repair stage must justify itself by its effect
+on the downstream risk and never by its own residual.
+
+Two further repairs are deliberately absent.  Opacity repair is invalid due to the gauge
+argument above, and cross-view amplitude-weighted appearance repair shares the same gauge
+problem.  The SH0 colors are instead co-adapted by the compact phases below.  The carrier
+path also grows no topology.  Even a clone which preserves optical density, using
+$a' = 1 - \sqrt{1-a}$ where a plain copy would change coincident alpha from $a$ to
+$1-(1-a)^2$, did not pass its ablation gate.\evidence{ara/logic/claims.md C30}
+
+\subsection{Refinement schedule}
+\label{sec:phases}
+
+Both compact phases minimize the sampled objective of \cref{eq:sampled-loss} at fixed
+topology and SH degree 0.  Phase one trains all parameter families jointly.  Due to the
+alpha and color gauge freedom of the compositor, opacity and support cannot be identified
+independently, so scale, orientation, opacity and color must co-adapt.  Optimizing means
+alone reaches $4.18$ times the all-family phase-one $\Jq$ and is rejected.  A second
+all-family phase lowers $\Jq$ to $0.717$ times its stopping value with three of three
+paired wins.  Freezing only the means in phase two costs $1.47\%$ $\Jq$ and passes the
+frozen $2\%$ non-inferiority gate, which is exactly what makes the containment invariant
+of \cref{sec:containment} permanent.  Incremental SH3 improves $\Jq$ by only $2.3$ to
+$3.0\%$, below the $5\%$ materiality floor, so the carrier stays at SH0.  All of these
+comparisons appear as rows of the ablation study.\evidence{ara/logic/claims.md C30}
+
+\subsection{Silhouette containment}
+\label{sec:containment}
+
+Raw masks are forbidden inside the compact paths.  Their legal surrogate is the union of
+fitted 2D Gaussian support ellipses.  After phase one, carrier $i$ is retained only if for
+every fitting view $v$
+\begin{equation}
+  z_{iv} > z_{\text{near}}
+  \qquad\text{and}\qquad
+  \min_j \big(\cam_v(\bm{\mu}_i) - \bm{m}_{vj}\big)\T C_{vj}^{-1}
+         \big(\cam_v(\bm{\mu}_i) - \bm{m}_{vj}\big) \;\le\; 3^2,
+  \label{eq:containment}
+\end{equation}
+i.e.\ the projected center must fall inside some positive-amplitude fitted component's
+$3\sigma$ ellipse in every view.  The threshold is fixed and cannot be weakened through
+configuration.  Phase two freezes the means and rechecks \cref{eq:containment}, so the
+invariant survives to the output.  On the development scene the prune removes $5.3$ to
+$5.4\%$ of the carriers, retains $4{,}729$ to $4{,}734$, ends with exactly zero violations
+and costs $2.69\%$ $\Jq$ against the unpruned anchor.\evidence{ara/logic/claims.md C30, C31}
+
+\Cref{eq:containment} is a visual-hull center invariant.  It removes carriers whose
+centers leave the fitted silhouette cone.  It cannot detect a floater inside the
+multi-view hull and it does not prove surface occupancy.  Containing the whole Gaussian in
+the mask is impossible in principle, since Gaussian support is infinite, and a
+finite-footprint rule would erode legitimate primitives at silhouette boundaries.  A
+count-preserving soft variant is predeclared for the ablation grid, namely the barrier
+\begin{equation}
+  L_{\text{support}} = \sum_{i,v}
+    \softplus\!\Big(\tfrac{\min_j q_{ivj} - 9}{\tau}\Big)^{2}
+    + \lambda_z\, \softplus\!\Big(\tfrac{z_{\text{near}} - z_{iv}}{\tau_z}\Big)^{2},
+  \label{eq:soft-support}
+\end{equation}
+optionally with deterministic samples on the projected $3\sigma$ ellipse to constrain the
+footprint instead of only the center.
+\todo{\Cref{eq:soft-support} is a design to freeze before use and not an evaluated
+method.  An independently measurable surface-occupancy test for hull-interior floaters
+remains open, see T-12, so the absence of physical free-floaters must not be claimed from
+\cref{eq:containment} alone.}
+
+\begin{figure}[t]
+  \centering
+  \figslot{5.5cm}{%
+    \textbf{Figure 8, refinement stages.}  One row per stage (raw fusion, after
+    covariance repair, after phase one, after prune, after phase two).  \textbf{Left:}
+    rendered front view.  \textbf{Right:} side view.  Annotate carrier count and $\Jq$
+    per stage.  The covariance-repair row should visibly de-elongate the beams.  Uses the
+    representative-root artifacts of the 2026-07-28 compact-only runs under
+    \repopath{runs/}, re-rendered with the repository viewer.}
+  \caption{\redcaption{Stage-by-stage carrier refinement renders.  Producible from
+    existing development artifacts.}}
+  \label{fig:carrier-stages}
+\end{figure}
