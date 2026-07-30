@@ -273,3 +273,29 @@
 - **Additional evidence**: [N177, N178, N179, N180,
   `benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md`,
   `ara/evidence/tables/20260730_field_sweep_placement.md`]
+
+## A17: Generated Experiment Bundle Contract v2
+- **Design**: Preserve the immutable `YYYYMMDD_<question_slug>_<data_slug>` task identity and one
+  `runs/<task_id>/` root, while making the canonical renderer consume dimensioned fitting history,
+  final metrics, the effective configuration, task lock, run/environment/resource receipts, and a
+  checksummed artifact manifest. The renderer generates both `index.html` and a run-local
+  `README.md` from those machine records. The HTML carries fitting curves, final summaries,
+  parameters, provenance, previews, exact reproduction/report-serving/orbit-viewer commands, and
+  relative links to every declared artifact; the Markdown provides the compact terminal handoff.
+  Bundle validation enforces the same inventory and link contract instead of trusting hand-written
+  reports.
+- **Provenance**: user-revised
+- **Crystallized via**: verbal-affirmation
+- **Evidence**: [N181, N182, O148, `experiments/README.md`,
+  `experiments/templates/metrics.json`, `experiments/templates/training_history.json`,
+  `experiments/templates/run_receipt.json`, `experiments/templates/environment.json`,
+  `scripts/experiment_contract.py`, `scripts/check_results_bundle.py`,
+  `tests/test_experiment_contract.py`]
+- **Code ref**: [`scripts/experiment_contract.py`, `scripts/check_results_bundle.py`,
+  `tests/test_experiment_contract.py`]
+- **From staging**: O148
+- **Boundary**: This is an implemented CPU-only workflow and reporting contract, not scientific
+  evidence about reconstruction quality, speed, memory, GPU behavior, or the active RTGS-006
+  hypothesis. Only the five explicitly named historical task ids may use template v1; new tasks
+  must freeze v2. The self-excluding manifest binds every other run-local file and each declared
+  external evidence file, but it does not replace independent results audit or smoke execution.

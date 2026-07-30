@@ -2328,3 +2328,26 @@ observations:
     promoted_to: "logic/claims.md:C33"
     crystallized_via: artifact-commitment
     stale: false
+  - id: O148
+    timestamp: "2026-07-30T21:08+02:00"
+    provenance: ai-suggested
+    content: >
+      Evolve the existing immutable task-first experiment contract into report template v2 rather
+      than creating a parallel convention. Preserve task id
+      YYYYMMDD_<question_slug>_<data_slug> and one runs/<task_id>/ root; add a standardized
+      dimensioned fitting-history schema, a generated run-local README.md, and a checksummed
+      artifact manifest. Generate both README.md and index.html from the frozen task, task lock,
+      effective configuration, metrics, history, receipts, and manifest so human surfaces cannot
+      drift. The HTML should render fitting curves and final summaries, parameters, provenance,
+      previews, exact reproduction/report-serving/orbit-viewer commands, and relative links to
+      every declared artifact; bundle validation should enforce the same contract.
+    context: >
+      AI design proposal in response to workflow question N181 after a read-only audit of the
+      existing experiment README, task and metrics templates, renderer, bundle checker, and one
+      canonical completed run. The user has not yet affirmed or committed this v2 design.
+    potential_type: architecture
+    bound_to: [N181]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A17"
+    crystallized_via: verbal-affirmation
+    stale: false

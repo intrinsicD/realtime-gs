@@ -26,6 +26,12 @@ def _load_script(name: str) -> ModuleType:
 CONTRACT = _load_script("experiment_contract")
 BUNDLE = _load_script("check_results_bundle")
 LIVE_TASK = REPO / "experiments" / "tasks" / "20260728_vram_claim_stage_frames00008_00009.json"
+LIVE_V2_TASK = (
+    REPO
+    / "experiments"
+    / "tasks"
+    / "20260730_additive_analytic_objective_stage_frames00008_00009.json"
+)
 
 
 def _json(path: Path, value: object) -> None:
@@ -105,6 +111,13 @@ def test_task_name_is_composed_from_date_task_and_data() -> None:
     assert any("task_id must equal" in error for error in errors)
 
 
+def test_new_task_must_explicitly_select_v2() -> None:
+    task = json.loads(LIVE_V2_TASK.read_text(encoding="utf-8"))
+    task.pop("report_template_version")
+    errors = CONTRACT.validate_task(task, LIVE_V2_TASK, root=REPO)
+    assert any("must explicitly set report_template_version to 2" in error for error in errors)
+
+
 def test_compact_arm_rejects_rgb_in_reconstruction_policy() -> None:
     task = json.loads(LIVE_TASK.read_text(encoding="utf-8"))
     task["input_policy"]["reconstruction_allowed"].append("rgb")
@@ -138,21 +151,30 @@ def test_compact_data_seal_contains_no_rgb_or_mask_path() -> None:
     assert not any("/rgb/" in path or "/mask/" in path for path in paths)
 
 
-def _report_fixture(tmp_path: Path) -> tuple[Path, dict, dict]:
+def _report_fixture(tmp_path: Path, *, report_version: int = 2) -> tuple[Path, dict, dict]:
     root = tmp_path
     task = copy.deepcopy(json.loads(LIVE_TASK.read_text(encoding="utf-8")))
+    task_id = (
+        "20260728_report_contract_fixture"
+        if report_version == 2
+        else "20260728_vram_claim_stage_frames00008_00009"
+    )
     task.update(
         {
-            "task_id": "20260728_report_contract_fixture",
-            "task_slug": "report_contract",
-            "data_slug": "fixture",
+            "task_id": task_id,
+            "task_slug": "report_contract" if report_version == 2 else "vram_claim",
+            "data_slug": "fixture" if report_version == 2 else "stage_frames00008_00009",
             "status": "ready",
             "owner": "test-agent",
             "data_seal": "experiments/data/fixture.json",
-            "run_command": ["python", "scripts/experiments/20260728_report_contract_fixture.py"],
+            "run_command": ["python", f"scripts/experiments/{task_id}.py"],
             "blockers": [],
         }
     )
+    if report_version == 2:
+        task["report_template_version"] = 2
+    else:
+        task.pop("report_template_version", None)
     digest = CONTRACT.protocol_sha256(task)
     review_artifact = f"experiments/reviews/{task['task_id']}_PROTOCOL_REVIEW.md"
     task["protocol_review"] = {
@@ -161,7 +183,7 @@ def _report_fixture(tmp_path: Path) -> tuple[Path, dict, dict]:
         "protocol_sha256": digest,
         "artifact": review_artifact,
     }
-    task_path = root / "experiments" / "tasks" / "20260728_report_contract_fixture.json"
+    task_path = root / "experiments" / "tasks" / f"{task_id}.json"
     seal_path = root / "experiments" / "data" / "fixture.json"
     review_path = root / review_artifact
     _json(task_path, task)
@@ -201,15 +223,70 @@ def _report_fixture(tmp_path: Path) -> tuple[Path, dict, dict]:
         "development": False,
         "started_at_utc": "2026-07-28T00:00:00+00:00",
         "command": task["run_command"],
-        "report_template_version": 1,
+        "report_template_version": report_version,
     }
     _json(run / "task.lock.json", lock)
-    for name in CONTRACT.REQUIRED_MODEL_ARTIFACTS:
-        (run / name).write_text("fixture\n", encoding="utf-8")
+    for name in ("gaussians_init.ply", "gaussians.ply"):
+        (run / name).write_text("ply\nfixture\n", encoding="utf-8")
+    _json(run / "gaussians.config.json", {"fit": {"iterations": 2, "learning_rate": 0.01}})
+    _json(run / "input_boundary_receipt.json", {"schema_version": 1, "status": "passed"})
+    _json(run / "resource_receipt.json", {"schema_version": 1, "wall_seconds": 2.5})
+    _json(
+        run / "run_receipt.json",
+        {
+            "schema_version": 1,
+            "task_id": task["task_id"],
+            "status": "completed",
+            "started_at_utc": lock["started_at_utc"],
+            "finished_at_utc": "2026-07-28T00:00:03+00:00",
+            "exit_code": 0,
+            "failure_phase": None,
+            "message": "Fixture completed successfully.",
+        },
+    )
+    _json(
+        run / "environment.json",
+        {
+            "schema_version": 1,
+            "python": "3.12.0",
+            "platform": "fixture-linux",
+            "packages": {"realtime-gs": "fixture"},
+            "device": {"type": "cpu", "name": "fixture cpu", "cuda": None},
+        },
+    )
+    history = {
+        "schema_version": 2,
+        "records": [
+            {
+                "step": step,
+                "wall_seconds": float(step),
+                "stage": task["stages"][0]["id"],
+                "dataset_id": task["datasets"][0]["id"],
+                "arm_id": "fixture_arm",
+                "seed": task["seeds"][0],
+                "split": "train",
+                "metric_id": "loss_total",
+                "value": value,
+            }
+            for step, value in ((0, 1.0), (1, 0.5), (2, 0.25))
+        ],
+        "metric_metadata": {
+            "loss_total": {
+                "label": "Total objective",
+                "unit": "loss",
+                "group": "Objective",
+                "direction": "lower",
+            }
+        },
+        "stage_markers": [
+            {"step": 0, "stage": task["stages"][0]["id"], "label": "Fixture stage start"}
+        ],
+    }
+    _json(run / "training_history.json", history)
     (run / "smoke_receipt.md").write_text(
         "# Smoke receipt\n"
         "- index.html served with HTTP 200\n"
-        f"- rtgs view --gaussians runs/{task['task_id']}/gaussians.ply --no-open\n",
+        f"- .venv/bin/rtgs view --gaussians runs/{task['task_id']}/gaussians.ply --no-open\n",
         encoding="utf-8",
     )
     evidence = [
@@ -221,8 +298,8 @@ def _report_fixture(tmp_path: Path) -> tuple[Path, dict, dict]:
         target.write_text("fixture evidence\n", encoding="utf-8")
 
     metrics = {
-        "schema_version": 1,
-        "report_template_version": 1,
+        "schema_version": report_version,
+        "report_template_version": report_version,
         "task_id": task["task_id"],
         "summary": "The fixture completed and its canonical report is renderable.",
         "decision": "diagnostic",
@@ -261,15 +338,36 @@ def _report_fixture(tmp_path: Path) -> tuple[Path, dict, dict]:
             {"label": suffix, "path": path}
             for suffix, path in zip(CONTRACT.EVIDENCE_SUFFIXES, evidence, strict=True)
         ],
-        "viewer_command": [
-            ".venv/bin/rtgs",
-            "view",
-            "--gaussians",
-            f"runs/{task['task_id']}/gaussians.ply",
-            "--no-open",
-        ],
         "notes": ["Synthetic structural fixture; not scientific evidence."],
     }
+    viewer = [
+        ".venv/bin/rtgs",
+        "view",
+        "--gaussians",
+        f"runs/{task['task_id']}/gaussians.ply",
+        "--no-open",
+    ]
+    if report_version == 2:
+        metrics["artifacts"].extend(
+            [
+                {"label": "Run receipt", "path": "run_receipt.json"},
+                {"label": "Environment", "path": "environment.json"},
+            ]
+        )
+        metrics["commands"] = {
+            "reproduce": task["run_command"],
+            "serve_report": [
+                ".venv/bin/python",
+                "-m",
+                "http.server",
+                "8765",
+                "--directory",
+                f"runs/{task['task_id']}",
+            ],
+            "viewer": viewer,
+        }
+    else:
+        metrics["viewer_command"] = viewer
     values = {
         "peak_cuda_allocated_bytes": 1024,
         "peak_cuda_reserved_bytes": 2048,
@@ -303,18 +401,134 @@ def test_shared_report_renders_every_required_section(tmp_path: Path) -> None:
     run, task, _metrics = _report_fixture(tmp_path)
     page = CONTRACT.render_run(run, root=tmp_path)
     body = page.read_text(encoding="utf-8")
-    assert 'name="rtgs-experiment-report-template" content="1"' in body
+    assert 'name="rtgs-experiment-report-template" content="2"' in body
     assert task["claim_boundary"] in body
     assert "Input boundary" in body
     assert "Pipeline" in body
+    assert "Fitting process" in body
+    assert "<svg" in body
+    assert "Total objective" in body
+    assert "Fixture stage start" in body
     assert "Quality" in body
     assert "Resource use" in body
     assert "Stage runtime" in body
     assert "Prospective review" in body
     assert task["protocol_review"]["protocol_sha256"] in body
     assert "gaussians.ply" in body
+    assert "fit.iterations" in body
+    assert "Start the orbit viewer" in body
+    assert (run / "README.md").is_file()
+    assert (run / "manifest.json").is_file()
+    readme = (run / "README.md").read_text(encoding="utf-8")
+    assert "## Effective parameters" in readme
+    assert "### Start the orbit viewer" in readme
+    manifest = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
+    assert {item["path"] for item in manifest["entries"]} >= {
+        "index.html",
+        "README.md",
+        "metrics.json",
+        "training_history.json",
+    }
     assert CONTRACT.validate_run(run, root=tmp_path) == []
     assert BUNDLE.check_bundle(run, previews=False) == []
+
+
+def test_v1_report_is_grandfathered(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path, report_version=1)
+    page = CONTRACT.render_run(run, root=tmp_path)
+    assert 'name="rtgs-experiment-report-template" content="1"' in page.read_text(encoding="utf-8")
+    assert not (run / "manifest.json").exists()
+    assert CONTRACT.validate_run(run, root=tmp_path) == []
+
+
+def test_v2_history_rejects_heldout_fitting_records(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    history_path = run / "training_history.json"
+    history = json.loads(history_path.read_text(encoding="utf-8"))
+    history["records"][0]["split"] = "heldout"
+    _json(history_path, history)
+    errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
+    assert any("must not expose heldout/test data" in error for error in errors)
+
+
+def test_v2_manifest_detects_artifact_tampering(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    CONTRACT.render_run(run, root=tmp_path)
+    config_path = run / "gaussians.config.json"
+    _json(config_path, {"fit": {"iterations": 99}})
+    errors = CONTRACT.validate_run(run, root=tmp_path)
+    assert any("manifest SHA-256 mismatch" in error for error in errors)
+    assert any(
+        "manifest SHA-256 mismatch" in error for error in BUNDLE.check_bundle(run, previews=False)
+    )
+
+
+def test_v2_report_requires_generated_readme(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    CONTRACT.render_run(run, root=tmp_path)
+    (run / "README.md").unlink()
+    errors = CONTRACT.validate_run(run, root=tmp_path)
+    assert any("missing generated README.md" in error for error in errors)
+
+
+def test_v2_rejects_noncanonical_report_server_command(tmp_path: Path) -> None:
+    run, _task, metrics = _report_fixture(tmp_path)
+    metrics["commands"]["serve_report"][-1] = "."
+    _json(run / "metrics.json", metrics)
+    errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
+    assert any("canonical repository-root HTTP command" in error for error in errors)
+
+
+def test_v2_bundle_requires_exact_viewer_smoke_command(tmp_path: Path) -> None:
+    run, task, _metrics = _report_fixture(tmp_path)
+    (run / "smoke_receipt.md").write_text(
+        "# Smoke receipt\n"
+        "- index.html served with HTTP 200\n"
+        f"- rtgs view --gaussians runs/{task['task_id']}/gaussians.ply --no-open\n",
+        encoding="utf-8",
+    )
+    CONTRACT.render_run(run, root=tmp_path)
+    problems = BUNDLE.check_bundle(run, previews=False)
+    assert any("does not contain commands.viewer exactly" in problem for problem in problems)
+
+
+def test_v2_failure_report_is_renderable_but_not_results_bearing(tmp_path: Path) -> None:
+    run, _task, metrics = _report_fixture(tmp_path)
+    receipt_path = run / "run_receipt.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt.update(
+        {
+            "status": "failed",
+            "exit_code": 17,
+            "failure_phase": "fitting",
+            "message": "Synthetic optimizer failure.",
+        }
+    )
+    _json(receipt_path, receipt)
+    _json(
+        run / "training_history.json",
+        {"schema_version": 2, "records": [], "metric_metadata": {}, "stage_markers": []},
+    )
+    metrics["metrics"] = {}
+    metrics["metric_metadata"] = {}
+    metrics["charts"] = []
+    metrics["evidence"] = []
+    metrics["commands"]["viewer"] = None
+    metrics["artifacts"] = [
+        item
+        for item in metrics["artifacts"]
+        if item["path"] not in {"gaussians_init.ply", "gaussians.ply"}
+    ]
+    _json(run / "metrics.json", metrics)
+    (run / "gaussians_init.ply").unlink()
+    (run / "gaussians.ply").unlink()
+    page = CONTRACT.render_run(run, root=tmp_path)
+    body = page.read_text(encoding="utf-8")
+    assert "Run status: failed" in body
+    assert "Synthetic optimizer failure" in body
+    assert CONTRACT.validate_run(run, root=tmp_path) == []
+    problems = BUNDLE.check_bundle(run, previews=False)
+    assert any("not a results-bearing bundle" in problem for problem in problems)
 
 
 def test_report_rejects_a_missing_required_diagram(tmp_path: Path) -> None:

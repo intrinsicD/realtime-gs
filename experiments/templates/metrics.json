@@ -1,6 +1,6 @@
 {
-  "schema_version": 1,
-  "report_template_version": 1,
+  "schema_version": 2,
+  "report_template_version": 2,
   "task_id": "REPLACE_WITH_TASK_ID",
   "summary": "Replace with the result-first summary generated from exact saved metrics.",
   "decision": "pending",
@@ -75,6 +75,14 @@
     {
       "label": "Resource receipt",
       "path": "resource_receipt.json"
+    },
+    {
+      "label": "Run receipt",
+      "path": "run_receipt.json"
+    },
+    {
+      "label": "Execution environment",
+      "path": "environment.json"
     }
   ],
   "evidence": [
@@ -95,15 +103,29 @@
       "path": "benchmarks/results/REPLACE_WITH_TASK_ID_AUDIT.json"
     }
   ],
-  "viewer_command": [
-    ".venv/bin/rtgs",
-    "view",
-    "--gaussians",
-    "runs/REPLACE_WITH_TASK_ID/gaussians.ply",
-    "--initial",
-    "runs/REPLACE_WITH_TASK_ID/gaussians_init.ply",
-    "--no-open"
-  ],
+  "commands": {
+    "reproduce": [
+      ".venv/bin/python",
+      "scripts/experiments/REPLACE_WITH_TASK_ID.py"
+    ],
+    "serve_report": [
+      ".venv/bin/python",
+      "-m",
+      "http.server",
+      "8765",
+      "--directory",
+      "runs/REPLACE_WITH_TASK_ID"
+    ],
+    "viewer": [
+      ".venv/bin/rtgs",
+      "view",
+      "--gaussians",
+      "runs/REPLACE_WITH_TASK_ID/gaussians.ply",
+      "--initial",
+      "runs/REPLACE_WITH_TASK_ID/gaussians_init.ply",
+      "--no-open"
+    ]
+  },
   "notes": [
     "Replace this template; zeroes are examples, not results."
   ]

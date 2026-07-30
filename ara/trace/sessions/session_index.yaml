@@ -106,8 +106,8 @@ sessions:
     open_threads: 2
   - id: "2026-07-30_001"
     date: "2026-07-30"
-    summary: "Consumed the failed float32 field sweep, executed and independently audited its float64 successor, confirmed the bounded midpoint rule, narrowed the all-view claim, and completed the visual handoff."
-    turn_count: 1
-    events_count: 6
+    summary: "Completed the float64 successor and implemented the adopted Experiment Bundle Contract v2 as RTGS-006's verified pre-run prerequisite."
+    turn_count: 4
+    events_count: 11
     claims_touched: [C32, C33]
-    open_threads: 2
+    open_threads: 3

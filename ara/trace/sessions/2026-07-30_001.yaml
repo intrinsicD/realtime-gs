@@ -2,9 +2,9 @@ session:
   id: "2026-07-30_001"
   date: "2026-07-30"
   started: "2026-07-30T00:26+02:00"
-  last_turn: "2026-07-30T01:58+02:00"
-  turn_count: 1
-  summary: "Consumed the failed float32 field sweep, executed and independently audited its float64 successor, confirmed the bounded midpoint rule, narrowed the all-view claim, and completed the visual handoff."
+  last_turn: "2026-07-30T23:53+02:00"
+  turn_count: 4
+  summary: "Completed the float64 successor and implemented the adopted Experiment Bundle Contract v2 as RTGS-006's verified pre-run prerequisite."
 
 events_logged:
   - turn: 1
@@ -43,6 +43,36 @@ events_logged:
     routing: crystallized
     provenance: ai-executed
     summary: "Crystallized the scene-level all-view comparator reversal as C33."
+  - turn: 2
+    type: question
+    id: N181
+    routing: direct
+    provenance: user
+    summary: "Opened a consistent naming and mandatory-output contract for official experiments."
+  - turn: 2
+    type: observation
+    id: O148
+    routing: staged
+    provenance: ai-suggested
+    summary: "Staged report-template v2 with fitting curves, generated README, and artifact manifest."
+  - turn: 3
+    type: decision
+    id: N182
+    routing: direct
+    provenance: user
+    summary: "Adopted Experiment Bundle Contract v2 for repository implementation."
+  - turn: 3
+    type: observation
+    id: O148
+    routing: crystallized
+    provenance: user-revised
+    summary: "Crystallized the adopted generated bundle architecture as A17."
+  - turn: 4
+    type: decision
+    id: N183
+    routing: direct
+    provenance: user
+    summary: "Authorized A17 inside still-draft RTGS-006 and transferred the driver without changing its scientific protocol."
 
 ai_actions:
   - turn: 1
@@ -81,6 +111,26 @@ ai_actions:
       - "docs/DESIGN_field_lift.md"
       - "docs/EXPERIMENTS.md"
       - "docs/tasks/RTGS-004-field-sweep-f64-successor.md"
+  - turn: 4
+    action: >
+      Implemented A17 as report template v2 in the shared experiment contract and independent
+      bundle gate; added tidy fitting-history, environment and run-receipt templates; generated
+      static SVG index.html plus README.md and a self-excluding SHA-256 manifest; explicitly
+      grandfathered the five historical v1 tasks; documented completed/failed and audit/smoke
+      sequencing; added compatibility, leakage, command, link and tamper tests; and passed the
+      full CPU verification suite twice after adversarial self-review.
+    provenance: ai-executed
+    files_changed:
+      - "scripts/experiment_contract.py"
+      - "scripts/check_results_bundle.py"
+      - "tests/test_experiment_contract.py"
+      - "experiments/templates/"
+      - "experiments/README.md"
+      - "runs/README.md"
+      - "CLAUDE.md"
+      - ".claude/skills/rtgs-experiment/SKILL.md"
+      - ".agents/state/current-task.md"
+      - "ara/logic/solution/architecture.md"
 
 claims_touched:
   - id: C32
@@ -93,10 +143,22 @@ claims_touched:
 key_context:
   - turn: 1
     excerpt: "The user explicitly authorized execution with: 'ok run it'."
+  - turn: 2
+    excerpt: >
+      The user requested a consistent experiment naming scheme and template whose index page,
+      companion Markdown, parameters, viewer command, metrics-over-fitting, and artifacts are
+      linked and placed predictably.
+  - turn: 3
+    excerpt: "The user explicitly adopted the proposed contract with: 'yes please do that'."
+  - turn: 4
+    excerpt: >
+      The user explicitly authorized folding A17 into RTGS-006 and transferring the driver turn,
+      then asked implementation to proceed.
 
 open_threads:
   - "Run a fresh cross-capture protocol with an explicit all-view comparator gate before considering any placement default."
   - "Delete claude/3d-gaussian-splatting-pipeline-twa00k only after explicit operational authorization; the replacement experiment is now complete."
+  - "Obtain independent review of implemented A17, then resume RTGS-006 at additive teacher generation and data-seal construction."
 
 ai_suggestions_pending:
   - "Separate mean-coordinate and covariance-entry projection invariants and retain a replay-complete environment fingerprint in the next protocol."

@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "records": [
+    {
+      "step": 0,
+      "wall_seconds": 0.0,
+      "stage": "stage_id",
+      "dataset_id": "frame_id",
+      "arm_id": "comparator_id",
+      "seed": 1,
+      "split": "train",
+      "metric_id": "loss_total",
+      "value": 1.0
+    }
+  ],
+  "metric_metadata": {
+    "loss_total": {
+      "label": "Total fitting objective",
+      "unit": "loss",
+      "group": "Objective",
+      "direction": "lower"
+    }
+  },
+  "stage_markers": [
+    {
+      "step": 0,
+      "stage": "stage_id",
+      "label": "Stage start"
+    }
+  ]
+}

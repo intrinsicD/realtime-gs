@@ -3217,3 +3217,60 @@ tree:
       - "docs/DESIGN_field_lift.md"
       - "docs/tasks/RTGS-004-field-sweep-f64-successor.md"
     status: resolved
+  - id: N181
+    type: question
+    title: "How should official experiments be named and packaged for consistent handoff?"
+    provenance: user
+    timestamp: "2026-07-30T21:08+02:00"
+    description: >
+      The user opened a repository-workflow design question: define one consistent experiment
+      naming scheme and one mandatory output bundle, including an index.html with fitting-process
+      metrics, a companion Markdown handoff with effective parameters and the exact orbit-viewer
+      command, fixed artifact locations, and relative links from the page. No concrete v2 contract
+      has been adopted yet; O148 stages the AI proposal derived from the current task-first
+      machinery.
+    status: resolved
+  - id: N182
+    type: decision
+    title: "Adopt Experiment Bundle Contract v2 for implementation"
+    provenance: user
+    timestamp: "2026-07-30T21:33+02:00"
+    choice: >
+      Implement O148 as the repository-wide successor to report template v1: preserve the
+      immutable task id and one-run-root convention, standardize dimensioned fitting histories,
+      generate a run-local README.md and checksummed artifact manifest beside index.html, render
+      both human surfaces from the same machine records, and extend bundle checks to enforce the
+      declared links, parameters, commands, receipts, and artifacts.
+    alternatives:
+      - "Keep report template v1 with static aggregate bars and no run-local Markdown handoff."
+      - "Create a second ad-hoc reporting path outside scripts/experiment_contract.py."
+      - "Require experiment drivers to hand-write HTML and Markdown reports independently."
+    evidence:
+      - N181
+      - O148
+      - "experiments/README.md"
+      - "experiments/templates/metrics.json"
+      - "scripts/experiment_contract.py"
+      - "scripts/check_results_bundle.py"
+    also_depends_on: [N181]
+    status: resolved
+  - id: N183
+    type: decision
+    title: "Implement A17 as an explicit RTGS-006 prerequisite"
+    provenance: user
+    timestamp: "2026-07-30T23:53+02:00"
+    choice: >
+      Fold Experiment Bundle Contract v2 into the still-draft RTGS-006 task as a pre-run shared
+      prerequisite, transfer the active driver turn to Codex, and preserve every scientific arm,
+      data boundary, split, seed, metric and evidence-phase choice.
+    alternatives:
+      - "Defer A17 until after RTGS-006 completes."
+      - "Implement a task-specific report path outside the shared contract."
+      - "Change the scientific protocol while adding the reporting prerequisite."
+    evidence:
+      - N182
+      - "ara/logic/solution/architecture.md:A17"
+      - ".agents/state/current-task.md"
+      - "experiments/tasks/20260730_additive_analytic_objective_stage_frames00008_00009.json"
+    also_depends_on: [N182]
+    status: resolved
