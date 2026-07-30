@@ -6,7 +6,7 @@ LaTeX paper skeleton for the two-part VRAM / Beam Fusion publication plan
 
 ## Task ID
 
-RTGS-003
+RTGS-005
 
 ## Role Assignment
 
