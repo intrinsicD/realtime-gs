@@ -1,14 +1,19 @@
 % ===========================================================================
 % Compact 2D Gaussian Captures for Memory-Efficient 3D Gaussian Splatting
-% Working draft — two claim-separated parts:
-%   Part I  : the systems / VRAM claim (image-free compact-field supervision)
-%   Part II : Beam Fusion (tomographic initialization) + carrier refinement
+% Working draft.
 %
-% Draft conventions: BLACK text is explained and evidence-bound; RED text
-% (and red framed figure slots) still has to be shown/measured/frozen.
-% See preamble.tex for the macros and paper/README.md for the build.
+% Storyline: per-view 2D Gaussian fields replace the images. A standard 3DGS
+% optimizer reconstructs from the fields alone (initialized from random
+% points or SfM). Memory is measured under a controlled protocol. Because
+% rendering projects 3D Gaussians to 2D Gaussians, initialization can also
+% be obtained by inverting the projection (tomographic initialization). The
+% naive inversion fails in identifiable ways, which the carrier refinement
+% addresses. Experiments show the full pipeline and end with the ablations.
 %
-% Source of truth for the claim discipline:
+% Conventions: black text is explained and evidence-bound. Red text is a
+% TODO and always starts with "TODO:". See preamble.tex and paper/README.md.
+%
+% Sources of truth for the claim discipline:
 %   docs/PAPER_PLAN_beam_fusion.md, docs/20260725_claims_and_questions.md,
 %   docs/THREE_ARM_EXPERIMENT_PROGRAM.md, ara/logic/claims.md
 % ===========================================================================
@@ -18,14 +23,13 @@
 
 \title{%
   Compact 2D Gaussian Captures for\\Memory-Efficient 3D Gaussian Splatting\\[6pt]
-  {\large with Beam Fusion as a Separately Evaluated Tomographic Initializer}\\[4pt]
-  {\normalsize\itshape Working draft --- red text marks what still has to be shown}}
+  {\normalsize\itshape Working draft. Red text marks open TODOs.}}
 
 \author{%
-  \toshow{Author list t.b.d.}\\
-  \toshow{Affiliations t.b.d.}}
+  \todo{author list}\\
+  \todo{affiliations}}
 
-\date{Draft of 2026-07-29}
+\date{Draft of 2026-07-30}
 
 \begin{document}
 
@@ -38,30 +42,20 @@
 
 \input{sections/01_introduction}
 \input{sections/02_related_work}
-\input{sections/03_setting}
-
-% ===========================================================================
-\paperpart{I}{The Systems Claim: Image-Free Reconstruction at Reduced VRAM}
-% ===========================================================================
-\input{sections/04_compact_capture}
-\input{sections/05_compact_supervision}
-\input{sections/06_vram_claim}
-\input{sections/07_experiments_part1}
-
-% ===========================================================================
-\paperpart{II}{Beam Fusion: Tomographic Initialization from Compact Captures}
-% ===========================================================================
-\input{sections/08_beam_fusion}
-\input{sections/09_carrier_refinement}
-\input{sections/10_experiments_part2}
-
-\input{sections/11_limitations}
-\input{sections/12_conclusion}
+\input{sections/03_overview}
+\input{sections/04_fields}
+\input{sections/05_reconstruction}
+\input{sections/06_memory}
+\input{sections/07_tomography}
+\input{sections/08_refinement}
+\input{sections/09_experiments}
+\input{sections/10_limitations}
+\input{sections/11_conclusion}
 
 \bibliographystyle{plainnat}
 \bibliography{references}
 
 \appendix
-\input{sections/13_appendix_obligations}
+\input{sections/12_appendix_todo}
 
 \end{document}

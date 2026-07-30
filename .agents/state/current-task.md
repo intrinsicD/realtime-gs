@@ -30,9 +30,11 @@ Standard
 ## Goal
 
 Produce a buildable LaTeX working draft in `paper/` that implements
-`docs/PAPER_PLAN_beam_fusion.md` as a full paper skeleton: Part I carries the systems/VRAM
-claim, Part II the Beam Fusion approach, with red markers for everything still to be shown
-(including exact figure specifications) and well-explained black text for implemented
+`docs/PAPER_PLAN_beam_fusion.md` as a full paper skeleton in the owner's single-thread
+storyline (fields, standard reconstruction with random/SfM initialization, memory protocol,
+tomographic initialization, carrier refinement, experiments with closing ablations), with
+red `TODO:` markers for everything still to be shown (including exact figure
+specifications), the owner's style rules, and well-explained black text for implemented
 mechanism and evidence-bound results.
 
 ## Motivation
@@ -46,7 +48,12 @@ open-obligation ledger makes the remaining experimental program explicit and rev
 ## Success Criteria
 
 - `paper/main.tex` compiles cleanly (no undefined references/citations, no overfull boxes).
-- Two claim-separated parts with the Arm-1/Arm-2 firewall and predeclared decision rules.
+- Single-thread structure per the owner decision of 2026-07-30, with the claim separation
+  preserved as evaluation rules (reconstruction result established with standard
+  initializations alone).
+- Owner style rules hold in the running text: no em dashes, semicolons, colons, or
+  marketing vocabulary, every red item prefixed `TODO:`, negative results only where an
+  obvious approach does not apply and an alternative is given.
 - Every quantitative statement in black is copied from an audited artifact and carries an
   evidence note to `ara/logic/claims.md` rows or sealed results; development scope is
   labelled as such; nothing is promoted beyond its ledger status.
@@ -80,8 +87,10 @@ None
 
 ## Current Evidence
 
-- Compile receipt: tectonic 0.15.0, 27 pages, BibTeX resolves all citations, 0 overfull
-  boxes, no undefined references (local build; no LaTeX in CI, so the draft is not gated).
+- Compile receipt (v2 restructure, 2026-07-30): tectonic 0.15.0, 25 pages, BibTeX resolves
+  all citations, 0 overfull boxes, no undefined references (local build; no LaTeX in CI, so
+  the draft is not gated). Style scan clean: no em/en dashes or `--` in text, no prose
+  semicolons or colons outside `TODO:` prefixes, no banned vocabulary.
 - Content bindings: ara claims C15, C18–C20, C23, C24, C28–C31;
   `docs/ADR-002-carrier-refinement.md`; `docs/THREE_ARM_EXPERIMENT_PROGRAM.md`;
   `docs/PAPER_PLAN_beam_fusion.md`; `benchmarks/results/20260725_init_value_program_PREREG.md`
@@ -110,7 +119,37 @@ Provisionally accepted (self-reviewed)
 
 ## Human Decisions
 
-None.
+### Question
+
+How should the draft be structured and styled after the owner's review of v1?
+
+### Options
+
+Keep the two-part (VRAM claim / Beam Fusion) structure, or restructure to the owner's
+single-thread storyline. Keep or change the marker and style conventions.
+
+### Recommendation
+
+Follow the owner's instructions verbatim and keep the claim separation as evaluation rules
+rather than document structure.
+
+### Decision
+
+(Owner, in chat.) Single-thread storyline: 2D multiview Gaussian fields to 3D Gaussian
+field with the standard approach works, initialization shown with random and SfM (no Beam
+Fusion), then the tomography approach arises from inverting the rendering, then the
+problems of the naive approach with solutions, then full results, ablation study at the
+end. Style rules: never "embarrassingly parallel", no em dashes, no semicolons, no colons,
+no marketing, "novel" avoided, "to the best of our knowledge" acceptable, "We" acceptable,
+paper stays in English. Every red item gets a "TODO: " prefix. Do not name the result
+"VRAM claim". Plain headline/subsection titles. No negative results in the paper except
+where an obvious or existing idea does not apply here and an alternative is given. Approved
+phrases 1-3 of the style probe unchanged, phrase 4 re-punctuated, phrases 5 and 7 become
+TODOs. The owner will additionally send one of their papers for a fine-grained style pass.
+
+### Date
+
+2026-07-30
 
 ## Handoff Log
 
@@ -230,3 +269,111 @@ None.
 Track `main.pdf` via a release artifact or CI build once a TeX toolchain is available;
 produce the four already-producible figures; consider a venue-style variant of
 `main.tex` once a target venue is chosen.
+
+### Handoff (Claude-paper-draft-driver, 2026-07-30, v2 restructure)
+
+#### Objective
+
+Rewrite the draft per the owner's review of v1: single-thread storyline, owner style
+rules, `TODO:` prefixes on all red items, no "VRAM claim" naming, plain titles, and no
+negative-result reporting except as design justification.
+
+#### Reviewed state
+
+v1 draft at commit 7f9dada with PR #19 open. Owner decision recorded above in Human
+Decisions.
+
+#### Changes
+
+Restructured `paper/sections/` from the two-part layout into twelve single-thread files
+(overview, fields, reconstruction with random/SfM initialization, memory measurement,
+tomography, refinement, experiments ending in the ablation study, limitations, conclusion,
+TODO appendix). Removed the part headers, claim boxes, and the carrier-history subsection.
+Rewrote all prose without em dashes, semicolons, prose colons, or marketing vocabulary.
+Replaced the marker macros with `\todo`/`TodoBlock`/`\tbd`/`\figslot`, all rendering a
+`TODO:` prefix. Renamed obligations O-1..O-15 to TODOs T-1..T-15. Reworded evidence notes
+to `[evidence ...]` without a colon. Retained kept negative findings only as
+design-justification sentences (naive Gaussian product, one-sided repair residual, opacity
+gauge, density-preserving clone) and moved their numbers into the ablation table. Updated
+`paper/README.md`, `paper/figures/README.md`, the `CLAUDE.md` map line, and the
+`PAPER_PLAN` pointer.
+
+#### Evidence
+
+tectonic build of the restructured draft: 25 pages, all citations resolved, 0 overfull
+boxes, no undefined references. Automated style scan over `sections/` and `main.tex`
+returned zero em/en dashes, zero `--` sequences, zero prose semicolons, zero prose colons
+outside `TODO:` prefixes, and no banned vocabulary. Structural checkers re-run before
+commit (see Current Evidence).
+
+#### Assumptions
+
+Bibliography titles keep their original punctuation because they are citations, not our
+prose. Numeric ranges avoid dashes by using "to". The claim-separation requirement of
+`PAPER_PLAN_beam_fusion.md` survives as evaluation rules inside the single-thread
+structure, which the updated `PAPER_PLAN` pointer records.
+
+#### Uncertainties
+
+The owner announced a sample paper of their own for a fine-grained style pass. Tone and
+rhythm may change again once it arrives. Whether the ablation table's retained
+development-verdict numbers match the owner's no-negative-results preference is for the
+owner to confirm on read-through.
+
+#### Review Focus
+
+Style-rule compliance in rendered output, faithfulness of the restructure to the owner's
+storyline, and that no black statement gained strength during the rewrite.
+
+#### Protected actions not taken
+
+No experiment execution, no claim-ledger edits, no default changes, no results-bearing
+artifacts touched, no new PR opened (PR #19 updates on push).
+
+#### Recommended Next Action
+
+Owner read-through of the restructured draft, then the fine-grained style pass once the
+owner's sample paper arrives, then the producible figures (Figs. 1, 2, 6, 7, 8, 11).
+
+### Review (Claude-paper-draft-driver, self-review, 2026-07-30, v2)
+
+#### Verdict
+
+Accepted
+
+#### Self-reviewed
+
+Yes
+
+#### Correctness
+
+Docs-only diff. All quoted numbers re-checked against their ledger rows during the
+rewrite; none changed value or scope. The restructure preserves every equation, the
+proposition, and all evidence bindings. LaTeX builds clean and all cross-references
+resolve after the section renames.
+
+#### Evidence Quality
+
+Development-only scope labels survived the rewrite. The removed carrier-history section
+contained C28/C29 negative narratives, which remain in the repository ledger and are no
+longer claimed or contradicted by the paper. Ablation-table verdicts cite C30/C31
+unchanged.
+
+#### Simplicity
+
+Fewer files, plain conventional section titles, one storyline, smaller macro surface
+(`\todo`, `TodoBlock`, `\tbd`, `\figslot`).
+
+#### Missing Cases
+
+The owner's sample-paper style pass is pending by design. CI still does not compile the
+draft.
+
+#### Required Changes
+
+None.
+
+#### Optional Improvements
+
+After the sample-paper pass, consider tightening the remaining long sentences in the
+overview and refinement sections.

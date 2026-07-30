@@ -1,0 +1,113 @@
+\section{TODO List}
+\label{sec:todo-list}
+
+Every red item of the draft in one place.  A row turns black only when its artifact exists,
+passed independent audit, and has a claim-ledger row in \repopath{ara/logic/claims.md},
+following the repository evidence discipline.  This table is the draft's definition of
+done.
+
+\begin{table}[h]
+  \centering\small
+  \begin{tabular}{@{}llp{6.6cm}l@{}}
+    \toprule
+    ID & Where & TODO & Status \\
+    \midrule
+    T-1  & \cref{sec:protocol}
+         & NVML sampler and fresh-process resource harness shared by the compact and RGB
+           arms
+         & \tbd \\
+    T-2  & \cref{sec:memory-scope}
+         & upstream capture cost table (fit time, memory, storage per view)
+         & \tbd \\
+    T-3  & \cref{sec:rules}
+         & preregistration of the parity band, memory materiality rule, multiplicity
+           policy, and the frozen direct-path schedule
+         & \tbd \\
+    T-4  & \cref{sec:exp-setup}
+         & at least one outcome-unseen calibrated scene with untouched test cameras
+         & \tbd \\
+    T-5  & \cref{sec:exp-setup}
+         & standard benchmarks (Mip-NeRF~360, Tanks and Temples) through the capture stage
+           and both paths
+         & \tbd \\
+    T-6  & \cref{sec:exp-main}
+         & main table, headline memory figure, and qualitative comparison
+           (\cref{tab:main-results}, \cref{fig:memory-views}, \cref{fig:parity-grid})
+         & \tbd \\
+    T-7  & \cref{sec:paths}
+         & real COLMAP sparse reconstructions for the Original-3DGS baselines and the SfM
+           initialization
+         & \tbd \\
+    T-8  & \cref{sec:init-comparison}
+         & matched initialization comparison with separate build-cost accounting
+           (\cref{tab:beam-value}, \cref{fig:time-to-quality})
+         & \tbd \\
+    T-9  & \cref{sec:init-comparison}
+         & frozen endpoint, materiality margin, and seed-win rule of that comparison
+         & \tbd \\
+    T-10 & \cref{sec:ablations}
+         & confirmatory ablation column with fresh scenes, held-out cameras, and at least
+           three paired seeds
+         & \tbd \\
+    T-11 & \cref{sec:limitations}
+         & SH growth under compact supervision on a specular scene, or a scope reduction
+         & \tbd \\
+    T-12 & \cref{sec:containment}
+         & independent surface-occupancy test for hull-interior floaters
+         & \tbd \\
+    T-13 & \cref{sec:related}
+         & literature verification N1 to N5 with dated verdicts, and verification of every
+           bibliography entry
+         & \tbd \\
+    T-14 & \cref{sec:point-rasterizer}
+         & CUDA point-rasterizer parity or an explicit scope-out, plus throughput numbers
+         & \tbd \\
+    T-15 & \cref{sec:fitting}
+         & capture statistics table, frozen fitter configuration, and the compression
+           curve (\cref{fig:rd})
+         & \tbd \\
+    \bottomrule
+  \end{tabular}
+  \caption{Open TODOs.  IDs are referenced from the running text.}
+  \label{tab:todos}
+\end{table}
+
+\section{Figure Production List}
+\label{sec:figure-list}
+
+Consolidated from the red figure slots.  The full specification for each figure is the red
+box and caption at its usage site.
+\begin{enumerate}[leftmargin=1.8em,itemsep=1pt]
+  \item \cref{fig:teaser}, pipeline overview with measurement boundary.  Drawable now,
+        with thumbnails from existing captures.
+  \item \cref{fig:capture}, capture visualization with photo, field render, error, and
+        ellipses.  Producible now from checked-in captures.
+  \item \cref{fig:rd}, capture compression curve versus codecs.  Needs a fit sweep.
+  \item \cref{fig:sample-budget}, quality versus sample budget.  Needs the frozen
+        direct-path schedule.
+  \item \cref{fig:memory-views}, the headline figure with peak GPU memory versus view
+        count.  Needs T-1, T-3, T-4.
+  \item \cref{fig:parity-grid}, qualitative held-out comparison.  Needs T-6.
+  \item \cref{fig:beam-geometry}, geometry schematic of the tomographic construction.
+        Drawable now as TikZ.
+  \item \cref{fig:init-visual}, initializer comparison renders from front and side views.
+        Producible now from development artifacts.
+  \item \cref{fig:carrier-stages}, stage-by-stage refinement renders.  Producible now from
+        the 2026-07-28 run artifacts.
+  \item \cref{fig:time-to-quality}, risk trajectories of the initialization comparison.
+        Needs T-8.
+  \item \cref{fig:beam-diagnostics}, diagnostics panel.  Producible now from run
+        diagnostics.
+\end{enumerate}
+
+\section{Artifact and Evidence Index (Draft Only)}
+\label{sec:artifact-index}
+
+Black statements in this draft bind to the repository's audited evidence ledger.  The key
+artifacts are \repopath{ara/logic/claims.md} with the claim rows C15, C18 to C20, C23,
+C24, and C28 to C31 cited in the text, \repopath{docs/ADR-002-carrier-refinement.md} for
+the refinement policy and the mathematical disposition of every stage,
+\repopath{docs/THREE_ARM_EXPERIMENT_PROGRAM.md} for the arm design,
+\repopath{docs/PAPER_PLAN_beam_fusion.md} for the claim discipline and status, and
+\repopath{benchmarks/results/} for sealed results and independent audits.  This appendix
+is removed from any submitted version.

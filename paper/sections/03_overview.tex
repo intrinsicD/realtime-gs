@@ -1,0 +1,93 @@
+\section{Overview and Notation}
+\label{sec:overview}
+
+\subsection{Notation}
+\label{sec:notation}
+
+A capture session provides $V$ calibrated views.  View $v$ has a camera $\cam_v$ with
+intrinsics $f_x, f_y$, principal point, world-to-camera rotation $R_v$ and translation, an
+image domain $\Omega_v = [0, W_v) \times [0, H_v)$, and, during capture only, a photograph
+$I_v \colon \Omega_v \to \R^3$.  The capture stage fits each photograph with a compact 2D
+Gaussian field $\field_v$ (\cref{sec:fields}).  Afterwards the photographs are discarded.
+The reconstruction state is a set of $N$ 3D Gaussians
+$\{(\bm{\mu}_i, \Sigma_i, o_i, \bm{c}_i)\}_{i=1}^{N}$ with means $\bm{\mu}_i \in \R^3$,
+covariances $\Sigma_i \in \Sym(3)$, opacities $o_i \in (0,1)$, and SH color coefficients
+$\bm{c}_i$, rendered exactly as in standard 3DGS.
+
+\begin{definition}[Reconstruction inputs]
+\label{def:recon-inputs}
+$\mathcal{R} = \{(\cam_v, \field_v)\}_{v=1}^{V}$, that is, calibrated cameras plus frozen
+per-view 2D Gaussian observation fields.  No RGB image, alpha mask, or dense tensor is part
+of $\mathcal{R}$.
+\end{definition}
+
+The data boundary is structural.  The reconstruction entry points accept only $\mathcal{R}$
+and configuration.  Their implementations do not import an image loader or the dense RGB
+trainer, do not open image files, and reject dense handovers.  Tests deny these imports at
+runtime, so a violation is a test failure rather than a code-review judgment
+call.\evidence{ara/logic/claims.md C31, src/rtgs/carrier_pipeline.py, tests/test_pipeline.py}
+
+\subsection{Reconstruction paths}
+\label{sec:paths}
+
+\begin{figure}[t]
+  \centering
+  \figslot{7.5cm}{%
+    \textbf{Figure 1, pipeline overview.}  Three-lane diagram.  Lane 1 shows the capture
+    stage, grayed out to mark it as upstream of the measurement boundary.  Source RGB goes
+    through the per-view 2D Gaussian fit into frozen compact captures, and the RGB is shown
+    being discarded.  Lane 2 shows the direct path.  The captures and a standard
+    initialization (random points or SfM) feed the compact-field-supervised 3DGS optimizer,
+    which outputs the final 3D Gaussians together with a memory receipt.  Lane 3 shows the
+    tomographic path.  The same captures feed Beam Fusion and the carrier refinement, then
+    the same compact optimizer.  A fourth thin lane shows the RGB control, which is standard
+    image-supervised 3DGS from the identical frozen initialization.  A vertical dashed line
+    after the fit marks the measurement boundary (post-fit reconstruction memory).  Add
+    per-lane byte sizes for one real scene once measured.  Draw as TikZ or vector graphics
+    and render example thumbnails from the captures under \repopath{dataset/}.}
+  \caption{\redcaption{Pipeline overview with the measurement boundary.  The layout is
+    specified in the placeholder.}}
+  \label{fig:teaser}
+\end{figure}
+
+All reconstruction paths consume the identical $\mathcal{R}$ and differ only in
+initialization.  An RGB control isolates the supervision variable.
+
+\textbf{Direct path.}  A standard initialization, either random points inside the
+camera-derived scene bounds or a sparse SfM point cloud, followed by sampled compact-field
+optimization (\cref{sec:reconstruction}) under a frozen schedule.  This path never calls the
+tomographic initializer or any of its refinement stages.  It establishes the reconstruction
+result on its own.
+
+\textbf{Tomographic path.}  The same captures feed Beam Fusion (\cref{sec:tomography}) and
+the carrier refinement (\cref{sec:refinement}), followed by the same compact optimizer under
+matched budgets.  This path is evaluated against the direct path in
+\cref{sec:init-comparison}.
+
+\textbf{RGB control.}  The repository-standard image-supervised 3DGS trainer, loading the
+exact frozen initialization of the direct path, with standard densification under a hard
+cap, on the same device, resolution, seeds, and stopping rule.  The control may render and
+score the immutable compact outputs, and the compact processes never see its images.  This
+control is not Original 3DGS.  Original 3DGS requires a real COLMAP sparse reconstruction
+for initialization, and a random initialization must not be relabeled as SfM.
+\todo{Add Original 3DGS and Original 3DGS with compressed RGB as separate baselines once a
+real COLMAP model exists for each evaluation scene (T-7).}
+
+\subsection{Evaluation rules}
+\label{sec:rules}
+
+Two outcomes are evaluated separately.  First, the direct path must reach a preregistered
+held-out parity band against the RGB control while lowering measured peak GPU memory
+(\cref{sec:memory}).  Second, the tomographic path must beat the direct path under matched
+compute and capacity to count as an improvement.  If it ties or loses, the direct path
+remains the recommended pipeline and the tomographic construction is reported for its
+mechanism.  The first outcome does not depend on the second.
+
+\begin{TodoBlock}
+Freeze the constants of these rules before the confirmatory runs and let a reviewer without
+outcome access approve them.  This includes the parity band on held-out PSNR with SSIM and
+LPIPS guards, the materiality threshold for the memory reduction, the multiplicity policy
+across scenes and seeds, and the exact optimizer, topology policy, and stopping rule of the
+direct path.  These are open design blockers listed in
+\repopath{docs/THREE_ARM_EXPERIMENT_PROGRAM.md} (T-3).
+\end{TodoBlock}

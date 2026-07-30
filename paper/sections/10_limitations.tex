@@ -1,0 +1,56 @@
+\section{Limitations}
+\label{sec:limitations}
+
+\paragraph{Measurement scope.}
+The memory result covers post-fit reconstruction only.  Capture-time fitting costs real
+compute and requires one full-resolution pass over the images.  \todo{Disclose the upstream
+cost table (T-2).}  Workflows that need repeated access to original pixels, for example
+relighting, re-editing, or re-fitting at higher budgets, must retain the source data
+somewhere.  The result concerns the reconstruction working set and not the deletion of
+archives.
+
+\paragraph{Teacher ceiling.}
+Compact supervision can at best reproduce what the captures preserved.  Fit quality bounds
+reconstruction quality, and high-frequency texture beyond the component budget is
+unrecoverable downstream.  The parity question is therefore jointly a question about
+capture budgets, and the compression analysis of \cref{fig:rd} is part of the result's
+support.
+
+\paragraph{View-dependent appearance.}
+Current captures store one color model per 2D component fitted from one photograph.  The
+refinement trains SH0, and incremental SH3 was immaterial under compact supervision on one
+scene (\cref{tab:ablations}).  Strongly view-dependent scenes with specular or transparent
+materials may expose this as the binding constraint.  \todo{Demonstrate SH growth under
+compact supervision on a specular scene or scope the result to approximately diffuse
+captures (T-11).}
+
+\paragraph{Geometry guarantees.}
+The containment invariant of \cref{sec:containment} is a visual-hull center rule.  It
+cannot detect hull-interior floaters and does not prove surface occupancy.
+\todo{Establish an independent occupancy test (T-12).}
+
+\paragraph{Gauge non-identifiability.}
+The amplitude and color gauge freedom of the captures (\cref{sec:field-model}) means some
+2D quantities have no physical 3D reading.  Every stage that consumes raw amplitudes must
+be gauge-audited, and \cref{sec:refinement} explains which repairs this rules out.
+
+\paragraph{Association risk.}
+Covariance intersection is conservative by construction, so the principal failure mode of
+the tomographic initializer is false contributor association across views, for example on
+repetitive texture and thin structures.  The gates of \cref{eq:gates} are analytic but
+heuristic.  The diagnostics of \cref{sec:diagnostics} make failures visible, and the
+matched placement control quantifies what the tomographic step adds.
+
+\paragraph{Evidence maturity.}
+All quantitative statements outside the mechanism results are single-scene,
+outcome-exposed development evidence and are labelled as such where they appear.
+\todo{The confirmatory program of \cref{sec:todo-list}, with fresh scenes, held-out
+cameras, paired seeds, preregistered gates, the controlled resource measurement, standard
+benchmarks, and independent audit, is the difference between this draft and a submittable
+paper.}
+
+\paragraph{Static scenes.}
+The pipeline is static by design.  The carrier concept extends naturally toward dynamic
+capture, from per-frame 2D Gaussian video over space-time beam fusion to 4D carriers and
+standard 4D Gaussian splatting.  This paper establishes the static foundation and defers
+temporal modeling.

@@ -1,0 +1,190 @@
+\section{Tomographic Initialization}
+\label{sec:tomography}
+
+Rendering a 3D Gaussian field produces, for every view, a field of projected 2D Gaussians.
+The captures of \cref{sec:fields} are fields of exactly this type, so each per-view 2D
+Gaussian field is a projection of the same unknown 3D radiance density.  This suggests
+obtaining the initialization by inverting the projection.  We therefore pose 3D
+initialization as reconstruction from projections instead of discrete correspondence
+search.  Gaussians keep the inversion tractable in closed form, since the back-projection
+of a 2D Gaussian is an analytic elongated 3D Gaussian and fusions of Gaussians remain
+Gaussian.  The resulting construction, called Beam Fusion, is deterministic, RGB-free, and
+correspondence-free.  Association emerges from density overlap instead of discrete
+matching, and no voxel grid is ever built.
+
+\subsection{Back-projection}
+\label{sec:beams}
+
+Fix view $v$ with camera center $\bm{o}_v$ and a fitted component $(\bm{m}_j, C_j, a_j,
+\bm{c}_j)$.  Its center pixel defines a world ray direction $\bm{d}_{vj}$.  At a
+hypothesised camera depth $t$ the projective Jacobian of the pinhole map at the point
+$\bm{p} = t\,\bm{r}_{vj}$ in the camera frame is
+\begin{equation}
+  J(\bm{p}) \;=\;
+  \begin{pmatrix}
+    f_x / z & 0 & -f_x\, x / z^2\\
+    0 & f_y / z & -f_y\, y / z^2
+  \end{pmatrix},
+  \qquad \bm{p} = (x, y, z)\T .
+  \label{eq:jacobian}
+\end{equation}
+Let $B = (\bm{b}_1, \bm{b}_2, \bm{r})$ be an orthonormal camera-frame basis whose third
+column is the ray direction.  The fitted 2D covariance is lifted to the ray-orthogonal
+tangent plane through the inverse of the projected tangent Jacobian,
+\begin{equation}
+  \Sigma_{\perp}
+  \;=\;
+  \big(J B_{:,1:2}\big)^{-1}\, C_j\, \big(J B_{:,1:2}\big)^{-\mathsf{T}}.
+  \label{eq:tangent-lift}
+\end{equation}
+This lift is exact for the center ray.  It answers which tangent-plane covariance would
+have projected to the observed $C_j$.  Along the ray the component's depth is unknown
+within the working depth range $[t_{\mathrm{lo}}, t_{\mathrm{hi}}]$ obtained by
+intersecting the ray with the scene bounding box, clamped to a near plane.  The beam
+assigns the ray direction a long variance $L^2$ with half-length
+$L = \tfrac12 (t_{\mathrm{hi}} - t_{\mathrm{lo}})$.  The beam is the 3D Gaussian with
+world-frame precision
+\begin{equation}
+  \Lambda_{vj}(t)
+  \;=\;
+  R_v\T \, B \begin{pmatrix} \Sigma_{\perp}^{-1} & 0 \\ 0 & 1/L^2 \end{pmatrix} B\T R_v .
+  \label{eq:beam-precision}
+\end{equation}
+It is certain transversally exactly as the image measured and agnostic along the ray.
+
+\subsection{Pair seeding}
+\label{sec:seeding}
+
+For components $i$ in view $u$ and $j$ in view $v$, the closest points between their center
+rays have closed-form depths $(s, t)$ given by the standard two-ray least-squares solution.
+Parallel rays are rejected.  A candidate 3D location is the midpoint of the closest-point
+segment.  Candidates pass three analytic tests,
+\begin{equation}
+  \underbrace{\frac{\norm{\bm{p}_u(s) - \bm{p}_v(t)}^2}
+       {\sigma_u^2(s) + \sigma_v^2(t)} \le 3^2}_{\text{transverse gate}},
+  \qquad
+  \underbrace{\norm{\bm{c}_i - \bm{c}_j} \le 0.35}_{\text{color gate}},
+  \qquad
+  \underbrace{s \in [t^u_{\mathrm{lo}}, t^u_{\mathrm{hi}}],\;
+              t \in [t^v_{\mathrm{lo}}, t^v_{\mathrm{hi}}]}_{\text{depth validity}},
+  \label{eq:gates}
+\end{equation}
+where $\sigma_u(s)$ is the mean pixel footprint of component $i$ scaled to world units at
+depth $s$.  The ray separation is thus measured against both beams' transverse footprints,
+so large splats tolerate larger separations.  Each surviving seed receives the first-order
+Gaussian product weight
+\begin{equation}
+  w \;=\; \tfrac12 (a_i + a_j)\,
+          \exp\!\big({-\tfrac12\, g}\big)\,
+          \exp\!\big({-\norm{\bm{c}_i - \bm{c}_j}^2 / (2\sigma_c^2)}\big),
+  \qquad \sigma_c = 0.25,
+  \label{eq:seed-weight}
+\end{equation}
+with $g$ the transverse gate value, so negligible cross terms are never materialized.  View
+pairs are processed in increasing camera-distance order.  The production path streams all
+pairs through a bounded 3D voxel table that retains only the strongest seed per voxel with
+deterministic tie-breaking, so seed storage is capped independently of scene size.
+
+\subsection{Covariance intersection}
+\label{sec:ci-fusion}
+
+Contributing beams of one physical splat are correlated observations.  They look at the
+same surface through overlapping information.  The obvious fusion rule, the Gaussian
+product $\Lambda = \sum_k \Lambda_k$, cannot be applied here because it double counts every
+axis observed by more than one view.  Two orthogonal views of an isotropic blob would fuse
+to half its variance.  We use equal-weight covariance intersection \citep{julier1997_ci}
+instead,
+\begin{equation}
+  \Lambda \;=\; \frac{1}{K} \sum_{k=1}^{K} \Lambda_k,
+  \qquad
+  \bm{m} \;=\; \Lambda^{-1} \Big( \frac{1}{K} \sum_{k=1}^{K} \Lambda_k\, \bm{m}_k \Big),
+  \label{eq:ci}
+\end{equation}
+where $\bm{m}_k$ is beam $k$'s world-space mean at its implied depth.  The common $1/K$
+leaves the fused mean identical to the product rule but keeps the covariance conservative.
+Covariance intersection is exact on directions all views share and never overconfident
+elsewhere, which is the standard consistency guarantee under unknown correlation.  As a
+consequence the main failure risk of the construction is false contributor association and
+not an algebraic missing factor.  Contributor counts, gates, and lineage are therefore
+first-class outputs (\cref{sec:reduction}).
+
+\subsection{Minimum view count}
+\label{sec:observability}
+
+\begin{proposition}
+\label{prop:rank5}
+Fix a 3D Gaussian with triangulated mean and EWA covariance projection
+$C_v = A_v \Sigma A_v\T$ into views $v = 1, 2$ with world ray directions
+$\bm{d}_1, \bm{d}_2$ through the mean.  The stacked linear map
+$\Sigma \mapsto (C_1, C_2)$ on $\Sym(3) \cong \R^6$ has rank five for generic camera pairs,
+and the symmetric matrix $\bm{d}_1 \bm{d}_2\T + \bm{d}_2 \bm{d}_1\T$ spans a shared null
+direction.  Three generic views raise the rank to six.
+\end{proposition}
+
+\emph{Proof sketch.}  Each projection Jacobian annihilates its own viewing ray, so
+$A_v \bm{d}_v = 0$.  For the candidate $\Delta = \bm{d}_1 \bm{d}_2\T + \bm{d}_2
+\bm{d}_1\T$ we get $A_1 \Delta A_1\T = (A_1\bm{d}_1)(A_1\bm{d}_2)\T +
+(A_1\bm{d}_2)(A_1\bm{d}_1)\T = 0$ and symmetrically for view 2, so $\Delta$ is invisible to
+both views.  A dimension count over $\Sym(3)$ gives generic rank five with exactly this
+shared mode, and a third generic ray breaks it.  The full statement is verified
+symbolically and numerically in the repository test
+suite.\evidence{ara/logic/claims.md C23, tests/test_inverse_projection_fiber.py}\hfill$\square$
+
+A two-view fusion would therefore carry an arbitrary covariance component along the
+baseline mode, not merely a noisy one.  Beam Fusion requires $K \ge 3$ contributing views
+per output component, turning the algebraic blind spot into a hard admission rule.
+
+\subsection{Fold-in and reduction}
+\label{sec:reduction}
+
+Each surviving seed projects its provisional 3D midpoint into every remaining view and
+absorbs at most one nearest fitted component per view, subject to a $3\sigma$ pixel gate
+relative to the candidate component's own footprint, the color gate of \cref{eq:gates}, and
+a positive-depth test.  Components with fewer than three contributors are discarded
+(\cref{prop:rank5}).  Each retained component is fused over all its contributors with
+\cref{eq:ci}, weighted by $w \cdot K$, and reduced in two exact steps.  First, components
+with identical contributor signatures collapse to the strongest instance.  Second, a
+per-voxel non-maximum suppression keeps the strongest component per cell.  Both steps are
+selection and not moment matching, so fused covariances survive unblurred.  Covariance
+eigenvalues are clamped to world bounds $[\sigma_{\min}^2, \sigma_{\max}^2]$.  Colors
+initialize as amplitude-weighted contributor means.  Opacity initializes at a constant
+$0.1$, since \cref{sec:refinement} shows that no opacity can be inferred from the captures.
+The output is a standard 3D Gaussian set plus complete contributor lineage, that is, a CSR
+map from every 3D component to its supporting 2D splats and implied depths, together with
+per-view unmatched-splat lists.  Downstream refinement, diagnostics, and future
+densification consume this by-product.  Each run also records the contributor-count
+histogram, evaluated ray pairs, gate survival counts, seed-voxel occupancy, and stage
+timings.\evidence{src/rtgs/lift/beam_fusion.py}
+
+\begin{figure}[t]
+  \centering
+  \figslot{6.5cm}{%
+    \textbf{Figure 6, geometry of the construction.}  Two panels.  Panel (a) shows one 2D
+    Gaussian in two views back-projected as two elongated beams with the transverse
+    footprint of \cref{eq:tangent-lift} and the long axis $L$ from the depth interval,
+    their closest-ray midpoint, the transverse gate as shaded tolerance tubes, and the
+    fused 3D Gaussian at the intersection.  Contrast the conservative covariance
+    intersection ellipsoid with the overconfident naive product ellipsoid.  Panel (b) shows
+    the fold-in step, with the provisional point projecting into a third view, the
+    $3\sigma$ pixel gate around the nearest 2D component, and the resulting
+    three-contributor lineage.  Draw as a TikZ schematic and compute exact ellipse shapes
+    from a toy two-camera configuration.}
+  \caption{\redcaption{Beam back-projection, gating, and covariance-intersection fusion.}}
+  \label{fig:beam-geometry}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \figslot{6cm}{%
+    \textbf{Figure 7, initialization comparison.}  Renders from a front view and a side or
+    top view of the initial 3D Gaussian sets on one scene for the tomographic
+    initialization, the image-free placement control, calibration-bounded random, and if
+    available the COLMAP sparse initialization, all at the same count budget.  Side and top
+    views expose along-ray elongation and floaters that front views hide.  Color the
+    tomographic panel by contributor count (3, 4, 5 and more views).  Uses existing
+    development artifacts under \repopath{runs/} or a rerun of the initializers on the
+    development scene, rendered with the repository viewer.}
+  \caption{\redcaption{Initial 3D Gaussians per initializer, front and side views.
+    Producible from checked-in initializers.}}
+  \label{fig:init-visual}
+\end{figure}

@@ -133,8 +133,9 @@ docs/          ARCHITECTURE, RESEARCH (SOTA survey), RESEARCH_LOOP, ROADMAP, BEN
                required experiments/ablations/metrics)
 ara/           claim + evidence ledger (see "Evidence and claims" below)
 dataset/       calibrated local scenes required by Hard Rule 7
-paper/         LaTeX working draft of the two-part paper (Part I VRAM claim, Part II Beam
-               Fusion); red text = open evidence obligations; see paper/README.md
+paper/         LaTeX working draft of the paper (compact 2D fields -> standard 3DGS ->
+               tomographic init + refinement); red TODO markers = open evidence; see
+               paper/README.md
 
 scripts/       verify.sh plus the checkers (docs_sync, check_ara, check_script_layout,
                check_agent_workflow, check_results_bundle, experiment_contract); registered task

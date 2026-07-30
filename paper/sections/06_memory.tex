@@ -1,0 +1,100 @@
+\section{Memory Measurement}
+\label{sec:memory}
+
+\subsection{Scope}
+\label{sec:memory-scope}
+
+The measured quantity is post-fit reconstruction memory.  The measurement boundary starts at
+integrity-checked reconstruction inputs (\cref{def:recon-inputs}) and ends when the final 3D
+Gaussian file is saved.  RGB capture and the fit from RGB to 2D Gaussians are upstream of
+the boundary.  They run once, offline, per view, and on hardware unconstrained by the
+reconstruction GPU.  We disclose the upstream fit cost alongside the result.
+\todo{Produce the upstream cost table with fit time, fit memory, and storage per view
+(T-2).}  The result itself concerns the resource profile of reconstruction, which is the
+stage that currently forces dataset-scale GPU memory.
+
+\subsection{Memory model}
+\label{sec:memory-model}
+
+Let $b$ be bytes per channel, $V$ the view count, $H \times W$ the resolution, and $N$ the
+3D Gaussian count.  To first order,
+\begin{align}
+  M_{\text{dense}} &\;\approx\; \underbrace{V \, H \, W \, 3\, b}_{\text{resident RGB working set}}
+    \;+\; M_{\text{model+opt}}(N) \;+\; M_{\text{render}}(H, W),
+  \label{eq:mem-dense}\\[2pt]
+  M_{\text{compact}} &\;\approx\; \underbrace{\textstyle\sum_{v} N_v \, \beta}_{\text{all captures}}
+    \;+\; M_{\text{model+opt}}(N) \;+\; M_{\text{query}}(A),
+  \label{eq:mem-compact}
+\end{align}
+with $\beta \approx 40$ bytes per 2D component and $M_{\text{query}}$ the per-step sampled
+batch of \cref{sec:streaming}, which is independent of $V$, $H$, and $W$.  The dense working
+set grows linearly in view count and quadratically in resolution.  The compact working set
+is capped by the capture budget of at most $168$~kB per view and is dwarfed by
+$M_{\text{model+opt}}$.  For the development scene with $V{=}26$ views at $5328 \times 4608$
+this is $7.7$~GB (float32) or $1.9$~GB (uint8) of resident RGB versus $4.4$~MB of captures.
+Streaming dense images from disk instead of holding them trades $M_{\text{dense}}$ for IO
+bandwidth and latency, so the protocol measures IO alongside memory.
+
+\Cref{eq:mem-dense,eq:mem-compact} are an accounting sketch and not evidence.  Real
+allocators fragment, renderers hold workspaces, and CUDA context overhead is shared.  The
+result is decided exclusively by the measured protocol below.
+
+\subsection{Protocol}
+\label{sec:protocol}
+
+Each measured cell runs in a fresh process on an otherwise idle, named GPU and records the
+following quantities.
+\begin{itemize}[leftmargin=1.6em,itemsep=1pt]
+  \item The NVML process-used-memory peak, sampled at a frozen rate.  This is the headline
+        number.  CUDA-allocator counters miss driver and backend allocations and cannot be
+        the sole memory figure.
+  \item PyTorch allocated and reserved peaks, reported separately for decomposition.
+  \item Process RSS, bytes read and written, wall time, per-stage time, and the final
+        Gaussian count.
+  \item Software, driver, and GPU identity, plus the background-memory baseline before
+        process start.
+\end{itemize}
+The rules are as follows.  One warm-up run, then at least three measured repeats per seed
+and scene cell, and at least five for throughput.  Identical device, resolution,
+initialization (byte-for-byte, \cref{sec:paths}), seeds, and stopping rule across arms.
+Interleaved A/B execution order to cancel thermal drift.  Every raw repeat is retained,
+since headline medians alone are insufficient.  The compact working-set size is reported
+separately from model and optimizer memory.  The headline metrics are
+\begin{enumerate}[leftmargin=1.6em,itemsep=1pt]
+  \item peak reconstruction GPU memory, compact versus RGB-backed, at matched primitive and
+        view counts, summarized as the reduction factor $k$,
+  \item the maximum number of simultaneously held views at a fixed GPU memory budget,
+  \item bytes on disk per view, and iterations per second at matched primitive count.
+\end{enumerate}
+The statement to establish reads as follows.  At a fixed GPU memory budget and a fixed
+primitive count, the compact path holds $k$ times more views than the RGB path, at held-out
+quality inside the preregistered parity band.  Parity carries the result.  A smaller but
+worse reconstruction is a much weaker outcome, and the rules of \cref{sec:rules} treat it as
+such.
+
+\begin{TodoBlock}
+No cell of this protocol has been run, so the entire quantitative content of this section is
+pending.  Required are (i) the NVML sampler and fresh-process resource harness shared by
+the compact and RGB arms (T-1), (ii) the frozen parity band and materiality rule (T-3),
+(iii) at least one outcome-unseen calibrated scene, since the development frames used so
+far are outcome-exposed and cannot become confirmatory by renaming (T-4), (iv) standard
+benchmark scenes for external validity (T-5), and (v) the measurements themselves,
+reported in \cref{fig:memory-views} and \cref{tab:main-results} (T-6).  Everything above is
+protocol design, implemented mechanism, or format arithmetic.
+\end{TodoBlock}
+
+\begin{figure}[t]
+  \centering
+  \figslot{5.5cm}{%
+    \textbf{Figure 5, the headline figure.}  Peak reconstruction GPU memory on the y-axis
+    versus number of views on the x-axis at fixed primitive count.  One line for RGB-backed
+    training, which grows linearly and crosses the GPU capacity line, and one line for
+    compact supervision, which stays near flat.  Mark the GPU capacity as a horizontal
+    line, annotate the view count where the RGB path exceeds a 24~GB GPU, and annotate the
+    factor $k$ at the largest common view count.  Optionally add a second panel with
+    iterations per second versus views.  Uses the protocol of \cref{sec:protocol} on one
+    dome scene with view-count sweeps, NVML peaks, and repeat spread as error bars.}
+  \caption{\redcaption{Peak GPU memory versus view count, dense versus compact.  This is
+    the figure that carries the memory result.}}
+  \label{fig:memory-views}
+\end{figure}

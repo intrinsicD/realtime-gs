@@ -29,9 +29,13 @@ held-out replication, physical no-floater proof, or Original-3DGS baseline. See
 paper remains a plan, not a result.
 
 **Draft:** a structured LaTeX skeleton implementing this plan lives in `paper/`
-(`paper/main.tex`; build and conventions in `paper/README.md`). Black text there is
-explained and evidence-bound; red text and red figure slots mark exactly what still has to
-be shown, measured, or produced, tracked as obligations O-1–O-15 in its appendix.
+(`paper/main.tex`; build, storyline, and style conventions in `paper/README.md`). Black
+text there is explained and evidence-bound; red `TODO:` markers and red figure slots mark
+exactly what still has to be shown, measured, or produced, tracked as TODOs T-1–T-15 in its
+appendix. The draft follows the owner's single-thread storyline (2026-07-30): fields,
+standard reconstruction with random/SfM init, memory protocol, tomographic init, carrier
+refinement, experiments with closing ablations. The claim separation survives as evaluation
+rules: the reconstruction result is established with standard initializations alone.
 
 **Working title**
 

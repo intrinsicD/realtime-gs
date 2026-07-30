@@ -4,70 +4,68 @@
 \paragraph{3D Gaussian Splatting and its optimization.}
 3DGS \citep{kerbl2023_3dgs} represents a scene as anisotropic 3D Gaussians rendered by
 EWA-style splatting \citep{zwicker2001_ewa} with front-to-back alpha compositing, optimized
-against source photographs with adaptive densification.  A large body of follow-up work
-improves the densification and optimization machinery itself: gradient-magnitude corrections
-\citep{ye2024_absgs}, pixel-coverage-aware growth \citep{zhang2024_pixelgs}, throughput-focused
-re-engineering \citep{mallick2024_taming}, and the reformulation of densification as MCMC
-sampling \citep{kheradmand2024_mcmc}.  We deliberately change none of this: both of our
-pipeline arms run a standard 3DGS optimizer downstream (\cref{sec:setting}); the manipulated
-variables are the \emph{supervision representation} (Part~I) and the \emph{initialization}
-(Part~II).
+against source photographs with adaptive densification.  Follow-up work improves the
+densification and optimization machinery itself, for example through gradient-magnitude
+corrections \citep{ye2024_absgs}, pixel-coverage-aware growth \citep{zhang2024_pixelgs},
+throughput-oriented re-engineering \citep{mallick2024_taming}, and a reformulation of
+densification as MCMC sampling \citep{kheradmand2024_mcmc}.  We change none of this
+machinery.  The manipulated variables in this paper are the supervision representation and
+the initialization.
 
 \paragraph{2D Gaussian image representations.}
-GaussianImage \citep{zhang2024_gaussianimage} fits images with 2D Gaussians for fast decoding
-and compression, establishing that a few thousand anisotropic 2D Gaussians represent a
-photograph at high fidelity.  Our Stage~1 (\cref{sec:compact-capture}) adopts this family of
-representations as a \emph{capture format for reconstruction}: the fitted field is not a
-compression endpoint but the sole supervision signal for 3D optimization.  Note the distinction
-from 2D Gaussian \emph{surfel} splatting \citep{huang2024_2dgs}, which changes the 3D scene
-primitive; our 2D Gaussians live in image space and describe input photographs.
+GaussianImage \citep{zhang2024_gaussianimage} fits images with 2D Gaussians for fast
+decoding and compression and shows that a few thousand anisotropic 2D Gaussians represent a
+photograph at high fidelity.  Our capture stage (\cref{sec:fields}) adopts this family of
+representations as a capture format for reconstruction.  The fitted field is not a
+compression endpoint but the sole supervision signal for the 3D optimization.  This is
+distinct from 2D Gaussian surfel splatting \citep{huang2024_2dgs}, which changes the 3D
+scene primitive.  Our 2D Gaussians live in image space and describe input photographs.
 
 \paragraph{Compact and compressed 3DGS.}
-A separate literature compresses the \emph{output} model: vector quantization and pruning
-\citep{lee2024_compact3dgs,fan2024_lightgaussian}, entropy-coded representations
-\citep{niedermayr2024_compressed}.  These are orthogonal to our claim, which compresses the
-\emph{input side} of the optimization --- the supervision working set held in GPU memory during
-training.  The comparison axis of this paper is input representation, not final model size;
-output-compression methods compose with our pipeline.
+A separate line of work compresses the output model through vector quantization and pruning
+\citep{lee2024_compact3dgs,fan2024_lightgaussian} or entropy-coded representations
+\citep{niedermayr2024_compressed}.  These methods are orthogonal to ours.  They compress the
+final model, while we compress the input side of the optimization, namely the supervision
+working set held in GPU memory during training.  Output-compression methods compose with our
+pipeline.
 
 \paragraph{Initialization for 3DGS.}
-Standard 3DGS initializes from a COLMAP sparse reconstruction \citep{schoenberger2016_colmap};
-random initialization degrades quality or slows convergence, which RAIN-GS
-\citep{jung2024_raings} mitigates by schedule design.  Dense learned priors (DUSt3R
-\citep{wang2024_dust3r}, MASt3R \citep{leroy2024_mast3r}) power InstantSplat-style pipelines
-\citep{fan2024_instantsplat} that initialize from predicted dense geometry.  Beam Fusion
-(Part~II) differs in its input: it consumes no images and no learned prior at reconstruction
-time, only the fitted 2D Gaussian fields and calibration, and it produces contributor lineage
-(which 2D splat in which view supports which 3D Gaussian) as a by-product.  Space-carving
-\citep{kutulakos2000_carving} inspires our image-free structural control (compact carve,
-\cref{sec:exp2}); covariance intersection \citep{julier1997_ci} supplies the fusion rule and
-its consistency guarantee under unknown correlation.
+Standard 3DGS initializes from a COLMAP sparse reconstruction \citep{schoenberger2016_colmap}.
+Random initialization degrades quality or slows convergence, which RAIN-GS
+\citep{jung2024_raings} mitigates by schedule design.  Dense learned priors such as DUSt3R
+\citep{wang2024_dust3r} and MASt3R \citep{leroy2024_mast3r} power InstantSplat-style
+pipelines \citep{fan2024_instantsplat} that initialize from predicted dense geometry.  Our
+tomographic initializer (\cref{sec:tomography}) differs in its input.  It consumes no images
+and no learned prior at reconstruction time, only the fitted 2D Gaussian fields and
+calibration, and it produces contributor lineage as a by-product.  Space carving
+\citep{kutulakos2000_carving} inspires the image-free placement control used in the ablation
+study, and covariance intersection \citep{julier1997_ci} supplies the fusion rule together
+with its consistency guarantee under unknown correlation.
 
-\paragraph{Evaluation conventions.}
-We follow community protocol: PSNR, SSIM \citep{wang2004_ssim}, LPIPS \citep{zhang2018_lpips}
-on held-out views of standard benchmarks (Mip-NeRF~360 \citep{barron2022_mipnerf360}, Tanks and
-Temples \citep{knapitsch2017_tanks}), plus the resource metrics defined in
-\cref{sec:vram-protocol}.
+\paragraph{Evaluation.}
+We follow community protocol and report PSNR, SSIM \citep{wang2004_ssim}, and LPIPS
+\citep{zhang2018_lpips} on held-out views of standard benchmarks, namely Mip-NeRF~360
+\citep{barron2022_mipnerf360} and Tanks and Temples \citep{knapitsch2017_tanks}, together
+with the resource metrics of \cref{sec:memory}.
 
-\begin{ToShowBlock}[Novelty ledger --- fresh literature pass required before submission]
-The field turns over in months; every citation above was written from a stale pass and the
-following assumed gaps must each receive a dated verdict with citations before any manuscript
-text is frozen (a killed row narrows the claim; discovering it in review kills the paper):
+\begin{TodoBlock}
+Refresh the literature pass before any submission and give each of the following assumed
+gaps a dated verdict with citations.  A closed gap narrows the framing and must be found by
+us, not by a reviewer.
 \begin{itemize}[leftmargin=1.4em,itemsep=1pt]
-  \item \textbf{N1} --- no published dose--response manipulation of initialization accuracy in
-        3DGS (check RAIN-GS successors and 2025/26 initialization-analysis papers);
-  \item \textbf{N2} --- no unification of \emph{when} initialization matters across budget,
-        view count, and resolution (check sparse-view and budget-constrained 3DGS work);
-  \item \textbf{N3} --- no systematic initialization$\times$schedule interaction study (check
-        3DGS-MCMC and densification-criteria ablations);
-  \item \textbf{N4} --- no published image-free training pipeline (supervising only on
-        per-view 2D fits) with quality parity (check compressed/streaming-3DGS and
-        feature-space-supervision papers; if this row falls, Part~I's framing shifts from
-        ``first'' to the measured $k\times$ numbers);
-  \item \textbf{N5} --- dense-prior initializers are evaluated as endpoints, not analyzed for
-        \emph{why} they help (InstantSplat lineage; they must appear as baselines here
-        regardless).
+  \item N1.  No published dose-response manipulation of initialization accuracy in 3DGS.
+        Check RAIN-GS successors and recent initialization analyses.
+  \item N2.  No unification of when initialization matters across budget, view count, and
+        resolution.  Check sparse-view and budget-constrained 3DGS work.
+  \item N3.  No systematic study of the interaction between initialization and the
+        optimization schedule.  Check 3DGS-MCMC and densification-criteria ablations.
+  \item N4.  No published image-free training pipeline that supervises only on per-view 2D
+        fits at quality parity.  Check compressed and streaming 3DGS as well as
+        feature-space supervision.  If this gap closes, the framing shifts from first to
+        the measured memory numbers.
+  \item N5.  Dense-prior initializers are evaluated as endpoints and not analyzed for why
+        they help.  They must appear as baselines here regardless.
 \end{itemize}
-Additionally: verify every bibliography entry against the actual publication record; the
-current \repopath{references.bib} was reconstructed from memory and is marked accordingly.
-\end{ToShowBlock}
+Verify every bibliography entry against the actual publication record.  The current
+\repopath{references.bib} was reconstructed from memory and is marked accordingly (T-13).
+\end{TodoBlock}
