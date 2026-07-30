@@ -1,0 +1,33 @@
+\begin{abstract}
+\noindent
+Standard 3D Gaussian Splatting (3DGS) keeps every source image available for the whole
+optimization: each iteration renders against randomly selected photographs, so the raw RGB
+working set --- not the model --- dominates GPU memory, storage, and bandwidth for dense
+multi-camera captures.  We propose to fit every input image \emph{once}, offline, with a compact
+per-view 2D Gaussian mixture (a \emph{compact capture}), discard the images, and run all of 3D
+reconstruction against the frozen 2D Gaussian fields.  The captures are small, analytic,
+differentiable, and can be queried at arbitrary image points, which turns them into streaming
+supervision for 3DGS.
+
+The paper makes two deliberately separated arguments.
+\textbf{Part~I} carries the systems claim: compact captures contain sufficient information to
+supervise reconstruction and refinement of a standard 3DGS representation without ever returning
+to source RGB, \toshow{at held-out quality parity with RGB-backed training and with a
+$k\times$ reduction in measured peak reconstruction VRAM (headline numbers pending; the
+controlled dense-versus-compact resource experiment defined in \cref{sec:vram-protocol} has not
+been run yet)}.
+\textbf{Part~II} evaluates \emph{Beam Fusion}, an optional image-free initializer that treats the
+per-view 2D Gaussians as projections of an unknown 3D radiance density and reconstructs an
+initial 3D Gaussian set in closed form by back-projecting each 2D splat into an elongated 3D
+beam, gating and fusing beams by covariance intersection, and refining the fused
+\emph{carriers} with a fixed-topology compact-only schedule.  Beam Fusion is a research
+hypothesis with its own evaluation; by preregistered decision rule, a null or negative Beam
+result does not weaken Part~I.
+
+All mechanism-level components are implemented, deterministic on CPU, and covered by an audited
+evidence ledger; current quantitative support is single-scene development evidence and is
+labelled as such throughout.  \toshow{The confirmatory program --- multi-scene held-out parity,
+the controlled VRAM comparison against RGB-backed baselines including Original 3DGS on a real
+COLMAP reconstruction, and the matched Beam-versus-no-Beam comparison --- is specified in red
+in the corresponding sections and remains to be executed.}
+\end{abstract}
