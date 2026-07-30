@@ -1,0 +1,102 @@
+\section{Introduction}
+\label{sec:introduction}
+
+3D Gaussian Splatting \citep{kerbl2023_3dgs} optimizes an explicit set of anisotropic 3D
+Gaussians against photographs by differentiable rasterization.  The optimization is
+image-hungry by construction: every iteration samples one or more source views and compares a
+full render against the stored photograph.  The consequence is easy to overlook on benchmark
+scenes and dominant on real capture rigs: \emph{the source images themselves are the largest
+resident data structure of the reconstruction}.  A camera dome producing tens to hundreds of
+high-resolution views per frame quickly exceeds what a single GPU can hold, and streaming the
+images from disk trades the memory bottleneck for a storage-bandwidth bottleneck.  The model
+being optimized --- a few hundred thousand Gaussians --- is tiny by comparison.
+
+This paper asks whether the photographs need to be there at all.  Our observation is that 3DGS
+does not consume images; it consumes \emph{colors at projected sample locations}.  Any
+representation that can answer point queries ``what color does view $v$ see at image location
+$\bm{x}$?'' can supervise the optimization.  We therefore fit every input image once, offline,
+with a compact mixture of anisotropic 2D Gaussians --- a \emph{compact capture} --- and discard
+the image.  The capture is three orders of magnitude smaller than the raw RGB working set
+(\cref{sec:vram-protocol}), analytic, differentiable, and can be evaluated at arbitrary
+subpixel locations without decoding, resampling, or caching full frames.
+
+The resulting pipeline has a hard, checkable data boundary: after the per-view fit, no stage of
+reconstruction opens an image file, imports an image loader, or receives a dense RGB tensor.
+Reconstruction consumes only calibrated cameras plus frozen 2D Gaussian fields.  We treat this
+process separation as part of the claim rather than an implementation preference, and we
+enforce it structurally (typed inputs, import denials, containment invariants;
+\cref{sec:setting}).\evidence{ara/logic/claims.md C31}
+
+\subsection{Two claims, firewalled}
+\label{sec:two-claims}
+
+The paper is organised as two deliberately separated parts, because it contains two claims of
+different kinds and different risk profiles, and because we predeclare that the failure of the
+second must not contaminate the first.
+
+\begin{claimstmt}[Systems / VRAM claim --- Part I]
+\label{claim:vram}
+Compact 2D Gaussian captures contain sufficient information to supervise reconstruction and
+refinement of a standard 3D Gaussian Splatting representation without returning to source RGB.
+The practical benefit is reconstruction of datasets whose raw RGB working set does not fit in
+GPU memory.  The claim is established only by (i) held-out quality parity with a matched
+RGB-backed control and (ii) a controlled reduction in \emph{measured} peak VRAM; the structural
+absence of RGB alone is insufficient.
+\end{claimstmt}
+
+\begin{claimstmt}[Beam Fusion hypothesis --- Part II]
+\label{claim:beam}
+Given the same compact captures, Beam Fusion --- a closed-form tomographic 3D initializer with
+carrier refinement --- may provide a better 3D initialization than the no-Beam arm, improving
+time-to-quality, final held-out quality, geometry, or required 3D capacity at matched compute.
+\end{claimstmt}
+
+Part~I is tested by a \emph{no-Beam} arm: a direct compact reconstruction whose initializer,
+optimizer, topology budget, and stopping rule match the RGB-backed control exactly, so the only
+manipulated variable is the supervision representation.  Part~II is exploratory; its decision
+rule (\cref{sec:exp2-decision}) predeclares that a Beam tie or loss is reported as a bounded
+negative result and is not folded into the systems claim.  This firewall is the load-bearing
+design decision of the paper: a systems paper wearing a science costume --- or the reverse ---
+is the classic shape of a rejection.
+
+\subsection{Contributions}
+\label{sec:contributions}
+
+\begin{enumerate}[leftmargin=1.6em,itemsep=2pt]
+  \item \textbf{Compact capture representation and compact-field supervision}
+        (\cref{sec:compact-capture,sec:compact-supervision}).  A self-describing frozen 2D
+        Gaussian field format with exact evaluation semantics, plus an unbiased point-sampled
+        training objective for 3DGS against such fields, including a sparse point rasterizer
+        with verified parity against a dense reference renderer.
+        \emph{Status: implemented; mechanism-level properties are test- and audit-backed.}
+  \item \textbf{Measured memory/quality trade-off of direct compact reconstruction}
+        (\cref{sec:vram-protocol,sec:exp1}).  A controlled dense-versus-compact resource
+        protocol (NVML process peaks, fresh-process isolation, matched initialization, seeds,
+        and stopping rules) and its results.
+        \emph{Status: \toshow{protocol drafted; the experiment has not been run --- this is the
+        main missing evidence of Part~I}.}
+  \item \textbf{Beam Fusion} (\cref{sec:beam-fusion}).  A correspondence-free, closed-form,
+        RGB-free 3D initializer: per-view 2D Gaussians are back-projected to elongated 3D
+        beams, gated in closed form, fused by equal-weight covariance intersection, and reduced
+        with lineage-preserving selection.  We give an observability result (two views leave
+        one covariance coordinate unobservable) that fixes the minimum contributor count at
+        three.  \emph{Status: implemented, deterministic, mechanism-tested.}
+  \item \textbf{Compact-only carrier refinement} (\cref{sec:carrier}).  A renderer-aware
+        symmetric covariance repair, a two-phase fixed-topology compact optimization schedule,
+        and a strict projected-center containment invariant, selected by three preregistered
+        paired-root ablations.  \emph{Status: single-scene development evidence;
+        \toshow{held-out and fresh-scene replication pending}.}
+\end{enumerate}
+
+Throughout, statements carry their evidence maturity explicitly.  Black text is mechanism,
+definition, or evidence-bound result (with the binding artifact referenced); red text is an
+obligation --- something this draft asserts we must still show, measure, freeze, or verify.
+\Cref{sec:obligations} collects all obligations in one tracking table.
+
+\begin{ToShowBlock}[Headline numbers still missing]
+The abstract-level numbers of Part~I --- the held-out parity gap to RGB-backed training, the
+measured peak-VRAM reduction factor $k$, and the maximum simultaneously-held view count at
+fixed VRAM --- do not exist yet.  They require the controlled experiment of
+\cref{sec:vram-protocol} on at least one outcome-unseen calibrated scene plus standard
+benchmarks.  Until then this draft argues the mechanism and the protocol, not the result.
+\end{ToShowBlock}

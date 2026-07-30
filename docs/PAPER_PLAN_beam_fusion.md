@@ -28,6 +28,11 @@ held-out replication, physical no-floater proof, or Original-3DGS baseline. See
 `20260728_compact_only_carrier_sequence_interaction_RESULT.md`, together with their audits. The
 paper remains a plan, not a result.
 
+**Draft:** a structured LaTeX skeleton implementing this plan lives in `paper/`
+(`paper/main.tex`; build and conventions in `paper/README.md`). Black text there is
+explained and evidence-bound; red text and red figure slots mark exactly what still has to
+be shown, measured, or produced, tracked as obligations O-1–O-15 in its appendix.
+
 **Working title**
 
 Compact 2D Gaussian Captures for Memory-Efficient 3D Gaussian Splatting

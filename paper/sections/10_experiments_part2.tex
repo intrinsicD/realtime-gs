@@ -1,0 +1,148 @@
+\section{Experiments: Part II}
+\label{sec:exp2}
+
+\subsection{Design: Beam value cannot be inferred from a Beam-only result}
+\label{sec:exp2-design}
+
+The Beam hypothesis (\cref{claim:beam}) is tested only by a matched three-way initialization
+comparison at exact count and compute, all downstream settings identical:
+\begin{itemize}[leftmargin=1.6em,itemsep=1pt]
+  \item \textbf{Beam Fusion + carriers} (treatment, \cref{sec:beam-fusion,sec:carrier});
+  \item \textbf{balanced compact carve} (strong image-free structural control,
+        \cref{sec:exp1-baselines}) --- same input information, no tomographic fusion;
+  \item \textbf{calibration-bounded random} (lower bound) --- uniform in the camera-derived
+        bounding volume.
+\end{itemize}
+All three feed the identical compact optimizer and evaluation samples.  Reported:
+initialization quality, fixed intermediate checkpoints, risk-curve area (time-to-quality),
+selected endpoint, paired seed wins, and both development scenes plus
+\toshow{fresh confirmatory scenes}.  Beam construction time and peak memory are accounted
+separately --- the initializer must pay for itself end-to-end, not hide its cost in
+``preprocessing''.  A converged tie after an initialization win means Beam improves startup
+but not final capacity; the text will say exactly that if it happens.
+
+\begin{table}[t]
+  \centering\small
+  \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    Initialization & init $\Jq$ & AUC($\Jq$) & final $\Jq$ & held-out PSNR & seed wins \\
+    \midrule
+    Beam + carriers          & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    Balanced compact carve   & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    Bounded random           & \tbd & \tbd & \tbd & \tbd & \tbd \\
+    \bottomrule
+  \end{tabular}
+  \caption{\redcaption{Matched three-way initialization comparison (per scene; paired seeds;
+    Beam build time and peak memory reported in a companion column).  Entirely pending ---
+    this is the claim-deciding table of Part~II.}}
+  \label{tab:beam-value}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \figplaceholder{5.5cm}{%
+    \textbf{Figure 10 --- time-to-quality curves.}  Validation $\Jq$ (y, log) versus
+    optimizer updates (x) for the three initializations of \cref{tab:beam-value}; seeds as
+    thin lines, medians bold; annotate initialization points and the fixed checkpoints.  A
+    second panel with held-out PSNR versus wall-clock (including Beam construction time as
+    an x-offset for the Beam arm) makes the ``pays for itself'' question visible.  Data: the
+    matched comparison runs.}
+  \caption{\redcaption{Risk trajectories for Beam versus carve versus random initialization.
+    To be produced.}}
+  \label{fig:time-to-quality}
+\end{figure}
+
+\subsection{Ablations}
+\label{sec:exp2-ablations}
+
+\begin{table}[t]
+  \centering\footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lp{7.1cm}l@{}}
+    \toprule
+    Ablation & Development verdict (single scene) & Confirmatory \\
+    \midrule
+    No corrected covariance repair
+      & repair $-63.2\%$ $\Jq$, 3/3 wins \evidence{C30}
+      & \tbd \\
+    Legacy (one-sided, undilated) repair
+      & $+51.6\%$ $\Jq$: harmful, retired \evidence{C30}
+      & --- \\
+    Legacy opacity / appearance repair
+      & $+9.8\%$ / $+0.12\%$: retired \evidence{C30}
+      & --- \\
+    One compact phase vs.\ two
+      & second phase $\to 0.717\times$ $\Jq$, 3/3 \evidence{C30}
+      & \tbd \\
+    Phase-1 means frozen
+      & fails $2\%$ non-inferiority \evidence{C30}
+      & \tbd \\
+    Means-only optimization
+      & $4.18\times$ $\Jq$: rejected \evidence{C30}
+      & --- \\
+    Without containment prune
+      & prune costs $2.7\%$ $\Jq$, zero violations \evidence{C30, C31}
+      & \tbd \\
+    Prune before vs.\ after phase 2
+      & before selected \evidence{C30}
+      & \tbd \\
+    Phase-2 means trainable vs.\ frozen
+      & frozen passes ($1.015\times$ $\Jq$) \evidence{C30}
+      & \tbd \\
+    Clone (incl.\ density-preserving)
+      & fails $5\%$ gate: no growth \evidence{C30}
+      & --- \\
+    SH0 vs.\ incremental SH3
+      & $2.3$--$3.0\% < 5\%$ floor: SH0 \evidence{C30}
+      & \tbd \\
+    Soft support (\cref{eq:soft-support})
+      & hinge variant immaterial, retired
+      & \toshow{freeze then test} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Carrier-stage ablation grid.  Development verdicts are frozen paired-root results
+    on one outcome-exposed scene (19 fitting views, compact validation; evidence keys refer
+    to \repopath{ara/logic/claims.md}).  \toshow{The confirmatory column --- fresh scenes,
+    held-out cameras, $\ge 3$ paired seeds, preregistered gates --- is entirely pending;
+    rejected legacy stages re-enter only as negative controls.}}
+  \label{tab:ablations}
+\end{table}
+
+The development column of \cref{tab:ablations} closes the \emph{implementation-policy}
+question on one scene: which stages the carrier pipeline runs, in which order.  It does not
+close the \emph{value} question (\cref{tab:beam-value}), which is a comparison against
+non-Beam arms, nor any cross-scene generalization.
+
+\subsection{Diagnostics to report}
+\label{sec:exp2-diagnostics}
+
+Per Beam run: contributor-count histogram, per-view uniqueness, gate survival rates,
+covariance eigenvalue spectra, lineage hashes; per maturation: carrier survival, per-family
+optimizer motion, covariance residual distribution (\cref{eq:cov-residual}), containment
+violation counts before/after prune, and the fixed-topology / frozen-mean containment
+recheck.  These are the quantities that make a false-association failure (the designed risk
+of CI fusion, \cref{sec:ci-fusion}) visible instead of silent.
+
+\begin{figure}[t]
+  \centering
+  \figplaceholder{5cm}{%
+    \textbf{Figure 11 --- Beam diagnostics panel.}  (a) contributor-count histogram; (b)
+    carrier survival across stages (bar per stage); (c) distribution of covariance residuals
+    \cref{eq:cov-residual} before/after repair; (d) containment violations per view before
+    prune.  Data: diagnostics dictionaries already emitted by the implementation on the
+    development scene (\repopath{runs/}).}
+  \caption{\redcaption{Beam Fusion and carrier diagnostics.  To be produced from existing
+    run artifacts.}}
+  \label{fig:beam-diagnostics}
+\end{figure}
+
+\subsection{Decision rule for Part II}
+\label{sec:exp2-decision}
+
+Preregistered: Beam is claimed as a contribution only if it beats the balanced carve control
+on the frozen primary endpoint (held-out quality at matched compute and capacity) with the
+agreed seed-win rule, replicated on fresh scenes.  \toshow{The exact endpoint, materiality
+margin, and seed-win rule must be frozen before the confirmatory runs (obligation O-9).}
+A tie or loss is reported in full as a bounded result --- the tomographic construction,
+observability result, and lineage machinery remain contributions of record, but not
+quality claims --- and, per \cref{sec:decision-rule}, has no bearing on Part~I.

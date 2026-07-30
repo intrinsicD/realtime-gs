@@ -1,0 +1,118 @@
+% ---------------------------------------------------------------------------
+% Preamble and draft macros for the realtime-gs paper draft.
+%
+% Draft conventions (requested workflow):
+%   * Everything in BLACK is explained and is either established mechanism,
+%     definition, or evidence-backed (single-scene development evidence is
+%     always labelled as such in the text).
+%   * Everything in RED still has to be shown, measured, frozen, or verified
+%     before submission.  Red text is a work item, not a claim.
+%   * Red framed boxes inside figure floats are figure slots: they specify
+%     exactly which figure/image has to be produced, from which data.
+%   * \evidence{...} notes bind black statements to artifacts in the
+%     repository (benchmarks/results, ara/, docs/).  They are draft-only and
+%     can be disabled with \evidencenotesfalse below.
+% ---------------------------------------------------------------------------
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.6cm]{geometry}
+
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage[round]{natbib}
+% obeyspaces/spaces: \path must print (and break at) spaces inside evidence notes.
+\PassOptionsToPackage{obeyspaces,spaces}{url}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,urlcolor=blue!55!black]{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+% ---------------------------------------------------------------------------
+% Draft-status colors and markers
+% ---------------------------------------------------------------------------
+\definecolor{ToShow}{RGB}{190,0,0}      % red: still to be shown / measured / frozen
+\definecolor{EvidenceGray}{RGB}{110,110,110}
+
+% Inline red marker: a statement or number that still has to be established.
+\newcommand{\toshow}[1]{{\color{ToShow}#1}}
+
+% Red "to be determined" table cell.
+\newcommand{\tbd}{{\color{ToShow}t.b.d.}}
+
+% Block of red text: a work item with an optional label.
+%   \begin{ToShowBlock}[label] ... \end{ToShowBlock}
+\newenvironment{ToShowBlock}[1][Still to be shown]
+  {\par\medskip\noindent
+   \begin{quote}\color{ToShow}\small\textbf{[#1]}\enskip\ignorespaces}
+  {\end{quote}\medskip}
+
+% Figure slot: a red framed box inside a {figure} float describing exactly
+% which figure has to be produced.  Usage:
+%   \figplaceholder{5cm}{description of the required figure content}
+\newcommand{\figplaceholder}[2]{%
+  \setlength{\fboxsep}{10pt}%
+  \setlength{\fboxrule}{1pt}%
+  \fcolorbox{ToShow}{ToShow!4}{%
+    \parbox[c][#1][c]{0.92\linewidth}{\color{ToShow}\small\centering
+      \textbf{[FIGURE NEEDED]}\\[4pt] #2}}}
+
+% Red caption text for figure slots.
+\newcommand{\redcaption}[1]{{\color{ToShow}#1}}
+
+% Draft-only evidence notes binding statements to repository artifacts.
+\newif\ifevidencenotes
+\evidencenotestrue   % switch to \evidencenotesfalse for a clean read
+% \path (from url/hyperref) handles underscores and breaks lines at slashes;
+% robust declaration keeps it usable inside captions and other moving arguments.
+\DeclareRobustCommand{\repopath}[1]{{\small\path{#1}}}
+\newcommand{\evidence}[1]{%
+  \ifevidencenotes{\color{EvidenceGray}\footnotesize\ [evidence: \repopath{#1}]}\fi}
+
+% ---------------------------------------------------------------------------
+% Part headers (the draft is organised into two claim-separated parts)
+% ---------------------------------------------------------------------------
+\newcommand{\paperpart}[2]{%
+  \par\bigskip\bigskip
+  \begin{center}
+    {\Large\bfseries Part #1}\\[4pt]
+    {\large\itshape #2}
+  \end{center}
+  \addcontentsline{toc}{section}{Part #1: #2}
+  \bigskip}
+
+% ---------------------------------------------------------------------------
+% Math notation
+% ---------------------------------------------------------------------------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\Sym}{Sym}
+\DeclareMathOperator{\softplus}{softplus}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\newcommand{\T}{^{\mathsf{T}}}
+
+% Frequently used symbols
+\newcommand{\field}{F}                 % 2D observation field (teacher)
+\newcommand{\student}{S}               % rendered 3D student
+\newcommand{\cam}{\pi}                 % projection
+\newcommand{\Jq}{J_{\mathrm{Q}}}       % proposal-corrected validation risk
+\newcommand{\Ju}{J_{\mathrm{U}}}       % uniform validation risk
+\newcommand{\Jpix}{J_{\mathrm{pixel}}}
+\newcommand{\Jarea}{J_{\mathrm{area}}}
+
+% Draft typography: absorb marginal overfulls instead of spilling into the margin.
+\emergencystretch=1.5em
+
+% Theorem-like environments
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{claimstmt}{Claim}
