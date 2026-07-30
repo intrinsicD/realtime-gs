@@ -87,10 +87,11 @@ None
 
 ## Current Evidence
 
-- Compile receipt (v2 restructure, 2026-07-30): tectonic 0.15.0, 25 pages, BibTeX resolves
+- Compile receipt (v3 style pass, 2026-07-30): tectonic 0.15.0, 25 pages, BibTeX resolves
   all citations, 0 overfull boxes, no undefined references (local build; no LaTeX in CI, so
   the draft is not gated). Style scan clean: no em/en dashes or `--` in text, no prose
-  semicolons or colons outside `TODO:` prefixes, no banned vocabulary.
+  semicolons, no prose colons outside `TODO:` prefixes and bold caption panel markers, no
+  banned vocabulary. Voice matched to the owner's VMV 2018 sample paper.
 - Content bindings: ara claims C15, C18–C20, C23, C24, C28–C31;
   `docs/ADR-002-carrier-refinement.md`; `docs/THREE_ARM_EXPERIMENT_PROGRAM.md`;
   `docs/PAPER_PLAN_beam_fusion.md`; `benchmarks/results/20260725_init_value_program_PREREG.md`
@@ -377,3 +378,100 @@ None.
 
 After the sample-paper pass, consider tightening the remaining long sentences in the
 overview and refinement sections.
+
+### Handoff (Claude-paper-draft-driver, 2026-07-30, v3 style pass)
+
+#### Objective
+
+Match the draft's prose voice to the owner's VMV 2018 paper (Hierarchical additive
+poisson disk sampling), provided in chat as the style reference.
+
+#### Reviewed state
+
+v2 draft at commit e59ecbe with PR #19 open. Style features extracted from the sample:
+short declarative sentences with "We" as subject, procedural method description in
+execution order, connectives "thus", "since", "due to", "yields", "amounts to", "in the
+sense that", "called X" naming, references as "see Section/Figure X", contributions as
+flowing prose ("In this paper we therefore describe", "Furthermore", "We focus on"),
+related-work subsections that relate back to the approach, matter-of-fact inline
+limitations, multi-panel captions with bold position markers, no theorem environments.
+
+#### Changes
+
+Rewrote the prose of all twelve section files in that voice, keeping every equation,
+number, evidence note, TODO marker and label. Introduction contributions are now prose
+instead of a list. Related work uses subsections. The overview section is renamed Method
+Overview and the definition environment became plain prose. The rank-five observability
+proposition became a plain derivation paragraph and the theorem environments were removed
+from the preamble. The conclusion is now Conclusions in the sample's cadence. Figure
+slots use bold panel markers as in the sample's captions. paper/README.md records the
+voice reference.
+
+#### Evidence
+
+tectonic build: 25 pages, 0 overfull, no undefined references. Style scan clean over all
+sections (dashes, semicolons, prose colons, banned vocabulary). Visual check of the
+rendered introduction and figure-slot pages.
+
+#### Assumptions
+
+Bold caption panel markers with colons follow the sample's own captions and are treated
+as caption convention, not prose. The sample's lowercase "poisson" habit is not carried
+over to "Gaussian", matching the capitalization of the owner's plan documents.
+
+#### Uncertainties
+
+Whether the owner wants caption panel markers stripped of colons as well. Sentence-level
+taste in the reworked abstract and conclusions is for the owner to confirm.
+
+#### Review Focus
+
+Voice fidelity against the sample, unchanged technical content and numbers, style-rule
+compliance.
+
+#### Protected actions not taken
+
+No experiment execution, no claim-ledger edits, no default changes, no new PR.
+
+#### Recommended Next Action
+
+Owner read-through of the v3 draft, then the producible figures.
+
+### Review (Claude-paper-draft-driver, self-review, 2026-07-30, v3)
+
+#### Verdict
+
+Accepted
+
+#### Self-reviewed
+
+Yes
+
+#### Correctness
+
+Docs-only diff. All equations, quoted numbers, evidence bindings and TODO items survived
+the voice rewrite unchanged. Cross-references resolve after removing the proposition and
+definition environments.
+
+#### Evidence Quality
+
+No statement gained strength. Development-only scope labels and the TODO ledger are
+intact.
+
+#### Simplicity
+
+Fewer environments, prose contributions, plain derivation instead of a theorem box.
+
+#### Missing Cases
+
+Caption panel markers keep colons per the sample's convention. Flagged in Uncertainties
+for the owner.
+
+#### Required Changes
+
+None.
+
+#### Optional Improvements
+
+Consider adopting the sample's habit of naming concrete implementation containers in the
+implementation-level sentences once the confirmatory harness exists.

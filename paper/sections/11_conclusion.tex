@@ -1,25 +1,25 @@
-\section{Conclusion}
+\section{Conclusions}
 \label{sec:conclusion}
 
-We described a reconstruction pipeline whose supervision is a compact, analytic, frozen 2D
-Gaussian field per view instead of the source photographs.  After a one-time per-view fit,
-standard 3DGS optimization never touches the images again.  Supervision becomes a stream of
-point queries against kilobyte-scale fields, and the dataset-scale RGB working set
-disappears from the reconstruction process.  The mechanism is implemented end to end with a
-verified point-rendering parity anchor, an unbiased sampled objective, and a hard
-structural no-image boundary.  \todo{The memory and parity result awaits its controlled
-experiment under the preregistered protocol of \cref{sec:memory}.}
+We introduced a reconstruction pipeline whose supervision is a compact, analytic, frozen
+2D Gaussian field per view instead of the source photographs.  After a one-time fit per
+view the optimization never touches the images again, and supervision amounts to point
+queries against kilobyte-scale fields.  The dataset-scale RGB working set thus disappears
+from the reconstruction process.  The mechanism is implemented end to end with a verified
+point-rendering parity anchor, an unbiased sampled objective and a hard structural
+no-image boundary.  \todo{The memory and parity result awaits its controlled experiment
+under the preregistered protocol of \cref{sec:memory}.}
 
-Because rendering projects 3D Gaussians to 2D Gaussians, the same captures also admit a
-closed-form tomographic initialization.  Beam Fusion inverts the projection with a
-principled fusion rule, an observability result that fixes the minimum view count, and
-complete contributor lineage, and the carrier refinement repairs the identifiable failures
-of the naive inversion with stages justified by paired ablations.  \todo{Whether the
-tomographic initialization beats the standard initializations under matched budgets is an
-open, preregistered question, and a negative answer leaves the memory result untouched.}
+We also showed that the same captures admit a closed-form tomographic initialization,
+since rendering projects 3D Gaussians to 2D Gaussians and the projection can be inverted.
+Beam Fusion combines back-projected beams by covariance intersection, requires three
+contributing views due to an observability argument and yields complete contributor
+lineage.  The carrier refinement repairs the identifiable failures of the naive inversion
+with stages justified by paired ablations.  \todo{Whether the tomographic initialization
+beats the standard initializations under matched budgets is an open, preregistered
+question, and a negative answer leaves the memory result untouched.}
 
-If the confirmatory program supports the memory result, dome-scale and video-scale captures
-stop being a memory problem.  If it refutes it, the measurements will delimit how much
-information per-view 2D Gaussian fits preserve.  The evaluation rules were fixed before the
-outcomes either way.  The natural next step is temporal, from 2D Gaussian video over
-space-time beam fusion to a 4D carrier representation for standard 4D Gaussian splatting.
+Building on the standard 3DGS optimizer and renderer makes our approach directly
+applicable to existing pipelines.  The natural next step is temporal, from 2D Gaussian
+video over space-time beam fusion to a 4D carrier representation for standard 4D Gaussian
+splatting.

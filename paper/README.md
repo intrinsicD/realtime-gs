@@ -31,9 +31,16 @@ tomographic-initializer outcome cannot weaken it (evaluation rules in `03_overvi
 - Appendix A (`sections/12_appendix_todo.tex`) tracks every red item as TODOs T-1 … T-15
   plus the consolidated figure production list.
 - Style rules for the running text (owner decision 2026-07-30): no em dashes, no
-  semicolons, no colons (the `TODO:` prefix is the one exception), no marketing vocabulary,
-  and negative results appear only where an obvious approach does not apply and an
-  alternative is given. Citation titles in `references.bib` keep their original punctuation.
+  semicolons, no colons (the `TODO:` prefix and bold `**Left:**`-style caption panel
+  markers are the exceptions), no marketing vocabulary, and negative results appear only
+  where an obvious approach does not apply and an alternative is given. Citation titles in
+  `references.bib` keep their original punctuation.
+- The prose voice follows the owner's VMV 2018 paper (provided 2026-07-30 as the style
+  reference): short declarative sentences, "We" as subject, procedural method
+  descriptions, connectives like "thus", "since", "due to", "yields", references as
+  "see Section/Figure X", contributions as flowing prose in the introduction, related work
+  in subsections that relate back to our approach, plain matter-of-fact limitation
+  statements, and multi-panel figure captions with bold position markers.
 - `references.bib` is reconstructed from memory and must be verified before submission
   (T-13), as must the literature gaps N1–N5 in the related-work section.
 
