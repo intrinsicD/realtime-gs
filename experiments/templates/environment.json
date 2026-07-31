@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "python": "REPLACE_WITH_PYTHON_VERSION",
+  "platform": "REPLACE_WITH_PLATFORM",
+  "packages": {
+    "realtime-gs": "REPLACE_WITH_VERSION_OR_COMMIT"
+  },
+  "device": {
+    "type": "cpu",
+    "name": "REPLACE_WITH_DEVICE_NAME",
+    "cuda": null
+  }
+}

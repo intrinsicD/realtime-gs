@@ -1,5 +1,6 @@
 {
   "schema_version": 2,
+  "report_template_version": 2,
   "task_id": "YYYYMMDD_task_slug_data_slug",
   "date": "YYYYMMDD",
   "task_slug": "task_slug",

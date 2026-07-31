@@ -50,6 +50,10 @@ Splat-SfM are separate initializer functions rather than registered three-path a
 capture has no real COLMAP sparse model. This task closes those integration gaps without conflating
 the standard RGB trainer with the paper's compact-field-supervised reconstruction.
 
+Remote `main` now supplies the owner-adopted A17 Experiment Bundle Contract v2 and its hardened
+viewer smoke. RTGS-007 must consume that shared contract before any future official run; merging it
+does not retroactively turn the outcome-exposed development artifacts into protected evidence.
+
 ## Success Criteria
 
 - A one-view mechanism pilot establishes a visibly useful non-StructSplat native-additive Stage-1
@@ -73,8 +77,8 @@ the standard RGB trainer with the paper's compact-field-supervised reconstructio
   reconstruction.
 - The protocol passes contract/data validation and an outcome-unseen prospective review before
   `init-run`. The canonical run produces initial/checkpoint/final PLYs, native-resolution
-  calibrated renders, density histories, metrics, a three-model viewer manifest, a generated
-  results page, and passing result-bundle gates.
+  calibrated renders, density histories, metrics, a three-model viewer manifest, and a complete
+  Bundle Contract v2 report that passes the independent result-bundle gates.
 - The Beam arm is shown without post-outcome repair or special schedule. Its visible failures and
   topology trajectory are reported descriptively, then left to a distinct successor task.
 - Focused tests, `rtgs-review`, `realtime-gs-results-audit`, and `./scripts/verify.sh` pass, with
@@ -125,10 +129,10 @@ experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json
 - The RTX 4090 host exposes 24,564 MiB and modern `gsplat 1.5.3`; an existing all-view
   native-resolution RGB run reached 100,000 3D Gaussians, so full-resolution rendering and dynamic
   cardinality are supported on this machine.
-- `CompactTrainer` already supports all six 3DGS parameter families, native-coordinate point
-  supervision, an opt-in topology protocol, persistent IDs, Adam-boundary verification, and
-  checkpoint/evaluation receipts. Only test and benchmark-specific controllers currently
-  implement cardinality changes.
+- `CompactTrainer` supports all six 3DGS parameter families, native-coordinate point supervision,
+  an opt-in topology protocol, persistent IDs, Adam-boundary verification, and
+  checkpoint/evaluation receipts. The new `ClassicCompactDensityController` implements production
+  research cardinality changes behind that opt-in seam; fixed topology remains the default.
 - `DensityController` already implements classic screen-gradient clone/split/prune, hard-cap
   enforcement, optimizer surgery, and opacity reset. `PointRenderOutput` carries the visible-row
   and retained screen-gradient data needed to drive it.
@@ -171,6 +175,9 @@ experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json
   `structsplat_used=false`, but completed before the explicit module-list receipt field was added.
   The standard path peaked at approximately 4.36 GB host RSS and 2.34/6.57 GB CUDA
   allocated/reserved, so none of these figures are compact/VRAM claims.
+- Remote A17 adds the shared v2 report renderer, dimensioned elapsed-time histories with explicit
+  stage boundaries, manifest checksums, and browser/WebGL/orbit visibility receipts. It remains
+  infrastructure evidence, not an RTGS-007 scientific result.
 - Focused CPU tests (74), focused CUDA renderer/query tests, Ruff, docs-sync, workflow validation,
   experiment contract/data validation, and the quick benchmark pass. Full `verify.sh` reaches the
   end of the CPU suite with exactly six frozen-harness failures caused by the host lacking the
@@ -185,8 +192,8 @@ experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json
 3. Run a bounded one-view native-additive capacity/update pilot, inspect the full-resolution
    render, and freeze the all-view Stage-1 setting.
 4. Produce and seal both high-capacity full-resolution compact datasets.
-5. Freeze the matched compact-training schedule and driver through mechanism tests, then obtain
-   prospective protocol approval.
+5. Freeze the matched compact-training schedule and driver through mechanism tests, adopt Bundle
+   Contract v2, then obtain prospective protocol approval.
 6. Run the canonical three-path comparison, build and open the viewer/results page, audit the
    outcome, and hand Beam's observed problems to a new task.
 
@@ -290,3 +297,65 @@ its three explicit blockers.
 Publish this pipeline-integrated development state as requested. If official compact evidence is
 still desired, begin from an outcome-unseen review of a freshly source-bound acquisition and the
 existing draft protocol rather than relabelling the development viewer as the canonical run.
+
+### 2026-07-31 — Driver handoff: remote-main reconciliation reviewed
+
+#### Objective
+
+Reconcile the complete RTGS-007 development commit with the current remote `main`, resolve its
+concurrent RTGS-006/A17 task history, and prepare the reviewed combined tree for direct-main
+publication at the owner’s request.
+
+#### Reviewed state
+
+Local checkpoint `d3f73a7` diverged from remote `ed51da5` by one local and four remote commits.
+Git reported two textual conflicts: the active task record and the experiment-contract tests.
+Four other overlapping files merged automatically and were reviewed semantically.
+
+#### Changes
+
+RTGS-007 remains the one active task and now explicitly freezes Bundle Contract v2. Remote A17
+reporting, stage-timeline, manifest, and visible-browser-smoke infrastructure is retained; the
+local optional production-manifest data sealing is retained within it. Both branches’ RTGS-006
+decisions and handoffs are preserved in the superseded archive, with their concurrent chronology
+and shared-infrastructure boundary stated explicitly. The contract-test resolution retains both
+the v2 fixture coverage and production-sidecar sealing coverage.
+
+#### Evidence
+
+The combined experiment-contract/viewer suite and the complete RTGS-007 focused suite pass. The
+full non-slow CPU suite passes when exactly the six frozen historical ABI nodes are deselected.
+Ruff, docs-sync, ARA, script layout, agent workflow, experiment-contract validation, both exact
+data-seal validations, and `git diff --check` pass. The canonical `./scripts/verify.sh` reproduces
+only those same six failures because this host lacks pinned
+`/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33` and provides `.6.0.35`; no frozen harness was
+weakened.
+
+#### Assumptions
+
+The owner’s explicit request to commit all changes, merge remote `main`, resolve conflicts, and
+push authorizes direct-main publication and inclusion of the CLion metadata plus all generated
+field/QA artifacts.
+
+#### Uncertainties
+
+The publish contains roughly 366 MB of new artifacts and may take longer than a normal source-only
+push. The producer-source mismatch and draft official-protocol boundary recorded in the preceding
+handoff remain unchanged.
+
+#### Review Focus
+
+Review the combined `scripts/experiment_contract.py`, the v2 declaration in the RTGS-007 task, the
+active/archive task split, persistent density lineage, and the absence of any claim that the
+development viewer is an official compact result.
+
+#### Protected actions not taken
+
+No prospective approval, `init-run`, canonical protected execution, official result bundle,
+scientific claim promotion, default change, or Beam-specific repair was introduced during merge
+resolution.
+
+#### Recommended Next Action
+
+Commit the reviewed merge, confirm remote `main` has not moved, fast-forward local `main`, and push
+the combined history.

@@ -8,7 +8,9 @@ New result-bearing experiments use one immutable task id:
 The task is registered under ``experiments/tasks/`` before a run starts. A distinct prospective
 reviewer approves the exact protocol digest without consuming outcomes. ``init-run`` then binds a
 run directory to that review, the task, data seal, command, and source state. ``render`` consumes
-the common ``metrics.json`` schema and writes the only supported experiment ``index.html``.
+the common metrics/history/config/environment/receipt schemas and writes the generated v2
+``index.html``, ``README.md``, and checksummed ``manifest.json``. Frozen v1 tasks retain their
+historical single-page renderer.
 
 Typical use:
 
@@ -34,6 +36,7 @@ import shlex
 import subprocess
 import sys
 from collections import defaultdict
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
@@ -42,7 +45,17 @@ TASK_SCHEMA_VERSION = 2
 TASK_LOCK_SCHEMA_VERSION = 2
 PROGRAM_SCHEMA_VERSION = 1
 DATA_SEAL_SCHEMA_VERSION = 1
-REPORT_TEMPLATE_VERSION = 1
+REPORT_TEMPLATE_VERSION = 2
+SUPPORTED_REPORT_TEMPLATE_VERSIONS = (1, 2)
+LEGACY_V1_TASK_IDS = frozenset(
+    {
+        "20260728_beam_fusion_claim_stage_frames00008_00009",
+        "20260728_rgb_3dgs_comparison_stage_frames00008_00009",
+        "20260728_vram_claim_stage_frames00008_00009",
+        "20260729_field_sweep_placement_stage_frames00008_00009",
+        "20260730_field_sweep_placement_f64_stage_frames00008_00009",
+    }
+)
 
 ARMS = ("direct_compact", "beam_fusion", "rgb_3dgs")
 TASK_STATUSES = ("draft", "ready", "blocked")
@@ -56,6 +69,18 @@ REQUIRED_MODEL_ARTIFACTS = (
     "gaussians.config.json",
     "input_boundary_receipt.json",
     "resource_receipt.json",
+)
+REQUIRED_V2_ARTIFACTS = REQUIRED_MODEL_ARTIFACTS + (
+    "run_receipt.json",
+    "environment.json",
+)
+REQUIRED_V2_FAILURE_ARTIFACTS = (
+    "training_history.json",
+    "gaussians.config.json",
+    "input_boundary_receipt.json",
+    "resource_receipt.json",
+    "run_receipt.json",
+    "environment.json",
 )
 EVIDENCE_SUFFIXES = ("RESULT.md", "RESULT.json", "AUDIT.md", "AUDIT.json")
 COMPACT_ALLOWED = {"calibration", "gaussians2d"}
@@ -114,6 +139,19 @@ class DuplicateKeyError(ValueError):
 
 class NonFiniteJsonError(ValueError):
     """Raised when JSON contains NaN or infinity."""
+
+
+class LinkCollector(HTMLParser):
+    """Collect concrete href/src targets from a generated report."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.links: set[str] = set()
+
+    def handle_starttag(self, _tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        for name, value in attrs:
+            if name in {"href", "src"} and value:
+                self.links.add(value)
 
 
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -182,6 +220,16 @@ def _strings(value: object, *, nonempty: bool = True) -> bool:
 
 def _task_id(task: dict[str, Any]) -> str:
     return f"{task.get('date', '')}_{task.get('task_slug', '')}_{task.get('data_slug', '')}"
+
+
+def _task_report_version(task: dict[str, Any]) -> int:
+    """Return the frozen report version, defaulting only named historical tasks to v1."""
+
+    task_id = task.get("task_id")
+    legacy = isinstance(task_id, str) and task_id in LEGACY_V1_TASK_IDS
+    default = 1 if legacy else -1
+    value = task.get("report_template_version", default)
+    return value if isinstance(value, int) and not isinstance(value, bool) else -1
 
 
 def protocol_sha256(task: dict[str, Any]) -> str:
@@ -389,6 +437,15 @@ def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> lis
 
     if task["schema_version"] != TASK_SCHEMA_VERSION:
         errors.append(f"schema_version must be {TASK_SCHEMA_VERSION}")
+    report_version = _task_report_version(task)
+    if report_version not in SUPPORTED_REPORT_TEMPLATE_VERSIONS:
+        errors.append(
+            f"new tasks must explicitly set report_template_version to {REPORT_TEMPLATE_VERSION}"
+        )
+    elif report_version == 1 and not (
+        isinstance(task.get("task_id"), str) and task["task_id"] in LEGACY_V1_TASK_IDS
+    ):
+        errors.append("report_template_version 1 is restricted to grandfathered task ids")
     task_id = task["task_id"]
     if not isinstance(task_id, str) or task_id != _task_id(task):
         errors.append("task_id must equal <date>_<task_slug>_<data_slug>")
@@ -728,8 +785,11 @@ def validate_program(
         errors.append("program_id must equal <date>_three_claim_arms_<data_slug>")
     if path.name != f"{program['program_id']}.json":
         errors.append(f"program filename must be {program['program_id']}.json")
-    if program["report_template_version"] != REPORT_TEMPLATE_VERSION:
-        errors.append(f"report_template_version must be {REPORT_TEMPLATE_VERSION}")
+    if program["report_template_version"] not in SUPPORTED_REPORT_TEMPLATE_VERSIONS:
+        errors.append(
+            "report_template_version must be one of: "
+            + ", ".join(str(item) for item in SUPPORTED_REPORT_TEMPLATE_VERSIONS)
+        )
     arms = program["arms"]
     if not isinstance(arms, dict) or set(arms) != set(ARMS):
         errors.append(f"arms must contain exactly: {', '.join(ARMS)}")
@@ -746,6 +806,10 @@ def validate_program(
                 task.get("date") != program["date"] or task.get("data_slug") != program["data_slug"]
             ):
                 errors.append(f"{task_id} does not share the program date/data slug")
+            elif _task_report_version(task) != program["report_template_version"]:
+                errors.append(
+                    f"{task_id} report template does not match the program report template"
+                )
     return errors
 
 
@@ -981,14 +1045,14 @@ def init_run(task_path: Path, *, root: Path = ROOT, development: bool = False) -
         "development": development,
         "started_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "command": task["run_command"],
-        "report_template_version": REPORT_TEMPLATE_VERSION,
+        "report_template_version": _task_report_version(task),
     }
     run.mkdir(parents=True)
     _write_json(run / "task.lock.json", lock)
     return run
 
 
-def _metric_errors(payload: dict[str, Any], task: dict[str, Any]) -> list[str]:
+def _metric_errors_v1(payload: dict[str, Any], task: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     required = {
         "schema_version",
@@ -1010,8 +1074,8 @@ def _metric_errors(payload: dict[str, Any], task: dict[str, Any]) -> list[str]:
         return [f"metrics.json missing: {', '.join(missing)}"]
     if payload["schema_version"] != 1:
         errors.append("metrics.json schema_version must be 1")
-    if payload["report_template_version"] != REPORT_TEMPLATE_VERSION:
-        errors.append(f"report_template_version must be {REPORT_TEMPLATE_VERSION}")
+    if payload["report_template_version"] != 1:
+        errors.append("report_template_version must be 1")
     if payload["task_id"] != task["task_id"]:
         errors.append("metrics.json task_id does not match the locked task")
     for key in ("summary", "decision", "claim_boundary"):
@@ -1022,6 +1086,7 @@ def _metric_errors(payload: dict[str, Any], task: dict[str, Any]) -> list[str]:
 
     metrics = payload["metrics"]
     metadata = payload["metric_metadata"]
+    metric_ids = set(metrics) if isinstance(metrics, dict) else set()
     if not isinstance(metrics, dict) or not metrics:
         errors.append("metrics must be a non-empty object")
     elif not all(
@@ -1031,7 +1096,7 @@ def _metric_errors(payload: dict[str, Any], task: dict[str, Any]) -> list[str]:
         for value in metrics.values()
     ):
         errors.append("every metric must be a finite number")
-    if not isinstance(metadata, dict) or set(metadata) != set(metrics):
+    if not isinstance(metadata, dict) or set(metadata) != metric_ids:
         errors.append("metric_metadata keys must exactly match metrics")
     else:
         meta_keys = {"label", "unit", "group", "direction"}
@@ -1047,7 +1112,7 @@ def _metric_errors(payload: dict[str, Any], task: dict[str, Any]) -> list[str]:
             ):
                 errors.append(f"metric_metadata.{metric_id} is invalid")
     task_metrics = {item["id"]: item for item in task["primary_metrics"]}
-    missing_task_metrics = sorted(set(task_metrics) - set(metrics))
+    missing_task_metrics = sorted(set(task_metrics) - metric_ids)
     if missing_task_metrics:
         errors.append(
             "metrics is missing frozen primary metrics: " + ", ".join(missing_task_metrics)
@@ -1137,6 +1202,568 @@ def _metric_errors(payload: dict[str, Any], task: dict[str, Any]) -> list[str]:
     ):
         errors.append("notes must be a list of non-empty strings")
     return errors
+
+
+def _finite_number(value: object) -> bool:
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(float(value))
+    )
+
+
+def _utc_datetime(value: object) -> dt.datetime | None:
+    if not isinstance(value, str):
+        return None
+    try:
+        parsed = dt.datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    if parsed.utcoffset() != dt.timedelta(0):
+        return None
+    return parsed
+
+
+def _run_receipt_errors(
+    receipt: dict[str, Any], task: dict[str, Any], lock: dict[str, Any]
+) -> list[str]:
+    errors: list[str] = []
+    required = {
+        "schema_version",
+        "task_id",
+        "status",
+        "started_at_utc",
+        "finished_at_utc",
+        "exit_code",
+        "failure_phase",
+        "message",
+    }
+    if set(receipt) != required:
+        errors.append("run_receipt.json has the wrong keys")
+        return errors
+    if receipt["schema_version"] != 1:
+        errors.append("run_receipt.json schema_version must be 1")
+    if receipt["task_id"] != task["task_id"]:
+        errors.append("run_receipt.json task_id does not match the locked task")
+    if not isinstance(receipt["status"], str) or receipt["status"] not in {
+        "completed",
+        "failed",
+    }:
+        errors.append("run_receipt.json status must be completed or failed")
+    started = _utc_datetime(receipt["started_at_utc"])
+    finished = _utc_datetime(receipt["finished_at_utc"])
+    locked_started = _utc_datetime(lock.get("started_at_utc"))
+    if started is None or finished is None:
+        errors.append("run_receipt.json timestamps must be ISO-8601 UTC strings")
+    else:
+        if locked_started is not None and started != locked_started:
+            errors.append("run_receipt.json started_at_utc must match task.lock.json")
+        if finished < started:
+            errors.append("run_receipt.json finished_at_utc precedes its start")
+    exit_code = receipt["exit_code"]
+    if not isinstance(exit_code, int) or isinstance(exit_code, bool):
+        errors.append("run_receipt.json exit_code must be an integer")
+    elif receipt["status"] == "completed" and exit_code != 0:
+        errors.append("a completed run_receipt.json requires exit_code 0")
+    elif receipt["status"] == "failed" and exit_code == 0:
+        errors.append("a failed run_receipt.json requires a non-zero exit_code")
+    phase = receipt["failure_phase"]
+    if receipt["status"] == "completed" and phase is not None:
+        errors.append("a completed run_receipt.json requires failure_phase null")
+    if receipt["status"] == "failed" and (not isinstance(phase, str) or not phase.strip()):
+        errors.append("a failed run_receipt.json requires a failure_phase")
+    if not isinstance(receipt["message"], str) or not receipt["message"].strip():
+        errors.append("run_receipt.json message must be non-empty")
+    return errors
+
+
+def _environment_errors(environment: dict[str, Any]) -> list[str]:
+    required = {"schema_version", "python", "platform", "packages", "device"}
+    if set(environment) != required:
+        return ["environment.json has the wrong keys"]
+    errors: list[str] = []
+    if environment["schema_version"] != 1:
+        errors.append("environment.json schema_version must be 1")
+    for key in ("python", "platform"):
+        if not isinstance(environment[key], str) or not environment[key].strip():
+            errors.append(f"environment.json {key} must be non-empty")
+    packages = environment["packages"]
+    if (
+        not isinstance(packages, dict)
+        or not packages
+        or not all(
+            isinstance(key, str)
+            and bool(key.strip())
+            and isinstance(value, str)
+            and bool(value.strip())
+            for key, value in packages.items()
+        )
+    ):
+        errors.append("environment.json packages must map package names to versions")
+    device = environment["device"]
+    if not isinstance(device, dict) or set(device) != {"type", "name", "cuda"}:
+        errors.append("environment.json device has the wrong keys")
+    else:
+        for key in ("type", "name"):
+            if not isinstance(device[key], str) or not device[key].strip():
+                errors.append(f"environment.json device.{key} must be non-empty")
+        if device["cuda"] is not None and (
+            not isinstance(device["cuda"], str) or not device["cuda"].strip()
+        ):
+            errors.append("environment.json device.cuda must be null or a version string")
+    return errors
+
+
+def _history_errors(history: dict[str, Any], task: dict[str, Any], *, completed: bool) -> list[str]:
+    required = {"schema_version", "records", "metric_metadata", "stage_markers"}
+    if set(history) != required:
+        return ["training_history.json has the wrong keys"]
+    errors: list[str] = []
+    if history["schema_version"] != 2:
+        errors.append("training_history.json schema_version must be 2")
+    records = history["records"]
+    if not isinstance(records, list):
+        return errors + ["training_history.json records must be a list"]
+    if completed and not records:
+        errors.append("a completed v2 run requires fitting-history records")
+    dataset_ids = {item["id"] for item in task["datasets"]}
+    stage_order = [item["id"] for item in task["stages"]]
+    stage_labels = {item["id"]: item["label"] for item in task["stages"]}
+    stage_ids = set(stage_order)
+    seeds = set(task["seeds"])
+    record_keys = {
+        "step",
+        "wall_seconds",
+        "stage",
+        "dataset_id",
+        "arm_id",
+        "seed",
+        "split",
+        "metric_id",
+        "value",
+    }
+    seen: set[str] = set()
+    observed_metrics: set[str] = set()
+    observed_series: set[tuple[str, str, int]] = set()
+    for index, record in enumerate(records):
+        if not isinstance(record, dict) or set(record) != record_keys:
+            errors.append(f"training_history.json records[{index}] has the wrong keys")
+            continue
+        if (
+            not isinstance(record["step"], int)
+            or isinstance(record["step"], bool)
+            or record["step"] < 0
+        ):
+            errors.append(f"training_history.json records[{index}].step is invalid")
+        if not _finite_number(record["wall_seconds"]) or record["wall_seconds"] < 0:
+            errors.append(f"training_history.json records[{index}].wall_seconds is invalid")
+        if not isinstance(record["stage"], str) or record["stage"] not in stage_ids:
+            errors.append(f"training_history.json records[{index}].stage is not frozen")
+        if not isinstance(record["dataset_id"], str) or record["dataset_id"] not in dataset_ids:
+            errors.append(f"training_history.json records[{index}].dataset_id is not frozen")
+        if not isinstance(record["arm_id"], str) or SLUG_RE.fullmatch(record["arm_id"]) is None:
+            errors.append(f"training_history.json records[{index}].arm_id is invalid")
+        if (
+            not isinstance(record["seed"], int)
+            or isinstance(record["seed"], bool)
+            or record["seed"] not in seeds
+        ):
+            errors.append(f"training_history.json records[{index}].seed is not frozen")
+        if not isinstance(record["split"], str) or record["split"] not in {
+            "train",
+            "validation",
+            "diagnostic",
+        }:
+            errors.append(
+                f"training_history.json records[{index}].split must not expose heldout/test data"
+            )
+        metric_id = record["metric_id"]
+        if not isinstance(metric_id, str) or SLUG_RE.fullmatch(metric_id) is None:
+            errors.append(f"training_history.json records[{index}].metric_id is invalid")
+        else:
+            observed_metrics.add(metric_id)
+        if not _finite_number(record["value"]):
+            errors.append(f"training_history.json records[{index}].value is invalid")
+        if (
+            isinstance(record["dataset_id"], str)
+            and record["dataset_id"] in dataset_ids
+            and isinstance(record["arm_id"], str)
+            and SLUG_RE.fullmatch(record["arm_id"]) is not None
+            and isinstance(record["seed"], int)
+            and not isinstance(record["seed"], bool)
+            and record["seed"] in seeds
+        ):
+            observed_series.add((record["dataset_id"], record["arm_id"], record["seed"]))
+        identity = json.dumps(
+            [
+                record.get("step"),
+                record.get("stage"),
+                record.get("dataset_id"),
+                record.get("arm_id"),
+                record.get("seed"),
+                record.get("split"),
+                record.get("metric_id"),
+            ],
+            sort_keys=True,
+            ensure_ascii=True,
+            allow_nan=False,
+        )
+        if identity in seen:
+            errors.append(f"training_history.json records[{index}] duplicates a data point")
+        seen.add(identity)
+
+    metadata = history["metric_metadata"]
+    meta_keys = {"label", "unit", "group", "direction"}
+    if not isinstance(metadata, dict) or set(metadata) != observed_metrics:
+        errors.append("training_history.json metric_metadata must match recorded metric ids")
+    else:
+        for metric_id, item in metadata.items():
+            if (
+                not isinstance(item, dict)
+                or set(item) != meta_keys
+                or item.get("direction") not in {"lower", "higher", "descriptive"}
+                or not all(
+                    isinstance(item.get(key), str) and bool(item[key].strip())
+                    for key in ("label", "unit", "group")
+                )
+            ):
+                errors.append(f"training_history.json metric_metadata.{metric_id} is invalid")
+    markers = history["stage_markers"]
+    if not isinstance(markers, list):
+        errors.append("training_history.json stage_markers must be a list")
+    else:
+        if completed and not markers:
+            errors.append(
+                "a completed v2 run requires start/end boundaries for every fitting stage"
+            )
+        marker_keys = {
+            "step",
+            "wall_seconds",
+            "stage",
+            "dataset_id",
+            "arm_id",
+            "seed",
+            "boundary",
+            "label",
+        }
+        marker_identities: set[tuple[str, str, int, str, str]] = set()
+        marker_groups: dict[tuple[str, str, int], list[tuple[int, float, str, str]]] = defaultdict(
+            list
+        )
+        valid_markers: dict[tuple[str, str, int, str, str], dict[str, Any]] = {}
+        for index, marker in enumerate(markers):
+            if not isinstance(marker, dict) or set(marker) != marker_keys:
+                errors.append(f"training_history.json stage_markers[{index}] is invalid")
+                continue
+            step = marker["step"]
+            wall_seconds = marker["wall_seconds"]
+            stage = marker["stage"]
+            dataset_id = marker["dataset_id"]
+            arm_id = marker["arm_id"]
+            seed = marker["seed"]
+            boundary = marker["boundary"]
+            label = marker["label"]
+            if (
+                not isinstance(step, int)
+                or isinstance(step, bool)
+                or step < 0
+                or not _finite_number(wall_seconds)
+                or wall_seconds < 0
+                or not isinstance(stage, str)
+                or stage not in stage_ids
+                or not isinstance(dataset_id, str)
+                or dataset_id not in dataset_ids
+                or not isinstance(arm_id, str)
+                or SLUG_RE.fullmatch(arm_id) is None
+                or not isinstance(seed, int)
+                or isinstance(seed, bool)
+                or seed not in seeds
+                or not isinstance(boundary, str)
+                or boundary not in {"start", "end"}
+                or not isinstance(label, str)
+                or not label.strip()
+                or label != stage_labels[stage]
+            ):
+                errors.append(f"training_history.json stage_markers[{index}] is invalid")
+                continue
+            series_key = (dataset_id, arm_id, seed)
+            identity = (*series_key, stage, boundary)
+            if identity in marker_identities:
+                errors.append(f"training_history.json stage_markers[{index}] is duplicated")
+            marker_identities.add(identity)
+            marker_groups[series_key].append((step, float(wall_seconds), stage, boundary))
+            valid_markers[identity] = marker
+
+        if set(marker_groups) - observed_series:
+            errors.append(
+                "training_history.json stage_markers contain a series with no history records"
+            )
+        expected_boundaries = [
+            (stage, boundary) for stage in stage_order for boundary in ("start", "end")
+        ]
+        for series_key in sorted(observed_series):
+            series_markers = marker_groups.get(series_key, [])
+            observed_boundaries = [
+                (stage, boundary) for _step, _wall_seconds, stage, boundary in series_markers
+            ]
+            expected = (
+                expected_boundaries
+                if completed
+                else expected_boundaries[: len(observed_boundaries)]
+            )
+            if observed_boundaries != expected:
+                errors.append(
+                    "training_history.json stage_markers must contain ordered start/end "
+                    f"boundaries for every frozen stage in series {series_key}"
+                )
+            marker_steps = [item[0] for item in series_markers]
+            marker_times = [item[1] for item in series_markers]
+            if marker_steps != sorted(marker_steps):
+                errors.append(
+                    "training_history.json stage_markers must be ordered by step within "
+                    f"series {series_key}"
+                )
+            if marker_times != sorted(marker_times):
+                errors.append(
+                    "training_history.json stage_markers must be ordered by wall_seconds "
+                    f"within series {series_key}"
+                )
+
+        for index, record in enumerate(records):
+            if not isinstance(record, dict) or set(record) != record_keys:
+                continue
+            dataset_id = record["dataset_id"]
+            arm_id = record["arm_id"]
+            seed = record["seed"]
+            stage = record["stage"]
+            if not (
+                isinstance(record["step"], int)
+                and not isinstance(record["step"], bool)
+                and _finite_number(record["wall_seconds"])
+                and isinstance(dataset_id, str)
+                and isinstance(arm_id, str)
+                and isinstance(seed, int)
+                and not isinstance(seed, bool)
+                and isinstance(stage, str)
+            ):
+                continue
+            series_key = (dataset_id, arm_id, seed)
+            if series_key not in observed_series or stage not in stage_ids:
+                continue
+            start = valid_markers.get((*series_key, stage, "start"))
+            end = valid_markers.get((*series_key, stage, "end"))
+            if start is not None and (
+                record["step"] < start["step"] or record["wall_seconds"] < start["wall_seconds"]
+            ):
+                errors.append(
+                    f"training_history.json records[{index}] precedes its stage start boundary"
+                )
+            if end is not None and (
+                record["step"] > end["step"] or record["wall_seconds"] > end["wall_seconds"]
+            ):
+                errors.append(
+                    f"training_history.json records[{index}] follows its stage end boundary"
+                )
+    return errors
+
+
+def _v2_commands_errors(commands: object, lock: dict[str, Any], *, completed: bool) -> list[str]:
+    if not isinstance(commands, dict) or set(commands) != {
+        "reproduce",
+        "serve_report",
+        "viewer",
+    }:
+        return ["metrics.json commands must contain reproduce, serve_report, and viewer"]
+    errors: list[str] = []
+    if commands["reproduce"] != lock.get("command"):
+        errors.append("metrics.json reproduce command must exactly match task.lock.json")
+    expected_server = [
+        ".venv/bin/python",
+        "-m",
+        "http.server",
+        "8765",
+        "--directory",
+        f"runs/{lock.get('task_id', '')}",
+    ]
+    if commands["serve_report"] != expected_server:
+        errors.append(
+            "metrics.json serve_report must use the canonical repository-root HTTP command"
+        )
+    viewer = commands["viewer"]
+    if completed and not _strings(viewer):
+        errors.append("a completed v2 run requires an exact viewer argv command")
+    elif not completed and viewer is not None and not _strings(viewer):
+        errors.append("a failed v2 run viewer command must be null or a non-empty argv list")
+    if _strings(viewer) and ("view" not in viewer or not any("gaussians.ply" in x for x in viewer)):
+        errors.append("metrics.json viewer must invoke view on gaussians.ply")
+    return errors
+
+
+def _metric_errors_v2(
+    payload: dict[str, Any],
+    task: dict[str, Any],
+    lock: dict[str, Any],
+    *,
+    completed: bool,
+) -> list[str]:
+    required = {
+        "schema_version",
+        "report_template_version",
+        "task_id",
+        "summary",
+        "decision",
+        "claim_boundary",
+        "metrics",
+        "metric_metadata",
+        "charts",
+        "artifacts",
+        "evidence",
+        "commands",
+        "notes",
+    }
+    missing = sorted(required - set(payload))
+    if missing:
+        return [f"metrics.json missing: {', '.join(missing)}"]
+    errors: list[str] = []
+    if payload["schema_version"] != 2:
+        errors.append("metrics.json schema_version must be 2")
+    if payload["report_template_version"] != 2:
+        errors.append("metrics.json report_template_version must be 2")
+    errors.extend(_v2_commands_errors(payload["commands"], lock, completed=completed))
+
+    if completed:
+        legacy = dict(payload)
+        legacy["schema_version"] = 1
+        legacy["report_template_version"] = 1
+        legacy["viewer_command"] = (
+            payload["commands"].get("viewer", []) if isinstance(payload["commands"], dict) else []
+        )
+        errors.extend(_metric_errors_v1(legacy, task))
+        paths = (
+            {
+                item["path"]
+                for item in payload["artifacts"]
+                if isinstance(item, dict) and _is_safe_relative(item.get("path"))
+            }
+            if isinstance(payload["artifacts"], list)
+            else set()
+        )
+        missing_artifacts = sorted(set(REQUIRED_V2_ARTIFACTS) - paths)
+        if missing_artifacts:
+            errors.append("v2 artifacts is missing: " + ", ".join(missing_artifacts))
+        return errors
+
+    if payload["task_id"] != task["task_id"]:
+        errors.append("metrics.json task_id does not match the locked task")
+    for key in ("summary", "decision", "claim_boundary"):
+        if not isinstance(payload[key], str) or not payload[key].strip():
+            errors.append(f"metrics.json {key} must be non-empty")
+    if payload["claim_boundary"] != task["claim_boundary"]:
+        errors.append("metrics.json claim_boundary must exactly match the frozen task")
+    metrics = payload["metrics"]
+    if not isinstance(metrics, dict) or not all(
+        _finite_number(value) for value in metrics.values()
+    ):
+        errors.append("failed-run metrics must be an object of finite numbers")
+    metadata = payload["metric_metadata"]
+    if (
+        not isinstance(metadata, dict)
+        or not isinstance(metrics, dict)
+        or set(metadata) != set(metrics)
+    ):
+        errors.append("metric_metadata keys must exactly match metrics")
+    else:
+        meta_keys = {"label", "unit", "group", "direction"}
+        for metric_id, item in metadata.items():
+            if (
+                not isinstance(item, dict)
+                or set(item) != meta_keys
+                or item.get("direction") not in {"lower", "higher", "descriptive"}
+                or not all(
+                    isinstance(item.get(key), str) and bool(item[key].strip())
+                    for key in ("label", "unit", "group")
+                )
+            ):
+                errors.append(f"metric_metadata.{metric_id} is invalid")
+    if payload["charts"] != []:
+        errors.append(
+            "failed-run charts must be empty; partial progress belongs in fitting history"
+        )
+    artifacts = payload["artifacts"]
+    if not isinstance(artifacts, list):
+        errors.append("artifacts must be a list")
+    else:
+        paths: set[object] = set()
+        for index, artifact in enumerate(artifacts):
+            if (
+                not isinstance(artifact, dict)
+                or set(artifact) != {"label", "path"}
+                or not isinstance(artifact["label"], str)
+                or not artifact["label"].strip()
+                or not _is_safe_relative(artifact["path"])
+            ):
+                errors.append(f"artifacts[{index}] is invalid")
+            else:
+                paths.add(artifact["path"])
+        missing_artifacts = sorted(set(REQUIRED_V2_FAILURE_ARTIFACTS) - paths)
+        if missing_artifacts:
+            errors.append("failed v2 artifacts is missing: " + ", ".join(missing_artifacts))
+    evidence = payload["evidence"]
+    if not isinstance(evidence, list):
+        errors.append("evidence must be a list")
+    else:
+        evidence_paths: set[str] = set()
+        for index, item in enumerate(evidence):
+            if (
+                not isinstance(item, dict)
+                or set(item) != {"label", "path"}
+                or not isinstance(item["label"], str)
+                or not item["label"].strip()
+                or not _is_safe_relative(item["path"])
+            ):
+                errors.append(f"evidence[{index}] is invalid")
+                continue
+            if item["path"] in evidence_paths:
+                errors.append(f"evidence[{index}] repeats a path")
+            evidence_paths.add(item["path"])
+    if not isinstance(payload["notes"], list) or not all(
+        isinstance(note, str) and note.strip() for note in payload["notes"]
+    ):
+        errors.append("notes must be a list of non-empty strings")
+    return errors
+
+
+def _v2_source_errors(
+    run: Path, task: dict[str, Any], lock: dict[str, Any]
+) -> tuple[bool, list[str]]:
+    errors: list[str] = []
+    try:
+        receipt = _load_json(run / "run_receipt.json")
+    except ValueError as error:
+        return False, [str(error)]
+    errors.extend(_run_receipt_errors(receipt, task, lock))
+    completed = receipt.get("status") == "completed"
+    try:
+        environment = _load_json(run / "environment.json")
+    except ValueError as error:
+        errors.append(str(error))
+    else:
+        errors.extend(_environment_errors(environment))
+    try:
+        history = _load_json(run / "training_history.json")
+    except ValueError as error:
+        errors.append(str(error))
+    else:
+        errors.extend(_history_errors(history, task, completed=completed))
+    for name in ("gaussians.config.json", "input_boundary_receipt.json", "resource_receipt.json"):
+        try:
+            value = _load_json(run / name)
+        except ValueError as error:
+            errors.append(str(error))
+        else:
+            if not value:
+                errors.append(f"{name} must be a non-empty JSON object")
+    return completed, errors
 
 
 def _locked_task(run: Path, *, root: Path) -> tuple[dict[str, Any], dict[str, Any], list[str]]:
@@ -1232,9 +1859,151 @@ def _locked_task(run: Path, *, root: Path) -> tuple[dict[str, Any], dict[str, An
         else:
             if started_at.utcoffset() != dt.timedelta(0):
                 errors.append("task lock started_at_utc must include a UTC offset")
-    if lock.get("report_template_version") != REPORT_TEMPLATE_VERSION:
+    report_version = lock.get("report_template_version")
+    if report_version not in SUPPORTED_REPORT_TEMPLATE_VERSIONS:
         errors.append("task lock uses an unsupported report template")
+    elif report_version != _task_report_version(task):
+        errors.append("task lock report template does not match the frozen task")
     return task, lock, errors
+
+
+def _manifest_errors(
+    run: Path,
+    root: Path,
+    task: dict[str, Any],
+    metrics: dict[str, Any],
+) -> list[str]:
+    try:
+        manifest = _load_json(run / "manifest.json")
+    except ValueError as error:
+        return [str(error)]
+    required = {"schema_version", "task_id", "report_template_version", "entries"}
+    if set(manifest) != required:
+        return ["manifest.json has the wrong keys"]
+    errors: list[str] = []
+    if manifest["schema_version"] != 1:
+        errors.append("manifest.json schema_version must be 1")
+    if manifest["task_id"] != task["task_id"]:
+        errors.append("manifest.json task_id does not match the locked task")
+    if manifest["report_template_version"] != 2:
+        errors.append("manifest.json report_template_version must be 2")
+    entries = manifest["entries"]
+    if not isinstance(entries, list):
+        return errors + ["manifest.json entries must be a list"]
+    entry_keys = {"label", "path", "scope", "role", "media_type", "size_bytes", "sha256"}
+    seen: set[tuple[str, str]] = set()
+    run_paths: set[str] = set()
+    repository_paths: set[str] = set()
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != entry_keys:
+            errors.append(f"manifest.json entries[{index}] has the wrong keys")
+            continue
+        if not isinstance(entry["label"], str) or not entry["label"].strip():
+            errors.append(f"manifest.json entries[{index}].label must be non-empty")
+        path = entry["path"]
+        scope = entry["scope"]
+        if (
+            not _is_safe_relative(path)
+            or not isinstance(scope, str)
+            or scope not in {"run", "repository"}
+        ):
+            errors.append(f"manifest.json entries[{index}] has an invalid path/scope")
+            continue
+        identity = (scope, path)
+        if identity in seen:
+            errors.append(f"manifest.json repeats {scope} path: {path}")
+            continue
+        seen.add(identity)
+        if not isinstance(entry["role"], str) or not entry["role"].strip():
+            errors.append(f"manifest.json entries[{index}].role must be non-empty")
+        if not isinstance(entry["media_type"], str) or "/" not in entry["media_type"]:
+            errors.append(f"manifest.json entries[{index}].media_type is invalid")
+        if (
+            not isinstance(entry["size_bytes"], int)
+            or isinstance(entry["size_bytes"], bool)
+            or entry["size_bytes"] < 0
+        ):
+            errors.append(f"manifest.json entries[{index}].size_bytes is invalid")
+        if (
+            not isinstance(entry["sha256"], str)
+            or re.fullmatch(r"[0-9a-f]{64}", entry["sha256"]) is None
+        ):
+            errors.append(f"manifest.json entries[{index}].sha256 is invalid")
+        base = run if scope == "run" else root
+        target = base / path
+        try:
+            target.resolve(strict=True).relative_to(base.resolve())
+        except (FileNotFoundError, ValueError):
+            errors.append(f"manifest target is missing or escapes {scope}: {path}")
+            continue
+        if target.is_symlink() or not target.is_file():
+            errors.append(f"manifest target must be a regular non-symlink file: {path}")
+            continue
+        if target.stat().st_size != entry["size_bytes"]:
+            errors.append(f"manifest size mismatch: {path}")
+        if _sha256_file(target) != entry["sha256"]:
+            errors.append(f"manifest SHA-256 mismatch: {path}")
+        if scope == "run":
+            run_paths.add(path)
+        else:
+            repository_paths.add(path)
+
+    expected_run_paths = {
+        path.relative_to(run).as_posix()
+        for path in run.rglob("*")
+        if path.is_file()
+        and path.name != "manifest.json"
+        and not (path.name.startswith(".") and path.name.endswith(".tmp"))
+    }
+    missing_run = sorted(expected_run_paths - run_paths)
+    extra_run = sorted(run_paths - expected_run_paths)
+    if missing_run:
+        errors.append("manifest omits run files: " + ", ".join(missing_run))
+    if extra_run:
+        errors.append("manifest names unexpected run files: " + ", ".join(extra_run))
+    expected_repository = {
+        item["path"]
+        for item in metrics.get("evidence", [])
+        if isinstance(item, dict) and _is_safe_relative(item.get("path"))
+    }
+    if repository_paths != expected_repository:
+        errors.append("manifest repository entries must exactly match metrics.json evidence")
+
+    for name in ("index.html", "README.md"):
+        if name not in run_paths:
+            errors.append(f"manifest omits generated {name}")
+    index_path = run / "index.html"
+    readme_path = run / "README.md"
+    if index_path.is_file():
+        body = index_path.read_text(encoding="utf-8", errors="replace")
+        collector = LinkCollector()
+        collector.feed(body)
+        if "manifest.json" not in collector.links or "README.md" not in collector.links:
+            errors.append("index.html must link README.md and manifest.json")
+        for entry in entries:
+            if not isinstance(entry, dict) or not _is_safe_relative(entry.get("path")):
+                continue
+            if entry.get("scope") == "repository":
+                link = os.path.relpath(root / entry["path"], run)
+            else:
+                link = entry["path"]
+            if link != "index.html" and link not in collector.links:
+                errors.append(f"index.html does not link manifest entry: {entry['path']}")
+    if readme_path.is_file():
+        body = readme_path.read_text(encoding="utf-8", errors="replace")
+        markdown_links = set(re.findall(r"\]\(([^)]+)\)", body))
+        if "manifest.json" not in markdown_links or "## Commands" not in body:
+            errors.append("README.md must link manifest.json and include Commands")
+        for entry in entries:
+            if not isinstance(entry, dict) or not _is_safe_relative(entry.get("path")):
+                continue
+            if entry.get("scope") == "repository":
+                link = os.path.relpath(root / entry["path"], run)
+            else:
+                link = entry["path"]
+            if link != "README.md" and link not in markdown_links:
+                errors.append(f"README.md does not link manifest entry: {entry['path']}")
+    return errors
 
 
 def validate_run(run: Path, *, root: Path = ROOT, require_index: bool = True) -> list[str]:
@@ -1247,15 +2016,23 @@ def validate_run(run: Path, *, root: Path = ROOT, require_index: bool = True) ->
         return [f"{run} is outside the canonical runs/ directory"]
     if len(relative_run.parts) != 1:
         return ["official experiment run must be one exact top-level runs/<task_id> directory"]
-    task, _lock, errors = _locked_task(run, root=root)
+    task, lock, errors = _locked_task(run, root=root)
     if not task:
         return errors
+    report_version = lock.get("report_template_version")
+    completed = True
+    if report_version == 2:
+        completed, source_errors = _v2_source_errors(run, task, lock)
+        errors.extend(source_errors)
     metrics_path = run / "metrics.json"
     try:
         metrics = _load_json(metrics_path)
     except ValueError as error:
         return errors + [str(error)]
-    errors.extend(_metric_errors(metrics, task))
+    if report_version == 1:
+        errors.extend(_metric_errors_v1(metrics, task))
+    elif report_version == 2:
+        errors.extend(_metric_errors_v2(metrics, task, lock, completed=completed))
     for artifact in metrics.get("artifacts", []):
         if isinstance(artifact, dict) and _is_safe_relative(artifact.get("path")):
             target = run / artifact["path"]
@@ -1270,10 +2047,17 @@ def validate_run(run: Path, *, root: Path = ROOT, require_index: bool = True) ->
         index = run / "index.html"
         if not index.is_file():
             errors.append("missing canonical index.html; run the render command")
-        elif f'content="{REPORT_TEMPLATE_VERSION}"' not in index.read_text(
+        elif f'content="{report_version}"' not in index.read_text(
             encoding="utf-8", errors="replace"
         ):
-            errors.append("index.html was not generated by the current canonical template")
+            errors.append("index.html does not match the locked canonical template")
+        if report_version == 2:
+            if not (run / "README.md").is_file():
+                errors.append("missing generated README.md; run the render command")
+            if not (run / "manifest.json").is_file():
+                errors.append("missing generated manifest.json; run the render command")
+            elif index.is_file() and (run / "README.md").is_file():
+                errors.extend(_manifest_errors(run, root, task, metrics))
     return errors
 
 
@@ -1319,8 +2103,8 @@ def _render_chart(chart: dict[str, Any]) -> str:
     )
 
 
-def render_run(run: Path, *, root: Path = ROOT) -> Path:
-    """Write the canonical report page after validating all source data."""
+def _render_run_v1(run: Path, *, root: Path = ROOT) -> Path:
+    """Render a grandfathered v1 bundle without changing its historical contract."""
 
     run = run.resolve()
     errors = validate_run(run, root=root, require_index=False)
@@ -1390,7 +2174,7 @@ def render_run(run: Path, *, root: Path = ROOT) -> Path:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="rtgs-experiment-report-template" content="{REPORT_TEMPLATE_VERSION}">
+<meta name="rtgs-experiment-report-template" content="1">
 <title>{html.escape(task["title"])}</title>
 <style>
 :root {{ color-scheme: light; --ink:#172033; --muted:#5c667a; --line:#d8deea;
@@ -1434,7 +2218,7 @@ pre {{ padding:13px; overflow:auto; }} a {{ color:#254fc4; }}
 </style>
 </head>
 <body><main>
-<p class="eyebrow">realtime-gs · canonical experiment report v{REPORT_TEMPLATE_VERSION}</p>
+<p class="eyebrow">realtime-gs · canonical experiment report v1</p>
 <h1>{html.escape(task["title"])}</h1>
 <div class="chips">
 <span class="chip">{html.escape(task["arm"])}</span>
@@ -1497,6 +2281,653 @@ pre {{ padding:13px; overflow:auto; }} a {{ color:#254fc4; }}
     return path
 
 
+def _flatten_parameters(value: object, prefix: str = "") -> list[tuple[str, str]]:
+    rows: list[tuple[str, str]] = []
+    if isinstance(value, dict):
+        for key in sorted(value):
+            nested = f"{prefix}.{key}" if prefix else key
+            rows.extend(_flatten_parameters(value[key], nested))
+    elif isinstance(value, list):
+        rows.append((prefix, json.dumps(value, ensure_ascii=True, allow_nan=False)))
+    elif value is None:
+        rows.append((prefix, "null"))
+    elif isinstance(value, bool):
+        rows.append((prefix, str(value).lower()))
+    else:
+        rows.append((prefix, str(value)))
+    return rows
+
+
+def _history_svg(
+    metric_id: str,
+    records: list[dict[str, Any]],
+    metadata: dict[str, Any],
+    stage_markers: list[dict[str, Any]],
+) -> str:
+    width, height = 820, 350
+    left, right, top, bottom = 62, 18, 46, 70
+    plot_width = width - left - right
+    plot_height = height - top - bottom
+    elapsed = [float(item["wall_seconds"]) for item in records]
+    elapsed.extend(float(item["wall_seconds"]) for item in stage_markers)
+    values = [float(item["value"]) for item in records]
+    x_min, x_max = min(elapsed), max(elapsed)
+    y_min, y_max = min(values), max(values)
+    if x_min == x_max:
+        x_max = x_min + 1.0
+    if y_min == y_max:
+        padding = abs(y_min) * 0.05 or 0.5
+        y_min -= padding
+        y_max += padding
+    else:
+        padding = (y_max - y_min) * 0.08
+        y_min -= padding
+        y_max += padding
+
+    def x_position(wall_seconds: float) -> float:
+        return left + (wall_seconds - x_min) * plot_width / (x_max - x_min)
+
+    def y_position(value: float) -> float:
+        return top + (y_max - value) * plot_height / (y_max - y_min)
+
+    grid: list[str] = []
+    for index in range(5):
+        fraction = index / 4
+        y = top + fraction * plot_height
+        label = y_max - fraction * (y_max - y_min)
+        grid.append(
+            f'<line x1="{left}" y1="{y:.2f}" x2="{width - right}" y2="{y:.2f}" '
+            'stroke="#d8deea" stroke-width="1"/>'
+            f'<text x="{left - 8}" y="{y + 4:.2f}" text-anchor="end" '
+            f'font-size="11" fill="#5c667a">{html.escape(_format_number(label))}</text>'
+        )
+    series: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for record in records:
+        series[record["split"]].append(record)
+    colors = ("#3659d9", "#d95f36", "#17876d", "#8b4cc2", "#b17a13", "#326f9f")
+    lines: list[str] = []
+    legend: list[str] = []
+    for index, (key, points) in enumerate(sorted(series.items())):
+        color = colors[index % len(colors)]
+        ordered = sorted(points, key=lambda item: (item["wall_seconds"], item["step"]))
+        coordinates = " ".join(
+            f"{x_position(float(item['wall_seconds'])):.2f},{y_position(float(item['value'])):.2f}"
+            for item in ordered
+        )
+        lines.append(
+            f'<polyline points="{coordinates}" fill="none" stroke="{color}" '
+            'stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>'
+        )
+        legend.append(f'<span><i style="background:{color}"></i>{html.escape(key)}</span>')
+    marker_lookup = {(marker["stage"], marker["boundary"]): marker for marker in stage_markers}
+    stage_order = list(dict.fromkeys(marker["stage"] for marker in stage_markers))
+    stage_fills = ("#dce5ff", "#e1f3ed", "#f9e9da", "#eee2f8")
+    bands: list[str] = []
+    boundaries: list[str] = []
+    stage_legend: list[str] = []
+    for index, stage in enumerate(stage_order):
+        start = marker_lookup.get((stage, "start"))
+        end = marker_lookup.get((stage, "end"))
+        if start is None:
+            continue
+        start_seconds = float(start["wall_seconds"])
+        start_x = x_position(start_seconds)
+        end_seconds = float(end["wall_seconds"]) if end is not None else x_max
+        end_x = x_position(end_seconds)
+        fill = stage_fills[index % len(stage_fills)]
+        bands.append(
+            f'<rect data-stage="{html.escape(stage, quote=True)}" '
+            f'x="{start_x:.2f}" y="{top}" width="{max(0.0, end_x - start_x):.2f}" '
+            f'height="{plot_height}" fill="{fill}" fill-opacity="0.52"/>'
+        )
+        if end_x - start_x >= 54:
+            bands.append(
+                f'<text x="{(start_x + end_x) / 2:.2f}" y="{top + 14}" '
+                'text-anchor="middle" font-size="10" font-weight="650" fill="#465168">'
+                f"{html.escape(start['label'])}</text>"
+            )
+        for boundary, marker in (("start", start), ("end", end)):
+            if marker is None:
+                continue
+            marker_x = x_position(float(marker["wall_seconds"]))
+            dash = "" if boundary == "start" else ' stroke-dasharray="5 3"'
+            boundaries.append(
+                f'<line class="stage-boundary" '
+                f'data-stage="{html.escape(stage, quote=True)}" '
+                f'data-boundary="{boundary}" x1="{marker_x:.2f}" y1="{top}" '
+                f'x2="{marker_x:.2f}" y2="{top + plot_height}" stroke="#4c566d" '
+                f'stroke-width="1.6"{dash}><title>'
+                f"{html.escape(marker['label'])} · {boundary} · "
+                f"{html.escape(_format_number(float(marker['wall_seconds'])))} s"
+                "</title></line>"
+            )
+        end_text = (
+            f"{_format_number(float(end['wall_seconds']))} s" if end is not None else "incomplete"
+        )
+        stage_legend.append(
+            '<span class="stage-interval">'
+            f'<i style="background:{fill}"></i><strong>{html.escape(start["label"])}</strong>: '
+            f"start {_format_number(start_seconds)} s → end {html.escape(end_text)}</span>"
+        )
+    title = metadata[metric_id]["label"]
+    unit = metadata[metric_id]["unit"]
+    first = records[0]
+    series_label = f"{first['dataset_id']} · {first['arm_id']} · seed {first['seed']}"
+    return (
+        "<section class='panel history-chart'>"
+        f"<h3>{html.escape(title)}</h3><p class='series-context'>{html.escape(series_label)}</p>"
+        f"<p class='unit'>{html.escape(unit)} over elapsed time</p>"
+        f'<svg viewBox="0 0 {width} {height}" role="img" '
+        f'aria-label="{html.escape(title, quote=True)} over elapsed fitting time, with '
+        'stage start and end boundaries">'
+        + "".join(bands)
+        + "".join(grid)
+        + f'<line x1="{left}" y1="{top + plot_height}" x2="{width - right}" '
+        f'y2="{top + plot_height}" stroke="#596277"/>'
+        + "".join(lines)
+        + "".join(boundaries)
+        + f'<text x="{left}" y="{height - 38}" font-size="11" fill="#5c667a">'
+        f"{html.escape(_format_number(x_min))}</text>"
+        + f'<text x="{width - right}" y="{height - 38}" text-anchor="end" '
+        f'font-size="11" fill="#5c667a">{html.escape(_format_number(x_max))}</text>'
+        + f'<text x="{width / 2:.1f}" y="{height - 18}" text-anchor="middle" '
+        'font-size="12" fill="#5c667a">elapsed time (s)</text></svg>'
+        + "<div class='legend'>"
+        + "".join(legend)
+        + "</div><div class='stage-legend' aria-label='Stage intervals'>"
+        + "".join(stage_legend)
+        + "</div></section>"
+    )
+
+
+def _history_charts(history: dict[str, Any]) -> str:
+    records = history["records"]
+    if not records:
+        return (
+            "<section class='panel failure'><h3>No fitting history</h3>"
+            "<p>The run failed before it produced a fitting record. See the failure receipt.</p>"
+            "</section>"
+        )
+    by_metric_and_series: dict[tuple[str, str, str, int], list[dict[str, Any]]] = defaultdict(list)
+    for record in records:
+        key = (
+            record["metric_id"],
+            record["dataset_id"],
+            record["arm_id"],
+            record["seed"],
+        )
+        by_metric_and_series[key].append(record)
+    markers_by_series: dict[tuple[str, str, int], list[dict[str, Any]]] = defaultdict(list)
+    for marker in history["stage_markers"]:
+        key = (marker["dataset_id"], marker["arm_id"], marker["seed"])
+        markers_by_series[key].append(marker)
+    return "".join(
+        _history_svg(
+            key[0],
+            by_metric_and_series[key],
+            history["metric_metadata"],
+            markers_by_series[key[1:]],
+        )
+        for key in sorted(by_metric_and_series)
+    )
+
+
+def _inventory_role(path: str, *, repository: bool) -> str:
+    if repository:
+        return "evidence"
+    if path in {"index.html", "README.md"}:
+        return "report"
+    if path == "metrics.json":
+        return "summary"
+    if path == "training_history.json":
+        return "fitting_history"
+    if path == "gaussians.config.json":
+        return "effective_parameters"
+    if path == "task.lock.json":
+        return "provenance"
+    if path.endswith("receipt.json") or path.endswith("receipt.md") or path == "viewer_smoke.json":
+        return "receipt"
+    if path.endswith(".ply"):
+        return "model"
+    if Path(path).suffix.lower() in {".png", ".gif", ".jpg", ".jpeg", ".webp"}:
+        return "preview"
+    return "artifact"
+
+
+def _media_type(path: str) -> str:
+    suffixes = {
+        ".csv": "text/csv",
+        ".gif": "image/gif",
+        ".html": "text/html",
+        ".jpeg": "image/jpeg",
+        ".jpg": "image/jpeg",
+        ".json": "application/json",
+        ".md": "text/markdown",
+        ".npy": "application/octet-stream",
+        ".npz": "application/octet-stream",
+        ".ply": "application/octet-stream",
+        ".png": "image/png",
+        ".txt": "text/plain",
+        ".webp": "image/webp",
+    }
+    return suffixes.get(Path(path).suffix.lower(), "application/octet-stream")
+
+
+def _inventory_descriptors(run: Path, root: Path, metrics: dict[str, Any]) -> list[dict[str, str]]:
+    labels = {
+        item["path"]: item["label"]
+        for item in metrics["artifacts"]
+        if isinstance(item, dict) and _is_safe_relative(item.get("path"))
+    }
+    descriptors: list[dict[str, str]] = []
+    excluded = {"index.html", "README.md", "manifest.json"}
+    for target in sorted(run.rglob("*")):
+        if target.is_symlink():
+            raise ValueError(f"run bundles may not contain symlinks: {target.relative_to(run)}")
+        if not target.is_file():
+            continue
+        path = target.relative_to(run).as_posix()
+        if path in excluded or (target.name.startswith(".") and target.name.endswith(".tmp")):
+            continue
+        descriptors.append(
+            {
+                "label": labels.get(path, path.replace("_", " ")),
+                "path": path,
+                "scope": "run",
+                "role": _inventory_role(path, repository=False),
+            }
+        )
+    for name, label in (("index.html", "Interactive results report"), ("README.md", "Run note")):
+        descriptors.append({"label": label, "path": name, "scope": "run", "role": "report"})
+    for item in metrics["evidence"]:
+        descriptors.append(
+            {
+                "label": item["label"],
+                "path": item["path"],
+                "scope": "repository",
+                "role": "evidence",
+            }
+        )
+    return sorted(descriptors, key=lambda item: (item["scope"], item["path"]))
+
+
+def _descriptor_link(descriptor: dict[str, str], run: Path, root: Path) -> str:
+    if descriptor["scope"] == "repository":
+        return os.path.relpath(root / descriptor["path"], run)
+    return descriptor["path"]
+
+
+def _parameter_rows_html(parameters: list[tuple[str, str]]) -> str:
+    return "".join(
+        "<tr>"
+        f"<td><code>{html.escape(name)}</code></td>"
+        f"<td><code>{html.escape(value)}</code></td>"
+        "</tr>"
+        for name, value in parameters
+    )
+
+
+def _metrics_html(metrics: dict[str, Any]) -> str:
+    if not metrics["metrics"]:
+        return "<section class='panel failure'><p>No final metrics were produced.</p></section>"
+    grouped: dict[str, list[tuple[int | float, dict[str, str]]]] = defaultdict(list)
+    for metric_id, value in metrics["metrics"].items():
+        metadata = metrics["metric_metadata"][metric_id]
+        grouped[metadata["group"]].append((value, metadata))
+    sections: list[str] = []
+    for group, rows in grouped.items():
+        body = "".join(
+            "<tr>"
+            f"<td>{html.escape(metadata['label'])}</td>"
+            f"<td>{html.escape(_format_number(value))}</td>"
+            f"<td>{html.escape(metadata['unit'])}</td>"
+            f"<td>{html.escape(metadata['direction'])}</td></tr>"
+            for value, metadata in rows
+        )
+        sections.append(
+            f"<section class='panel'><h3>{html.escape(group)}</h3>"
+            "<div class='table-wrap'><table><thead><tr><th>Metric</th><th>Value</th>"
+            f"<th>Unit</th><th>Better</th></tr></thead><tbody>{body}</tbody></table></div>"
+            "</section>"
+        )
+    return "".join(sections)
+
+
+def _commands_html(commands: dict[str, Any]) -> str:
+    viewer = commands["viewer"]
+    viewer_text = shlex.join(viewer) if viewer else "Unavailable: the run did not complete."
+    return (
+        "<section class='panel commands'><h3>Reproduce</h3>"
+        f"<pre>{html.escape(shlex.join(commands['reproduce']))}</pre>"
+        "<h3>Serve this report</h3>"
+        f"<pre>{html.escape(shlex.join(commands['serve_report']))}</pre>"
+        "<p>Open <code>http://localhost:8765/index.html</code> from the served directory.</p>"
+        "<h3>Start the orbit viewer</h3>"
+        f"<pre>{html.escape(viewer_text)}</pre></section>"
+    )
+
+
+def _render_v2_readme(
+    task: dict[str, Any],
+    lock: dict[str, Any],
+    metrics: dict[str, Any],
+    receipt: dict[str, Any],
+    parameters: list[tuple[str, str]],
+    descriptors: list[dict[str, str]],
+    run: Path,
+    root: Path,
+) -> str:
+    status = receipt["status"]
+    lines = [
+        f"# {task['title']}",
+        "",
+        "> Generated by `scripts/experiment_contract.py`; do not hand-edit.",
+        "",
+        f"- Task: `{task['task_id']}`",
+        f"- Status: **{status}**",
+        f"- Decision: `{metrics['decision']}`",
+        f"- Evidence phase: `{task['evidence_phase']}`",
+        f"- Source commit: `{lock['source_commit']}`",
+        "",
+        "## Summary",
+        "",
+        metrics["summary"],
+        "",
+        "## Claim boundary",
+        "",
+        metrics["claim_boundary"],
+        "",
+    ]
+    if status == "failed":
+        lines.extend(
+            [
+                "## Failure",
+                "",
+                f"- Phase: `{receipt['failure_phase']}`",
+                f"- Exit code: `{receipt['exit_code']}`",
+                f"- Message: {receipt['message']}",
+                "",
+            ]
+        )
+    policy = task["input_policy"]
+    lines.extend(
+        [
+            "## Input boundary",
+            "",
+            "- Reconstruction may read: "
+            + ", ".join(f"`{item}`" for item in policy["reconstruction_allowed"]),
+            "- Reconstruction must reject: "
+            + ", ".join(f"`{item}`" for item in policy["reconstruction_forbidden"]),
+            "- Evaluation may read: "
+            + ", ".join(f"`{item}`" for item in policy["evaluation_allowed"]),
+            "",
+            "## Pipeline",
+            "",
+        ]
+    )
+    lines.extend(
+        f"{index}. **{stage['label']}** — {stage['purpose']}"
+        for index, stage in enumerate(task["stages"], start=1)
+    )
+    lines.append("")
+    lines.extend(["## Effective parameters", "", "| Parameter | Value |", "|---|---|"])
+    lines.extend(
+        f"| <code>{html.escape(name)}</code> | "
+        f"<code>{html.escape(value).replace('|', '&#124;')}</code> |"
+        for name, value in parameters
+    )
+    lines.extend(["", "## Commands", "", "Run these from the repository root.", ""])
+    command_sections = (
+        ("Reproduce", metrics["commands"]["reproduce"]),
+        ("Serve the report", metrics["commands"]["serve_report"]),
+        ("Start the orbit viewer", metrics["commands"]["viewer"]),
+    )
+    for label, command in command_sections:
+        lines.extend([f"### {label}", ""])
+        if command:
+            lines.extend(["```sh", shlex.join(command), "```", ""])
+        else:
+            lines.extend(["Unavailable because the run did not complete.", ""])
+    lines.extend(["## Final metrics", "", "| Metric | Value | Unit |", "|---|---:|---|"])
+    if metrics["metrics"]:
+        for metric_id, value in metrics["metrics"].items():
+            metadata = metrics["metric_metadata"][metric_id]
+            label = html.escape(metadata["label"]).replace("|", "&#124;")
+            unit = html.escape(metadata["unit"]).replace("|", "&#124;")
+            lines.append(f"| {label} | {_format_number(value)} | {unit} |")
+    else:
+        lines.append("| No final metrics produced | — | — |")
+    lines.extend(["", "## Artifacts and evidence", "", "- [Checksum manifest](manifest.json)"])
+    for descriptor in descriptors:
+        if descriptor["path"] == "README.md":
+            continue
+        link = _descriptor_link(descriptor, run, root)
+        label = descriptor["label"].replace("[", "\\[").replace("]", "\\]")
+        lines.append(f"- [{label}]({link}) — `{descriptor['role']}`")
+    lines.extend(["", "## Notes", ""])
+    lines.extend(f"- {note}" for note in metrics["notes"])
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _manifest_entries(
+    descriptors: list[dict[str, str]], run: Path, root: Path
+) -> list[dict[str, Any]]:
+    entries: list[dict[str, Any]] = []
+    for descriptor in descriptors:
+        base = run if descriptor["scope"] == "run" else root
+        target = base / descriptor["path"]
+        if target.is_symlink() or not target.is_file():
+            raise ValueError(f"cannot inventory missing/non-regular file: {descriptor['path']}")
+        entries.append(
+            {
+                **descriptor,
+                "media_type": _media_type(descriptor["path"]),
+                "size_bytes": target.stat().st_size,
+                "sha256": _sha256_file(target),
+            }
+        )
+    return entries
+
+
+def _render_run_v2(run: Path, *, root: Path = ROOT) -> Path:
+    errors = validate_run(run, root=root, require_index=False)
+    if errors:
+        raise ValueError("cannot render invalid run:\n- " + "\n- ".join(errors))
+    task, lock, lock_errors = _locked_task(run, root=root)
+    if lock_errors:
+        raise ValueError("\n".join(lock_errors))
+    metrics = _load_json(run / "metrics.json")
+    history = _load_json(run / "training_history.json")
+    config = _load_json(run / "gaussians.config.json")
+    receipt = _load_json(run / "run_receipt.json")
+    environment = _load_json(run / "environment.json")
+    parameters = _flatten_parameters(config)
+    descriptors = _inventory_descriptors(run, root, metrics)
+    status = receipt["status"]
+    status_detail = (
+        f"Completed successfully (exit {receipt['exit_code']})."
+        if status == "completed"
+        else f"Failed during {receipt['failure_phase']} (exit {receipt['exit_code']}): "
+        + receipt["message"]
+    )
+    stages = "".join(
+        "<li><strong>"
+        + html.escape(stage["label"])
+        + "</strong><span>"
+        + html.escape(stage["purpose"])
+        + "</span></li>"
+        for stage in task["stages"]
+    )
+    final_charts = "".join(_render_chart(chart) for chart in metrics["charts"])
+    inventory_rows = []
+    for descriptor in descriptors:
+        link = _descriptor_link(descriptor, run, root)
+        if descriptor["path"] == "index.html":
+            label = html.escape(descriptor["label"])
+        else:
+            label = (
+                f'<a href="{html.escape(link, quote=True)}">{html.escape(descriptor["label"])}</a>'
+            )
+        inventory_rows.append(
+            f"<tr><td>{label}</td><td><code>{html.escape(descriptor['path'])}</code></td>"
+            f"<td>{html.escape(descriptor['role'])}</td>"
+            f"<td>{html.escape(descriptor['scope'])}</td></tr>"
+        )
+    task_link = os.path.relpath(root / lock["task_path"], run)
+    seal_link = os.path.relpath(root / lock["data_seal_path"], run)
+    review = task["protocol_review"]
+    review_link = os.path.relpath(root / review["artifact"], run)
+    notes = "".join(f"<li>{html.escape(note)}</li>" for note in metrics["notes"])
+    datasets = ", ".join(f"{item['id']} ({item['role']})" for item in task["datasets"])
+    environment_rows = [
+        ("Python", environment["python"]),
+        ("Platform", environment["platform"]),
+        ("Device", f"{environment['device']['type']} · {environment['device']['name']}"),
+        ("CUDA", environment["device"]["cuda"] or "none"),
+    ]
+    environment_html = "".join(
+        f"<tr><td>{html.escape(label)}</td><td><code>{html.escape(value)}</code></td></tr>"
+        for label, value in environment_rows
+    )
+    allowed = ", ".join(task["input_policy"]["reconstruction_allowed"])
+    forbidden = ", ".join(task["input_policy"]["reconstruction_forbidden"])
+    evaluation = ", ".join(task["input_policy"]["evaluation_allowed"])
+    page = f"""<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="rtgs-experiment-report-template" content="2">
+<title>{html.escape(task["title"])}</title>
+<style>
+:root {{ color-scheme:light; --ink:#172033; --muted:#5c667a; --line:#d8deea;
+--paper:#f5f7fb; --panel:#fff; --accent:#3659d9; --danger:#a73535; --ok:#17705a; }}
+* {{ box-sizing:border-box; }} body {{ margin:0; background:var(--paper); color:var(--ink);
+font:15px/1.5 system-ui,-apple-system,sans-serif; }}
+main {{ max-width:1180px; margin:auto; padding:36px 22px 72px; }}
+h1 {{ font-size:clamp(28px,4vw,46px); line-height:1.08; margin:.2rem 0 .7rem; }}
+h2 {{ margin:2.2rem 0 .8rem; }} h3 {{ margin:.1rem 0 .7rem; }}
+.eyebrow,.unit {{ color:var(--muted); text-transform:uppercase; letter-spacing:.08em;
+font-size:12px; font-weight:700; }} .summary {{ font-size:19px; max-width:900px; }}
+.chips {{ display:flex; gap:8px; flex-wrap:wrap; margin:18px 0; }}
+.chip {{ background:#e8edff; color:#2543b4; border-radius:999px; padding:5px 10px;
+font-weight:650; }} .status {{ border-left:6px solid var(--ok); }}
+.status.failed,.failure {{ border-left:6px solid var(--danger); }}
+.grid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:14px; }}
+.panel {{ background:var(--panel); border:1px solid var(--line); border-radius:14px;
+padding:18px; box-shadow:0 2px 8px #1520400a; min-width:0; }}
+.claim {{ border-left:5px solid #e0902f; }} .pipeline {{ display:flex; list-style:none;
+gap:10px; padding:0; overflow-x:auto; }} .pipeline li {{ min-width:180px; flex:1;
+background:var(--panel); border:1px solid var(--line); border-top:4px solid var(--accent);
+border-radius:10px; padding:13px; }} .pipeline span {{ display:block; color:var(--muted);
+font-size:13px; margin-top:5px; }} .table-wrap {{ overflow:auto; }}
+table {{ width:100%; border-collapse:collapse; }} th,td {{ text-align:left; padding:8px 10px;
+border-bottom:1px solid var(--line); vertical-align:top; }} th {{ color:var(--muted);
+font-size:12px; text-transform:uppercase; letter-spacing:.05em; }}
+.bar-row {{ display:grid; grid-template-columns:minmax(110px,1fr) minmax(110px,2fr) 80px;
+gap:9px; align-items:center; margin:9px 0; }} .bar-track {{ position:relative; height:14px;
+background:#edf0f6; border-radius:8px; overflow:hidden; }} .bar-zero {{ position:absolute;
+top:0; bottom:0; width:1px; background:#596277; z-index:2; }} .bar-fill {{ position:absolute;
+top:0; height:100%; background:linear-gradient(90deg,var(--accent),#7b93ec); }}
+.bar-value {{ text-align:right; font-variant-numeric:tabular-nums; }} svg {{ width:100%;
+height:auto; }} .legend,.stage-legend {{ display:flex; flex-wrap:wrap; gap:6px 14px;
+font-size:12px; }}
+.legend span {{ display:flex; align-items:center; gap:5px; }}
+.legend i {{ width:16px; height:3px; }} .series-context {{ color:var(--muted);
+margin:-.35rem 0 .45rem; }} .stage-legend {{ margin-top:9px; padding-top:9px;
+border-top:1px solid var(--line); }} .stage-interval {{ display:flex; align-items:center;
+gap:5px; }} .stage-interval i {{ width:14px; height:14px; border:1px solid #aab3c4;
+flex:0 0 auto; }}
+code,pre {{ background:#eef1f7; border-radius:7px; }} code {{ padding:2px 5px; }}
+pre {{ padding:13px; overflow:auto; }} a {{ color:#254fc4; }} footer {{ color:var(--muted);
+margin-top:28px; }}
+</style></head><body><main>
+<p class="eyebrow">realtime-gs · canonical experiment bundle v2</p>
+<h1>{html.escape(task["title"])}</h1>
+<div class="chips"><span class="chip">{html.escape(task["task_id"])}</span>
+<span class="chip">{html.escape(task["evidence_phase"])}</span>
+<span class="chip">decision: {html.escape(metrics["decision"])}</span></div>
+<section class="panel status {html.escape(status)}"><h2>Run status: {html.escape(status)}</h2>
+<p>{html.escape(status_detail)}</p></section>
+<p class="summary">{html.escape(metrics["summary"])}</p>
+<section class="panel claim"><h2>Claim boundary</h2>
+<p>{html.escape(metrics["claim_boundary"])}</p></section>
+
+<h2>Input boundary</h2><div class="grid">
+<section class="panel"><h3>Reconstruction may read</h3><p>{html.escape(allowed)}</p></section>
+<section class="panel"><h3>Reconstruction must reject</h3><p>{html.escape(forbidden)}</p></section>
+<section class="panel"><h3>Evaluation may read</h3><p>{html.escape(evaluation)}</p></section></div>
+
+<h2>Pipeline</h2><ol class="pipeline">{stages}</ol>
+<h2>Fitting process</h2><div class="grid">{_history_charts(history)}</div>
+<h2>Final metrics</h2><div class="grid">{_metrics_html(metrics)}</div>
+<h2>Required diagrams</h2><div class="grid">{final_charts}</div>
+
+<h2>Effective parameters</h2><section class="panel table-wrap"><table><thead><tr>
+<th>Parameter</th><th>Value</th></tr></thead><tbody>{_parameter_rows_html(parameters)}</tbody>
+</table></section>
+
+<h2>Commands</h2>{_commands_html(metrics["commands"])}
+
+<h2>Protocol, environment, and provenance</h2><div class="grid">
+<section class="panel"><h3>Frozen protocol</h3>
+<p><strong>Task:</strong> <a href="{html.escape(task_link, quote=True)}">
+{html.escape(task["task_id"])}</a></p>
+<p><strong>Data seal:</strong> <a href="{html.escape(seal_link, quote=True)}">
+{html.escape(lock["data_seal_path"])}</a></p>
+<p><strong>Prospective review:</strong> <a href="{html.escape(review_link, quote=True)}">
+{html.escape(review["reviewer"])}</a></p>
+<p><strong>Protocol digest:</strong> <code>{html.escape(review["protocol_sha256"])}</code></p>
+<p><strong>Source commit:</strong> <code>{html.escape(lock["source_commit"])}</code></p>
+<p><strong>Datasets:</strong> {html.escape(datasets)}</p></section>
+<section class="panel"><h3>Execution environment</h3>
+<table><tbody>{environment_html}</tbody></table>
+<p><a href="environment.json">Full environment record</a> ·
+<a href="run_receipt.json">Run receipt</a></p>
+</section></div>
+
+<h2>Artifact inventory</h2><section class="panel table-wrap"><p>
+<a href="README.md">Run note</a> · <a href="manifest.json">Checksummed manifest</a></p>
+<table><thead><tr><th>Artifact</th><th>Path</th><th>Role</th><th>Scope</th></tr></thead>
+<tbody>{"".join(inventory_rows)}</tbody></table></section>
+<h2>Notes</h2><section class="panel"><ul>{notes}</ul></section>
+<footer>Generated from frozen machine records. Do not hand-edit index.html, README.md,
+or manifest.json.</footer>
+</main></body></html>
+"""
+    readme = _render_v2_readme(task, lock, metrics, receipt, parameters, descriptors, run, root)
+    for name, body in (("index.html", page), ("README.md", readme)):
+        path = run / name
+        temporary = run / f".{name}.tmp"
+        temporary.write_text(body, encoding="utf-8")
+        temporary.replace(path)
+    manifest = {
+        "schema_version": 1,
+        "task_id": task["task_id"],
+        "report_template_version": 2,
+        "entries": _manifest_entries(descriptors, run, root),
+    }
+    _write_json(run / "manifest.json", manifest)
+    output_errors = validate_run(run, root=root)
+    if output_errors:
+        raise ValueError("rendered bundle failed validation:\n- " + "\n- ".join(output_errors))
+    return run / "index.html"
+
+
+def render_run(run: Path, *, root: Path = ROOT) -> Path:
+    """Render the report version frozen into the task and run lock."""
+
+    run = run.resolve()
+    task, lock, errors = _locked_task(run, root=root)
+    if not task or errors:
+        raise ValueError("cannot render invalid run lock:\n- " + "\n- ".join(errors))
+    if lock["report_template_version"] == 1:
+        return _render_run_v1(run, root=root)
+    if lock["report_template_version"] == 2:
+        return _render_run_v2(run, root=root)
+    raise ValueError("unsupported report template version")
+
+
 def _print_errors(label: str, errors: list[str]) -> int:
     if not errors:
         print(f"{label}: OK")
@@ -1533,10 +2964,12 @@ def main(argv: list[str] | None = None) -> int:
         help="allow a dirty tracked worktree and mark the run non-official",
     )
 
-    render = subparsers.add_parser("render", help="render canonical index.html from metrics.json")
+    render = subparsers.add_parser("render", help="render the frozen canonical report bundle")
     render.add_argument("run", type=Path)
 
-    check = subparsers.add_parser("check-run", help="validate task lock, metrics, page, and links")
+    check = subparsers.add_parser(
+        "check-run", help="validate the task lock, producer records, generated report, and manifest"
+    )
     check.add_argument("run", type=Path)
     args = parser.parse_args(argv)
 

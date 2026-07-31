@@ -1,12 +1,13 @@
 {
   "schema_version": 2,
+  "report_template_version": 2,
   "task_id": "20260730_additive_analytic_objective_stage_frames00008_00009",
   "date": "20260730",
   "task_slug": "additive_analytic_objective",
   "data_slug": "stage_frames00008_00009",
   "arm": "direct_compact",
   "status": "draft",
-  "owner": "Claude-additive-objective-driver",
+  "owner": "Codex",
   "protocol_review": {
     "reviewer": null,
     "verdict": "pending",

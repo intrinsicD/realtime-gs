@@ -23,9 +23,10 @@
 >
 > Each iteration may begin with synthetic mechanism evidence, but it is not complete until the
 > surviving path is exercised on a calibrated scene under `dataset/` with frozen train/validation/
-> held-out roles. Save initial/final PLYs and preview artifacts, launch `rtgs view`, and include the
-> exact viewer command in the handoff. Use exact rasterizer metrics for decisions; use the WebGL
-> viewer to inspect geometry and failure modes rather than as quantitative evidence.
+> held-out roles. Save initial/final PLYs and preview artifacts, launch `rtgs view`, exercise a real
+> WebGL2 client, visible scene pixels, and orbit interaction, and include the structured browser
+> smoke plus exact viewer command in the handoff. Use exact rasterizer metrics for decisions; use
+> the WebGL viewer to inspect geometry and failure modes rather than as quantitative evidence.
 >
 > After every iteration, append `docs/EXPERIMENTS.md` and preserve machine-readable evidence under
 > `benchmarks/results/`. At the end, update research/architecture/roadmap documentation, run

@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "records": [
+    {
+      "step": 0,
+      "wall_seconds": 0.0,
+      "stage": "stage_id",
+      "dataset_id": "frame_id",
+      "arm_id": "comparator_id",
+      "seed": 1,
+      "split": "train",
+      "metric_id": "loss_total",
+      "value": 1.0
+    },
+    {
+      "step": 1,
+      "wall_seconds": 1.0,
+      "stage": "stage_id",
+      "dataset_id": "frame_id",
+      "arm_id": "comparator_id",
+      "seed": 1,
+      "split": "train",
+      "metric_id": "loss_total",
+      "value": 0.5
+    }
+  ],
+  "metric_metadata": {
+    "loss_total": {
+      "label": "Total fitting objective",
+      "unit": "loss",
+      "group": "Objective",
+      "direction": "lower"
+    }
+  },
+  "stage_markers": [
+    {
+      "step": 0,
+      "wall_seconds": 0.0,
+      "stage": "stage_id",
+      "dataset_id": "frame_id",
+      "arm_id": "comparator_id",
+      "seed": 1,
+      "boundary": "start",
+      "label": "Stage label"
+    },
+    {
+      "step": 1,
+      "wall_seconds": 1.0,
+      "stage": "stage_id",
+      "dataset_id": "frame_id",
+      "arm_id": "comparator_id",
+      "seed": 1,
+      "boundary": "end",
+      "label": "Stage label"
+    }
+  ]
+}

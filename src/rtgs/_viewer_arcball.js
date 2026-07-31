@@ -24,12 +24,17 @@
   const state = {
     disposed: false,
     retryTimer: null,
+    gaussianRepairTimer: null,
     cleanup: null,
     dispose() {
       state.disposed = true;
       if (state.retryTimer !== null) {
         window.clearTimeout(state.retryTimer);
         state.retryTimer = null;
+      }
+      if (state.gaussianRepairTimer !== null) {
+        window.clearTimeout(state.gaussianRepairTimer);
+        state.gaussianRepairTimer = null;
       }
       if (state.cleanup !== null) {
         state.cleanup();
@@ -63,6 +68,38 @@
       console.error("realtime-gs arcball camera requires Viser camera-controls");
       return;
     }
+
+    // Viser 1.0.30 builds its global Gaussian quad with a two-component
+    // position attribute but leaves Three.js frustum culling enabled. Three.js
+    // then tries to compute a 3D bounding sphere, gets an undefined z value,
+    // and emits a console error on every fresh renderer. The splat shader does
+    // its own camera-space visibility, so disable only this invalid generic
+    // culling path. Keep checking to cover React remounts and buffer resizing.
+    const repairGaussianRenderer = () => {
+      if (state.disposed) return;
+      let repaired = 0;
+      mutable.scene?.traverse?.((object) => {
+        if (
+          object.geometry?.type === "InstancedBufferGeometry" &&
+          object.geometry.attributes?.position?.itemSize === 2 &&
+          object.geometry.attributes?.sortedIndex?.itemSize === 1 &&
+          object.material?.uniforms?.textureBuffer !== undefined &&
+          object.material?.uniforms?.numGaussians !== undefined
+        ) {
+          object.frustumCulled = false;
+          repaired += 1;
+        }
+      });
+      window.__rtgsViewerDiagnostics = {
+        gaussianRendererReady: repaired > 0,
+        gaussianFrustumCullingDisabled: repaired,
+      };
+      state.gaussianRepairTimer = window.setTimeout(
+        repairGaussianRenderer,
+        repaired > 0 ? 250 : 5,
+      );
+    };
+    repairGaussianRenderer();
 
     const noAction = controls.constructor.ACTION?.NONE ?? 0;
     const previousLeftAction = controls.mouseButtons.left;

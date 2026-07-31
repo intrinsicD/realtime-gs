@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "task_id": "REPLACE_WITH_TASK_ID",
+  "status": "completed",
+  "started_at_utc": "REPLACE_WITH_TASK_LOCK_STARTED_AT_UTC",
+  "finished_at_utc": "REPLACE_WITH_FINISHED_AT_UTC",
+  "exit_code": 0,
+  "failure_phase": null,
+  "message": "Run completed successfully."
+}

@@ -14,10 +14,13 @@ from rtgs.core.gaussians3d import Gaussians3D, quat_to_rotmat
 from rtgs.core.sh import rgb_to_sh
 from rtgs.viewer import (
     _arcball_camera_javascript,
+    _auto_preview_opacity_boost,
     _image_uint8,
     _install_arcball_camera,
     _latest_checkpoint,
+    _preview_opacities,
     _view_dependent_rgbs,
+    _viewer_background,
     camera_to_viewer_pose,
     prepare_viewer_data,
     render_exact_snapshot,
@@ -45,6 +48,33 @@ def test_prepare_viewer_data_filters_ranks_and_preserves_covariance():
     assert np.allclose(data.covariances[0], np.eye(3) * 0.2**2, atol=1e-6)
     assert np.allclose(data.rgbs[0], [0.0, 0.75, 0.25], atol=1e-6)
     assert np.allclose(data.opacities[:, 0], [0.8, 0.5])
+
+
+def test_preview_auto_visibility_boost_is_display_only():
+    gaussians = _gaussians().subset(torch.tensor([0, 1]))
+    gaussians.opacity.fill_(0.1)
+    data = prepare_viewer_data(gaussians)
+
+    assert np.isclose(_auto_preview_opacity_boost(data.opacities), 6.0)
+    assert _auto_preview_opacity_boost(np.array([[0.5]], dtype=np.float32)) == 1.0
+    assert _auto_preview_opacity_boost(np.zeros((2, 1), dtype=np.float32)) == 1.0
+    assert np.allclose(
+        _preview_opacities(data, data.n, 1.0, auto_visibility=True),
+        0.6,
+        atol=1e-6,
+    )
+    assert np.allclose(
+        _preview_opacities(data, data.n, 1.0, auto_visibility=False),
+        0.1,
+        atol=1e-6,
+    )
+    exact = selected_gaussians(gaussians, data, data.n, opacity_scale=1.0)
+    assert torch.allclose(exact.opacity, torch.full_like(exact.opacity, 0.1))
+
+    neutral = _viewer_background("neutral gray")
+    assert neutral.shape == (2, 2, 3)
+    assert neutral.dtype == np.uint8
+    assert np.all(neutral == 128)
 
 
 def test_selected_gaussians_matches_controls_and_cap():
@@ -99,6 +129,11 @@ def test_arcball_camera_uses_accumulated_local_axes_and_scale_aware_radius():
     assert "controls.maxPolarAngle = Math.PI" in source
     assert "controls.minAzimuthAngle = -Infinity" in source
     assert "controls.maxAzimuthAngle = Infinity" in source
+    assert "object.frustumCulled = false" in source
+    assert "attributes?.sortedIndex?.itemSize === 1" in source
+    assert "material?.uniforms?.textureBuffer" in source
+    assert "gaussianRepairTimer" in source
+    assert "__rtgsViewerDiagnostics" in source
 
 
 def test_arcball_camera_is_queued_as_persistent_viser_javascript():
