@@ -1,0 +1,272 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260731_active_set_updates_stage_frames00008_00009",
+  "date": "20260731",
+  "task_slug": "active_set_updates",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "rgb_3dgs",
+  "status": "draft",
+  "owner": null,
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
+  "depends_on": [],
+  "title": "Priority-ranked active-set parameter updates from existing strategy statistics",
+  "question": "Does restricting per-iteration parameter updates to a priority-ranked active subset of Gaussians, scored only from statistics the gsplat-default path already maintains, preserve reconstruction quality per effective updated Gaussian-row?",
+  "hypothesis": "At matched iteration counts, updating only the top-priority fraction of rows (rank-blended accumulated screen gradient, visibility count, recent gradient variance, and a newborn age bonus) loses materially less held-out quality than a size-matched uniformly random active set, and the active_fraction=0.5 cell stays within a pre-frozen non-inferiority margin of full updates while consuming half the effective row-updates.",
+  "claim_boundary": "Optimization-efficiency evidence only, on the two development-exposed stage frames: quality per effective updated Gaussian-row at matched iterations. Plain Adam still executes dense kernels over all rows, so this task establishes no wall-clock or runtime-acceleration claim; a packed active-row or fused sparse optimizer is a separately registered follow-up. No cross-scene generality or production default change.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    310704,
+    310705,
+    310706
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb"
+    ],
+    "reconstruction_forbidden": [
+      "heldout_rgb_for_training",
+      "heldout_mask_for_training"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb"
+    ]
+  },
+  "execution_guards": [
+    "deny_heldout_training_access",
+    "split_hash_at_exit"
+  ],
+  "stages": [
+    {
+      "id": "load_matched_initialization",
+      "label": "Load matched initialization",
+      "purpose": "Load one shared frozen 3D initialization and verify its hash, count, and parameters so only the active-set policy differs between cells."
+    },
+    {
+      "id": "load_training_images",
+      "label": "Load train RGB/masks",
+      "purpose": "Load only the frozen training cameras with calibrated undistortion and lossless masks."
+    },
+    {
+      "id": "priority_scoring",
+      "label": "Detached priority scoring",
+      "purpose": "Every refresh_every iterations, build a detached rank-normalized priority from the strategy's accumulated grad2d and count, current opacity, a recent gradient-variance proxy, and a topology age bonus, then select the top active_fraction rows; scoring must not add gradients or mutate optimizer state."
+    },
+    {
+      "id": "masked_3dgs_optimization",
+      "label": "Gradient-masked 3DGS optimization",
+      "purpose": "Run the standard RGB trainer with the gsplat-default strategy under one frozen density schedule and hard budget, zeroing parameter gradients of inactive rows after backward and before optimizer.step(); record interactions with densification statistics rather than suppressing them."
+    },
+    {
+      "id": "heldout_evaluation",
+      "label": "Held-out RGB evaluation",
+      "purpose": "Evaluate every cell on identical held-out cameras at matched iteration counts."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "full_update_baseline",
+      "label": "Full updates (active_fraction=1.0)",
+      "purpose": "The current dense-update behavior; upper anchor for quality at matched iterations."
+    },
+    {
+      "id": "priority_active_set_grid",
+      "label": "Priority active-set factorial",
+      "purpose": "active_fraction in {0.25, 0.5, 0.75} x refresh_every in {4, 8, 16} using the frozen priority score; the treatment under test."
+    },
+    {
+      "id": "random_subset_control",
+      "label": "Size-matched random active set",
+      "purpose": "Uniformly random active rows at the same fractions and refresh cadence; separates the value of the priority score from mere update sparsity."
+    },
+    {
+      "id": "no_age_bonus_ablation",
+      "label": "Priority score without newborn age bonus",
+      "purpose": "Removes the topology age term at the best grid cell; isolates whether protecting new clone/split children from immediate deactivation matters."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "heldout_foreground_psnr",
+      "label": "Held-out foreground PSNR at matched iterations",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_ssim",
+      "label": "Held-out SSIM at matched iterations",
+      "unit": "score",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "effective_row_updates",
+      "label": "Cumulative effective updated rows",
+      "unit": "row_updates",
+      "direction": "lower",
+      "aggregation": "sum of active rows over all iterations per run; median over seeds and scenes"
+    },
+    {
+      "id": "psnr_per_million_row_updates",
+      "label": "Held-out PSNR at matched cumulative row-update budgets",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "held-out foreground PSNR interpolated at frozen cumulative row-update checkpoints; paired median over seeds and scenes"
+    },
+    {
+      "id": "masking_overhead_seconds",
+      "label": "Scoring and masking overhead",
+      "unit": "seconds",
+      "direction": "descriptive",
+      "aggregation": "total added wall time of priority scoring plus gradient masking per run; median over seeds and scenes"
+    },
+    {
+      "id": "topology_event_count",
+      "label": "Topology events and growth trajectory",
+      "unit": "events",
+      "direction": "descriptive",
+      "aggregation": "count of clone/split/prune events and final count per run; median over seeds and scenes"
+    },
+    {
+      "id": "final_gaussians",
+      "label": "Final Gaussian count",
+      "unit": "gaussians",
+      "direction": "descriptive",
+      "aggregation": "median over seeds and scenes"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh image-supervised training process from calibrated train-image open through final PLY save; heldout evaluation is timed and reported separately; wall-clock is reported descriptively because gradient masking is not claimed to accelerate dense Adam",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median on one idle named GPU; retain every raw repeat and report min/max",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "rgb_input_bytes",
+      "mask_input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_rgb.json",
+  "run_command": null,
+  "blockers": [
+    "Implement detached rank-normalized priority scoring and post-backward gradient masking behind an opt-in trainer config whose default preserves current dense updates, with CPU-first unit tests proving inactive rows keep parameters and Adam state bit-identical across a masked step.",
+    "Freeze the priority weight vector (lambda_v, lambda_o, lambda_a), the recent gradient-variance proxy definition, and the held-out non-inferiority margin for the active_fraction=0.5 cell after a mechanism-only pilot.",
+    "Freeze the shared initialization artifact and its hash, density schedule, hard budget, total iterations, cumulative row-update checkpoints, and the exact argv command before setting status to ready.",
+    "Freeze the CUDA host, GPU identity, and idle policy; this protocol cannot run on the CPU-only reference path.",
+    "Assign a frozen owner and obtain a distinct outcome-unseen prospective protocol review.",
+    "Any wall-clock acceleration claim requires a separately registered packed active-row or fused sparse optimizer task; it must not be promoted from this task's gradient-masking results."
+  ]
+}

@@ -1,0 +1,286 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260731_topology_moment_inheritance_stage_frames00008_00009",
+  "date": "20260731",
+  "task_slug": "topology_moment_inheritance",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "rgb_3dgs",
+  "status": "draft",
+  "owner": null,
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
+  "depends_on": [],
+  "title": "Parent-to-child Adam moment inheritance at arena clone/split topology events",
+  "question": "What Adam optimizer state should a newly created clone or split child inherit from its parent Gaussian at a geometric-arena topology event?",
+  "hypothesis": "Inheriting attenuated parent Adam moments (second moment near gamma_v=1.0, means first moment at gamma_m<=0.5) reduces the post-event loss excursion and the iterations needed to regain pre-event train PSNR relative to the current exact-zero child moments, without degrading equal-wall-clock held-out quality; exact full inheritance of the means first moment overshoots on split children because their positions are offset from the parent.",
+  "claim_boundary": "Development evidence for the moment-inheritance policy inside the geometric-arena gsplat-default path (rtgs.optim.arena.apply_default_topology_transaction) on the two development-exposed stage frames only. It does not establish geometric-versus-dynamic storage differences (a separately registered follow-up must vary storage_policy at one frozen inheritance setting), gsplat-delegated dynamic-path behavior, MCMC applicability, targeted-versus-global opacity reset value, cross-scene generality, or any production default change.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    310701,
+    310702,
+    310703
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb"
+    ],
+    "reconstruction_forbidden": [
+      "heldout_rgb_for_training",
+      "heldout_mask_for_training"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb"
+    ]
+  },
+  "execution_guards": [
+    "deny_heldout_training_access",
+    "split_hash_at_exit"
+  ],
+  "stages": [
+    {
+      "id": "load_matched_initialization",
+      "label": "Load matched initialization",
+      "purpose": "Load one shared frozen 3D initialization and verify its hash, count, and parameters so only the inheritance policy differs between cells."
+    },
+    {
+      "id": "load_training_images",
+      "label": "Load train RGB/masks",
+      "purpose": "Load only the frozen training cameras with calibrated undistortion and lossless masks."
+    },
+    {
+      "id": "arena_3dgs_optimization",
+      "label": "Geometric-arena 3DGS optimization",
+      "purpose": "Run the standard RGB trainer with gaussian_storage_policy=geometric and the gsplat-default strategy under one frozen density schedule and hard budget, applying the cell's clone/split moment-inheritance policy inside every arena topology transaction."
+    },
+    {
+      "id": "topology_event_instrumentation",
+      "label": "Topology event instrumentation",
+      "purpose": "Extend the existing per-event stats records with pre-event loss, a frozen post-event loss window, child lineage, child/parent gradient norms, and survival horizons, without altering the optimization schedule."
+    },
+    {
+      "id": "heldout_evaluation",
+      "label": "Held-out RGB evaluation",
+      "purpose": "Evaluate every cell on identical held-out cameras at matched iteration count and at the matched wall-clock checkpoint."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "zero_moment_baseline",
+      "label": "Exact-zero child moments (current behavior)",
+      "purpose": "The existing _expanded_moment policy; anchors whether any inheritance beats cold-started children."
+    },
+    {
+      "id": "exact_inheritance",
+      "label": "Exact parent-moment inheritance",
+      "purpose": "Clone and both split children copy m and v verbatim (gamma_m=gamma_v=1.0 for every field); tests whether unmodified transfer is sufficient or overshoots."
+    },
+    {
+      "id": "attenuated_inheritance_grid",
+      "label": "Attenuated inheritance factorial",
+      "purpose": "gamma_m x gamma_v in {0.25, 0.5, 1.0} x {0.25, 0.5, 1.0} applied uniformly to all fields; separates first-moment from second-moment inheritance value."
+    },
+    {
+      "id": "split_aware_field_profile",
+      "label": "Split-aware per-field profile",
+      "purpose": "Field-specific attenuation (means 0.25-0.5, scales 1.0, quaternions 0.5, opacities 0.5, SH/colors 1.0) reflecting that split children move while appearance is preserved; tests whether per-field structure beats one global gamma."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "post_event_loss_auc",
+      "label": "Post-event loss excursion area",
+      "unit": "loss_x_iterations",
+      "direction": "lower",
+      "aggregation": "area above the pre-event loss level over the frozen post-event window; median over events, then paired median over seeds and scenes"
+    },
+    {
+      "id": "post_event_loss_peak",
+      "label": "Peak loss within 10 post-event iterations",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "median over events, then paired median over seeds and scenes"
+    },
+    {
+      "id": "recovery_iterations",
+      "label": "Iterations to regain pre-event train PSNR",
+      "unit": "iterations",
+      "direction": "lower",
+      "aggregation": "median over events, then paired median over seeds and scenes"
+    },
+    {
+      "id": "child_survival_fraction",
+      "label": "Child survival fraction",
+      "unit": "fraction",
+      "direction": "higher",
+      "aggregation": "fraction of clone/split children alive 50, 100, and 500 iterations after birth; reported per horizon, median over events, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_foreground_psnr",
+      "label": "Held-out foreground PSNR at matched iterations",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_psnr_equal_wallclock",
+      "label": "Held-out foreground PSNR at the matched wall-clock checkpoint",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_ssim",
+      "label": "Held-out SSIM at matched iterations",
+      "unit": "score",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "topology_event_seconds",
+      "label": "Topology event duration",
+      "unit": "seconds",
+      "direction": "descriptive",
+      "aggregation": "median over profiled events, then median over seeds and scenes"
+    },
+    {
+      "id": "final_gaussians",
+      "label": "Final Gaussian count",
+      "unit": "gaussians",
+      "direction": "descriptive",
+      "aggregation": "median over seeds and scenes"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh image-supervised training process from calibrated train-image open through final PLY save; heldout evaluation is timed and reported separately; identical instrumentation runs in every cell so event logging cannot bias one policy",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median on one idle named GPU; retain every raw repeat and report min/max",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "rgb_input_bytes",
+      "mask_input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_rgb.json",
+  "run_command": null,
+  "blockers": [
+    "Implement configurable clone/split moment inheritance in rtgs.optim.arena (_expanded_moment must receive clone_rows/split_rows and a per-field gamma profile through apply_default_topology_transaction) behind an opt-in config whose default preserves the current exact-zero behavior, with CPU-first unit tests for shape, ordering, survivor preservation, and child-moment values.",
+    "Extend the strategy stats records with per-event loss windows, child lineage, child/parent gradient norms, and survival horizons; freeze the post-event window length and survival horizons after a mechanism-only pilot.",
+    "Freeze the shared initialization artifact and its hash, the density schedule, hard budget, total iterations, matched wall-clock checkpoint, and the exact argv command before setting status to ready.",
+    "Freeze the CUDA host, GPU identity, and idle policy; this protocol cannot run on the CPU-only reference path.",
+    "Assign a frozen owner and obtain a distinct outcome-unseen prospective protocol review.",
+    "Register the geometric-versus-dynamic storage comparison as its own follow-up task at one frozen inheritance setting; this task must not combine the two claims."
+  ]
+}

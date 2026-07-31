@@ -30,6 +30,8 @@ These are real task IDs. Their task status remains immutable after a protected r
 
 | Canonical task ID | Task status | Experiment | Primary record |
 | --- | --- | --- | --- |
+| `20260731_topology_moment_inheritance_stage_frames00008_00009` | draft | Parent-to-child Adam moment inheritance at arena clone/split topology events | [task](tasks/20260731_topology_moment_inheritance_stage_frames00008_00009.json) |
+| `20260731_active_set_updates_stage_frames00008_00009` | draft | Priority-ranked active-set parameter updates from existing strategy statistics | [task](tasks/20260731_active_set_updates_stage_frames00008_00009.json) |
 | `20260730_paper_three_path_fullres_stage_frames00008_00009` | draft | Full-resolution compact-field 3DGS from random, Splat-SfM, and Beam initialization | [task](tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json) |
 | `20260730_field_sweep_placement_f64_stage_frames00008_00009` | ready | Robust compact-field plane-sweep placement, float64 successor | [result](../benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_RESULT.md) · [audit](../benchmarks/results/20260730_field_sweep_placement_f64_stage_frames00008_00009_AUDIT.md) |
 | `20260730_additive_analytic_objective_stage_frames00008_00009` | draft | Additive-field analytic objective versus point-sampled compositing | [task](tasks/20260730_additive_analytic_objective_stage_frames00008_00009.json) |
