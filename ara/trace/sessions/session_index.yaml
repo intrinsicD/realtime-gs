@@ -113,8 +113,8 @@ sessions:
     open_threads: 3
   - id: "2026-07-31_001"
     date: "2026-07-31"
-    summary: "Fixed practical viewer invisibility, withdrew the AppArmor-only attribution, and completed visible-pixel browser smoke."
-    turn_count: 4
+    summary: "Published the verified stage-report/viewer repair as ca976c1 on origin/main; no merge commit was needed."
+    turn_count: 5
     events_count: 2
     claims_touched: []
     open_threads: 3

@@ -592,3 +592,9 @@ entries:
       - "Classified Viser 1.0.30's one-per-load NaN bounding-sphere message as a known warning: the Gaussian-specific post-mount workaround prevents repeated orbit errors but cannot preempt the first renderer pass."
       - "The exact PLY and snapshot semantics remain unchanged; the 6x opacity assistance is explicitly WebGL-only and user-disableable."
       - "No staged observation received a closure signal, contradiction or new stale disposition; O144 and branch deletion remain open pending explicit operational authorization."
+  - turn: "2026-07-31_001#5"
+    notes:
+      - "Recorded commit ca976c1 and its fast-forward push to origin/main as an AI action only; publication is process provenance, not a scientific experiment or capability claim."
+      - "Created no merge commit because local main and refreshed origin/main had zero divergence; the user's explicit direct-main request superseded the draft-PR default."
+      - "The exact canonical pre-commit gate passed; the complete CPU-only suite had passed immediately before publication and no source changed afterward."
+      - "Created no exploration node, observation, claim, heuristic or evidence artifact, and found no closure signal, contradiction or new stale disposition."

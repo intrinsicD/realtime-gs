@@ -522,3 +522,52 @@ or push.
 Refresh or open `http://127.0.0.1:8080/` and inspect the now-visible final/initial models. Then
 obtain independent review of the revised v2 prerequisite before resuming RTGS-006 at additive
 teacher generation and data-seal construction while the task remains `draft`.
+
+### Handoff (publication)
+
+#### Objective
+
+Publish the reviewed A17 stage-report and viewer-visibility repair directly to `origin/main` at
+the owner's request.
+
+#### Reviewed state
+
+Staged diff SHA-256 `4c84656e3fee499f8e5ed3f8239ec8fd475751d97af06dbc67320eb6c5e983ce`
+from synchronized base `6bcdbf049d016c4aecdce8417ee8aa6e66101309`.
+
+#### Changes
+
+Committed the 19-path implementation as `ca976c1` (`fix(viewer): harden stage reports and visible
+browser smoke [RTGS-006]`) and fast-forward pushed `main` to `origin/main`. Local and remote main
+had zero divergence before the commit, so no merge commit or conflict resolution was required.
+
+#### Evidence
+
+The exact pre-commit `./scripts/verify.sh` gate passed Ruff, non-slow CPU tests, docs sync, ARA,
+script layout, agent workflow, and experiment contracts. The immediately preceding complete
+CPU-only pytest suite also passed. GitHub accepted the fast-forward `6bcdbf0..ca976c1`.
+
+#### Assumptions
+
+The owner's explicit “commit merge and push to remote” instruction authorizes direct-main
+publication and supersedes the draft-PR default. All staged paths belong to RTGS-006/A17.
+
+#### Uncertainties
+
+This publication is still driver self-review; it does not supply the distinct independent review
+required before RTGS-006 advances into protected scientific execution.
+
+#### Review Focus
+
+Review commit `ca976c1`, especially display-only opacity isolation, the Viser workaround, stage
+boundary completeness, blank-framebuffer failure semantics, and v1 compatibility.
+
+#### Protected actions not taken
+
+No additive teacher generation, data-seal rewrite, prospective protocol approval, `init-run`,
+protected execution, result/audit artifact, scientific claim, or default change.
+
+#### Recommended Next Action
+
+Obtain independent review of `ca976c1`; then resume RTGS-006 at additive teacher generation and
+data-seal construction while the task remains `draft`.

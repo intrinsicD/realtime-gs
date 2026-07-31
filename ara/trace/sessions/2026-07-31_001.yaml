@@ -2,9 +2,9 @@ session:
   id: "2026-07-31_001"
   date: "2026-07-31"
   started: "2026-07-31T00:04+02:00"
-  last_turn: "2026-07-31T03:12+02:00"
-  turn_count: 4
-  summary: "Fixed practical viewer invisibility, withdrew the AppArmor-only attribution, and completed visible-pixel browser smoke."
+  last_turn: "2026-07-31T08:37+02:00"
+  turn_count: 5
+  summary: "Published the verified stage-report/viewer repair as ca976c1 on origin/main; no merge commit was needed."
 
 events_logged:
   - turn: 3
@@ -80,6 +80,14 @@ ai_actions:
       - "src/rtgs/viewer.py"
       - "tests/test_experiment_contract.py"
       - "tests/test_viewer.py"
+  - turn: 5
+    action: >
+      Refreshed origin/main, confirmed zero divergence and one coherent RTGS-006/A17 worktree,
+      reran the exact pre-commit gate, committed the 19-path viewer/report repair as ca976c1,
+      and fast-forward pushed main directly to origin/main at the owner's request. No merge
+      commit or PR was needed because local and remote main were synchronized.
+    provenance: ai-executed
+    files_changed: []
 
 claims_touched: []
 
@@ -92,6 +100,8 @@ key_context:
     excerpt: "The user requested fitting curves over time for all stages with clear beginnings/ends, and reported that Firefox exited while the viewer server remained healthy."
   - turn: 4
     excerpt: "The user reported that the viewer still failed and showed nothing, and asked for an exhaustive check."
+  - turn: 5
+    excerpt: "The user explicitly requested: 'commit merge and push to remote please'."
 
 open_threads:
   - "Run a fresh cross-capture protocol with an explicit all-view comparator gate before considering any placement default."
