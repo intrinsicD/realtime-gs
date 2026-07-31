@@ -39,6 +39,9 @@ do not substitute the dense development path into a compact/VRAM claim. Preserve
 as the starting point for a later fresh diagnosis rather than repairing it inside this comparison.
 The protocol authority is
 `experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json`.
+As an owner-requested experiment-infrastructure cleanup, also make every current and historical
+study discoverable through the task-first `YYYYMMDD_<task_slug>_<data_slug>` naming scheme without
+renaming or weakening sealed provenance.
 
 ## Motivation
 
@@ -81,6 +84,10 @@ does not retroactively turn the outcome-exposed development artifacts into prote
   Bundle Contract v2 report that passes the independent result-bundle gates.
 - The Beam arm is shown without post-outcome repair or special schedule. Its visible failures and
   topology trajectory are reported descriptively, then left to a distinct successor task.
+- The experiment catalog gives every registered task its exact task ID and every historical study
+  a unique current-scheme navigation alias, with direct links to the original result, audit,
+  driver, or log record. No sealed evidence path, historical run root, checksum, or citation
+  target is renamed.
 - Focused tests, `rtgs-review`, `realtime-gs-results-audit`, and `./scripts/verify.sh` pass, with
   any pre-existing host failure reproduced and scoped rather than hidden.
 
@@ -96,6 +103,8 @@ does not retroactively turn the outcome-exposed development artifacts into prote
   be called Original 3DGS or conventional SfM.
 - No official result run before prospective protocol approval; no Beam-specific fix is selected
   from this comparison's outcomes.
+- Historical result, audit, seal, receipt, and run paths are append-only. Consistent historical
+  names are additive catalog aliases, never destructive filesystem renames.
 - Preserve the unrelated user-owned `.idea/rtgs.iml` modification and all prior experiment
   artifacts.
 
@@ -178,6 +187,9 @@ experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json
 - Remote A17 adds the shared v2 report renderer, dimensioned elapsed-time histories with explicit
   stage boundaries, manifest checksums, and browser/WebGL/orbit visibility receipts. It remains
   infrastructure evidence, not an RTGS-007 scientific result.
+- The owner requested one naming scheme across current and historical experiments. The new
+  catalog contains 102 unique names and 158 direct links; registered task IDs remain exact, while
+  historical names are explicitly non-protocol aliases to immutable primary records.
 - Focused CPU tests (74), focused CUDA renderer/query tests, Ruff, docs-sync, workflow validation,
   experiment contract/data validation, and the quick benchmark pass. Full `verify.sh` reaches the
   end of the CPU suite with exactly six frozen-harness failures caused by the host lacking the
@@ -196,6 +208,8 @@ experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json
    Contract v2, then obtain prospective protocol approval.
 6. Run the canonical three-path comparison, build and open the viewer/results page, audit the
    outcome, and hand Beam's observed problems to a new task.
+7. Maintain one searchable current-scheme catalog across registered and historical experiments,
+   preserving every sealed path as append-only provenance.
 
 ## Status
 
@@ -359,3 +373,62 @@ resolution.
 
 Commit the reviewed merge, confirm remote `main` has not moved, fast-forward local `main`, and push
 the combined history.
+
+### 2026-07-31 — Driver progress: historical experiment naming catalog
+
+#### Objective
+
+Apply the task-first naming scheme to the complete experiment history so old studies can be found
+without relying on inconsistent filenames or date placement.
+
+#### Reviewed state
+
+Clean `main` at `26bd9da` with seven registered task-first experiment records, the append-only
+historical log, 402 tracked entries under `benchmarks/results/`, and local legacy run roots whose
+paths are cited by result and audit records.
+
+#### Changes
+
+Added `experiments/INDEX.md` as the canonical discovery surface. It preserves exact task IDs for
+registered experiments and assigns unique `YYYYMMDD_<task_slug>_<data_slug>` catalog aliases to
+historical studies, including independently interpretable studies that previously shared one log
+entry. Repository, experiment, run, evidence, and dated-log entrypoints now link to the catalog.
+
+#### Evidence
+
+The catalog contains 102 unique current-scheme names and 158 relative links. A filesystem check
+resolved every link. `git diff --name-status` confirms that no file under
+`benchmarks/results/`, no ignored historical run root, and no experiment task JSON was renamed or
+modified. Ruff, docs-sync, ARA, script layout, agent workflow, experiment-contract validation, and
+`git diff --check` pass. The complete non-slow CPU suite passes with exactly the six already
+documented, host-ABI-pinned nodes deselected; the canonical `./scripts/verify.sh` reproduces only
+those six failures because this host lacks the sealed `libstdc++.so.6.0.33`. Three listener tests
+that the restricted sandbox denied pass with normal local socket permissions.
+
+#### Assumptions
+
+The owner's request to rename sealed citations is interpreted as a request for consistent lookup,
+not authorization to invalidate the repository's append-only evidence contract. Catalog aliases
+are therefore additive navigation identities; original paths remain the authority for hashes,
+commands, audits, ARA proofs, and replay.
+
+#### Uncertainties
+
+Some pre-task studies combined several iterations or evidence phases in one prose entry. The
+catalog separates them when an independent primary record exists, but does not retroactively
+claim prospective registration, outcome isolation, or a stronger evidence phase.
+
+#### Review Focus
+
+Check alias uniqueness, data-scope accuracy, link resolution, complete historical-log coverage,
+and the absence of renamed or edited sealed artifacts.
+
+#### Protected actions not taken
+
+No result, audit, preregistration, seal, receipt, source archive, run root, task protocol, claim,
+metric, default, or scientific interpretation was renamed or changed.
+
+#### Recommended Next Action
+
+Use the catalog name in new discussion and navigation, but retain the linked original path in any
+hash, replay, or evidence citation.

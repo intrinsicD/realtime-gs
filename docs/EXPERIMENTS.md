@@ -15,6 +15,10 @@ Template:
 Rules: an experiment that changes a default hyperparameter must be linked from the code
 comment at the changed default. Threshold changes in tests must cite an entry here.
 
+For lookup by the current `YYYYMMDD_<task_slug>_<data_slug>` scheme, use the
+[experiment catalog](../experiments/INDEX.md). Its historical aliases are navigation metadata;
+this log and the evidence paths it cites remain append-only.
+
 ---
 
 ## 2026-07-30 — Float64 successor confirms robust placement over bounded midpoint

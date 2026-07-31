@@ -3,6 +3,10 @@
 Historical records in this directory are immutable even when their old names are inconsistent.
 They bind claims, source hashes, and audit chronology.
 
+Use the repository-wide [`experiments/INDEX.md`](../../experiments/INDEX.md) to look them up by a
+consistent `YYYYMMDD_<task_slug>_<data_slug>` catalog alias. The aliases do not replace these
+original evidence paths.
+
 New task-first experiments use:
 
 - `<task_id>_RESULT.json` and `<task_id>_RESULT.md`

@@ -2,6 +2,9 @@
 
 This is the active surface for new result-bearing experiments. Historical drivers and evidence under
 `benchmarks/` are append-only provenance; do not rename them to make the old tree look tidy.
+Use [`INDEX.md`](INDEX.md) to find both task-first and historical experiments under the current
+`YYYYMMDD_<task_slug>_<data_slug>` naming scheme. Historical names in that catalog are navigation
+aliases only; the linked legacy paths remain authoritative.
 
 ## The three arms
 

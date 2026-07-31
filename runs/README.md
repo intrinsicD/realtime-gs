@@ -41,3 +41,6 @@ outputs, but must produce a generated failure report and can never pass the resu
 
 Historical directories predate this contract and remain in place because result notes and source
 seals cite them. They are legacy evidence, not naming examples.
+
+The searchable [`experiments/INDEX.md`](../experiments/INDEX.md) assigns current-scheme catalog
+aliases to historical studies while keeping every cited run root in place.

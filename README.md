@@ -395,6 +395,7 @@ names are rejected unless their code and weights have been explicitly license-ve
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Milestones and open questions |
 | [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) | How to benchmark + tracked results |
 | [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) | Dated experiment log (positive and negative results) |
+| [`experiments/INDEX.md`](experiments/INDEX.md) | Searchable canonical names for current and historical experiments |
 | [`docs/THREE_ARM_EXPERIMENT_PROGRAM.md`](docs/THREE_ARM_EXPERIMENT_PROGRAM.md) | Active compact/Beam/RGB claim program, controls, and math |
 | [`experiments/README.md`](experiments/README.md) | Task-first naming, run lifecycle, shared report, and agent ownership |
 | [`CLAUDE.md`](CLAUDE.md) | Agent guide: hard rules, commands, workflows |
