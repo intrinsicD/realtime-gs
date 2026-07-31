@@ -108,7 +108,8 @@ src/rtgs/
   depth/       DepthBackend protocol, mock (tests), depth_anything (lazy), align (scale/shift)
   render/      dense Rasterizer (torch CPU ref, gsplat CUDA); sparse PointRasterizer (torch CPU)
   optim/       stage 3: RGB trainer.py; RGB-free fixed-topology compact_trainer.py;
-               CPU classic density.py; CUDA gsplat strategies.py; ADR-YYYY init_density.py
+               CPU classic density.py; CUDA gsplat strategies.py; active_set.py (opt-in
+               priority-ranked update masking); ADR-YYYY init_density.py
                (three-channel appearance-preserving growth) + init_trust.py (trust schedule);
                carrier_schedule.py (ADR-002 compact fixed-topology two-phase maturation +
                strict fitting-view projected-center containment)

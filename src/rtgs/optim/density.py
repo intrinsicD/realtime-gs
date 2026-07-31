@@ -147,6 +147,12 @@ class DensityController:
         # it changes no parameter, gradient, or RNG draw.
         self.last_surgery: dict[str, torch.Tensor] | None = None
 
+    @torch.no_grad()
+    def reset_statistics(self) -> None:
+        """Zero accumulated screen-gradient statistics (e.g. at a resolution transition)."""
+        self.grad_accum.zero_()
+        self.count.zero_()
+
     def accumulate(self, out: RenderOutput, width: int, height: int) -> None:
         """Record screen-space positional gradients after loss.backward()."""
         if out.means2d is None or out.visible is None:
