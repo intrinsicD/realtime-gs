@@ -1,0 +1,292 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260731_coarse_to_fine_density_stage_frames00008_00009",
+  "date": "20260731",
+  "task_slug": "coarse_to_fine_density",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "rgb_3dgs",
+  "status": "draft",
+  "owner": null,
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
+  "depends_on": [],
+  "title": "Coarse-to-fine standard 3DGS with late densification in one optimizer lifecycle",
+  "question": "Does a cheap low-resolution fixed-topology phase prepare the initialization well enough that full-resolution densification starting later reaches equal held-out quality with materially fewer total rendered pixels and less wall time?",
+  "hypothesis": "A schedule spending its first 20% at render/loss downscale 2, SH degree 0, and fixed topology, then enabling masks, densification, and progressive SH at full resolution inside the same optimizer lifecycle, reaches the target held-out PSNR with fewer total rendered pixels and no final-quality loss versus the current full-resolution-from-step-0 default; the coarse phase, not merely the delayed density start, carries the saving.",
+  "claim_boundary": "Development evidence for the resolution/topology curriculum inside the standard RGB trainer on the two development-exposed stage frames. The delayed-density full-resolution control isolates the coarse phase's contribution from the later density start. It establishes no cross-scene generality, no compact/VRAM claim, no MCMC-strategy applicability, and no production default change; low-resolution screen-gradient statistics must never drive full-resolution topology decisions, and any violation invalidates the run.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    310710,
+    310711,
+    310712
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb"
+    ],
+    "reconstruction_forbidden": [
+      "heldout_rgb_for_training",
+      "heldout_mask_for_training"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb"
+    ]
+  },
+  "execution_guards": [
+    "deny_heldout_training_access",
+    "split_hash_at_exit"
+  ],
+  "stages": [
+    {
+      "id": "load_matched_initialization",
+      "label": "Load matched initialization",
+      "purpose": "Load one shared frozen 3D initialization and verify its hash, count, and parameters so only the schedule differs between cells."
+    },
+    {
+      "id": "load_training_images",
+      "label": "Load train RGB/masks",
+      "purpose": "Load only the frozen training cameras with calibrated undistortion and lossless masks."
+    },
+    {
+      "id": "coarse_fixed_topology_phase",
+      "label": "Coarse fixed-topology phase",
+      "purpose": "Treatment cells only: render/loss downscale 2, SH degree 0, densification disabled, optimizing means, scales, opacities, and DC color inside the same optimizer lifecycle so Adam state survives the transition."
+    },
+    {
+      "id": "full_resolution_density_phase",
+      "label": "Full-resolution densification phase",
+      "purpose": "Full resolution with masks enabled and step-conditional densification active; screen-gradient accumulators are reset at the resolution transition so no low-resolution statistic drives a full-resolution topology decision; SH degree advances 0 to 1."
+    },
+    {
+      "id": "final_refinement_phase",
+      "label": "Final refinement phase",
+      "purpose": "Ordinary density schedule tail at full resolution with SH degree advancing 1 to 3 under the shared budget."
+    },
+    {
+      "id": "heldout_evaluation",
+      "label": "Held-out RGB evaluation",
+      "purpose": "Evaluate every cell on identical held-out cameras at matched total iterations and at the matched wall-clock checkpoint."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "full_res_baseline",
+      "label": "Full-resolution default schedule",
+      "purpose": "The current full-resolution-from-step-0 recipe with the ordinary density schedule; the status-quo anchor."
+    },
+    {
+      "id": "coarse_to_fine_late_density",
+      "label": "Coarse phase then late densification",
+      "purpose": "0-20% downscale-2/SH0/fixed topology, 20-60% full resolution with masks, densification, SH 0 to 1, 60-100% ordinary density tail with SH 1 to 3; the treatment."
+    },
+    {
+      "id": "delayed_density_full_res",
+      "label": "Delayed densification at full resolution",
+      "purpose": "Full resolution throughout with the same delayed density start; isolates the coarse phase's rendered-pixel saving from the density-start delay."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "total_rendered_pixels",
+      "label": "Total rendered pixels",
+      "unit": "pixels",
+      "direction": "lower",
+      "aggregation": "sum of H_k x W_k over all training renders per run; median over seeds and scenes"
+    },
+    {
+      "id": "wall_seconds",
+      "label": "Training wall time",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes"
+    },
+    {
+      "id": "wall_seconds_to_target_psnr",
+      "label": "Wall time to target held-out PSNR",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "paired median over seeds and scenes at the frozen target"
+    },
+    {
+      "id": "psnr_before_first_density_event",
+      "label": "Held-out PSNR immediately before the first density event",
+      "unit": "dB",
+      "direction": "descriptive",
+      "aggregation": "median per view, then median over seeds and scenes"
+    },
+    {
+      "id": "topology_event_count",
+      "label": "Topology events and growth trajectory",
+      "unit": "events",
+      "direction": "descriptive",
+      "aggregation": "count of clone/split/prune events and count trajectory per run; median over seeds and scenes"
+    },
+    {
+      "id": "child_survival_fraction",
+      "label": "Child survival fraction",
+      "unit": "fraction",
+      "direction": "descriptive",
+      "aggregation": "fraction of clone/split children alive 500 iterations after birth; median over events, seeds, and scenes"
+    },
+    {
+      "id": "heldout_foreground_psnr",
+      "label": "Held-out foreground PSNR at matched iterations",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_psnr_equal_wallclock",
+      "label": "Held-out foreground PSNR at the matched wall-clock checkpoint",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_ssim",
+      "label": "Held-out SSIM at matched iterations",
+      "unit": "score",
+      "direction": "higher",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "final_gaussians",
+      "label": "Final Gaussian count",
+      "unit": "gaussians",
+      "direction": "descriptive",
+      "aggregation": "median over seeds and scenes"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh image-supervised training process from calibrated train-image open through final PLY save; heldout evaluation is timed and reported separately; rendered-pixel accounting is recorded per phase",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median on one idle named GPU; retain every raw repeat and report min/max",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "rgb_input_bytes",
+      "mask_input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_rgb.json",
+  "run_command": null,
+  "blockers": [
+    "Replace the blanket rejection of non-unit TrainStepControl combined with densify with step-conditional density gating (density enabled only when the current step's render and loss downscales are 1 and the step has reached the frozen density start) behind a config whose default preserves the current rejection, with CPU-first tests for the gating truth table and the masked-training interaction.",
+    "Reset screen-gradient and count accumulators at the resolution transition and add a test proving no low-resolution grad2d statistic influences a full-resolution topology decision.",
+    "Freeze the phase fractions (0.20/0.60), SH-degree schedule mapping, density start, total iterations, target PSNR, matched wall-clock checkpoint, shared initialization artifact and hash, and the exact argv command before setting status to ready.",
+    "Freeze the CUDA host, GPU identity, and idle policy; this protocol cannot run on the CPU-only reference path.",
+    "Assign a frozen owner and obtain a distinct outcome-unseen prospective protocol review."
+  ]
+}

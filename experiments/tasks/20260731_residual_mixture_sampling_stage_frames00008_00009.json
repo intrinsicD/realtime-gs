@@ -1,0 +1,290 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260731_residual_mixture_sampling_stage_frames00008_00009",
+  "date": "20260731",
+  "task_slug": "residual_mixture_sampling",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "direct_compact",
+  "status": "draft",
+  "owner": null,
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
+  "depends_on": [],
+  "title": "Residual-aware mixture sampling for compact point supervision",
+  "question": "Does allocating compact-trainer point attempts through a residual-aware mixture (uniform exploration, teacher-Gaussian proposal, residual-EMA proposal) reach matched held-out compact risk with fewer teacher queries, fewer attempted points, and less wall time than the current fixed pixel_gaussian mixture?",
+  "hypothesis": "A 25/25/50 uniform/teacher-proposal/residual-EMA mixture with a probability floor and clipped mixture importance weights reaches the matched held-out compact risk target faster than the current default at 128 attempts, and holds that risk at 96 and 64 attempts where the default degrades; removing the uniform floor (hard-only control) collapses coverage and worst-view quality.",
+  "claim_boundary": "Development evidence for point-sampling policy efficiency inside the RGB-free compact trainer on the two development-exposed stage frames. Wall-clock claims come only from paired measured repeats on the frozen host. Full-view RGB quality of saved models is measured exclusively by the separate cross-process offline image evaluator; no image enters this arm. It establishes no cross-scene generality, no production default change, and no claim about topology policies or Gaussian active-set masking (separately registered).",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    310707,
+    310708,
+    310709
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer",
+      "rtgs.carrier_pipeline",
+      "rtgs.lift.beam_fusion",
+      "rtgs.lift.carrier_refinement",
+      "rtgs.optim.carrier_schedule"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "deny_beam_imports"
+  ],
+  "stages": [
+    {
+      "id": "load_compact",
+      "label": "Load compact fields",
+      "purpose": "Load integrity-checked 2D Gaussian bundles and calibrated cameras without any image-capable loader."
+    },
+    {
+      "id": "shared_initialization",
+      "label": "Shared frozen initialization",
+      "purpose": "Construct one hash-verified 3D initialization used identically by every cell so only the sampling policy differs."
+    },
+    {
+      "id": "residual_cache_maintenance",
+      "label": "Residual EMA tile cache",
+      "purpose": "Maintain one low-resolution per-view residual EMA (one value per 16x16 tile) updated only from tiles touched by ordinarily sampled points; no full-view render or scoring pass may be spent constructing the distribution."
+    },
+    {
+      "id": "compact_optimization_mixture_sampling",
+      "label": "Compact optimization under the cell's mixture",
+      "purpose": "Run the RGB-free compact trainer with the frozen attempt budget and the cell's hierarchical sampling mixture q(v)q(t|v)q(x|t), reporting the clipped importance-weighted risk estimate and the unweighted selected-point loss separately."
+    },
+    {
+      "id": "heldout_compact_evaluation",
+      "label": "Held-out compact evaluation",
+      "purpose": "Evaluate every cell on identical held-out compact fields at the matched budgets and at the matched-risk stopping point."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "baseline_pixel_gaussian_128",
+      "label": "Current default mixture, 128 attempts",
+      "purpose": "The shipped pixel_gaussian proposal with uniform_fraction 0.25 at the default attempt budget; the status-quo anchor."
+    },
+    {
+      "id": "residual_mixture_128",
+      "label": "Residual mixture, 128 attempts",
+      "purpose": "25% uniform exploration, 25% teacher-Gaussian proposal, 50% residual-EMA proposal at the same attempt budget; the treatment at equal work."
+    },
+    {
+      "id": "residual_mixture_96",
+      "label": "Residual mixture, 96 attempts",
+      "purpose": "Reduced attempt budget; tests whether adaptive allocation sustains matched risk with 25% fewer point queries."
+    },
+    {
+      "id": "residual_mixture_64",
+      "label": "Residual mixture, 64 attempts",
+      "purpose": "Half attempt budget; bounds how much supervision the residual mixture can save before quality breaks."
+    },
+    {
+      "id": "hard_only_control",
+      "label": "Residual-only, no uniform floor",
+      "purpose": "Negative control: residual proposal without uniform exploration; expected to collapse coverage and worst-view quality, proving the floor is load-bearing."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "wall_seconds_to_matched_risk",
+      "label": "Wall time to matched held-out compact risk",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes at the frozen risk target"
+    },
+    {
+      "id": "teacher_query_count",
+      "label": "Teacher queries to matched risk",
+      "unit": "queries",
+      "direction": "lower",
+      "aggregation": "paired median over seeds and scenes"
+    },
+    {
+      "id": "attempted_points_to_target",
+      "label": "Attempted points to matched risk",
+      "unit": "points",
+      "direction": "lower",
+      "aggregation": "paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_j_pixel",
+      "label": "Held-out compact pixel risk at matched budget",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_j_area",
+      "label": "Held-out compact area risk at matched budget",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "worst_view_j_pixel",
+      "label": "Worst held-out view pixel risk",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "maximum over held-out views, then paired median over seeds and scenes"
+    },
+    {
+      "id": "unweighted_selected_point_loss",
+      "label": "Unweighted selected-point loss",
+      "unit": "loss",
+      "direction": "descriptive",
+      "aggregation": "reported beside the importance-weighted estimate at frozen checkpoints; median over seeds and scenes"
+    },
+    {
+      "id": "sampling_mass_distribution",
+      "label": "Sampling mass per view and tile",
+      "unit": "fraction",
+      "direction": "descriptive",
+      "aggregation": "per-view and per-tile mass histograms at frozen checkpoints; coverage floor violations counted"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh reconstruction-only process from compact manifest open through final PLY save; the residual-cache bookkeeping is inside the measured boundary so adaptive selection pays for its own overhead",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median on one idle named GPU; retain every raw repeat and report min/max",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_compact.json",
+  "run_command": null,
+  "blockers": [
+    "Implement the per-view residual EMA tile cache, the hierarchical mixture q(v)q(t|v)q(x|t) with a probability floor, and clipped mixture importance weighting behind an opt-in compact-trainer sampling config whose default preserves current behavior, with CPU-first tests for touched-tile-only cache updates, mixture normalization, floor enforcement, and importance-estimator unbiasedness on a tiny fixture.",
+    "Freeze the mixture weights (0.25/0.25/0.50), EMA decay beta, tile size, probability floor, importance-weight clip, matched held-out risk target, and stopping rule after a mechanism-only pilot, before setting status to ready.",
+    "Freeze the shared initialization artifact and its hash, the optimizer schedule, and the exact argv command before setting status to ready.",
+    "Freeze the CUDA host, GPU identity, and idle policy; wall-clock efficiency claims require the paired frozen-host protocol.",
+    "Record cross-process offline RGB evaluation of saved final models as a separate receipt outside this arm; no image-capable code may enter the reconstruction process.",
+    "Assign a frozen owner and obtain a distinct outcome-unseen prospective protocol review."
+  ]
+}
