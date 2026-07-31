@@ -130,6 +130,18 @@ def test_cuda_query_is_deterministic_and_serves_cuda_points():
 
 @pytest.mark.cuda
 @requires_cuda
+def test_from_cuda_field_preserves_trainer_binding_identity():
+    field = _field().to("cuda")
+    backend = GaussianObservationIndexCuda.from_field(field)
+    xy = _points(field.to("cpu"), count=32).cuda()
+
+    assert backend.field is field
+    assert backend.cpu_index.field.device.type == "cpu"
+    assert backend.query(xy).color.is_cuda
+
+
+@pytest.mark.cuda
+@requires_cuda
 def test_cuda_counters_match_cpu_pair_stream():
     field = _field()
     index = GaussianObservationIndex(field)

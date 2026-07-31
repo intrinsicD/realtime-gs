@@ -1,0 +1,162 @@
+{
+  "schema": "rtgs.additive_native_view_production.v1",
+  "status": "PASS",
+  "task_id": "20260730_additive_analytic_objective_stage_frames00008_00009",
+  "dataset_id": "frame_00008",
+  "view_id": "C0014",
+  "view_index": 7,
+  "seed": 30073007,
+  "input": {
+    "rgb": {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0014.jpg",
+      "bytes": 14817975,
+      "sha256": "41b2397a6342953d253c0f695f68da1a7fdb879eee9912f9a0afbf0f1a371713"
+    },
+    "mask": {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0014.png",
+      "bytes": 101222,
+      "sha256": "801c46692f557b4a9e863d8d38bc598092b74f5a941192dda0c3dd820c9262cb"
+    },
+    "calibration": {
+      "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "bytes": 51752,
+      "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+    }
+  },
+  "source_binding": {
+    "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+    "python": "3.11.15",
+    "torch": "2.13.0+cu130",
+    "torch_cuda": "13.0",
+    "files": {
+      "scripts/experiments/prepare_additive_native_bundles.py": "fd667687ed1f647f60a036ff1bfa074bb04f8c5c1ed04161b5eef87b7a4c35d0",
+      "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+      "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+      "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+      "src/rtgs/data/compact_views.py": "e69bdc4e06a2abda2b446dd05727635b7e772f35e5c2f87b56cc2bf37419a6f6",
+      "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+      "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+      "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+      "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+      "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+      "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+    },
+    "aggregate_sha256": "2a37b336e9a6325ce02affe646557cc75ae00ae315ea9b47762d56b2663ae2b5"
+  },
+  "fit_contract": {
+    "fit_config": {
+      "n_gaussians": 640,
+      "max_gaussians": 640,
+      "iterations": 100,
+      "backend": "native",
+      "adaptive_density": false,
+      "growth_waves": 5,
+      "relocate_fraction": 0.0,
+      "structsplat_renderer": "auto",
+      "native_renderer": "cuda",
+      "batch_views": false,
+      "lr": 0.01,
+      "grad_init_mix": 0.7,
+      "init_strategy": "gradient",
+      "structure_sampling": "wse",
+      "row_chunk": 64,
+      "log_every": 50,
+      "convergence_patience": 0,
+      "convergence_tol": 0.05,
+      "convergence_check_every": 25,
+      "appearance_parameterization": "weight_color_9p",
+      "freeze_geometry": false,
+      "pool": false,
+      "pool_capacity": null,
+      "pool_triage_every": 50,
+      "pool_prune_count": 32,
+      "pool_spawn_count": 32,
+      "pool_min_live": 1,
+      "mask_coverage_weight": 0.0
+    },
+    "downscale": 1,
+    "field_semantics": {
+      "provider": "native",
+      "blend_mode": "additive",
+      "sigma_cutoff": 3.4641016151377544,
+      "support_fade_alpha": 0.0,
+      "aa_dilation": 0.0
+    },
+    "preprocessing": {
+      "rgb": "calibrated_bilinear_undistort",
+      "alpha": "calibrated_nearest_undistort_threshold_gt_0.5",
+      "fit_window": "tight_foreground_aabb",
+      "loss": "native_mask_weighted_mse_on_zeroed_crop"
+    }
+  },
+  "fit_config_digest": "ba3646cc22578804e4e1fd7ba36155ae9c7bf900c49fc049aba8a7fe5fc30eb1",
+  "fit_window": [
+    1673,
+    1867,
+    3432,
+    1353
+  ],
+  "canvas_size": [
+    4608,
+    5328
+  ],
+  "field": {
+    "provider": "native",
+    "blend_mode": "additive",
+    "sigma_cutoff": 3.4641016151377544,
+    "support_fade_alpha": 0.0,
+    "aa_dilation": 0.0,
+    "n_gaussians": 640,
+    "n_init": 640
+  },
+  "output": {
+    "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0014.rtgsv",
+    "bytes": 30819,
+    "sha256": "11f06643ee1968308e132c15d536b3b741797670de28fcf29b4e10b431c4d1c9"
+  },
+  "history": {
+    "psnr": [
+      [
+        0,
+        11.92404556274414
+      ],
+      [
+        50,
+        13.62993335723877
+      ],
+      [
+        99,
+        13.842573165893555
+      ]
+    ],
+    "stopped_iter": 99,
+    "final_psnr_full": 13.844451904296875,
+    "final_psnr": 21.718616485595703
+  },
+  "runtime": {
+    "wall_seconds": 1.3170006768777966,
+    "peak_cuda_allocated_bytes": 392122880,
+    "peak_cuda_reserved_bytes": 442499072
+  },
+  "environment": {
+    "device": "cuda",
+    "gpu_name": "NVIDIA GeForce RTX 4090",
+    "gpu_capability": [
+      8,
+      9
+    ],
+    "cuda_extension": {
+      "path": "/home/alex/.cache/torch_extensions/py311_cu130/rtgs_renderer2d_ext/rtgs_renderer2d_ext.so",
+      "bytes": 374056,
+      "sha256": "04a00b5daa4ba6e1d2955189a0ed6228571ae5a5e6d1c35789e1a1ec31ba9202"
+    },
+    "determinism": {
+      "seeded_python_numpy_torch_cuda": true,
+      "fresh_process_per_view": true,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "bit_exact_cuda_replay_guaranteed": false,
+      "boundary": "the native CUDA renderer uses atomic accumulation; inputs, seeds, source, binary, and order are frozen, but cross-run bit identity is not claimed"
+    }
+  }
+}

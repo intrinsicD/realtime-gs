@@ -2,17 +2,16 @@
 
 ## Title
 
-Additive-field analytic 2D-to-3D refinement objective: registration, additive teachers, and
-matched comparison against point-sampled supervision
+Full-resolution three-path paper pipeline from native 2D Gaussian fields through densified 3DGS
 
 ## Task ID
 
-RTGS-006
+RTGS-007
 
 ## Role Assignment
 
-- Driver: Claude-additive-objective-driver
-- Reviewer: Claude-additive-objective-driver
+- Driver: Codex-three-path-driver
+- Reviewer: Codex-three-path-driver
 - Turn: driver
 
 ## Mode
@@ -26,104 +25,170 @@ Protected
 ## Maturity
 
 - Target: Calibrated
-- Reached: Scaffolded
+- Reached: Pipeline-integrated
 
 ## Goal
 
-Test whether an exact analytic objective on native additive 2D Gaussian fields — closed-form
-density/RGB-numerator matching of projected 3D Gaussians under surfel-constrained covariances
-with detached transmittance-times-incidence per-view weighting — improves image-free 3D
-refinement over the incumbent point-sampled compositing objective, and whether an
-analytic-warmup-then-sampled-finish hybrid beats both, at matched initialization, topology,
-and budget. The protocol authority is
-`experiments/tasks/20260730_additive_analytic_objective_stage_frames00008_00009.json`; this
-record coordinates the work and does not duplicate its arms, seeds, gates, or command.
+Produce an inspectable, full-resolution development realization of the paper's three reconstruction
+paths from one shared, native-additive, GaussianImage-style 2D Gaussian capture: bounded-random,
+Splat-SfM, and Beam Fusion initialization. For the immediate owner-facing visual demonstration,
+natively replay the sealed fields into the established full-crop 3DGS trainer and give all three
+arms the same complete clone/split/prune/reset schedule. Keep the protected RGB-free compact
+optimizer as a separate evidence path, record its sparse-supervision visual failure honestly, and
+do not substitute the dense development path into a compact/VRAM claim. Preserve the Beam endpoint
+as the starting point for a later fresh diagnosis rather than repairing it inside this comparison.
+The protocol authority is
+`experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json`.
 
 ## Motivation
 
-Owner decisions (2026-07-30, in chat, recorded below): build on additive native fields only,
-because for `blend_mode="additive"` with zero support fade the analytic density/RGB loss is
-exact rather than the documented normalized-blend proxy (`src/rtgs/lift/field_loss.py`
-docstring; the `analytic_semantics` branch in `src/rtgs/lift/field_lifter.py`), and the
-priority is a working 2D-to-3D pipeline. The occlusion mismatch of additive matching is
-addressed with detached center-transmittance weights (`src/rtgs/lift/field_visibility.py`)
-combined with surfel incidence weighting in the spirit of ADR-XXXX (`surfel_lift.py`), and
-diagnosed with a per-primitive conflict-score table.
+The owner rejected the visually poor 640-component, 100-update Stage-1 smoke and clarified the
+paper demonstration they expect to see. Native canvas dimensions alone are not full-resolution
+quality. The current code has the component pieces, but not the promised end-to-end system:
+`CompactTrainer` is fixed-topology unless an external research controller is supplied, Beam and
+Splat-SfM are separate initializer functions rather than registered three-path arms, and the
+capture has no real COLMAP sparse model. This task closes those integration gaps without conflating
+the standard RGB trainer with the paper's compact-field-supervised reconstruction.
 
 ## Success Criteria
 
-- The experiment task JSON is registered as `draft`, passes
-  `scripts/experiment_contract.py validate`, and names every open blocker honestly
-  (additive bundles and seal, implementation, config freeze, prospective review).
-- Additive native 2D bundles for both protocol frames exist under `dataset/`, produced by
-  deterministic mask-aware stage-1 native fitting with recorded config and seed; the additive
-  data seal is built with `build-seal` and swapped into the task before review.
-- The surfel-constrained visibility-weighted analytic objective, the hybrid schedule, and the
-  matched point-sampled budget rule are implemented behind existing seams with CPU tests
-  covering analytic-equals-rendered-image exactness on additive fields, occlusion-weighting
-  behavior, and determinism.
-- A distinct prospective reviewer approves the protocol digest without outcome access; the
-  run executes under the one canonical run root; the bundle passes `check-run` and
-  `scripts/check_results_bundle.py`; the outcome is logged in `docs/EXPERIMENTS.md` and
-  audited before any claim or default motion.
-- `./scripts/verify.sh` passes at every commit.
+- A one-view mechanism pilot establishes a visibly useful non-StructSplat native-additive Stage-1
+  capacity/update setting on the native 5328-by-4608 canvas; the chosen setting is then frozen
+  prospectively before all-view production.
+- Both protocol frames have strict, source-bound native-additive `.rtgsv` bundles at the frozen
+  high-capacity setting, complete production receipts, full-resolution render QA, and one exact
+  data seal. The old 640-by-100 bundles remain labelled as superseded smoke inputs.
+- One owner-facing development cell replays the sealed native fields without StructSplat or source
+  RGB, completes the same established 30k full-crop 3DGS fit for Random, Splat-SfM, and Beam, and
+  presents native-resolution initialization/final renders plus an interactive comparison. This
+  demonstration is explicitly outside compact/VRAM evidence.
+- A reusable compact density controller drives the established classic clone/split/prune/opacity
+  reset surgery from point-rasterizer screen gradients, preserves Adam survivor rows and exact-zero
+  newborn moments, maintains complete persistent lineage, enforces a hard count cap, and has
+  CPU-first tests.
+- One task driver constructs bounded-random, explicitly named Splat-SfM, and Beam Fusion
+  initializations from the same train-only compact inputs, then gives all three the identical
+  compact objective, sampling schedule, learning rates, SH schedule, topology policy, update
+  budget, and capacity. No source RGB, mask, `SceneData`, dense trainer, or held-out field enters
+  reconstruction.
+- The protocol passes contract/data validation and an outcome-unseen prospective review before
+  `init-run`. The canonical run produces initial/checkpoint/final PLYs, native-resolution
+  calibrated renders, density histories, metrics, a three-model viewer manifest, a generated
+  results page, and passing result-bundle gates.
+- The Beam arm is shown without post-outcome repair or special schedule. Its visible failures and
+  topology trajectory are reported descriptively, then left to a distinct successor task.
+- Focused tests, `rtgs-review`, `realtime-gs-results-audit`, and `./scripts/verify.sh` pass, with
+  any pre-existing host failure reproduced and scoped rather than hidden.
 
 ## Constraints
 
-- Hard Rules 7-9: task-first registration before result-bearing driver code; no run before an
-  approved prospective review; reconstruction and evaluation stay image-free per the
-  `direct_compact` arm; decision metrics come only from the exact selected rasterizer
-  semantics on the frozen split.
-- The incumbent point-sampled compact trainer remains the untouched baseline; no behavior
-  changes to StructSplat or normalized-blend paths.
-- No edits to other registered experiment tasks, their reviews, or their run roots.
+- Stage 1 is native additive GaussianImage-style fitting. StructSplat and normalized-blend fields
+  are forbidden.
+- Reconstruction after Stage 1 consumes only calibrated compact fields. RGB/masks may be used only
+  for Stage-1 fitting and isolated final visual evaluation outside the reconstruction process.
+- All arms share exact teacher bytes, training views, sample streams, optimizer controls,
+  densification policy, hard final capacity, and checkpoint schedule; only initialization differs.
+- Splat-SfM is labelled exactly as such. It is not a real COLMAP sparse reconstruction and must not
+  be called Original 3DGS or conventional SfM.
+- No official result run before prospective protocol approval; no Beam-specific fix is selected
+  from this comparison's outcomes.
+- Preserve the unrelated user-owned `.idea/rtgs.iml` modification and all prior experiment
+  artifacts.
 
 ## Non-Goals
 
-- StructSplat or normalized-blend upgrades, and any exact-quotient (cross-multiplied)
-  normalized loss — deferred by owner decision until the additive path is shown to work.
-- Beam-fusion or carrier-path changes, GPU work, performance claims, cross-dataset
-  generalization, topology/densification changes, or production-default changes.
-- Promoting any quantitative statement without the results audit and ARA gates.
+- Proving a paper, general VRAM, quality, speed, or cross-dataset claim from the two
+  outcome-exposed stage frames.
+- Implementing or installing COLMAP, inventing a sparse point model, or relabelling Splat-SfM.
+- Changing the standard RGB trainer, gsplat density defaults, or production defaults.
+- Continuing RTGS-006's analytic-objective comparison.
+- Diagnosing, tuning, or repairing Beam Fusion after the matched endpoint is visible; that begins
+  under a fresh task and protocol.
 
 ## Selected Skills
 
 - rtgs-core
 - rtgs-task-workflow
 - rtgs-experiment
+- rtgs-bench
+- rtgs-docs-sync
 - rtgs-review
 - realtime-gs-results-audit
+- rtgs-verify
 
 ## Experiment Contract
 
-experiments/tasks/20260730_additive_analytic_objective_stage_frames00008_00009.json
+experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json
 
 ## Current Evidence
 
-- Registration-only; no runs and no result numbers. Design basis verified in source:
-  exact-vs-proxy semantics (`field_loss.py`, `field_lifter.py` `analytic_semantics`),
-  detached transmittance visibility (`field_visibility.py`), incidence gating and thin-axis
-  surfels (`surfel_lift.py`, rho 0.1, 70-degree gate), the additive legacy conversion seam
-  (`data/field_inputs.py`), and the point-sampled baseline loss
-  (`optim/compact_trainer.py:1672`).
-- Empirical cautions from `docs/EXPERIMENTS.md` motivating the protocol shape: 2026-07-17
-  (latent hard-min correspondence settles in stable wrong basins) and 2026-07-20
-  (a correspondence-free consensus objective improved itself while distance-to-truth
-  worsened). Decisions therefore bind to held-out compact metrics, never to the training
-  objective, and the occlusion story gets an explicit unweighted-analytic control arm.
+- The RTX 4090 host exposes 24,564 MiB and modern `gsplat 1.5.3`; an existing all-view
+  native-resolution RGB run reached 100,000 3D Gaussians, so full-resolution rendering and dynamic
+  cardinality are supported on this machine.
+- `CompactTrainer` already supports all six 3DGS parameter families, native-coordinate point
+  supervision, an opt-in topology protocol, persistent IDs, Adam-boundary verification, and
+  checkpoint/evaluation receipts. Only test and benchmark-specific controllers currently
+  implement cardinality changes.
+- `DensityController` already implements classic screen-gradient clone/split/prune, hard-cap
+  enforcement, optimizer surgery, and opacity reset. `PointRenderOutput` carries the visible-row
+  and retained screen-gradient data needed to drive it.
+- `structure_from_splats` and `fuse_gaussian_beams` consume the same strict
+  `ReconstructionInputs`. The registered legacy `SfMLifter` instead needs `SceneData.points` and
+  ignores 2D fields; it is not the arm selected here.
+- No `colmap` executable or cameras/images/points3D sparse model exists for the two stage frames.
+- The existing native-additive bundles use only 640 Gaussians and 100 updates per view. Their
+  native image dimensions are correct, but their approximately 22 dB mean foreground fit and
+  visible blur make them mechanism smoke, not the requested paper-quality input.
+- The replacement acquisition is complete for both frames: every view contains 100,000 native
+  additive Gaussians fitted for 2,000 updates and reloads strictly at the native 5328-by-4608
+  canvas. Equal-view mean foreground PSNR is 34.5186 dB on frame 00008 and 34.8426 dB on frame
+  00009; the sealed compact payloads total 80,777,830 and 80,973,603 bytes respectively.
+- The strict point-query development path completed 10,000 updates on frame 00008 Random and
+  exercised 199 classic topology transactions (3,330 to 100,000 Gaussians, including clone,
+  split, prune, and two resets), but its native render remained dark and visibly soft. It is a
+  rejected integration diagnostic, not the requested endpoint.
+- The established ordinary full-crop `Trainer` path is now exposed separately as
+  `train-standard`: it reconstructs crop tensors natively from the sealed `provider=native`
+  fields without StructSplat or source-image access, then uses the repository's proven 30k
+  gsplat DefaultStrategy recipe. This path supplies the visual functionality demonstration but
+  is explicitly ineligible for the compact/VRAM claim because it materializes dense tensors.
+- The three train-only initializers are frozen at an exact common 3,330 rows from one identical
+  field/camera boundary. Splat-SfM produced 3,330 tracks and Beam at least 5,000 components from
+  the shared 2,000-row-per-view structural work subset; all downstream teacher replays retain the
+  complete 100,000-row fields.
+- The frame-00008/seed-300701 development cell completed the same 30,000-update standard 3DGS
+  schedule for all arms. Random grew 3,330 to 28,352 rows and reached held-out crop
+  PSNR/SSIM 30.4976/0.96277; Splat-SfM grew to 28,187 and reached 30.2340/0.96119; Beam grew to
+  27,938 and reached 30.1512/0.96128. Random therefore slightly led this single development cell;
+  Splat-SfM did not show an initializer advantage.
+- Native 5328-by-4608 inspection on held-out C0014 shows a detailed Stage-1 field and recognizable,
+  detail-bearing endpoints for all arms. Splat-SfM retains conspicuous floating splat fragments.
+  Beam starts almost black with a diffuse low-opacity carrier and recovers through the shared fit,
+  but its endpoint remains somewhat smoother and more smeared than Random. No Beam-specific repair
+  was applied.
+- Every standard run passed the no-image-open boundary. Splat-SfM and Beam explicitly recorded no
+  loaded StructSplat modules; Random used the same native replay path and records
+  `structsplat_used=false`, but completed before the explicit module-list receipt field was added.
+  The standard path peaked at approximately 4.36 GB host RSS and 2.34/6.57 GB CUDA
+  allocated/reserved, so none of these figures are compact/VRAM claims.
+- Focused CPU tests (74), focused CUDA renderer/query tests, Ruff, docs-sync, workflow validation,
+  experiment contract/data validation, and the quick benchmark pass. Full `verify.sh` reaches the
+  end of the CPU suite with exactly six frozen-harness failures caused by the host lacking the
+  pinned `/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33` (the installed system version is
+  `.6.0.35`); the frozen benchmark sources are unchanged and the ABI pin was not weakened.
 
 ## Minimal Plan
 
-1. Register the draft experiment task JSON with frozen splits, seeds, stages, comparators,
-   metrics, resource protocol, and honest blockers. (this change)
-2. Produce additive native bundles for both frames with deterministic stage-1 tooling; build
-   and swap the additive data seal.
-3. Implement the surfel/visibility-weighted analytic objective and hybrid schedule with CPU
-   tests behind existing seams; freeze the provisional refinement configuration.
-4. Write and freeze the task driver and `run_command`; obtain the distinct prospective
-   review; set the task `ready`.
-5. `init-run`, execute, render and gate the bundle, log the outcome, and run the results
-   audit before any claim motion.
+1. Register this task and its draft protocol; archive RTGS-006 as owner-superseded.
+2. Implement and test the reusable compact classic-density controller plus shared three-initializer
+   orchestration.
+3. Run a bounded one-view native-additive capacity/update pilot, inspect the full-resolution
+   render, and freeze the all-view Stage-1 setting.
+4. Produce and seal both high-capacity full-resolution compact datasets.
+5. Freeze the matched compact-training schedule and driver through mechanism tests, then obtain
+   prospective protocol approval.
+6. Run the canonical three-path comparison, build and open the viewer/results page, audit the
+   outcome, and hand Beam's observed problems to a new task.
 
 ## Status
 
@@ -133,26 +198,23 @@ In progress
 
 ### Question
 
-Which 2D-field semantics does the analytic-objective experiment build on, given the
-documented normalized-blend proxy gap?
+Which pipeline should replace the additive analytic-objective detour?
 
 ### Options
 
-Additive native fields only; keep StructSplat normalized fields under the density/numerator
-proxy; implement the exact cross-multiplied quotient loss for normalized fields now.
+Continue the fixed-topology analytic objective; show only the 2D bundle; or build the three
+paper paths with full compact densification.
 
 ### Recommendation
 
-Additive-only: the analytic loss becomes exact by construction, the experiment isolates the
-2D-to-3D objective question, and the normalized handling stays available later because
-`blend_mode` is stored per field artifact.
+Build the three paper paths and treat the old 640-by-100 inputs as smoke only.
 
 ### Decision
 
-(Owner, in chat.) Use additive native fields only, not StructSplat. Everything potentially
-given up by that choice (StructSplat stage-1 quality, exact handling of the normalized mode)
-is addressed later, after the approach is shown to work. The priority is that the 2D-to-3D
-pipeline works.
+(Owner, in chat.) Show image to full-resolution non-StructSplat 2D Gaussian fields, then complete
+3DGS fits from random and SfM initialization with full densification, and a third complete fit from
+Beam Fusion initialization so the Beam problems are visible. Diagnose those problems later from a
+fresh start.
 
 ### Date
 
@@ -165,3 +227,66 @@ Use `###` for entries and `####` for their fields so entries remain nested below
 Never delete earlier entries. On terminal closeout, archive the complete record as
 `docs/tasks/<task-id>-<slug>.md`, change the archived `Turn` to `none`, and reset this file to the
 unchanged template.
+
+### 2026-07-30 — Driver progress: full-resolution three-path development viewer
+
+#### Work
+
+Produced and sealed both 100,000-by-2,000 native additive Stage-1 captures, integrated the matched
+three initializers, completed Random/Splat-SfM/Beam through the same 30k standard full-crop 3DGS
+schedule on frame 00008, and generated a held-out C0014 presentation with native-resolution
+initial/final renders and a synchronized interactive-viewer manifest.
+
+#### Evidence
+
+Random/Splat-SfM/Beam end at 28,352/28,187/27,938 Gaussians. Held-out crop PSNR is
+30.4976/30.2340/30.1512 dB respectively. All generated PNGs are exactly 5328 by 4608 pixels.
+Visual review confirms the nearly black Beam initialization, Splat-SfM floaters, and usable but
+still smoother-than-2D-teacher endpoints. The protected compact diagnostic independently exercised
+clone/split/prune/reset to 100,000 rows but remained dark/soft because 128 point queries per update
+did not supply native-image detail.
+
+#### Review state
+
+Development visualization is ready for owner inspection. The official protocol remains draft:
+there is no prospective independent approval or canonical compact run, and no compact/VRAM or
+cross-scene claim is authorized. Beam diagnosis and repair remain deliberately deferred to a fresh
+successor task.
+
+### 2026-07-31 — Driver review: publishable development implementation, protected run still gated
+
+#### Work
+
+Reviewed the complete local implementation and development artifacts before publication, repaired
+the compact-density lineage ledger so births remain traceable after later pruning, and added trainer
+coverage proving historical lineage does not contaminate summaries of currently surviving rows.
+The owner authorized committing the complete worktree and reconciling it with remote `main`.
+
+#### Evidence
+
+The focused native-observation, initializer, density, point-renderer, data-production, compact-view,
+contract, and CUDA-observation test set passes (CUDA-only nodes skip when unavailable). Both exact
+data seals pass `experiment_contract.py validate-data`, and every produced field still matches its
+sealed bytes and production receipt.
+
+#### Uncertainties
+
+The live producer-source verification commands intentionally fail closed because the untracked
+producer and provider sources continued to evolve after the bundles were generated. The stored
+full-resolution source aggregate `fbdd7926...` differs from the current `920e3f33...`; the stored
+additive aggregate `2a37b336...` differs from the current `26e499...`. Exact produced bytes,
+manifests, receipts, and their seals remain preserved, but the executed dirty source bytes are
+available only as stored hashes, so these development inputs are not represented as
+source-replay-complete official evidence.
+
+#### Protected actions not taken
+
+No prospective approval, `init-run`, canonical protected execution, official result bundle,
+claim/default promotion, or Beam-specific repair was fabricated. The protocol remains `draft` with
+its three explicit blockers.
+
+#### Recommended Next Action
+
+Publish this pipeline-integrated development state as requested. If official compact evidence is
+still desired, begin from an outcome-unseen review of a freshly source-bound acquisition and the
+existing draft protocol rather than relabelling the development viewer as the canonical run.

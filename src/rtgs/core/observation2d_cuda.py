@@ -168,15 +168,24 @@ class GaussianObservationIndexCuda:
         max_query_pairs: int | None = GaussianObservationIndex.DEFAULT_MAX_QUERY_PAIRS,
         device: torch.device | str = "cuda",
     ) -> GaussianObservationIndexCuda:
-        """Build the CPU CSR index (enforcing its caps), then wrap it for GPU queries."""
+        """Build the capped CPU CSR oracle, then bind CUDA queries to ``field``.
+
+        A CUDA-resident field is copied once to the CPU solely for the canonical CSR build.
+        The returned backend deliberately exposes the original object through ``field`` so
+        trainer identity guards can prove that the injected backend is attached to the exact
+        working teacher; query tensors are uploaded from the directly derived CPU copy.
+        """
+        source = field if field.device.type == "cpu" else field.to("cpu")
         index = GaussianObservationIndex(
-            field,
+            source,
             tile_size=tile_size,
             max_entries=max_entries,
             max_candidates=max_candidates,
             max_query_pairs=max_query_pairs,
         )
-        return cls(index, device=device)
+        result = cls(index, device=device)
+        result.field = field
+        return result
 
     def _validate_xy(self, xy: torch.Tensor) -> torch.Tensor:
         xy = torch.as_tensor(xy, dtype=torch.float32)

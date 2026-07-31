@@ -400,3 +400,41 @@ def test_dataset_manifest_round_trip_and_reconstruction_inputs(tmp_path) -> None
     manifest_path.write_bytes(_rebind_metadata(manifest))
     with pytest.raises(ValueError, match="compact dataset view digest mismatch"):
         CompactDataset.load(directory)
+
+
+def test_dataset_manifest_accepts_one_explicit_nondefault_view_cap(tmp_path) -> None:
+    directory = tmp_path / "gaussians2d"
+    directory.mkdir()
+    path = directory / "wide.rtgsv"
+    byte_cap = COMPACT_VIEW_BYTE_CAP * 2
+    save_compact_view(
+        path,
+        _observation("wide", fit_window=(0, 0, 8, 6)),
+        _camera(),
+        calibration_sha256=_CALIBRATION_SHA256,
+        source_rgb_name="wide.jpg",
+        source_rgb_sha256=_RGB_SHA256,
+        byte_cap=byte_cap,
+    )
+
+    with pytest.raises(ValueError, match="byte cap does not match"):
+        write_compact_dataset_manifest(
+            directory,
+            name="wrong-default-cap",
+            calibration_sha256=_CALIBRATION_SHA256,
+            view_paths=[path],
+            bounds_hint=None,
+        )
+    write_compact_dataset_manifest(
+        directory,
+        name="explicit-wide-cap",
+        calibration_sha256=_CALIBRATION_SHA256,
+        view_paths=[path],
+        bounds_hint=None,
+        byte_cap=byte_cap,
+    )
+
+    with pytest.raises(ValueError, match="byte cap does not match"):
+        CompactDataset.load(directory)
+    dataset = CompactDataset.load(directory, byte_cap=byte_cap)
+    assert dataset.views[0].observation.n == 3

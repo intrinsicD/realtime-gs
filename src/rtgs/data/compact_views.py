@@ -892,15 +892,22 @@ def write_compact_dataset_manifest(
     calibration_sha256: str,
     view_paths: list[Path],
     bounds_hint: tuple[torch.Tensor, float] | None,
+    byte_cap: int = COMPACT_VIEW_BYTE_CAP,
     overwrite: bool = False,
 ) -> Path:
-    """Write an ordered, integrity-bound manifest after all view files verify."""
+    """Write an ordered, integrity-bound manifest after all view files verify.
+
+    ``byte_cap`` must match the cap embedded in every view.  The default preserves the compact
+    capture contract; explicitly preregistered high-capacity captures may pass a larger bound
+    without weakening the global default.
+    """
     directory = Path(directory)
     _identifier(name, label="compact dataset name")
     _digest(calibration_sha256, label="compact dataset calibration_sha256")
+    _positive_int(byte_cap, label="compact dataset view byte_cap")
     if not view_paths:
         raise ValueError("compact dataset manifest requires at least one view")
-    views = [CompactView.load(path) for path in view_paths]
+    views = [CompactView.load(path, byte_cap=byte_cap) for path in view_paths]
     if len({view.view_id for view in views}) != len(views):
         raise ValueError("compact dataset view identifiers must be unique")
     if any(view.calibration_sha256 != calibration_sha256 for view in views):
@@ -950,5 +957,5 @@ def write_compact_dataset_manifest(
         os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)
-    CompactDataset.load(directory)
+    CompactDataset.load(directory, byte_cap=byte_cap)
     return path

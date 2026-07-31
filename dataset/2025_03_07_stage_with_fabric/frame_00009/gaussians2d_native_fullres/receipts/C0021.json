@@ -1,0 +1,205 @@
+{
+  "schema": "rtgs.native_fullres_view_production.v1",
+  "status": "PASS",
+  "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+  "dataset_id": "frame_00009",
+  "view_id": "C0021",
+  "view_index": 11,
+  "seed": 30074111,
+  "input": {
+    "rgb": {
+      "name": "C0021.jpg",
+      "bytes": 15095413,
+      "sha256": "a21575728480a63b8f8a26d739af66e9eaad7d34856c9d59ffdbac11dc9c1b3e"
+    },
+    "mask": {
+      "name": "mask_C0021.png",
+      "bytes": 133243,
+      "sha256": "bdb8db21a256f71b4aa2cc0d28078583625bf74afff2ff851bee96a06d2364b3"
+    },
+    "calibration": {
+      "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "bytes": 51752,
+      "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+    }
+  },
+  "source_binding": {
+    "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+    "python": "3.11.15",
+    "torch": "2.13.0+cu130",
+    "torch_cuda": "13.0",
+    "files": {
+      "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+      "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+      "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+      "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+      "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+      "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+      "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+      "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+      "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+      "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+      "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+    },
+    "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+  },
+  "fit_config": {
+    "n_gaussians": 100000,
+    "max_gaussians": 100000,
+    "iterations": 2000,
+    "backend": "native",
+    "adaptive_density": false,
+    "growth_waves": 5,
+    "relocate_fraction": 0.0,
+    "structsplat_renderer": "auto",
+    "native_renderer": "cuda",
+    "batch_views": false,
+    "lr": 0.01,
+    "grad_init_mix": 0.7,
+    "init_strategy": "gradient",
+    "structure_sampling": "wse",
+    "row_chunk": 64,
+    "log_every": 100,
+    "convergence_patience": 0,
+    "convergence_tol": 0.05,
+    "convergence_check_every": 25,
+    "appearance_parameterization": "weight_color_9p",
+    "freeze_geometry": false,
+    "pool": false,
+    "pool_capacity": null,
+    "pool_triage_every": 50,
+    "pool_prune_count": 32,
+    "pool_spawn_count": 32,
+    "pool_min_live": 1,
+    "mask_coverage_weight": 0.0
+  },
+  "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+  "canvas_size": [
+    4608,
+    5328
+  ],
+  "fit_window": [
+    0,
+    943,
+    3724,
+    1662
+  ],
+  "foreground_pixels": 2339137,
+  "history": {
+    "psnr": [
+      [
+        0,
+        12.991185188293457
+      ],
+      [
+        100,
+        15.685239791870117
+      ],
+      [
+        200,
+        19.053861618041992
+      ],
+      [
+        300,
+        21.463193893432617
+      ],
+      [
+        400,
+        23.139179229736328
+      ],
+      [
+        500,
+        24.361181259155273
+      ],
+      [
+        600,
+        25.261632919311523
+      ],
+      [
+        700,
+        25.958518981933594
+      ],
+      [
+        800,
+        26.508831024169922
+      ],
+      [
+        900,
+        26.950801849365234
+      ],
+      [
+        1000,
+        27.308265686035156
+      ],
+      [
+        1100,
+        27.595699310302734
+      ],
+      [
+        1200,
+        27.830711364746094
+      ],
+      [
+        1300,
+        28.025148391723633
+      ],
+      [
+        1400,
+        28.18328857421875
+      ],
+      [
+        1500,
+        28.312456130981445
+      ],
+      [
+        1600,
+        28.417110443115234
+      ],
+      [
+        1700,
+        28.501718521118164
+      ],
+      [
+        1800,
+        28.57149887084961
+      ],
+      [
+        1900,
+        28.631393432617188
+      ],
+      [
+        1999,
+        28.686138153076172
+      ]
+    ],
+    "stopped_iter": 1999,
+    "final_psnr_full": 28.686687469482422,
+    "final_psnr": 34.15626907348633
+  },
+  "runtime": {
+    "wall_seconds": 55.72826116811484,
+    "peak_cuda_allocated_bytes": 574004736,
+    "peak_cuda_reserved_bytes": 723517440
+  },
+  "output": {
+    "path": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_native_fullres/C0021.rtgsv",
+    "bytes": 3090370,
+    "sha256": "960bc49f7f80587a49a9fa7a4c9ad750f92a6a8fb70d77b06b471afa91454b15"
+  },
+  "qa": {
+    "native_crop": {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_native_fullres/qa/C0021_field_native_crop.png",
+      "width": 3724,
+      "height": 1662,
+      "bytes": 2564310,
+      "sha256": "852e67b4b99dc6927e11c94c07aa9c0967099a4e779506d4599b27efcecd08a7"
+    },
+    "native_full_canvas": {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_native_fullres/qa/C0021_field_native_full_canvas.png",
+      "width": 5328,
+      "height": 4608,
+      "bytes": 2662330,
+      "sha256": "57a481b6836537a1f4c823ed7530630317380649a0d4a97f1aea8b292304b3e3"
+    }
+  }
+}

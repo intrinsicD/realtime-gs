@@ -1,0 +1,5417 @@
+{
+  "schema": "rtgs.native_fullres_bundle_production.v1",
+  "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+  "dataset_id": "frame_00008",
+  "dataset_index": 0,
+  "source_binding": {
+    "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+    "python": "3.11.15",
+    "torch": "2.13.0+cu130",
+    "torch_cuda": "13.0",
+    "files": {
+      "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+      "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+      "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+      "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+      "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+      "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+      "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+      "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+      "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+      "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+      "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+    },
+    "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+  },
+  "configuration": {
+    "selection_basis": "Outcome-exposed mechanism pilot on frame_00008/C0001; 5000x300 and 50000x1000 were rejected as visibly too soft before selecting 100000x2000.",
+    "script": "scripts/experiments/prepare_native_fullres_paper_bundles.py",
+    "device": "cuda",
+    "downscale": 1,
+    "seed_base": 30074000,
+    "seed_stride_per_dataset": 100,
+    "parallel_workers": 2,
+    "per_view_process_isolation": true,
+    "byte_cap": 8388608,
+    "field_semantics": {
+      "provider": "native",
+      "blend_mode": "additive",
+      "sigma_cutoff": 3.4641016151377544,
+      "support_fade_alpha": 0.0,
+      "aa_dilation": 0.0
+    },
+    "fit_config": {
+      "n_gaussians": 100000,
+      "max_gaussians": 100000,
+      "iterations": 2000,
+      "backend": "native",
+      "adaptive_density": false,
+      "growth_waves": 5,
+      "relocate_fraction": 0.0,
+      "structsplat_renderer": "auto",
+      "native_renderer": "cuda",
+      "batch_views": false,
+      "lr": 0.01,
+      "grad_init_mix": 0.7,
+      "init_strategy": "gradient",
+      "structure_sampling": "wse",
+      "row_chunk": 64,
+      "log_every": 100,
+      "convergence_patience": 0,
+      "convergence_tol": 0.05,
+      "convergence_check_every": 25,
+      "appearance_parameterization": "weight_color_9p",
+      "freeze_geometry": false,
+      "pool": false,
+      "pool_capacity": null,
+      "pool_triage_every": 50,
+      "pool_prune_count": 32,
+      "pool_spawn_count": 32,
+      "pool_min_live": 1,
+      "mask_coverage_weight": 0.0
+    }
+  },
+  "compact_manifest": {
+    "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/manifest.json",
+    "bytes": 4720,
+    "sha256": "0a43263bb42e7695483bd35a8be92ed09422dcfb1f0334d117a5a2e49f73cb48"
+  },
+  "gallery": {
+    "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/index.html",
+    "bytes": 10308,
+    "sha256": "517553453b05f6b090be597cfb51169ea0e1270fa5ecf5b0ffef725a9aafcd8b"
+  },
+  "views": [
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0001",
+      "view_index": 0,
+      "seed": 30074000,
+      "input": {
+        "rgb": {
+          "name": "C0001.jpg",
+          "bytes": 14268226,
+          "sha256": "ae24fe99d3f8edbd04cd2c85ebc4fe9bfd95abe878c22abb7691cadcfc5c411b"
+        },
+        "mask": {
+          "name": "mask_C0001.png",
+          "bytes": 145606,
+          "sha256": "94dcbf7005dbeb1d183e259a569d783aa5df900255e763385bed91f02d3b80c3"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        0,
+        1693,
+        3964,
+        1444
+      ],
+      "foreground_pixels": 1776031,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.227811813354492
+          ],
+          [
+            100,
+            13.329427719116211
+          ],
+          [
+            200,
+            15.15389347076416
+          ],
+          [
+            300,
+            16.86763572692871
+          ],
+          [
+            400,
+            18.453502655029297
+          ],
+          [
+            500,
+            19.74955940246582
+          ],
+          [
+            600,
+            20.791553497314453
+          ],
+          [
+            700,
+            21.63953971862793
+          ],
+          [
+            800,
+            22.33431625366211
+          ],
+          [
+            900,
+            22.90857696533203
+          ],
+          [
+            1000,
+            23.380325317382812
+          ],
+          [
+            1100,
+            23.770832061767578
+          ],
+          [
+            1200,
+            24.096376419067383
+          ],
+          [
+            1300,
+            24.36328887939453
+          ],
+          [
+            1400,
+            24.581443786621094
+          ],
+          [
+            1500,
+            24.75837516784668
+          ],
+          [
+            1600,
+            24.900882720947266
+          ],
+          [
+            1700,
+            25.016984939575195
+          ],
+          [
+            1800,
+            25.112897872924805
+          ],
+          [
+            1900,
+            25.194881439208984
+          ],
+          [
+            1999,
+            25.269777297973633
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 25.270526885986328,
+        "final_psnr": 32.48124694824219
+      },
+      "runtime": {
+        "wall_seconds": 53.71658107917756,
+        "peak_cuda_allocated_bytes": 536875520,
+        "peak_cuda_reserved_bytes": 673185792
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0001.rtgsv",
+        "bytes": 3115349,
+        "sha256": "29b9388a9a9898112c175df4727813b77c610f1259cec77ffe4b462e8011747e"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0001_field_native_crop.png",
+          "width": 3964,
+          "height": 1444,
+          "bytes": 2470061,
+          "sha256": "b93f8acc3d0d038a171f996e0a1367296ccb88f5618b4ee803a2c5eb416eca74"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0001_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2562041,
+          "sha256": "362c33d8131a2b7e9e0f6260afaef79cb9bc56b014b2511e56e67ffe58e4084b"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0004",
+      "view_index": 1,
+      "seed": 30074001,
+      "input": {
+        "rgb": {
+          "name": "C0004.jpg",
+          "bytes": 14914857,
+          "sha256": "26eb4cf24a034eb830198df6e7a6ac409ccb7cf4814ff645c71d0b6966b7070e"
+        },
+        "mask": {
+          "name": "mask_C0004.png",
+          "bytes": 117272,
+          "sha256": "4702bfa9df354f38e35a63207a37d4ec1b753afc4d0668bd905f3cdab320f35d"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1494,
+        1932,
+        3487,
+        1196
+      ],
+      "foreground_pixels": 1217746,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.13084602355957
+          ],
+          [
+            100,
+            16.025007247924805
+          ],
+          [
+            200,
+            18.37166976928711
+          ],
+          [
+            300,
+            20.624895095825195
+          ],
+          [
+            400,
+            22.415639877319336
+          ],
+          [
+            500,
+            23.744678497314453
+          ],
+          [
+            600,
+            24.76304817199707
+          ],
+          [
+            700,
+            25.547475814819336
+          ],
+          [
+            800,
+            26.174713134765625
+          ],
+          [
+            900,
+            26.675588607788086
+          ],
+          [
+            1000,
+            27.077354431152344
+          ],
+          [
+            1100,
+            27.406688690185547
+          ],
+          [
+            1200,
+            27.676456451416016
+          ],
+          [
+            1300,
+            27.899152755737305
+          ],
+          [
+            1400,
+            28.08279800415039
+          ],
+          [
+            1500,
+            28.232023239135742
+          ],
+          [
+            1600,
+            28.35317611694336
+          ],
+          [
+            1700,
+            28.450422286987305
+          ],
+          [
+            1800,
+            28.52987289428711
+          ],
+          [
+            1900,
+            28.598661422729492
+          ],
+          [
+            1999,
+            28.662317276000977
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 28.663034439086914,
+        "final_psnr": 34.98113250732422
+      },
+      "runtime": {
+        "wall_seconds": 53.63347320165485,
+        "peak_cuda_allocated_bytes": 369406464,
+        "peak_cuda_reserved_bytes": 486539264
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0004.rtgsv",
+        "bytes": 3151106,
+        "sha256": "484dc32951e269e78cb71332bf4dbe30718b8530985d6a9309ec7120083c2df2"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0004_field_native_crop.png",
+          "width": 3487,
+          "height": 1196,
+          "bytes": 1685742,
+          "sha256": "27f9433423aca8f5edb274623b8c8a7ecc6abaa55ef790ece6caf84c529e64c8"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0004_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1780022,
+          "sha256": "ad27c8a119a96bd6ba9303b8da5e0d87fbb4df377aa67ca9166c6f9d179cdc74"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0005",
+      "view_index": 2,
+      "seed": 30074002,
+      "input": {
+        "rgb": {
+          "name": "C0005.jpg",
+          "bytes": 13997995,
+          "sha256": "2a4666e41688d4d66d5d1b1e12f4045556de56581c9c8caf88c85208f36ce15c"
+        },
+        "mask": {
+          "name": "mask_C0005.png",
+          "bytes": 121521,
+          "sha256": "43d49b20739b3247161f2e5d61fef63ba6551308665fc9d2e9f8a736f017a741"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1578,
+        1930,
+        3750,
+        1405
+      ],
+      "foreground_pixels": 1884379,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.283305168151855
+          ],
+          [
+            100,
+            15.42898178100586
+          ],
+          [
+            200,
+            18.339086532592773
+          ],
+          [
+            300,
+            20.814931869506836
+          ],
+          [
+            400,
+            22.61379623413086
+          ],
+          [
+            500,
+            23.950653076171875
+          ],
+          [
+            600,
+            24.981945037841797
+          ],
+          [
+            700,
+            25.775936126708984
+          ],
+          [
+            800,
+            26.402076721191406
+          ],
+          [
+            900,
+            26.897916793823242
+          ],
+          [
+            1000,
+            27.30333137512207
+          ],
+          [
+            1100,
+            27.631221771240234
+          ],
+          [
+            1200,
+            27.8994140625
+          ],
+          [
+            1300,
+            28.121971130371094
+          ],
+          [
+            1400,
+            28.301746368408203
+          ],
+          [
+            1500,
+            28.449085235595703
+          ],
+          [
+            1600,
+            28.568363189697266
+          ],
+          [
+            1700,
+            28.666122436523438
+          ],
+          [
+            1800,
+            28.746261596679688
+          ],
+          [
+            1900,
+            28.81470489501953
+          ],
+          [
+            1999,
+            28.877315521240234
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 28.87794303894043,
+        "final_psnr": 34.66202163696289
+      },
+      "runtime": {
+        "wall_seconds": 53.76817643456161,
+        "peak_cuda_allocated_bytes": 488807424,
+        "peak_cuda_reserved_bytes": 616562688
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0005.rtgsv",
+        "bytes": 3156267,
+        "sha256": "ba59626a68766746970cfe017750f20c5851efa2741a9f11fd710435989cd977"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0005_field_native_crop.png",
+          "width": 3750,
+          "height": 1405,
+          "bytes": 2229742,
+          "sha256": "6a7daa4fbd883fa40f66742d7ddbb9d97fa34920cb7f6ac12ea8af5f31293476"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0005_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2325904,
+          "sha256": "a017505ae287792d94a2faf82ae4703231a5fee3a74646e6aa427b1541f024e6"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0006",
+      "view_index": 3,
+      "seed": 30074003,
+      "input": {
+        "rgb": {
+          "name": "C0006.jpg",
+          "bytes": 15363205,
+          "sha256": "d61057641899878f37357fbaae2d1acfb8cbbe2f4c108f307b89b4e51f8d1f04"
+        },
+        "mask": {
+          "name": "mask_C0006.png",
+          "bytes": 108229,
+          "sha256": "030bba01a9d1481e7a458ba61fe37779ffbaec2f61911a248ac347e36cef46f2"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1751,
+        2148,
+        3577,
+        1432
+      ],
+      "foreground_pixels": 1664765,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.410100936889648
+          ],
+          [
+            100,
+            15.150603294372559
+          ],
+          [
+            200,
+            17.305034637451172
+          ],
+          [
+            300,
+            19.496978759765625
+          ],
+          [
+            400,
+            21.28293228149414
+          ],
+          [
+            500,
+            22.668054580688477
+          ],
+          [
+            600,
+            23.755380630493164
+          ],
+          [
+            700,
+            24.631643295288086
+          ],
+          [
+            800,
+            25.33371353149414
+          ],
+          [
+            900,
+            25.904970169067383
+          ],
+          [
+            1000,
+            26.369722366333008
+          ],
+          [
+            1100,
+            26.750202178955078
+          ],
+          [
+            1200,
+            27.063385009765625
+          ],
+          [
+            1300,
+            27.321470260620117
+          ],
+          [
+            1400,
+            27.530597686767578
+          ],
+          [
+            1500,
+            27.699928283691406
+          ],
+          [
+            1600,
+            27.836400985717773
+          ],
+          [
+            1700,
+            27.94632339477539
+          ],
+          [
+            1800,
+            28.03679656982422
+          ],
+          [
+            1900,
+            28.113916397094727
+          ],
+          [
+            1999,
+            28.184398651123047
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 28.185110092163086,
+        "final_psnr": 34.44281005859375
+      },
+      "runtime": {
+        "wall_seconds": 53.487744657322764,
+        "peak_cuda_allocated_bytes": 471400448,
+        "peak_cuda_reserved_bytes": 597688320
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0006.rtgsv",
+        "bytes": 3143070,
+        "sha256": "cf74c349912925c7280704f2e316b34c26f35a57da31f2eabb599e97443772b7"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0006_field_native_crop.png",
+          "width": 3577,
+          "height": 1432,
+          "bytes": 2060803,
+          "sha256": "6ae3a57c8e32bc880d88a1be8b9b9b2c7ac07b4cd188d212cc9e7b230e31e3f6"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0006_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2160242,
+          "sha256": "299b28bd6ee9ae481aa260d15e52a7ae8e72bb051fb72f8280b5050825310c24"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0008",
+      "view_index": 4,
+      "seed": 30074004,
+      "input": {
+        "rgb": {
+          "name": "C0008.jpg",
+          "bytes": 13895234,
+          "sha256": "6c96cd772fd72bfd596ce9d3f588924c99167f783aa9cf0bd6a682bd223463f4"
+        },
+        "mask": {
+          "name": "mask_C0008.png",
+          "bytes": 119275,
+          "sha256": "1555235ad716bfce6e2aec48a7f2dd98c9330fd3b5766bbbfb0746a63ea8956e"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1446,
+        1951,
+        3821,
+        1527
+      ],
+      "foreground_pixels": 1921132,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.395161628723145
+          ],
+          [
+            100,
+            15.92814826965332
+          ],
+          [
+            200,
+            18.43297576904297
+          ],
+          [
+            300,
+            20.646589279174805
+          ],
+          [
+            400,
+            22.499649047851562
+          ],
+          [
+            500,
+            23.928199768066406
+          ],
+          [
+            600,
+            25.04039764404297
+          ],
+          [
+            700,
+            25.917850494384766
+          ],
+          [
+            800,
+            26.622543334960938
+          ],
+          [
+            900,
+            27.17908477783203
+          ],
+          [
+            1000,
+            27.64337921142578
+          ],
+          [
+            1100,
+            28.020977020263672
+          ],
+          [
+            1200,
+            28.32257843017578
+          ],
+          [
+            1300,
+            28.567882537841797
+          ],
+          [
+            1400,
+            28.76938247680664
+          ],
+          [
+            1500,
+            28.931110382080078
+          ],
+          [
+            1600,
+            29.060997009277344
+          ],
+          [
+            1700,
+            29.166181564331055
+          ],
+          [
+            1800,
+            29.253332138061523
+          ],
+          [
+            1900,
+            29.327556610107422
+          ],
+          [
+            1999,
+            29.39480972290039
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 29.395483016967773,
+        "final_psnr": 35.77001953125
+      },
+      "runtime": {
+        "wall_seconds": 53.492799278348684,
+        "peak_cuda_allocated_bytes": 535284224,
+        "peak_cuda_reserved_bytes": 666894336
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0008.rtgsv",
+        "bytes": 3141144,
+        "sha256": "56d33dcfe416cfa5a74b9bd2c8ff965286d4b91996541658a4635e9c88804ce3"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0008_field_native_crop.png",
+          "width": 3821,
+          "height": 1527,
+          "bytes": 2152730,
+          "sha256": "8f37381e104569ffcc13d82a9f329d0b53bbee885f52ac52ea266cc259ae8da2"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0008_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2240953,
+          "sha256": "33588ec23e0f30d9270e1b61fdee0f85df6b8138aa65668d49d6c59d4c59577e"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0009",
+      "view_index": 5,
+      "seed": 30074005,
+      "input": {
+        "rgb": {
+          "name": "C0009.jpg",
+          "bytes": 14512725,
+          "sha256": "ebca961dacb7cb3009572373880e7b784da34b6f27c04b3b4e325cad3cea7358"
+        },
+        "mask": {
+          "name": "mask_C0009.png",
+          "bytes": 101605,
+          "sha256": "d98a986333264550b41bd0421e88d8a977c74979f14ed1fcdf9fddb75a20e084"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1432,
+        1865,
+        3123,
+        1155
+      ],
+      "foreground_pixels": 1006781,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.126007080078125
+          ],
+          [
+            100,
+            16.833236694335938
+          ],
+          [
+            200,
+            20.344406127929688
+          ],
+          [
+            300,
+            22.85141944885254
+          ],
+          [
+            400,
+            24.60405158996582
+          ],
+          [
+            500,
+            25.88782501220703
+          ],
+          [
+            600,
+            26.839025497436523
+          ],
+          [
+            700,
+            27.579601287841797
+          ],
+          [
+            800,
+            28.157146453857422
+          ],
+          [
+            900,
+            28.61995506286621
+          ],
+          [
+            1000,
+            29.000389099121094
+          ],
+          [
+            1100,
+            29.311710357666016
+          ],
+          [
+            1200,
+            29.568023681640625
+          ],
+          [
+            1300,
+            29.779441833496094
+          ],
+          [
+            1400,
+            29.953937530517578
+          ],
+          [
+            1500,
+            30.09636116027832
+          ],
+          [
+            1600,
+            30.211523056030273
+          ],
+          [
+            1700,
+            30.304569244384766
+          ],
+          [
+            1800,
+            30.380748748779297
+          ],
+          [
+            1900,
+            30.44605255126953
+          ],
+          [
+            1999,
+            30.506004333496094
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 30.506608963012695,
+        "final_psnr": 35.82036209106445
+      },
+      "runtime": {
+        "wall_seconds": 52.779222457669675,
+        "peak_cuda_allocated_bytes": 316525568,
+        "peak_cuda_reserved_bytes": 408944640
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0009.rtgsv",
+        "bytes": 3154038,
+        "sha256": "f38b39c672fde8caf4f4cb6db49aab605c0a7ec69260aad7be0f9416e1fdc097"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0009_field_native_crop.png",
+          "width": 3123,
+          "height": 1155,
+          "bytes": 1437321,
+          "sha256": "95db631d7311c1583316d79abe30c271aef12977a3b4a8ae5ed837144b73ac61"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0009_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1531215,
+          "sha256": "7948aa44650446b10e43c9cedaad7d4154891318bc4f2f86cdb67ff2dcac76fd"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0012",
+      "view_index": 6,
+      "seed": 30074006,
+      "input": {
+        "rgb": {
+          "name": "C0012.jpg",
+          "bytes": 14344063,
+          "sha256": "7ec0df4004c1ba940220ef4d7bac6e7b73ed60065255be7e8d35157c804234a8"
+        },
+        "mask": {
+          "name": "mask_C0012.png",
+          "bytes": 118322,
+          "sha256": "0d743cac68b47c7f53c270b4a74b1869dba0c60114092fcb63358ee217471cd7"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1457,
+        1118,
+        3798,
+        1487
+      ],
+      "foreground_pixels": 1855343,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.285398483276367
+          ],
+          [
+            100,
+            15.376726150512695
+          ],
+          [
+            200,
+            17.569223403930664
+          ],
+          [
+            300,
+            19.619678497314453
+          ],
+          [
+            400,
+            21.427810668945312
+          ],
+          [
+            500,
+            22.827430725097656
+          ],
+          [
+            600,
+            23.921403884887695
+          ],
+          [
+            700,
+            24.794517517089844
+          ],
+          [
+            800,
+            25.489601135253906
+          ],
+          [
+            900,
+            26.05029296875
+          ],
+          [
+            1000,
+            26.510032653808594
+          ],
+          [
+            1100,
+            26.882930755615234
+          ],
+          [
+            1200,
+            27.19175148010254
+          ],
+          [
+            1300,
+            27.44016456604004
+          ],
+          [
+            1400,
+            27.64073944091797
+          ],
+          [
+            1500,
+            27.803800582885742
+          ],
+          [
+            1600,
+            27.938491821289062
+          ],
+          [
+            1700,
+            28.04651641845703
+          ],
+          [
+            1800,
+            28.13432502746582
+          ],
+          [
+            1900,
+            28.209060668945312
+          ],
+          [
+            1999,
+            28.27785301208496
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 28.278549194335938,
+        "final_psnr": 35.127098083496094
+      },
+      "runtime": {
+        "wall_seconds": 53.19857076089829,
+        "peak_cuda_allocated_bytes": 518515200,
+        "peak_cuda_reserved_bytes": 648019968
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0012.rtgsv",
+        "bytes": 3150251,
+        "sha256": "25b3598a3ce384838f57f567c055840f99872672603215851ea61070099f9907"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0012_field_native_crop.png",
+          "width": 3798,
+          "height": 1487,
+          "bytes": 2110016,
+          "sha256": "5ee4a2205b9a74f51b333038f5e908afa00c9f20d33c102da0952205231148c4"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0012_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2201312,
+          "sha256": "068ab5cdb4e144780ec54ed54e3159b2ab87430ffbee7601d7b7bb984c75a42d"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0014",
+      "view_index": 7,
+      "seed": 30074007,
+      "input": {
+        "rgb": {
+          "name": "C0014.jpg",
+          "bytes": 14817975,
+          "sha256": "41b2397a6342953d253c0f695f68da1a7fdb879eee9912f9a0afbf0f1a371713"
+        },
+        "mask": {
+          "name": "mask_C0014.png",
+          "bytes": 101222,
+          "sha256": "801c46692f557b4a9e863d8d38bc598092b74f5a941192dda0c3dd820c9262cb"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1673,
+        1867,
+        3432,
+        1353
+      ],
+      "foreground_pixels": 1493753,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.445401191711426
+          ],
+          [
+            100,
+            15.948698043823242
+          ],
+          [
+            200,
+            18.32257843017578
+          ],
+          [
+            300,
+            20.912906646728516
+          ],
+          [
+            400,
+            22.794591903686523
+          ],
+          [
+            500,
+            24.21485710144043
+          ],
+          [
+            600,
+            25.295230865478516
+          ],
+          [
+            700,
+            26.137996673583984
+          ],
+          [
+            800,
+            26.795387268066406
+          ],
+          [
+            900,
+            27.335777282714844
+          ],
+          [
+            1000,
+            27.7701416015625
+          ],
+          [
+            1100,
+            28.13106346130371
+          ],
+          [
+            1200,
+            28.421308517456055
+          ],
+          [
+            1300,
+            28.65846824645996
+          ],
+          [
+            1400,
+            28.852807998657227
+          ],
+          [
+            1500,
+            29.010427474975586
+          ],
+          [
+            1600,
+            29.13913345336914
+          ],
+          [
+            1700,
+            29.243343353271484
+          ],
+          [
+            1800,
+            29.33017921447754
+          ],
+          [
+            1900,
+            29.404483795166016
+          ],
+          [
+            1999,
+            29.47214126586914
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 29.47282600402832,
+        "final_psnr": 36.74111557006836
+      },
+      "runtime": {
+        "wall_seconds": 52.883675284683704,
+        "peak_cuda_allocated_bytes": 417860608,
+        "peak_cuda_reserved_bytes": 538968064
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0014.rtgsv",
+        "bytes": 3144575,
+        "sha256": "e0d43eb17a4f3c5f495b539f4a47bb85f87d094b4a0ae3fe1ecc4d4a2e8b7b92"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0014_field_native_crop.png",
+          "width": 3432,
+          "height": 1353,
+          "bytes": 1841937,
+          "sha256": "4a66ee432393357d28d313031f257a8049680d2e6ba62f9c07d276fff230abc9"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0014_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1937426,
+          "sha256": "f0771d520dcbeeb81c0b7582847779d802596f243274ece07c0375da5fb37a9f"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0018",
+      "view_index": 8,
+      "seed": 30074008,
+      "input": {
+        "rgb": {
+          "name": "C0018.jpg",
+          "bytes": 15458176,
+          "sha256": "7002cffcd935bff27dbf31b3714ab120ea48f30125b89d28bb951cd02ab97629"
+        },
+        "mask": {
+          "name": "mask_C0018.png",
+          "bytes": 113211,
+          "sha256": "4ecf524dbc9a51c44deffd460cf6930e6ee58e91cc2ef27bc8a12d0b9c8e4903"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1088,
+        1988,
+        3415,
+        1267
+      ],
+      "foreground_pixels": 1300489,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.32509994506836
+          ],
+          [
+            100,
+            16.18079376220703
+          ],
+          [
+            200,
+            19.611602783203125
+          ],
+          [
+            300,
+            22.020591735839844
+          ],
+          [
+            400,
+            23.756797790527344
+          ],
+          [
+            500,
+            25.042333602905273
+          ],
+          [
+            600,
+            26.020706176757812
+          ],
+          [
+            700,
+            26.786582946777344
+          ],
+          [
+            800,
+            27.40137481689453
+          ],
+          [
+            900,
+            27.888948440551758
+          ],
+          [
+            1000,
+            28.292724609375
+          ],
+          [
+            1100,
+            28.621978759765625
+          ],
+          [
+            1200,
+            28.892547607421875
+          ],
+          [
+            1300,
+            29.116199493408203
+          ],
+          [
+            1400,
+            29.298294067382812
+          ],
+          [
+            1500,
+            29.447553634643555
+          ],
+          [
+            1600,
+            29.568817138671875
+          ],
+          [
+            1700,
+            29.66740608215332
+          ],
+          [
+            1800,
+            29.748380661010742
+          ],
+          [
+            1900,
+            29.817869186401367
+          ],
+          [
+            1999,
+            29.881383895874023
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 29.882022857666016,
+        "final_psnr": 38.14898681640625
+      },
+      "runtime": {
+        "wall_seconds": 50.55570505280048,
+        "peak_cuda_allocated_bytes": 384406528,
+        "peak_cuda_reserved_bytes": 492830720
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0018.rtgsv",
+        "bytes": 3142204,
+        "sha256": "0d4bb94c6835143ec0573a21cdea288b722055297fe2d2bef2de17edd691d2c6"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0018_field_native_crop.png",
+          "width": 3415,
+          "height": 1267,
+          "bytes": 1647213,
+          "sha256": "c136b4f9274427ebe7bc40c2de794af086e9b396a5a07043e85218cfc670a1a6"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0018_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1745327,
+          "sha256": "5aa2fd71b09b1fab505185b86dc5971b87b03cf3220ce336362d9eae847db321"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0019",
+      "view_index": 9,
+      "seed": 30074009,
+      "input": {
+        "rgb": {
+          "name": "C0019.jpg",
+          "bytes": 14350777,
+          "sha256": "7009cd1006b7103a0f62471c6d89d0b6c5e14c72dbdb211d2e41d1ff017b857e"
+        },
+        "mask": {
+          "name": "mask_C0019.png",
+          "bytes": 85893,
+          "sha256": "43c53247fb697d850a179a6a7de5ee89b2b08caab48790ce669b05b064e574f4"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        837,
+        1329,
+        2811,
+        1361
+      ],
+      "foreground_pixels": 1157830,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.271073341369629
+          ],
+          [
+            100,
+            19.140378952026367
+          ],
+          [
+            200,
+            22.94321060180664
+          ],
+          [
+            300,
+            25.4335880279541
+          ],
+          [
+            400,
+            27.16729164123535
+          ],
+          [
+            500,
+            28.400657653808594
+          ],
+          [
+            600,
+            29.327680587768555
+          ],
+          [
+            700,
+            30.043554306030273
+          ],
+          [
+            800,
+            30.599271774291992
+          ],
+          [
+            900,
+            31.043903350830078
+          ],
+          [
+            1000,
+            31.40884017944336
+          ],
+          [
+            1100,
+            31.706674575805664
+          ],
+          [
+            1200,
+            31.950910568237305
+          ],
+          [
+            1300,
+            32.1495361328125
+          ],
+          [
+            1400,
+            32.31122970581055
+          ],
+          [
+            1500,
+            32.443260192871094
+          ],
+          [
+            1600,
+            32.55171203613281
+          ],
+          [
+            1700,
+            32.639156341552734
+          ],
+          [
+            1800,
+            32.71035385131836
+          ],
+          [
+            1900,
+            32.771793365478516
+          ],
+          [
+            1999,
+            32.82791519165039
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 32.8284797668457,
+        "final_psnr": 36.90031433105469
+      },
+      "runtime": {
+        "wall_seconds": 50.41021027229726,
+        "peak_cuda_allocated_bytes": 323380736,
+        "peak_cuda_reserved_bytes": 427819008
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0019.rtgsv",
+        "bytes": 3149853,
+        "sha256": "3b8b45ba7cca6e47c6028b097dd4ef9ee6a2f5fe78bdfd027a91ea90232e23fb"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0019_field_native_crop.png",
+          "width": 2811,
+          "height": 1361,
+          "bytes": 1497460,
+          "sha256": "5738ea7f7b9c0bedec155b430c3169b5e388f34d2aa40641a48660a7c3b84b8f"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0019_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1593880,
+          "sha256": "652fd70fae1c7a62a4a295999213cf565470875653fc16dfc08438e8d914fb70"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0020",
+      "view_index": 10,
+      "seed": 30074010,
+      "input": {
+        "rgb": {
+          "name": "C0020.jpg",
+          "bytes": 14316233,
+          "sha256": "8efcd06fed7659b33f5f29f0f5ff406d917f106666edaa7ec5737fd4a6d04e83"
+        },
+        "mask": {
+          "name": "mask_C0020.png",
+          "bytes": 118938,
+          "sha256": "dcde023804b9e6bd14d43698cd8e6a68c89c1ff0718e774c117c4e9d0207b6e1"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        0,
+        1592,
+        3405,
+        1237
+      ],
+      "foreground_pixels": 1381176,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.16002368927002
+          ],
+          [
+            100,
+            14.561138153076172
+          ],
+          [
+            200,
+            16.92055320739746
+          ],
+          [
+            300,
+            18.775127410888672
+          ],
+          [
+            400,
+            20.40074920654297
+          ],
+          [
+            500,
+            21.67147445678711
+          ],
+          [
+            600,
+            22.6665096282959
+          ],
+          [
+            700,
+            23.459596633911133
+          ],
+          [
+            800,
+            24.0977840423584
+          ],
+          [
+            900,
+            24.62124252319336
+          ],
+          [
+            1000,
+            25.053022384643555
+          ],
+          [
+            1100,
+            25.408721923828125
+          ],
+          [
+            1200,
+            25.702510833740234
+          ],
+          [
+            1300,
+            25.94683074951172
+          ],
+          [
+            1400,
+            26.14743423461914
+          ],
+          [
+            1500,
+            26.311817169189453
+          ],
+          [
+            1600,
+            26.445106506347656
+          ],
+          [
+            1700,
+            26.554264068603516
+          ],
+          [
+            1800,
+            26.644813537597656
+          ],
+          [
+            1900,
+            26.722667694091797
+          ],
+          [
+            1999,
+            26.793622970581055
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 26.79433822631836,
+        "final_psnr": 33.69715118408203
+      },
+      "runtime": {
+        "wall_seconds": 60.476228476502,
+        "peak_cuda_allocated_bytes": 382646272,
+        "peak_cuda_reserved_bytes": 492830720
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0020.rtgsv",
+        "bytes": 3127944,
+        "sha256": "77cc0f9186f6d2fa7594014647a89024859eeb3bab12488226f5667ac79a8be9"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0020_field_native_crop.png",
+          "width": 3405,
+          "height": 1237,
+          "bytes": 1876942,
+          "sha256": "b6f0ee67ea836354f04f87cec6e5807c12f68e3c8b7f0c830d30b16cc9c46730"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0020_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1978215,
+          "sha256": "b80ae6e3e718688ca2c5ec8ae1a0007e93bb68aef47007067224ffd491b53149"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0021",
+      "view_index": 11,
+      "seed": 30074011,
+      "input": {
+        "rgb": {
+          "name": "C0021.jpg",
+          "bytes": 15034481,
+          "sha256": "16cd8ce91ae06c8743b20fa7b966f8d6ce5f9c0048439d7bbe8d8a2a91e2c652"
+        },
+        "mask": {
+          "name": "mask_C0021.png",
+          "bytes": 119238,
+          "sha256": "7ffe885d5ee43411f567a74324eeb0989f3fbcc24dc8ee6db5d638ef072a94cc"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        0,
+        1248,
+        3519,
+        3295
+      ],
+      "foreground_pixels": 1548371,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.832786560058594
+          ],
+          [
+            100,
+            12.710004806518555
+          ],
+          [
+            200,
+            13.867789268493652
+          ],
+          [
+            300,
+            15.040655136108398
+          ],
+          [
+            400,
+            16.29183006286621
+          ],
+          [
+            500,
+            17.562110900878906
+          ],
+          [
+            600,
+            18.743860244750977
+          ],
+          [
+            700,
+            19.747182846069336
+          ],
+          [
+            800,
+            20.588817596435547
+          ],
+          [
+            900,
+            21.30049705505371
+          ],
+          [
+            1000,
+            21.90142059326172
+          ],
+          [
+            1100,
+            22.404788970947266
+          ],
+          [
+            1200,
+            22.823774337768555
+          ],
+          [
+            1300,
+            23.171770095825195
+          ],
+          [
+            1400,
+            23.460063934326172
+          ],
+          [
+            1500,
+            23.69651985168457
+          ],
+          [
+            1600,
+            23.88873291015625
+          ],
+          [
+            1700,
+            24.04426383972168
+          ],
+          [
+            1800,
+            24.172773361206055
+          ],
+          [
+            1900,
+            24.28348159790039
+          ],
+          [
+            1999,
+            24.384780883789062
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 24.38579559326172,
+        "final_psnr": 31.066478729248047
+      },
+      "runtime": {
+        "wall_seconds": 72.91771504469216,
+        "peak_cuda_allocated_bytes": 1083767808,
+        "peak_cuda_reserved_bytes": 1358954496
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0021.rtgsv",
+        "bytes": 2953216,
+        "sha256": "9e51eea7d6d37ebf5114eeb25b2b7127dc2c6e53a9ca68706d246584a271030c"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0021_field_native_crop.png",
+          "width": 3519,
+          "height": 3295,
+          "bytes": 2451398,
+          "sha256": "d39ef1d79c8457e5d6df542bf6dcacef687615c93dae2f510aa15ef76dbc2675"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0021_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2546610,
+          "sha256": "c3f015170574e7fdaa28f3466cf478ceb57d3ec21b157dae5cde5aaee9793f9e"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0022",
+      "view_index": 12,
+      "seed": 30074012,
+      "input": {
+        "rgb": {
+          "name": "C0022.jpg",
+          "bytes": 14162095,
+          "sha256": "1bbdfcf2b80ef983ba83dfb166780116920a0e872e32f6de1f7e655bf9192473"
+        },
+        "mask": {
+          "name": "mask_C0022.png",
+          "bytes": 118404,
+          "sha256": "5951b2124784fbaafd8274d9ea1c3085b481860f4c18c6bb1101864b5f65359f"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        0,
+        1902,
+        3702,
+        1501
+      ],
+      "foreground_pixels": 1946546,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.265795707702637
+          ],
+          [
+            100,
+            14.381932258605957
+          ],
+          [
+            200,
+            16.848430633544922
+          ],
+          [
+            300,
+            18.892292022705078
+          ],
+          [
+            400,
+            20.51729393005371
+          ],
+          [
+            500,
+            21.781131744384766
+          ],
+          [
+            600,
+            22.77796745300293
+          ],
+          [
+            700,
+            23.583663940429688
+          ],
+          [
+            800,
+            24.235017776489258
+          ],
+          [
+            900,
+            24.76816177368164
+          ],
+          [
+            1000,
+            25.208377838134766
+          ],
+          [
+            1100,
+            25.57323455810547
+          ],
+          [
+            1200,
+            25.878341674804688
+          ],
+          [
+            1300,
+            26.12676239013672
+          ],
+          [
+            1400,
+            26.331823348999023
+          ],
+          [
+            1500,
+            26.497861862182617
+          ],
+          [
+            1600,
+            26.63104820251465
+          ],
+          [
+            1700,
+            26.738422393798828
+          ],
+          [
+            1800,
+            26.827287673950195
+          ],
+          [
+            1900,
+            26.90372085571289
+          ],
+          [
+            1999,
+            26.9741153717041
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 26.97482681274414,
+        "final_psnr": 33.450130462646484
+      },
+      "runtime": {
+        "wall_seconds": 51.3518699221313,
+        "peak_cuda_allocated_bytes": 518321152,
+        "peak_cuda_reserved_bytes": 641728512
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0022.rtgsv",
+        "bytes": 3110725,
+        "sha256": "ba7bd5f702d857583c47d8ce029f2de4902be34a661b3dae2c45a73ea54dd1cd"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0022_field_native_crop.png",
+          "width": 3702,
+          "height": 1501,
+          "bytes": 2325397,
+          "sha256": "eda479d85da00bafdab6c923d9ace903ae70b13c9efeb1535dfb6817f677e16e"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0022_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2421563,
+          "sha256": "c6264ab6c1d570f1b9090411d9934bf42a13abd6c06939db136eae8e44a3d0b9"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0025",
+      "view_index": 13,
+      "seed": 30074013,
+      "input": {
+        "rgb": {
+          "name": "C0025.jpg",
+          "bytes": 15848175,
+          "sha256": "5f0596d47f8aa518cca1d938f385576c92c17c53f68d6f2f348f3351cfd33aa0"
+        },
+        "mask": {
+          "name": "mask_C0025.png",
+          "bytes": 89019,
+          "sha256": "cd98d051eaa0a74f4316335bd901735121f2a40cabb2b227944a11571d794368"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1044,
+        1856,
+        2716,
+        1285
+      ],
+      "foreground_pixels": 1005881,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.355193138122559
+          ],
+          [
+            100,
+            16.10341453552246
+          ],
+          [
+            200,
+            18.910131454467773
+          ],
+          [
+            300,
+            21.432518005371094
+          ],
+          [
+            400,
+            23.248180389404297
+          ],
+          [
+            500,
+            24.59221649169922
+          ],
+          [
+            600,
+            25.61590576171875
+          ],
+          [
+            700,
+            26.415346145629883
+          ],
+          [
+            800,
+            27.05443572998047
+          ],
+          [
+            900,
+            27.570545196533203
+          ],
+          [
+            1000,
+            27.989959716796875
+          ],
+          [
+            1100,
+            28.33432960510254
+          ],
+          [
+            1200,
+            28.617753982543945
+          ],
+          [
+            1300,
+            28.852996826171875
+          ],
+          [
+            1400,
+            29.045272827148438
+          ],
+          [
+            1500,
+            29.20108413696289
+          ],
+          [
+            1600,
+            29.327972412109375
+          ],
+          [
+            1700,
+            29.431543350219727
+          ],
+          [
+            1800,
+            29.51766014099121
+          ],
+          [
+            1900,
+            29.591672897338867
+          ],
+          [
+            1999,
+            29.659395217895508
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 29.66008186340332,
+        "final_psnr": 37.585758209228516
+      },
+      "runtime": {
+        "wall_seconds": 48.17555539403111,
+        "peak_cuda_allocated_bytes": 291174912,
+        "peak_cuda_reserved_bytes": 381681664
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0025.rtgsv",
+        "bytes": 3141726,
+        "sha256": "142426515ddbf9e7fe7d46ac842200556e8723171ec9d248c19e8b02d245fb42"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0025_field_native_crop.png",
+          "width": 2716,
+          "height": 1285,
+          "bytes": 1371454,
+          "sha256": "fd9a5a61f2cf4a4bb67442d9cc3c07ad9aba21b9d2ff28fe1a9510eb5d66d06a"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0025_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1466186,
+          "sha256": "6345627a42ee0ffb93c4c3602822fe0ca5904981e09714f0eabd3b0ca9967642"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0026",
+      "view_index": 14,
+      "seed": 30074014,
+      "input": {
+        "rgb": {
+          "name": "C0026.jpg",
+          "bytes": 14138375,
+          "sha256": "62281ed8299e75b89c9bc7749e68b33d4e54c2d3332f5c49e18c505653ce05e1"
+        },
+        "mask": {
+          "name": "mask_C0026.png",
+          "bytes": 128805,
+          "sha256": "a8eba1df30ffa804a5356a2c7aaabc1c78903432e263d299726cd78d69c69b3f"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1780,
+        2081,
+        3548,
+        1591
+      ],
+      "foreground_pixels": 2073285,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.296891212463379
+          ],
+          [
+            100,
+            15.190855026245117
+          ],
+          [
+            200,
+            17.883424758911133
+          ],
+          [
+            300,
+            20.434791564941406
+          ],
+          [
+            400,
+            22.27436065673828
+          ],
+          [
+            500,
+            23.62725067138672
+          ],
+          [
+            600,
+            24.63906478881836
+          ],
+          [
+            700,
+            25.42569351196289
+          ],
+          [
+            800,
+            26.029518127441406
+          ],
+          [
+            900,
+            26.515819549560547
+          ],
+          [
+            1000,
+            26.91217803955078
+          ],
+          [
+            1100,
+            27.229602813720703
+          ],
+          [
+            1200,
+            27.492630004882812
+          ],
+          [
+            1300,
+            27.705387115478516
+          ],
+          [
+            1400,
+            27.881057739257812
+          ],
+          [
+            1500,
+            28.02288055419922
+          ],
+          [
+            1600,
+            28.136730194091797
+          ],
+          [
+            1700,
+            28.228416442871094
+          ],
+          [
+            1800,
+            28.304214477539062
+          ],
+          [
+            1900,
+            28.36935806274414
+          ],
+          [
+            1999,
+            28.429201126098633
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 28.42980194091797,
+        "final_psnr": 34.69101333618164
+      },
+      "runtime": {
+        "wall_seconds": 53.91062775440514,
+        "peak_cuda_allocated_bytes": 518515200,
+        "peak_cuda_reserved_bytes": 648019968
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0026.rtgsv",
+        "bytes": 3154690,
+        "sha256": "6ea25eb360312907a8146b70d87bde1dec664470a983f950df348d7077c0e45a"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0026_field_native_crop.png",
+          "width": 3548,
+          "height": 1591,
+          "bytes": 2343849,
+          "sha256": "9b404cf4e0c82d7410df6f51c18bb7e7b0a4fe4fbbefeaba2230f7ac84dc65e9"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0026_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2448574,
+          "sha256": "0e6d5d760fdc2dfddc19702605d22bd62ba40aaee785d23dc0d2622498fab64a"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0028",
+      "view_index": 15,
+      "seed": 30074015,
+      "input": {
+        "rgb": {
+          "name": "C0028.jpg",
+          "bytes": 14143349,
+          "sha256": "70b09ecc55a47fa9f5e2c3182040951567144004271e69967b460e909950603f"
+        },
+        "mask": {
+          "name": "mask_C0028.png",
+          "bytes": 131675,
+          "sha256": "64ba54bb2f248df40f16df9624c71d403a24e5ff8221ade3c3b8a602a7786e4e"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1275,
+        1572,
+        3915,
+        1328
+      ],
+      "foreground_pixels": 1593624,
+      "history": {
+        "psnr": [
+          [
+            0,
+            12.993265151977539
+          ],
+          [
+            100,
+            15.506683349609375
+          ],
+          [
+            200,
+            17.798084259033203
+          ],
+          [
+            300,
+            20.062044143676758
+          ],
+          [
+            400,
+            21.942270278930664
+          ],
+          [
+            500,
+            23.35472869873047
+          ],
+          [
+            600,
+            24.424522399902344
+          ],
+          [
+            700,
+            25.2615966796875
+          ],
+          [
+            800,
+            25.91333770751953
+          ],
+          [
+            900,
+            26.432353973388672
+          ],
+          [
+            1000,
+            26.846725463867188
+          ],
+          [
+            1100,
+            27.192880630493164
+          ],
+          [
+            1200,
+            27.474193572998047
+          ],
+          [
+            1300,
+            27.701282501220703
+          ],
+          [
+            1400,
+            27.88467025756836
+          ],
+          [
+            1500,
+            28.03427505493164
+          ],
+          [
+            1600,
+            28.155475616455078
+          ],
+          [
+            1700,
+            28.252643585205078
+          ],
+          [
+            1800,
+            28.333240509033203
+          ],
+          [
+            1900,
+            28.402027130126953
+          ],
+          [
+            1999,
+            28.464977264404297
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 28.465606689453125,
+        "final_psnr": 34.23883056640625
+      },
+      "runtime": {
+        "wall_seconds": 52.98371268156916,
+        "peak_cuda_allocated_bytes": 483869696,
+        "peak_cuda_reserved_bytes": 597688320
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0028.rtgsv",
+        "bytes": 3148460,
+        "sha256": "7f21dd69ade979aa155ca49002422e6b6f9969c3f89af87f2d4f80f2326624df"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0028_field_native_crop.png",
+          "width": 3915,
+          "height": 1328,
+          "bytes": 2054537,
+          "sha256": "d83d51c7f483d59ec14f49d58f972f23c41e0391874f77850c108ccda8e34964"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0028_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2141615,
+          "sha256": "06c0c1836864a9b1d14289b23fba7a7f1ba603c1f6a602068f7fed207ccee770"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0029",
+      "view_index": 16,
+      "seed": 30074016,
+      "input": {
+        "rgb": {
+          "name": "C0029.jpg",
+          "bytes": 14255602,
+          "sha256": "d5a117c513f314967dd8eb69151104d40e4e17a46ee21e4d86c59acc568e3a83"
+        },
+        "mask": {
+          "name": "mask_C0029.png",
+          "bytes": 134601,
+          "sha256": "2bb022325b30dd7658972ceb7ad1558430cb5d1d853b159c9cc66f15022a2342"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1421,
+        1283,
+        3907,
+        1475
+      ],
+      "foreground_pixels": 1942400,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.171480178833008
+          ],
+          [
+            100,
+            15.290567398071289
+          ],
+          [
+            200,
+            17.671762466430664
+          ],
+          [
+            300,
+            20.00014305114746
+          ],
+          [
+            400,
+            21.807973861694336
+          ],
+          [
+            500,
+            23.178617477416992
+          ],
+          [
+            600,
+            24.243078231811523
+          ],
+          [
+            700,
+            25.089435577392578
+          ],
+          [
+            800,
+            25.758054733276367
+          ],
+          [
+            900,
+            26.296688079833984
+          ],
+          [
+            1000,
+            26.733184814453125
+          ],
+          [
+            1100,
+            27.09003257751465
+          ],
+          [
+            1200,
+            27.38591957092285
+          ],
+          [
+            1300,
+            27.6241455078125
+          ],
+          [
+            1400,
+            27.820816040039062
+          ],
+          [
+            1500,
+            27.980194091796875
+          ],
+          [
+            1600,
+            28.10680389404297
+          ],
+          [
+            1700,
+            28.2100887298584
+          ],
+          [
+            1800,
+            28.295881271362305
+          ],
+          [
+            1900,
+            28.369234085083008
+          ],
+          [
+            1999,
+            28.43636703491211
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 28.437040328979492,
+        "final_psnr": 35.14599609375
+      },
+      "runtime": {
+        "wall_seconds": 54.26203030254692,
+        "peak_cuda_allocated_bytes": 538985984,
+        "peak_cuda_reserved_bytes": 736100352
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0029.rtgsv",
+        "bytes": 3159562,
+        "sha256": "9b2903d21c336f3368321ddbe8b06218ee17ec4a111187538f3a2201e0a0a5df"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0029_field_native_crop.png",
+          "width": 3907,
+          "height": 1475,
+          "bytes": 2275290,
+          "sha256": "cd25a4e115bc42b4479a771318c8c3f926a37504615b012305338562a93aaa46"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0029_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2368595,
+          "sha256": "5d02bed4a56f2b5e7c71c251bfda2cf3cd9c7cb59d00abe04c080a676d3e8069"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0030",
+      "view_index": 17,
+      "seed": 30074017,
+      "input": {
+        "rgb": {
+          "name": "C0030.jpg",
+          "bytes": 14307880,
+          "sha256": "4d5c45503fa82b356903f069b63e89a82657684cea53b348ba1a888f60872892"
+        },
+        "mask": {
+          "name": "mask_C0030.png",
+          "bytes": 86078,
+          "sha256": "90f8595eead175e4501623322d32c432df717f940e3624e11365cf8c3734f23c"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1317,
+        2068,
+        2746,
+        1244
+      ],
+      "foreground_pixels": 964438,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.299304962158203
+          ],
+          [
+            100,
+            16.50519561767578
+          ],
+          [
+            200,
+            19.723800659179688
+          ],
+          [
+            300,
+            22.093915939331055
+          ],
+          [
+            400,
+            23.814599990844727
+          ],
+          [
+            500,
+            25.099014282226562
+          ],
+          [
+            600,
+            26.103527069091797
+          ],
+          [
+            700,
+            26.900745391845703
+          ],
+          [
+            800,
+            27.542341232299805
+          ],
+          [
+            900,
+            28.060924530029297
+          ],
+          [
+            1000,
+            28.48635482788086
+          ],
+          [
+            1100,
+            28.835447311401367
+          ],
+          [
+            1200,
+            29.12571907043457
+          ],
+          [
+            1300,
+            29.36565399169922
+          ],
+          [
+            1400,
+            29.5623779296875
+          ],
+          [
+            1500,
+            29.72217559814453
+          ],
+          [
+            1600,
+            29.851173400878906
+          ],
+          [
+            1700,
+            29.955860137939453
+          ],
+          [
+            1800,
+            30.042503356933594
+          ],
+          [
+            1900,
+            30.11771011352539
+          ],
+          [
+            1999,
+            30.186138153076172
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 30.186826705932617,
+        "final_psnr": 37.69739532470703
+      },
+      "runtime": {
+        "wall_seconds": 49.05475157126784,
+        "peak_cuda_allocated_bytes": 288029184,
+        "peak_cuda_reserved_bytes": 381681664
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0030.rtgsv",
+        "bytes": 3145446,
+        "sha256": "2a7c5e66a1fcb0cf78dac1033c4367a009e18d9e975c7bdb248c76b81a727631"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0030_field_native_crop.png",
+          "width": 2746,
+          "height": 1244,
+          "bytes": 1348525,
+          "sha256": "edee867d84ee80600dc08ef2dc3ae3c241335cb1564f580b382042f44e8c9d1c"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0030_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1445644,
+          "sha256": "0eda55ef92ea0c1594187aa851233c2eedbe7e59db65d63b98ef9fe31989a73f"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0031",
+      "view_index": 18,
+      "seed": 30074018,
+      "input": {
+        "rgb": {
+          "name": "C0031.jpg",
+          "bytes": 14852562,
+          "sha256": "62e3132fe11dfc6d73f34dfba0ea8ecd2ba48cc1f3655ed21f1f3ad644c9e010"
+        },
+        "mask": {
+          "name": "mask_C0031.png",
+          "bytes": 99621,
+          "sha256": "c20f9c1a17c3b652967840a1d0b4223272371cd7d82083a4fc0b2375c7232a05"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1049,
+        1307,
+        2729,
+        3204
+      ],
+      "foreground_pixels": 880802,
+      "history": {
+        "psnr": [
+          [
+            0,
+            14.103967666625977
+          ],
+          [
+            100,
+            12.811841011047363
+          ],
+          [
+            200,
+            13.755624771118164
+          ],
+          [
+            300,
+            14.514007568359375
+          ],
+          [
+            400,
+            15.433796882629395
+          ],
+          [
+            500,
+            16.535463333129883
+          ],
+          [
+            600,
+            17.63452911376953
+          ],
+          [
+            700,
+            18.591293334960938
+          ],
+          [
+            800,
+            19.407039642333984
+          ],
+          [
+            900,
+            20.101463317871094
+          ],
+          [
+            1000,
+            20.694339752197266
+          ],
+          [
+            1100,
+            21.196945190429688
+          ],
+          [
+            1200,
+            21.622272491455078
+          ],
+          [
+            1300,
+            21.97857093811035
+          ],
+          [
+            1400,
+            22.274368286132812
+          ],
+          [
+            1500,
+            22.518712997436523
+          ],
+          [
+            1600,
+            22.718544006347656
+          ],
+          [
+            1700,
+            22.881710052490234
+          ],
+          [
+            1800,
+            23.016559600830078
+          ],
+          [
+            1900,
+            23.132858276367188
+          ],
+          [
+            1999,
+            23.240455627441406
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 23.241540908813477,
+        "final_psnr": 32.20310974121094
+      },
+      "runtime": {
+        "wall_seconds": 60.002602686174214,
+        "peak_cuda_allocated_bytes": 782765056,
+        "peak_cuda_reserved_bytes": 994050048
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0031.rtgsv",
+        "bytes": 2996872,
+        "sha256": "0b5e650e858ab0282698a9f30318ab9701d0cc5ded07cc21d82573a877de38f0"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0031_field_native_crop.png",
+          "width": 2729,
+          "height": 3204,
+          "bytes": 1725811,
+          "sha256": "c2d9cebb3c393832e1e87dff43ba9380c302a9d0cd9b3015003bef75d3c14ac8"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0031_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1825150,
+          "sha256": "79104c21bbc0d7386c2de048807757fed48b3870cefaef1d3f19216b2939b34d"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0034",
+      "view_index": 19,
+      "seed": 30074019,
+      "input": {
+        "rgb": {
+          "name": "C0034.jpg",
+          "bytes": 14734106,
+          "sha256": "fe4cb235f1239d90961e69e8a19b9afd5f3d4dbd451098f439a70988cc7f21d0"
+        },
+        "mask": {
+          "name": "mask_C0034.png",
+          "bytes": 113731,
+          "sha256": "26f63cb936289661ba77078b630af0494e522b91cb42e9573bc08e8294719992"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1611,
+        1965,
+        3581,
+        1258
+      ],
+      "foreground_pixels": 1284300,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.158353805541992
+          ],
+          [
+            100,
+            15.763649940490723
+          ],
+          [
+            200,
+            17.92457389831543
+          ],
+          [
+            300,
+            20.263240814208984
+          ],
+          [
+            400,
+            22.086275100708008
+          ],
+          [
+            500,
+            23.474441528320312
+          ],
+          [
+            600,
+            24.558012008666992
+          ],
+          [
+            700,
+            25.41219711303711
+          ],
+          [
+            800,
+            26.097318649291992
+          ],
+          [
+            900,
+            26.654502868652344
+          ],
+          [
+            1000,
+            27.10561752319336
+          ],
+          [
+            1100,
+            27.468795776367188
+          ],
+          [
+            1200,
+            27.76451301574707
+          ],
+          [
+            1300,
+            28.009979248046875
+          ],
+          [
+            1400,
+            28.209047317504883
+          ],
+          [
+            1500,
+            28.373615264892578
+          ],
+          [
+            1600,
+            28.507122039794922
+          ],
+          [
+            1700,
+            28.61587905883789
+          ],
+          [
+            1800,
+            28.70417594909668
+          ],
+          [
+            1900,
+            28.7795467376709
+          ],
+          [
+            1999,
+            28.848316192626953
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 28.849002838134766,
+        "final_psnr": 35.45671463012695
+      },
+      "runtime": {
+        "wall_seconds": 58.3846363350749,
+        "peak_cuda_allocated_bytes": 404917248,
+        "peak_cuda_reserved_bytes": 532676608
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0034.rtgsv",
+        "bytes": 3143758,
+        "sha256": "8b64b582c28d3e60e01364cc8d7fb2164a5f2afc3005099d884815602adbbab8"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0034_field_native_crop.png",
+          "width": 3581,
+          "height": 1258,
+          "bytes": 1762618,
+          "sha256": "2508ad327ef3f886273bcd811b9ae6892285a867b9d0fd329fbbcd2282a1c538"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0034_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1858492,
+          "sha256": "ea5bc55dec50094f10b78c7bc18501016ab6e04d55ac0299dd7db5d871c2ceee"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0037",
+      "view_index": 20,
+      "seed": 30074020,
+      "input": {
+        "rgb": {
+          "name": "C0037.jpg",
+          "bytes": 14644974,
+          "sha256": "3846e809292b216739fd1512086ea81b098c4d77cc608744c340ec283d159f07"
+        },
+        "mask": {
+          "name": "mask_C0037.png",
+          "bytes": 131630,
+          "sha256": "631b9fa799af945c9d3a4331728bdedff7609a804404c913fc5258f2c6f86e7f"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        0,
+        1171,
+        3780,
+        1604
+      ],
+      "foreground_pixels": 2129897,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.26368236541748
+          ],
+          [
+            100,
+            15.13107681274414
+          ],
+          [
+            200,
+            18.173948287963867
+          ],
+          [
+            300,
+            20.72005271911621
+          ],
+          [
+            400,
+            22.515127182006836
+          ],
+          [
+            500,
+            23.82427406311035
+          ],
+          [
+            600,
+            24.801761627197266
+          ],
+          [
+            700,
+            25.55208969116211
+          ],
+          [
+            800,
+            26.143970489501953
+          ],
+          [
+            900,
+            26.617414474487305
+          ],
+          [
+            1000,
+            26.991981506347656
+          ],
+          [
+            1100,
+            27.299549102783203
+          ],
+          [
+            1200,
+            27.551176071166992
+          ],
+          [
+            1300,
+            27.75661849975586
+          ],
+          [
+            1400,
+            27.92234230041504
+          ],
+          [
+            1500,
+            28.05673599243164
+          ],
+          [
+            1600,
+            28.165149688720703
+          ],
+          [
+            1700,
+            28.253047943115234
+          ],
+          [
+            1800,
+            28.3253116607666
+          ],
+          [
+            1900,
+            28.386838912963867
+          ],
+          [
+            1999,
+            28.443185806274414
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 28.44375228881836,
+        "final_psnr": 34.20064926147461
+      },
+      "runtime": {
+        "wall_seconds": 62.67520708497614,
+        "peak_cuda_allocated_bytes": 569149952,
+        "peak_cuda_reserved_bytes": 704643072
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0037.rtgsv",
+        "bytes": 3091586,
+        "sha256": "82a3351fcb178e373860477fb2c796222e612e817d9e71d6cadbd404e40a79f9"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0037_field_native_crop.png",
+          "width": 3780,
+          "height": 1604,
+          "bytes": 2430680,
+          "sha256": "8bd9b4902a2c7e9a344ea5c8bc069889669cb1e2b8ba5cef800a11cb8fa7e7dc"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0037_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2526328,
+          "sha256": "33cc3f2ef81a1c6ef4167913ce50cca87350bff7b309724ee2d36d5f7eea10ba"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C0039",
+      "view_index": 21,
+      "seed": 30074021,
+      "input": {
+        "rgb": {
+          "name": "C0039.jpg",
+          "bytes": 14986437,
+          "sha256": "5f1123dc14929c8023110750daede9a07bfc04c693095d688a90e77f133522e6"
+        },
+        "mask": {
+          "name": "mask_C0039.png",
+          "bytes": 86118,
+          "sha256": "2e882c494930b0c060f1931da0b45201300d6b448e4b5444a8f035ff854a74b5"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        1282,
+        1936,
+        3599,
+        2225
+      ],
+      "foreground_pixels": 769799,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.807933807373047
+          ],
+          [
+            100,
+            13.328417778015137
+          ],
+          [
+            200,
+            14.491193771362305
+          ],
+          [
+            300,
+            15.372160911560059
+          ],
+          [
+            400,
+            16.242891311645508
+          ],
+          [
+            500,
+            17.12173843383789
+          ],
+          [
+            600,
+            18.020353317260742
+          ],
+          [
+            700,
+            18.910112380981445
+          ],
+          [
+            800,
+            19.752277374267578
+          ],
+          [
+            900,
+            20.474803924560547
+          ],
+          [
+            1000,
+            21.09101104736328
+          ],
+          [
+            1100,
+            21.614498138427734
+          ],
+          [
+            1200,
+            22.057357788085938
+          ],
+          [
+            1300,
+            22.428142547607422
+          ],
+          [
+            1400,
+            22.73646354675293
+          ],
+          [
+            1500,
+            22.991180419921875
+          ],
+          [
+            1600,
+            23.19921875
+          ],
+          [
+            1700,
+            23.36916160583496
+          ],
+          [
+            1800,
+            23.509521484375
+          ],
+          [
+            1900,
+            23.630794525146484
+          ],
+          [
+            1999,
+            23.74273109436035
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 23.74385643005371,
+        "final_psnr": 32.83302688598633
+      },
+      "runtime": {
+        "wall_seconds": 62.55770542100072,
+        "peak_cuda_allocated_bytes": 729608192,
+        "peak_cuda_reserved_bytes": 918552576
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0039.rtgsv",
+        "bytes": 2984574,
+        "sha256": "03c6d0742030bdab0f6c849e565bebd03994b39f87d62d1e92e6895c378c77be"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0039_field_native_crop.png",
+          "width": 3599,
+          "height": 2225,
+          "bytes": 1388143,
+          "sha256": "0db6c37e66acddb1cc908c8218417b8cb04ad19164e3af5f85078e37f57827fc"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C0039_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 1458487,
+          "sha256": "9dac02efd5313a16e4f58ba5d0f7cf7424e106e529441d7ce4dfdb7cdd67ef19"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C1000",
+      "view_index": 22,
+      "seed": 30074022,
+      "input": {
+        "rgb": {
+          "name": "C1000.jpg",
+          "bytes": 14266962,
+          "sha256": "ae87ea89261db32fcd6117b96f59011c5faa50f9229300556f96dfc4e0147c52"
+        },
+        "mask": {
+          "name": "mask_C1000.png",
+          "bytes": 139551,
+          "sha256": "ae3567eceae9356861fbf0931dd617b72e82496697abf4bf513192bd8325f6b6"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        0,
+        1422,
+        3935,
+        1392
+      ],
+      "foreground_pixels": 1836117,
+      "history": {
+        "psnr": [
+          [
+            0,
+            12.975046157836914
+          ],
+          [
+            100,
+            14.967191696166992
+          ],
+          [
+            200,
+            17.659523010253906
+          ],
+          [
+            300,
+            19.952590942382812
+          ],
+          [
+            400,
+            21.675785064697266
+          ],
+          [
+            500,
+            22.96765899658203
+          ],
+          [
+            600,
+            23.96123695373535
+          ],
+          [
+            700,
+            24.734169006347656
+          ],
+          [
+            800,
+            25.34125328063965
+          ],
+          [
+            900,
+            25.831600189208984
+          ],
+          [
+            1000,
+            26.232589721679688
+          ],
+          [
+            1100,
+            26.56401824951172
+          ],
+          [
+            1200,
+            26.833213806152344
+          ],
+          [
+            1300,
+            27.052278518676758
+          ],
+          [
+            1400,
+            27.232803344726562
+          ],
+          [
+            1500,
+            27.379350662231445
+          ],
+          [
+            1600,
+            27.498031616210938
+          ],
+          [
+            1700,
+            27.593589782714844
+          ],
+          [
+            1800,
+            27.671709060668945
+          ],
+          [
+            1900,
+            27.738887786865234
+          ],
+          [
+            1999,
+            27.80064582824707
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 27.80126953125,
+        "final_psnr": 33.749881744384766
+      },
+      "runtime": {
+        "wall_seconds": 63.321118916384876,
+        "peak_cuda_allocated_bytes": 516066304,
+        "peak_cuda_reserved_bytes": 641728512
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C1000.rtgsv",
+        "bytes": 3115648,
+        "sha256": "e006f83aa42251c6e77213fe1d0cf87fbc745051061653bc76352e77312791cc"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C1000_field_native_crop.png",
+          "width": 3935,
+          "height": 1392,
+          "bytes": 2347198,
+          "sha256": "af6b3b1b0bfb3e70768ad9cfdad7038632920927c9adaa07c9edde4e2ff1c118"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C1000_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2440756,
+          "sha256": "d60720f2f917698fd1dcb5da4111cdc46bf6ca62fefbffa30fdea99a1939c68b"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C1001",
+      "view_index": 23,
+      "seed": 30074023,
+      "input": {
+        "rgb": {
+          "name": "C1001.jpg",
+          "bytes": 13295147,
+          "sha256": "272bbf0a80e515546f8dee05f693c1d70d471c07fd38e974fb1612a8b3cce820"
+        },
+        "mask": {
+          "name": "mask_C1001.png",
+          "bytes": 121872,
+          "sha256": "c354893036c2751bdc1ae2a6f506f6465a177abafc756a342f0f55cbbe3dff0f"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        0,
+        252,
+        3539,
+        3104
+      ],
+      "foreground_pixels": 1987440,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.704801559448242
+          ],
+          [
+            100,
+            13.211498260498047
+          ],
+          [
+            200,
+            14.550007820129395
+          ],
+          [
+            300,
+            15.868792533874512
+          ],
+          [
+            400,
+            16.88530731201172
+          ],
+          [
+            500,
+            17.60443115234375
+          ],
+          [
+            600,
+            18.16607093811035
+          ],
+          [
+            700,
+            18.642534255981445
+          ],
+          [
+            800,
+            19.087604522705078
+          ],
+          [
+            900,
+            19.533723831176758
+          ],
+          [
+            1000,
+            19.990835189819336
+          ],
+          [
+            1100,
+            20.440998077392578
+          ],
+          [
+            1200,
+            20.847442626953125
+          ],
+          [
+            1300,
+            21.19122314453125
+          ],
+          [
+            1400,
+            21.476783752441406
+          ],
+          [
+            1500,
+            21.71140480041504
+          ],
+          [
+            1600,
+            21.902639389038086
+          ],
+          [
+            1700,
+            22.058305740356445
+          ],
+          [
+            1800,
+            22.18726921081543
+          ],
+          [
+            1900,
+            22.298709869384766
+          ],
+          [
+            1999,
+            22.40166664123535
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 22.4027042388916,
+        "final_psnr": 30.616382598876953
+      },
+      "runtime": {
+        "wall_seconds": 71.7646872587502,
+        "peak_cuda_allocated_bytes": 1028244992,
+        "peak_cuda_reserved_bytes": 1440743424
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C1001.rtgsv",
+        "bytes": 2934795,
+        "sha256": "189e8f8b612a4b9b00d33b039de91e7fbce7bd58c820f59bf0b302378971a1c4"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C1001_field_native_crop.png",
+          "width": 3539,
+          "height": 3104,
+          "bytes": 2674346,
+          "sha256": "9e4ce253ac6ae3c454150bc4e7a141785dcf2aa4c7835ff7fdc85b124e73d6ee"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C1001_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2773749,
+          "sha256": "1ea29a0334c4317fda07f6fae53b057ab9eb2637bba07d6e690e08a57a07b75b"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C1002",
+      "view_index": 24,
+      "seed": 30074024,
+      "input": {
+        "rgb": {
+          "name": "C1002.jpg",
+          "bytes": 14325882,
+          "sha256": "fb96403caff44c31e4cda77fa4f14696cf0d0946f88d01897e3428582689ba7d"
+        },
+        "mask": {
+          "name": "mask_C1002.png",
+          "bytes": 117952,
+          "sha256": "113543d171e34cd2c774b392cd1629753f31920a744a960958367296ed320372"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        0,
+        1382,
+        5328,
+        1272
+      ],
+      "foreground_pixels": 1197178,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.553277969360352
+          ],
+          [
+            100,
+            12.765466690063477
+          ],
+          [
+            200,
+            14.145977020263672
+          ],
+          [
+            300,
+            15.794017791748047
+          ],
+          [
+            400,
+            17.394655227661133
+          ],
+          [
+            500,
+            18.757551193237305
+          ],
+          [
+            600,
+            19.881656646728516
+          ],
+          [
+            700,
+            20.812450408935547
+          ],
+          [
+            800,
+            21.587554931640625
+          ],
+          [
+            900,
+            22.234233856201172
+          ],
+          [
+            1000,
+            22.777103424072266
+          ],
+          [
+            1100,
+            23.230199813842773
+          ],
+          [
+            1200,
+            23.608606338500977
+          ],
+          [
+            1300,
+            23.92228889465332
+          ],
+          [
+            1400,
+            24.179222106933594
+          ],
+          [
+            1500,
+            24.39021110534668
+          ],
+          [
+            1600,
+            24.560949325561523
+          ],
+          [
+            1700,
+            24.69971466064453
+          ],
+          [
+            1800,
+            24.81429672241211
+          ],
+          [
+            1900,
+            24.912887573242188
+          ],
+          [
+            1999,
+            25.00299835205078
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 25.0039005279541,
+        "final_psnr": 32.23710632324219
+      },
+      "runtime": {
+        "wall_seconds": 56.290993058122694,
+        "peak_cuda_allocated_bytes": 694419968,
+        "peak_cuda_reserved_bytes": 870318080
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C1002.rtgsv",
+        "bytes": 3010034,
+        "sha256": "d4f9b89d4f7b6a5aca327de145c2c570ac05df56464511c2664a4c8b8b08f81f"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C1002_field_native_crop.png",
+          "width": 5328,
+          "height": 1272,
+          "bytes": 1991348,
+          "sha256": "db5025627589b70819ca2126e2fa0f4086c5f96c5f3bba964a7833cf6cd7a124"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C1002_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2041979,
+          "sha256": "b86fe5f44b10dc23825977b354c4edaf9ca9587ea8ce64fc2c5e0f777349d290"
+        }
+      }
+    },
+    {
+      "schema": "rtgs.native_fullres_view_production.v1",
+      "status": "PASS",
+      "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+      "dataset_id": "frame_00008",
+      "view_id": "C1004",
+      "view_index": 25,
+      "seed": 30074025,
+      "input": {
+        "rgb": {
+          "name": "C1004.jpg",
+          "bytes": 14744138,
+          "sha256": "38adb01a1ba7d8d8bb0f87cd14c6bcc48ec9a2ab0027dd09f45ee55609e4ce6a"
+        },
+        "mask": {
+          "name": "mask_C1004.png",
+          "bytes": 104799,
+          "sha256": "828c359a1b8f41e652a9226ff24f68a8c1cf56fffb19a777a83053981cc0340c"
+        },
+        "calibration": {
+          "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+          "bytes": 51752,
+          "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+        }
+      },
+      "source_binding": {
+        "git_revision": "44be09f5e9fdfa50e376c383fb7895cbfbea18d7",
+        "python": "3.11.15",
+        "torch": "2.13.0+cu130",
+        "torch_cuda": "13.0",
+        "files": {
+          "scripts/experiments/prepare_native_fullres_paper_bundles.py": "4aa744aa0cf8515b1db188739fab8c5b1d25c491afd348ceb8f0689076b371ca",
+          "src/rtgs/core/gaussians2d.py": "e777d5198e3e4293fb3cdefd80cf119aad254adc75777f7e7078591f9f6d6260",
+          "src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+          "src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+          "src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+          "src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+          "src/rtgs/image2gs/native_observation.py": "b47f00cf20334da7b2c54467b4c5e10e7bb9baa668a719448a07f15b551d0b96",
+          "src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+          "src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+          "src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26"
+        },
+        "aggregate_sha256": "fbdd7926fa4dac0ba87585740c9f963b03dd0c0710eb296bf01761792d75b744"
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      },
+      "fit_config_digest": "616386808545ec77d0cf68651bbec48d11b8f3c10061e1452f6cce8095050258",
+      "canvas_size": [
+        4608,
+        5328
+      ],
+      "fit_window": [
+        0,
+        1090,
+        3294,
+        1516
+      ],
+      "foreground_pixels": 1634784,
+      "history": {
+        "psnr": [
+          [
+            0,
+            13.480266571044922
+          ],
+          [
+            100,
+            14.778190612792969
+          ],
+          [
+            200,
+            16.982330322265625
+          ],
+          [
+            300,
+            18.61152458190918
+          ],
+          [
+            400,
+            19.953521728515625
+          ],
+          [
+            500,
+            21.169431686401367
+          ],
+          [
+            600,
+            22.19489860534668
+          ],
+          [
+            700,
+            23.025854110717773
+          ],
+          [
+            800,
+            23.71824073791504
+          ],
+          [
+            900,
+            24.292343139648438
+          ],
+          [
+            1000,
+            24.768795013427734
+          ],
+          [
+            1100,
+            25.16585350036621
+          ],
+          [
+            1200,
+            25.4984130859375
+          ],
+          [
+            1300,
+            25.77304458618164
+          ],
+          [
+            1400,
+            25.997962951660156
+          ],
+          [
+            1500,
+            26.18060302734375
+          ],
+          [
+            1600,
+            26.329689025878906
+          ],
+          [
+            1700,
+            26.45124626159668
+          ],
+          [
+            1800,
+            26.551315307617188
+          ],
+          [
+            1900,
+            26.63715171813965
+          ],
+          [
+            1999,
+            26.71561050415039
+          ]
+        ],
+        "stopped_iter": 1999,
+        "final_psnr_full": 26.716400146484375,
+        "final_psnr": 33.53881072998047
+      },
+      "runtime": {
+        "wall_seconds": 54.19117811694741,
+        "peak_cuda_allocated_bytes": 454228992,
+        "peak_cuda_reserved_bytes": 612368384
+      },
+      "output": {
+        "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C1004.rtgsv",
+        "bytes": 3110937,
+        "sha256": "7e10a02bdede80e4d78e8c56cc95c9f67e4ce1a0af000c4b7229e4ee7c5e3e0d"
+      },
+      "qa": {
+        "native_crop": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C1004_field_native_crop.png",
+          "width": 3294,
+          "height": 1516,
+          "bytes": 2113001,
+          "sha256": "b3bfc5bf31637082c134ae87878dd3064c3f5b9a9e46ece5b41646fa2f5b23e7"
+        },
+        "native_full_canvas": {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/qa/C1004_field_native_full_canvas.png",
+          "width": 5328,
+          "height": 4608,
+          "bytes": 2220583,
+          "sha256": "d48f9f9fb4911c4ee8af054842052615342038a10a36544627f269129237a783"
+        }
+      }
+    }
+  ],
+  "semantic_digest": "272cec1a7a9ac006dce50e9a4eb6876138140c203fd669ecf2a89b45cb23c56a"
+}

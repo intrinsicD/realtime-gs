@@ -69,27 +69,27 @@ PSNR, foreground-crop PSNR/SSIM, train metrics, primitive counts, and visual art
 separately so black background does not inflate the result and train/test leakage is detectable.
 
 <!-- BENCH:BEGIN -->
-_Last run: 2026-07-21T19:14:24+00:00 · device `cpu` · torch 2.13.0+cpu · rev `892f448` · scene `synthetic_g40_c12_s48`_
+_Last run: 2026-07-30T15:20:24+00:00 · device `cuda` · torch 2.13.0+cu130 · rev `44be09f` · scene `synthetic_g40_c12_s48`_
 
 | benchmark | key numbers |
 | --- | --- |
-| `field_product_kernel_cpu` | components_per_field: 96 · field_l2_evaluations: 3 · component_pair_terms: 165888 · seconds: 0.10 · evaluations_per_s: 29.80 · l2_total: 533.22 |
-| `compact_placement_csr_cpu` | components: 600 · query_points: 2048 · tile_size: 16 · nonempty_tiles: 256 · total_entries: 4094 · max_candidates: 27 · retained_payload_bytes: 20480 · component_id_dtype: int32 · evaluated_pairs: 196596 · peak_pair_chunk: 32766 · csr_build_seconds: 0.00 · grouped_seconds: 0.19 · csr_seconds: 0.01 · speedup: 21.52 · max_color_err: 0.00 · max_weight_sum_err: 0.00 · within_contract: 1 |
-| `image2gs_fit` | iters_per_s: 54.21 · psnr: 30.30 · seconds: 2.21 |
-| `image2gs_fit_batched` | views: 12 · seconds: 7.58 · serial_seconds: 11.18 · speedup_vs_serial: 1.48 · psnr_mean: 28.28 · serial_psnr_mean: 28.28 |
-| `render_ref_cpu` | fps: 273.27 · frames: 36 · seconds: 0.13 |
-| `lift_depth` | seconds: 0.05 · init_psnr: 21.00 · init_n_gaussians: 1155 · fit_seconds: 11.00 |
-| `e2e_depth` | init_psnr: 21.00 · final_psnr: 32.84 · final_n_gaussians: 3086 · refine_seconds: 24.76 · fit_seconds: 11.00 · lift_seconds: 0.05 · total_seconds: 37.18 · peak_vram_mb: 0.00 · psnr_curve: [(75, 28.19104274113973), (150, 32.84132480621338)] · seconds_curve: [(75, 8.859514996999678), (150, 24.693827665999834)] |
-| `lift_hybrid` | seconds: 11.51 · init_psnr: 21.61 · init_n_gaussians: 1732 · fit_seconds: 11.00 |
-| `e2e_hybrid` | init_psnr: 21.61 · final_psnr: 33.02 · final_n_gaussians: 4049 · refine_seconds: 37.88 · fit_seconds: 11.00 · lift_seconds: 11.51 · total_seconds: 61.85 · peak_vram_mb: 0.00 · psnr_curve: [(75, 28.212827523549397), (150, 33.0198548634847)] · seconds_curve: [(75, 13.75669389099994), (150, 37.705645754000216)] |
-| `lift_gradient` | seconds: 18.00 · init_psnr: 22.44 · init_n_gaussians: 1729 · fit_seconds: 11.00 |
-| `e2e_gradient` | init_psnr: 22.44 · final_psnr: 32.73 · final_n_gaussians: 4101 · refine_seconds: 38.24 · fit_seconds: 11.00 · lift_seconds: 18.00 · total_seconds: 68.89 · peak_vram_mb: 0.00 · psnr_curve: [(75, 28.080894470214844), (150, 32.72951396306356)] · seconds_curve: [(75, 13.834418529999766), (150, 38.0713196480001)] |
-| `lift_carve` | seconds: 0.28 · init_psnr: 20.31 · init_n_gaussians: 1396 · fit_seconds: 11.00 |
-| `e2e_carve` | init_psnr: 20.31 · final_psnr: 32.99 · final_n_gaussians: 3830 · refine_seconds: 36.57 · fit_seconds: 11.00 · lift_seconds: 0.28 · total_seconds: 49.34 · peak_vram_mb: 0.00 · psnr_curve: [(75, 28.73401403427124), (150, 32.992239475250244)] · seconds_curve: [(75, 14.30232719300011), (150, 36.44221557599985)] |
-| `lift_sfm` | seconds: 0.00 · init_psnr: 19.95 · init_n_gaussians: 200 · fit_seconds: 11.00 |
-| `e2e_sfm` | init_psnr: 19.95 · final_psnr: 29.18 · final_n_gaussians: 1386 · refine_seconds: 9.77 · fit_seconds: 11.00 · lift_seconds: 0.00 · total_seconds: 21.23 · peak_vram_mb: 0.00 · psnr_curve: [(75, 26.831709225972492), (150, 29.177371978759766)] · seconds_curve: [(75, 3.022302100000161), (150, 9.769549164000182)] |
-| `lift_random` | seconds: 0.00 · init_psnr: 14.11 · init_n_gaussians: 2000 · fit_seconds: 11.00 |
-| `e2e_random` | init_psnr: 14.11 · final_psnr: 29.68 · final_n_gaussians: 4428 · refine_seconds: 42.41 · fit_seconds: 11.00 · lift_seconds: 0.00 · total_seconds: 55.00 · peak_vram_mb: 0.00 · psnr_curve: [(75, 26.088585535685223), (150, 29.676211833953857)] · seconds_curve: [(75, 17.1123046040002), (150, 42.286336498999844)] |
+| `field_product_kernel_cpu` | components_per_field: 96 · field_l2_evaluations: 3 · component_pair_terms: 165888 · seconds: 0.04 · evaluations_per_s: 80.96 · l2_total: 533.22 |
+| `compact_placement_csr_cpu` | components: 600 · query_points: 2048 · tile_size: 16 · nonempty_tiles: 256 · total_entries: 4094 · max_candidates: 27 · retained_payload_bytes: 20480 · component_id_dtype: int32 · evaluated_pairs: 196596 · peak_pair_chunk: 32766 · csr_build_seconds: 0.00 · grouped_seconds: 0.06 · csr_seconds: 0.00 · speedup: 24.39 · max_color_err: 0.00 · max_weight_sum_err: 0.00 · within_contract: 1 · cuda_seconds: 0.00 · cuda_speedup_vs_csr: 5.13 · cuda_max_color_err: 0.00 · cuda_max_weight_sum_err: 0.00 |
+| `image2gs_fit` | iters_per_s: 111.13 · psnr: 29.57 · seconds: 1.08 |
+| `image2gs_fit_batched` | views: 12 · seconds: 1.11 · serial_seconds: 3.80 · speedup_vs_serial: 3.41 · psnr_mean: 28.98 · serial_psnr_mean: 28.98 |
+| `render_ref_cpu` | fps: 691.63 · frames: 36 · seconds: 0.05 |
+| `lift_depth` | seconds: 0.13 · init_psnr: 21.03 · init_n_gaussians: 1138 · fit_seconds: 3.85 |
+| `e2e_depth` | init_psnr: 21.03 · final_psnr: 31.89 · final_n_gaussians: 2958 · refine_seconds: 0.68 · fit_seconds: 3.85 · lift_seconds: 0.13 · total_seconds: 4.77 · peak_vram_mb: 21.00 · psnr_curve: [(75, 27.794999917348225), (150, 31.890784740447998)] · seconds_curve: [(75, 0.3461156729608774), (150, 0.6806481722742319)] |
+| `lift_hybrid` | seconds: 0.29 · init_psnr: 21.87 · init_n_gaussians: 1714 · fit_seconds: 3.85 |
+| `e2e_hybrid` | init_psnr: 21.87 · final_psnr: 32.60 · final_n_gaussians: 4037 · refine_seconds: 0.65 · fit_seconds: 3.85 · lift_seconds: 0.29 · total_seconds: 4.82 · peak_vram_mb: 21.00 · psnr_curve: [(75, 28.21779187520345), (150, 32.60060421625773)] · seconds_curve: [(75, 0.3248103139922023), (150, 0.6449614511802793)] |
+| `lift_gradient` | seconds: 0.34 · init_psnr: 22.58 · init_n_gaussians: 1707 · fit_seconds: 3.85 |
+| `e2e_gradient` | init_psnr: 22.58 · final_psnr: 31.40 · final_n_gaussians: 3963 · refine_seconds: 0.68 · fit_seconds: 3.85 · lift_seconds: 0.34 · total_seconds: 4.90 · peak_vram_mb: 21.00 · psnr_curve: [(75, 27.572185198465984), (150, 31.40077797571818)] · seconds_curve: [(75, 0.32116923574358225), (150, 0.6753093954175711)] |
+| `lift_carve` | seconds: 0.05 · init_psnr: 20.44 · init_n_gaussians: 1359 · fit_seconds: 3.85 |
+| `e2e_carve` | init_psnr: 20.44 · final_psnr: 32.98 · final_n_gaussians: 3918 · refine_seconds: 0.64 · fit_seconds: 3.85 · lift_seconds: 0.05 · total_seconds: 4.57 · peak_vram_mb: 21.00 · psnr_curve: [(75, 28.67591206232707), (150, 32.976891040802)] · seconds_curve: [(75, 0.31021956261247396), (150, 0.637114935554564)] |
+| `lift_sfm` | seconds: 0.01 · init_psnr: 19.78 · init_n_gaussians: 200 · fit_seconds: 3.85 |
+| `e2e_sfm` | init_psnr: 19.78 · final_psnr: 28.53 · final_n_gaussians: 1359 · refine_seconds: 0.62 · fit_seconds: 3.85 · lift_seconds: 0.01 · total_seconds: 4.51 · peak_vram_mb: 21.00 · psnr_curve: [(75, 26.56816593805949), (150, 28.526710828145344)] · seconds_curve: [(75, 0.30024223681539297), (150, 0.6184223648160696)] |
+| `lift_random` | seconds: 0.00 · init_psnr: 14.34 · init_n_gaussians: 2000 · fit_seconds: 3.85 |
+| `e2e_random` | init_psnr: 14.34 · final_psnr: 29.55 · final_n_gaussians: 4433 · refine_seconds: 0.67 · fit_seconds: 3.85 · lift_seconds: 0.00 · total_seconds: 4.55 · peak_vram_mb: 21.00 · psnr_curve: [(75, 26.053237915039062), (150, 29.5485045115153)] · seconds_curve: [(75, 0.32562865503132343), (150, 0.672127628698945)] |
 <!-- BENCH:END -->
 
 ## Reading the numbers

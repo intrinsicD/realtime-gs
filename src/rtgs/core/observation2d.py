@@ -26,7 +26,7 @@ import torch
 from torch.utils.checkpoint import checkpoint
 
 _SCHEMA = "rtgs.gaussian_observation_field.v1"
-_PROVIDERS = frozenset({"structsplat", "synthetic_fixture"})
+_PROVIDERS = frozenset({"native", "structsplat", "synthetic_fixture"})
 _METADATA_KEYS = frozenset(
     {
         "schema",
@@ -187,7 +187,7 @@ class GaussianObservationField:
             raise ValueError("n_init must be positive when supplied")
         if self.provider not in _PROVIDERS:
             raise ValueError(
-                "schema v1 provider must be exactly 'structsplat' or 'synthetic_fixture'"
+                "schema v1 provider must be exactly 'native', 'structsplat', or 'synthetic_fixture'"
             )
         if self.view_id is not None and not isinstance(self.view_id, str):
             raise TypeError("view_id must be a string when supplied")

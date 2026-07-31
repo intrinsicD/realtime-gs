@@ -155,11 +155,33 @@ class DensityController:
         grad = out.means2d.grad if grad is None else grad
         if grad is None:
             return
-        if grad.ndim == 3:
-            grad = grad[0]
         visible = out.visible.to(self.grad_accum.device)
-        # torch_ref exposes only visible rows; gsplat exposes all N rows.
-        visible_grad = grad if grad.shape[0] == visible.shape[0] else grad[visible]
+        density_ids = getattr(out, "density_gaussian_ids", None)
+        if density_ids is not None:
+            if (
+                grad.ndim != 2
+                or grad.shape[1] != 2
+                or density_ids.ndim != 1
+                or density_ids.shape[0] != grad.shape[0]
+            ):
+                raise RuntimeError("packed density gradient mapping is inconsistent")
+            aggregate = torch.zeros(
+                self.grad_accum.shape[0],
+                2,
+                device=self.grad_accum.device,
+                dtype=grad.dtype,
+            )
+            aggregate.index_add_(
+                0,
+                density_ids.to(self.grad_accum.device),
+                grad.to(self.grad_accum.device),
+            )
+            visible_grad = aggregate[visible]
+        else:
+            if grad.ndim == 3:
+                grad = grad[0]
+            # torch_ref exposes only visible rows; dense gsplat exposes all N rows.
+            visible_grad = grad if grad.shape[0] == visible.shape[0] else grad[visible]
         norm = visible_grad.norm(dim=-1) * (max(width, height) * 0.5)
         self.grad_accum.index_add_(0, visible, norm.to(self.grad_accum))
         self.count.index_add_(0, visible, torch.ones_like(norm, device=self.count.device))

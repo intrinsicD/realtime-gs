@@ -26,7 +26,9 @@ The current RGB arm is a **matched-initialization, image-supervised 3DGS compari
    remains.
 3. Run `python scripts/experiment_contract.py validate`.
 4. Rehash local inputs with `validate-data`. Change the task or its data seal before execution if
-   it fails.
+   it fails. A generated compact dataset may declare an adjacent `production_manifest` in its
+   dataset record; `seal-data` then binds that provenance sidecar in addition to calibration,
+   the load-bearing compact manifest, and every listed compact view.
 5. Have a reviewer whose stable label differs from the owner run `review-digest`, write
    `reviews/<task_id>_PROTOCOL_REVIEW.md` from the template, and record `Outcome Access: none`.
    The reviewer must not execute the protected run or inspect sealed outcomes.
@@ -53,6 +55,9 @@ require a new task id. Failed attempts stay under
 - Prospective review: `reviews/<task_id>_PROTOCOL_REVIEW.md`.
 - Task-specific driver: `scripts/experiments/<task_id>.py`.
 - Local outputs: `runs/<task_id>/` (ignored except `runs/README.md`).
+- Optional generated-input provenance:
+  `dataset/<capture>/<frame>/gaussians2d*/production_manifest.json`, declared by the task and
+  included in its data seal.
 - Human evidence: `benchmarks/results/<task_id>_RESULT.md` and `<task_id>_AUDIT.md`.
 - Machine evidence: the same stem with `.json`.
 - Scratch space: `.scratch/<task_id>/`, never the repository root.

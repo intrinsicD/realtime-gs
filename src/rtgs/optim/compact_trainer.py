@@ -1,8 +1,10 @@
-"""RGB-free fixed-topology refinement against frozen 2D Gaussian fields.
+"""RGB-free 3DGS refinement against frozen 2D Gaussian fields.
 
 This module is deliberately separate from :mod:`rtgs.optim.trainer`: its supervision
 surface is a list of compact observation fields and calibrated cameras, never dense RGB
-images.  Both teacher and student are evaluated only at explicit image-plane points.
+images.  Both teacher and student are evaluated only at explicit image-plane points.  The
+default is fixed topology; an explicit ``CompactTopologyController`` may apply audited
+cardinality changes after optimizer steps.
 """
 
 from __future__ import annotations
@@ -1211,7 +1213,7 @@ def _validate_topology_optimizer_boundary(
 
 
 class CompactTrainer:
-    """Optimize a fixed 3D Gaussian set against RGB-free observation fields."""
+    """Optimize 3D Gaussians against RGB-free observation fields."""
 
     def __init__(
         self,
@@ -1969,7 +1971,8 @@ class CompactTrainer:
                     family = "split_child_1"
                 else:
                     raise RuntimeError("topology controller returned invalid newborn lineage")
-                family_ids[family].append(birth_id)
+                if birth_id in current_id_to_row:
+                    family_ids[family].append(birth_id)
             flattened_family_ids = [
                 identity for values in family_ids.values() for identity in values
             ]

@@ -25,6 +25,7 @@
       "role": "development",
       "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
       "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/production_manifest.json",
       "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
       "rgb_pattern": "rgb/C*.jpg",
       "mask_pattern": "mask/mask_C*.png"
@@ -34,6 +35,7 @@
       "role": "replication",
       "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
       "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_additive/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_additive/production_manifest.json",
       "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
       "rgb_pattern": "rgb/C*.jpg",
       "mask_pattern": "mask/mask_C*.png"
@@ -143,6 +145,51 @@
   ],
   "frozen_configuration": {
     "driver": "scripts/experiments/20260730_additive_analytic_objective_stage_frames00008_00009.py",
+    "additive_bundle_production": {
+      "script": "scripts/experiments/prepare_additive_native_bundles.py",
+      "device": "cuda",
+      "downscale": 1,
+      "seed_base": 30073000,
+      "seed_stride_per_dataset": 100,
+      "per_view_process_isolation": true,
+      "field_semantics": {
+        "provider": "native",
+        "blend_mode": "additive",
+        "sigma_cutoff": 3.4641016151377544,
+        "support_fade_alpha": 0.0,
+        "aa_dilation": 0.0
+      },
+      "fit_config": {
+        "n_gaussians": 640,
+        "max_gaussians": 640,
+        "iterations": 100,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 50,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      }
+    },
     "arms": {
       "point_sampled_baseline": "incumbent_point_sampled_compositing_objective",
       "analytic_unweighted": "exact_additive_density_rgb_objective_without_view_weighting",
@@ -291,11 +338,9 @@
       "output_bytes"
     ]
   },
-  "data_seal": "experiments/data/stage_frames00008_00009_compact.json",
+  "data_seal": "experiments/data/stage_frames00008_00009_additive.json",
   "run_command": null,
   "blockers": [
-    "Additive native 2D bundles do not exist yet: produce dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/ and frame_00009/gaussians2d_additive/ with frozen deterministic mask-aware stage-1 native fitting (per-view image isolation, recorded fit config and seed in each manifest, blend_mode additive, support_fade_alpha 0).",
-    "data_seal currently points at the existing StructSplat compact seal as a structural placeholder only; build experiments/data/stage_frames00008_00009_additive.json from the additive bundles with build-seal and repoint data_seal before review (validate-data is expected to fail until then).",
     "The surfel-constrained visibility-weighted exact analytic objective, the hybrid schedule, and the matched point-sampled budget rule are not implemented; land them behind existing seams with CPU tests (analytic-equals-rendered-image exactness on additive fields, occlusion-weighting behavior, determinism), then confirm or amend every value under frozen_configuration.refinement_provisional_until_implementation.",
     "Write scripts/experiments/20260730_additive_analytic_objective_stage_frames00008_00009.py and freeze the exact run_command.",
     "Obtain the distinct prospective protocol review (review-digest, experiments/reviews/20260730_additive_analytic_objective_stage_frames00008_00009_PROTOCOL_REVIEW.md, Outcome Access: none) and set status ready."

@@ -311,6 +311,26 @@ class _OneWaveTopologyController(_NoOpTopologyController):
         }
 
 
+class _HistoricalLineageController(_OneWaveTopologyController):
+    """Expose a complete lineage ledger containing an already-pruned birth."""
+
+    def history_record(self):
+        record = super().history_record()
+        return {
+            **record,
+            "lineage": [
+                *record["lineage"],
+                {
+                    "birth_id": 99,
+                    "parent_id": 1,
+                    "operator": "clone",
+                    "child_ordinal": 0,
+                    "survives_final": False,
+                },
+            ],
+        }
+
+
 class _BasisParityController(_NoOpTopologyController):
     """Capture one real compositor VJP and all quantities it must not perturb."""
 
@@ -833,6 +853,55 @@ def test_topology_controller_runs_one_matched_birth_wave_and_keeps_adam_aligned(
     assert [item["snapshot_sha256"] for item in history["checkpoints"]]
     for name in ("means", "quats", "log_scales", "opacity", "sh"):
         assert bool(torch.isfinite(getattr(final, name)).all())
+
+
+def test_topology_summary_ignores_pruned_births_but_preserves_complete_lineage():
+    source = _init()
+    source = Gaussians3D(
+        means=source.means,
+        quats=source.quats,
+        log_scales=torch.stack(
+            [torch.full((3,), math.log(0.005)), source.log_scales[1]],
+            dim=0,
+        ),
+        opacity=source.opacity,
+        sh=source.sh,
+    )
+    controller = _HistoricalLineageController()
+    config = CompactTrainConfig(
+        iterations=1,
+        attempts_per_step=12,
+        proposal_mode="pixel_gaussian",
+        seed=_DEV_SEED,
+        extent=1.0,
+        point_chunk=3,
+        gaussian_chunk=1,
+        outer_microbatch=12,
+        query_component_chunk=1,
+        teacher_tile_size=4,
+        evaluation_chunk=6,
+        checkpoints=(0, 1),
+        evaluate_checkpoint_risks=False,
+    )
+
+    _, history = CompactTrainer(config).train(
+        _inputs(),
+        source,
+        topology_controller=controller,
+    )
+
+    assert history["persistent_ids"] == [0, 2, 3, 4]
+    assert history["topology_control"]["lineage"][-1] == {
+        "birth_id": 99,
+        "parent_id": 1,
+        "operator": "clone",
+        "child_ordinal": 0,
+        "survives_final": False,
+    }
+    family_summary = history["newborn_parameter_summary_by_lineage"]
+    assert family_summary["clone"]["means"]["rows"] == 1
+    assert family_summary["split_child_0"]["means"]["rows"] == 1
+    assert family_summary["split_child_1"]["means"]["rows"] == 1
 
 
 def test_enabled_compositor_vjp_is_an_exact_noop_through_one_adam_update():

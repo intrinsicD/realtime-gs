@@ -469,6 +469,12 @@ def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> lis
             for key in ("frame_path", "compact_manifest", "calibration"):
                 if not _is_safe_relative(dataset[key]):
                     errors.append(f"{label}.{key} must be a repository-relative path")
+            production_manifest = dataset.get("production_manifest")
+            if production_manifest is not None:
+                if not _is_safe_relative(production_manifest):
+                    errors.append(f"{label}.production_manifest must be a repository-relative path")
+                elif Path(production_manifest).parent != Path(dataset["compact_manifest"]).parent:
+                    errors.append(f"{label}.production_manifest must sit beside compact_manifest")
             if dataset["rgb_pattern"] != "rgb/C*.jpg":
                 errors.append(f"{label}.rgb_pattern must select only canonical RGB JPEGs")
             if dataset["mask_pattern"] != "mask/mask_C*.png":
@@ -837,6 +843,9 @@ def _dataset_files(task: dict[str, Any], *, root: Path) -> tuple[dict[str, Any],
             )
 
         files.extend([root / dataset["calibration"], manifest_path])
+        production_manifest = dataset.get("production_manifest")
+        if production_manifest is not None:
+            files.append(root / production_manifest)
         for view in views:
             view_id = view["view_id"]
             if compact_profile:
@@ -848,21 +857,22 @@ def _dataset_files(task: dict[str, Any], *, root: Path) -> tuple[dict[str, Any],
                         frame / f"mask/mask_{view_id}.png",
                     ]
                 )
-        datasets_payload.append(
-            {
-                "id": dataset["id"],
-                "role": dataset["role"],
-                "frame_path": dataset["frame_path"],
-                "view_ids": view_ids,
-                "selected_modalities": (
-                    ["calibration", "gaussians2d"]
-                    if compact_profile
-                    else ["calibration", "rgb", "mask"]
-                ),
-                "canonical_rgb_pattern": (None if compact_profile else dataset["rgb_pattern"]),
-                "canonical_mask_pattern": (None if compact_profile else dataset["mask_pattern"]),
-            }
-        )
+        dataset_record = {
+            "id": dataset["id"],
+            "role": dataset["role"],
+            "frame_path": dataset["frame_path"],
+            "view_ids": view_ids,
+            "selected_modalities": (
+                ["calibration", "gaussians2d"]
+                if compact_profile
+                else ["calibration", "rgb", "mask"]
+            ),
+            "canonical_rgb_pattern": (None if compact_profile else dataset["rgb_pattern"]),
+            "canonical_mask_pattern": (None if compact_profile else dataset["mask_pattern"]),
+        }
+        if production_manifest is not None:
+            dataset_record["production_manifest"] = production_manifest
+        datasets_payload.append(dataset_record)
 
     unique: dict[str, Path] = {}
     for path in files:

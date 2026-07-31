@@ -1,0 +1,442 @@
+{
+  "schema_version": 2,
+  "task_id": "20260730_paper_three_path_fullres_stage_frames00008_00009",
+  "date": "20260730",
+  "task_slug": "paper_three_path_fullres",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "beam_fusion",
+  "status": "draft",
+  "owner": "Codex-three-path-driver",
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
+  "depends_on": [],
+  "title": "Full-resolution compact-field 3DGS from random, Splat-SfM, and Beam initialization",
+  "question": "Do the three paper paths execute from the same high-quality native-additive 2D Gaussian fields through a complete compact-field-supervised 3DGS fit with clone, split, and prune density control, and what qualitative failure signature remains specific to the Beam initialization?",
+  "hypothesis": "Random and Splat-SfM initialization both converge to visibly detailed full-resolution reconstructions under the same compact objective and density schedule, while the unmodified Beam initialization exposes its known coverage, association, and scale problems despite receiving the identical downstream optimizer.",
+  "claim_boundary": "Development integration and qualitative diagnosis on two outcome-exposed frames. The task can establish that the named code paths execute and expose their matched compact-field trajectories. It cannot establish paper quality, generalization, Original-3DGS or COLMAP performance, physical geometry, a VRAM advantage, a production default, or a causal Beam repair.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/production_manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_native_fullres/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_native_fullres/production_manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    300701,
+    300702,
+    300703
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls"
+  ],
+  "frozen_configuration": {
+    "stage1_native_fullres": {
+      "selection_basis": "Outcome-exposed mechanism pilot on frame_00008/C0001; 5000x300 and 50000x1000 were rejected as visibly too soft before selecting 100000x2000.",
+      "script": "scripts/experiments/prepare_native_fullres_paper_bundles.py",
+      "device": "cuda",
+      "downscale": 1,
+      "seed_base": 30074000,
+      "seed_stride_per_dataset": 100,
+      "parallel_workers": 2,
+      "per_view_process_isolation": true,
+      "byte_cap": 8388608,
+      "field_semantics": {
+        "provider": "native",
+        "blend_mode": "additive",
+        "sigma_cutoff": 3.4641016151377544,
+        "support_fade_alpha": 0.0,
+        "aa_dilation": 0.0
+      },
+      "fit_config": {
+        "n_gaussians": 100000,
+        "max_gaussians": 100000,
+        "iterations": 2000,
+        "backend": "native",
+        "adaptive_density": false,
+        "growth_waves": 5,
+        "relocate_fraction": 0.0,
+        "structsplat_renderer": "auto",
+        "native_renderer": "cuda",
+        "batch_views": false,
+        "lr": 0.01,
+        "grad_init_mix": 0.7,
+        "init_strategy": "gradient",
+        "structure_sampling": "wse",
+        "row_chunk": 64,
+        "log_every": 100,
+        "convergence_patience": 0,
+        "convergence_tol": 0.05,
+        "convergence_check_every": 25,
+        "appearance_parameterization": "weight_color_9p",
+        "freeze_geometry": false,
+        "pool": false,
+        "pool_capacity": null,
+        "pool_triage_every": 50,
+        "pool_prune_count": 32,
+        "pool_spawn_count": 32,
+        "pool_min_live": 1,
+        "mask_coverage_weight": 0.0
+      }
+    },
+    "three_path_initializer": {
+      "selection_basis": "Outcome-exposed mechanism construction on frame_00008 with no trained comparator outcomes used: the high-capacity fields yielded 3330 Splat-SfM tracks and at least 5000 Beam components, so all arms start from the exact common count 3330.",
+      "random_bounds_scale": 0.5,
+      "init_opacity": 0.1,
+      "max_starting_gaussians": 5000,
+      "structural_components_per_view": 2000,
+      "structural_selection": "grid_stratified_integrated_mass",
+      "downstream_teacher_is_full_field": true,
+      "common_extent_policy": "camera_axis_fallback_from_frozen_train_cameras",
+      "splat_sfm": {
+        "min_views": 2,
+        "source_chunk": 256,
+        "seed_pair_limit": 24
+      },
+      "beam_fusion": {
+        "min_views": 3,
+        "source_chunk": 256,
+        "pair_limit": 24,
+        "max_components": 5000,
+        "seed_budget_multiplier": 4
+      }
+    },
+    "compact_3dgs": {
+      "selection_basis": "Rejected development diagnostic. Mechanism pilots rejected 5000 updates with density every 100 at only 12917 splats and rejected 5000 updates with density every 40 because the 68830-splat endpoint had only 2000 post-reset polish steps. The subsequent 10000-update sparse point run reached 100000 splats but remained visibly dark and soft at native resolution; it is not a paper endpoint.",
+      "driver": "scripts/experiments/20260730_paper_three_path_fullres_stage_frames00008_00009.py",
+      "iterations": 10000,
+      "attempts_per_step": 128,
+      "proposal_mode": "area_gaussian",
+      "schedule_mode": "balanced_cycle",
+      "target_mode": "uniform",
+      "uniform_fraction": 0.25,
+      "device": "cuda:0",
+      "lr_means": 0.00016,
+      "lr_quats": 0.001,
+      "lr_scales": 0.005,
+      "lr_opacity": 0.05,
+      "lr_sh": 0.0025,
+      "lr_sh_rest": 0.000125,
+      "sh_degree": 3,
+      "outer_microbatch": 128,
+      "checkpoints": [
+        0,
+        100,
+        250,
+        500,
+        1000,
+        2000,
+        3500,
+        5000,
+        6500,
+        8000,
+        10000
+      ],
+      "evaluate_checkpoint_risks": false,
+      "failure_policy": "fail_closed_no_overwrite_no_partial_endpoint"
+    },
+    "development_visualization_only_standard_3dgs": {
+      "selection_basis": "Outside the protected compact claim: the outcome-exposed 10000-update sparse-point endpoint failed native-resolution visual QA. The repository's established 20260721 full reconstruction evidence uses the ordinary full-crop gsplat trainer for 30000 parent steps and already reached 34.9-36.0 dB fitted validation foreground PSNR for Random and Splat-SfM. The owner-requested development viewer therefore also exposes that current proven execution shape while replaying the new provider=native fields through the native additive renderer, never StructSplat or source RGB. Its dense generated crop tensors and SceneData/Trainer use make it ineligible for compact-arm or VRAM evidence.",
+      "driver": "scripts/experiments/20260730_paper_three_path_fullres_stage_frames00008_00009.py train-standard",
+      "teacher_replay": "native additive crop tensor generated from sealed provider=native rtgsv",
+      "source_rgb_opened": false,
+      "structsplat_used": false,
+      "iterations": 30000,
+      "eval_every": 1000,
+      "device": "cuda:0",
+      "rasterizer": "gsplat",
+      "density_strategy": "gsplat-default",
+      "densify_start": 500,
+      "densify_stop": 15000,
+      "densify_every": 100,
+      "grad_threshold": 0.0008,
+      "max_gaussians": 100000,
+      "prune_opacity": 0.005,
+      "prune_scale_frac": 0.1,
+      "opacity_reset_every": 3000,
+      "target_sh_degree": 3,
+      "sh_degree_interval": 1000,
+      "packed": true,
+      "antialiased": true,
+      "use_bundled_alpha": true,
+      "random_background": false,
+      "stream_scene_from_cpu": true,
+      "presentation_view": "C0014",
+      "presentation_view_role": "heldout_not_optimized",
+      "checkpoints": [
+        1000,
+        5000,
+        10000,
+        15000,
+        20000,
+        25000,
+        30000
+      ]
+    },
+    "classic_compact_density": {
+      "start_iter": 60,
+      "stop_iter": 8000,
+      "every": 40,
+      "grad_threshold": 0.0002,
+      "absgrad": false,
+      "split_scale_frac": 0.01,
+      "split_factor": 1.6,
+      "prune_opacity": 0.005,
+      "prune_scale_frac": 0.1,
+      "max_gaussians": 100000,
+      "opacity_reset_every": 3000,
+      "opacity_reset_value": 0.011,
+      "revised_opacity": true,
+      "clone_only": false,
+      "clone_all": false
+    },
+    "compact_cuda_backends": {
+      "teacher_query": {
+        "backend": "GaussianObservationIndexCuda",
+        "tile_size": 16,
+        "max_entries": 16000000,
+        "max_candidates": 200000,
+        "max_query_pairs": 1048576
+      },
+      "student_point_renderer": {
+        "backend": "gsplat_microcamera",
+        "packed": true,
+        "antialiased": false,
+        "kernel_support_mode": "hard"
+      }
+    }
+  },
+  "stages": [
+    {
+      "id": "load_native_additive_fields",
+      "label": "Load sealed native-additive fields",
+      "purpose": "Load and hash the exact train and held-out full-resolution observation fields without decoding source images or masks."
+    },
+    {
+      "id": "construct_initializations",
+      "label": "Construct the three initializations",
+      "purpose": "Build bounded-random, explicitly named Splat-SfM, and unmodified Beam Fusion candidates from the same train-only inputs and match their starting count."
+    },
+    {
+      "id": "compact_3dgs_with_density",
+      "label": "Run compact-field 3DGS with density control",
+      "purpose": "Optimize all 3DGS parameter families and SH bands while applying the same classic clone, split, prune, opacity-reset, hard-cap, and checkpoint schedule to every initialization."
+    },
+    {
+      "id": "compact_heldout_evaluation",
+      "label": "Evaluate held-out compact fields",
+      "purpose": "Evaluate exact held-out pixel and area risks, density trajectories, and saved native-resolution model renders without selecting from held-out outcomes."
+    },
+    {
+      "id": "viewer_handoff",
+      "label": "Build the three-model viewer",
+      "purpose": "Publish initial, checkpoint, and final models with explicit arm labels and full-resolution calibrated snapshots for qualitative inspection."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "bounded_random",
+      "label": "Bounded random initialization",
+      "purpose": "Lower-bound structural initialization with the exact matched starting count and downstream schedule."
+    },
+    {
+      "id": "splat_sfm",
+      "label": "Splat-SfM initialization",
+      "purpose": "Calibrated structure-from-splats using only the frozen 2D Gaussian fields; explicitly not COLMAP or Original 3DGS."
+    },
+    {
+      "id": "beam_fusion",
+      "label": "Beam Fusion initialization",
+      "purpose": "Unmodified tomographic initializer whose known problems remain visible under the same downstream fit."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "heldout_j_pixel",
+      "label": "Held-out compact pixel risk",
+      "unit": "MSE",
+      "direction": "lower",
+      "aggregation": "Report every view and seed, then the per-frame median and paired median over frames."
+    },
+    {
+      "id": "heldout_j_area",
+      "label": "Held-out compact area risk",
+      "unit": "MSE",
+      "direction": "lower",
+      "aggregation": "Report every view and seed, then the per-frame median and paired median over frames."
+    },
+    {
+      "id": "risk_curve_auc",
+      "label": "Held-out compact risk curve area",
+      "unit": "MSE updates",
+      "direction": "lower",
+      "aggregation": "Trapezoidal checkpoint AUC per seed and frame, with all raw trajectories retained."
+    },
+    {
+      "id": "final_gaussians",
+      "label": "Final Gaussian count",
+      "unit": "gaussians",
+      "direction": "descriptive",
+      "aggregation": "Report each cell and the number of clone, split, prune, and opacity-reset events."
+    },
+    {
+      "id": "fullres_teacher_psnr",
+      "label": "Frozen Stage-1 foreground fit PSNR",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "Pre-reconstruction acquisition QA only; report each view and equal-view frame means."
+    },
+    {
+      "id": "peak_cuda_allocated_bytes",
+      "label": "Peak CUDA allocated",
+      "unit": "bytes",
+      "direction": "descriptive",
+      "aggregation": "Fresh-process raw repeats and paired medians by arm, seed, and frame."
+    },
+    {
+      "id": "wall_seconds",
+      "label": "Reconstruction wall time",
+      "unit": "seconds",
+      "direction": "descriptive",
+      "aggregation": "Initializer and optimizer stages separately, retaining every raw repeat."
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "Fresh image-free process from strict compact-manifest load through final 3D Gaussian save; Stage-1 acquisition and any later RGB presentation rendering are separate receipts.",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "Paired median on the same idle RTX 4090 with every raw repeat, min/max, background allocation, and failure retained.",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "compact_input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_native_fullres.json",
+  "run_command": null,
+  "blockers": [
+    "Add and freeze one canonical fresh-process run command that executes every reviewed frame, seed, and arm cell and produces the contract result bundle without overwriting development outputs.",
+    "Obtain an outcome-unseen prospective protocol review before init-run; do not inspect official arm outcomes while reviewing.",
+    "Splat-SfM is the executable field-derived structure arm. A conventional COLMAP SfM arm remains unavailable and must not be implied by labels or claims."
+  ]
+}

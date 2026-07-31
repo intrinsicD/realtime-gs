@@ -138,6 +138,38 @@ def test_compact_data_seal_contains_no_rgb_or_mask_path() -> None:
     assert not any("/rgb/" in path or "/mask/" in path for path in paths)
 
 
+def test_compact_data_seal_binds_optional_bundle_production_manifest(
+    tmp_path: Path,
+) -> None:
+    task = json.loads(LIVE_TASK.read_text(encoding="utf-8"))
+    task["datasets"] = [copy.deepcopy(task["datasets"][0])]
+    task["splits"] = {"frame_00008": task["splits"]["frame_00008"]}
+    dataset = task["datasets"][0]
+    dataset["frame_path"] = "dataset/frame"
+    dataset["calibration"] = "dataset/calibration.json"
+    dataset["compact_manifest"] = "dataset/frame/gaussians2d/manifest.json"
+    dataset["production_manifest"] = "dataset/frame/gaussians2d/production_manifest.json"
+    task["arm"] = "direct_compact"
+
+    (tmp_path / "dataset/frame/gaussians2d").mkdir(parents=True)
+    (tmp_path / "dataset/calibration.json").write_text("calibration\n", encoding="utf-8")
+    (tmp_path / "dataset/frame/gaussians2d/C0001.rtgsv").write_text("compact\n", encoding="utf-8")
+    _json(
+        tmp_path / dataset["compact_manifest"],
+        {"views": [{"view_id": "C0001", "path": "C0001.rtgsv"}]},
+    )
+    _json(
+        tmp_path / dataset["production_manifest"],
+        {"schema": "rtgs.additive_native_bundle_production.v1"},
+    )
+    task["splits"]["frame_00008"] = {"train": ["C0001"], "heldout": []}
+
+    seal = CONTRACT.build_data_seal(task, root=tmp_path)
+    paths = {item["path"] for item in seal["files"]}
+    assert dataset["production_manifest"] in paths
+    assert seal["datasets"][0]["production_manifest"] == dataset["production_manifest"]
+
+
 def _report_fixture(tmp_path: Path) -> tuple[Path, dict, dict]:
     root = tmp_path
     task = copy.deepcopy(json.loads(LIVE_TASK.read_text(encoding="utf-8")))
