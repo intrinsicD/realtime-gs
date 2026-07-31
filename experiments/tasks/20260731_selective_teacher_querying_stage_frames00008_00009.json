@@ -1,0 +1,283 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260731_selective_teacher_querying_stage_frames00008_00009",
+  "date": "20260731",
+  "task_slug": "selective_teacher_querying",
+  "data_slug": "stage_frames00008_00009",
+  "arm": "direct_compact",
+  "status": "draft",
+  "owner": null,
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
+  "depends_on": [],
+  "title": "Disagreement-routed selective querying of matched-capacity compact teachers",
+  "question": "When compact training can query a cheap low-capacity or an expensive high-capacity 2D-Gaussian teacher per tile, does routing by precomputed inter-teacher disagreement reach matched held-out risk against the high-capacity teacher at materially lower query cost than always querying the high-capacity teacher?",
+  "hypothesis": "Routing low-disagreement tiles to the 640-component teacher and high-disagreement tiles to the 2000-component teacher, with a random audit fraction querying both, reaches the matched held-out risk (evaluated against the high-capacity fields only) with a substantially cheaper query mix than always-high-capacity, while random routing at the same query-budget split loses quality, proving the disagreement signal carries the routing value.",
+  "claim_boundary": "Development evidence for teacher-query routing efficiency inside the RGB-free compact trainer on the two development-exposed stage frames, conditional on a profiling gate showing teacher queries are a material share of step time. Held-out risk is always evaluated against the high-capacity teacher fields; the low-capacity tier is a query-cost lever, never the evaluation authority. It establishes no claim about teacher-capacity quality itself, no cross-scene generality, and no production default change.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00009",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "frame_00009": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    310713,
+    310714,
+    310715
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer",
+      "rtgs.carrier_pipeline",
+      "rtgs.lift.beam_fusion",
+      "rtgs.lift.carrier_refinement",
+      "rtgs.optim.carrier_schedule"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "deny_beam_imports"
+  ],
+  "stages": [
+    {
+      "id": "load_dual_teachers",
+      "label": "Load matched dual teachers",
+      "purpose": "Load the sealed low- and high-capacity 2D Gaussian bundles for identical views and verify both against the data seal; no image-capable loader."
+    },
+    {
+      "id": "disagreement_precompute",
+      "label": "Precompute tile disagreement",
+      "purpose": "Compute one low-resolution per-view, per-tile expected discrepancy between the two teacher tiers directly from compact fields, once, before optimization."
+    },
+    {
+      "id": "shared_initialization",
+      "label": "Shared frozen initialization",
+      "purpose": "Construct one hash-verified 3D initialization used identically by every cell so only the routing policy differs."
+    },
+    {
+      "id": "routed_compact_optimization",
+      "label": "Routed compact optimization",
+      "purpose": "Run the RGB-free compact trainer with per-tile teacher routing under the cell's policy; the audit fraction queries both tiers on the same points and records their divergence."
+    },
+    {
+      "id": "heldout_compact_evaluation",
+      "label": "Held-out evaluation against the high-capacity teacher",
+      "purpose": "Evaluate every cell on identical held-out fields of the high-capacity teacher only, at matched budgets and at the matched-risk stopping point."
+    },
+    {
+      "id": "routing_audit",
+      "label": "Routing audit reconciliation",
+      "purpose": "Reconcile audit-fraction double queries into misroute and staleness rates so incorrect routing is detected rather than silently absorbed."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "always_high_capacity",
+      "label": "Always query the 2000-component teacher",
+      "purpose": "The quality anchor and current implicit policy; all risk targets are defined against this cell's teacher fields."
+    },
+    {
+      "id": "always_low_capacity",
+      "label": "Always query the 640-component teacher",
+      "purpose": "Cheap-only floor; bounds how much quality the low tier alone can support."
+    },
+    {
+      "id": "disagreement_routed",
+      "label": "Disagreement-thresholded routing with audit fraction",
+      "purpose": "The treatment: cheap teacher on low-disagreement tiles, expensive teacher on high-disagreement tiles, random audit fraction querying both."
+    },
+    {
+      "id": "random_routed_control",
+      "label": "Random routing at the matched query split",
+      "purpose": "Same cheap/expensive query-budget split as the routed cell with random tile assignment; isolates the disagreement signal from the mere budget mix."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "wall_seconds_to_matched_risk",
+      "label": "Wall time to matched held-out risk",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "paired median over measured repeats, seeds, and scenes at the frozen risk target"
+    },
+    {
+      "id": "high_capacity_query_count",
+      "label": "High-capacity teacher queries",
+      "unit": "queries",
+      "direction": "lower",
+      "aggregation": "paired median over seeds and scenes at the matched-risk stopping point"
+    },
+    {
+      "id": "low_capacity_query_count",
+      "label": "Low-capacity teacher queries",
+      "unit": "queries",
+      "direction": "descriptive",
+      "aggregation": "paired median over seeds and scenes at the matched-risk stopping point"
+    },
+    {
+      "id": "heldout_j_pixel",
+      "label": "Held-out pixel risk versus the high-capacity teacher",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "heldout_j_area",
+      "label": "Held-out area risk versus the high-capacity teacher",
+      "unit": "loss",
+      "direction": "lower",
+      "aggregation": "median per view, then paired median over seeds and scenes"
+    },
+    {
+      "id": "audit_misroute_rate",
+      "label": "Audit-detected misroute rate",
+      "unit": "fraction",
+      "direction": "lower",
+      "aggregation": "fraction of audited tiles whose observed divergence contradicts their routing class; median over seeds and scenes"
+    },
+    {
+      "id": "teacher_query_seconds_share",
+      "label": "Teacher-query share of step time",
+      "unit": "fraction",
+      "direction": "descriptive",
+      "aggregation": "profiled share of optimization step time spent in teacher queries per cell; median over seeds and scenes"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "fresh reconstruction-only process from compact manifest open through final PLY save; disagreement precompute and audit double-queries are inside the measured boundary so routing pays for its own overhead",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median on one idle named GPU; retain every raw repeat and report min/max",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/stage_frames00008_00009_compact.json",
+  "run_command": null,
+  "blockers": [
+    "Profiling gate first: measure the share of compact-training step time spent in high-capacity teacher queries at the frozen production settings and record the receipt; this task proceeds to implementation only if that share exceeds a threshold frozen before profiling (proposal: 20%). If the gate fails, close this task as not-worth-it with the profile as evidence.",
+    "Produce and seal matched 640-component and 2000-component teacher bundles for both frames under one identical fitting configuration with production manifests, then update the datasets and data_seal to the new seal before setting status to ready; the current seal covers only the existing bundles.",
+    "Implement the tile-disagreement precompute, threshold routing, and audit-fraction double-querying behind an opt-in compact-trainer config whose default preserves single-teacher behavior, with CPU-first tests for routing determinism, audit accounting, and misroute detection on a tiny fixture.",
+    "Freeze the routing threshold, audit fraction, tile size, matched held-out risk target, stopping rule, shared initialization artifact and hash, and the exact argv command before setting status to ready.",
+    "Freeze the CUDA host, GPU identity, and idle policy.",
+    "Assign a frozen owner and obtain a distinct outcome-unseen prospective protocol review."
+  ]
+}

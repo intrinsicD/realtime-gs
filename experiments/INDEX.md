@@ -30,6 +30,9 @@ These are real task IDs. Their task status remains immutable after a protected r
 
 | Canonical task ID | Task status | Experiment | Primary record |
 | --- | --- | --- | --- |
+| `20260731_residual_mixture_sampling_stage_frames00008_00009` | draft | Residual-aware mixture sampling for compact point supervision | [task](tasks/20260731_residual_mixture_sampling_stage_frames00008_00009.json) |
+| `20260731_coarse_to_fine_density_stage_frames00008_00009` | draft | Coarse-to-fine standard 3DGS with late densification in one optimizer lifecycle | [task](tasks/20260731_coarse_to_fine_density_stage_frames00008_00009.json) |
+| `20260731_selective_teacher_querying_stage_frames00008_00009` | draft | Disagreement-routed selective querying of matched-capacity compact teachers | [task](tasks/20260731_selective_teacher_querying_stage_frames00008_00009.json) |
 | `20260731_topology_moment_inheritance_stage_frames00008_00009` | draft | Parent-to-child Adam moment inheritance at arena clone/split topology events | [task](tasks/20260731_topology_moment_inheritance_stage_frames00008_00009.json) |
 | `20260731_active_set_updates_stage_frames00008_00009` | draft | Priority-ranked active-set parameter updates from existing strategy statistics | [task](tasks/20260731_active_set_updates_stage_frames00008_00009.json) |
 | `20260730_paper_three_path_fullres_stage_frames00008_00009` | draft | Full-resolution compact-field 3DGS from random, Splat-SfM, and Beam initialization | [task](tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json) |
