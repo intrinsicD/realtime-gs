@@ -42,10 +42,13 @@ The current RGB arm is a **matched-initialization, image-supervised 3DGS compari
    reached and records `status: failed`; it may omit models, previews, and evidence.
 10. Perform the distinct independent results audit over the raw bundle and RESULT records; write
     the canonical AUDIT Markdown+JSON records and declare all four evidence files in `metrics.json`.
-11. Run `render` once, smoke-test the generated report and viewer, record the receipt, then rerun
-    `render` so the final manifest includes that receipt. It generates `index.html`, the
-    accompanying `README.md`, and `manifest.json`; rerun it after changing any source. Never
-    hand-edit those three files.
+11. Run `render` once, serve the generated report, and exercise the viewer in a real browser. A
+    pass requires HTTP 200 plus all local report targets, WebGL2 and a live canvas, a ready viewer,
+    visible non-background scene pixels, an orbit that changes the camera, and no fatal or
+    unclassified client errors. Record these facts, browser identity, classified warnings, renderer
+    when exposed, and exact viewer argv in `viewer_smoke.json`, then rerun `render` so the
+    final manifest includes that receipt. It generates `index.html`, the accompanying `README.md`,
+    and `manifest.json`; rerun it after changing any source. Never hand-edit those three files.
 12. Gate the final run with both `check-run` and `scripts/check_results_bundle.py`, then append the
     audited outcome to `docs/EXPERIMENTS.md`.
 
@@ -79,19 +82,26 @@ Before `render`, the task driver owns these run-local sources:
 - `metrics.json`: result summary, final metrics, the three frozen diagrams, artifact/evidence
   declarations, notes, and exact reproduce/report-server/orbit-viewer argv commands;
 - `training_history.json`: tidy records keyed by step, wall time, stage, dataset, arm, seed, split,
-  and metric id, plus metric metadata and stage markers. Fitting history may use only `train`,
-  `validation`, or `diagnostic`; held-out/test records are rejected;
+  and metric id, plus metric metadata. Each dataset/arm/seed series records one ordered `start` and
+  `end` boundary (step and elapsed seconds) for every frozen stage, including stages without a
+  scalar metric row. Records must stay inside their stage interval. Fitting history may use only
+  `train`, `validation`, or `diagnostic`; held-out/test records are rejected;
 - `gaussians.config.json`: the complete effective configuration, not only CLI overrides;
 - `environment.json`: Python, platform, package versions, and device identity;
 - `run_receipt.json`: start/finish UTC times, status, exit code, failure phase, and message;
 - `input_boundary_receipt.json` and `resource_receipt.json`;
+- `viewer_smoke.json`: after the first render, a structured attestation of report targets and
+  browser/WebGL readiness, visible scene pixels in a UI-free framebuffer crop, a camera-changing
+  orbit interaction, an empty fatal/unclassified client-error list, classified client warnings,
+  and exact viewer argv;
 - completed-run models/previews and canonical RESULT/AUDIT evidence.
 
 `render` owns and atomically regenerates:
 
-- `index.html`, with status, claim/input boundaries, pipeline, static SVG metrics over the fitting
-  process, final metrics/diagrams, full parameters, provenance/environment, exact commands, and
-  relative links to the entire inventory;
+- `index.html`, with status, claim/input boundaries, pipeline, one elapsed-time SVG per
+  metric/dataset/arm/seed series, shaded stages and explicit start/end boundaries in every curve,
+  final metrics/diagrams, full parameters, provenance/environment, exact commands, and relative
+  links to the entire inventory;
 - `README.md`, the same durable handoff in Markdown, including how to reproduce, serve the report,
   and start the orbit viewer;
 - `manifest.json`, which inventories every run file (except itself) and every declared evidence
@@ -100,12 +110,13 @@ Before `render`, the task driver owns these run-local sources:
 The arm may choose its metric rows and values, but it may not replace the renderer or omit frozen
 primary metrics/the three required diagrams on a completed run. `check-run` verifies schemas,
 frozen-command equality, generated links, full inventory, and checksums. The results-bundle gate
-also requires previews and smoke receipts. A structurally renderable failure report is not a
+also requires previews and the structured browser smoke; server reachability without a rendered,
+orbited WebGL client is insufficient. A structurally renderable failure report is not a
 results-bearing bundle.
 
 Use `templates/task.json`, `templates/metrics.json`, `templates/training_history.json`,
-`templates/run_receipt.json`, `templates/environment.json`, and `templates/protocol_review.md` as
-the producer examples.
+`templates/run_receipt.json`, `templates/environment.json`, `templates/viewer_smoke.json`, and
+`templates/protocol_review.md` as the producer examples.
 
 ## Evidence boundary still missing
 

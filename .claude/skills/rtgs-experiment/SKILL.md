@@ -73,6 +73,20 @@ and smoke-test the browser viewer before reporting the experiment:
   --downscale 16 --device cpu --rasterizer torch
 ```
 
+The smoke must happen in a real browser client: confirm the viewer reached ready state, WebGL2
+created at least one canvas, a UI-free framebuffer crop contains non-background scene pixels, an
+orbit gesture changed the camera, and no fatal or unclassified client error was raised. Record the
+browser name/version, user agent, WebGL renderer when exposed, exact viewer argv, classified
+warnings, and those checks in `viewer_smoke.json` using
+`experiments/templates/viewer_smoke.json`. An HTTP 200 or a working camera over a blank canvas is
+not a viewer smoke.
+
+On Ubuntu systems using Snap Firefox with NVIDIA, preserve AppArmor denials for
+`snap.firefox.firefox` and `/dev/char/195:*` as packaging diagnostics, but do not infer a crash
+from the denial alone: the same denial can accompany a successful WebGL2 render. Require direct
+evidence such as a crash report, lost context, uncategorized exception, or blank framebuffer.
+Use Chrome/Chromium or a non-Snap Firefox only when the failing client remains reproducible.
+
 Include the exact viewer command and artifact directory in the result handoff. The orbitable WebGL
 preview is qualitative; decision metrics and camera snapshots must come from the exact selected
 `Rasterizer` backend. Use Torch snapshots in the current shared environment; its editable
@@ -94,12 +108,14 @@ receipt. Do not hand-write the generated outputs:
 ```
 
 The renderer creates `index.html`, `README.md`, and a SHA-256 `manifest.json`. The page carries the
-input boundary, pipeline, static SVG fitting histories/stage markers, grouped final metrics,
+input boundary, pipeline, static SVG fitting histories over elapsed seconds with explicit start/end
+boundaries for every frozen stage in every dataset/arm/seed series, grouped final metrics,
 quality/resource/stage-runtime diagrams, full parameters, environment/provenance, exact commands,
 and relative links to every inventoried artifact and evidence record. Rerun it after any source or
 receipt changes. Serve from the location recorded by `commands.serve_report`, require HTTP 200 for
-the page and every local target, and preserve the smoke receipt. A JSON-only handoff is incomplete;
-synthetic mechanism/unit checks that do not claim an official result are exempt.
+the page and every local target, and preserve the structured browser smoke receipt. A JSON-only
+handoff is incomplete; synthetic mechanism/unit checks that do not claim an official result are
+exempt.
 
 Gate the bundle before reporting:
 
@@ -108,7 +124,7 @@ Gate the bundle before reporting:
 ```
 
 It checks required artifacts/previews, report links and summary numbers, the generated Markdown
-handoff, complete manifest inventory/checksums, and a receipt for both page and viewer smoke tests.
+handoff, complete manifest inventory/checksums, and the structured page/WebGL/orbit browser smoke.
 Pass `--no-previews` only for a legitimately preview-free run. Failed runs may render an explicit
 failure report but cannot pass this gate. A bundle that does not pass is not results-bearing, and
 its numbers do not go in a handoff. Historical v1 bundles remain on their frozen validation path.

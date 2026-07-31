@@ -254,41 +254,68 @@ def _report_fixture(tmp_path: Path, *, report_version: int = 2) -> tuple[Path, d
             "device": {"type": "cpu", "name": "fixture cpu", "cuda": None},
         },
     )
+    history_records = []
+    stage_markers = []
+    for stage_index, stage in enumerate(task["stages"]):
+        start_step = stage_index * 2
+        end_step = start_step + 1
+        start_seconds = float(start_step)
+        end_seconds = float(end_step)
+        for metric_index, metric_id in enumerate(("loss_total", "loss_auxiliary")):
+            scale = 1.0 + metric_index
+            for step, wall_seconds in (
+                (start_step, start_seconds),
+                (end_step, end_seconds),
+            ):
+                history_records.append(
+                    {
+                        "step": step,
+                        "wall_seconds": wall_seconds,
+                        "stage": stage["id"],
+                        "dataset_id": task["datasets"][0]["id"],
+                        "arm_id": "fixture_arm",
+                        "seed": task["seeds"][0],
+                        "split": "train",
+                        "metric_id": metric_id,
+                        "value": scale / (step + 1.0),
+                    }
+                )
+        for boundary, step, wall_seconds in (
+            ("start", start_step, start_seconds),
+            ("end", end_step, end_seconds),
+        ):
+            stage_markers.append(
+                {
+                    "step": step,
+                    "wall_seconds": wall_seconds,
+                    "stage": stage["id"],
+                    "dataset_id": task["datasets"][0]["id"],
+                    "arm_id": "fixture_arm",
+                    "seed": task["seeds"][0],
+                    "boundary": boundary,
+                    "label": stage["label"],
+                }
+            )
     history = {
         "schema_version": 2,
-        "records": [
-            {
-                "step": step,
-                "wall_seconds": float(step),
-                "stage": task["stages"][0]["id"],
-                "dataset_id": task["datasets"][0]["id"],
-                "arm_id": "fixture_arm",
-                "seed": task["seeds"][0],
-                "split": "train",
-                "metric_id": "loss_total",
-                "value": value,
-            }
-            for step, value in ((0, 1.0), (1, 0.5), (2, 0.25))
-        ],
+        "records": history_records,
         "metric_metadata": {
             "loss_total": {
                 "label": "Total objective",
                 "unit": "loss",
                 "group": "Objective",
                 "direction": "lower",
-            }
+            },
+            "loss_auxiliary": {
+                "label": "Auxiliary objective",
+                "unit": "loss",
+                "group": "Objective",
+                "direction": "lower",
+            },
         },
-        "stage_markers": [
-            {"step": 0, "stage": task["stages"][0]["id"], "label": "Fixture stage start"}
-        ],
+        "stage_markers": stage_markers,
     }
     _json(run / "training_history.json", history)
-    (run / "smoke_receipt.md").write_text(
-        "# Smoke receipt\n"
-        "- index.html served with HTTP 200\n"
-        f"- .venv/bin/rtgs view --gaussians runs/{task['task_id']}/gaussians.ply --no-open\n",
-        encoding="utf-8",
-    )
     evidence = [
         f"benchmarks/results/{task['task_id']}_{suffix}" for suffix in CONTRACT.EVIDENCE_SUFFIXES
     ]
@@ -368,6 +395,44 @@ def _report_fixture(tmp_path: Path, *, report_version: int = 2) -> tuple[Path, d
         }
     else:
         metrics["viewer_command"] = viewer
+    if report_version == 2:
+        _json(
+            run / "viewer_smoke.json",
+            {
+                "schema_version": 1,
+                "status": "passed",
+                "viewer_command": viewer,
+                "report": {
+                    "target": "index.html",
+                    "http_status": 200,
+                    "local_targets_ok": True,
+                },
+                "browser": {
+                    "name": "fixture-browser",
+                    "version": "1.0",
+                    "user_agent": "fixture-browser/1.0",
+                    "webgl2": True,
+                    "renderer": "fixture WebGL renderer",
+                },
+                "checks": {
+                    "viewer_ready": True,
+                    "canvas_count": 2,
+                    "rendered_content_visible": True,
+                    "framebuffer_nonbackground_pixels": 2048,
+                    "orbit_camera_changed": True,
+                    "client_errors": [],
+                    "client_warnings": [],
+                },
+            },
+        )
+    else:
+        (run / "smoke_receipt.md").write_text(
+            "# Smoke receipt\n"
+            "- index.html served with HTTP 200\n"
+            f"- .venv/bin/rtgs view --gaussians "
+            f"runs/{task['task_id']}/gaussians.ply --no-open\n",
+            encoding="utf-8",
+        )
     values = {
         "peak_cuda_allocated_bytes": 1024,
         "peak_cuda_reserved_bytes": 2048,
@@ -408,7 +473,14 @@ def test_shared_report_renders_every_required_section(tmp_path: Path) -> None:
     assert "Fitting process" in body
     assert "<svg" in body
     assert "Total objective" in body
-    assert "Fixture stage start" in body
+    assert "Auxiliary objective" in body
+    assert body.count("elapsed time (s)") == 2
+    assert body.count('class="stage-boundary"') == len(task["stages"]) * 2 * 2
+    assert body.count('data-boundary="start"') == len(task["stages"]) * 2
+    assert body.count('data-boundary="end"') == len(task["stages"]) * 2
+    for stage in task["stages"]:
+        assert body.count(f"<strong>{stage['label']}</strong>: start") == 2
+    assert "fitting step" not in body
     assert "Quality" in body
     assert "Resource use" in body
     assert "Stage runtime" in body
@@ -428,6 +500,7 @@ def test_shared_report_renders_every_required_section(tmp_path: Path) -> None:
         "README.md",
         "metrics.json",
         "training_history.json",
+        "viewer_smoke.json",
     }
     assert CONTRACT.validate_run(run, root=tmp_path) == []
     assert BUNDLE.check_bundle(run, previews=False) == []
@@ -449,6 +522,46 @@ def test_v2_history_rejects_heldout_fitting_records(tmp_path: Path) -> None:
     _json(history_path, history)
     errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
     assert any("must not expose heldout/test data" in error for error in errors)
+
+
+def test_v2_history_requires_every_stage_start_and_end(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    history_path = run / "training_history.json"
+    history = json.loads(history_path.read_text(encoding="utf-8"))
+    history["stage_markers"].pop()
+    _json(history_path, history)
+    errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
+    assert any("ordered start/end boundaries for every frozen stage" in error for error in errors)
+
+
+def test_v2_history_rejects_records_outside_stage_time_bounds(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    history_path = run / "training_history.json"
+    history = json.loads(history_path.read_text(encoding="utf-8"))
+    history["records"][1]["wall_seconds"] = 1.5
+    _json(history_path, history)
+    errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
+    assert any("follows its stage end boundary" in error for error in errors)
+
+
+def test_v2_history_binds_boundary_labels_to_frozen_stages(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    history_path = run / "training_history.json"
+    history = json.loads(history_path.read_text(encoding="utf-8"))
+    history["stage_markers"][0]["label"] = "Unfrozen label"
+    _json(history_path, history)
+    errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
+    assert any("stage_markers[0] is invalid" in error for error in errors)
+
+
+def test_v2_history_reports_a_malformed_boundary_without_crashing(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    history_path = run / "training_history.json"
+    history = json.loads(history_path.read_text(encoding="utf-8"))
+    history["stage_markers"][0]["boundary"] = []
+    _json(history_path, history)
+    errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
+    assert any("stage_markers[0] is invalid" in error for error in errors)
 
 
 def test_v2_manifest_detects_artifact_tampering(tmp_path: Path) -> None:
@@ -480,16 +593,55 @@ def test_v2_rejects_noncanonical_report_server_command(tmp_path: Path) -> None:
 
 
 def test_v2_bundle_requires_exact_viewer_smoke_command(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    receipt_path = run / "viewer_smoke.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt["viewer_command"][0] = "rtgs"
+    _json(receipt_path, receipt)
+    CONTRACT.render_run(run, root=tmp_path)
+    problems = BUNDLE.check_bundle(run, previews=False)
+    assert any("viewer_command must exactly match" in problem for problem in problems)
+
+
+def test_v2_bundle_rejects_http_only_viewer_smoke(tmp_path: Path) -> None:
     run, task, _metrics = _report_fixture(tmp_path)
+    (run / "viewer_smoke.json").unlink()
     (run / "smoke_receipt.md").write_text(
         "# Smoke receipt\n"
         "- index.html served with HTTP 200\n"
-        f"- rtgs view --gaussians runs/{task['task_id']}/gaussians.ply --no-open\n",
+        f"- .venv/bin/rtgs view --gaussians "
+        f"runs/{task['task_id']}/gaussians.ply --no-open\n",
         encoding="utf-8",
     )
     CONTRACT.render_run(run, root=tmp_path)
     problems = BUNDLE.check_bundle(run, previews=False)
-    assert any("does not contain commands.viewer exactly" in problem for problem in problems)
+    assert any("missing viewer_smoke.json" in problem for problem in problems)
+
+
+def test_v2_bundle_requires_an_exercised_orbit(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    receipt_path = run / "viewer_smoke.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt["checks"]["orbit_camera_changed"] = False
+    _json(receipt_path, receipt)
+    CONTRACT.render_run(run, root=tmp_path)
+    problems = BUNDLE.check_bundle(run, previews=False)
+    assert any("confirm an orbit changed the camera" in problem for problem in problems)
+
+
+def test_v2_bundle_rejects_a_blank_viewer_framebuffer(tmp_path: Path) -> None:
+    run, _task, _metrics = _report_fixture(tmp_path)
+    receipt_path = run / "viewer_smoke.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt["checks"]["rendered_content_visible"] = False
+    receipt["checks"]["framebuffer_nonbackground_pixels"] = 0
+    _json(receipt_path, receipt)
+    CONTRACT.render_run(run, root=tmp_path)
+    problems = BUNDLE.check_bundle(run, previews=False)
+    assert any("confirm visible rendered scene content" in problem for problem in problems)
+    assert any(
+        "framebuffer_nonbackground_pixels must be at least one" in problem for problem in problems
+    )
 
 
 def test_v2_failure_report_is_renderable_but_not_results_bearing(tmp_path: Path) -> None:

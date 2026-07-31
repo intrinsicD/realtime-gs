@@ -3,9 +3,9 @@
 
 Rule 7 requires every results-bearing run to save ``--out`` artifacts/previews and a generated
 experiment handoff. V2 adds a summary-bound relative-link ``index.html``, accompanying
-``README.md``, full SHA-256 manifest, and smoke-test receipts for both the page and exact
-``rtgs view`` command. This script is the final results-bearing gate; frozen v1 bundles retain
-their historical checks.
+``README.md``, full SHA-256 manifest, and a structured browser-side smoke receipt for both the
+page and exact ``rtgs view`` command. This script is the final results-bearing gate; frozen v1
+bundles retain their historical checks.
 
 It validates the *bundle*, not the science: it cannot tell you whether a number is right, only
 whether the artifact a reader needs in order to check it is present and reachable. Promoting a
@@ -26,7 +26,6 @@ import hashlib
 import json
 import os
 import re
-import shlex
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
@@ -64,8 +63,8 @@ V2_CORE_FILES = (
     "manifest.json",
 )
 
-# A receipt proves the page and the viewer command were actually exercised. Any one of these
-# names satisfies it; the content must name the checked target.
+# Frozen v1 bundles accept their historical free-form receipts. V2 uses the structured
+# `viewer_smoke.json` validator below.
 RECEIPT_NAMES = ("smoke_receipt.json", "smoke_receipt.md", "viewer_smoke.json", "AUDIT.md")
 
 
@@ -164,7 +163,7 @@ def _check_v2_bundle(run_dir: Path, *, previews: bool) -> list[str]:
         if expected_viewer is None:
             problems.append("metrics.json commands.viewer is missing or invalid")
         else:
-            problems.extend(_check_receipts(run_dir, expected_viewer=expected_viewer))
+            problems.extend(_check_v2_viewer_smoke(run_dir, expected_viewer))
     elif status == "failed":
         problems.append(
             "run_receipt.json records a failed run; this report is inspectable but is not a "
@@ -191,7 +190,7 @@ def _v2_status(run_dir: Path, problems: list[str]) -> str | None:
     return status
 
 
-def _v2_viewer_command(run_dir: Path) -> str | None:
+def _v2_viewer_command(run_dir: Path) -> list[str] | None:
     try:
         metrics = json.loads((run_dir / "metrics.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -204,7 +203,110 @@ def _v2_viewer_command(run_dir: Path) -> str | None:
         or not all(isinstance(item, str) and item for item in viewer)
     ):
         return None
-    return shlex.join(viewer)
+    return viewer
+
+
+def _check_v2_viewer_smoke(run_dir: Path, expected_viewer: list[str]) -> list[str]:
+    """Validate the structured attestation that a browser rendered and orbited the viewer."""
+
+    path = run_dir / "viewer_smoke.json"
+    if not path.is_file():
+        return ["missing viewer_smoke.json (v2 requires a browser-side WebGL/orbit smoke receipt)"]
+    try:
+        receipt = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        return [f"viewer_smoke.json is not valid JSON: {error}"]
+    if not isinstance(receipt, dict) or set(receipt) != {
+        "schema_version",
+        "status",
+        "viewer_command",
+        "report",
+        "browser",
+        "checks",
+    }:
+        return ["viewer_smoke.json has the wrong top-level shape"]
+
+    problems: list[str] = []
+    if receipt["schema_version"] != 1:
+        problems.append("viewer_smoke.json schema_version must be 1")
+    if receipt["status"] != "passed":
+        problems.append("viewer_smoke.json status must be passed")
+    if receipt["viewer_command"] != expected_viewer:
+        problems.append("viewer_smoke.json viewer_command must exactly match commands.viewer")
+
+    report = receipt["report"]
+    if not isinstance(report, dict) or set(report) != {
+        "target",
+        "http_status",
+        "local_targets_ok",
+    }:
+        problems.append("viewer_smoke.json report has the wrong shape")
+    else:
+        if report["target"] != RESULTS_PAGE or report["http_status"] != 200:
+            problems.append("viewer_smoke.json must record index.html HTTP 200")
+        if report["local_targets_ok"] is not True:
+            problems.append("viewer_smoke.json must confirm every local report target loaded")
+
+    browser = receipt["browser"]
+    if not isinstance(browser, dict) or set(browser) != {
+        "name",
+        "version",
+        "user_agent",
+        "webgl2",
+        "renderer",
+    }:
+        problems.append("viewer_smoke.json browser has the wrong shape")
+    else:
+        for key in ("name", "version", "user_agent"):
+            if not isinstance(browser[key], str) or not browser[key].strip():
+                problems.append(f"viewer_smoke.json browser.{key} must be non-empty")
+        if browser["webgl2"] is not True:
+            problems.append("viewer_smoke.json must confirm WebGL2 availability")
+        if browser["renderer"] is not None and (
+            not isinstance(browser["renderer"], str) or not browser["renderer"].strip()
+        ):
+            problems.append("viewer_smoke.json browser.renderer must be null or non-empty")
+
+    checks = receipt["checks"]
+    if not isinstance(checks, dict) or set(checks) != {
+        "viewer_ready",
+        "canvas_count",
+        "rendered_content_visible",
+        "framebuffer_nonbackground_pixels",
+        "orbit_camera_changed",
+        "client_errors",
+        "client_warnings",
+    }:
+        problems.append("viewer_smoke.json checks has the wrong shape")
+    else:
+        if checks["viewer_ready"] is not True:
+            problems.append("viewer_smoke.json must confirm the viewer reached ready state")
+        if (
+            not isinstance(checks["canvas_count"], int)
+            or isinstance(checks["canvas_count"], bool)
+            or checks["canvas_count"] < 1
+        ):
+            problems.append("viewer_smoke.json canvas_count must be at least one")
+        if checks["rendered_content_visible"] is not True:
+            problems.append("viewer_smoke.json must confirm visible rendered scene content")
+        if (
+            not isinstance(checks["framebuffer_nonbackground_pixels"], int)
+            or isinstance(checks["framebuffer_nonbackground_pixels"], bool)
+            or checks["framebuffer_nonbackground_pixels"] < 1
+        ):
+            problems.append(
+                "viewer_smoke.json framebuffer_nonbackground_pixels must be at least one"
+            )
+        if checks["orbit_camera_changed"] is not True:
+            problems.append("viewer_smoke.json must confirm an orbit changed the camera")
+        if checks["client_errors"] != []:
+            problems.append("viewer_smoke.json client_errors must be an empty list")
+        warnings = checks["client_warnings"]
+        if not isinstance(warnings, list) or any(
+            not isinstance(item, str) or not item.strip() for item in warnings
+        ):
+            problems.append("viewer_smoke.json client_warnings must be a list of non-empty strings")
+    return problems
 
 
 def _safe_relative(value: object) -> bool:
@@ -415,7 +517,7 @@ def _check_results_page(run_dir: Path, *, require_model: bool = True) -> list[st
     return problems
 
 
-def _check_receipts(run_dir: Path, *, expected_viewer: str | None = None) -> list[str]:
+def _check_receipts(run_dir: Path) -> list[str]:
     """Rule 7 wants evidence the page and an `rtgs view` command were actually exercised."""
     receipts = [name for name in RECEIPT_NAMES if (run_dir / name).is_file()]
     if not receipts:
@@ -433,8 +535,6 @@ def _check_receipts(run_dir: Path, *, expected_viewer: str | None = None) -> lis
             f"no receipt in {', '.join(receipts)} records an 'rtgs view' command "
             "(Rule 7 requires the exact viewer command)"
         )
-    if expected_viewer is not None and expected_viewer not in blob:
-        problems.append("the smoke receipt does not contain commands.viewer exactly")
     if RESULTS_PAGE not in blob:
         problems.append(
             f"no receipt in {', '.join(receipts)} records a smoke test of {RESULTS_PAGE}"

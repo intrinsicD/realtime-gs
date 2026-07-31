@@ -25,6 +25,14 @@ from rtgs.core.gaussians3d import Gaussians3D, rotmat_to_quat
 from rtgs.core.sh import eval_sh, sh_to_rgb
 
 _VIEW_COLOR_SETTLE_SECONDS = 0.15
+_PREVIEW_OPACITY_TARGET = 0.60
+_PREVIEW_OPACITY_THRESHOLD = 0.35
+_PREVIEW_OPACITY_BOOST_MAX = 20.0
+_VIEWER_BACKGROUNDS = {
+    "neutral gray": (128, 128, 128),
+    "light": (255, 255, 255),
+    "dark": (20, 22, 26),
+}
 
 
 @dataclass(frozen=True)
@@ -130,6 +138,42 @@ def prepare_viewer_data(
             source_indices=source_indices,
             sh_coefficients=g.sh[source_indices].detach().clone(),
         )
+
+
+def _auto_preview_opacity_boost(opacities: np.ndarray) -> float:
+    """Return a bounded display-only boost for low-opacity reconstructions."""
+    values = np.asarray(opacities, dtype=np.float32).reshape(-1)
+    visible = values[np.isfinite(values) & (values > 0.0)]
+    if visible.size == 0:
+        return 1.0
+    reference = float(np.quantile(visible, 0.9))
+    if reference >= _PREVIEW_OPACITY_THRESHOLD:
+        return 1.0
+    return min(
+        _PREVIEW_OPACITY_BOOST_MAX,
+        max(1.0, _PREVIEW_OPACITY_TARGET / max(reference, 1.0 / 255.0)),
+    )
+
+
+def _preview_opacities(
+    data: ViewerSplatData,
+    count: int,
+    model_opacity_scale: float,
+    *,
+    auto_visibility: bool,
+) -> np.ndarray:
+    """Return WebGL opacities without changing exact-snapshot model semantics."""
+    count = min(max(int(count), 1), data.n)
+    boost = _auto_preview_opacity_boost(data.opacities[:count]) if auto_visibility else 1.0
+    return np.ascontiguousarray(
+        np.clip(data.opacities[:count] * float(model_opacity_scale) * boost, 0.0, 1.0),
+        dtype=np.float32,
+    )
+
+
+def _viewer_background(name: str) -> np.ndarray:
+    """Return a tiny solid image used as a contrast-stable viewer background."""
+    return np.full((2, 2, 3), _VIEWER_BACKGROUNDS[name], dtype=np.uint8)
 
 
 def _view_dependent_rgbs(
@@ -334,15 +378,7 @@ def create_viewer(
 
     server = viser.ViserServer(host=host, port=port, label="realtime-gs")
     server.scene.set_up_direction("+z")
-    gaussian_handle = server.scene.add_gaussian_splats(
-        "/reconstruction",
-        centers=current_data.centers,
-        covariances=current_data.covariances,
-        rgbs=current_data.rgbs,
-        opacities=current_data.opacities,
-    )
-    gaussian_handle_box = [gaussian_handle]
-
+    server.scene.set_background_image(_viewer_background("neutral gray"), format="png")
     if scene is not None:
         viewer_center, viewer_extent = scene.center_and_extent()
         viewer_center = viewer_center.detach().cpu().numpy().astype(np.float64)
@@ -352,6 +388,20 @@ def create_viewer(
         viewer_extent = max(2.2 * float(np.quantile(radii, 0.99)), 1e-3)
 
     _install_arcball_camera(server, viser, viewer_extent)
+
+    gaussian_handle = server.scene.add_gaussian_splats(
+        "/reconstruction",
+        centers=current_data.centers,
+        covariances=current_data.covariances,
+        rgbs=current_data.rgbs,
+        opacities=_preview_opacities(
+            current_data,
+            current_data.n,
+            1.0,
+            auto_visibility=True,
+        ),
+    )
+    gaussian_handle_box = [gaussian_handle]
 
     frustum_handles: list[Any] = []
     camera_labels: list[str] = []
@@ -395,8 +445,17 @@ def create_viewer(
         step=max(1, current_data.n // 500),
         initial_value=current_data.n,
     )
+    auto_visibility_control = server.gui.add_checkbox("Auto preview visibility", initial_value=True)
     opacity_control = server.gui.add_slider(
-        "Opacity multiplier", min=0.0, max=2.0, step=0.05, initial_value=1.0
+        "Model opacity multiplier", min=0.0, max=10.0, step=0.05, initial_value=1.0
+    )
+    background_control = server.gui.add_dropdown(
+        "Background",
+        options=tuple(_VIEWER_BACKGROUNDS),
+        initial_value="neutral gray",
+    )
+    preview_status = server.gui.add_markdown(
+        "Auto WebGL visibility boost is display-only; exact snapshots retain model opacity."
     )
     frame_button = server.gui.add_button("Frame reconstruction")
     watch_status = None
@@ -460,6 +519,17 @@ def create_viewer(
         client.camera.look_at = viewer_center
         client.camera.up_direction = np.array([0.0, 0.0, 1.0])
 
+    def update_preview_status() -> None:
+        boost = (
+            _auto_preview_opacity_boost(current_data.opacities[: int(count_control.value)])
+            if auto_visibility_control.value
+            else 1.0
+        )
+        preview_status.content = (
+            f"WebGL preview boost: **{boost:.2f}×**. This is display-only; exact snapshots use "
+            f"model opacity × **{float(opacity_control.value):.2f}×**."
+        )
+
     def replace_splats(*, preserve_full_count: bool = False) -> None:
         nonlocal current_data
         if getattr(replace_state, "active", False):
@@ -477,8 +547,11 @@ def create_viewer(
                     else min(int(count_control.value), current_data.n)
                 )
                 count = int(count_control.value)
-                opacity = np.clip(
-                    current_data.opacities[:count] * float(opacity_control.value), 0.0, 1.0
+                opacity = _preview_opacities(
+                    current_data,
+                    count,
+                    float(opacity_control.value),
+                    auto_visibility=bool(auto_visibility_control.value),
                 )
                 colors = _view_dependent_rgbs(
                     current_data,
@@ -569,18 +642,42 @@ def create_viewer(
         else:
             # Assignment invokes the count callback synchronously.
             count_control.value = new_count
+        update_preview_status()
 
     @count_control.on_update
     def _(_: Any) -> None:
         replace_splats()
+        update_preview_status()
 
     @opacity_control.on_update
     def _(_: Any) -> None:
         with lock:
             count = int(count_control.value)
-            gaussian_handle_box[0].opacities = np.clip(
-                current_data.opacities[:count] * float(opacity_control.value), 0.0, 1.0
+            gaussian_handle_box[0].opacities = _preview_opacities(
+                current_data,
+                count,
+                float(opacity_control.value),
+                auto_visibility=bool(auto_visibility_control.value),
             )
+        update_preview_status()
+
+    @auto_visibility_control.on_update
+    def _(_: Any) -> None:
+        with lock:
+            count = int(count_control.value)
+            gaussian_handle_box[0].opacities = _preview_opacities(
+                current_data,
+                count,
+                float(opacity_control.value),
+                auto_visibility=bool(auto_visibility_control.value),
+            )
+        update_preview_status()
+
+    @background_control.on_update
+    def _(_: Any) -> None:
+        server.scene.set_background_image(
+            _viewer_background(background_control.value), format="png"
+        )
 
     @frame_button.on_click
     def _(event: Any) -> None:
@@ -705,6 +802,7 @@ def create_viewer(
                             prepared[watched_name] = data
                         if model_control.value == watched_name:
                             replace_splats(preserve_full_count=True)
+                            update_preview_status()
                         latest_step = step
                         watch_status.content = (
                             f"Live checkpoint: step **{step:,}**, {model.n:,} fitted splats "
@@ -725,6 +823,7 @@ def create_viewer(
         )
         watch_thread.start()
 
+    update_preview_status()
     return ViewerApp(
         server=server,
         _gaussian_handle=gaussian_handle_box,

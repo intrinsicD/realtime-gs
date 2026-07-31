@@ -300,12 +300,15 @@ imported inside functions and failures produce actionable error messages.
 
 Viser's WebGL preview consumes explicit centers, covariances, RGB, and opacity; because its wire
 format has no SH fields, the viewer evaluates all active SH bands on CPU and refreshes RGB as the
-browser camera moves. Exact viewer snapshots still go through `Rasterizer`, so gsplat/CUDA
-snapshots retain authoritative sorting/rasterization and the same backend parity contract as
-training and `rtgs render`. `rtgs view --comparison-manifest FILE` resolves each ordered method's
-initial/final PLY or NPZ paths relative to the manifest, labels entries with their loaded counts,
-prepares every model in host memory, and replaces only the selected WebGL splat set without moving
-the client camera. It is mutually exclusive with the live checkpoint watcher. `rtgs view
+browser camera moves. Low-opacity models receive a bounded, explicitly reported WebGL-only
+visibility boost against a selectable neutral/light/dark background; disabling the boost restores
+model alpha, and exact snapshots never inherit it. Exact viewer snapshots still go through
+`Rasterizer`, so gsplat/CUDA snapshots retain authoritative sorting/rasterization and the same
+backend parity contract as training and `rtgs render`.
+`rtgs view --comparison-manifest FILE` resolves each ordered method's initial/final PLY or NPZ
+paths relative to the manifest, labels entries with their loaded counts, prepares every model in
+host memory, and replaces only the selected WebGL splat set without moving the client camera. It is
+mutually exclusive with the live checkpoint watcher. `rtgs view
 --watch-checkpoints DIR` is deliberately decoupled from the
 optimizer: a daemon thread polls for the newest `gaussians_step_*.ply`, retains the last loadable
 model if a direct writer is still producing that file, and retries on its next bounded poll. This
@@ -314,6 +317,20 @@ time, and host RAM are still nonzero. The browser-side orbit preview is WebGL an
 display GPU when the browser shares the training workstation; a remote browser moves that client
 load elsewhere. Neither arrangement may be described as zero-cost without a controlled on/off
 measurement.
+
+Experiment viewer smoke is therefore a client-side check, not a server liveness check. A passing
+`viewer_smoke.json` records a loaded report and all local targets, browser identity, WebGL2 and at
+least one live canvas, viewer ready state, non-background scene pixels in a UI-free framebuffer
+crop, an orbit gesture that changed the camera, classified warnings, and no fatal or unclassified
+client errors. HTTP 200, camera movement, or WebGL readiness without visible scene pixels does not
+establish that the orbit viewer works.
+
+On Ubuntu/NVIDIA hosts, Snap Firefox may log AppArmor denials for `/dev/char/195:*` symlinks; this
+is a packaging diagnostic tracked in
+[Launchpad #2051298](https://bugs.launchpad.net/bugs/2051298), not a sufficient crash verdict. The
+same denial occurred during a successful Firefox WebGL2 render in this investigation. Require
+direct crash, context-loss, exception, or blank-framebuffer evidence before rejecting the client,
+and use Chrome/Chromium or a non-Snap Firefox only when that failure remains reproducible.
 
 ## Conventions
 

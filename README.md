@@ -355,7 +355,10 @@ initial/final switching, significance-ranked splat-count and opacity controls, a
 camera filtering. Click a camera or choose it in the sidebar; **Render exact snapshot** compares
 the reference RGB against a full-SH render from the selected `Rasterizer` backend. The orbitable
 WebGL preview refreshes its RGB-only splats from the model's full SH coefficients as the camera
-moves; the exact snapshot remains authoritative for sorting and rasterization. For a remote GPU
+moves; the exact snapshot remains authoritative for sorting and rasterization. The preview starts
+on a neutral-gray background and automatically boosts unusually low opacity for visibility; the
+sidebar reports the factor, can disable it for faithful alpha, and can switch light/dark
+backgrounds. That automatic boost never changes the PLY or exact snapshots. For a remote GPU
 host, add `--host 0.0.0.0 --no-open` and use SSH port forwarding.
 `--max-viewer-gaussians` is only a configurable browser-transfer cap; it never changes the
 reconstruction. Training writes `gaussians.config.json`; `view` and `render` automatically reuse

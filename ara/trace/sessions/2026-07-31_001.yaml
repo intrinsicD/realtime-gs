@@ -2,11 +2,23 @@ session:
   id: "2026-07-31_001"
   date: "2026-07-31"
   started: "2026-07-31T00:04+02:00"
-  last_turn: "2026-07-31T00:04+02:00"
-  turn_count: 1
-  summary: "Published verified Experiment Bundle Contract v2 commit 008e43c directly to origin/main; no merge commit was needed."
+  last_turn: "2026-07-31T03:12+02:00"
+  turn_count: 4
+  summary: "Fixed practical viewer invisibility, withdrew the AppArmor-only attribution, and completed visible-pixel browser smoke."
 
-events_logged: []
+events_logged:
+  - turn: 3
+    type: decision
+    id: N184
+    routing: direct
+    provenance: user-revised
+    summary: "Require per-series elapsed stage boundaries and client-side WebGL/orbit smoke in A17."
+  - turn: 4
+    type: dead_end
+    id: N185
+    routing: direct
+    provenance: ai-executed
+    summary: "Reject AppArmor-only attribution; the reproducible viewer defect was practical invisibility from low opacity on white."
 
 ai_actions:
   - turn: 1
@@ -16,17 +28,75 @@ ai_actions:
       twenty-file implementation as 008e43c, and fast-forward pushed local main to origin/main.
     provenance: ai-executed
     files_changed: []
+  - turn: 2
+    action: >
+      Exercised the rtgs-experiment scratch-diagnostic path on the tracked frame_00008 compact
+      bundle with a tiny CPU-only lift-field configuration, confirmed calibrated loading,
+      deterministic train/held-out splitting, field lifting/refit/semantic diagnostics and
+      artifact serialization, passed all four focused field CLI integration tests, and removed
+      the temporary outputs.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 3
+    action: >
+      Implemented the user-revised A17 history contract and renderer, added structured v2 browser
+      smoke validation, diagnosed the live Firefox failure as strongly consistent with Snap/NVIDIA
+      AppArmor confinement rather than a server or RTGS arcball failure, synchronized templates,
+      skills, docs and the active task, passed 25 focused tests plus the full repository gate twice,
+      and removed only the temporary browser/report diagnostics.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+      - ".claude/skills/rtgs-experiment/SKILL.md"
+      - "ara/logic/solution/architecture.md"
+      - "docs/ARCHITECTURE.md"
+      - "docs/RESEARCH_LOOP.md"
+      - "experiments/README.md"
+      - "experiments/templates/training_history.json"
+      - "experiments/templates/viewer_smoke.json"
+      - "scripts/check_results_bundle.py"
+      - "scripts/experiment_contract.py"
+      - "tests/test_experiment_contract.py"
+  - turn: 4
+    action: >
+      Reproduced the practically blank final/initial viewer, audited finite payload and browser
+      runtime state, implemented a bounded reported WebGL-only opacity boost and neutral background,
+      narrowed a Viser 1.0.30 frustum-culling workaround, and verified model switching, visibility
+      toggling, framebuffer pixels and camera-changing orbit in isolated Chrome and Firefox. The
+      same AppArmor denial accompanied successful Firefox, so the prior confinement inference was
+      withdrawn. Focused checks, canonical verification and the complete CPU-only suite passed.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+      - ".claude/skills/rtgs-experiment/SKILL.md"
+      - "README.md"
+      - "ara/logic/solution/architecture.md"
+      - "docs/ARCHITECTURE.md"
+      - "docs/RESEARCH_LOOP.md"
+      - "experiments/README.md"
+      - "experiments/templates/viewer_smoke.json"
+      - "scripts/check_results_bundle.py"
+      - "src/rtgs/_viewer_arcball.js"
+      - "src/rtgs/viewer.py"
+      - "tests/test_experiment_contract.py"
+      - "tests/test_viewer.py"
 
 claims_touched: []
 
 key_context:
   - turn: 1
     excerpt: "The user explicitly requested: 'commit all changes. merge to main and push to remote'."
+  - turn: 2
+    excerpt: "The user requested: 'please make a test of the new experiment skill. Use frame_00008 in dataset/..'."
+  - turn: 3
+    excerpt: "The user requested fitting curves over time for all stages with clear beginnings/ends, and reported that Firefox exited while the viewer server remained healthy."
+  - turn: 4
+    excerpt: "The user reported that the viewer still failed and showed nothing, and asked for an exhaustive check."
 
 open_threads:
   - "Run a fresh cross-capture protocol with an explicit all-view comparator gate before considering any placement default."
   - "Delete claude/3d-gaussian-splatting-pipeline-twa00k only after explicit operational authorization; the replacement experiment is now complete."
-  - "Obtain independent review of implemented A17, then resume RTGS-006 at additive teacher generation and data-seal construction."
+  - "Obtain independent review of revised A17, then resume RTGS-006 at additive teacher generation and data-seal construction."
 
 ai_suggestions_pending:
   - "Separate mean-coordinate and covariance-entry projection invariants and retain a replay-complete environment fingerprint in the next protocol."

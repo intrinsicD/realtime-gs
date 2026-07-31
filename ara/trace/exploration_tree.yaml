@@ -3274,3 +3274,54 @@ tree:
       - "experiments/tasks/20260730_additive_analytic_objective_stage_frames00008_00009.json"
     also_depends_on: [N182]
     status: resolved
+  - id: N184
+    type: decision
+    title: "Require elapsed stage timelines and client-side viewer smoke in A17"
+    provenance: user-revised
+    timestamp: "2026-07-31T01:40+02:00"
+    choice: >
+      Refine the newly introduced Experiment Bundle Contract v2 before its first official
+      consumer: render fitting metrics over elapsed seconds per dataset/arm/seed, show explicit
+      start and end boundaries for every frozen stage in every curve, and reject server-only
+      viewer smoke in favor of a structured browser/WebGL/orbit attestation. Diagnose the reported
+      Firefox exit without misclassifying a healthy Python server as a passing viewer.
+    alternatives:
+      - "Retain global step-based curves with generic stage markers."
+      - "Accept HTTP 200 and a recorded viewer command as sufficient viewer smoke."
+      - "Defer both corrections until after RTGS-006's first protected run."
+    evidence:
+      - N182
+      - N183
+      - "ara/logic/solution/architecture.md:A17"
+      - "experiments/README.md"
+      - "experiments/templates/training_history.json"
+      - "experiments/templates/viewer_smoke.json"
+      - "scripts/experiment_contract.py"
+      - "scripts/check_results_bundle.py"
+      - "tests/test_experiment_contract.py"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N182, N183]
+    status: resolved
+  - id: N185
+    type: dead_end
+    title: "AppArmor-only attribution for the practically blank viewer"
+    provenance: ai-executed
+    timestamp: "2026-07-31T03:12+02:00"
+    hypothesis: >
+      Snap Firefox NVIDIA confinement was the primary cause of the reported viewer failure because
+      the Python server stayed healthy while the journal recorded `/dev/char/195:*` AppArmor denials.
+    failure_mode: >
+      The same denial accompanied a successful Firefox WebGL2 render with live canvases, visible
+      pixels and a camera-changing orbit. The reproducible failure was practical invisibility from
+      model opacity 0.1 on white, compounded by a 2x display-control cap.
+    lesson: >
+      Treat confinement logs as packaging diagnostics unless direct crash evidence exists. Viewer
+      smoke must inspect non-background framebuffer pixels, context state, client errors and orbit
+      movement; HTTP liveness or a journal correlation is insufficient.
+    evidence:
+      - N184
+      - ".agents/state/current-task.md"
+      - "src/rtgs/viewer.py"
+      - "src/rtgs/_viewer_arcball.js"
+      - "tests/test_viewer.py"
+    also_depends_on: [N184]

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "viewer_command": [
+    ".venv/bin/rtgs",
+    "view",
+    "--gaussians",
+    "runs/task_id/gaussians.ply",
+    "--no-open"
+  ],
+  "report": {
+    "target": "index.html",
+    "http_status": 200,
+    "local_targets_ok": true
+  },
+  "browser": {
+    "name": "browser name",
+    "version": "browser version",
+    "user_agent": "full browser user agent",
+    "webgl2": true,
+    "renderer": null
+  },
+  "checks": {
+    "viewer_ready": true,
+    "canvas_count": 1,
+    "rendered_content_visible": true,
+    "framebuffer_nonbackground_pixels": 1,
+    "orbit_camera_changed": true,
+    "client_errors": [],
+    "client_warnings": []
+  }
+}

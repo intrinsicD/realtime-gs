@@ -1317,7 +1317,9 @@ def _history_errors(history: dict[str, Any], task: dict[str, Any], *, completed:
     if completed and not records:
         errors.append("a completed v2 run requires fitting-history records")
     dataset_ids = {item["id"] for item in task["datasets"]}
-    stage_ids = {item["id"] for item in task["stages"]}
+    stage_order = [item["id"] for item in task["stages"]]
+    stage_labels = {item["id"]: item["label"] for item in task["stages"]}
+    stage_ids = set(stage_order)
     seeds = set(task["seeds"])
     record_keys = {
         "step",
@@ -1332,6 +1334,7 @@ def _history_errors(history: dict[str, Any], task: dict[str, Any], *, completed:
     }
     seen: set[str] = set()
     observed_metrics: set[str] = set()
+    observed_series: set[tuple[str, str, int]] = set()
     for index, record in enumerate(records):
         if not isinstance(record, dict) or set(record) != record_keys:
             errors.append(f"training_history.json records[{index}] has the wrong keys")
@@ -1371,6 +1374,16 @@ def _history_errors(history: dict[str, Any], task: dict[str, Any], *, completed:
             observed_metrics.add(metric_id)
         if not _finite_number(record["value"]):
             errors.append(f"training_history.json records[{index}].value is invalid")
+        if (
+            isinstance(record["dataset_id"], str)
+            and record["dataset_id"] in dataset_ids
+            and isinstance(record["arm_id"], str)
+            and SLUG_RE.fullmatch(record["arm_id"]) is not None
+            and isinstance(record["seed"], int)
+            and not isinstance(record["seed"], bool)
+            and record["seed"] in seeds
+        ):
+            observed_series.add((record["dataset_id"], record["arm_id"], record["seed"]))
         identity = json.dumps(
             [
                 record.get("step"),
@@ -1410,48 +1423,137 @@ def _history_errors(history: dict[str, Any], task: dict[str, Any], *, completed:
         errors.append("training_history.json stage_markers must be a list")
     else:
         if completed and not markers:
-            errors.append("a completed v2 run requires at least one fitting stage marker")
-        if not records and markers:
-            errors.append("fitting stage markers require at least one history record")
-        marker_identities: set[tuple[int, str]] = set()
-        marker_steps: list[int] = []
+            errors.append(
+                "a completed v2 run requires start/end boundaries for every fitting stage"
+            )
+        marker_keys = {
+            "step",
+            "wall_seconds",
+            "stage",
+            "dataset_id",
+            "arm_id",
+            "seed",
+            "boundary",
+            "label",
+        }
+        marker_identities: set[tuple[str, str, int, str, str]] = set()
+        marker_groups: dict[tuple[str, str, int], list[tuple[int, float, str, str]]] = defaultdict(
+            list
+        )
+        valid_markers: dict[tuple[str, str, int, str, str], dict[str, Any]] = {}
         for index, marker in enumerate(markers):
-            if not isinstance(marker, dict) or set(marker) != {"step", "stage", "label"}:
+            if not isinstance(marker, dict) or set(marker) != marker_keys:
                 errors.append(f"training_history.json stage_markers[{index}] is invalid")
                 continue
             step = marker["step"]
+            wall_seconds = marker["wall_seconds"]
             stage = marker["stage"]
+            dataset_id = marker["dataset_id"]
+            arm_id = marker["arm_id"]
+            seed = marker["seed"]
+            boundary = marker["boundary"]
             label = marker["label"]
             if (
                 not isinstance(step, int)
                 or isinstance(step, bool)
                 or step < 0
+                or not _finite_number(wall_seconds)
+                or wall_seconds < 0
                 or not isinstance(stage, str)
                 or stage not in stage_ids
+                or not isinstance(dataset_id, str)
+                or dataset_id not in dataset_ids
+                or not isinstance(arm_id, str)
+                or SLUG_RE.fullmatch(arm_id) is None
+                or not isinstance(seed, int)
+                or isinstance(seed, bool)
+                or seed not in seeds
+                or not isinstance(boundary, str)
+                or boundary not in {"start", "end"}
                 or not isinstance(label, str)
                 or not label.strip()
+                or label != stage_labels[stage]
             ):
                 errors.append(f"training_history.json stage_markers[{index}] is invalid")
                 continue
-            identity = (step, stage)
+            series_key = (dataset_id, arm_id, seed)
+            identity = (*series_key, stage, boundary)
             if identity in marker_identities:
                 errors.append(f"training_history.json stage_markers[{index}] is duplicated")
             marker_identities.add(identity)
-            marker_steps.append(step)
-        if marker_steps != sorted(marker_steps):
-            errors.append("training_history.json stage_markers must be ordered by step")
-        if records and marker_steps:
-            record_steps = [
-                item["step"]
-                for item in records
-                if isinstance(item, dict)
-                and isinstance(item.get("step"), int)
-                and not isinstance(item.get("step"), bool)
+            marker_groups[series_key].append((step, float(wall_seconds), stage, boundary))
+            valid_markers[identity] = marker
+
+        if set(marker_groups) - observed_series:
+            errors.append(
+                "training_history.json stage_markers contain a series with no history records"
+            )
+        expected_boundaries = [
+            (stage, boundary) for stage in stage_order for boundary in ("start", "end")
+        ]
+        for series_key in sorted(observed_series):
+            series_markers = marker_groups.get(series_key, [])
+            observed_boundaries = [
+                (stage, boundary) for _step, _wall_seconds, stage, boundary in series_markers
             ]
-            if record_steps and (
-                min(marker_steps) < min(record_steps) or max(marker_steps) > max(record_steps)
+            expected = (
+                expected_boundaries
+                if completed
+                else expected_boundaries[: len(observed_boundaries)]
+            )
+            if observed_boundaries != expected:
+                errors.append(
+                    "training_history.json stage_markers must contain ordered start/end "
+                    f"boundaries for every frozen stage in series {series_key}"
+                )
+            marker_steps = [item[0] for item in series_markers]
+            marker_times = [item[1] for item in series_markers]
+            if marker_steps != sorted(marker_steps):
+                errors.append(
+                    "training_history.json stage_markers must be ordered by step within "
+                    f"series {series_key}"
+                )
+            if marker_times != sorted(marker_times):
+                errors.append(
+                    "training_history.json stage_markers must be ordered by wall_seconds "
+                    f"within series {series_key}"
+                )
+
+        for index, record in enumerate(records):
+            if not isinstance(record, dict) or set(record) != record_keys:
+                continue
+            dataset_id = record["dataset_id"]
+            arm_id = record["arm_id"]
+            seed = record["seed"]
+            stage = record["stage"]
+            if not (
+                isinstance(record["step"], int)
+                and not isinstance(record["step"], bool)
+                and _finite_number(record["wall_seconds"])
+                and isinstance(dataset_id, str)
+                and isinstance(arm_id, str)
+                and isinstance(seed, int)
+                and not isinstance(seed, bool)
+                and isinstance(stage, str)
             ):
-                errors.append("training_history.json stage_markers must fall within recorded steps")
+                continue
+            series_key = (dataset_id, arm_id, seed)
+            if series_key not in observed_series or stage not in stage_ids:
+                continue
+            start = valid_markers.get((*series_key, stage, "start"))
+            end = valid_markers.get((*series_key, stage, "end"))
+            if start is not None and (
+                record["step"] < start["step"] or record["wall_seconds"] < start["wall_seconds"]
+            ):
+                errors.append(
+                    f"training_history.json records[{index}] precedes its stage start boundary"
+                )
+            if end is not None and (
+                record["step"] > end["step"] or record["wall_seconds"] > end["wall_seconds"]
+            ):
+                errors.append(
+                    f"training_history.json records[{index}] follows its stage end boundary"
+                )
     return errors
 
 
@@ -2192,13 +2294,14 @@ def _history_svg(
     metadata: dict[str, Any],
     stage_markers: list[dict[str, Any]],
 ) -> str:
-    width, height = 820, 330
-    left, right, top, bottom = 62, 18, 30, 70
+    width, height = 820, 350
+    left, right, top, bottom = 62, 18, 46, 70
     plot_width = width - left - right
     plot_height = height - top - bottom
-    steps = [float(item["step"]) for item in records]
+    elapsed = [float(item["wall_seconds"]) for item in records]
+    elapsed.extend(float(item["wall_seconds"]) for item in stage_markers)
     values = [float(item["value"]) for item in records]
-    x_min, x_max = min(steps), max(steps)
+    x_min, x_max = min(elapsed), max(elapsed)
     y_min, y_max = min(values), max(values)
     if x_min == x_max:
         x_max = x_min + 1.0
@@ -2211,8 +2314,8 @@ def _history_svg(
         y_min -= padding
         y_max += padding
 
-    def x_position(step: float) -> float:
-        return left + (step - x_min) * plot_width / (x_max - x_min)
+    def x_position(wall_seconds: float) -> float:
+        return left + (wall_seconds - x_min) * plot_width / (x_max - x_min)
 
     def y_position(value: float) -> float:
         return top + (y_max - value) * plot_height / (y_max - y_min)
@@ -2228,55 +2331,101 @@ def _history_svg(
             f'<text x="{left - 8}" y="{y + 4:.2f}" text-anchor="end" '
             f'font-size="11" fill="#5c667a">{html.escape(_format_number(label))}</text>'
         )
-    series: dict[tuple[str, str, int, str], list[dict[str, Any]]] = defaultdict(list)
+    series: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
-        key = (record["dataset_id"], record["arm_id"], record["seed"], record["split"])
-        series[key].append(record)
+        series[record["split"]].append(record)
     colors = ("#3659d9", "#d95f36", "#17876d", "#8b4cc2", "#b17a13", "#326f9f")
     lines: list[str] = []
     legend: list[str] = []
     for index, (key, points) in enumerate(sorted(series.items())):
         color = colors[index % len(colors)]
-        ordered = sorted(points, key=lambda item: (item["step"], item["wall_seconds"]))
+        ordered = sorted(points, key=lambda item: (item["wall_seconds"], item["step"]))
         coordinates = " ".join(
-            f"{x_position(float(item['step'])):.2f},{y_position(float(item['value'])):.2f}"
+            f"{x_position(float(item['wall_seconds'])):.2f},{y_position(float(item['value'])):.2f}"
             for item in ordered
         )
         lines.append(
             f'<polyline points="{coordinates}" fill="none" stroke="{color}" '
             'stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>'
         )
-        label = f"{key[0]} · {key[1]} · seed {key[2]} · {key[3]}"
-        legend.append(f'<span><i style="background:{color}"></i>{html.escape(label)}</span>')
-    markers = []
-    for marker in stage_markers:
-        marker_x = x_position(float(marker["step"]))
-        markers.append(
-            f'<line x1="{marker_x:.2f}" y1="{top}" x2="{marker_x:.2f}" '
-            f'y2="{top + plot_height}" stroke="#7c8494" stroke-dasharray="4 4"/>'
-            f'<text x="{marker_x + 4:.2f}" y="{top + 12}" font-size="10" '
-            f'fill="#5c667a">{html.escape(marker["label"])}</text>'
+        legend.append(f'<span><i style="background:{color}"></i>{html.escape(key)}</span>')
+    marker_lookup = {(marker["stage"], marker["boundary"]): marker for marker in stage_markers}
+    stage_order = list(dict.fromkeys(marker["stage"] for marker in stage_markers))
+    stage_fills = ("#dce5ff", "#e1f3ed", "#f9e9da", "#eee2f8")
+    bands: list[str] = []
+    boundaries: list[str] = []
+    stage_legend: list[str] = []
+    for index, stage in enumerate(stage_order):
+        start = marker_lookup.get((stage, "start"))
+        end = marker_lookup.get((stage, "end"))
+        if start is None:
+            continue
+        start_seconds = float(start["wall_seconds"])
+        start_x = x_position(start_seconds)
+        end_seconds = float(end["wall_seconds"]) if end is not None else x_max
+        end_x = x_position(end_seconds)
+        fill = stage_fills[index % len(stage_fills)]
+        bands.append(
+            f'<rect data-stage="{html.escape(stage, quote=True)}" '
+            f'x="{start_x:.2f}" y="{top}" width="{max(0.0, end_x - start_x):.2f}" '
+            f'height="{plot_height}" fill="{fill}" fill-opacity="0.52"/>'
+        )
+        if end_x - start_x >= 54:
+            bands.append(
+                f'<text x="{(start_x + end_x) / 2:.2f}" y="{top + 14}" '
+                'text-anchor="middle" font-size="10" font-weight="650" fill="#465168">'
+                f"{html.escape(start['label'])}</text>"
+            )
+        for boundary, marker in (("start", start), ("end", end)):
+            if marker is None:
+                continue
+            marker_x = x_position(float(marker["wall_seconds"]))
+            dash = "" if boundary == "start" else ' stroke-dasharray="5 3"'
+            boundaries.append(
+                f'<line class="stage-boundary" '
+                f'data-stage="{html.escape(stage, quote=True)}" '
+                f'data-boundary="{boundary}" x1="{marker_x:.2f}" y1="{top}" '
+                f'x2="{marker_x:.2f}" y2="{top + plot_height}" stroke="#4c566d" '
+                f'stroke-width="1.6"{dash}><title>'
+                f"{html.escape(marker['label'])} · {boundary} · "
+                f"{html.escape(_format_number(float(marker['wall_seconds'])))} s"
+                "</title></line>"
+            )
+        end_text = (
+            f"{_format_number(float(end['wall_seconds']))} s" if end is not None else "incomplete"
+        )
+        stage_legend.append(
+            '<span class="stage-interval">'
+            f'<i style="background:{fill}"></i><strong>{html.escape(start["label"])}</strong>: '
+            f"start {_format_number(start_seconds)} s → end {html.escape(end_text)}</span>"
         )
     title = metadata[metric_id]["label"]
     unit = metadata[metric_id]["unit"]
+    first = records[0]
+    series_label = f"{first['dataset_id']} · {first['arm_id']} · seed {first['seed']}"
     return (
         "<section class='panel history-chart'>"
-        f"<h3>{html.escape(title)}</h3><p class='unit'>{html.escape(unit)} over fitting step</p>"
+        f"<h3>{html.escape(title)}</h3><p class='series-context'>{html.escape(series_label)}</p>"
+        f"<p class='unit'>{html.escape(unit)} over elapsed time</p>"
         f'<svg viewBox="0 0 {width} {height}" role="img" '
-        f'aria-label="{html.escape(title, quote=True)} over fitting process">'
+        f'aria-label="{html.escape(title, quote=True)} over elapsed fitting time, with '
+        'stage start and end boundaries">'
+        + "".join(bands)
         + "".join(grid)
-        + "".join(markers)
         + f'<line x1="{left}" y1="{top + plot_height}" x2="{width - right}" '
         f'y2="{top + plot_height}" stroke="#596277"/>'
         + "".join(lines)
+        + "".join(boundaries)
         + f'<text x="{left}" y="{height - 38}" font-size="11" fill="#5c667a">'
         f"{html.escape(_format_number(x_min))}</text>"
         + f'<text x="{width - right}" y="{height - 38}" text-anchor="end" '
         f'font-size="11" fill="#5c667a">{html.escape(_format_number(x_max))}</text>'
         + f'<text x="{width / 2:.1f}" y="{height - 18}" text-anchor="middle" '
-        'font-size="12" fill="#5c667a">fitting step</text></svg>'
+        'font-size="12" fill="#5c667a">elapsed time (s)</text></svg>'
         + "<div class='legend'>"
         + "".join(legend)
+        + "</div><div class='stage-legend' aria-label='Stage intervals'>"
+        + "".join(stage_legend)
         + "</div></section>"
     )
 
@@ -2289,17 +2438,27 @@ def _history_charts(history: dict[str, Any]) -> str:
             "<p>The run failed before it produced a fitting record. See the failure receipt.</p>"
             "</section>"
         )
-    by_metric: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    by_metric_and_series: dict[tuple[str, str, str, int], list[dict[str, Any]]] = defaultdict(list)
     for record in records:
-        by_metric[record["metric_id"]].append(record)
+        key = (
+            record["metric_id"],
+            record["dataset_id"],
+            record["arm_id"],
+            record["seed"],
+        )
+        by_metric_and_series[key].append(record)
+    markers_by_series: dict[tuple[str, str, int], list[dict[str, Any]]] = defaultdict(list)
+    for marker in history["stage_markers"]:
+        key = (marker["dataset_id"], marker["arm_id"], marker["seed"])
+        markers_by_series[key].append(marker)
     return "".join(
         _history_svg(
-            metric_id,
-            by_metric[metric_id],
+            key[0],
+            by_metric_and_series[key],
             history["metric_metadata"],
-            history["stage_markers"],
+            markers_by_series[key[1:]],
         )
-        for metric_id in sorted(by_metric)
+        for key in sorted(by_metric_and_series)
     )
 
 
@@ -2316,7 +2475,7 @@ def _inventory_role(path: str, *, repository: bool) -> str:
         return "effective_parameters"
     if path == "task.lock.json":
         return "provenance"
-    if path.endswith("receipt.json") or path.endswith("receipt.md"):
+    if path.endswith("receipt.json") or path.endswith("receipt.md") or path == "viewer_smoke.json":
         return "receipt"
     if path.endswith(".ply"):
         return "model"
@@ -2661,9 +2820,14 @@ background:#edf0f6; border-radius:8px; overflow:hidden; }} .bar-zero {{ position
 top:0; bottom:0; width:1px; background:#596277; z-index:2; }} .bar-fill {{ position:absolute;
 top:0; height:100%; background:linear-gradient(90deg,var(--accent),#7b93ec); }}
 .bar-value {{ text-align:right; font-variant-numeric:tabular-nums; }} svg {{ width:100%;
-height:auto; }} .legend {{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12px; }}
+height:auto; }} .legend,.stage-legend {{ display:flex; flex-wrap:wrap; gap:6px 14px;
+font-size:12px; }}
 .legend span {{ display:flex; align-items:center; gap:5px; }}
-.legend i {{ width:16px; height:3px; }}
+.legend i {{ width:16px; height:3px; }} .series-context {{ color:var(--muted);
+margin:-.35rem 0 .45rem; }} .stage-legend {{ margin-top:9px; padding-top:9px;
+border-top:1px solid var(--line); }} .stage-interval {{ display:flex; align-items:center;
+gap:5px; }} .stage-interval i {{ width:14px; height:14px; border:1px solid #aab3c4;
+flex:0 0 auto; }}
 code,pre {{ background:#eef1f7; border-radius:7px; }} code {{ padding:2px 5px; }}
 pre {{ padding:13px; overflow:auto; }} a {{ color:#254fc4; }} footer {{ color:var(--muted);
 margin-top:28px; }}
