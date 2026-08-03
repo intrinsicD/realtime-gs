@@ -121,9 +121,9 @@ sessions:
   - id: "2026-08-03_001"
     date: "2026-08-03"
     summary: >
-      Implemented and independently audited RTGS-010; one PAX-sparse alias awaits the required
-      human authorization.
-    turn_count: 1
-    events_count: 2
+      Implemented, repaired, independently accepted, and archived RTGS-010's fail-closed
+      source/predictor boundary without opening protected outcomes.
+    turn_count: 2
+    events_count: 4
     claims_touched: [C34]
     open_threads: 4

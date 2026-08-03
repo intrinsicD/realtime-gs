@@ -3368,3 +3368,28 @@ tree:
       - "ara/staging/observations.yaml:O149"
     also_depends_on: [N186]
     status: resolved
+  - id: N188
+    type: experiment
+    title: "Owner-authorized RTGS-010 PAX-sparse repair and independent acceptance"
+    provenance: ai-executed
+    timestamp: "2026-08-03T21:05+02:00"
+    result: >
+      The bounded repair rejects every otherwise allowed tar member with non-null parsed sparse
+      metadata before member indexing. The same independent reviewer regenerated the original GNU
+      `tar --format=pax --sparse` counterexample, observed REGTYPE/isfile with sparse extents, and
+      confirmed rejection with zero table writes and cleared archive state. The 27 focused tests,
+      all 58 BENCH-019 tests, three exact-source development adapter replays, canonical gate, and
+      unfiltered CPU suite passed. RTGS-010 was independently accepted and archived at
+      ab7ee66edf616e64340c9ef5996bc5aa6a96091f. No confirmation payload, field fit, predictor
+      outcome, reconstruction, correlation, loss/default choice, or scientific result was opened.
+    evidence:
+      - N186
+      - N187
+      - "src/rtgs/bench019_adapters.py"
+      - "tests/test_bench019_adapters.py"
+      - "docs/tasks/RTGS-010-bench019-source-adapters-and-predictors.md"
+      - "1056300707f84a8767545bb83461efc6b0f14649"
+      - "b89fddfa001e3883ce43cd518ab6fee03015a89c"
+      - "ab7ee66edf616e64340c9ef5996bc5aa6a96091f"
+    also_depends_on: [N186, N187]
+    status: resolved

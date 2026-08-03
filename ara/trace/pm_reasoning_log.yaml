@@ -605,3 +605,10 @@ entries:
       - "Recorded the four closed reviewer findings, 26 focused and 57 BENCH-019 passing tests, real source replays, receipt bindings, and canonical gate as implementation evidence only."
       - "Promoted no quality, convergence, compression, performance, predictor-validity, loss, reconstruction, confirmation, correlation, or default claim."
       - "Stopped before a third driver cycle because repository workflow requires explicit human authorization after two consecutive revision verdicts."
+  - turn: "2026-08-03_001#2"
+    notes:
+      - "Resolved existing decision N187 with user provenance from the owner's explicit bounded authorization, then routed the repaired and independently accepted counterexample result as experiment N188."
+      - "Removed the temporary O149/C34/A18 conflict annotations only after code, a genuine parsed-PAX regression, an independently regenerated GNU sparse archive, and artifact commitment all closed N186's counterexample."
+      - "Treated C34 as confirmed at implementation-only scope; no new claim or observation was needed because the accepted task preserves the existing architecture and falsification boundary."
+      - "Recorded 27 focused, 58 BENCH-019, three source-replay, canonical, and unfiltered CPU passes as boundary evidence, not reconstruction-quality, convergence, compression, performance, predictor-validity, or loss/default evidence."
+      - "Archived RTGS-010 after distinct-reviewer acceptance and left matched-field production and predictor-metric validation as a separate open task; no unrelated staged observation received a new closure or stale disposition."
