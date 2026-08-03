@@ -6,13 +6,13 @@
   "task_slug": "paper_three_provider_fullres",
   "data_slug": "stage_frame00008",
   "arm": "beam_fusion",
-  "status": "draft",
+  "status": "blocked",
   "owner": "Codex-three-provider-driver",
   "protocol_review": {
-    "reviewer": null,
-    "verdict": "pending",
-    "protocol_sha256": null,
-    "artifact": null
+    "reviewer": "Hegel",
+    "verdict": "rejected",
+    "protocol_sha256": "eb78742c579930b6c04d4bd538ae33c6287ad0fb7f59190ab33adaef777a4fc1",
+    "artifact": "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md"
   },
   "depends_on": [],
   "title": "Full-resolution GaussianImage and StructSplat paper-path comparison",
