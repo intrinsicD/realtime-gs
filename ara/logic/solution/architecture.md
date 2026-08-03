@@ -304,3 +304,29 @@
   must freeze v2. The self-excluding manifest binds every other run-local file and each declared
   external evidence file, but it does not replace independent results audit, exact-rasterizer
   evidence, or browser-specific compatibility testing beyond the client recorded in the receipt.
+
+## A18: Fail-closed BENCH-019 development adapter and predictor boundary
+
+- **Design**: Place a passive source/predictor layer before the existing BENCH-019 downstream cell
+  exporter. Exact-key source adapters bind one development capture to ordered views, cameras,
+  source RGB, source-backed alpha, and train/held-out roles. Calibrated Stage sources retain their
+  portfolio view order; TUM sources use extraction-free archive access, strict RGB/depth
+  association, bounded pose interpolation, pose-keyframe selection, registered calibration, and
+  depth-derived masks. Compact fields are then strictly reloaded and queried through their
+  declared additive or normalized equation at deterministic all/foreground/boundary samples.
+  Predictor artifacts retain sample digests and sufficient statistics for RGB error, exact
+  support confusion, rows, and complete field bytes.
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Evidence**: [O149, `src/rtgs/bench019_adapters.py`,
+  `src/rtgs/bench019_predictors.py`, `tests/test_bench019_adapters.py`,
+  `tests/test_bench019_predictors.py`, `experiments/data/bench019_adapters/README.md`]
+- **Code ref**: [`src/rtgs/bench019_adapters.py`, `src/rtgs/bench019_predictors.py`,
+  `scripts/experiments/rtgs010_bench019_adapters.py`,
+  `scripts/experiments/rtgs010_bench019_predictors.py`]
+- **From staging**: O149
+- **Boundary**: Only development payloads may be decoded or materialized. Karate remains
+  unavailable without a source-backed mask, and confirmation stays sealed. Gaussian weight sum is
+  named support, never alpha. Alpha agreement, MS-SSIM, LPIPS, track yield, and field conditioning
+  remain unavailable. The boundary fits no field, runs no reconstruction, performs no correlation,
+  selects no objective, establishes no quality/speed/compression result, and changes no default.

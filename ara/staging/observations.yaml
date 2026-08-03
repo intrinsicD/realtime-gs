@@ -2351,3 +2351,21 @@ observations:
     promoted_to: "logic/solution/architecture.md:A17"
     crystallized_via: verbal-affirmation
     stale: false
+  - id: O149
+    timestamp: "2026-08-03T15:25+02:00"
+    provenance: ai-executed
+    content: >
+      The pre-outcome BENCH-019 boundary can bind calibrated Stage and registered TUM development
+      sources to one deterministic 26-view camera/mask/split contract and collect comparable
+      Stage-1 predictors without changing field equations or inventing unavailable targets.
+      Normalized weight is retained only as support; source alpha is independently rederived.
+    context: >
+      RTGS-010 implementation, adversarial CPU tests, and source-replayed development adapter
+      manifests. No field was fitted, no reconstruction or correlation analysis ran, and no
+      confirmation payload or downstream outcome was opened.
+    potential_type: architecture
+    bound_to: []
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A18, logic/claims.md:C34"
+    crystallized_via: artifact-commitment
+    stale: false

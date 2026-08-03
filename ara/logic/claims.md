@@ -684,3 +684,30 @@
 - **Boundary**: The claim is the scene-level heterogeneity of this exact two-frame experiment.
   It does not establish that all-view consensus is generally superior, nor does it erase the
   independently supported robust-versus-midpoint result.
+
+## C34: The BENCH-019 development measurement boundary preserves field semantics and fails closed
+
+- **Statement**: The RTGS-010 boundary deterministically binds the calibrated Stage capture and
+  two registered TUM development sequences to exact 26-view source/camera/mask/split adapters,
+  strictly reloads complete compact fields, queries additive and normalized fields without
+  relabelling their equations, and emits replayable sampled RGB/support plus row/complete-byte
+  sufficient statistics. It rejects confirmation materialization, maskless Karate, source/camera/
+  alpha drift, semantic relabelling, and requests for alpha agreement, MS-SSIM, LPIPS, track yield,
+  or field conditioning.
+- **Status**: supported implementation-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: An adversarial source-consistent fixture is accepted after changing
+  a view, split, camera, source hash, rederived alpha, additive/normalized equation, sample or
+  aggregate statistic; a confirmation payload is decoded/materialized through the public path; an
+  unavailable predictor is emitted; or source replay changes any maintained adapter manifest.
+- **Proof**: [`src/rtgs/bench019_adapters.py`, `src/rtgs/bench019_predictors.py`,
+  `tests/test_bench019_adapters.py`, `tests/test_bench019_predictors.py`,
+  `experiments/data/bench019_adapters/README.md`]
+- **Dependencies**: []
+- **Tags**: bench-019, stage-1, source-adapter, predictor, semantics, fail-closed, development
+- **From staging**: O149
+- **Boundary**: This is an implementation and evidence-integrity claim, not evidence that any
+  Stage-1 diagnostic predicts downstream utility. It establishes no reconstruction quality,
+  convergence, performance, compression, loss, objective, correlation, confirmation, or default
+  result; five portfolio groups still lack matched fields and Karate still lacks a mask policy.

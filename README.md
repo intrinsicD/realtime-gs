@@ -106,11 +106,17 @@ correlation analysis.
 `rtgs.bench019_portfolio` validates the pre-outcome three-development/three-confirmation source
 inventory in
 [`experiments/data/structsplat_bench019_capture_portfolio.json`](experiments/data/structsplat_bench019_capture_portfolio.json).
-That inventory proves source acquisition only: its missing masks, adapters, and matched field
-families remain explicit, confirmation outcomes stay closed, and both creation and later
-verification enforce the official TUM archive hashes. Task-local `factor`, `export`, `assemble`,
-portfolio `create`, and portfolio `verify` entry points live under
-`scripts/experiments/rtgs009_*`; formal export rejects a review-state protocol.
+`rtgs.bench019_adapters` now binds the Stage capture and two development TUM sequences to exact
+26-view camera/mask/split recipes; the source-replayed manifests live in
+[`experiments/data/bench019_adapters/`](experiments/data/bench019_adapters/README.md). TUM inputs use
+strict timestamp association, bounded pose interpolation, pose keyframes, registered-depth masks,
+and exclusive-new development materialization. Karate and every confirmation payload remain
+closed because no source-backed Karate mask policy exists. `rtgs.bench019_predictors` strictly
+reloads complete compact fields and collects deterministic sampled RGB/support, row, and byte
+statistics without relabelling normalized weight as alpha. Alpha agreement, MS-SSIM, LPIPS, track
+yield, and conditioning fail closed. These are measurement contracts, not a BENCH-019 result or a
+new fitting default. Task-local entry points live under `scripts/experiments/rtgs009_*` and
+`scripts/experiments/rtgs010_*`; formal export still rejects a review-state protocol.
 
 Run the native field lift directly from the same compact directory. The command loads no source
 image, preserves optional packed alpha, creates an explicit deterministic held-out split, and
