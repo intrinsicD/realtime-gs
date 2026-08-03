@@ -12,7 +12,7 @@ RTGS-010
 
 - Driver: Codex-bench019-adapters-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: reviewer
+- Turn: human
 
 ## Mode
 
@@ -172,12 +172,14 @@ None
    gate.
 4. Completed: add bounded CLIs, public architecture documentation, and calibrated development-only
    adapter diagnostics.
-5. Completed: all four independent-review counterexamples are repaired with negative controls,
-   self-review/full verification passed, and the same acceptance pass is resumed.
+5. Blocked on human decision after the second consecutive revision verdict: three prior
+   evidence-boundary defects are closed, but a GNU/PAX sparse regular-type alias still bypasses the
+   tar allowlist. The recommended final cycle is limited to rejecting sparse metadata and resuming
+   the same reviewer pass.
 
 ## Status
 
-In review
+Blocked on human decision
 
 ## Human Decisions
 
@@ -202,6 +204,31 @@ identify missing experiments rather than manufacturing readiness. RTGS-010 there
 on Karate and leaves its resolution to a distinct follow-up decision.
 
 ### Date
+
+2026-08-03
+
+### Escalation (second consecutive revision verdict)
+
+#### Question
+
+Should RTGS-010 receive one final bounded driver/reviewer cycle for the GNU/PAX sparse regular-type
+alias, or stop with the ordinary-archive evidence boundary knowingly incomplete?
+
+#### Options
+
+Authorize only the exact sparse-metadata rejection plus its regression and the same acceptance
+pass, versus stop/retire the task or explicitly accept the remaining archive gap.
+
+#### Recommendation
+
+Authorize the bounded repair. Rejecting `TarInfo.sparse is not None` closes the reproduced alias
+without changing the adapter policy, predictor contract, scientific scope, or defaults.
+
+#### Decision
+
+Pending human direction. Repository workflow requires this escalation before a third driver cycle.
+
+#### Date
 
 2026-08-03
 
@@ -460,3 +487,77 @@ realtime-gs worktree plus the owner's active Stage conversion remained untouched
 If accepted, archive RTGS-010 and open the next development-only task for matched field production
 and missing predictor-metric experiments. Keep confirmation sealed until those artifacts and a
 prospective protocol receive their own distinct reviews.
+
+### Review (independent repair acceptance pass)
+
+#### Verdict
+
+Revision required
+
+#### Self-reviewed
+
+No
+
+#### Correctness
+
+Implementation revision `687f8051c9c021ef9c97ee80df73fff83881ee33` closes the prior
+materialization-tree, stale-publication, and normalized-family-identity defects. It also rejects
+the literal `tarfile.CONTTYPE` and `tarfile.GNUTYPE_SPARSE` member types. One archive alias remains:
+a GNU/PAX sparse file is exposed by Python as `TarInfo.type == tarfile.REGTYPE` with a non-empty
+`TarInfo.sparse` map. The type-only allowlist therefore classified it as ordinary, and
+`SafeTumArchive` accepted an archive produced by `tar --format=pax --sparse` whose extra member had
+`type=b"0"` and `sparse=[(1048576, 1), (1048577, 0)]`. The ordinary-file archive claim is not yet
+fail closed.
+
+Every other requested repair survived independent counterexamples. File-verified materialization
+rejected a symlink, FIFO, undeclared file, and undeclared directory while accepting the clean exact
+tree. Predictor publication rejected post-collection field append, field deletion, and source RGB
+drift without creating an output. Both normalized cross-label directions failed. Production
+receipt arm, compact-manifest, view-order, output-binding, and non-adjacent-path mutations failed,
+as did incomplete state, observed/required-count drift, and missing evidence.
+
+#### Evidence Quality
+
+The 26 focused adapter/predictor tests and all 57 BENCH-019 tests passed. The literal contiguous
+and old GNU sparse member types were independently rejected, but the generated GNU/PAX sparse
+negative control above was accepted and is absent from the committed suite. Both real completed
+Stage receipts passed exact binding without collecting predictor outcomes: GaussianImage at
+`6f30d7dfbe64762071d314ef033dcd5fd5eebec95440d242b016f95f5f99112b` and StructSplat
+no-boundary at `54b61f1ef2608adf932dd573d86ccdbd17d2e3af7682e0b50174011351bd894d`;
+the incomplete mask-contained family remained rejected. All three maintained development adapters
+replayed their exact sources. The authoritative repository gate and unfiltered CPU suite passed
+after this review record with only the two established PyTorch warnings. No confirmation payload,
+real predictor outcome, fit, reconstruction, correlation, loss selection, or default change was
+accessed or performed.
+
+#### Simplicity
+
+The repaired lexical-tree validator, publication replay, and portfolio-pinned production receipt
+remain small and appropriate. Closing the remaining defect needs no new abstraction: ordinary file
+types must additionally have no sparse map before they enter the member table.
+
+#### Missing Cases
+
+The tar regression corpus covers `CONTTYPE`, raw `GNUTYPE_SPARSE`, FIFO, and links but not GNU sparse
+metadata carried by a regular PAX member. A regression must exercise the parsed representation
+(`type == REGTYPE` and `sparse is not None`), not only another member-type byte. Downstream
+predictor validity, convergence, quality, performance, compression, and correlation remain outside
+RTGS-010 and were not assessed.
+
+#### Required Changes
+
+1. Reject every otherwise allowed regular member whose parsed `TarInfo.sparse` value is not
+   `None`, before root discovery or member indexing. Add a GNU/PAX sparse regression that proves a
+   regular-type member with `GNU.sparse.map` cannot pass; retain the literal `CONTTYPE` and
+   `GNUTYPE_SPARSE` cases.
+2. Rerun the 26 focused cases, complete BENCH-019 suite, all three development adapter replays, and
+   authoritative gate, then resume this same bounded acceptance pass. C34/O149 and public ordinary-
+   archive wording may remain supported only after the PAX alias is closed.
+
+#### Optional Improvements
+
+The earlier optional hardening remains unchanged: cap archive member/metadata totals, replace the
+quadratic association candidate construction with an equivalent bounded search, add explicit
+payload-access sentinels for confirmation/Karate, and document crash-durability expectations for
+directory publication. No additional receipt, byte-accounting, or family-binding change is
+requested by this review.
