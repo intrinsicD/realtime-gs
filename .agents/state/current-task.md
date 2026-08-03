@@ -12,7 +12,7 @@ RTGS-010
 
 - Driver: Codex-bench019-adapters-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -160,12 +160,13 @@ None
    gate.
 4. Completed: add bounded CLIs, public architecture documentation, and calibrated development-only
    adapter diagnostics.
-5. Completed: self-review, focused and full verification, implementation commit, and evidence-bound
-   handoff to the same independent reviewer.
+5. Revision required: the independent review reproduced four evidence-boundary counterexamples;
+   repair the exact archive-member, materialization-tree, predictor-publication, and field-family
+   bindings before requesting the next review.
 
 ## Status
 
-In review
+Revision required
 
 ## Human Decisions
 
@@ -274,3 +275,99 @@ default was selected, and the dirty primary realtime-gs worktree was not modifie
 If accepted, archive RTGS-010 and open the next evidence task for the missing development-field
 production/metric experiments. Keep confirmation sealed until the prospective protocol and
 development predictor evidence are independently accepted.
+
+### Review (independent evidence-boundary review)
+
+#### Verdict
+
+Revision required
+
+#### Self-reviewed
+
+No
+
+#### Correctness
+
+The Stage and TUM source policies, camera conventions, sparse RGB/mask sampling, compact query
+equations, deterministic sampling and aggregation, support-not-alpha naming, unavailable-metric
+gate, confirmation/Karate ordering, and development-manifest replay all matched their intended
+contracts at implementation revision `a592e30bd7bf44a8ca384d5ce141e8985f4e2de2`. The independent
+review nevertheless reproduced four fail-closed defects:
+
+- `SafeTumArchive` accepts a POSIX contiguous-file member (`tarfile.CONTTYPE`, type `b"7"`) because
+  `TarInfo.isfile()` treats it as a regular file. This contradicts the class's special-member
+  rejection contract and leaves other `isfile()` aliases, including implementation-dependent
+  sparse types, inside an archive boundary that claims to admit only ordinary files and
+  directories.
+- File-verified materialization validation accepts undeclared filesystem nodes. Adding both an
+  undeclared symlink to a declared RGB file and an undeclared FIFO left
+  `validate_materialization(..., verify_files=True)` successful: `Path.is_file()` ignores the FIFO
+  and follows the symlink, while `resolve()` collapses the alias into the declared target.
+- `write_stage1_predictors` can publish a stale complete-looking artifact because it validates with
+  `verify_files=False`. After collecting an honest artifact, appending bytes to a bound `.rtgsv`
+  file, and calling the public writer, publication succeeded with `state=complete_development`;
+  the same artifact then failed `validate_stage1_predictors(..., verify_files=True)` because its
+  compact field differed from the binding.
+- Field-family identity is caller-selected rather than artifact-bound. The exact same normalized
+  compact directory was accepted as both `structsplat_normalized_no_boundary` and
+  `structsplat_normalized_mask_contained`; its compact binding, per-view statistics, and aggregates
+  were identical. Provider/blend checks preserve the normalized equation but cannot distinguish
+  these two scientific arms or prevent the currently incomplete mask-contained family from being
+  relabelled complete.
+
+#### Evidence Quality
+
+The reviewer reran the 21 focused adapter/predictor tests and all 52 BENCH-019 tests successfully.
+All three committed development adapters were independently source-replayed: Stage retained
+26/23/3 views with held-out ordinals 7/15/23; TUM `fr1/rpy` reproduced 687 associated triples and
+148 keyframes; TUM `fr1/xyz` reproduced 789 associated triples and 77 keyframes. The selected TUM
+indices, strict association, bounded interpolation, inclusive keyframe thresholds, half-up
+endpoints, registered camera, and inclusive depth-mask policy match the sealed historical harness.
+Manual transaction probes confirmed traversal rejection, receipt-last publication, and cleanup
+after a mid-publication failure. The four negative controls above were accepted despite those
+green checks. The authoritative repository gate and unfiltered CPU suite were rerun after this
+review record; no confirmation payload, fit, reconstruction, correlation, loss selection, or
+default change was accessed or performed.
+
+#### Simplicity
+
+The passive CPU-only module split, exact-key schemas, extraction-free reads, deterministic CSR
+queries, sufficient-statistic aggregation, and bounded CLIs are appropriately scoped. Each repair
+can remain local to the existing adapter/predictor validators and tests. The field-family repair
+needs one explicit production-receipt binding, not another metric or execution framework.
+
+#### Missing Cases
+
+The suite lacks an exact tar-type allowlist case, lexical `lstat` materialization-tree cases for
+symlinks/FIFOs/undeclared directories and files, a post-collection field/source-drift publication
+case, and a cross-relabel case for the two normalized StructSplat arms. Existing confirmation and
+Karate tests assert the expected rejection but do not instrument payload readers to prove the
+fail-before-access ordering. No downstream predictor validity, convergence, quality, performance,
+compression, or correlation evidence exists; those remain deliberate non-goals of RTGS-010.
+
+#### Required Changes
+
+1. Admit only exact ordinary tar file types (`REGTYPE`/`AREGTYPE`) and directories; reject every
+   other member type before indexing it. Add contiguous-file and sparse/special-type regressions
+   alongside the existing link/FIFO cases.
+2. Make file-verified materialization validation enumerate every descendant lexically with
+   `lstat`, require exactly the canonical ordinary directory/file tree, and reject symlinks,
+   special nodes, undeclared files, and undeclared directories without resolving aliases into
+   declared targets. Add each negative case.
+3. Do not publish a `complete_development` predictor from structural validation alone. Require a
+   file-verified deterministic replay at the public publication boundary, or an equivalently
+   strict collection transaction that proves the exact adapter/source/compact snapshot and
+   statistics before receipt-last publication. Add field deletion/drift and source-drift tests.
+4. Bind the requested field-family ID to an exact portfolio/production receipt that names and
+   hashes the compact manifest and distinguishes `no_boundary` from `mask_contained`; provider and
+   blend mode alone are insufficient. Reject incomplete/unbound arm evidence and add both
+   cross-family relabelling directions. Reconcile C34/O149 and public docs so the supported claim
+   is no stronger than the repaired binding.
+
+#### Optional Improvements
+
+Cap archive member count and aggregate metadata before building the member table, replace the
+quadratic TUM association candidate construction with an equivalent bounded search, instrument
+confirmation/Karate tests with payload-access sentinels, and document or enforce crash-durability
+expectations for directory publication. Keep manifest-plus-view byte accounting named explicitly;
+the current byte arithmetic itself matched that documented contract.
