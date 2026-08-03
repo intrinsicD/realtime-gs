@@ -1,0 +1,121 @@
+session:
+  id: "2026-08-04_001"
+  date: "2026-08-04"
+  started: "2026-08-04T01:12+02:00"
+  last_turn: "2026-08-04T01:37+02:00"
+  turn_count: 2
+  summary: "Sealed all 78 inputs and completed two outcome-blind RTGS-008 reviews; the still-uninitialized 27-cell protocol is blocked for a human-authorized third revision."
+
+events_logged:
+  - turn: 1
+    type: decision
+    id: N187
+    routing: direct
+    provenance: ai-executed
+    summary: "Reject the first RTGS-008 protocol digest and require revised outcome-unseen review before initialization."
+  - turn: 2
+    type: decision
+    id: N188
+    routing: direct
+    provenance: ai-executed
+    summary: "Reject the second RTGS-008 digest outcome-blind and require human authorization before a third revision cycle."
+
+ai_actions:
+  - turn: 1
+    action: >
+      Confirmed the unattended producer completed all 78 native-resolution fields and its final
+      verification passed. Copied the three exact provider directories and producer provenance
+      into the repository without overwriting the owner source, sealed 85 selected files totaling
+      24,831,997 bytes at SHA-256
+      645e2991232232db4425daa14a10fe5239263532d18060cf530859857b23507a, and passed
+      sealed-data validation. The Stage-1 QA means were 33.9510 dB for GaussianImage, 29.1213 dB
+      for mask-contained and 30.3919 dB for no-boundary; these are acquisition checks, not
+      downstream provider outcomes.
+    provenance: ai-executed
+    files_changed:
+      - "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/"
+      - "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_mask_contained_fullres/"
+      - "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_no_boundary_fullres/"
+      - "experiments/data/stage_frame00008_three_provider_fullres.json"
+  - turn: 1
+    action: >
+      Ran outcome-free train-only mechanism preflight. The three initializer feasibility counts
+      were 3,293, 3,857 and 3,727, fixing the common starting count at 3,293; all held-out and
+      image-access guards passed. Hardware-only NVML quiescence and a native 5328-by-4608
+      presentation render also passed without training or opening protected comparison outcomes.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 1
+    action: >
+      Received an independent outcome-unseen rejection of the first prospective digest with seven
+      blockers. Implemented task-scoped revisions for hypothesis/sampling precision, selected-arm
+      initializer construction, resource accounting and GPU guards, structured failed-run
+      publication, mandatory root previews, synchronized nine-method viewing and clean source
+      binding. Focused driver/initializer tests passed 12 tests, Ruff passed, and experiment/data
+      contract validation passed; final dependency lock, source hashes, full verification and a
+      fresh review remain outstanding.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+      - "experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json"
+      - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md"
+      - "pyproject.toml"
+      - "scripts/experiment_contract.py"
+      - "scripts/experiments/20260801_paper_three_provider_fullres_stage_frame00008.py"
+      - "src/rtgs/lift/paper_initializers.py"
+      - "tests/test_paper_initializers.py"
+      - "tests/test_paper_three_provider_experiment_driver.py"
+  - turn: 1
+    action: >
+      Rechecked the live task, run root and process table for the user's progress request. No
+      comparison worker is active, the canonical run root has no result files, and the protected
+      matrix remains at 0 of 27 measured cells.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 2
+    action: >
+      Committed the complete three-provider implementation checkpoint, bound the canonical driver,
+      initializer API, contract CLI, tests and configuration by exact SHA-256 to reviewed ancestor
+      40eb4c0, and froze digest eb78742c only after clearing the protocol-hashed blocker list. Exact
+      single-arm A/A initialization passed for all nine provider/initializer/seed combinations at
+      3,293 rows; the repository gate passed before every driver commit. A no-CUDA NVML start/stop
+      smoke also passed the frozen idle guard with no foreign compute process.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+      - "experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json"
+      - "scripts/experiment_contract.py"
+      - "scripts/experiments/20260801_paper_three_provider_fullres_stage_frame00008.py"
+      - "src/rtgs/lift/paper_initializers.py"
+      - "tests/test_paper_initializers.py"
+      - "tests/test_paper_three_provider_experiment_driver.py"
+  - turn: 2
+    action: >
+      Hegel independently reviewed the exact clean source and rejected digest eb78742c without
+      initializing or enumerating a run path. The review recomputed the 85-file seal and six
+      declared source hashes, replayed all 78 compact inputs under the no-image boundary, passed 65
+      focused tests, an NVML idle smoke and the full repository gate, then demonstrated three
+      remaining source/failure/boundary counterexamples. Preserved Goodall's first review
+      byte-identically, committed the canonical second review, and kept the protected matrix at
+      0/27 pending the repository-required human decision.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+      - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md"
+      - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md"
+      - "experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json"
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The user requested another live progress checkpoint."
+  - turn: 2
+    excerpt: "The user authorized continuing with the independent review and next implementation steps; the second rejection subsequently triggered mandatory human escalation."
+
+open_threads:
+  - "Obtain explicit user authorization for a third RTGS-008 technical revision after two consecutive outcome-blind rejection verdicts."
+  - "If authorized, close full behavior-bearing source binding, pre-worker root failure publication and first-load NoImageGuard coverage, then obtain a third independent prospective review."
+  - "Only after approval, execute one warmup and 27 measured cells, aggregate the v2 bundle, independently audit results and close RTGS-008."
+
+ai_suggestions_pending: []

@@ -3338,3 +3338,47 @@ tree:
       optimization, and the two StructSplat providers are therefore being produced serially with
       one worker to preserve the exact protocol without exceeding the shared RTX 3050 boundary.
     status: resolved
+  - id: N187
+    type: decision
+    title: "Reject the first RTGS-008 protocol digest and require a revised prospective review"
+    provenance: ai-executed
+    timestamp: "2026-08-04T01:12+02:00"
+    choice: >
+      Do not initialize the protected three-provider matrix at digest
+      6115bb16b1ef170e9c93095de3a40b60f79cf6ef898b82ace86b0b56c2d76a0d. Revise the
+      hypothesis and sampling language, selected-arm resource boundary, NVML and byte receipts,
+      root preview publication, synchronized comparison-manifest viewer, structured failed-run
+      bundle, and clean reviewed-source binding; then obtain a fresh outcome-unseen review.
+    alternatives:
+      - "Initialize despite the seven blocking prospective-review findings."
+      - "Abandon the requested comparison after completing its three input providers."
+      - "Treat Stage-1 acquisition QA as if it were the protected downstream comparison."
+    evidence:
+      - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md"
+      - "experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json"
+      - ".agents/state/current-task.md"
+    status: resolved
+  - id: N188
+    type: decision
+    title: "Block RTGS-008 after the second outcome-blind protocol rejection"
+    provenance: ai-executed
+    timestamp: "2026-08-04T01:37+02:00"
+    choice: >
+      Do not initialize the protected matrix at digest
+      eb78742c579930b6c04d4bd538ae33c6287ad0fb7f59190ab33adaef777a4fc1. Hegel's
+      independent outcome-blind review found that the six-file source allowlist admits
+      behavior-changing clean descendants, early binding/data/environment failures bypass the
+      structured root-failure publisher, and the first canonical compact semantic load occurs
+      outside NoImageGuard. After two consecutive revision verdicts, preserve the 0/27 outcome
+      boundary and escalate whether to authorize a third technical revision cycle to the user.
+    alternatives:
+      - "Initialize despite the three fail-closed and source-boundary defects."
+      - "Begin another revision cycle without the repository-required human escalation."
+      - "Stop RTGS-008 without repairing or executing the requested comparison."
+    evidence:
+      - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md"
+      - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md"
+      - "experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N187]
+    status: resolved
