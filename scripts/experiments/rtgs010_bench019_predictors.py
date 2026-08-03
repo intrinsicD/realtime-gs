@@ -9,8 +9,11 @@ Examples::
     .venv/bin/python scripts/experiments/rtgs010_bench019_predictors.py verify \
       --predictors /path/stage1.predictors.json --verify-files
 
-``--verify-files`` performs the full deterministic source/field replay.  Unsupported requests such
-as alpha agreement, MS-SSIM, LPIPS, track yield, or conditioning fail before input access.
+Collection requires the adapter-bound portfolio to mark the requested family evidence-complete and
+pin an adjacent production receipt for the exact compact manifest/views. Publication always
+performs a full deterministic source/field replay; ``verify --verify-files`` repeats that replay.
+Unsupported requests such as alpha agreement, MS-SSIM, LPIPS, track yield, or conditioning fail
+before input access.
 """
 
 from __future__ import annotations

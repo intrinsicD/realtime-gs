@@ -110,13 +110,16 @@ inventory in
 26-view camera/mask/split recipes; the source-replayed manifests live in
 [`experiments/data/bench019_adapters/`](experiments/data/bench019_adapters/README.md). TUM inputs use
 strict timestamp association, bounded pose interpolation, pose keyframes, registered-depth masks,
-and exclusive-new development materialization. Karate and every confirmation payload remain
-closed because no source-backed Karate mask policy exists. `rtgs.bench019_predictors` strictly
-reloads complete compact fields and collects deterministic sampled RGB/support, row, and byte
-statistics without relabelling normalized weight as alpha. Alpha agreement, MS-SSIM, LPIPS, track
-yield, and conditioning fail closed. These are measurement contracts, not a BENCH-019 result or a
-new fitting default. Task-local entry points live under `scripts/experiments/rtgs009_*` and
-`scripts/experiments/rtgs010_*`; formal export still rejects a review-state protocol.
+an exact ordinary-member tar allowlist, and lexical-tree exclusive-new development materialization.
+Karate and every confirmation payload remain closed because no source-backed Karate mask policy
+exists. `rtgs.bench019_predictors` strictly reloads complete compact fields, requires an
+evidence-complete portfolio family and exact production receipt, and collects deterministic sampled
+RGB/support, row, and manifest-plus-view byte statistics without relabelling normalized weight as
+alpha. Its public writer performs a complete file replay before publication. Alpha agreement,
+MS-SSIM, LPIPS, track yield, and conditioning fail closed. These are measurement contracts, not a
+BENCH-019 result or a new fitting default. Task-local entry points live under
+`scripts/experiments/rtgs009_*` and `scripts/experiments/rtgs010_*`; formal export still rejects a
+review-state protocol.
 
 Run the native field lift directly from the same compact directory. The command loads no source
 image, preserves optional packed alpha, creates an explicit deterministic held-out split, and

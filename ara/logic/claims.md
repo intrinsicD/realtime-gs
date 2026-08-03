@@ -689,18 +689,21 @@
 
 - **Statement**: The RTGS-010 boundary deterministically binds the calibrated Stage capture and
   two registered TUM development sequences to exact 26-view source/camera/mask/split adapters,
-  strictly reloads complete compact fields, queries additive and normalized fields without
-  relabelling their equations, and emits replayable sampled RGB/support plus row/complete-byte
-  sufficient statistics. It rejects confirmation materialization, maskless Karate, source/camera/
-  alpha drift, semantic relabelling, and requests for alpha agreement, MS-SSIM, LPIPS, track yield,
-  or field conditioning.
+  admits only ordinary archive/filesystem inputs, strictly reloads complete compact fields, binds
+  each family to an evidence-complete portfolio record and exact production receipt, queries
+  additive and normalized fields without relabelling their equations, and emits replayable sampled
+  RGB/support plus row/manifest-and-view-byte sufficient statistics. It rejects confirmation
+  materialization, maskless Karate, stale publication inputs, source/camera/alpha drift, semantic
+  relabelling, and requests for alpha agreement, MS-SSIM, LPIPS, track yield, or field conditioning.
 - **Status**: supported implementation-only
 - **Provenance**: ai-executed
 - **Crystallized via**: artifact-commitment
 - **Falsification criteria**: An adversarial source-consistent fixture is accepted after changing
-  a view, split, camera, source hash, rederived alpha, additive/normalized equation, sample or
-  aggregate statistic; a confirmation payload is decoded/materialized through the public path; an
-  unavailable predictor is emitted; or source replay changes any maintained adapter manifest.
+  an archive type, lexical materialization entry, view, split, camera, source hash, rederived alpha,
+  portfolio/production family receipt, additive/normalized equation, sample, aggregate statistic,
+  or bound file between collection and publication; a confirmation payload is decoded/materialized
+  through the public path; an unavailable predictor is emitted; or source replay changes any
+  maintained adapter manifest.
 - **Proof**: [`src/rtgs/bench019_adapters.py`, `src/rtgs/bench019_predictors.py`,
   `tests/test_bench019_adapters.py`, `tests/test_bench019_predictors.py`,
   `experiments/data/bench019_adapters/README.md`]

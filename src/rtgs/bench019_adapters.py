@@ -16,6 +16,7 @@ import math
 import os
 import re
 import shutil
+import stat
 import tarfile
 import tempfile
 from collections.abc import Mapping
@@ -518,13 +519,17 @@ class SafeTumArchive:
                     raise ExportError(f"TUM archive contains duplicate member {name}")
                 if member.issym() or member.islnk():
                     raise ExportError(f"links are forbidden in TUM archive: {name}")
-                if not member.isfile() and not member.isdir():
+                if member.type not in {
+                    tarfile.REGTYPE,
+                    tarfile.AREGTYPE,
+                    tarfile.DIRTYPE,
+                }:
                     raise ExportError(f"special members are forbidden in TUM archive: {name}")
                 self._members[name] = member
             roots = {
                 name[: -len("/rgb.txt")]
                 for name, member in self._members.items()
-                if member.isfile() and name.endswith("/rgb.txt")
+                if member.type in {tarfile.REGTYPE, tarfile.AREGTYPE} and name.endswith("/rgb.txt")
             }
             if len(roots) != 1:
                 raise ExportError("TUM archive must contain exactly one rooted rgb.txt")
@@ -547,7 +552,7 @@ class SafeTumArchive:
         safe = _safe_relative_path(relative)
         full = f"{self.prefix}/{safe}"
         member = self._members.get(full)
-        if member is None or not member.isfile():
+        if member is None or member.type not in {tarfile.REGTYPE, tarfile.AREGTYPE}:
             raise ExportError(f"TUM archive is missing regular member {safe}")
         return full
 
@@ -1461,10 +1466,22 @@ def validate_materialization(
     if ids != expected:
         raise ExportError("materialized output inventory differs from the 26-view contract")
     if verify_files:
-        actual_files = {item.resolve() for item in root.rglob("*") if item.is_file()}
-        declared_files = {path.resolve() for path in expected_paths.values()} | {path}
-        if actual_files != declared_files:
-            raise ExportError("materialized directory contains undeclared files")
+        declared_files = set(expected_paths.values()) | {path}
+        declared_directories = {root / "rgb", root / "mask"}
+        actual_files: set[Path] = set()
+        actual_directories: set[Path] = set()
+        for item in root.rglob("*"):
+            item_stat = item.lstat()
+            if item.is_symlink():
+                raise ExportError("materialized directory contains a symbolic link")
+            if stat.S_ISREG(item_stat.st_mode):
+                actual_files.add(item)
+            elif stat.S_ISDIR(item_stat.st_mode):
+                actual_directories.add(item)
+            else:
+                raise ExportError("materialized directory contains a special filesystem node")
+        if actual_files != declared_files or actual_directories != declared_directories:
+            raise ExportError("materialized directory contains undeclared entries")
     return {"capture_id": receipt["capture_id"], "role": receipt["role"], "outputs": len(ids)}
 
 

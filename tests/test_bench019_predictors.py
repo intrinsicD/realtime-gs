@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import tarfile
 from io import BytesIO
 from pathlib import Path
@@ -267,6 +268,7 @@ def _fixture(
     tmp_path: Path,
     *,
     blend_mode: str = "additive",
+    bound_family_id: str | None = None,
     alpha_drift: bool = False,
     camera_drift: float = 0.0,
     source_drift: bool = False,
@@ -274,7 +276,6 @@ def _fixture(
     portfolio_path, views, frame = _stage_portfolio(tmp_path)
     adapter = build_calibrated_adapter(portfolio_path)
     adapter_path = tmp_path / "adapter.json"
-    write_source_adapter(adapter, adapter_path)
     directory = tmp_path / "gaussians2d"
     directory.mkdir()
     paths = []
@@ -308,6 +309,19 @@ def _fixture(
         view_paths=paths,
         bounds_hint=None,
     )
+    family_id = bound_family_id or (
+        "gaussianimage_additive"
+        if blend_mode == "additive"
+        else "structsplat_normalized_no_boundary"
+    )
+    _seal_family(
+        portfolio_path,
+        capture_id="janelle_stage_fabric",
+        family_id=family_id,
+        compact_directory=directory,
+        view_ids=views,
+    )
+    write_source_adapter(build_calibrated_adapter(portfolio_path), adapter_path)
     return adapter_path, directory
 
 
@@ -330,6 +344,50 @@ def _refresh_digest(value: dict) -> None:
     value["semantic_digest"] = hashlib.sha256(canonical_json(value)).hexdigest()
 
 
+def _seal_family(
+    portfolio_path: Path,
+    *,
+    capture_id: str,
+    family_id: str,
+    compact_directory: Path,
+    view_ids: list[str],
+) -> Path:
+    arms = {
+        "gaussianimage_additive": "gaussianimage",
+        "structsplat_normalized_no_boundary": "structsplat_no_boundary",
+        "structsplat_normalized_mask_contained": "structsplat_mask_contained",
+    }
+    arm = arms[family_id]
+    receipt_path = compact_directory / "production_manifest.json"
+    receipt = {
+        "schema": "test.bench019.production.v1",
+        "arm": arm,
+        "manifest": describe_artifact(compact_directory / "manifest.json"),
+        "views": [
+            {
+                "arm": arm,
+                "view_id": view_id,
+                "output": describe_artifact(compact_directory / f"{view_id}.rtgsv"),
+            }
+            for view_id in view_ids
+        ],
+    }
+    receipt_path.write_bytes(canonical_json(receipt) + b"\n")
+    portfolio = json.loads(portfolio_path.read_text())
+    capture = next(item for item in portfolio["captures"] if item["id"] == capture_id)
+    family = next(item for item in capture["field_families"] if item["id"] == family_id)
+    family.update(
+        {
+            "state": "complete_stage1_unbound",
+            "observed_views": len(view_ids),
+            "required_views": len(view_ids),
+            "evidence": describe_artifact(receipt_path),
+        }
+    )
+    portfolio_path.write_bytes(canonical_json(portfolio) + b"\n")
+    return receipt_path
+
+
 def _tum_fixture(tmp_path: Path) -> tuple[Path, Path]:
     portfolio_path, _views, _frame = _stage_portfolio(tmp_path)
     portfolio = json.loads(portfolio_path.read_text())
@@ -344,10 +402,10 @@ def _tum_fixture(tmp_path: Path) -> tuple[Path, Path]:
     portfolio["captures"][1] = replacement
     portfolio_path.write_bytes(canonical_json(portfolio) + b"\n")
     adapter = build_tum_adapter(portfolio_path, capture_id="dev_b")
-    adapter_path = tmp_path / "tum.adapter.json"
-    write_source_adapter(adapter, adapter_path)
+    materialization_adapter_path = tmp_path / "tum.materialization.adapter.json"
+    write_source_adapter(adapter, materialization_adapter_path)
     materialized = tmp_path / "materialized"
-    materialize_tum_adapter(adapter_path, materialized)
+    materialize_tum_adapter(materialization_adapter_path, materialized)
 
     directory = tmp_path / "tum-gaussians2d"
     directory.mkdir()
@@ -392,6 +450,15 @@ def _tum_fixture(tmp_path: Path) -> tuple[Path, Path]:
         view_paths=paths,
         bounds_hint=None,
     )
+    _seal_family(
+        portfolio_path,
+        capture_id="dev_b",
+        family_id="structsplat_normalized_no_boundary",
+        compact_directory=directory,
+        view_ids=[view["id"] for view in adapter["views"]],
+    )
+    adapter_path = tmp_path / "tum.adapter.json"
+    write_source_adapter(build_tum_adapter(portfolio_path, capture_id="dev_b"), adapter_path)
     return adapter_path, directory
 
 
@@ -446,6 +513,13 @@ def test_normalized_family_preserves_equation_and_rejects_relabelling(tmp_path: 
 
     assert result["field_family"]["equation"] == "normalized_weighted_sum"
     assert result["field_family"]["blend_mode"] == "normalized"
+    with pytest.raises(ExportError, match="not evidence-complete"):
+        P.build_stage1_predictors(
+            adapter_path,
+            directory,
+            family_id="structsplat_normalized_mask_contained",
+            config=_config(),
+        )
     with pytest.raises(ExportError, match="semantics differ"):
         P.build_stage1_predictors(
             adapter_path,
@@ -455,15 +529,66 @@ def test_normalized_family_preserves_equation_and_rejects_relabelling(tmp_path: 
         )
 
     relabelled = copy.deepcopy(result)
-    relabelled["field_family"] = {
-        "id": "gaussianimage_additive",
-        "provider": "native",
-        "equation": "additive_sum",
-        "blend_mode": "additive",
-    }
+    relabelled["field_family"] = dict(P._FAMILY_CONTRACTS["structsplat_normalized_mask_contained"])
     _refresh_digest(relabelled)
-    with pytest.raises(ExportError, match="semantics differ"):
+    with pytest.raises(ExportError, match="not evidence-complete"):
         P.validate_stage1_predictors(relabelled, verify_files=True)
+
+    mask_adapter, mask_directory = _fixture(
+        tmp_path / "mask-contained",
+        blend_mode="normalized",
+        bound_family_id="structsplat_normalized_mask_contained",
+    )
+    mask_result = P.build_stage1_predictors(
+        mask_adapter,
+        mask_directory,
+        family_id="structsplat_normalized_mask_contained",
+        config=_config(),
+    )
+    assert mask_result["field_family"]["id"] == "structsplat_normalized_mask_contained"
+    with pytest.raises(ExportError, match="not evidence-complete"):
+        P.build_stage1_predictors(
+            mask_adapter,
+            mask_directory,
+            family_id="structsplat_normalized_no_boundary",
+            config=_config(),
+        )
+
+
+@pytest.mark.parametrize("mutation", ["field_append", "field_delete", "source_append"])
+def test_predictor_writer_replays_bound_files_before_publication(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    adapter_path, directory = _fixture(tmp_path)
+    result = P.build_stage1_predictors(
+        adapter_path,
+        directory,
+        family_id="gaussianimage_additive",
+        config=_config(),
+    )
+    if mutation == "field_append":
+        field_path = Path(result["compact_field"]["files"][0]["artifact"]["path"])
+        field_path.write_bytes(field_path.read_bytes() + b"stale")
+    elif mutation == "field_delete":
+        Path(result["compact_field"]["files"][0]["artifact"]["path"]).unlink()
+    else:
+        adapter = json.loads(adapter_path.read_text())
+        source_path = Path(
+            next(
+                item["artifact"]["path"]
+                for item in adapter["source_artifacts"]
+                if item["id"].startswith("rgb_")
+            )
+        )
+        with source_path.open("ab") as stream:
+            stream.write(b"stale")
+            stream.flush()
+            os.fsync(stream.fileno())
+    output = tmp_path / "must-not-publish.json"
+    with pytest.raises((ExportError, FileNotFoundError)):
+        P.write_stage1_predictors(result, output)
+    assert not output.exists()
 
 
 @pytest.mark.parametrize("name", sorted(P.UNSUPPORTED_PREDICTORS))

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import tarfile
 from io import BytesIO
 from pathlib import Path
@@ -439,6 +440,30 @@ def test_tum_materialization_is_exclusive_and_receipt_bound(
     with pytest.raises(FileExistsError, match="existing path"):
         A.materialize_tum_adapter(adapter_path, output)
 
+    alias = output / "rgb/alias.png"
+    alias.symlink_to("C0000.png")
+    with pytest.raises(ExportError, match="symbolic link"):
+        A.validate_materialization(output / "materialization_receipt.json", verify_files=True)
+    alias.unlink()
+
+    fifo = output / "rgb/undeclared.fifo"
+    os.mkfifo(fifo)
+    with pytest.raises(ExportError, match="special filesystem node"):
+        A.validate_materialization(output / "materialization_receipt.json", verify_files=True)
+    fifo.unlink()
+
+    undeclared_file = output / "undeclared.bin"
+    undeclared_file.write_bytes(b"undeclared")
+    with pytest.raises(ExportError, match="undeclared entries"):
+        A.validate_materialization(output / "materialization_receipt.json", verify_files=True)
+    undeclared_file.unlink()
+
+    undeclared_directory = output / "undeclared"
+    undeclared_directory.mkdir()
+    with pytest.raises(ExportError, match="undeclared entries"):
+        A.validate_materialization(output / "materialization_receipt.json", verify_files=True)
+    undeclared_directory.rmdir()
+
     rgb = output / "rgb/C0000.png"
     rgb.write_bytes(b"tampered")
     with pytest.raises(ExportError, match="differs from its bound file"):
@@ -458,13 +483,17 @@ def test_safe_tum_archive_rejects_links(tmp_path: Path) -> None:
         pass
 
 
-def test_safe_tum_archive_rejects_special_members(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "member_type",
+    [tarfile.FIFOTYPE, tarfile.CONTTYPE, tarfile.GNUTYPE_SPARSE],
+)
+def test_safe_tum_archive_rejects_special_members(tmp_path: Path, member_type: bytes) -> None:
     path = tmp_path / "unsafe-special.tgz"
     with tarfile.open(path, mode="w:gz") as archive:
         for name in ("rgb.txt", "depth.txt", "groundtruth.txt"):
             _add_tar_bytes(archive, f"sequence/{name}", b"0 payload\n")
-        fifo = tarfile.TarInfo("sequence/fifo")
-        fifo.type = tarfile.FIFOTYPE
-        archive.addfile(fifo)
+        special = tarfile.TarInfo("sequence/special")
+        special.type = member_type
+        archive.addfile(special)
     with pytest.raises(ExportError, match="special members are forbidden"), A.SafeTumArchive(path):
         pass

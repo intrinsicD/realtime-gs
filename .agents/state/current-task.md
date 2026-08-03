@@ -65,8 +65,9 @@ closed.
   emits only named supported predictors with per-view sample digests and aggregate sufficient
   statistics.
 - Supported predictors cover sampled foreground and boundary RGB error, exact support confusion,
-  rows, and complete field bytes. Requests for alpha agreement, MS-SSIM, LPIPS, track yield, or
-  field conditioning fail closed until separately defined/implemented.
+  rows, and complete loader-consumed manifest-plus-view field bytes. Requests for alpha agreement,
+  MS-SSIM, LPIPS, track yield, or field conditioning fail closed until separately
+  defined/implemented.
 - Adversarial CPU tests cover archive/path safety, association boundaries, interpolation,
   half-up selection, split identity, camera convention, mask derivation, confirmation blocking,
   semantic relabelling, source/camera drift, sample determinism, aggregation, and unavailable
@@ -138,7 +139,7 @@ None
   alpha, preserves additive/normalized equations, uses deterministic exact CSR queries, emits
   per-view/split sufficient statistics plus supported predictor values, and can replay the full
   artifact. All five named unavailable predictor classes fail before input access.
-- Twenty-one focused CPU cases pass across Stage and synthetic TUM end-to-end paths, including archive
+- Twenty-six focused CPU cases pass across Stage and synthetic TUM end-to-end paths, including archive
   safety, policy boundaries, materialization, semantic relabelling, source/camera/alpha drift,
   deterministic aggregation, unavailable requests, and full predictor replay.
 - Development-only calibrated adapters were generated and source-replayed without fitting fields:
@@ -151,6 +152,17 @@ None
   PY=/home/alex/Documents/realtime-gs/.venv/bin/python ./scripts/verify.sh`, covering Ruff,
   formatting, the complete non-slow CPU suite, docs sync, the ARA ledger, script layout, agent
   workflow, and experiment contracts.
+- Independent review revision `73e8072e0178830f3c9ef2577ed3196b960631e4` reproduced four
+  evidence-boundary defects: non-ordinary tar file aliases, materialization inventory aliases and
+  special nodes, stale predictor publication, and caller-selected identity between the two
+  normalized families. The revision now uses an exact tar-type allowlist, a lexical `lstat` tree,
+  full replay at publication, and an evidence-complete portfolio plus production-receipt binding.
+- Both completed real Stage receipts pass the repaired family binding without collecting predictor
+  outcomes: GaussianImage
+  `6f30d7dfbe64762071d314ef033dcd5fd5eebec95440d242b016f95f5f99112b` and StructSplat
+  no-boundary `54b61f1ef2608adf932dd573d86ccdbd17d2e3af7682e0b50174011351bd894d`.
+- All three maintained adapters still replay their exact sources after the tar allowlist repair;
+  the repaired focused suite is 26 cases and the complete BENCH-019 suite is 57 cases.
 
 ## Minimal Plan
 
@@ -160,13 +172,12 @@ None
    gate.
 4. Completed: add bounded CLIs, public architecture documentation, and calibrated development-only
    adapter diagnostics.
-5. Revision required: the independent review reproduced four evidence-boundary counterexamples;
-   repair the exact archive-member, materialization-tree, predictor-publication, and field-family
-   bindings before requesting the next review.
+5. In progress: all four independent-review counterexamples are repaired with negative controls;
+   finish self-review/full verification, commit, and resume the same acceptance pass.
 
 ## Status
 
-Revision required
+In progress
 
 ## Human Decisions
 

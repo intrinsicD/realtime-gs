@@ -29,6 +29,7 @@ from rtgs.bench019_adapters import (
     materialized_calibration_payload,
     validate_source_adapter,
 )
+from rtgs.bench019_portfolio import validate_capture_portfolio
 from rtgs.core.camera import Camera
 from rtgs.core.observation2d import GaussianObservationIndex
 from rtgs.data.compact_views import CompactDataset, CompactView
@@ -75,6 +76,11 @@ _FAMILY_CONTRACTS = {
         "blend_mode": "normalized",
     },
 }
+_PRODUCTION_ARMS = {
+    "gaussianimage_additive": "gaussianimage",
+    "structsplat_normalized_no_boundary": "structsplat_no_boundary",
+    "structsplat_normalized_mask_contained": "structsplat_mask_contained",
+}
 FIELD_FAMILIES = tuple(_FAMILY_CONTRACTS)
 
 _TOP_KEYS = frozenset(
@@ -96,7 +102,16 @@ _TOP_KEYS = frozenset(
     }
 )
 _FAMILY_KEYS = frozenset({"id", "provider", "equation", "blend_mode"})
-_FIELD_KEYS = frozenset({"root", "manifest", "view_byte_cap", "complete_field_bytes", "files"})
+_FIELD_KEYS = frozenset(
+    {
+        "root",
+        "manifest",
+        "production_receipt",
+        "view_byte_cap",
+        "complete_field_bytes",
+        "files",
+    }
+)
 _FIELD_FILE_KEYS = frozenset({"view_id", "artifact"})
 _ARTIFACT_KEYS = frozenset({"path", "sha256", "bytes"})
 _SAMPLE_POLICY_KEYS = frozenset(
@@ -246,6 +261,87 @@ def _requested_predictors(requested: Sequence[str] | None) -> tuple[str, ...]:
 
 def _source_inventory(adapter: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
     return {item["id"]: item["artifact"] for item in adapter["source_artifacts"]}
+
+
+def _bound_family_receipt(
+    adapter: Mapping[str, Any],
+    *,
+    family_id: str,
+    compact_root: Path,
+    compact_manifest: Mapping[str, Any],
+    compact_files: Sequence[Mapping[str, Any]],
+    verify_files: bool,
+) -> dict[str, Any]:
+    """Bind a family label to its portfolio-pinned production receipt and compact payload."""
+    portfolio_artifact = _artifact(
+        adapter["portfolio"],
+        label="field-family portfolio",
+        verify_file=verify_files,
+    )
+    portfolio = load_json_object(portfolio_artifact["path"], label="field-family portfolio")
+    validate_capture_portfolio(portfolio, verify_files=False)
+    capture = next(
+        (item for item in portfolio["captures"] if item["id"] == adapter["capture_id"]),
+        None,
+    )
+    if capture is None:
+        raise ExportError("field-family portfolio has no adapter capture")
+    family = next(
+        (item for item in capture["field_families"] if item["id"] == family_id),
+        None,
+    )
+    if family is None:
+        raise ExportError("field-family portfolio has no requested family")
+    if (
+        family["state"] != "complete_stage1_unbound"
+        or family["observed_views"] != len(adapter["views"])
+        or family["required_views"] != len(adapter["views"])
+        or family["evidence"] is None
+    ):
+        raise ExportError(f"field family {family_id} is not evidence-complete in the portfolio")
+    receipt_artifact = _artifact(
+        family["evidence"],
+        label=f"field family {family_id} production receipt",
+        verify_file=verify_files,
+    )
+    receipt_path = Path(receipt_artifact["path"]).resolve()
+    if receipt_path != compact_root / "production_manifest.json":
+        raise ExportError("field-family production receipt is not adjacent to the compact field")
+    receipt = load_json_object(receipt_path, label=f"field family {family_id} production receipt")
+    expected_arm = _PRODUCTION_ARMS[family_id]
+    if receipt.get("arm") != expected_arm:
+        raise ExportError("field-family production receipt names a different arm")
+    receipt_manifest = _artifact(
+        receipt.get("manifest"),
+        label="field-family production compact manifest",
+        verify_file=verify_files,
+    )
+    if receipt_manifest != compact_manifest:
+        raise ExportError("field-family production receipt binds a different compact manifest")
+    receipt_views = receipt.get("views")
+    if not isinstance(receipt_views, list) or len(receipt_views) != len(compact_files):
+        raise ExportError("field-family production receipt view inventory is incomplete")
+    for index, (receipt_view, compact_file, adapter_view) in enumerate(
+        zip(receipt_views, compact_files, adapter["views"], strict=True)
+    ):
+        if not isinstance(receipt_view, dict):
+            raise ExportError(f"field-family production view {index} must be an object")
+        if (
+            receipt_view.get("arm") != expected_arm
+            or receipt_view.get("view_id") != adapter_view["id"]
+        ):
+            raise ExportError("field-family production receipt changes arm or view order")
+        output = receipt_view.get("output")
+        if not isinstance(output, dict) or not _ARTIFACT_KEYS.issubset(output):
+            raise ExportError("field-family production view has no compact output binding")
+        output_artifact = _artifact(
+            {key: output[key] for key in _ARTIFACT_KEYS},
+            label=f"field-family production output {adapter_view['id']}",
+            verify_file=verify_files,
+        )
+        if output_artifact != compact_file["artifact"]:
+            raise ExportError("field-family production receipt binds different compact view bytes")
+    return receipt_artifact
 
 
 def _camera_matches(camera: Camera, record: Mapping[str, Any]) -> bool:
@@ -708,6 +804,14 @@ def _collect(
         {"view_id": view.view_id, "artifact": describe_artifact(view.path)}
         for view in dataset.views
     ]
+    production_receipt = _bound_family_receipt(
+        adapter,
+        family_id=family_id,
+        compact_root=dataset.path,
+        compact_manifest=manifest,
+        compact_files=files,
+        verify_files=True,
+    )
     complete_field_bytes = manifest["bytes"] + sum(item["artifact"]["bytes"] for item in files)
     with _AdapterSources(adapter) as sources:
         expected_calibration = sources.calibration_sha256()
@@ -749,6 +853,7 @@ def _collect(
         "compact_field": {
             "root": str(dataset.path),
             "manifest": manifest,
+            "production_receipt": production_receipt,
             "view_byte_cap": config.view_byte_cap,
             "complete_field_bytes": complete_field_bytes,
             "files": files,
@@ -952,6 +1057,19 @@ def validate_stage1_predictors(
     expected_bytes = manifest["bytes"] + sum(item["bytes"] for item in file_records)
     if compact["complete_field_bytes"] != expected_bytes:
         raise ExportError("complete field bytes differ from the bound manifest and view files")
+    production_receipt = _bound_family_receipt(
+        adapter,
+        family_id=family["id"],
+        compact_root=root,
+        compact_manifest=manifest,
+        compact_files=[
+            {"view_id": adapter_view["id"], "artifact": artifact}
+            for adapter_view, artifact in zip(adapter["views"], file_records, strict=True)
+        ],
+        verify_files=verify_files,
+    )
+    if compact["production_receipt"] != production_receipt:
+        raise ExportError("Stage-1 predictor binds a different field-family production receipt")
 
     views = result["views"]
     if not isinstance(views, list) or len(views) != len(adapter["views"]):
@@ -1063,7 +1181,7 @@ def write_stage1_predictors(
 ) -> dict[str, Any]:
     """Validate and exclusively publish one canonical Stage-1 predictor artifact."""
     result = dict(value)
-    summary = validate_stage1_predictors(result, verify_files=False)
+    summary = validate_stage1_predictors(result, verify_files=True)
     output = Path(output_path).expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     descriptor = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)

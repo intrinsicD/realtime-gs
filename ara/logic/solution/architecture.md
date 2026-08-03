@@ -312,10 +312,13 @@
   source RGB, source-backed alpha, and train/held-out roles. Calibrated Stage sources retain their
   portfolio view order; TUM sources use extraction-free archive access, strict RGB/depth
   association, bounded pose interpolation, pose-keyframe selection, registered calibration, and
-  depth-derived masks. Compact fields are then strictly reloaded and queried through their
-  declared additive or normalized equation at deterministic all/foreground/boundary samples.
-  Predictor artifacts retain sample digests and sufficient statistics for RGB error, exact
-  support confusion, rows, and complete field bytes.
+  depth-derived masks. Archive and materialized-directory inputs use exact ordinary-type and
+  lexical-tree allowlists. Compact fields are then strictly reloaded; each family label must be
+  evidence-complete in the bound portfolio and match an adjacent hashed production receipt that
+  binds the exact arm, compact manifest, and views. Fields are queried through their declared
+  additive or normalized equation at deterministic all/foreground/boundary samples. Predictor
+  artifacts retain sample digests and sufficient statistics for RGB error, exact support
+  confusion, rows, and manifest-plus-view bytes, and publication requires full file replay.
 - **Provenance**: ai-executed
 - **Crystallized via**: artifact-commitment
 - **Evidence**: [O149, `src/rtgs/bench019_adapters.py`,
