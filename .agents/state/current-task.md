@@ -12,7 +12,7 @@ RTGS-010
 
 - Driver: Codex-bench019-adapters-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: driver
+- Turn: reviewer
 
 ## Mode
 
@@ -172,12 +172,12 @@ None
    gate.
 4. Completed: add bounded CLIs, public architecture documentation, and calibrated development-only
    adapter diagnostics.
-5. In progress: all four independent-review counterexamples are repaired with negative controls;
-   finish self-review/full verification, commit, and resume the same acceptance pass.
+5. Completed: all four independent-review counterexamples are repaired with negative controls,
+   self-review/full verification passed, and the same acceptance pass is resumed.
 
 ## Status
 
-In progress
+In review
 
 ## Human Decisions
 
@@ -382,3 +382,81 @@ quadratic TUM association candidate construction with an equivalent bounded sear
 confirmation/Karate tests with payload-access sentinels, and document or enforce crash-durability
 expectations for directory publication. Keep manifest-plus-view byte accounting named explicitly;
 the current byte arithmetic itself matched that documented contract.
+
+### Handoff (complete evidence-boundary repair)
+
+#### Objective
+
+Resume the same independent acceptance pass after systematically closing all four reproduced
+archive, filesystem, publication, and family-identity counterexamples without widening RTGS-010's
+pre-outcome scope.
+
+#### Reviewed state
+
+Implementation revision `687f8051c9c021ef9c97ee80df73fff83881ee33` on branch
+`rtgs/010-bench019-adapters`, following the `Revision required` verdict at
+`73e8072e0178830f3c9ef2577ed3196b960631e4`.
+
+#### Changes
+
+- Replaced `TarInfo.isfile()` classification with an exact `REGTYPE`/`AREGTYPE`/`DIRTYPE`
+  allowlist, and replaced resolved regular-file inventory comparison with lexical `lstat`
+  enumeration of the exact materialized file/directory tree.
+- Made predictor publication require file-verified deterministic replay, so deleted/drifted compact
+  files and drifted source RGB fail before an output is created.
+- Bound every family ID to an evidence-complete record in the adapter's exact portfolio and its
+  adjacent hashed production receipt. The receipt must name the expected arm and bind the compact
+  manifest plus every ordered view, so the two normalized families cannot be cross-labelled.
+- Reconciled public architecture/README language and ARA C34/O149 with the exact family receipt,
+  archive/filesystem allowlists, full-replay publication, and manifest-plus-view byte definition.
+
+#### Evidence
+
+- Focused adapter/predictor suite: 26 passed, including contiguous and GNU sparse tar members,
+  symlink/FIFO/undeclared file/directory entries, field append/deletion and source drift before
+  publication, and both normalized-family relabel directions.
+- Complete BENCH-019 suite: 57 passed.
+- All three maintained development adapters replayed their exact sources after the tar allowlist
+  repair. The real completed Stage receipts matched their exact compact manifests/views at
+  `6f30d7dfbe64762071d314ef033dcd5fd5eebec95440d242b016f95f5f99112b` (GaussianImage) and
+  `54b61f1ef2608adf932dd573d86ccdbd17d2e3af7682e0b50174011351bd894d` (StructSplat no-boundary),
+  without collecting predictor outcomes.
+- `PYTHONPATH=/home/alex/Documents/realtime-gs-bench019/src
+  PY=/home/alex/Documents/realtime-gs/.venv/bin/python ./scripts/verify.sh`: passed, including the
+  complete non-slow CPU suite and every structural checker; only the two established PyTorch
+  warnings were emitted.
+- Ruff, formatting, docs sync, ARA, task workflow, script layout, experiment contracts, and
+  `git diff --check` passed.
+
+#### Assumptions
+
+A field family is a provenance identity that cannot be inferred from array values when two arms
+share normalized equations. Its portfolio-pinned production receipt is therefore authoritative;
+the compact manifest and view files remain the loader-consumed bytes used by the size predictor,
+while the receipt is provenance metadata rather than coded field payload.
+
+#### Uncertainties
+
+The repair establishes family/provenance integrity, not that any supported predictor forecasts a
+downstream response. Archive aggregate/member caps, faster association, extra payload-access
+sentinels, and cross-filesystem directory crash durability remain optional hardening, not observed
+correctness failures in the maintained inputs.
+
+#### Review Focus
+
+Reproduce the four original counterexamples exactly; challenge both normalized relabel directions
+and production-receipt manifest/view drift; verify the official TUM archives and all three adapter
+replays still pass; rerun 26 focused tests, 57 BENCH-019 tests, and the authoritative full gate on
+the exact revision.
+
+#### Protected actions not taken
+
+No confirmation payload was opened, no field was fitted, no predictor outcome artifact or
+reconstruction/correlation result was produced, no loss/default was selected, and the dirty primary
+realtime-gs worktree plus the owner's active Stage conversion remained untouched.
+
+#### Recommended Next Action
+
+If accepted, archive RTGS-010 and open the next development-only task for matched field production
+and missing predictor-metric experiments. Keep confirmation sealed until those artifacts and a
+prospective protocol receive their own distinct reviews.
