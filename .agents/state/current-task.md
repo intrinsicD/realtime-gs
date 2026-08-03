@@ -12,7 +12,7 @@ RTGS-008
 
 - Driver: Codex-three-provider-driver
 - Reviewer: Hegel
-- Turn: reviewer
+- Turn: human
 
 ## Mode
 
@@ -165,6 +165,12 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
   initialization for every provider, initializer, and seed at 3,293 rows. Nine focused tests pass,
   and the complete repository verification gate passes at implementation checkpoint
   `40eb4c0b809c85c4e8d3669b49a34bab4860266d`.
+- Hegel's outcome-blind V2 review recomputed digest `eb78742c...`, the exact 85-file seal, source
+  hashes and ancestry, all compact input semantics, 53 broader focused tests, and the repository
+  gate. It accepted the intended hypothesis/resource/presentation/viewer/sampling and
+  convergence/compression definitions but found three remaining fail-closed blockers: incomplete
+  transitive source binding, pre-`try` root failures without structured publication, and an
+  unguarded canonical compact semantic load whose later receipt asserts no image access.
 
 ## Minimal Plan
 
@@ -174,16 +180,19 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
    independently verify every view and manifest.
 3. Import the three exact bundles into repository-relative immutable paths, seal their bytes, and
    freeze the globally matched initializer capacity from mechanism-only preflight.
-4. Make the current paper driver provider-neutral, add CPU-first and guarded CUDA tests, freeze the
-   canonical command, and obtain outcome-unseen prospective review.
-5. Initialize the protected run, execute every provider/initializer/seed cell, render the v2
-   report/viewer, and validate all receipts.
-6. Run an independent scientific audit, log only supported findings, complete repository review
+4. Completed through two outcome-unseen reviews: make the paper driver provider-neutral, add
+   CPU-first and guarded CUDA tests, freeze the canonical command, and audit both the original and
+   revised protocol.
+5. Blocked on human decision: either authorize one bounded third repair cycle for the three exact
+   fail-closed/source-boundary gaps in Hegel's V2 review or stop RTGS-008 without initializing it.
+6. If explicitly authorized and subsequently approved, initialize the protected run, execute every
+   provider/initializer/seed cell, render the v2 report/viewer, and validate all receipts.
+7. Run an independent scientific audit, log only supported findings, complete repository review
    and verification, and close or hand off any maturity shortfall explicitly.
 
 ## Status
 
-In review
+Blocked on human decision
 
 ## Human Decisions
 
@@ -210,6 +219,33 @@ GaussianImage full-resolution and the StructSplat mask-contained and no-boundary
 ### Date
 
 2026-08-01
+
+### Question (second prospective-review escalation)
+
+After two consecutive outcome-blind revision verdicts, should RTGS-008 receive one bounded third
+technical repair cycle for the three remaining fail-closed/source-boundary gaps, or stop without
+initializing the protected run?
+
+### Options
+
+Authorize only: (1) complete reviewed-source-tree binding, (2) structured root failure publication
+for every trusted post-initialization phase, and (3) a live guard/receipt for the canonical semantic
+compact load; then require a fresh digest and outcome-unseen review. Alternatively, stop RTGS-008
+at its preserved CPU-contracted protocol checkpoint and run nothing.
+
+### Recommendation
+
+Authorize the bounded repair only if the owner still wants this single-frame development matrix.
+Do not weaken the source/input/failure claims and do not execute the current rejected protocol.
+
+### Decision
+
+Pending explicit owner direction. Repository policy forbids an unbounded third revision loop after
+two consecutive `Revision required` verdicts.
+
+### Date
+
+2026-08-04
 
 ## Handoff Log
 
@@ -384,3 +420,71 @@ model, report, or result artifact exists or was inspected.
 Write a new V2 prospective-review artifact bound to digest `eb78742c...` with `Outcome Access:
 none`. Approve only if the revised protocol is outcome-independent, source-exact, executable, and
 fail-closed; otherwise return another revision-required verdict without initializing the run.
+
+### Review (2026-08-04 outcome-blind prospective protocol V2)
+
+#### Verdict
+
+Revision required
+
+#### Self-reviewed
+
+No
+
+#### Correctness
+
+The revised protocol closes most of Goodall's seven findings, but three blocking counterexamples
+remain. First, `_source_binding_passes` hashes only six registered files while accepting any clean
+descendant of `40eb4c0...`; behavior-bearing compact loader, initializer dependency, trainer,
+density, renderer, CLI, and viewer files are unbound, so a clean unreviewed dependency change can
+pass. Second, `_orchestrate` performs binding, `validate-data`, collision, and environment steps
+before its structured-failure `try`; a synthetic `validate-data` failure produced no root failure
+publication. Third, `_canonical_worker` performs its initial `CompactDataset.load` before the
+guarded initializer/trainer calls, yet its later input receipt asserts that no RGB or mask was
+opened. The current loader is safe, but the canonical guard does not establish that whole-worker
+assertion.
+
+The narrowed provider-native hypothesis, selected-arm construction, frozen resource schema and
+idle guard, root contact sheet and reconstruction/orbit/elevation GIF gates, synchronized
+nine-method viewer, provider-conditioned sampling wording, held-out checkpoint convergence rule,
+and descriptive compact-to-model byte ratio are otherwise coherent and appropriately bounded.
+
+#### Evidence Quality
+
+Hegel independently recomputed protocol digest
+`eb78742c579930b6c04d4bd538ae33c6287ad0fb7f59190ab33adaef777a4fc1`, all six declared source
+hashes and ancestry, and all 85 sealed files totaling 24,831,997 bytes. All 78 fields reloaded with
+alpha disabled under the live guard and reproduced exact provider semantics, 26 views, and the
+disjoint 23/3 split. Twelve narrow and 53 broader focused tests passed. A no-CUDA-allocation NVML
+smoke passed the three-sample idle and foreign-process controls. The canonical bound-environment
+repository gate passed after this review record. Outcome Access remained none: no run was
+initialized or invoked and no downstream path or artifact was opened, listed, or inspected.
+
+#### Simplicity
+
+No new method or abstraction is required. Exact tree/source-digest enforcement, moving all trusted
+post-init phases inside the existing one-shot root failure publisher, and guarding or eliminating
+the one pre-guard semantic load are the smallest repairs. Hegel changed no implementation source.
+
+#### Missing Cases
+
+The focused suite has no negative control for an unbound behavior dependency in a clean descendant,
+no assertion that data/environment preflight failures publish the failed v2 sources, and no test
+that the first canonical compact load is covered by the image-denial receipt. Protected CUDA
+training, native presentation, and downstream bundle completeness remain deliberately unobserved.
+
+#### Required Changes
+
+1. Bind the complete behavior-bearing execution tree, or an equivalent exact reviewed tree digest
+   that excludes only enumerated review metadata; reject any other descendant source change.
+2. Publish the structured failed-run receipt and v2 diagnostic sources for every trusted phase
+   after `init-run`, including sealed-data and environment/preflight failures.
+3. Place the initial canonical compact semantic load under a live no-image guard (or remove the
+   duplicate load) and bind its guard result into the no-image receipt.
+4. Add outcome-free negative controls for all three cases, recompute the protocol digest, and seek
+   explicit human authorization before any third technical review cycle.
+
+#### Optional Improvements
+
+None. Do not expand scientific scope, alter convergence/compression definitions, or initialize the
+protected run while these three boundaries remain unresolved.
