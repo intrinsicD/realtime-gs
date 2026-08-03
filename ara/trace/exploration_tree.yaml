@@ -3325,3 +3325,46 @@ tree:
       - "src/rtgs/_viewer_arcball.js"
       - "tests/test_viewer.py"
     also_depends_on: [N184]
+  - id: N186
+    type: experiment
+    title: "Independent RTGS-010 archive and evidence-boundary audit"
+    provenance: ai-executed
+    timestamp: "2026-08-03T16:34+02:00"
+    result: >
+      An independent reviewer reproduced four initial fail-closed defects, then accepted their
+      repairs: exact non-ordinary tar-type rejection, lexical lstat materialization inventory,
+      full predictor publication replay, and portfolio-plus-production-receipt family binding.
+      The repaired 26-case focused suite, all 57 BENCH-019 tests, three real source replays, two
+      real Stage production-receipt bindings, and the canonical repository gate passed. A second
+      adversarial pass found one remaining alias: a GNU/PAX sparse entry can parse as ordinary
+      REGTYPE while retaining non-null TarInfo.sparse metadata, so the current type-only allowlist
+      does not yet establish the ordinary-archive claim. No confirmation payload, fitted-field
+      outcome, reconstruction, correlation, loss selection, or default was accessed.
+    evidence:
+      - ".agents/state/current-task.md"
+      - "src/rtgs/bench019_adapters.py"
+      - "tests/test_bench019_adapters.py"
+      - "73e8072e0178830f3c9ef2577ed3196b960631e4"
+      - "687f8051c9c021ef9c97ee80df73fff83881ee33"
+      - "058b438011e8874906d3d0b2cecf5fa26de71240"
+    status: resolved
+  - id: N187
+    type: decision
+    title: "Authorize the final RTGS-010 PAX-sparse hardening cycle"
+    provenance: ai-suggested
+    timestamp: "2026-08-03T16:34+02:00"
+    choice: >
+      Pending human authorization: reject any otherwise regular tar member whose parsed sparse
+      metadata is non-null, add a real parsed PAX-sparse regression, and resume the same independent
+      reviewer acceptance pass without changing the adapter policy or scientific scope.
+    alternatives:
+      - "Stop or retire RTGS-010 with the ordinary-archive boundary knowingly incomplete."
+      - "Explicitly accept the sparse-archive gap and narrow C34, A18, and O149."
+    evidence:
+      - N186
+      - ".agents/state/current-task.md"
+      - "ara/logic/claims.md:C34"
+      - "ara/logic/solution/architecture.md:A18"
+      - "ara/staging/observations.yaml:O149"
+    also_depends_on: [N186]
+    status: open

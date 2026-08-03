@@ -598,3 +598,10 @@ entries:
       - "Created no merge commit because local main and refreshed origin/main had zero divergence; the user's explicit direct-main request superseded the draft-PR default."
       - "The exact canonical pre-commit gate passed; the complete CPU-only suite had passed immediately before publication and no source changed afterward."
       - "Created no exploration node, observation, claim, heuristic or evidence artifact, and found no closure signal, contradiction or new stale disposition."
+  - turn: "2026-08-03_001#1"
+    notes:
+      - "Routed the independent RTGS-010 adversarial audit and repaired-boundary evidence as N186, then routed the repository-mandated post-second-verdict owner choice as open decision N187."
+      - "Flagged O149, C34, and A18 as conflicting with N186 instead of silently narrowing or overwriting the promoted ordinary-archive statement; the sole counterexample is a parsed PAX sparse regular-type alias."
+      - "Recorded the four closed reviewer findings, 26 focused and 57 BENCH-019 passing tests, real source replays, receipt bindings, and canonical gate as implementation evidence only."
+      - "Promoted no quality, convergence, compression, performance, predictor-validity, loss, reconstruction, confirmation, correlation, or default claim."
+      - "Stopped before a third driver cycle because repository workflow requires explicit human authorization after two consecutive revision verdicts."
