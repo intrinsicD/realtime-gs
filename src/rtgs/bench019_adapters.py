@@ -525,6 +525,8 @@ class SafeTumArchive:
                     tarfile.DIRTYPE,
                 }:
                     raise ExportError(f"special members are forbidden in TUM archive: {name}")
+                if member.sparse is not None:
+                    raise ExportError(f"sparse members are forbidden in TUM archive: {name}")
                 self._members[name] = member
             roots = {
                 name[: -len("/rgb.txt")]

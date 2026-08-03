@@ -497,3 +497,26 @@ def test_safe_tum_archive_rejects_special_members(tmp_path: Path, member_type: b
         archive.addfile(special)
     with pytest.raises(ExportError, match="special members are forbidden"), A.SafeTumArchive(path):
         pass
+
+
+def test_safe_tum_archive_rejects_pax_sparse_regular_alias(tmp_path: Path) -> None:
+    path = tmp_path / "unsafe-pax-sparse.tgz"
+    with tarfile.open(path, mode="w:gz", format=tarfile.PAX_FORMAT) as archive:
+        for name in ("rgb.txt", "depth.txt", "groundtruth.txt"):
+            _add_tar_bytes(archive, f"sequence/{name}", b"0 payload\n")
+        sparse = tarfile.TarInfo("sequence/sparse.bin")
+        sparse.mtime = 0
+        sparse.pax_headers = {
+            "GNU.sparse.map": "0,0",
+            "GNU.sparse.realsize": "1024",
+        }
+        archive.addfile(sparse, BytesIO())
+
+    with tarfile.open(path, mode="r:gz") as archive:
+        parsed = archive.getmember("sequence/sparse.bin")
+        assert parsed.type == tarfile.REGTYPE
+        assert parsed.isfile()
+        assert parsed.sparse is not None
+
+    with pytest.raises(ExportError, match="sparse members are forbidden"), A.SafeTumArchive(path):
+        pass

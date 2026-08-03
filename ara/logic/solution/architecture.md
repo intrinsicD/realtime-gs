@@ -307,8 +307,6 @@
 
 ## A18: Fail-closed BENCH-019 development adapter and predictor boundary
 
-<!-- CONFLICT: see N186 -->
-
 - **Design**: Place a passive source/predictor layer before the existing BENCH-019 downstream cell
   exporter. Exact-key source adapters bind one development capture to ordered views, cameras,
   source RGB, source-backed alpha, and train/held-out roles. Calibrated Stage sources retain their

@@ -687,8 +687,6 @@
 
 ## C34: The BENCH-019 development measurement boundary preserves field semantics and fails closed
 
-<!-- CONFLICT: see N186 -->
-
 - **Statement**: The RTGS-010 boundary deterministically binds the calibrated Stage capture and
   two registered TUM development sequences to exact 26-view source/camera/mask/split adapters,
   admits only ordinary archive/filesystem inputs, strictly reloads complete compact fields, binds

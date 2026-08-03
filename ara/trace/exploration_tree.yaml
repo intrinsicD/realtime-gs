@@ -3351,12 +3351,12 @@ tree:
   - id: N187
     type: decision
     title: "Authorize the final RTGS-010 PAX-sparse hardening cycle"
-    provenance: ai-suggested
+    provenance: user
     timestamp: "2026-08-03T16:34+02:00"
     choice: >
-      Pending human authorization: reject any otherwise regular tar member whose parsed sparse
-      metadata is non-null, add a real parsed PAX-sparse regression, and resume the same independent
-      reviewer acceptance pass without changing the adapter policy or scientific scope.
+      The owner explicitly authorized rejecting every otherwise regular tar member whose parsed
+      sparse metadata is non-null, adding a real parsed PAX-sparse regression, and resuming the same
+      independent reviewer acceptance pass without changing adapter policy or scientific scope.
     alternatives:
       - "Stop or retire RTGS-010 with the ordinary-archive boundary knowingly incomplete."
       - "Explicitly accept the sparse-archive gap and narrow C34, A18, and O149."
@@ -3367,4 +3367,4 @@ tree:
       - "ara/logic/solution/architecture.md:A18"
       - "ara/staging/observations.yaml:O149"
     also_depends_on: [N186]
-    status: open
+    status: resolved

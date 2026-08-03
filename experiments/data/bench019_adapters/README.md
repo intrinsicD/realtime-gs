@@ -27,6 +27,6 @@ inclusive `0.08 m OR 8 degree` keyframes, endpoint-preserving integer half-up se
 the [officially recommended ROS-default calibration for pre-registered RGB-D](https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats)
 in the repository half-integer convention, and an inclusive `[0.3, 5.0] m` registered-depth mask.
 Materialization is development-only and exclusive-new. Archive validation admits only exact
-ordinary file/directory member types; materialized replay rejects symlinks, special nodes, and
-undeclared lexical entries.
+ordinary file/directory member types with no parsed sparse metadata; materialized replay rejects
+symlinks, special nodes, and undeclared lexical entries.
 Karate is intentionally absent until a source-backed mask policy is approved.

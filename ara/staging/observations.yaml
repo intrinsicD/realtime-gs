@@ -2352,7 +2352,6 @@ observations:
     crystallized_via: verbal-affirmation
     stale: false
   - id: O149
-    # CONFLICT: see N186
     timestamp: "2026-08-03T15:25+02:00"
     provenance: ai-executed
     content: >

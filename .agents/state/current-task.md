@@ -12,7 +12,7 @@ RTGS-010
 
 - Driver: Codex-bench019-adapters-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: human
+- Turn: driver
 
 ## Mode
 
@@ -139,9 +139,11 @@ None
   alpha, preserves additive/normalized equations, uses deterministic exact CSR queries, emits
   per-view/split sufficient statistics plus supported predictor values, and can replay the full
   artifact. All five named unavailable predictor classes fail before input access.
-- Twenty-six focused CPU cases pass across Stage and synthetic TUM end-to-end paths, including archive
-  safety, policy boundaries, materialization, semantic relabelling, source/camera/alpha drift,
-  deterministic aggregation, unavailable requests, and full predictor replay.
+- Twenty-seven focused CPU cases pass across Stage and synthetic TUM end-to-end paths, including
+  archive safety, policy boundaries, materialization, semantic relabelling,
+  source/camera/alpha drift, deterministic aggregation, unavailable requests, and full predictor
+  replay. The archive cases include a parsed PAX sparse member that presents as regular-file type
+  while carrying non-null sparse metadata.
 - Development-only calibrated adapters were generated and source-replayed without fitting fields:
   Stage `a47fbce3551c29a7c294aa7db3186405705784b901a5983de8989b218f0d196e`, TUM
   `fr1/xyz` `539dec4d279a124e1a6b8c58afbb80d6104cf69e250c1f3e931fbe9d0c334280`, and
@@ -161,8 +163,8 @@ None
   outcomes: GaussianImage
   `6f30d7dfbe64762071d314ef033dcd5fd5eebec95440d242b016f95f5f99112b` and StructSplat
   no-boundary `54b61f1ef2608adf932dd573d86ccdbd17d2e3af7682e0b50174011351bd894d`.
-- All three maintained adapters still replay their exact sources after the tar allowlist repair;
-  the repaired focused suite is 26 cases and the complete BENCH-019 suite is 57 cases.
+- All three maintained adapters still replay their exact sources after the final sparse-metadata
+  repair; the repaired focused suite is 27 cases and the complete BENCH-019 suite is 58 cases.
 
 ## Minimal Plan
 
@@ -172,14 +174,13 @@ None
    gate.
 4. Completed: add bounded CLIs, public architecture documentation, and calibrated development-only
    adapter diagnostics.
-5. Blocked on human decision after the second consecutive revision verdict: three prior
-   evidence-boundary defects are closed, but a GNU/PAX sparse regular-type alias still bypasses the
-   tar allowlist. The recommended final cycle is limited to rejecting sparse metadata and resuming
-   the same reviewer pass.
+5. In progress after explicit owner authorization: reject the GNU/PAX sparse regular-type alias,
+   retain the raw special-type controls, rerun source/test/repository gates, and resume the same
+   independent reviewer acceptance pass.
 
 ## Status
 
-Blocked on human decision
+In progress
 
 ## Human Decisions
 
@@ -226,7 +227,8 @@ without changing the adapter policy, predictor contract, scientific scope, or de
 
 #### Decision
 
-Pending human direction. Repository workflow requires this escalation before a third driver cycle.
+Authorized by the owner in chat: apply only the exact PAX-sparse metadata rejection and parsed
+regression, then resume the same independent reviewer acceptance pass.
 
 #### Date
 
