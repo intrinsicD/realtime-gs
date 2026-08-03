@@ -12,7 +12,7 @@ RTGS-010
 
 - Driver: Codex-bench019-adapters-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -174,13 +174,13 @@ None
    gate.
 4. Completed: add bounded CLIs, public architecture documentation, and calibrated development-only
    adapter diagnostics.
-5. Completed driver cycle after explicit owner authorization: rejected the GNU/PAX sparse
-   regular-type alias, retained the raw special-type controls, reran source/test/repository gates,
-   and handed the exact repair back to the same independent reviewer.
+5. Completed: the owner-authorized PAX sparse repair was independently accepted after exact
+   counterexample reproduction, retained controls, source replays, and repository gates; the
+   driver owns archive and follow-up-task selection.
 
 ## Status
 
-In review
+Accepted
 
 ## Human Decisions
 
@@ -628,3 +628,59 @@ primary realtime-gs worktree plus the owner's active Stage conversion remained u
 If the exact bounded repair is accepted, archive RTGS-010 and open a distinct development-only task
 for matched field production and the missing predictor-metric experiments. Keep confirmation sealed
 until those artifacts and a prospective protocol receive their own distinct reviews.
+
+### Review (independent final acceptance after owner-authorized PAX repair)
+
+#### Verdict
+
+Accepted
+
+#### Self-reviewed
+
+No
+
+#### Correctness
+
+Implementation revision `1056300707f84a8767545bb83461efc6b0f14649` closes the sole remaining
+archive alias without changing the adapter or predictor contracts. An independently generated GNU
+`tar --format=pax --sparse` archive exposed its sparse entry as `REGTYPE`/`isfile()` with extents
+`[(1048576, 1), (1048577, 0)]`. `SafeTumArchive` rejected that entry with zero member-table writes;
+exception cleanup left the table empty, archive closed, and prefix reset. Source inspection confirms
+the non-null `TarInfo.sparse` check precedes indexing and root discovery. The committed parsed-PAX
+regression proves the same representation and rejection, while raw `CONTTYPE`, `GNUTYPE_SPARSE`,
+FIFO, and link controls remain present and passing. All previously accepted materialization,
+publication, family-binding, and receipt boundaries are unchanged.
+
+#### Evidence Quality
+
+The 27 focused adapter/predictor tests and all 58 BENCH-019 tests passed. The Stage adapter and both
+TUM adapters independently replayed their exact sources at 26 views, 23 train, and 3 held out. The
+canonical bound-environment repository gate and unfiltered CPU suite passed on this review state
+with only the two established PyTorch warnings. The implementation and handoff diffs contain no
+confirmation-payload access, field fitting, predictor collection, reconstruction, correlation,
+loss/default change, or scientific-claim expansion.
+
+#### Simplicity
+
+The repair is the minimum fail-closed change: one parsed sparse-metadata condition immediately
+before member insertion and one representation-level regression. It adds no abstraction or policy
+branch and preserves the existing literal special-type allowlist controls.
+
+#### Missing Cases
+
+Archive byte/member/metadata caps, asymptotically faster association, explicit confirmation/Karate
+payload sentinels, and cross-filesystem publication crash durability remain optional hardening for
+separate tasks. Supported predictors still require downstream matched-field response experiments;
+quality, convergence, speed, compression, and predictor validity remain outside RTGS-010 and are not
+claimed here.
+
+#### Required Changes
+
+None for Pipeline-integrated RTGS-010.
+
+#### Optional Improvements
+
+Retain the previously identified archive-cap, association-performance, payload-sentinel, and
+publication-durability work as separately scoped hardening. Archive this accepted task before
+opening matched-field production or predictor-metric experiments, and keep confirmation sealed
+until their prospective protocol is independently reviewed.
