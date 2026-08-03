@@ -30,6 +30,14 @@ def _design_digest(protocol: dict) -> str:
     return hashlib.sha256(B.canonical_json(payload)).hexdigest()
 
 
+def _refresh_frozen_digests(protocol: dict) -> None:
+    protocol["design_sha256"] = _design_digest(protocol)
+    protocol["review"]["design_sha256"] = protocol["design_sha256"]
+    payload = copy.deepcopy(protocol)
+    payload.pop("protocol_sha256", None)
+    protocol["protocol_sha256"] = hashlib.sha256(B.canonical_json(payload)).hexdigest()
+
+
 def _protocol(
     tmp_path: Path, *, frozen: bool = False, formal_valid: bool = False
 ) -> tuple[Path, dict]:
@@ -384,6 +392,47 @@ def test_formal_protocol_requires_complete_upstream_v1_invariants(tmp_path: Path
     row = B.export_cell(protocol_path, source_path, row_path, receipt_path)
     assert row["status"] == "ok"
     assert B.protocol_identity(protocol) == protocol["protocol_sha256"]
+
+
+def test_formal_protocol_rehashes_nonselected_family_and_global_artifacts(tmp_path: Path) -> None:
+    _, family_protocol = _protocol(tmp_path / "family", frozen=True, formal_valid=True)
+    normalized = _family(family_protocol, "normalized")
+    Path(normalized["stage1_metrics"]["path"]).write_text('{"tampered":true}\n', encoding="utf-8")
+    with pytest.raises(B.ExportError, match="normalized.stage1_metrics (byte length|SHA-256)"):
+        B.protocol_identity(family_protocol)
+
+    _, global_protocol = _protocol(tmp_path / "global", frozen=True, formal_valid=True)
+    Path(global_protocol["downstream"]["task_manifest"]["path"]).write_text(
+        '{"tampered":true}\n', encoding="utf-8"
+    )
+    with pytest.raises(B.ExportError, match="downstream.task_manifest (byte length|SHA-256)"):
+        B.protocol_identity(global_protocol)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("branch", "branch must be a non-empty string"),
+        ("coordinate", "coordinate convention is invalid"),
+        ("working_directory", "working_directory must be a non-empty string"),
+        ("artifact_path", "pixels.path must be a non-empty string"),
+    ],
+)
+def test_formal_protocol_matches_upstream_stripped_string_rules(
+    tmp_path: Path, mutation: str, message: str
+) -> None:
+    _, protocol = _protocol(tmp_path, frozen=True, formal_valid=True)
+    if mutation == "branch":
+        protocol["repositories"][0]["branch"] = "   "
+    elif mutation == "coordinate":
+        _family(protocol, "normalized")["semantics"]["coordinate_convention"] = "   "
+    elif mutation == "working_directory":
+        protocol["downstream"]["working_directory"] = "   "
+    else:
+        protocol["captures"][0]["frames"][0]["pixels"]["path"] = "   "
+    _refresh_frozen_digests(protocol)
+    with pytest.raises(B.ExportError, match=message):
+        B.protocol_identity(protocol)
 
 
 def test_run_receipt_factor_or_semantic_drift_fails_closed(tmp_path: Path) -> None:

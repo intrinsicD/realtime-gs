@@ -265,14 +265,14 @@ def _finite(value: object, *, label: str) -> int | float:
 
 
 def _nonempty_string(value: object, *, label: str) -> str:
-    if not isinstance(value, str) or not value:
+    if not isinstance(value, str) or not value.strip():
         raise ExportError(f"{label} must be a non-empty string")
     return value
 
 
 def _artifact_descriptor(record: object, *, label: str) -> dict[str, Any]:
     value = _exact_mapping(record, _ARTIFACT_KEYS, label=label)
-    if not isinstance(value["path"], str) or not value["path"]:
+    if not isinstance(value["path"], str) or not value["path"].strip():
         raise ExportError(f"{label}.path must be a non-empty string")
     _sha256(value["sha256"], label=f"{label}.sha256")
     size = _integer(value["bytes"], label=f"{label}.bytes")
@@ -429,9 +429,48 @@ def _validate_formal_protocol(protocol: Mapping[str, Any], *, protocol_base: Pat
     if len(repository_names) != len(set(repository_names)):
         raise ExportError("protocol repository names must be unique")
 
+    captures = protocol.get("captures")
+    if not isinstance(captures, list):
+        raise ExportError("protocol captures must be a list")
+    for capture_index, capture in enumerate(captures):
+        if not isinstance(capture, dict):
+            raise ExportError(f"protocol captures[{capture_index}] must be an object")
+        frames = capture.get("frames")
+        if not isinstance(frames, list):
+            raise ExportError(f"protocol captures[{capture_index}].frames must be a list")
+        for frame_index, frame in enumerate(frames):
+            if not isinstance(frame, dict):
+                raise ExportError(
+                    f"protocol captures[{capture_index}].frames[{frame_index}] must be an object"
+                )
+            frame_id = frame.get("id", frame_index)
+            for name in ("pixels", "masks", "cameras"):
+                _artifact_path(
+                    frame.get(name),
+                    protocol_base,
+                    label=f"protocol frame {frame_id}.{name}",
+                )
+            families = frame.get("families")
+            if not isinstance(families, list):
+                raise ExportError(f"protocol frame {frame_id}.families must be a list")
+            for family_index, family in enumerate(families):
+                if not isinstance(family, dict):
+                    raise ExportError(
+                        f"protocol frame {frame_id}.families[{family_index}] must be an object"
+                    )
+                family_id = family.get("id", family_index)
+                for name in ("field_manifest", "stage1_metrics"):
+                    _artifact_path(
+                        family.get(name),
+                        protocol_base,
+                        label=f"protocol family {frame_id}.{family_id}.{name}",
+                    )
+
     downstream = _exact_mapping(
         protocol.get("downstream"), _DOWNSTREAM_KEYS, label="protocol downstream"
     )
+    for name in ("task_manifest", "dataset_manifest", "environment", "schedule_config"):
+        _artifact_path(downstream.get(name), protocol_base, label=f"protocol downstream.{name}")
     command = downstream.get("command")
     if (
         not isinstance(command, list)
@@ -681,9 +720,8 @@ def _protocol_cells(
                     raise ExportError(f"family {family_id} equation/blend semantics disagree")
                 _identifier(semantics.get("provider"), label=f"family {family_id} provider")
                 _identifier(semantics.get("alpha_policy"), label=f"family {family_id} alpha policy")
-                if not isinstance(semantics.get("coordinate_convention"), str) or not semantics.get(
-                    "coordinate_convention"
-                ):
+                coordinate_convention = semantics.get("coordinate_convention")
+                if not isinstance(coordinate_convention, str) or not coordinate_convention.strip():
                     raise ExportError(f"family {family_id} coordinate convention is invalid")
                 _sha256(
                     semantics.get("semantic_digest"),

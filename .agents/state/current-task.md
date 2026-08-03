@@ -12,7 +12,7 @@ RTGS-009
 
 - Driver: Codex-bench019-exporter-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -154,12 +154,14 @@ None
 3. Completed: exercise synthetic-success and calibrated-error diagnostics and update public docs.
 4. Completed: bind three development plus three confirmation source groups without fitting or
    accessing confirmation outcomes.
-5. In review: the three required evidence-boundary repairs are committed and verified; the
-   independent reviewer is rechecking the exact revision and its negative controls.
+5. Revision required: the original three findings are closed, but the acceptance-pass differential
+   audit found that formal identity still fails to rehash every frozen artifact and accepts some
+   whitespace-only strings that StructSplat rejects. Complete one bounded parity repair before
+   resuming the same independent acceptance pass.
 
 ## Status
 
-In review
+Revision required
 
 ## Human Decisions
 
@@ -181,6 +183,31 @@ capture.
 ### Decision
 
 (Owner, in chat.) Do the general-scope clean-worktree route.
+
+### Date
+
+2026-08-03
+
+### Question
+
+Should the remaining validator-parity findings stop the task after the first repair, or receive one
+bounded systematic fix before the same acceptance pass resumes?
+
+### Options
+
+Stop and reopen the design with the owner, or complete the exact portable-v1 artifact traversal and
+stripped-string parity fix without changing scope or opening outcomes.
+
+### Recommendation
+
+Complete the bounded parity fix because the reviewer has isolated exact missing upstream checks;
+this is evidence-boundary correctness, not a new method or result loop.
+
+### Decision
+
+(Owner, standing direction in chat.) Continue with the next steps and do the independently reviewed
+recommended work. The reviewer deliberately returned these findings as continuation feedback and
+did not record a second `Revision required` verdict; keep this to the exact parity repair.
 
 ### Date
 
@@ -463,3 +490,13 @@ was not modified.
 If the revision is accepted, archive RTGS-009 and open RTGS-010 for deterministic source adapters
 and a fail-closed Stage-1 predictor collector. Keep production development-only until its own
 prospective protocol review.
+
+### Acceptance-pass feedback (no second verdict recorded)
+
+The bounded re-review at `1494676` reproduced all original counterexamples as closed, passed the 26
+focused tests, portfolio rehash, error-row/frozen-order controls, and full verification. Before
+acceptance it found two related parity omissions: formal identity did not rehash non-selected
+capture/family artifacts, and local nonempty-string checks did not reject whitespace like the
+upstream validator. The reviewer returned the clean tree without editing the task or recording a
+second verdict so the driver can make one exact systematic repair and resume this same acceptance
+pass.
