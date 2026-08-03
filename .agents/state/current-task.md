@@ -12,7 +12,7 @@ RTGS-009
 
 - Driver: Codex-bench019-exporter-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: driver
+- Turn: reviewer
 
 ## Mode
 
@@ -144,6 +144,13 @@ None
   negative fixture with the same reason.
 - The canonical `./scripts/verify.sh` gate and the additional complete CPU pytest suite pass on
   the repaired revision; only the two established PyTorch warnings are emitted.
+- Revision `2b9be15096bad9016432eb5d667d34deb3c42b48` completes portable-v1 parity by
+  rehashing every repository, capture, family, downstream, and review artifact and rejecting the
+  same whitespace-only identity/path fields as StructSplat.
+- Thirty-one focused exporter/portfolio tests pass. A paired differential exercise accepts the
+  same frozen positive fixture in both repositories and makes both validators reject tampered
+  non-selected family artifacts plus whitespace-only branch, coordinate, working-directory, and
+  artifact-path values. The full canonical verification gate passes on this exact implementation.
 - No general BENCH-019 downstream row or correlation result exists.
 
 ## Minimal Plan
@@ -154,14 +161,12 @@ None
 3. Completed: exercise synthetic-success and calibrated-error diagnostics and update public docs.
 4. Completed: bind three development plus three confirmation source groups without fitting or
    accessing confirmation outcomes.
-5. Revision required: the original three findings are closed, but the acceptance-pass differential
-   audit found that formal identity still fails to rehash every frozen artifact and accepts some
-   whitespace-only strings that StructSplat rejects. Complete one bounded parity repair before
-   resuming the same independent acceptance pass.
+5. In review: the complete frozen-artifact traversal and stripped-string parity repair is committed
+   and verified; resume the same independent acceptance pass on the exact repaired state.
 
 ## Status
 
-Revision required
+In review
 
 ## Human Decisions
 
@@ -500,3 +505,67 @@ capture/family artifacts, and local nonempty-string checks did not reject whites
 upstream validator. The reviewer returned the clean tree without editing the task or recording a
 second verdict so the driver can make one exact systematic repair and resume this same acceptance
 pass.
+
+### Handoff (complete portable-v1 parity repair)
+
+#### Objective
+
+Resume the same independent acceptance pass after closing the two bounded validator-parity findings
+without changing the BENCH-019 scope or accessing any protected outcome.
+
+#### Reviewed state
+
+Implementation revision `2b9be15096bad9016432eb5d667d34deb3c42b48` on branch
+`rtgs/009-bench019-exporter`, following acceptance-pass feedback recorded after metadata revision
+`1494676`.
+
+#### Changes
+
+- Formal protocol identity now rehashes all frozen frame pixels, masks, cameras, field manifests,
+  Stage-1 metrics, and downstream task, dataset, environment, and schedule artifacts in addition to
+  the already verified repository environments and prospective review artifact.
+- Portable-v1 nonempty strings now reject whitespace-only repository roots/branches and downstream
+  paths; artifact descriptor paths and semantic coordinate conventions use the same stripped-string
+  rule as StructSplat.
+- Added adversarial tests for non-selected family/global artifact mutation and whitespace-only
+  branch, coordinate, working-directory, and artifact-path values.
+
+#### Evidence
+
+- Focused exporter/portfolio suite: 31 passed.
+- Paired validation against the imported authoritative StructSplat implementation accepted the same
+  frozen positive fixture and rejected every new counterexample in both repositories.
+- `PYTHONPATH=/home/alex/Documents/realtime-gs-bench019/src
+  PY=/home/alex/Documents/realtime-gs/.venv/bin/python ./scripts/verify.sh`: passed, including the
+  complete CPU suite; only the two established PyTorch warnings were emitted.
+- `git diff --check`, formatting, docs sync, ARA, task workflow, script-layout, and experiment
+  contract checks passed.
+
+#### Assumptions
+
+The versioned portable-v1 protocol remains the interoperability boundary. Mirroring its validation
+locally is intentional because realtime-gs must stay passive and cannot import StructSplat at
+runtime.
+
+#### Uncertainties
+
+This repair closes validator parity only. It does not establish source-adapter completeness,
+predictor validity, convergence, speed, reconstruction quality, compression, or a downstream
+scientific result.
+
+#### Review Focus
+
+Reproduce the non-selected artifact and whitespace counterexamples; compare them directly with the
+authoritative StructSplat validator; confirm the original three blockers remain closed; run the
+focused suite and the full canonical verification gate on the exact reviewed state.
+
+#### Protected actions not taken
+
+No formal protocol or downstream run was created, no confirmation outcome was opened, no scientific
+analysis or default changed, and the dirty primary realtime-gs worktree was not modified.
+
+#### Recommended Next Action
+
+If accepted, archive RTGS-009 and open RTGS-010 for deterministic development adapters and a
+fail-closed Stage-1 predictor collector. Keep the confirmation split sealed and do not claim Karate
+readiness until its missing mask policy is resolved explicitly.
