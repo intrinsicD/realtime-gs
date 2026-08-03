@@ -12,7 +12,7 @@ RTGS-010
 
 - Driver: Codex-bench019-adapters-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: driver
+- Turn: reviewer
 
 ## Mode
 
@@ -174,13 +174,13 @@ None
    gate.
 4. Completed: add bounded CLIs, public architecture documentation, and calibrated development-only
    adapter diagnostics.
-5. In progress after explicit owner authorization: reject the GNU/PAX sparse regular-type alias,
-   retain the raw special-type controls, rerun source/test/repository gates, and resume the same
-   independent reviewer acceptance pass.
+5. Completed driver cycle after explicit owner authorization: rejected the GNU/PAX sparse
+   regular-type alias, retained the raw special-type controls, reran source/test/repository gates,
+   and handed the exact repair back to the same independent reviewer.
 
 ## Status
 
-In progress
+In review
 
 ## Human Decisions
 
@@ -563,3 +563,68 @@ quadratic association candidate construction with an equivalent bounded search, 
 payload-access sentinels for confirmation/Karate, and document crash-durability expectations for
 directory publication. No additional receipt, byte-accounting, or family-binding change is
 requested by this review.
+
+### Handoff (owner-authorized PAX sparse repair)
+
+#### Objective
+
+Close only the independently reproduced GNU/PAX sparse regular-type alias, preserve every prior
+RTGS-010 boundary and control, and resume the same bounded independent acceptance pass authorized
+by the owner.
+
+#### Reviewed state
+
+Implementation revision `1056300707f84a8767545bb83461efc6b0f14649` on branch
+`rtgs/010-bench019-adapters` in `/home/alex/Documents/realtime-gs-bench019`.
+
+#### Changes
+
+- `SafeTumArchive` now rejects every otherwise allowed member whose parsed `TarInfo.sparse` is not
+  `None`, before root discovery or member indexing.
+- Added a real parsed PAX sparse regression that first proves the entry is exposed as
+  `REGTYPE`/`isfile()` with non-null sparse metadata, then proves the adapter rejects it. The raw
+  `CONTTYPE`, `GNUTYPE_SPARSE`, FIFO, and link controls remain intact.
+- Recorded the explicit owner authorization, resolved N187 and the temporary C34/A18/O149 conflict,
+  and narrowed no scientific or protected-data boundary.
+
+#### Evidence
+
+- Focused adapter/predictor suite: 27 passed.
+- Complete BENCH-019 suite: 58 passed.
+- All three tracked development adapters source-replayed at 26 views with 23 train and 3 held-out
+  views; no field fitting or predictor collection occurred.
+- The canonical bound-environment `./scripts/verify.sh` gate and the unfiltered CPU-only suite pass
+  with only the two established PyTorch warnings.
+- `git diff --check`, docs sync, ARA, script-layout, agent-workflow, and experiment-contract checks
+  pass.
+
+#### Assumptions
+
+Python's parsed `TarInfo.sparse` field is the fail-closed signal for GNU/PAX sparse metadata even
+when the member type is ordinary. Literal special member types remain rejected by the earlier type
+allowlist before this additional check.
+
+#### Uncertainties
+
+Archive aggregate/member caps, faster association, extra payload-access sentinels, and
+cross-filesystem directory crash durability remain optional hardening. No supported predictor has
+yet been tested against a downstream response.
+
+#### Review Focus
+
+Reproduce the original GNU/PAX sparse regular-type counterexample against revision `1056300` and
+confirm rejection occurs before member indexing. Verify the parsed PAX regression is genuine,
+literal special-member controls remain effective, all three maintained adapters replay, and the
+focused, BENCH-019, unfiltered CPU, and canonical gates pass.
+
+#### Protected actions not taken
+
+No confirmation payload was opened, no field was fitted, no predictor outcome artifact or
+reconstruction/correlation result was produced, no loss/default was selected, and the dirty
+primary realtime-gs worktree plus the owner's active Stage conversion remained untouched.
+
+#### Recommended Next Action
+
+If the exact bounded repair is accepted, archive RTGS-010 and open a distinct development-only task
+for matched field production and the missing predictor-metric experiments. Keep confirmation sealed
+until those artifacts and a prospective protocol receive their own distinct reviews.
