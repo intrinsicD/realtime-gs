@@ -11,7 +11,7 @@ RTGS-009
 ## Role Assignment
 
 - Driver: Codex-bench019-exporter-driver
-- Reviewer: Codex-bench019-exporter-driver
+- Reviewer: Codex-independent-bench019-reviewer
 - Turn: driver
 
 ## Mode
@@ -144,13 +144,13 @@ None
 3. Completed: exercise synthetic-success and calibrated-error diagnostics and update public docs.
 4. Completed: bind three development plus three confirmation source groups without fitting or
    accessing confirmation outcomes.
-5. Provisionally complete: commit and self-review the verified driver revision. A distinct
-   implementation review remains mandatory before the checkpoint can be accepted or used in a
-   formal prospective BENCH-019 protocol.
+5. Revision required: make formal protocol validation equivalent to the StructSplat v1 contract,
+   reconcile every export receipt to its sealed source manifest during assembly, and enforce the
+   official TUM identities during portfolio verification before requesting another review.
 
 ## Status
 
-Provisionally accepted (self-reviewed)
+Revision required
 
 ## Human Decisions
 
@@ -304,3 +304,83 @@ BENCH-019 execution authority.
 After independent acceptance, open a distinct RTGS task for deterministic TUM/Karate adapters and
 the Stage-1 predictor collector. Keep field production development-only until its own protocol is
 prospectively reviewed.
+
+### Review (independent evidence-boundary review)
+
+#### Verdict
+
+Revision required
+
+#### Self-reviewed
+
+No
+
+#### Correctness
+
+The canonical JSON bytes are identical to StructSplat's v1 implementation, the emitted row has the
+exact upstream field set, additive and normalized semantic digests are preserved, and the shared
+factor omits family and replicate as intended. The independent review nevertheless reproduced
+three fail-closed defects in commit `d3e76fe44f3afe2044505fdcf1e7043657a4e4b1`:
+
+- Formal export accepted a digest-consistent frozen-looking protocol with no repository bindings;
+  StructSplat's `validate_protocol(..., require_frozen=True)` rejected the same object with
+  `BENCH-019 must bind both StructSplat and realtime-gs repositories`. The local validator also
+  omits the upstream analysis, path, minimum-seed, predictor/response-disjointness, and complete
+  A/A contract checks. A formal flag therefore does not currently establish that the input is a
+  valid StructSplat BENCH-019 protocol.
+- Assembly accepted a modified export receipt after `downstream_metrics` was deleted from
+  `source_artifacts`. `_validate_export_receipt` rehashes whichever descriptors remain but does not
+  reload and reconcile the sealed source manifest, exact metric-source set, metric bindings, run
+  binding, or source artifact descriptors to the row. Receipt presence is therefore not yet proof
+  that the assembled row is the export of its named source manifest.
+- Portfolio verification accepted replacing the `tum_fr1_xyz` official archive with an unrelated
+  valid calibration file after its self-descriptor and `source_digest` were recomputed. The pinned
+  official TUM bytes and SHA-256 values are enforced by `create` only, not by the reusable
+  `validate_capture_portfolio` / `verify` path.
+
+#### Evidence Quality
+
+All 18 focused exporter/portfolio tests passed, all 88 committed source files rehashed, and the
+complete CPU suite passed with only the two established PyTorch warnings. The committed portfolio
+currently contains 88 unique paths, the declared 3+3 IDs are disjoint, all confirmation families
+remain `not_produced`, and its four current TUM descriptors match the constants in the creator.
+A synthetic formal row also produced zero StructSplat `validate_result_rows` problems. Those green
+checks establish current row compatibility and current-file integrity, but the three negative
+controls above show that the verification boundary can accept substituted provenance.
+
+#### Simplicity
+
+The passive module split, CPU-only imports, exact row schema, raw finite JSON-pointer extraction,
+six-artifact binding, append-only writes, and upstream-owned analysis boundary are appropriately
+small. The required repairs can stay within the existing validators and tests; no new executor,
+report framework, or dependency is needed.
+
+#### Missing Cases
+
+The test suite lacks an exact upstream-valid frozen protocol fixture and paired negative corpus,
+receipt source-set/source-manifest deletion and substitution cases, and TUM-pin verification
+mutation cases. Capture IDs are source-disjoint in the committed inventory, but the two TUM groups
+within each split do not by themselves establish statistical independence or domain diversity.
+Five groups still lack matched fields, and no protected or confirmation outcome was accessed by
+this review.
+
+#### Required Changes
+
+1. Make formal protocol acceptance fail closed on the complete StructSplat v1 protocol invariants,
+   either by mirroring the portable validation rules locally or by verifying a suitably exact
+   upstream validation artifact without importing StructSplat. Add an upstream-valid frozen
+   fixture plus cross-repository positive and negative compatibility tests.
+2. During assembly, strictly reload the receipt-bound source manifest and require the exact source
+   artifact set, metric bindings and raw values, run binding, six cell artifacts, cell identity,
+   and protocol/factor bindings to reproduce the row. Add deletion, substitution, extra-source,
+   and source-manifest mutation tests.
+3. Move the capture-specific official TUM archive identities into the reusable portfolio contract
+   and enforce them in both create and verify. Add a test proving that a self-consistent archive
+   substitution is rejected.
+
+#### Optional Improvements
+
+Order assembly-receipt `row_sources` by frozen cell order rather than caller order, and make the
+standalone `factor` command reject undeclared frame, seed, or initializer values before downstream
+work begins. Keep the portfolio's source-disjointness distinct from any later statistical
+independence claim.
