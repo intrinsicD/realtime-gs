@@ -2,16 +2,16 @@
 
 ## Title
 
-Full-resolution three-path paper pipeline from native 2D Gaussian fields through densified 3DGS
+Provider-neutral StructSplat BENCH-019 downstream receipt exporter
 
 ## Task ID
 
-RTGS-007
+RTGS-009
 
 ## Role Assignment
 
-- Driver: Codex-three-path-driver
-- Reviewer: Codex-three-path-driver
+- Driver: Codex-bench019-exporter-driver
+- Reviewer: pending-independent-reviewer
 - Turn: driver
 
 ## Mode
@@ -24,99 +24,75 @@ Protected
 
 ## Maturity
 
-- Target: Calibrated
+- Target: Pipeline-integrated
 - Reached: Pipeline-integrated
 
 ## Goal
 
-Produce an inspectable, full-resolution development realization of the paper's three reconstruction
-paths from one shared, native-additive, GaussianImage-style 2D Gaussian capture: bounded-random,
-Splat-SfM, and Beam Fusion initialization. For the immediate owner-facing visual demonstration,
-natively replay the sealed fields into the established full-crop 3DGS trainer and give all three
-arms the same complete clone/split/prune/reset schedule. Keep the protected RGB-free compact
-optimizer as a separate evidence path, record its sparse-supervision visual failure honestly, and
-do not substitute the dense development path into a compact/VRAM claim. Preserve the Beam endpoint
-as the starting point for a later fresh diagnosis rather than repairing it inside this comparison.
-The protocol authority is
-`experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json`.
-As an owner-requested experiment-infrastructure cleanup, also make every current and historical
-study discoverable through the task-first `YYYYMMDD_<task_slug>_<data_slug>` naming scheme without
-renaming or weakening sealed provenance.
+Implement a strict, CPU-first realtime-gs exporter for
+`structsplat.bench019.cell.v1`. The exporter must bind one frozen StructSplat BENCH-019 protocol
+cell to its exact field semantics, shared downstream factor, raw metric sources, and inspectable
+artifacts without executing or interpreting the StructSplat analysis. It must also inventory a
+six-capture development/confirmation data portfolio without opening a formal outcome phase.
 
 ## Motivation
 
-The owner rejected the visually poor 640-component, 100-update Stage-1 smoke and clarified the
-paper demonstration they expect to see. Native canvas dimensions alone are not full-resolution
-quality. The current code has the component pieces, but not the promised end-to-end system:
-`CompactTrainer` is fixed-topology unless an external research controller is supplied, Beam and
-Splat-SfM are separate initializer functions rather than registered three-path arms, and the
-capture has no real COLMAP sparse model. This task closes those integration gaps without conflating
-the standard RGB trainer with the paper's compact-field-supervised reconstruction.
-
-Remote `main` now supplies the owner-adopted A17 Experiment Bundle Contract v2 and its hardened
-viewer smoke. RTGS-007 must consume that shared contract before any future official run; merging it
-does not retroactively turn the outcome-exposed development artifacts into protected evidence.
+StructSplat BENCH-019 already owns protocol freezing, A/A validation, clustered ranking, and
+portable reporting, but it intentionally does not execute realtime-gs. The current realtime-gs
+RTGS-008 draft is a dirty, single-frame paper experiment and cannot serve as a general exporter.
+The owner selected the general-scope route: isolate this work in a clean worktree, preserve the
+active RTGS-008 worktree, and prepare independent capture groups before any downstream conclusion.
 
 ## Success Criteria
 
-- A one-view mechanism pilot establishes a visibly useful non-StructSplat native-additive Stage-1
-  capacity/update setting on the native 5328-by-4608 canvas; the chosen setting is then frozen
-  prospectively before all-view production.
-- Both protocol frames have strict, source-bound native-additive `.rtgsv` bundles at the frozen
-  high-capacity setting, complete production receipts, full-resolution render QA, and one exact
-  data seal. The old 640-by-100 bundles remain labelled as superseded smoke inputs.
-- One owner-facing development cell replays the sealed native fields without StructSplat or source
-  RGB, completes the same established 30k full-crop 3DGS fit for Random, Splat-SfM, and Beam, and
-  presents native-resolution initialization/final renders plus an interactive comparison. This
-  demonstration is explicitly outside compact/VRAM evidence.
-- A reusable compact density controller drives the established classic clone/split/prune/opacity
-  reset surgery from point-rasterizer screen gradients, preserves Adam survivor rows and exact-zero
-  newborn moments, maintains complete persistent lineage, enforces a hard count cap, and has
-  CPU-first tests.
-- One task driver constructs bounded-random, explicitly named Splat-SfM, and Beam Fusion
-  initializations from the same train-only compact inputs, then gives all three the identical
-  compact objective, sampling schedule, learning rates, SH schedule, topology policy, update
-  budget, and capacity. No source RGB, mask, `SceneData`, dense trainer, or held-out field enters
-  reconstruction.
-- The protocol passes contract/data validation and an outcome-unseen prospective review before
-  `init-run`. The canonical run produces initial/checkpoint/final PLYs, native-resolution
-  calibrated renders, density histories, metrics, a three-model viewer manifest, and a complete
-  Bundle Contract v2 report that passes the independent result-bundle gates.
-- The Beam arm is shown without post-outcome repair or special schedule. Its visible failures and
-  topology trajectory are reported descriptively, then left to a distinct successor task.
-- The experiment catalog gives every registered task its exact task ID and every historical study
-  a unique current-scheme navigation alias, with direct links to the original result, audit,
-  driver, or log record. No sealed evidence path, historical run root, checksum, or citation
-  target is renamed.
-- Focused tests, `rtgs-review`, `realtime-gs-results-audit`, and `./scripts/verify.sh` pass, with
-  any pre-existing host failure reproduced and scoped rather than hidden.
+- A reusable CPU-only module and bounded task driver emit the exact
+  `structsplat.bench019.cell.v1` row shape without importing StructSplat or CUDA-only packages.
+- Frozen/review protocol integrity, stable cell identity, field-manifest hash, semantic digest,
+  result metric names, and source artifact hashes fail closed on drift.
+- The downstream-factor digest is derived only from frozen protocol bindings plus frame, seed, and
+  initializer, is identical across field families, and is identical for the A/A replay.
+- Successful rows extract every Stage-1 predictor and downstream response from declared JSON
+  pointers into sealed source artifacts; constants, missing values, booleans, non-finite values,
+  and post-export transformations are rejected.
+- Successful rows bind field, history, config, target, reconstruction, and error artifacts by
+  exact path, SHA-256, and byte length. Error rows remain explicit and cannot masquerade as
+  successful cells.
+- An assembler orders cells exactly as the frozen protocol declares, rejects duplicates and
+  undeclared cells, and fails closed on missing cells unless explicitly producing an incomplete
+  diagnostic inventory.
+- Deterministic tests cover valid export, normalized/additive semantic preservation, A/A factor
+  identity, family-factor drift, metric-source tampering, artifact tampering, duplicate/missing
+  cells, and append-only output behavior.
+- A calibrated, non-result-bearing diagnostic exercises the exporter boundary without accessing a
+  protected BENCH-019 outcome or changing a production default.
+- A source-bound inventory records three development and three confirmation capture groups. Any
+  unavailable field-family production remains visible rather than being inferred as complete.
+- Focused tests, docs/workflow checks, self-review, and `./scripts/verify.sh` pass before handoff.
 
 ## Constraints
 
-- Stage 1 is native additive GaussianImage-style fitting. StructSplat and normalized-blend fields
-  are forbidden.
-- Reconstruction after Stage 1 consumes only calibrated compact fields. RGB/masks may be used only
-  for Stage-1 fitting and isolated final visual evaluation outside the reconstruction process.
-- All arms share exact teacher bytes, training views, sample streams, optimizer controls,
-  densification policy, hard final capacity, and checkpoint schedule; only initialization differs.
-- Splat-SfM is labelled exactly as such. It is not a real COLMAP sparse reconstruction and must not
-  be called Original 3DGS or conventional SfM.
-- No official result run before prospective protocol approval; no Beam-specific fix is selected
-  from this comparison's outcomes.
-- Historical result, audit, seal, receipt, and run paths are append-only. Consistent historical
-  names are additive catalog aliases, never destructive filesystem renames.
-- Preserve the unrelated user-owned `.idea/rtgs.iml` modification and all prior experiment
-  artifacts.
+- Preserve `/home/alex/Documents/realtime-gs` and all of its uncommitted RTGS-008, ARA, IDE, and
+  experiment files unchanged. Work only in `/home/alex/Documents/realtime-gs-bench019`.
+- Preserve BENCH-019's exact additive versus normalized labels; never convert a normalized field
+  and relabel it additive.
+- The exporter is passive evidence infrastructure. It does not choose a Stage-1 surrogate, loss,
+  field representation, initializer, or realtime-gs schedule.
+- No formal execution before StructSplat's distinct prospective protocol review and clean frozen
+  protocol. Diagnostic review-state exports must be labelled and cannot become claim-ready rows.
+- Development and confirmation capture identities are disjoint. Confirmation outcomes remain
+  unopened until the upstream gate authorizes them.
+- All output writes are new-file or empty-directory only; no existing receipt or result bundle is
+  repaired in place.
 
 ## Non-Goals
 
-- Proving a paper, general VRAM, quality, speed, or cross-dataset claim from the two
-  outcome-exposed stage frames.
-- Implementing or installing COLMAP, inventing a sparse point model, or relabelling Splat-SfM.
-- Changing the standard RGB trainer, gsplat density defaults, or production defaults.
-- Continuing RTGS-006's analytic-objective comparison.
-- Diagnosing, tuning, or repairing Beam Fusion after the matched endpoint is visible; that begins
-  under a fresh task and protocol.
+- Completing or publishing RTGS-008, modifying the dirty primary realtime-gs worktree, or adopting
+  its single-frame outcome as general evidence.
+- Running the BENCH-019 correlation analysis, promoting a scientific claim, or selecting a Field
+  V2 semantic contract.
+- Producing missing 2D field families, tuning downstream hyperparameters, or consuming a sealed
+  confirmation split in this implementation task.
+- Adding another HTML/report framework; StructSplat remains the BENCH-019 report authority.
 
 ## Selected Skills
 
@@ -126,90 +102,48 @@ does not retroactively turn the outcome-exposed development artifacts into prote
 - rtgs-bench
 - rtgs-docs-sync
 - rtgs-review
-- realtime-gs-results-audit
 - rtgs-verify
+- realtime-gs-results-audit
 
 ## Experiment Contract
 
-experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json
+None
 
 ## Current Evidence
 
-- The RTX 4090 host exposes 24,564 MiB and modern `gsplat 1.5.3`; an existing all-view
-  native-resolution RGB run reached 100,000 3D Gaussians, so full-resolution rendering and dynamic
-  cardinality are supported on this machine.
-- `CompactTrainer` supports all six 3DGS parameter families, native-coordinate point supervision,
-  an opt-in topology protocol, persistent IDs, Adam-boundary verification, and
-  checkpoint/evaluation receipts. The new `ClassicCompactDensityController` implements production
-  research cardinality changes behind that opt-in seam; fixed topology remains the default.
-- `DensityController` already implements classic screen-gradient clone/split/prune, hard-cap
-  enforcement, optimizer surgery, and opacity reset. `PointRenderOutput` carries the visible-row
-  and retained screen-gradient data needed to drive it.
-- `structure_from_splats` and `fuse_gaussian_beams` consume the same strict
-  `ReconstructionInputs`. The registered legacy `SfMLifter` instead needs `SceneData.points` and
-  ignores 2D fields; it is not the arm selected here.
-- No `colmap` executable or cameras/images/points3D sparse model exists for the two stage frames.
-- The existing native-additive bundles use only 640 Gaussians and 100 updates per view. Their
-  native image dimensions are correct, but their approximately 22 dB mean foreground fit and
-  visible blur make them mechanism smoke, not the requested paper-quality input.
-- The replacement acquisition is complete for both frames: every view contains 100,000 native
-  additive Gaussians fitted for 2,000 updates and reloads strictly at the native 5328-by-4608
-  canvas. Equal-view mean foreground PSNR is 34.5186 dB on frame 00008 and 34.8426 dB on frame
-  00009; the sealed compact payloads total 80,777,830 and 80,973,603 bytes respectively.
-- The strict point-query development path completed 10,000 updates on frame 00008 Random and
-  exercised 199 classic topology transactions (3,330 to 100,000 Gaussians, including clone,
-  split, prune, and two resets), but its native render remained dark and visibly soft. It is a
-  rejected integration diagnostic, not the requested endpoint.
-- The established ordinary full-crop `Trainer` path is now exposed separately as
-  `train-standard`: it reconstructs crop tensors natively from the sealed `provider=native`
-  fields without StructSplat or source-image access, then uses the repository's proven 30k
-  gsplat DefaultStrategy recipe. This path supplies the visual functionality demonstration but
-  is explicitly ineligible for the compact/VRAM claim because it materializes dense tensors.
-- The three train-only initializers are frozen at an exact common 3,330 rows from one identical
-  field/camera boundary. Splat-SfM produced 3,330 tracks and Beam at least 5,000 components from
-  the shared 2,000-row-per-view structural work subset; all downstream teacher replays retain the
-  complete 100,000-row fields.
-- The frame-00008/seed-300701 development cell completed the same 30,000-update standard 3DGS
-  schedule for all arms. Random grew 3,330 to 28,352 rows and reached held-out crop
-  PSNR/SSIM 30.4976/0.96277; Splat-SfM grew to 28,187 and reached 30.2340/0.96119; Beam grew to
-  27,938 and reached 30.1512/0.96128. Random therefore slightly led this single development cell;
-  Splat-SfM did not show an initializer advantage.
-- Native 5328-by-4608 inspection on held-out C0014 shows a detailed Stage-1 field and recognizable,
-  detail-bearing endpoints for all arms. Splat-SfM retains conspicuous floating splat fragments.
-  Beam starts almost black with a diffuse low-opacity carrier and recovers through the shared fit,
-  but its endpoint remains somewhat smoother and more smeared than Random. No Beam-specific repair
-  was applied.
-- Every standard run passed the no-image-open boundary. Splat-SfM and Beam explicitly recorded no
-  loaded StructSplat modules; Random used the same native replay path and records
-  `structsplat_used=false`, but completed before the explicit module-list receipt field was added.
-  The standard path peaked at approximately 4.36 GB host RSS and 2.34/6.57 GB CUDA
-  allocated/reserved, so none of these figures are compact/VRAM claims.
-- Remote A17 adds the shared v2 report renderer, dimensioned elapsed-time histories with explicit
-  stage boundaries, manifest checksums, and browser/WebGL/orbit visibility receipts. It remains
-  infrastructure evidence, not an RTGS-007 scientific result.
-- The owner requested one naming scheme across current and historical experiments. The new
-  catalog contains 102 unique names and 158 direct links; registered task IDs remain exact, while
-  historical names are explicitly non-protocol aliases to immutable primary records.
-- Focused CPU tests (74), focused CUDA renderer/query tests, Ruff, docs-sync, workflow validation,
-  experiment contract/data validation, and the quick benchmark pass. Full `verify.sh` reaches the
-  end of the CPU suite with exactly six frozen-harness failures caused by the host lacking the
-  pinned `/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33` (the installed system version is
-  `.6.0.35`); the frozen benchmark sources are unchanged and the ABI pin was not weakened.
+- Clean branch `rtgs/009-bench019-exporter` starts at realtime-gs commit `4c1a7a5` in an isolated
+  worktree; the primary worktree remains dirty and untouched.
+- StructSplat commit `c61db61` defines `structsplat.bench019.cell.v1`, its exact row fields, the
+  six required cell artifacts, frozen cell order, and cross-family downstream-factor equality.
+- `rtgs.bench019` and its task-local CLI now validate protocol/review integrity, exact field
+  semantics, verified global factors, sealed JSON pointers, run bindings, six cell artifacts,
+  append-only writes, export receipts, and stable receipt-required assembly.
+- The committed pre-outcome portfolio binds 88 exact source files across three development groups
+  (Janelle Stage, TUM `fr1/xyz`, TUM `fr1/rpy`) and three disjoint confirmation groups (Janelle
+  Karate, TUM `fr1/desk`, TUM `fr1/desk2`). All four TUM archives match pinned official bytes and
+  SHA-256 values.
+- Stage has two complete-but-unbound 26-view field families and a snapshotted incomplete 13/26
+  mask-contained family. Karate has no frozen mask policy; every TUM group still needs a keyframe,
+  camera, split, and mask adapter. No confirmation field family has been produced or opened.
+- A synthetic frozen success row and a calibrated Stage review-state intentional-error row both
+  passed StructSplat's independent `validate_result_rows` with zero problems. The calibrated row
+  bound field manifest SHA-256 `e6daeb328000e08343dca2d36a1b817549d632d6b1298de58dd830ad5dffcdcb`
+  and semantic digest `1981bf163e67d51485a6eb80afe0f451b9eaf5a1e24c4db6a51e63d6dc0ece84`.
+- Eighteen focused exporter/portfolio tests pass. The canonical `./scripts/verify.sh` gate and the
+  additional complete CPU pytest suite pass from the isolated worktree; only the two established
+  PyTorch warnings are emitted.
+- No general BENCH-019 downstream row or correlation result exists.
 
 ## Minimal Plan
 
-1. Register this task and its draft protocol; archive RTGS-006 as owner-superseded.
-2. Implement and test the reusable compact classic-density controller plus shared three-initializer
-   orchestration.
-3. Run a bounded one-view native-additive capacity/update pilot, inspect the full-resolution
-   render, and freeze the all-view Stage-1 setting.
-4. Produce and seal both high-capacity full-resolution compact datasets.
-5. Freeze the matched compact-training schedule and driver through mechanism tests, adopt Bundle
-   Contract v2, then obtain prospective protocol approval.
-6. Run the canonical three-path comparison, build and open the viewer/results page, audit the
-   outcome, and hand Beam's observed problems to a new task.
-7. Maintain one searchable current-scheme catalog across registered and historical experiments,
-   preserving every sealed path as append-only provenance.
+1. Completed: freeze the exporter/source/factor contracts against the StructSplat row validator.
+2. Completed: implement the CPU-only modules, bounded CLIs, receipt-required assembler, and
+   adversarial tests.
+3. Completed: exercise synthetic-success and calibrated-error diagnostics and update public docs.
+4. Completed: bind three development plus three confirmation source groups without fitting or
+   accessing confirmation outcomes.
+5. In progress: commit the verified driver revision, obtain independent implementation review,
+   then bind the accepted revision from StructSplat BENCH-019 before any formal protocol review.
 
 ## Status
 
@@ -219,27 +153,26 @@ In progress
 
 ### Question
 
-Which pipeline should replace the additive analytic-objective detour?
+Should BENCH-019 remain a frame-00008 workload-specific diagnostic or prepare a general-scope
+cross-capture run?
 
 ### Options
 
-Continue the fixed-topology analytic objective; show only the 2D bundle; or build the three
-paper paths with full compact densification.
+Use only frame 00008, or build the provider-neutral exporter in a clean realtime-gs worktree and
+obtain independent capture groups.
 
 ### Recommendation
 
-Build the three paper paths and treat the old 640-by-100 inputs as smoke only.
+Use the clean general-scope route so later Field V2 choices are not selected from one exposed
+capture.
 
 ### Decision
 
-(Owner, in chat.) Show image to full-resolution non-StructSplat 2D Gaussian fields, then complete
-3DGS fits from random and SfM initialization with full densification, and a third complete fit from
-Beam Fusion initialization so the Beam problems are visible. Diagnose those problems later from a
-fresh start.
+(Owner, in chat.) Do the general-scope clean-worktree route.
 
 ### Date
 
-2026-07-30
+2026-08-03
 
 ## Handoff Log
 
@@ -249,186 +182,75 @@ Never delete earlier entries. On terminal closeout, archive the complete record 
 `docs/tasks/<task-id>-<slug>.md`, change the archived `Turn` to `none`, and reset this file to the
 unchanged template.
 
-### 2026-07-30 — Driver progress: full-resolution three-path development viewer
-
-#### Work
-
-Produced and sealed both 100,000-by-2,000 native additive Stage-1 captures, integrated the matched
-three initializers, completed Random/Splat-SfM/Beam through the same 30k standard full-crop 3DGS
-schedule on frame 00008, and generated a held-out C0014 presentation with native-resolution
-initial/final renders and a synchronized interactive-viewer manifest.
-
-#### Evidence
-
-Random/Splat-SfM/Beam end at 28,352/28,187/27,938 Gaussians. Held-out crop PSNR is
-30.4976/30.2340/30.1512 dB respectively. All generated PNGs are exactly 5328 by 4608 pixels.
-Visual review confirms the nearly black Beam initialization, Splat-SfM floaters, and usable but
-still smoother-than-2D-teacher endpoints. The protected compact diagnostic independently exercised
-clone/split/prune/reset to 100,000 rows but remained dark/soft because 128 point queries per update
-did not supply native-image detail.
-
-#### Review state
-
-Development visualization is ready for owner inspection. The official protocol remains draft:
-there is no prospective independent approval or canonical compact run, and no compact/VRAM or
-cross-scene claim is authorized. Beam diagnosis and repair remain deliberately deferred to a fresh
-successor task.
-
-### 2026-07-31 — Driver review: publishable development implementation, protected run still gated
-
-#### Work
-
-Reviewed the complete local implementation and development artifacts before publication, repaired
-the compact-density lineage ledger so births remain traceable after later pruning, and added trainer
-coverage proving historical lineage does not contaminate summaries of currently surviving rows.
-The owner authorized committing the complete worktree and reconciling it with remote `main`.
-
-#### Evidence
-
-The focused native-observation, initializer, density, point-renderer, data-production, compact-view,
-contract, and CUDA-observation test set passes (CUDA-only nodes skip when unavailable). Both exact
-data seals pass `experiment_contract.py validate-data`, and every produced field still matches its
-sealed bytes and production receipt.
-
-#### Uncertainties
-
-The live producer-source verification commands intentionally fail closed because the untracked
-producer and provider sources continued to evolve after the bundles were generated. The stored
-full-resolution source aggregate `fbdd7926...` differs from the current `920e3f33...`; the stored
-additive aggregate `2a37b336...` differs from the current `26e499...`. Exact produced bytes,
-manifests, receipts, and their seals remain preserved, but the executed dirty source bytes are
-available only as stored hashes, so these development inputs are not represented as
-source-replay-complete official evidence.
-
-#### Protected actions not taken
-
-No prospective approval, `init-run`, canonical protected execution, official result bundle,
-claim/default promotion, or Beam-specific repair was fabricated. The protocol remains `draft` with
-its three explicit blockers.
-
-#### Recommended Next Action
-
-Publish this pipeline-integrated development state as requested. If official compact evidence is
-still desired, begin from an outcome-unseen review of a freshly source-bound acquisition and the
-existing draft protocol rather than relabelling the development viewer as the canonical run.
-
-### 2026-07-31 — Driver handoff: remote-main reconciliation reviewed
+### Handoff (provider-neutral exporter and source portfolio)
 
 #### Objective
 
-Reconcile the complete RTGS-007 development commit with the current remote `main`, resolve its
-concurrent RTGS-006/A17 task history, and prepare the reviewed combined tree for direct-main
-publication at the owner’s request.
+Independently review the general BENCH-019 realtime-gs evidence boundary and six-group source
+portfolio before StructSplat binds this revision or anyone freezes and executes a formal protocol.
 
 #### Reviewed state
 
-Local checkpoint `d3f73a7` diverged from remote `ed51da5` by one local and four remote commits.
-Git reported two textual conflicts: the active task record and the experiment-contract tests.
-Four other overlapping files merged automatically and were reviewed semantically.
+Verified working-tree implementation on branch `rtgs/009-bench019-exporter`, based on clean
+realtime-gs commit `4c1a7a53`. The exact handoff commit is pending this record and the required
+pre-commit verification gate.
 
 #### Changes
 
-RTGS-007 remains the one active task and now explicitly freezes Bundle Contract v2. Remote A17
-reporting, stage-timeline, manifest, and visible-browser-smoke infrastructure is retained; the
-local optional production-manifest data sealing is retained within it. Both branches’ RTGS-006
-decisions and handoffs are preserved in the superseded archive, with their concurrent chronology
-and shared-infrastructure boundary stated explicitly. The contract-test resolution retains both
-the v2 fixture coverage and production-sidecar sealing coverage.
+- Added the passive CPU-only cell exporter, exact downstream-factor derivation, source/run binding,
+  row validator, provenance receipt, and receipt-required stable assembler.
+- Added a source-portfolio contract and task-local create/verify driver with pinned official TUM
+  archive identities and a hard confirmation-outcome boundary.
+- Added adversarial contract tests and documented the cross-repository ownership boundary in the
+  README, architecture, and repository map.
+- Closed a self-review finding that had allowed the assembler to accept a row without its export
+  receipt; assembly now rehashes the protocol, row, source manifest, metric sources, cell
+  artifacts, factor record, and paired receipt.
 
 #### Evidence
 
-The combined experiment-contract/viewer suite and the complete RTGS-007 focused suite pass. The
-full non-slow CPU suite passes when exactly the six frozen historical ABI nodes are deselected.
-Ruff, docs-sync, ARA, script layout, agent workflow, experiment-contract validation, both exact
-data-seal validations, and `git diff --check` pass. The canonical `./scripts/verify.sh` reproduces
-only those same six failures because this host lacks pinned
-`/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33` and provides `.6.0.35`; no frozen harness was
-weakened.
+- `tests/test_bench019_exporter.py` and `tests/test_bench019_portfolio.py`: 18 passed.
+- Source portfolio local rehash: three development groups, three confirmation groups, 88 files.
+- Synthetic frozen success diagnostic: `status=ok`, integer metric preserved, zero StructSplat row
+  validation problems.
+- Calibrated Stage diagnostic: review-state `status=error` by design, exact GaussianImage field and
+  semantic hashes preserved, zero StructSplat row validation problems.
+- `PYTHONPATH=/home/alex/Documents/realtime-gs-bench019/src
+  PY=/home/alex/Documents/realtime-gs/.venv/bin/python ./scripts/verify.sh`: passed.
+- Complete CPU suite with the isolated worktree on `PYTHONPATH`: passed.
+- `git diff --check`: passed. The dirty primary realtime-gs worktree was inspected read-only and
+  remains outside this branch.
 
 #### Assumptions
 
-The owner’s explicit request to commit all changes, merge remote `main`, resolve conflicts, and
-push authorizes direct-main publication and inclusion of the CLion metadata plus all generated
-field/QA artifacts.
+The four TUM sequences are treated as distinct acquisition trajectories at the source-inventory
+level. That does not by itself establish the stronger statistical independence or domain diversity
+needed for a general scientific claim; StructSplat's prospective review remains authoritative.
 
 #### Uncertainties
 
-The publish contains roughly 366 MB of new artifacts and may take longer than a normal source-only
-push. The producer-source mismatch and draft official-protocol boundary recorded in the preceding
-handoff remain unchanged.
+Five groups have no matched Stage-1 families. TUM keyframes/adapters and the Karate mask policy are
+unfrozen. Stage mask-contained production was 13/26 at the inventory snapshot and is deliberately
+not bound. The portfolio contains host-local absolute source paths, so another executor must stage
+or reacquire byte-identical files before use. No convergence, quality, speed, or compression
+outcome has been measured by this task.
 
 #### Review Focus
 
-Review the combined `scripts/experiment_contract.py`, the v2 declaration in the RTGS-007 task, the
-active/archive task split, persistent density lineage, and the absence of any claim that the
-development viewer is an official compact result.
+Audit canonical JSON compatibility with StructSplat, additive/normalized semantic preservation,
+factor family/A/A invariance, strict metric provenance, receipt-required assembly, confirmation
+isolation, pinned archive authenticity, and whether the six acquisitions support the intended
+capture-cluster interpretation.
 
 #### Protected actions not taken
 
-No prospective approval, `init-run`, canonical protected execution, official result bundle,
-scientific claim promotion, default change, or Beam-specific repair was introduced during merge
-resolution.
+No formal protocol was frozen or executed, no confirmation field or downstream outcome was
+opened, no correlation/report was produced, no scientific claim/default was changed, no active
+RTGS-008 file was modified, and nothing was pushed.
 
 #### Recommended Next Action
 
-Commit the reviewed merge, confirm remote `main` has not moved, fast-forward local `main`, and push
-the combined history.
-
-### 2026-07-31 — Driver progress: historical experiment naming catalog
-
-#### Objective
-
-Apply the task-first naming scheme to the complete experiment history so old studies can be found
-without relying on inconsistent filenames or date placement.
-
-#### Reviewed state
-
-Clean `main` at `26bd9da` with seven registered task-first experiment records, the append-only
-historical log, 402 tracked entries under `benchmarks/results/`, and local legacy run roots whose
-paths are cited by result and audit records.
-
-#### Changes
-
-Added `experiments/INDEX.md` as the canonical discovery surface. It preserves exact task IDs for
-registered experiments and assigns unique `YYYYMMDD_<task_slug>_<data_slug>` catalog aliases to
-historical studies, including independently interpretable studies that previously shared one log
-entry. Repository, experiment, run, evidence, and dated-log entrypoints now link to the catalog.
-
-#### Evidence
-
-The catalog contains 102 unique current-scheme names and 158 relative links. A filesystem check
-resolved every link. `git diff --name-status` confirms that no file under
-`benchmarks/results/`, no ignored historical run root, and no experiment task JSON was renamed or
-modified. Ruff, docs-sync, ARA, script layout, agent workflow, experiment-contract validation, and
-`git diff --check` pass. The complete non-slow CPU suite passes with exactly the six already
-documented, host-ABI-pinned nodes deselected; the canonical `./scripts/verify.sh` reproduces only
-those six failures because this host lacks the sealed `libstdc++.so.6.0.33`. Three listener tests
-that the restricted sandbox denied pass with normal local socket permissions.
-
-#### Assumptions
-
-The owner's request to rename sealed citations is interpreted as a request for consistent lookup,
-not authorization to invalidate the repository's append-only evidence contract. Catalog aliases
-are therefore additive navigation identities; original paths remain the authority for hashes,
-commands, audits, ARA proofs, and replay.
-
-#### Uncertainties
-
-Some pre-task studies combined several iterations or evidence phases in one prose entry. The
-catalog separates them when an independent primary record exists, but does not retroactively
-claim prospective registration, outcome isolation, or a stronger evidence phase.
-
-#### Review Focus
-
-Check alias uniqueness, data-scope accuracy, link resolution, complete historical-log coverage,
-and the absence of renamed or edited sealed artifacts.
-
-#### Protected actions not taken
-
-No result, audit, preregistration, seal, receipt, source archive, run root, task protocol, claim,
-metric, default, or scientific interpretation was renamed or changed.
-
-#### Recommended Next Action
-
-Use the catalog name in new discussion and navigation, but retain the linked original path in any
-hash, replay, or evidence citation.
+Commit this verified driver checkpoint, obtain a distinct implementation verdict, and only then
+bind the accepted realtime-gs commit and portfolio digest into StructSplat BENCH-019. The next
+implementation task should freeze the TUM/Karate adapters and produce matched development fields;
+confirmation production must remain unopened until the upstream gate authorizes it.
