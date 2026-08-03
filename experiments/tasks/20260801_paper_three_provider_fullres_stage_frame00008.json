@@ -278,7 +278,5 @@
     "--run-dir",
     "runs/20260801_paper_three_provider_fullres_stage_frame00008"
   ],
-  "blockers": [
-    "Resolve the rejected prospective review findings and obtain a fresh outcome-unseen independent protocol approval before init-run."
-  ]
+  "blockers": []
 }
