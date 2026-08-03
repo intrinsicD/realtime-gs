@@ -98,15 +98,18 @@ task uses the naming rule `YYYYMMDD_<task>_<data>`, a data/task lock, and the sa
 `index.html`; see [`experiments/README.md`](experiments/README.md).
 
 The separate StructSplat BENCH-019 bridge is passive evidence infrastructure. `rtgs.bench019`
-checks a frozen cross-repository protocol, exact additive/normalized semantics, one shared
-downstream factor, raw JSON metric pointers, and six hashed cell artifacts before emitting
-`structsplat.bench019.cell.v1`; it never starts training or performs the correlation analysis.
+mirrors the complete portable StructSplat v1 checks for formal protocols, preserves exact
+additive/normalized semantics and one shared downstream factor, and emits
+`structsplat.bench019.cell.v1`; assembly replays every receipt-bound source manifest, raw metric
+pointer, run binding, and six hashed cell artifacts. It never starts training or performs the
+correlation analysis.
 `rtgs.bench019_portfolio` validates the pre-outcome three-development/three-confirmation source
 inventory in
 [`experiments/data/structsplat_bench019_capture_portfolio.json`](experiments/data/structsplat_bench019_capture_portfolio.json).
 That inventory proves source acquisition only: its missing masks, adapters, and matched field
-families remain explicit, and confirmation outcomes stay closed. Task-local `factor`, `export`,
-`assemble`, portfolio `create`, and portfolio `verify` entry points live under
+families remain explicit, confirmation outcomes stay closed, and both creation and later
+verification enforce the official TUM archive hashes. Task-local `factor`, `export`, `assemble`,
+portfolio `create`, and portfolio `verify` entry points live under
 `scripts/experiments/rtgs009_*`; formal export rejects a review-state protocol.
 
 Run the native field lift directly from the same compact directory. The command loads no source

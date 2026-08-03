@@ -37,8 +37,12 @@ REQUIRED_CELL_ARTIFACTS = (
 )
 
 _HEX64 = re.compile(r"[0-9a-f]{64}\Z")
+_HEX40 = re.compile(r"[0-9a-f]{40}\Z")
 _IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\Z")
 _ARTIFACT_KEYS = frozenset({"path", "sha256", "bytes"})
+_REPOSITORY_KEYS = frozenset(
+    {"name", "root", "commit", "branch", "dirty", "status_sha256", "environment"}
+)
 _REVIEW_PROTOCOL_KEYS = frozenset(
     {
         "schema",
@@ -144,6 +148,31 @@ _EXPORT_RECEIPT_KEYS = frozenset(
         "row_canonical_sha256",
     }
 )
+_ANALYSIS_KEYS = frozenset(
+    {
+        "bootstrap_replicates",
+        "bootstrap_seed",
+        "minimum_capture_groups",
+        "minimum_frames",
+        "minimum_family_count",
+        "minimum_spearman",
+        "minimum_bootstrap_lower",
+        "minimum_lofo_top1_agreement",
+        "selection_priority",
+        "missing_policy",
+    }
+)
+_AA_KEYS = frozenset(
+    {
+        "frame_id",
+        "family_id",
+        "seed",
+        "initializer",
+        "primary_replicate",
+        "replay_replicate",
+        "metric_abs_tolerance",
+    }
+)
 
 
 class ExportError(ValueError):
@@ -232,6 +261,12 @@ def _finite(value: object, *, label: str) -> int | float:
     number = float(value)
     if not math.isfinite(number):
         raise ExportError(f"{label} must be finite")
+    return value
+
+
+def _nonempty_string(value: object, *, label: str) -> str:
+    if not isinstance(value, str) or not value:
+        raise ExportError(f"{label} must be a non-empty string")
     return value
 
 
@@ -348,7 +383,163 @@ def protocol_identity(
         Path(protocol_base).resolve(),
         label="protocol review artifact",
     )
+    _validate_formal_protocol(protocol, protocol_base=Path(protocol_base).resolve())
     return recorded
+
+
+def _validate_formal_protocol(protocol: Mapping[str, Any], *, protocol_base: Path) -> None:
+    """Mirror StructSplat's portable v1 invariants for formal export.
+
+    Review-state diagnostics intentionally remain usable with small synthetic protocols. A frozen
+    protocol, however, must satisfy the complete upstream shape before this repository can emit a
+    formal row.
+    """
+    repositories = protocol.get("repositories")
+    if not isinstance(repositories, list) or len(repositories) < 2:
+        raise ExportError("BENCH-019 must bind both StructSplat and realtime-gs repositories")
+    repository_names: list[str] = []
+    clean_status_digest = hashlib.sha256(b"").hexdigest()
+    for index, raw_repository in enumerate(repositories):
+        repository = _exact_mapping(
+            raw_repository,
+            _REPOSITORY_KEYS,
+            label=f"protocol repositories[{index}]",
+        )
+        repository_names.append(
+            _identifier(repository.get("name"), label=f"repositories[{index}].name")
+        )
+        _nonempty_string(repository.get("root"), label=f"repositories[{index}].root")
+        commit = repository.get("commit")
+        if not isinstance(commit, str) or _HEX40.fullmatch(commit) is None:
+            raise ExportError(f"repositories[{index}].commit must be a Git SHA")
+        _nonempty_string(repository.get("branch"), label=f"repositories[{index}].branch")
+        if repository.get("dirty") is not False:
+            raise ExportError(f"repositories[{index}] must be clean")
+        status_digest = _sha256(
+            repository.get("status_sha256"),
+            label=f"repositories[{index}].status_sha256",
+        )
+        if status_digest != clean_status_digest:
+            raise ExportError(f"repositories[{index}] does not carry the clean status digest")
+        _artifact_path(
+            repository.get("environment"),
+            protocol_base,
+            label=f"repositories[{index}].environment",
+        )
+    if len(repository_names) != len(set(repository_names)):
+        raise ExportError("protocol repository names must be unique")
+
+    downstream = _exact_mapping(
+        protocol.get("downstream"), _DOWNSTREAM_KEYS, label="protocol downstream"
+    )
+    command = downstream.get("command")
+    if (
+        not isinstance(command, list)
+        or not command
+        or any(not isinstance(item, str) or not item for item in command)
+    ):
+        raise ExportError("protocol downstream.command must be a non-empty argv list")
+    working_directory = Path(
+        _nonempty_string(downstream.get("working_directory"), label="downstream.working_directory")
+    )
+    outcome_root = Path(
+        _nonempty_string(downstream.get("outcome_root"), label="downstream.outcome_root")
+    )
+    if not working_directory.is_absolute() or not outcome_root.is_absolute():
+        raise ExportError("downstream working_directory and outcome_root must be absolute")
+    if not working_directory.is_dir():
+        raise ExportError("downstream.working_directory must exist as a directory")
+    seeds = downstream.get("seeds")
+    if (
+        not isinstance(seeds, list)
+        or len(seeds) < 3
+        or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in seeds)
+        or len(seeds) != len(set(seeds))
+    ):
+        raise ExportError("downstream.seeds must contain at least three unique integers")
+
+    predictor_names = set(_metric_names(protocol, "predictors"))
+    response_specs = protocol.get("responses")
+    response_names = set(_metric_names(protocol, "responses"))
+    if predictor_names & response_names:
+        raise ExportError("predictor and response metric names must be disjoint")
+    if not isinstance(response_specs, list):
+        raise ExportError("protocol responses must be a list")
+    primary_response = next(spec["name"] for spec in response_specs if spec["primary"])
+
+    analysis = _exact_mapping(protocol.get("analysis"), _ANALYSIS_KEYS, label="protocol analysis")
+    for name in (
+        "bootstrap_replicates",
+        "minimum_capture_groups",
+        "minimum_frames",
+        "minimum_family_count",
+    ):
+        value = analysis.get(name)
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise ExportError(f"analysis.{name} must be a positive integer")
+    if isinstance(analysis.get("bootstrap_seed"), bool) or not isinstance(
+        analysis.get("bootstrap_seed"), int
+    ):
+        raise ExportError("analysis.bootstrap_seed must be an integer")
+    for name in ("minimum_spearman", "minimum_bootstrap_lower"):
+        value = float(_finite(analysis.get(name), label=f"analysis.{name}"))
+        if not -1.0 <= value <= 1.0:
+            raise ExportError(f"analysis.{name} must lie in [-1,1]")
+    agreement = float(
+        _finite(
+            analysis.get("minimum_lofo_top1_agreement"),
+            label="analysis.minimum_lofo_top1_agreement",
+        )
+    )
+    if not 0.0 <= agreement <= 1.0:
+        raise ExportError("analysis.minimum_lofo_top1_agreement must lie in [0,1]")
+    priority = analysis.get("selection_priority")
+    if (
+        not isinstance(priority, list)
+        or any(not isinstance(name, str) for name in priority)
+        or len(priority) != len(set(priority))
+        or set(priority) != predictor_names
+    ):
+        raise ExportError("analysis.selection_priority must list every predictor exactly once")
+    if analysis.get("missing_policy") != "fail_closed":
+        raise ExportError("BENCH-019 supports only the fail_closed missing policy")
+    if protocol.get("claim_scope") == "general" and (
+        analysis["minimum_capture_groups"] < 3 or analysis["minimum_frames"] < 2
+    ):
+        raise ExportError("a general claim requires at least three groups and two frames")
+
+    aa = _exact_mapping(protocol.get("aa_replay"), _AA_KEYS, label="protocol aa_replay")
+    _, families = _protocol_cells(protocol)
+    frame_id = _identifier(aa.get("frame_id"), label="aa_replay.frame_id")
+    family_id = _identifier(aa.get("family_id"), label="aa_replay.family_id")
+    if (frame_id, family_id) not in families:
+        raise ExportError("aa_replay references an unknown frame/family")
+    if aa.get("seed") not in seeds:
+        raise ExportError("aa_replay.seed is not a frozen downstream seed")
+    initializers = downstream.get("initializers")
+    if not isinstance(initializers, list) or aa.get("initializer") not in initializers:
+        raise ExportError("aa_replay.initializer is not frozen")
+    primary_replicate = _identifier(
+        aa.get("primary_replicate"), label="aa_replay.primary_replicate"
+    )
+    replay_replicate = _identifier(aa.get("replay_replicate"), label="aa_replay.replay_replicate")
+    if primary_replicate == replay_replicate:
+        raise ExportError("A/A replay labels must be distinct")
+    tolerances = aa.get("metric_abs_tolerance")
+    known_metrics = predictor_names | response_names
+    if (
+        not isinstance(tolerances, dict)
+        or not tolerances
+        or not set(tolerances) <= known_metrics
+        or primary_response not in tolerances
+        or not (set(tolerances) & predictor_names)
+    ):
+        raise ExportError(
+            "A/A tolerances must contain the primary response and a Stage-1 predictor"
+        )
+    for name, tolerance in tolerances.items():
+        if float(_finite(tolerance, label=f"aa_replay tolerance {name}")) < 0.0:
+            raise ExportError("A/A tolerances must be non-negative")
 
 
 def _metric_names(protocol: Mapping[str, Any], name: str) -> list[str]:
@@ -557,6 +748,16 @@ def downstream_factor_record(
     downstream = protocol.get("downstream")
     if not isinstance(downstream, dict):
         raise ExportError("protocol downstream must be an object")
+    checked_frame_id = _identifier(frame_id, label="factor.frame_id")
+    checked_seed = _integer(seed, label="factor.seed")
+    checked_initializer = _identifier(initializer, label="factor.initializer")
+    _, families = _protocol_cells(protocol)
+    if not any(candidate_frame == checked_frame_id for candidate_frame, _ in families):
+        raise ExportError("factor.frame_id is not declared by the protocol")
+    if checked_seed not in downstream.get("seeds", []):
+        raise ExportError("factor.seed is not declared by the protocol")
+    if checked_initializer not in downstream.get("initializers", []):
+        raise ExportError("factor.initializer is not declared by the protocol")
     bindings: dict[str, str] = {}
     base = Path(protocol_base).resolve()
     for name in ("task_manifest", "dataset_manifest", "environment", "schedule_config"):
@@ -577,9 +778,9 @@ def downstream_factor_record(
     return {
         "schema": FACTOR_SCHEMA,
         "protocol_digest": identity,
-        "frame_id": _identifier(frame_id, label="factor.frame_id"),
-        "seed": _integer(seed, label="factor.seed"),
-        "initializer": _identifier(initializer, label="factor.initializer"),
+        "frame_id": checked_frame_id,
+        "seed": checked_seed,
+        "initializer": checked_initializer,
         "bindings": bindings,
         "command": list(command),
         "result_schema": ROW_SCHEMA,
@@ -692,6 +893,26 @@ def _extract_metrics(
             values[name] = _finite(raw_value, label=f"metric {kind}.{name}")
         output[kind] = values
     return output["stage1"], output["downstream"]
+
+
+def _validate_metric_source_set(source: Mapping[str, Any], documents: Mapping[str, object]) -> None:
+    """Reject receipt sources that are not load-bearing for metrics or the run binding."""
+    bindings = source.get("metric_bindings")
+    if not isinstance(bindings, dict):
+        raise ExportError("metric_bindings must be an object")
+    expected = {"stage1_metrics", "run_receipt"}
+    for kind in ("stage1", "downstream"):
+        raw_kind = bindings.get(kind)
+        if not isinstance(raw_kind, dict):
+            raise ExportError(f"metric_bindings.{kind} must be an object")
+        for binding in raw_kind.values():
+            if not isinstance(binding, dict):
+                raise ExportError(f"metric_bindings.{kind} contains a non-object binding")
+            source_name = binding.get("source")
+            if isinstance(source_name, str):
+                expected.add(source_name)
+    if set(documents) != expected:
+        raise ExportError("source manifest contains missing or unreferenced source artifacts")
 
 
 def _validate_run_binding(
@@ -856,6 +1077,7 @@ def export_cell(
             factor_digest=factor_digest,
         )
         stage1, downstream = _extract_metrics(protocol, source, documents)
+        _validate_metric_source_set(source, documents)
         raw_artifacts = source.get("artifacts")
         if not isinstance(raw_artifacts, dict) or set(raw_artifacts) != set(
             REQUIRED_CELL_ARTIFACTS
@@ -971,6 +1193,84 @@ def _verified_receipt_artifact(record: object, *, label: str) -> dict[str, Any]:
     return descriptor
 
 
+def _replay_receipt_source(
+    protocol: Mapping[str, Any],
+    *,
+    protocol_file: Path,
+    protocol_digest: str,
+    row: Mapping[str, Any],
+    receipt: Mapping[str, Any],
+    factor_digest: str,
+) -> None:
+    """Reproduce a row from the receipt-bound source manifest during assembly."""
+    source_descriptor = _verified_receipt_artifact(
+        receipt.get("source_manifest"), label="export receipt source manifest"
+    )
+    source_file = Path(source_descriptor["path"])
+    source = load_json_object(source_file, label="receipt-bound source manifest")
+    _exact_mapping(source, _SOURCE_KEYS, label="receipt-bound source manifest")
+    if source.get("schema") != SOURCE_SCHEMA:
+        raise ExportError(f"receipt source manifest schema must be {SOURCE_SCHEMA}")
+    if source.get("protocol_digest") != protocol_digest:
+        raise ExportError("receipt source manifest binds a different protocol digest")
+    cell = _exact_mapping(source.get("cell"), _CELL_KEYS, label="receipt source cell")
+    if cell != {name: row[name] for name in _CELL_KEYS}:
+        raise ExportError("receipt source cell differs from the assembled row")
+    if source.get("status") != row.get("status") or source.get("error") != row.get("error"):
+        raise ExportError("receipt source status/error differs from the assembled row")
+
+    _, families = _protocol_cells(protocol)
+    capture_id, family = families[(row["frame_id"], row["family_id"])]
+    if cell.get("capture_id") != capture_id:
+        raise ExportError("receipt source capture differs from the frozen frame")
+    source_artifacts = receipt.get("source_artifacts")
+    if not isinstance(source_artifacts, dict):
+        raise ExportError("export receipt source_artifacts must be an object")
+    if row.get("status") == "error":
+        if (
+            source.get("sources") != {}
+            or source.get("artifacts") != {}
+            or source.get("metric_bindings") != {"stage1": {}, "downstream": {}}
+            or source_artifacts != {}
+        ):
+            raise ExportError("error receipt/source chain carries a successful payload")
+        return
+
+    documents, reproduced_descriptors = _load_metric_sources(
+        protocol,
+        family,
+        source,
+        protocol_base=protocol_file.parent,
+        source_base=source_file.parent,
+    )
+    if source_artifacts != reproduced_descriptors:
+        raise ExportError("export receipt source_artifacts differ from its sealed source manifest")
+    if "run_receipt" not in documents:
+        raise ExportError("receipt source manifest has no sealed run_receipt")
+    _validate_run_binding(
+        documents["run_receipt"],
+        cell=cell,
+        field_manifest_sha256=row["field_manifest_sha256"],
+        field_semantic_digest=row["field_semantic_digest"],
+        factor_digest=factor_digest,
+    )
+    stage1, downstream = _extract_metrics(protocol, source, documents)
+    _validate_metric_source_set(source, documents)
+    if stage1 != row.get("stage1") or downstream != row.get("downstream"):
+        raise ExportError("receipt source metrics do not reproduce the assembled row")
+
+    raw_artifacts = source.get("artifacts")
+    if not isinstance(raw_artifacts, dict) or set(raw_artifacts) != set(REQUIRED_CELL_ARTIFACTS):
+        raise ExportError("receipt source does not bind exactly the six cell artifacts")
+    reproduced_artifacts: dict[str, dict[str, Any]] = {}
+    for name in REQUIRED_CELL_ARTIFACTS:
+        _, reproduced_artifacts[name] = _artifact_path(
+            raw_artifacts[name], source_file.parent, label=f"receipt source cell artifact {name}"
+        )
+    if reproduced_artifacts != row.get("artifacts"):
+        raise ExportError("receipt source cell artifacts do not reproduce the assembled row")
+
+
 def _validate_export_receipt(
     protocol: Mapping[str, Any],
     *,
@@ -999,9 +1299,6 @@ def _validate_export_receipt(
         raise ExportError("export receipt binds a different row file")
     if receipt.get("row_canonical_sha256") != _digest(row):
         raise ExportError("export receipt canonical row digest differs")
-    _verified_receipt_artifact(
-        receipt.get("source_manifest"), label="export receipt source manifest"
-    )
     source_artifacts = receipt.get("source_artifacts")
     if not isinstance(source_artifacts, dict):
         raise ExportError("export receipt source_artifacts must be an object")
@@ -1024,6 +1321,14 @@ def _validate_export_receipt(
         raise ExportError("export receipt downstream factor record differs")
     if receipt.get("downstream_factor_digest") != _digest(expected_factor):
         raise ExportError("export receipt downstream factor digest differs")
+    _replay_receipt_source(
+        protocol,
+        protocol_file=protocol_file,
+        protocol_digest=protocol_digest,
+        row=row,
+        receipt=receipt,
+        factor_digest=_digest(expected_factor),
+    )
     return receipt
 
 
@@ -1049,7 +1354,7 @@ def assemble_rows(
     if export_receipt_paths is None or len(export_receipt_paths) != len(row_paths):
         raise ExportError("assembly requires exactly one export receipt per cell row")
     indexed: dict[tuple[str, str, int, str, str], dict[str, Any]] = {}
-    source_records = []
+    source_records: dict[tuple[str, str, int, str, str], dict[str, Any]] = {}
     for raw_path, raw_receipt_path in zip(row_paths, export_receipt_paths, strict=True):
         path = Path(raw_path).resolve(strict=True)
         export_receipt_path = Path(raw_receipt_path).resolve(strict=True)
@@ -1073,12 +1378,10 @@ def assemble_rows(
             allow_review_protocol=allow_review_protocol,
         )
         indexed[key] = row
-        source_records.append(
-            {
-                "row": describe_artifact(path),
-                "export_receipt": describe_artifact(export_receipt_path),
-            }
-        )
+        source_records[key] = {
+            "row": describe_artifact(path),
+            "export_receipt": describe_artifact(export_receipt_path),
+        }
     missing = [key for key in expected if key not in indexed]
     if missing and not allow_incomplete:
         raise ExportError(f"assembly is missing {len(missing)} frozen cells")
@@ -1093,7 +1396,7 @@ def assemble_rows(
         "diagnostic": bool(allow_review_protocol or allow_incomplete),
         "protocol": describe_artifact(protocol_file),
         "protocol_digest": identity,
-        "row_sources": source_records,
+        "row_sources": [source_records[key] for key in expected if key in source_records],
         "rows": describe_artifact(output_file),
         "expected_cell_count": len(expected),
         "exported_cell_count": len(ordered),

@@ -30,7 +30,9 @@ def _design_digest(protocol: dict) -> str:
     return hashlib.sha256(B.canonical_json(payload)).hexdigest()
 
 
-def _protocol(tmp_path: Path, *, frozen: bool = False) -> tuple[Path, dict]:
+def _protocol(
+    tmp_path: Path, *, frozen: bool = False, formal_valid: bool = False
+) -> tuple[Path, dict]:
     bindings = tmp_path / "bindings"
     task = _artifact(bindings / "task.json", {"task": "BENCH-019"})
     dataset = _artifact(bindings / "dataset.json", {"captures": ["capture_a"]})
@@ -115,6 +117,33 @@ def _protocol(tmp_path: Path, *, frozen: bool = False) -> tuple[Path, dict]:
             "metric_abs_tolerance": {"foreground_psnr": 0.0, "heldout_psnr": 0.0},
         },
     }
+    if formal_valid:
+        clean_status = hashlib.sha256(b"").hexdigest()
+        protocol["repositories"] = [
+            {
+                "name": name,
+                "root": str(tmp_path),
+                "commit": commit * 40,
+                "branch": "test",
+                "dirty": False,
+                "status_sha256": clean_status,
+                "environment": environment,
+            }
+            for name, commit in (("structsplat", "a"), ("realtime-gs", "b"))
+        ]
+        protocol["downstream"]["seeds"] = [11, 12, 13]
+        protocol["analysis"] = {
+            "bootstrap_replicates": 200,
+            "bootstrap_seed": 19019,
+            "minimum_capture_groups": 1,
+            "minimum_frames": 1,
+            "minimum_family_count": 2,
+            "minimum_spearman": 0.8,
+            "minimum_bootstrap_lower": 0.0,
+            "minimum_lofo_top1_agreement": 1.0,
+            "selection_priority": ["foreground_psnr", "query_error"],
+            "missing_policy": "fail_closed",
+        }
     protocol["design_sha256"] = _design_digest(protocol)
     if frozen:
         protocol["review"] = {
@@ -343,6 +372,20 @@ def test_formal_export_requires_frozen_protocol_and_detects_protocol_tamper(tmp_
         B.protocol_identity(frozen)
 
 
+def test_formal_protocol_requires_complete_upstream_v1_invariants(tmp_path: Path) -> None:
+    _, incomplete = _protocol(tmp_path / "incomplete", frozen=True)
+    with pytest.raises(B.ExportError, match="bind both StructSplat and realtime-gs"):
+        B.protocol_identity(incomplete)
+
+    protocol_path, protocol = _protocol(tmp_path / "complete", frozen=True, formal_valid=True)
+    source_path, _ = _source(tmp_path / "complete", protocol)
+    row_path = tmp_path / "complete" / "formal.cell.json"
+    receipt_path = tmp_path / "complete" / "formal.export.json"
+    row = B.export_cell(protocol_path, source_path, row_path, receipt_path)
+    assert row["status"] == "ok"
+    assert B.protocol_identity(protocol) == protocol["protocol_sha256"]
+
+
 def test_run_receipt_factor_or_semantic_drift_fails_closed(tmp_path: Path) -> None:
     protocol_path, protocol = _protocol(tmp_path)
     source_path, source = _source(tmp_path, protocol)
@@ -554,3 +597,94 @@ def test_assembly_requires_and_revalidates_export_receipts(tmp_path: Path) -> No
             allow_review_protocol=True,
             allow_incomplete=True,
         )
+
+
+@pytest.mark.parametrize("mutation", ["delete", "substitute", "extra"])
+def test_assembly_reconciles_receipt_source_set(tmp_path: Path, mutation: str) -> None:
+    case_root = tmp_path / mutation
+    protocol_path, protocol = _protocol(case_root)
+    source_path, _ = _source(case_root, protocol)
+    row_path, receipt_path, _ = _export(
+        case_root, protocol_path, source_path, f"receipt-{mutation}"
+    )
+    receipt = B.load_json_object(receipt_path)
+    if mutation == "delete":
+        del receipt["source_artifacts"]["downstream_metrics"]
+    elif mutation == "substitute":
+        receipt["source_artifacts"]["downstream_metrics"] = receipt["source_artifacts"][
+            "run_receipt"
+        ]
+    else:
+        receipt["source_artifacts"]["extra"] = receipt["source_artifacts"]["run_receipt"]
+    _write_json(receipt_path, receipt)
+
+    with pytest.raises(B.ExportError, match="source_artifacts differ"):
+        B.assemble_rows(
+            protocol_path,
+            [row_path],
+            case_root / "rows.jsonl",
+            case_root / "assembly.json",
+            export_receipt_paths=[receipt_path],
+            allow_review_protocol=True,
+            allow_incomplete=True,
+        )
+
+
+def test_assembly_replays_cooperatively_modified_source_manifest(tmp_path: Path) -> None:
+    protocol_path, protocol = _protocol(tmp_path)
+    source_path, _ = _source(tmp_path, protocol)
+    row_path, receipt_path, _ = _export(tmp_path, protocol_path, source_path, "source-mutation")
+    source = B.load_json_object(source_path)
+    del source["sources"]["downstream_metrics"]
+    _write_json(source_path, source)
+    receipt = B.load_json_object(receipt_path)
+    receipt["source_manifest"] = B.describe_artifact(source_path)
+    del receipt["source_artifacts"]["downstream_metrics"]
+    _write_json(receipt_path, receipt)
+
+    with pytest.raises(B.ExportError, match="unknown source downstream_metrics"):
+        B.assemble_rows(
+            protocol_path,
+            [row_path],
+            tmp_path / "rows.jsonl",
+            tmp_path / "assembly.json",
+            export_receipt_paths=[receipt_path],
+            allow_review_protocol=True,
+            allow_incomplete=True,
+        )
+
+
+def test_assembly_rejects_cooperatively_added_unused_source(tmp_path: Path) -> None:
+    protocol_path, protocol = _protocol(tmp_path)
+    source_path, _ = _source(tmp_path, protocol)
+    row_path, receipt_path, _ = _export(tmp_path, protocol_path, source_path, "extra-source")
+    extra = _artifact(tmp_path / "cell_sources/extra.json", {"unused": True})
+    source = B.load_json_object(source_path)
+    source["sources"]["extra"] = extra
+    _write_json(source_path, source)
+    receipt = B.load_json_object(receipt_path)
+    receipt["source_manifest"] = B.describe_artifact(source_path)
+    receipt["source_artifacts"]["extra"] = extra
+    _write_json(receipt_path, receipt)
+
+    with pytest.raises(B.ExportError, match="unreferenced source artifacts"):
+        B.assemble_rows(
+            protocol_path,
+            [row_path],
+            tmp_path / "rows.jsonl",
+            tmp_path / "assembly.json",
+            export_receipt_paths=[receipt_path],
+            allow_review_protocol=True,
+            allow_incomplete=True,
+        )
+
+
+def test_factor_rejects_undeclared_coordinates(tmp_path: Path) -> None:
+    _, protocol = _protocol(tmp_path)
+    for kwargs, message in (
+        ({"frame_id": "other", "seed": 11, "initializer": "fixed"}, "frame_id"),
+        ({"frame_id": "frame_a", "seed": 99, "initializer": "fixed"}, "seed"),
+        ({"frame_id": "frame_a", "seed": 11, "initializer": "other"}, "initializer"),
+    ):
+        with pytest.raises(B.ExportError, match=message):
+            B.downstream_factor_record(protocol, allow_review=True, **kwargs)

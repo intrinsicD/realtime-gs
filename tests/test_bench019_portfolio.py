@@ -117,3 +117,20 @@ def test_committed_portfolio_is_structurally_pre_outcome() -> None:
     summary = validate_capture_portfolio(portfolio)
     assert summary["development_capture_groups"] == 3
     assert summary["confirmation_capture_groups"] == 3
+
+
+def test_committed_portfolio_rejects_self_consistent_tum_substitution() -> None:
+    root = Path(__file__).resolve().parents[1]
+    import json
+
+    portfolio = json.loads(
+        (root / "experiments/data/structsplat_bench019_capture_portfolio.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    tum = next(capture for capture in portfolio["captures"] if capture["id"] == "tum_fr1_xyz")
+    substitute = portfolio["captures"][0]["source_artifacts"][0]["artifact"]
+    tum["source_artifacts"] = [{"id": "official_archive", "artifact": substitute}]
+    tum["source_digest"] = source_digest(tum["source_artifacts"])
+    with pytest.raises(ExportError, match="pinned official archive"):
+        validate_capture_portfolio(portfolio)

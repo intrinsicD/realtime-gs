@@ -12,8 +12,10 @@ from pathlib import Path
 
 from rtgs.bench019 import ExportError, describe_artifact, load_json_object
 from rtgs.bench019_portfolio import (
+    PINNED_TUM_ARCHIVES,
     PORTFOLIO_SCHEMA,
     REQUIRED_FIELD_FAMILIES,
+    TUM_URL_BASE,
     source_digest,
     validate_capture_portfolio,
 )
@@ -46,30 +48,6 @@ STAGE_VIEWS = (
     "C1002",
     "C1004",
 )
-
-_TUM_ARCHIVES = {
-    "tum_fr1_xyz": (
-        "rgbd_dataset_freiburg1_xyz.tgz",
-        448204271,
-        "a0236d97b8c30cd93b653656d2b6c293ff7c982a4130ef2a1a8beecdb124ef98",
-    ),
-    "tum_fr1_rpy": (
-        "rgbd_dataset_freiburg1_rpy.tgz",
-        410268381,
-        "78103722a25873dbbb4de027eaa8c810a6382100691f02b6cf95c3adc91c4ac1",
-    ),
-    "tum_fr1_desk": (
-        "rgbd_dataset_freiburg1_desk.tgz",
-        344011403,
-        "e983d6830916e66dc4a46a71368046b149b283de87769690e7aa4e0b9483530c",
-    ),
-    "tum_fr1_desk2": (
-        "rgbd_dataset_freiburg1_desk2.tgz",
-        349445005,
-        "a569e4cb453a3cd9285bc985fcb109e65f055c75b33a4b155acd9a68d96b77d2",
-    ),
-}
-_TUM_URL_BASE = "https://cvg.cit.tum.de/rgbd/dataset/freiburg1"
 
 
 def _source(source_id: str, path: Path) -> dict:
@@ -150,7 +128,7 @@ def _janelle_capture(
 
 
 def _tum_capture(capture_id: str, role: str, tum_root: Path) -> dict:
-    archive_name, expected_bytes, expected_sha256 = _TUM_ARCHIVES[capture_id]
+    archive_name, expected_bytes, expected_sha256 = PINNED_TUM_ARCHIVES[capture_id]
     sources = [_source("official_archive", tum_root / archive_name)]
     descriptor = sources[0]["artifact"]
     if descriptor["bytes"] != expected_bytes or descriptor["sha256"] != expected_sha256:
@@ -159,7 +137,7 @@ def _tum_capture(capture_id: str, role: str, tum_root: Path) -> dict:
         "id": capture_id,
         "role": role,
         "source_kind": "tum_rgbd_archive",
-        "origin": f"{_TUM_URL_BASE}/{archive_name}",
+        "origin": f"{TUM_URL_BASE}/{archive_name}",
         "frame_id": "pending_keyframe_selection",
         "frame_plan_state": "source_bound_adapter_pending",
         "view_ids": [],

@@ -20,6 +20,29 @@ REQUIRED_FIELD_FAMILIES = (
     "structsplat_normalized_no_boundary",
     "structsplat_normalized_mask_contained",
 )
+TUM_URL_BASE = "https://cvg.cit.tum.de/rgbd/dataset/freiburg1"
+PINNED_TUM_ARCHIVES = {
+    "tum_fr1_xyz": (
+        "rgbd_dataset_freiburg1_xyz.tgz",
+        448204271,
+        "a0236d97b8c30cd93b653656d2b6c293ff7c982a4130ef2a1a8beecdb124ef98",
+    ),
+    "tum_fr1_rpy": (
+        "rgbd_dataset_freiburg1_rpy.tgz",
+        410268381,
+        "78103722a25873dbbb4de027eaa8c810a6382100691f02b6cf95c3adc91c4ac1",
+    ),
+    "tum_fr1_desk": (
+        "rgbd_dataset_freiburg1_desk.tgz",
+        344011403,
+        "e983d6830916e66dc4a46a71368046b149b283de87769690e7aa4e0b9483530c",
+    ),
+    "tum_fr1_desk2": (
+        "rgbd_dataset_freiburg1_desk2.tgz",
+        349445005,
+        "a569e4cb453a3cd9285bc985fcb109e65f055c75b33a4b155acd9a68d96b77d2",
+    ),
+}
 
 _TOP_KEYS = frozenset(
     {
@@ -216,6 +239,19 @@ def validate_capture_portfolio(
                 label=f"capture {capture_id} source {source_id}",
                 verify_files=verify_files,
             )
+        if capture_id in PINNED_TUM_ARCHIVES:
+            archive_name, expected_bytes, expected_sha256 = PINNED_TUM_ARCHIVES[capture_id]
+            if capture["source_kind"] != "tum_rgbd_archive":
+                raise ExportError(f"capture {capture_id} must remain a TUM RGB-D archive")
+            if capture["origin"] != f"{TUM_URL_BASE}/{archive_name}":
+                raise ExportError(f"capture {capture_id} origin differs from the official pin")
+            if len(sources) != 1 or sources[0]["id"] != "official_archive":
+                raise ExportError(
+                    f"capture {capture_id} must bind exactly its official_archive source"
+                )
+            archive = sources[0]["artifact"]
+            if archive["bytes"] != expected_bytes or archive["sha256"] != expected_sha256:
+                raise ExportError(f"capture {capture_id} differs from the pinned official archive")
         if capture["source_digest"] != source_digest(sources):
             raise ExportError(f"capture {capture_id} source digest differs")
         source_file_count += len(sources)
@@ -306,8 +342,10 @@ def validate_capture_portfolio(
 
 
 __all__ = [
+    "PINNED_TUM_ARCHIVES",
     "PORTFOLIO_SCHEMA",
     "REQUIRED_FIELD_FAMILIES",
+    "TUM_URL_BASE",
     "source_digest",
     "validate_capture_portfolio",
 ]
