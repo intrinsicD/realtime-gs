@@ -85,8 +85,15 @@
     "synchronized_comparison_manifest_viewer"
   ],
   "source_binding": {
-    "reviewed_base_commit": "4c1a7a53b6463473155f8c7a48be91a12de13109",
-    "files": {}
+    "reviewed_base_commit": "40eb4c0b809c85c4e8d3669b49a34bab4860266d",
+    "files": {
+      "pyproject.toml": "e5b15e72400e8e14b83a26dc64ef8a85ea985642ef9ef079e425326b5e0bc8d9",
+      "scripts/experiment_contract.py": "e8605de770f97cb207f80be7ac306c2bde2844cc0ecb9dfb32b11287238b78bc",
+      "scripts/experiments/20260801_paper_three_provider_fullres_stage_frame00008.py": "b7c6e9a5c33f95835c60282ffe283a654b0d9c18731a6c62996a5113121841cd",
+      "src/rtgs/lift/paper_initializers.py": "2115d61a30f7bed94c9c0483ff01ddf521ff36af11a5673d8fb796cea8fafd4a",
+      "tests/test_paper_initializers.py": "875e7e38f8941e311205b71597d1984bdfb72a78e537cfd319d295d101eb5927",
+      "tests/test_paper_three_provider_experiment_driver.py": "f38ab5118b055e87439ceafecb122b44cfffdbf2ebd6779a7cbefb3500de406c"
+    }
   },
   "frozen_configuration": {
     "provider_factor": {

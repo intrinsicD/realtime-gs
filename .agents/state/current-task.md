@@ -11,8 +11,8 @@ RTGS-008
 ## Role Assignment
 
 - Driver: Codex-three-provider-driver
-- Reviewer: Goodall
-- Turn: driver
+- Reviewer: Hegel
+- Turn: reviewer
 
 ## Mode
 
@@ -153,6 +153,18 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
   globally shared starting count is therefore frozen at 3,293 before canonical training.
 - No RTGS-008 downstream result has been run or inspected. The external Stage-1 receipts are
   outcome-exposed input-preparation evidence only.
+- Goodall's first outcome-blind review rejected prospective digest `6115bb16...` with seven
+  protocol blockers. The revised checkpoint resolves them by narrowing the hypothesis to
+  provider-native fidelity; constructing only the selected arm in each fresh worker; freezing and
+  validating the full resource schema; publishing the promised root contact sheet and
+  reconstruction/orbit/elevation GIFs; requiring a synchronized comparison manifest for the
+  viewer; publishing structured failure evidence; enforcing a clean, source-hashed production
+  lock; and describing provider-conditioned realized sample coordinates precisely.
+- The revised driver additionally publishes held-out checkpoint convergence and final compact
+  model compression receipts. Exact single-arm A/A checks reproduce the global-count preflight
+  initialization for every provider, initializer, and seed at 3,293 rows. Nine focused tests pass,
+  and the complete repository verification gate passes at implementation checkpoint
+  `40eb4c0b809c85c4e8d3669b49a34bab4860266d`.
 
 ## Minimal Plan
 
@@ -171,7 +183,7 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
 
 ## Status
 
-Revision required
+In review
 
 ## Human Decisions
 
@@ -311,3 +323,64 @@ execute the protected matrix first.
 #### Optional Improvements
 
 None; the seven findings are protocol blockers.
+
+### Handoff (2026-08-04 revised prospective protocol review)
+
+#### Objective
+
+Independently review the corrected, source-bound RTGS-008 protocol before any protected run is
+initialized or any downstream comparison outcome is exposed.
+
+#### Reviewed state
+
+Implementation checkpoint `40eb4c0b809c85c4e8d3669b49a34bab4860266d`; revised prospective
+protocol digest `5369d9045ff2427f06cf27658682e4c60edbc652956a3c6eccb494575b69eab2`.
+The task binds the six executable/configuration files that define the canonical run by exact
+SHA-256 and requires the reviewed checkpoint to be an ancestor of the execution commit.
+
+#### Changes
+
+Resolved all seven blockers from Goodall's first review. Added an exact single-arm canonical
+initializer API so resource workers do not construct unused comparators; complete frozen
+resource receipts and idle-GPU/NVML guards; native-resolution root presentation artifacts and a
+synchronized nine-method viewer manifest; structured worker/root failure publication; clean
+production-lock and exact source-hash enforcement; explicit provider-conditioned sampling
+semantics; held-out checkpoint convergence; and compact-input-to-final-model compression
+accounting.
+
+#### Evidence
+
+All nine provider/initializer/seed exact A/A initialization checks pass at the frozen global count
+of 3,293. Nine focused contract/initializer/driver tests pass. The task and data contract validate,
+the 85-file data seal remains exact, and `./scripts/verify.sh` passes in full at the implementation
+checkpoint. The canonical CUDA matrix and downstream outcome remain unexecuted and unseen.
+
+#### Assumptions
+
+The owner-selected frame and three sealed provider directories are the intended inputs. The one
+global warmup is representative enough to initialize CUDA/runtime state without becoming a
+measured cell. Stage-1 acquisition QA is not a downstream comparison outcome.
+
+#### Uncertainties
+
+Protected CUDA feasibility, 10,000-step cell runtime, native-resolution final rendering, and
+cross-cell report completeness remain unobserved. This one frame cannot establish provider
+superiority, generalization, or a production default.
+
+#### Review Focus
+
+Recompute the revised digest and source hashes; verify each former blocker is closed; inspect
+single-arm worker isolation, convergence/compression definitions, failure publication, clean-lock
+behavior, resource scopes, root presentation gates, and comparison-viewer synchronization; and
+confirm that no result path needs to be opened to reach the verdict.
+
+#### Protected actions not taken
+
+No run was initialized; no warmup or measured training cell ran; no downstream metric, preview,
+model, report, or result artifact exists or was inspected.
+
+#### Recommended Next Action
+
+Write a new V2 prospective-review artifact bound to digest `5369d904...` with `Outcome Access:
+none`. Approve only if the revised protocol is outcome-independent, source-exact, executable, and
+fail-closed; otherwise return another revision-required verdict without initializing the run.
