@@ -12,7 +12,7 @@ RTGS-009
 
 - Driver: Codex-bench019-exporter-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -161,12 +161,13 @@ None
 3. Completed: exercise synthetic-success and calibrated-error diagnostics and update public docs.
 4. Completed: bind three development plus three confirmation source groups without fitting or
    accessing confirmation outcomes.
-5. In review: the complete frozen-artifact traversal and stripped-string parity repair is committed
-   and verified; resume the same independent acceptance pass on the exact repaired state.
+5. Completed: an independent reviewer reproduced the original and continuation counterexamples,
+   compared the repaired formal validator directly with StructSplat, and accepted the exact
+   pipeline-integrated implementation.
 
 ## Status
 
-In review
+Accepted
 
 ## Human Decisions
 
@@ -569,3 +570,68 @@ analysis or default changed, and the dirty primary realtime-gs worktree was not 
 If accepted, archive RTGS-009 and open RTGS-010 for deterministic development adapters and a
 fail-closed Stage-1 predictor collector. Keep the confirmation split sealed and do not claim Karate
 readiness until its missing mask policy is resolved explicitly.
+
+### Review (independent acceptance after complete portable-v1 parity repair)
+
+#### Verdict
+
+Accepted
+
+#### Self-reviewed
+
+No
+
+#### Correctness
+
+Reviewed exact implementation `2b9be15096bad9016432eb5d667d34deb3c42b48` with handoff metadata
+`404c4e297a6b26bc8cc0b77554604b69d2464231`. A fresh paired corpus made both realtime-gs and the
+authoritative StructSplat validator accept the same frozen positive protocol and reject the
+digest-consistent no-repository protocol, tampered non-selected family artifact, tampered global
+downstream artifact, and whitespace-only repository branch, coordinate convention, working
+directory, and artifact path. The artifact-path case included a matching regular file whose name
+was whitespace, so rejection exercised the stripped-string rule rather than missing-file handling.
+
+The three original blockers also remain closed: assembly rejected an omitted receipt source
+descriptor after reopening the sealed source manifest; reusable portfolio validation rejected a
+self-consistent substitution for the official `tum_fr1_xyz` archive; and the invalid frozen-looking
+no-repository protocol was rejected locally with the same reason as upstream. Code tracing and
+focused tests additionally covered exact source-set replay, run/factor/cell bindings, all six cell
+artifacts, explicit error rows, frozen cell order, undeclared factor coordinates, and exclusive-new
+output writes. No remaining correctness or evidence-boundary blocker was found in RTGS-009 scope.
+
+#### Evidence Quality
+
+The reviewer reran 31 focused exporter/portfolio tests, directly exercised both validators on the
+positive and seven adversarial protocol cases, and rehashed the committed portfolio as three
+development groups, three confirmation groups, and 88 source files. The canonical
+`./scripts/verify.sh` gate passed on the accepted task state, including the complete CPU test suite,
+lint, formatting, docs sync, ARA, workflow, script-layout, and experiment-contract checks; only the
+two established PyTorch warnings were emitted. No formal BENCH-019 run, confirmation field, or
+protected outcome was opened.
+
+#### Simplicity
+
+The exporter remains a passive CPU-only module with no StructSplat runtime dependency or CUDA/torch
+import. Mirroring the versioned portable-v1 validator is an intentional interoperability boundary;
+the repair stays within existing validators and adversarial tests and introduces no executor,
+analysis, report framework, or production default.
+
+#### Missing Cases
+
+Cross-repository parity is reproduced manually rather than enforced by a shared CI dependency.
+Five capture groups still lack matched Stage-1 fields; TUM/Karate adapters, the Karate mask policy,
+and the fail-closed predictor collector remain future work. Source-disjoint capture IDs do not by
+themselves establish statistical independence or domain diversity. This acceptance establishes
+pipeline-integrated evidence integrity only, not predictor validity, convergence, speed,
+reconstruction quality, compression, GPU behavior, or a downstream scientific result.
+
+#### Required Changes
+
+None within the accepted RTGS-009 scope.
+
+#### Optional Improvements
+
+In RTGS-010, add deterministic development-only source adapters and a fail-closed Stage-1 predictor
+collector, and consider a versioned cross-repository parity corpus that can detect schema drift
+without adding a StructSplat runtime import. Keep confirmation production sealed until its own
+prospective gate authorizes access.
