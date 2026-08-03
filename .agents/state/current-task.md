@@ -11,7 +11,7 @@ RTGS-009
 ## Role Assignment
 
 - Driver: Codex-bench019-exporter-driver
-- Reviewer: pending-independent-reviewer
+- Reviewer: Codex-bench019-exporter-driver
 - Turn: driver
 
 ## Mode
@@ -132,6 +132,8 @@ None
 - Eighteen focused exporter/portfolio tests pass. The canonical `./scripts/verify.sh` gate and the
   additional complete CPU pytest suite pass from the isolated worktree; only the two established
   PyTorch warnings are emitted.
+- The implementation is committed as `d3e76fe44f3afe2044505fdcf1e7043657a4e4b1`; StructSplat
+  binds that still-unaccepted checkpoint in commit `5f1b1fb516a10e48af14081c82017ac7388167fb`.
 - No general BENCH-019 downstream row or correlation result exists.
 
 ## Minimal Plan
@@ -142,12 +144,13 @@ None
 3. Completed: exercise synthetic-success and calibrated-error diagnostics and update public docs.
 4. Completed: bind three development plus three confirmation source groups without fitting or
    accessing confirmation outcomes.
-5. In progress: commit the verified driver revision, obtain independent implementation review,
-   then bind the accepted revision from StructSplat BENCH-019 before any formal protocol review.
+5. Provisionally complete: commit and self-review the verified driver revision. A distinct
+   implementation review remains mandatory before the checkpoint can be accepted or used in a
+   formal prospective BENCH-019 protocol.
 
 ## Status
 
-In progress
+Provisionally accepted (self-reviewed)
 
 ## Human Decisions
 
@@ -191,9 +194,8 @@ portfolio before StructSplat binds this revision or anyone freezes and executes 
 
 #### Reviewed state
 
-Verified working-tree implementation on branch `rtgs/009-bench019-exporter`, based on clean
-realtime-gs commit `4c1a7a53`. The exact handoff commit is pending this record and the required
-pre-commit verification gate.
+Commit `d3e76fe44f3afe2044505fdcf1e7043657a4e4b1` on branch
+`rtgs/009-bench019-exporter`, based on clean realtime-gs commit `4c1a7a53`.
 
 #### Changes
 
@@ -254,3 +256,51 @@ Commit this verified driver checkpoint, obtain a distinct implementation verdict
 bind the accepted realtime-gs commit and portfolio digest into StructSplat BENCH-019. The next
 implementation task should freeze the TUM/Karate adapters and produce matched development fields;
 confirmation production must remain unopened until the upstream gate authorizes it.
+
+### Review (provisional self-review)
+
+#### Verdict
+
+Accepted
+
+#### Self-reviewed
+
+Yes
+
+#### Correctness
+
+Re-read the complete exporter/portfolio diff from `4c1a7a53` through `d3e76fe`, traced successful
+and error-cell construction through receipt-required assembly, and checked exact-key validation,
+source and artifact rehashing, family/A/A factor invariance, semantic labels, strict JSON parsing,
+and append-only writes. No correctness defect was found in the committed task scope.
+
+#### Evidence Quality
+
+Re-executed all 18 focused tests and a full 88-file portfolio rehash from the committed revision.
+The earlier canonical verify and complete CPU suite remain implementation evidence only; neither
+establishes GPU behavior, capture independence, matched-field availability, or a downstream
+scientific result.
+
+#### Simplicity
+
+The implementation keeps the exporter passive and CPU-only, shares canonical artifact helpers,
+uses one explicit source manifest per cell, and leaves analysis/report authority in StructSplat.
+No competing executor, report framework, CUDA import, or result registry was introduced.
+
+#### Missing Cases
+
+No distinct reviewer has reproduced the canonical-JSON compatibility or six-capture independence
+judgment. Five capture groups lack matched fields, TUM and Karate adapters are unfrozen, and the
+formal protocol and confirmation outcomes remain unopened.
+
+#### Required Changes
+
+No code change is required by this self-review. A distinct reviewer must still inspect and accept
+exact commit `d3e76fe` before RTGS-009 can receive independent acceptance or become formal
+BENCH-019 execution authority.
+
+#### Optional Improvements
+
+After independent acceptance, open a distinct RTGS task for deterministic TUM/Karate adapters and
+the Stage-1 predictor collector. Keep field production development-only until its own protocol is
+prospectively reviewed.
