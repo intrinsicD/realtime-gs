@@ -12,7 +12,7 @@ RTGS-009
 
 - Driver: Codex-bench019-exporter-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: driver
+- Turn: reviewer
 
 ## Mode
 
@@ -134,6 +134,16 @@ None
   PyTorch warnings are emitted.
 - The implementation is committed as `d3e76fe44f3afe2044505fdcf1e7043657a4e4b1`; StructSplat
   binds that still-unaccepted checkpoint in commit `5f1b1fb516a10e48af14081c82017ac7388167fb`.
+- Revision `f582c58` closes all three independent-review findings: formal frozen protocols now
+  mirror StructSplat's portable v1 repository, analysis, path, seed, metric, and A/A invariants;
+  assembly reproduces rows from the receipt-bound source manifest; and portfolio verification
+  re-enforces the four official TUM archive identities.
+- Twenty-six focused tests pass, including cooperative receipt/source mutations and a
+  self-consistent TUM substitution. One exact frozen positive fixture is accepted by both the
+  realtime-gs and StructSplat validators, while both reject the digest-consistent no-repository
+  negative fixture with the same reason.
+- The canonical `./scripts/verify.sh` gate and the additional complete CPU pytest suite pass on
+  the repaired revision; only the two established PyTorch warnings are emitted.
 - No general BENCH-019 downstream row or correlation result exists.
 
 ## Minimal Plan
@@ -144,13 +154,12 @@ None
 3. Completed: exercise synthetic-success and calibrated-error diagnostics and update public docs.
 4. Completed: bind three development plus three confirmation source groups without fitting or
    accessing confirmation outcomes.
-5. Revision required: make formal protocol validation equivalent to the StructSplat v1 contract,
-   reconcile every export receipt to its sealed source manifest during assembly, and enforce the
-   official TUM identities during portfolio verification before requesting another review.
+5. In review: the three required evidence-boundary repairs are committed and verified; the
+   independent reviewer is rechecking the exact revision and its negative controls.
 
 ## Status
 
-Revision required
+In review
 
 ## Human Decisions
 
@@ -384,3 +393,73 @@ Order assembly-receipt `row_sources` by frozen cell order rather than caller ord
 standalone `factor` command reject undeclared frame, seed, or initializer values before downstream
 work begins. Keep the portfolio's source-disjointness distinct from any later statistical
 independence claim.
+
+### Handoff (evidence-boundary repair)
+
+#### Objective
+
+Re-review RTGS-009 after closing the three independent-review blockers without widening the
+exporter's passive scope or opening any protected outcome.
+
+#### Reviewed state
+
+Implementation revision `f582c58` on branch `rtgs/009-bench019-exporter`, following the independent
+`Revision required` record in `35c107c`.
+
+#### Changes
+
+- Mirrored the complete portable StructSplat v1 formal invariants for repository bindings,
+  downstream paths and seeds, predictor/response separation, analysis gates, and A/A tolerances;
+  review-state diagnostics remain intentionally lightweight.
+- Made assembly reopen the receipt-bound source manifest and reproduce its exact load-bearing
+  source set, metric pointers and raw values, run binding, cell identity, factor, and six cell
+  artifacts. Caller-order receipt records are now emitted in frozen cell order, and standalone
+  factor construction rejects undeclared coordinates.
+- Moved all four official TUM identities into the reusable portfolio module, so both creator and
+  verifier enforce the same bytes, SHA-256, source kind, source ID, and official origin.
+- Added positive formal export, source/receipt deletion/substitution/extra/cooperative-mutation,
+  undeclared-factor, and TUM-substitution tests; updated the public contract description.
+
+#### Evidence
+
+- Focused exporter/portfolio suite: 26 passed.
+- Committed portfolio verification: 3 development groups, 3 confirmation groups, 88 source files;
+  every file rehashed and all official TUM pins matched.
+- Cross-repository check: the exact frozen positive fixture passed both validators; the exact
+  digest-consistent no-repository fixture failed both with `BENCH-019 must bind both StructSplat
+  and realtime-gs repositories`.
+- `PYTHONPATH=/home/alex/Documents/realtime-gs-bench019/src
+  PY=/home/alex/Documents/realtime-gs/.venv/bin/python ./scripts/verify.sh`: passed.
+- Complete CPU pytest suite with CUDA hidden: passed with only the two established warnings.
+- `ruff`, formatting, docs sync, ARA, task workflow, experiment-contract, and `git diff --check`
+  gates passed.
+
+#### Assumptions
+
+The portable v1 validation rules are mirrored locally because the passive exporter must not import
+StructSplat. The cross-repository positive and negative fixtures guard semantic drift, while each
+repository remains responsible for updating its copy deliberately if the versioned schema changes.
+
+#### Uncertainties
+
+This repair establishes evidence-chain integrity, not capture independence, field completeness,
+predictor validity, reconstruction quality, convergence, speed, or compression. Five capture
+groups still lack matched fields and the Stage mask-contained production remains incomplete.
+
+#### Review Focus
+
+Reproduce the three original counterexamples; compare the positive frozen fixture against the
+actual StructSplat validator; audit unused-source rejection, error-row replay, and whether any
+formal upstream invariant is still absent or materially stricter/looser.
+
+#### Protected actions not taken
+
+No formal BENCH-019 protocol was created or executed, no confirmation field or downstream outcome
+was opened, no analysis/report/claim/default changed, and the dirty primary realtime-gs worktree
+was not modified.
+
+#### Recommended Next Action
+
+If the revision is accepted, archive RTGS-009 and open RTGS-010 for deterministic source adapters
+and a fail-closed Stage-1 predictor collector. Keep production development-only until its own
+prospective protocol review.
