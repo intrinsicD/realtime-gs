@@ -2351,3 +2351,23 @@ observations:
     promoted_to: "logic/solution/architecture.md:A17"
     crystallized_via: verbal-affirmation
     stale: false
+  - id: O149
+    timestamp: "2026-08-02T10:42+02:00"
+    provenance: ai-executed
+    content: >
+      The exact native-resolution frame_00008 producer is compute-bound rather than stalled. The
+      active C0029 StructSplat process occupied 3,624 MiB, total device use was 5,384/8,192 MiB,
+      and GPU utilization was 100%; previously completed views required about 2.3--9.6 ks each.
+      A second same-size worker would not fit safely beside the desktop allocation, so the current
+      acquisition must remain at one serial worker on this host unless the protocol or hardware
+      changes.
+    context: >
+      Read-only process and nvidia-smi inspection while answering N186 during the protected
+      three-provider full-resolution paper comparison. This is an operational host observation,
+      not a provider-quality, convergence, or runtime-generalization result.
+    potential_type: constraint
+    bound_to: [N186]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false

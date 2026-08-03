@@ -1,0 +1,55 @@
+session:
+  id: "2026-08-03_001"
+  date: "2026-08-03"
+  started: "2026-08-03T08:58+02:00"
+  last_turn: "2026-08-03T20:42+02:00"
+  turn_count: 3
+  summary: "Mask-contained acquisition reached 23/26 views with C1001 active; total inputs reached 75/78."
+
+events_logged: []
+
+ai_actions:
+  - turn: 1
+    action: >
+      Inspected RTGS-008, the unattended producer, exact output files, per-view receipts and GPU
+      state. Confirmed nine additional mask-contained PASS outputs from C0008 through C0022,
+      bringing mask-contained to 13/26 and total acquisition to 65/78, with C0025 active at 99%
+      GPU utilization. The 13 completed mask-contained views average 4,152.6 seconds and have a
+      4,575.1-second median. Changed no experiment code or protected downstream protocol.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 2
+    action: >
+      Rechecked RTGS-008, the unattended producer, exact output files, per-view receipts and GPU
+      state. Confirmed new mask-contained PASS outputs for C0025, C0026 and C0028, bringing that
+      arm to 16/26 and total acquisition to 68/78, with C0029 active at 100% GPU utilization. The
+      16 completed mask-contained views average 4,153.7 seconds with a 4,432.6-second median.
+      Changed no experiment code or protected downstream protocol.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 3
+    action: >
+      Rechecked RTGS-008, the unattended producer, exact output files, per-view receipts and GPU
+      state. Confirmed seven additional mask-contained PASS outputs from C0029 through C1000,
+      bringing that arm to 23/26 and total acquisition to 75/78, with C1001 active at 100% GPU
+      utilization. The 23 completed mask-contained views average 4,077.6 seconds. Changed no
+      experiment code or protected downstream protocol.
+    provenance: ai-executed
+    files_changed: []
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The user requested a live progress checkpoint on 2026-08-03."
+  - turn: 2
+    excerpt: "The user requested another live progress checkpoint on 2026-08-03."
+  - turn: 3
+    excerpt: "The user requested a progress checkpoint with only the final mask-contained cameras remaining."
+
+open_threads:
+  - "Finish and verify the remaining three mask-contained native-resolution bundles."
+  - "Import, hash-seal and preflight all three providers after acquisition completes."
+  - "Prospectively review, execute and independently audit the frozen 27-cell paper comparison."
+
+ai_suggestions_pending: []

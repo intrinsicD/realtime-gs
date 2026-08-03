@@ -3325,3 +3325,16 @@ tree:
       - "src/rtgs/_viewer_arcball.js"
       - "tests/test_viewer.py"
     also_depends_on: [N184]
+  - id: N186
+    type: question
+    title: "Why does the full-resolution three-provider acquisition take so long?"
+    provenance: user
+    timestamp: "2026-08-02T10:42+02:00"
+    description: >
+      The user asked why the active frame_00008 paper-comparison acquisition was slow. Direct
+      process inspection found the current C0029 StructSplat worker healthy at 100% GPU
+      utilization, using 3,624 MiB of device memory while total device use was 5,384 MiB of
+      8,192 MiB. Each of 26 native-resolution camera views is an independent multi-thousand-step
+      optimization, and the two StructSplat providers are therefore being produced serially with
+      one worker to preserve the exact protocol without exceeding the shared RTX 3050 boundary.
+    status: resolved

@@ -1,0 +1,79 @@
+session:
+  id: "2026-08-02_001"
+  date: "2026-08-02"
+  started: "2026-08-02T10:42+02:00"
+  last_turn: "2026-08-02T22:19+02:00"
+  turn_count: 4
+  summary: "No-boundary completed and reverified at 26/26; mask-contained reached 4/26 with C0008 active."
+
+events_logged:
+  - turn: 1
+    type: question
+    id: N186
+    routing: direct
+    provenance: user
+    summary: "Explain the duration of the active full-resolution three-provider acquisition."
+  - turn: 1
+    type: observation
+    id: O149
+    routing: staged
+    provenance: ai-executed
+    summary: "Current exact StructSplat production saturates the shared 8 GB GPU and must remain serial on this host."
+
+ai_actions:
+  - turn: 1
+    action: >
+      Inspected the live C0029 worker and GPU utilization, confirmed the producer was healthy and
+      compute-bound, and launched an unattended scratch continuation queue that idempotently
+      completes the no-boundary provider, produces the mask-contained provider with one worker,
+      and runs the converter's verification gate.
+    provenance: ai-executed
+    files_changed:
+      - ".scratch/20260801_paper_three_provider_fullres_stage_frame00008/continue_structsplat_queue.sh"
+  - turn: 2
+    action: >
+      Inspected the active RTGS-008 task, producer sessions, exact output directories, per-view
+      receipts and GPU state. Confirmed GaussianImage at 26/26, StructSplat no-boundary at 18/26
+      after new PASS receipts for C0029 and C0030, StructSplat mask-contained at 1/26, and C0031
+      actively compute-bound at 97% GPU utilization. Calculated an 18-view no-boundary mean of
+      3,890.3 seconds with a 3,221.9-second median; changed no experiment code or protocol.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 3
+    action: >
+      Rechecked RTGS-008, the two producer sessions, exact output files, per-view receipts and GPU
+      state. Confirmed three additional no-boundary PASS outputs: C0031 with 7,440 splats at
+      31.070 dB, C0034 with 5,152 splats at 32.594 dB, and C0037 with 5,000 splats at 24.339 dB.
+      The acquisition now has GaussianImage 26/26, no-boundary 21/26, mask-contained 1/26, and
+      C0039 active at 100% GPU utilization; changed no experiment code or protocol.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 4
+    action: >
+      Confirmed the final five no-boundary views passed, the producer published its manifests,
+      and the unattended queue reverified all 26 existing no-boundary bundles before advancing.
+      Confirmed new mask-contained PASS receipts for C0004, C0005 and C0006, bringing that arm to
+      4/26 with C0008 active at 98% GPU utilization. Input acquisition is now 56/78 views; the
+      four completed mask-contained receipts average 3,740.1 seconds. Changed no experiment code
+      or protected downstream protocol.
+    provenance: ai-executed
+    files_changed: []
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: "The user asked: 'just a quick question. why does it take so long?'"
+  - turn: 2
+    excerpt: "The user asked: 'how is the progress?'"
+  - turn: 3
+    excerpt: "The user requested another live progress checkpoint."
+  - turn: 4
+    excerpt: "The user requested a live progress checkpoint after the no-boundary phase transition."
+
+open_threads:
+  - "Finish and verify the remaining 22 mask-contained native-resolution bundles; no-boundary is complete and reverified."
+  - "Import, hash-seal and preflight all three providers after acquisition completes."
+  - "Prospectively review, execute and independently audit the frozen 27-cell paper comparison."
+
+ai_suggestions_pending: []

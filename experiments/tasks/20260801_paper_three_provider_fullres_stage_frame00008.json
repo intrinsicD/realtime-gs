@@ -1,0 +1,277 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260801_paper_three_provider_fullres_stage_frame00008",
+  "date": "20260801",
+  "task_slug": "paper_three_provider_fullres",
+  "data_slug": "stage_frame00008",
+  "arm": "beam_fusion",
+  "status": "draft",
+  "owner": "Codex-three-provider-driver",
+  "protocol_review": {
+    "reviewer": null,
+    "verdict": "pending",
+    "protocol_sha256": null,
+    "artifact": null
+  },
+  "depends_on": [],
+  "title": "Full-resolution GaussianImage and StructSplat paper-path comparison",
+  "question": "When full-resolution GaussianImage, StructSplat mask-contained, and StructSplat no-boundary fields from the same calibrated frame each feed the latest matched Random, Splat-SfM, and Beam Fusion pipeline, how do their held-out compact-field risks and visible reconstruction signatures differ?",
+  "hypothesis": "All three provider bundles execute through every paper initializer under one provider-neutral downstream schedule. Provider-native held-out compact-field fidelity, initializer geometry, convergence, topology evolution, resource use, and visible reconstruction signatures may differ; this design makes no directional boundary-leakage or provider-superiority prediction.",
+  "claim_boundary": "Calibrated development comparison on one owner-specified, outcome-exposed frame. The task can establish source-bound execution and describe within-frame provider/initializer differences. It cannot establish paper-level quality, generalization, a causal provider ranking, Original-3DGS or COLMAP performance, compact-VRAM superiority, or a production default.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008_gaussianimage",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/production_manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00008_structsplat_mask_contained",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_mask_contained_fullres/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_mask_contained_fullres/production_manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "frame_00008_structsplat_no_boundary",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_no_boundary_fullres/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_no_boundary_fullres/production_manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008_gaussianimage": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "frame_00008_structsplat_mask_contained": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "frame_00008_structsplat_no_boundary": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    }
+  },
+  "seeds": [801001, 801002, 801003],
+  "input_policy": {
+    "reconstruction_allowed": ["calibration", "gaussians2d"],
+    "reconstruction_forbidden": ["PIL", "SceneData", "mask", "rgb", "rtgs.data.calibrated", "rtgs.optim.trainer"],
+    "evaluation_allowed": ["calibration", "gaussians2d"]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "official_clean_reviewed_source_only",
+    "frozen_source_file_hashes",
+    "gpu_quiescence_and_foreign_compute_guard",
+    "structured_worker_and_run_failure_publication",
+    "complete_root_preview_publication",
+    "synchronized_comparison_manifest_viewer"
+  ],
+  "source_binding": {
+    "reviewed_base_commit": "4c1a7a53b6463473155f8c7a48be91a12de13109",
+    "files": {}
+  },
+  "frozen_configuration": {
+    "provider_factor": {
+      "selection_basis": "Owner-specified exact full-resolution directories, frozen before downstream comparison outcomes.",
+      "byte_cap_per_view": 8388608,
+      "gaussianimage": {
+        "directory": "gaussians2d_gaussianimage_fullres",
+        "acquisition_arm": "gaussianimage",
+        "rtgsv_provider": "native",
+        "blend_mode": "additive",
+        "sigma_cutoff": 3.4641016151377544,
+        "support_fade_alpha": 0.0,
+        "aa_dilation": 0.0,
+        "maximum_capacity_per_view": 11000,
+        "canvas": [5328, 4608]
+      },
+      "structsplat_mask_contained": {
+        "directory": "gaussians2d_structsplat_mask_contained_fullres",
+        "acquisition_arm": "structsplat_mask_contained",
+        "rtgsv_provider": "structsplat",
+        "blend_mode": "normalized",
+        "sigma_cutoff": 3.0,
+        "support_fade_alpha": 1.0,
+        "aa_dilation": 0.0,
+        "boundary_specialization": "mask_contained",
+        "maximum_capacity_per_view": 11000,
+        "canvas": [5328, 4608]
+      },
+      "structsplat_no_boundary": {
+        "directory": "gaussians2d_structsplat_no_boundary_fullres",
+        "acquisition_arm": "structsplat_no_boundary",
+        "rtgsv_provider": "structsplat",
+        "blend_mode": "normalized",
+        "sigma_cutoff": 3.0,
+        "support_fade_alpha": 1.0,
+        "aa_dilation": 0.0,
+        "boundary_specialization": "none",
+        "maximum_capacity_per_view": 11000,
+        "canvas": [5328, 4608]
+      }
+    },
+    "initializer": {
+      "comparators": ["bounded_random", "splat_sfm", "beam_fusion"],
+      "common_starting_count": 3293,
+      "common_starting_count_policy": "Minimum feasible count across every provider and initializer from train-only mechanism preflight, frozen before canonical training.",
+      "max_starting_gaussians": 5000,
+      "structural_components_per_view": 2000,
+      "structural_selection": "grid_stratified_integrated_mass",
+      "random_bounds_scale": 0.5,
+      "init_opacity": 0.1,
+      "splat_sfm": {"min_views": 2, "source_chunk": 256, "seed_pair_limit": 24},
+      "beam_fusion": {"min_views": 3, "source_chunk": 256, "pair_limit": 24, "max_components": 5000, "seed_budget_multiplier": 4}
+    },
+    "compact_3dgs": {
+      "iterations": 10000,
+      "attempts_per_step": 128,
+      "proposal_mode": "area_gaussian",
+      "schedule_mode": "balanced_cycle",
+      "target_mode": "uniform",
+      "uniform_fraction": 0.25,
+      "device": "cuda:0",
+      "lr_means": 0.00016,
+      "lr_quats": 0.001,
+      "lr_scales": 0.005,
+      "lr_opacity": 0.05,
+      "lr_sh": 0.0025,
+      "lr_sh_rest": 0.000125,
+      "point_chunk": 64,
+      "gaussian_chunk": 1024,
+      "sh_degree": 3,
+      "outer_microbatch": 128,
+      "query_component_chunk": 512,
+      "teacher_tile_size": 16,
+      "evaluation_chunk": 1024,
+      "checkpoints": [0, 100, 250, 500, 1000, 2000, 3500, 5000, 6500, 8000, 10000],
+      "evaluate_checkpoint_risks": false,
+      "heldout_evaluation_samples_per_view": 4096,
+      "heldout_evaluation_sampling": "deterministic_uniform_fit_window_continuous_area",
+      "convergence_evaluation": {
+        "samples_per_view": 1024,
+        "stable_best_multiplier": 1.05,
+        "maximum_absolute_tail_relative_change": 0.01
+      },
+      "sampling_comparability": {
+        "shared": ["RNG seed domains", "camera schedule", "sample counts", "sampling algorithms"],
+        "provider_conditioned": ["proposal distributions", "fit windows", "realized 2D coordinates"],
+        "interpretation": "Provider-native fidelity under matched stochastic controls; not a common-coordinate target comparison."
+      },
+      "failure_policy": "fail_closed_no_overwrite_atomic_structured_worker_and_run_failure_publication"
+    },
+    "compact_query_index": {
+      "tile_size": 16,
+      "max_entries": 16000000,
+      "max_candidates": 200000,
+      "max_query_pairs": 1048576
+    },
+    "point_renderer": {
+      "backend": "gsplat_microcamera",
+      "packed": true,
+      "antialiased": false,
+      "kernel_support_mode": "hard"
+    },
+    "classic_density": {
+      "start_iter": 60,
+      "stop_iter": 8000,
+      "every": 40,
+      "grad_threshold": 0.0002,
+      "absgrad": false,
+      "split_scale_frac": 0.01,
+      "split_factor": 1.6,
+      "prune_opacity": 0.005,
+      "prune_scale_frac": 0.1,
+      "max_gaussians": 100000,
+      "opacity_reset_every": 3000,
+      "opacity_reset_value": 0.011,
+      "revised_opacity": true
+    },
+    "resource_measurement": {
+      "device_index": 0,
+      "idle_samples": 3,
+      "idle_sample_interval_seconds": 0.5,
+      "idle_timeout_seconds": 300.0,
+      "max_foreign_compute_processes": 0,
+      "max_background_device_memory_bytes": 3221225472,
+      "max_background_range_bytes": 134217728,
+      "max_gpu_utilization_percent": 40,
+      "monitor_interval_seconds": 0.25
+    },
+    "presentation": {
+      "representative_seed": 801001,
+      "calibrated_view_id": "C0014",
+      "grid_columns": 3,
+      "panel_max_side": 480,
+      "animation_frames": 8,
+      "animation_downscale": 8,
+      "animation_duration_ms": 140
+    }
+  },
+  "stages": [
+    {"id": "load_provider_fields", "label": "Load sealed provider fields", "purpose": "Load and hash all train and held-out compact fields while preserving each provider's declared compositor semantics."},
+    {"id": "construct_initializations", "label": "Construct selected paper initialization", "purpose": "Build only the selected bounded-random, Splat-SfM, or unmodified Beam Fusion arm from train-only provider fields at the globally matched starting count."},
+    {"id": "compact_3dgs_with_density", "label": "Run matched compact-field 3DGS", "purpose": "Apply the identical compact objective, RNG domains, camera schedule, sample counts, sampler algorithms, optimizer, classic density controller, hard cap, and checkpoint schedule to every cell; realized coordinates remain provider-conditioned."},
+    {"id": "heldout_compact_evaluation", "label": "Evaluate held-out compact fields", "purpose": "Measure the frozen deterministic provider-native held-out sample risk without source images, masks, or outcome-based selection. Seeds and algorithms match, while realized coordinates remain provider-conditioned."},
+    {"id": "fullres_presentation", "label": "Render the comparison presentation", "purpose": "Produce native-resolution calibrated snapshots, required synchronized nine-method root previews, and a comparison-manifest viewer from saved models without reading source RGB or masks."}
+  ],
+  "comparators": [
+    {"id": "gaussianimage_bounded_random", "label": "GaussianImage / Random", "purpose": "Additive full-resolution fields with the bounded-random initializer and matched downstream fit."},
+    {"id": "gaussianimage_splat_sfm", "label": "GaussianImage / Splat-SfM", "purpose": "Additive full-resolution fields with field-derived Splat-SfM and matched downstream fit."},
+    {"id": "gaussianimage_beam_fusion", "label": "GaussianImage / Beam Fusion", "purpose": "Additive full-resolution fields with unmodified Beam Fusion and matched downstream fit."},
+    {"id": "structsplat_mask_contained_bounded_random", "label": "StructSplat mask-contained / Random", "purpose": "Mask-contained normalized fields with bounded-random initialization and matched downstream fit."},
+    {"id": "structsplat_mask_contained_splat_sfm", "label": "StructSplat mask-contained / Splat-SfM", "purpose": "Mask-contained normalized fields with field-derived Splat-SfM and matched downstream fit."},
+    {"id": "structsplat_mask_contained_beam_fusion", "label": "StructSplat mask-contained / Beam Fusion", "purpose": "Mask-contained normalized fields with unmodified Beam Fusion and matched downstream fit."},
+    {"id": "structsplat_no_boundary_bounded_random", "label": "StructSplat no-boundary / Random", "purpose": "No-boundary normalized fields with bounded-random initialization and matched downstream fit."},
+    {"id": "structsplat_no_boundary_splat_sfm", "label": "StructSplat no-boundary / Splat-SfM", "purpose": "No-boundary normalized fields with field-derived Splat-SfM and matched downstream fit."},
+    {"id": "structsplat_no_boundary_beam_fusion", "label": "StructSplat no-boundary / Beam Fusion", "purpose": "No-boundary normalized fields with unmodified Beam Fusion and matched downstream fit."}
+  ],
+  "primary_metrics": [
+    {"id": "heldout_sampled_j_area", "label": "Held-out compact sampled area risk", "unit": "MSE", "direction": "lower", "aggregation": "Use 4,096 deterministic continuous fit-window samples per held-out view; report every view and seed, then paired provider/initializer medians with raw values retained."},
+    {"id": "final_gaussians", "label": "Final Gaussian count", "unit": "gaussians", "direction": "descriptive", "aggregation": "Report every cell with clone, split, prune, and opacity-reset event totals."},
+    {"id": "fullres_teacher_psnr", "label": "Stage-1 foreground fit PSNR", "unit": "dB", "direction": "higher", "aggregation": "Acquisition QA only: report every view and equal-view mean per provider."},
+    {"id": "peak_cuda_allocated_bytes", "label": "Peak CUDA allocated", "unit": "bytes", "direction": "descriptive", "aggregation": "Retain each raw fresh-process measurement and paired medians across the designated resource repeats."},
+    {"id": "wall_seconds", "label": "Stage wall time", "unit": "seconds", "direction": "descriptive", "aggregation": "Report initializer, optimization, evaluation, and presentation stages separately for every canonical cell."},
+    {"id": "final_to_best_heldout_risk_ratio", "label": "Final-to-best held-out checkpoint risk", "unit": "ratio", "direction": "lower", "aggregation": "Evaluate 1,024 fixed provider-native held-out samples per view at every frozen checkpoint; report every curve, best step, stable-band step, tail change, convergence verdict, and paired median ratio."},
+    {"id": "compact_to_model_compression_ratio", "label": "Compact-field to final-model compression", "unit": "ratio", "direction": "descriptive", "aggregation": "For every cell divide the sealed provider .rtgsv payload bytes by final gaussians.npz bytes; retain both byte counts and paired medians. This is a descriptive representation-size ratio, not a rate-distortion claim."}
+  ],
+  "required_charts": ["quality", "resources", "stage_runtime"],
+  "resource_protocol": {
+    "scope": "Fresh image-free process from strict compact-manifest load through construction of only the selected initializer, final 3D Gaussian save, and frozen held-out compact evaluation. Unused comparator initializers, Stage-1 production, and isolated presentation rendering are outside the receipt. The three frozen quality seeds are also the three measured resource repeats, so no additional measured fits are introduced.",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "One discarded global device/JIT warmup, then paired median over the three frozen measured seeds for every provider/initializer on the same quiescence-guarded RTX 3050; retain every raw repeat, min/max, baseline and peak background allocation, foreign-compute rejection, driver/runtime versions, exact byte accounting, and failure.",
+    "cuda_metrics": ["nvml_process_peak_bytes", "peak_cuda_allocated_bytes", "peak_cuda_reserved_bytes", "background_device_memory_bytes", "background_device_memory_peak_bytes", "device_total_bytes", "driver_version", "torch", "torch_cuda", "idle_guard", "foreign_compute_processes"],
+    "host_metrics": ["ru_maxrss_bytes", "wall_seconds", "compact_input_bytes", "compact_field_bytes", "final_model_npz_bytes", "final_model_ply_bytes", "compact_to_model_compression_ratio", "output_bytes", "output_files"]
+  },
+  "data_seal": "experiments/data/stage_frame00008_three_provider_fullres.json",
+  "run_command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260801_paper_three_provider_fullres_stage_frame00008.py",
+    "run",
+    "--task",
+    "experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json",
+    "--run-dir",
+    "runs/20260801_paper_three_provider_fullres_stage_frame00008"
+  ],
+  "blockers": [
+    "Resolve the rejected prospective review findings and obtain a fresh outcome-unseen independent protocol approval before init-run."
+  ]
+}

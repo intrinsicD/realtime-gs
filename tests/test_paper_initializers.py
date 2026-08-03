@@ -14,6 +14,7 @@ from rtgs.lift.beam_fusion import BeamFusionConfig, BeamFusionResult
 from rtgs.lift.paper_initializers import (
     PaperInitializerConfig,
     bounded_random_initialization,
+    build_frozen_paper_initialization,
     build_matched_paper_initializations,
     structural_initialization_inputs,
 )
@@ -107,15 +108,14 @@ def test_three_initializers_are_exact_count_matched_by_native_evidence(monkeypat
         lambda inputs, config: beam,
     )
 
-    result = build_matched_paper_initializations(
-        _inputs(),
-        PaperInitializerConfig(
-            random_seed=9,
-            max_starting_gaussians=2,
-            sfm=SplatSfMConfig(init_opacity=0.1),
-            beam=BeamFusionConfig(init_opacity=0.1),
-        ),
+    config = PaperInitializerConfig(
+        random_seed=9,
+        max_starting_gaussians=2,
+        sfm=SplatSfMConfig(init_opacity=0.1),
+        beam=BeamFusionConfig(init_opacity=0.1),
     )
+    inputs = _inputs()
+    result = build_matched_paper_initializations(inputs, config)
 
     assert result.count == 2
     assert result.bounded_random.n == result.splat_sfm.n == result.beam_fusion.n == 2
@@ -123,6 +123,23 @@ def test_three_initializers_are_exact_count_matched_by_native_evidence(monkeypat
     assert result.beam_fusion_selected_rows.tolist() == [1, 2]
     assert result.receipt["source_counts"] == {"splat_sfm": 4, "beam_fusion": 3}
     assert result.receipt["selected_rows"]["splat_sfm"] == [3, 1]
+
+    for arm, expected in (
+        ("bounded_random", result.bounded_random),
+        ("splat_sfm", result.splat_sfm),
+        ("beam_fusion", result.beam_fusion),
+    ):
+        frozen = build_frozen_paper_initialization(inputs, config, arm=arm, count=result.count)
+        assert frozen.gaussians.n == result.count
+        for name in ("means", "quats", "log_scales", "opacity", "sh"):
+            assert torch.equal(getattr(frozen.gaussians, name), getattr(expected, name))
+
+    assert build_frozen_paper_initialization(inputs, config, arm="splat_sfm", count=2).receipt[
+        "selected_rows"
+    ] == [3, 1]
+    assert build_frozen_paper_initialization(inputs, config, arm="beam_fusion", count=2).receipt[
+        "selected_rows"
+    ] == [1, 2]
 
 
 def test_structural_input_selection_is_shared_bounded_and_deterministic():

@@ -2,16 +2,16 @@
 
 ## Title
 
-Full-resolution three-path paper pipeline from native 2D Gaussian fields through densified 3DGS
+Full-resolution three-provider paper comparison on Stage frame 00008
 
 ## Task ID
 
-RTGS-007
+RTGS-008
 
 ## Role Assignment
 
-- Driver: Codex-three-path-driver
-- Reviewer: Codex-three-path-driver
+- Driver: Codex-three-provider-driver
+- Reviewer: Goodall
 - Turn: driver
 
 ## Mode
@@ -25,98 +25,80 @@ Protected
 ## Maturity
 
 - Target: Calibrated
-- Reached: Pipeline-integrated
+- Reached: CPU-contracted
 
 ## Goal
 
-Produce an inspectable, full-resolution development realization of the paper's three reconstruction
-paths from one shared, native-additive, GaussianImage-style 2D Gaussian capture: bounded-random,
-Splat-SfM, and Beam Fusion initialization. For the immediate owner-facing visual demonstration,
-natively replay the sealed fields into the established full-crop 3DGS trainer and give all three
-arms the same complete clone/split/prune/reset schedule. Keep the protected RGB-free compact
-optimizer as a separate evidence path, record its sparse-supervision visual failure honestly, and
-do not substitute the dense development path into a compact/VRAM claim. Preserve the Beam endpoint
-as the starting point for a later fresh diagnosis rather than repairing it inside this comparison.
+Run the latest paper three-path comparison on the exact full-resolution frame-00008 fields supplied
+by the owner: GaussianImage, StructSplat mask-contained, and StructSplat no-boundary. Preserve each
+provider's native field semantics, hold the train/held-out split, initializer construction, compact
+teacher objective, topology schedule, update budget, and evaluation fixed, and make the Stage-1
+provider the only intended factor between matched provider blocks. Produce a source-bound Bundle
+Contract v2 result, native-resolution previews, an interactive viewer, and an independent audit.
 The protocol authority is
-`experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json`.
-As an owner-requested experiment-infrastructure cleanup, also make every current and historical
-study discoverable through the task-first `YYYYMMDD_<task_slug>_<data_slug>` naming scheme without
-renaming or weakening sealed provenance.
+`experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json`.
 
 ## Motivation
 
-The owner rejected the visually poor 640-component, 100-update Stage-1 smoke and clarified the
-paper demonstration they expect to see. Native canvas dimensions alone are not full-resolution
-quality. The current code has the component pieces, but not the promised end-to-end system:
-`CompactTrainer` is fixed-topology unless an external research controller is supplied, Beam and
-Splat-SfM are separate initializer functions rather than registered three-path arms, and the
-capture has no real COLMAP sparse model. This task closes those integration gaps without conflating
-the standard RGB trainer with the paper's compact-field-supervised reconstruction.
-
-Remote `main` now supplies the owner-adopted A17 Experiment Bundle Contract v2 and its hardened
-viewer smoke. RTGS-007 must consume that shared contract before any future official run; merging it
-does not retroactively turn the outcome-exposed development artifacts into protected evidence.
+RTGS-007 integrated the current bounded-random, Splat-SfM, and Beam Fusion paper paths, but its
+development realization deliberately excluded StructSplat and stopped below calibrated evidence.
+The owner has now supplied one complete GaussianImage full-resolution bundle and requested the two
+corresponding latest StructSplat variants. A fresh task is required because provider identity and
+blend semantics are a new experimental factor, the source bundles are external and only partly
+complete, and no comparison outcome may be exposed before the matched protocol is frozen and
+reviewed.
 
 ## Success Criteria
 
-- A one-view mechanism pilot establishes a visibly useful non-StructSplat native-additive Stage-1
-  capacity/update setting on the native 5328-by-4608 canvas; the chosen setting is then frozen
-  prospectively before all-view production.
-- Both protocol frames have strict, source-bound native-additive `.rtgsv` bundles at the frozen
-  high-capacity setting, complete production receipts, full-resolution render QA, and one exact
-  data seal. The old 640-by-100 bundles remain labelled as superseded smoke inputs.
-- One owner-facing development cell replays the sealed native fields without StructSplat or source
-  RGB, completes the same established 30k full-crop 3DGS fit for Random, Splat-SfM, and Beam, and
-  presents native-resolution initialization/final renders plus an interactive comparison. This
-  demonstration is explicitly outside compact/VRAM evidence.
-- A reusable compact density controller drives the established classic clone/split/prune/opacity
-  reset surgery from point-rasterizer screen gradients, preserves Adam survivor rows and exact-zero
-  newborn moments, maintains complete persistent lineage, enforces a hard count cap, and has
-  CPU-first tests.
-- One task driver constructs bounded-random, explicitly named Splat-SfM, and Beam Fusion
-  initializations from the same train-only compact inputs, then gives all three the identical
-  compact objective, sampling schedule, learning rates, SH schedule, topology policy, update
-  budget, and capacity. No source RGB, mask, `SceneData`, dense trainer, or held-out field enters
-  reconstruction.
-- The protocol passes contract/data validation and an outcome-unseen prospective review before
-  `init-run`. The canonical run produces initial/checkpoint/final PLYs, native-resolution
-  calibrated renders, density histories, metrics, a three-model viewer manifest, and a complete
-  Bundle Contract v2 report that passes the independent result-bundle gates.
-- The Beam arm is shown without post-outcome repair or special schedule. Its visible failures and
-  topology trajectory are reported descriptively, then left to a distinct successor task.
-- The experiment catalog gives every registered task its exact task ID and every historical study
-  a unique current-scheme navigation alias, with direct links to the original result, audit,
-  driver, or log record. No sealed evidence path, historical run root, checksum, or citation
-  target is renamed.
-- Focused tests, `rtgs-review`, `realtime-gs-results-audit`, and `./scripts/verify.sh` pass, with
-  any pre-existing host failure reproduced and scoped rather than hidden.
+- The exact owner-supplied frame is inventoried and all three 26-view native full-resolution
+  bundles complete under the shared 11,000-row maximum capacity, with per-view receipts,
+  histories, QA renders, manifests, and source/config/environment provenance.
+- GaussianImage additive semantics, StructSplat mask-contained normalized semantics, and
+  StructSplat no-boundary normalized semantics reload and replay through the common compact-field
+  interface without source RGB or masks entering reconstruction.
+- The three provider bundles are copied into repository-relative immutable inputs, sealed by exact
+  bytes, and checked against the common 23-train/3-heldout split.
+- A provider-neutral task driver runs bounded-random, Splat-SfM, and Beam Fusion from every provider
+  with a globally matched starting count, identical downstream compact training and density
+  controls, three frozen seeds, fail-closed receipts, and no cross-cell overwrite.
+- Every canonical cell produces initial/checkpoint/final PLYs, deterministic held-out compact
+  sample metrics, density histories, native 5328-by-4608 calibrated previews, source hashes, and
+  resource/stage timing.
+- The canonical v2 report and synchronized viewer pass bundle validation and browser visibility
+  checks; every provider/initializer/seed cell remains directly inspectable.
+- An outcome-unseen prospective protocol review precedes `init-run`; an independent result audit,
+  `rtgs-review`, and full repository verification precede closeout.
+- Conclusions remain limited to this outcome-exposed frame and distinguish Stage-1 acquisition QA
+  from downstream comparison outcomes.
 
 ## Constraints
 
-- Stage 1 is native additive GaussianImage-style fitting. StructSplat and normalized-blend fields
-  are forbidden.
-- Reconstruction after Stage 1 consumes only calibrated compact fields. RGB/masks may be used only
-  for Stage-1 fitting and isolated final visual evaluation outside the reconstruction process.
-- All arms share exact teacher bytes, training views, sample streams, optimizer controls,
-  densification policy, hard final capacity, and checkpoint schedule; only initialization differs.
-- Splat-SfM is labelled exactly as such. It is not a real COLMAP sparse reconstruction and must not
-  be called Original 3DGS or conventional SfM.
-- No official result run before prospective protocol approval; no Beam-specific fix is selected
-  from this comparison's outcomes.
-- Historical result, audit, seal, receipt, and run paths are append-only. Consistent historical
-  names are additive catalog aliases, never destructive filesystem renames.
-- Preserve the unrelated user-owned `.idea/rtgs.iml` modification and all prior experiment
-  artifacts.
+- Use exactly
+  `/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008` as the owner-supplied
+  acquisition source; never alter or delete source RGB, masks, partial fields, receipts, or QA.
+- Preserve provider-native rendering semantics. GaussianImage remains additive; StructSplat
+  remains normalized, with mask containment or no boundary specialization exactly as named.
+- Reconstruction consumes only calibration and `.rtgsv` fields. RGB/masks are permitted for the
+  already-specified Stage-1 production and isolated final visual QA, never for 3D optimization.
+- All provider blocks use the same views, seeds, component-selection policy, globally feasible
+  initial count, optimizer, RNG domains, camera schedule, sample counts, sampler algorithms,
+  density schedule, hard capacity, checkpoints, and evaluation rules. Provider-conditioned fit
+  windows and proposal distributions yield provider-conditioned realized coordinates; initializer
+  is the frozen within-block paper comparator.
+- Do not inspect or tune against canonical comparison outcomes before prospective approval. Input
+  production QA and mechanism-only preflight may be inspected and must be labelled diagnostic.
+- No paper-quality, generalization, causal provider superiority, compact-VRAM, production-default,
+  or cross-scene claim is authorized from this single outcome-exposed frame.
+- Preserve unrelated user-owned changes in the external StructSplat checkout and repository.
 
 ## Non-Goals
 
-- Proving a paper, general VRAM, quality, speed, or cross-dataset claim from the two
-  outcome-exposed stage frames.
-- Implementing or installing COLMAP, inventing a sparse point model, or relabelling Splat-SfM.
-- Changing the standard RGB trainer, gsplat density defaults, or production defaults.
-- Continuing RTGS-006's analytic-objective comparison.
-- Diagnosing, tuning, or repairing Beam Fusion after the matched endpoint is visible; that begins
-  under a fresh task and protocol.
+- Changing GaussianImage or StructSplat fitting algorithms, defaults, safe schedules, renderer
+  semantics, or the already-produced GaussianImage bundle.
+- Repairing Beam Fusion, tuning an initializer per provider, or introducing COLMAP/Original 3DGS.
+- Treating Stage-1 RGB/mask access as part of the compact reconstruction resource boundary.
+- Selecting a preferred Stage-1 provider for production from this one frame.
+- Reopening or promoting RTGS-007's unsealed development endpoint observations.
 
 ## Selected Skills
 
@@ -131,115 +113,91 @@ does not retroactively turn the outcome-exposed development artifacts into prote
 
 ## Experiment Contract
 
-experiments/tasks/20260730_paper_three_path_fullres_stage_frames00008_00009.json
+experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
 
 ## Current Evidence
 
-- The RTX 4090 host exposes 24,564 MiB and modern `gsplat 1.5.3`; an existing all-view
-  native-resolution RGB run reached 100,000 3D Gaussians, so full-resolution rendering and dynamic
-  cardinality are supported on this machine.
-- `CompactTrainer` supports all six 3DGS parameter families, native-coordinate point supervision,
-  an opt-in topology protocol, persistent IDs, Adam-boundary verification, and
-  checkpoint/evaluation receipts. The new `ClassicCompactDensityController` implements production
-  research cardinality changes behind that opt-in seam; fixed topology remains the default.
-- `DensityController` already implements classic screen-gradient clone/split/prune, hard-cap
-  enforcement, optimizer surgery, and opacity reset. `PointRenderOutput` carries the visible-row
-  and retained screen-gradient data needed to drive it.
-- `structure_from_splats` and `fuse_gaussian_beams` consume the same strict
-  `ReconstructionInputs`. The registered legacy `SfMLifter` instead needs `SceneData.points` and
-  ignores 2D fields; it is not the arm selected here.
-- No `colmap` executable or cameras/images/points3D sparse model exists for the two stage frames.
-- The existing native-additive bundles use only 640 Gaussians and 100 updates per view. Their
-  native image dimensions are correct, but their approximately 22 dB mean foreground fit and
-  visible blur make them mechanism smoke, not the requested paper-quality input.
-- The replacement acquisition is complete for both frames: every view contains 100,000 native
-  additive Gaussians fitted for 2,000 updates and reloads strictly at the native 5328-by-4608
-  canvas. Equal-view mean foreground PSNR is 34.5186 dB on frame 00008 and 34.8426 dB on frame
-  00009; the sealed compact payloads total 80,777,830 and 80,973,603 bytes respectively.
-- The strict point-query development path completed 10,000 updates on frame 00008 Random and
-  exercised 199 classic topology transactions (3,330 to 100,000 Gaussians, including clone,
-  split, prune, and two resets), but its native render remained dark and visibly soft. It is a
-  rejected integration diagnostic, not the requested endpoint.
-- The established ordinary full-crop `Trainer` path is now exposed separately as
-  `train-standard`: it reconstructs crop tensors natively from the sealed `provider=native`
-  fields without StructSplat or source-image access, then uses the repository's proven 30k
-  gsplat DefaultStrategy recipe. This path supplies the visual functionality demonstration but
-  is explicitly ineligible for the compact/VRAM claim because it materializes dense tensors.
-- The three train-only initializers are frozen at an exact common 3,330 rows from one identical
-  field/camera boundary. Splat-SfM produced 3,330 tracks and Beam at least 5,000 components from
-  the shared 2,000-row-per-view structural work subset; all downstream teacher replays retain the
-  complete 100,000-row fields.
-- The frame-00008/seed-300701 development cell completed the same 30,000-update standard 3DGS
-  schedule for all arms. Random grew 3,330 to 28,352 rows and reached held-out crop
-  PSNR/SSIM 30.4976/0.96277; Splat-SfM grew to 28,187 and reached 30.2340/0.96119; Beam grew to
-  27,938 and reached 30.1512/0.96128. Random therefore slightly led this single development cell;
-  Splat-SfM did not show an initializer advantage.
-- Native 5328-by-4608 inspection on held-out C0014 shows a detailed Stage-1 field and recognizable,
-  detail-bearing endpoints for all arms. Splat-SfM retains conspicuous floating splat fragments.
-  Beam starts almost black with a diffuse low-opacity carrier and recovers through the shared fit,
-  but its endpoint remains somewhat smoother and more smeared than Random. No Beam-specific repair
-  was applied.
-- Every standard run passed the no-image-open boundary. Splat-SfM and Beam explicitly recorded no
-  loaded StructSplat modules; Random used the same native replay path and records
-  `structsplat_used=false`, but completed before the explicit module-list receipt field was added.
-  The standard path peaked at approximately 4.36 GB host RSS and 2.34/6.57 GB CUDA
-  allocated/reserved, so none of these figures are compact/VRAM claims.
-- Remote A17 adds the shared v2 report renderer, dimensioned elapsed-time histories with explicit
-  stage boundaries, manifest checksums, and browser/WebGL/orbit visibility receipts. It remains
-  infrastructure evidence, not an RTGS-007 scientific result.
-- The owner requested one naming scheme across current and historical experiments. The new
-  catalog contains 102 unique names and 158 direct links; registered task IDs remain exact, while
-  historical names are explicitly non-protocol aliases to immutable primary records.
-- Focused CPU tests (74), focused CUDA renderer/query tests, Ruff, docs-sync, workflow validation,
-  experiment contract/data validation, and the quick benchmark pass. Full `verify.sh` reaches the
-  end of the CPU suite with exactly six frozen-harness failures caused by the host lacking the
-  pinned `/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33` (the installed system version is
-  `.6.0.35`); the frozen benchmark sources are unchanged and the ABI pin was not weakened.
+- The realtime-gs checkout is at current `origin/main` commit `4c1a7a5`; the external StructSplat
+  checkout was fast-forwarded to current `origin/main` commit `fb357de`. The relevant StructSplat
+  fit, renderer, initializer, and safe-schedule source files are unchanged across that update.
+- All three owner-supplied arms are complete and pass the final three-arm verifier: 26 views per
+  provider and 78 compact fields total. GaussianImage contains exactly 11,000 Gaussians per view,
+  9,451,334 compact bytes, and mean foreground PSNR 33.9510 dB. StructSplat mask-contained contains
+  exactly 11,000 Gaussians per view, 8,499,734 compact bytes, and mean foreground PSNR 29.1213 dB.
+  StructSplat no-boundary contains 5,000 to 8,592 Gaussians per view, 5,419,088 compact bytes, and
+  mean foreground PSNR 30.3919 dB. These are Stage-1 acquisition QA values, not downstream
+  comparison outcomes.
+- The three exact source directories and their producer protocol, verification record, and source
+  script were copied without overwrite into the repository dataset tree and compare byte-for-byte
+  with the owner-supplied source. The compact data seal binds the shared calibration, all three
+  manifests and production manifests, and all 78 compact fields as 85 selected files totaling
+  24,831,997 bytes; `experiment_contract.py validate-data` passes.
+- All three arms use the native 5328-by-4608 canvas and a common 11,000-row capacity, but their
+  renderer contracts intentionally differ: GaussianImage is additive and StructSplat is
+  normalized blend. GaussianImage stores exactly 11,000 rows per view; StructSplat's dynamic safe
+  schedule may stop below that shared maximum (the existing no-boundary views contain 5,016 to
+  7,928 live rows).
+- The producer environment recorded by the existing StructSplat receipts is Python 3.11.15,
+  PyTorch 2.13.0+cu130, CUDA on an NVIDIA GeForce RTX 3050. A task-local matching environment is
+  being recreated before resuming production.
+- RTGS-007's reusable loader, compact observation query, bounded-random/Splat-SfM/Beam
+  initializers, classic density controller, Bundle Contract v2 renderer, and viewer pipeline pass
+  independent closure review. They have not yet been exercised as one provider-neutral canonical
+  matrix.
+- The RTGS-008 driver now binds every provider semantic, full optimizer/query/topology control,
+  seed, split, data seal, task lock, output path, and v2 source artifact. Focused CPU tests validate
+  the frozen controls, provider semantics, command surface, and complete ordered stage history.
+- Train-only mechanism preflight passed the compact reconstruction boundary for every provider,
+  excluded all three held-out views, and yielded feasible matched initializer counts of 3,293 for
+  GaussianImage, 3,857 for StructSplat mask-contained, and 3,727 for StructSplat no-boundary. The
+  globally shared starting count is therefore frozen at 3,293 before canonical training.
+- No RTGS-008 downstream result has been run or inspected. The external Stage-1 receipts are
+  outcome-exposed input-preparation evidence only.
 
 ## Minimal Plan
 
-1. Register this task and its draft protocol; archive RTGS-006 as owner-superseded.
-2. Implement and test the reusable compact classic-density controller plus shared three-initializer
-   orchestration.
-3. Run a bounded one-view native-additive capacity/update pilot, inspect the full-resolution
-   render, and freeze the all-view Stage-1 setting.
-4. Produce and seal both high-capacity full-resolution compact datasets.
-5. Freeze the matched compact-training schedule and driver through mechanism tests, adopt Bundle
-   Contract v2, then obtain prospective protocol approval.
-6. Run the canonical three-path comparison, build and open the viewer/results page, audit the
-   outcome, and hand Beam's observed problems to a new task.
-7. Maintain one searchable current-scheme catalog across registered and historical experiments,
-   preserving every sealed path as append-only provenance.
+1. Close and archive RTGS-007 with its independent follow-up verdict; register RTGS-008 and its
+   draft three-provider contract.
+2. Recreate the source-matched producer environment, resume both incomplete StructSplat arms, and
+   independently verify every view and manifest.
+3. Import the three exact bundles into repository-relative immutable paths, seal their bytes, and
+   freeze the globally matched initializer capacity from mechanism-only preflight.
+4. Make the current paper driver provider-neutral, add CPU-first and guarded CUDA tests, freeze the
+   canonical command, and obtain outcome-unseen prospective review.
+5. Initialize the protected run, execute every provider/initializer/seed cell, render the v2
+   report/viewer, and validate all receipts.
+6. Run an independent scientific audit, log only supported findings, complete repository review
+   and verification, and close or hand off any maturity shortfall explicitly.
 
 ## Status
 
-In progress
+Revision required
 
 ## Human Decisions
 
 ### Question
 
-Which pipeline should replace the additive analytic-objective detour?
+Which full-resolution inputs should enter the latest paper comparison?
 
 ### Options
 
-Continue the fixed-topology analytic objective; show only the 2D bundle; or build the three
-paper paths with full compact densification.
+Reuse only the earlier native-additive fields; compare arbitrary available providers; or use the
+exact GaussianImage, StructSplat mask-contained, and StructSplat no-boundary directories supplied
+for frame 00008.
 
 ### Recommendation
 
-Build the three paper paths and treat the old 640-by-100 inputs as smoke only.
+Use the three exact supplied providers and preserve their native field semantics under one matched
+downstream protocol.
 
 ### Decision
 
-(Owner, in chat.) Show image to full-resolution non-StructSplat 2D Gaussian fields, then complete
-3DGS fits from random and SfM initialization with full densification, and a third complete fit from
-Beam Fusion initialization so the Beam problems are visible. Diagnose those problems later from a
-fresh start.
+(Owner, in chat.) Make the latest paper comparison experiments for the frame-00008 dataset using
+GaussianImage full-resolution and the StructSplat mask-contained and no-boundary variants.
 
 ### Date
 
-2026-07-30
+2026-08-01
 
 ## Handoff Log
 
@@ -249,186 +207,107 @@ Never delete earlier entries. On terminal closeout, archive the complete record 
 `docs/tasks/<task-id>-<slug>.md`, change the archived `Turn` to `none`, and reset this file to the
 unchanged template.
 
-### 2026-07-30 — Driver progress: full-resolution three-path development viewer
-
-#### Work
-
-Produced and sealed both 100,000-by-2,000 native additive Stage-1 captures, integrated the matched
-three initializers, completed Random/Splat-SfM/Beam through the same 30k standard full-crop 3DGS
-schedule on frame 00008, and generated a held-out C0014 presentation with native-resolution
-initial/final renders and a synchronized interactive-viewer manifest.
-
-#### Evidence
-
-Random/Splat-SfM/Beam end at 28,352/28,187/27,938 Gaussians. Held-out crop PSNR is
-30.4976/30.2340/30.1512 dB respectively. All generated PNGs are exactly 5328 by 4608 pixels.
-Visual review confirms the nearly black Beam initialization, Splat-SfM floaters, and usable but
-still smoother-than-2D-teacher endpoints. The protected compact diagnostic independently exercised
-clone/split/prune/reset to 100,000 rows but remained dark/soft because 128 point queries per update
-did not supply native-image detail.
-
-#### Review state
-
-Development visualization is ready for owner inspection. The official protocol remains draft:
-there is no prospective independent approval or canonical compact run, and no compact/VRAM or
-cross-scene claim is authorized. Beam diagnosis and repair remain deliberately deferred to a fresh
-successor task.
-
-### 2026-07-31 — Driver review: publishable development implementation, protected run still gated
-
-#### Work
-
-Reviewed the complete local implementation and development artifacts before publication, repaired
-the compact-density lineage ledger so births remain traceable after later pruning, and added trainer
-coverage proving historical lineage does not contaminate summaries of currently surviving rows.
-The owner authorized committing the complete worktree and reconciling it with remote `main`.
-
-#### Evidence
-
-The focused native-observation, initializer, density, point-renderer, data-production, compact-view,
-contract, and CUDA-observation test set passes (CUDA-only nodes skip when unavailable). Both exact
-data seals pass `experiment_contract.py validate-data`, and every produced field still matches its
-sealed bytes and production receipt.
-
-#### Uncertainties
-
-The live producer-source verification commands intentionally fail closed because the untracked
-producer and provider sources continued to evolve after the bundles were generated. The stored
-full-resolution source aggregate `fbdd7926...` differs from the current `920e3f33...`; the stored
-additive aggregate `2a37b336...` differs from the current `26e499...`. Exact produced bytes,
-manifests, receipts, and their seals remain preserved, but the executed dirty source bytes are
-available only as stored hashes, so these development inputs are not represented as
-source-replay-complete official evidence.
-
-#### Protected actions not taken
-
-No prospective approval, `init-run`, canonical protected execution, official result bundle,
-claim/default promotion, or Beam-specific repair was fabricated. The protocol remains `draft` with
-its three explicit blockers.
-
-#### Recommended Next Action
-
-Publish this pipeline-integrated development state as requested. If official compact evidence is
-still desired, begin from an outcome-unseen review of a freshly source-bound acquisition and the
-existing draft protocol rather than relabelling the development viewer as the canonical run.
-
-### 2026-07-31 — Driver handoff: remote-main reconciliation reviewed
+### Handoff (2026-08-04 prospective protocol review)
 
 #### Objective
 
-Reconcile the complete RTGS-007 development commit with the current remote `main`, resolve its
-concurrent RTGS-006/A17 task history, and prepare the reviewed combined tree for direct-main
-publication at the owner’s request.
+Independently review the frozen RTGS-008 protocol before any protected run is initialized or any
+downstream comparison outcome is exposed.
 
 #### Reviewed state
 
-Local checkpoint `d3f73a7` diverged from remote `ed51da5` by one local and four remote commits.
-Git reported two textual conflicts: the active task record and the experiment-contract tests.
-Four other overlapping files merged automatically and were reviewed semantically.
+Base commit `4c1a7a53b6463473155f8c7a48be91a12de13109`; prospective protocol digest
+`6115bb16b1ef170e9c93095de3a40b60f79cf6ef898b82ace86b0b56c2d76a0d`. The task, data seal,
+driver, and focused-test byte digests are respectively `46f9e410...`, `645e2991...`,
+`e0c8e96a...`, and `d0e57598...`.
 
 #### Changes
 
-RTGS-007 remains the one active task and now explicitly freezes Bundle Contract v2. Remote A17
-reporting, stage-timeline, manifest, and visible-browser-smoke infrastructure is retained; the
-local optional production-manifest data sealing is retained within it. Both branches’ RTGS-006
-decisions and handoffs are preserved in the superseded archive, with their concurrent chronology
-and shared-infrastructure boundary stated explicitly. The contract-test resolution retains both
-the v2 fixture coverage and production-sidecar sealing coverage.
+Completed and independently verified all 78 Stage-1 compact fields; copied the three exact bundles
+and producer sidecars byte-for-byte into repository-relative inputs; sealed 85 selected files;
+froze a globally feasible 3,293-row starting count from train-only mechanism preflight; and updated
+the provider-neutral driver contract and focused test.
 
 #### Evidence
 
-The combined experiment-contract/viewer suite and the complete RTGS-007 focused suite pass. The
-full non-slow CPU suite passes when exactly the six frozen historical ABI nodes are deselected.
-Ruff, docs-sync, ARA, script layout, agent workflow, experiment-contract validation, both exact
-data-seal validations, and `git diff --check` pass. The canonical `./scripts/verify.sh` reproduces
-only those same six failures because this host lacks pinned
-`/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33` and provides `.6.0.35`; no frozen harness was
-weakened.
+The final three-provider acquisition verifier passes. Source/destination recursive comparison
+passes. `experiment_contract.py validate-data` and task validation pass. Preflight excludes the
+three held-out views and passes every no-image/import negative control for all providers. Feasible
+counts are GaussianImage 3,293, StructSplat mask-contained 3,857, and StructSplat no-boundary
+3,727. The four focused driver tests and Ruff check pass.
 
 #### Assumptions
 
-The owner’s explicit request to commit all changes, merge remote `main`, resolve conflicts, and
-push authorizes direct-main publication and inclusion of the CLion metadata plus all generated
-field/QA artifacts.
+The owner-selected frame and provider directories are exact. Stage-1 foreground PSNR remains
+acquisition QA only. The one-frame development design cannot establish a provider ranking,
+generalization, or a production default.
 
 #### Uncertainties
 
-The publish contains roughly 366 MB of new artifacts and may take longer than a normal source-only
-push. The producer-source mismatch and draft official-protocol boundary recorded in the preceding
-handoff remain unchanged.
+The protected CUDA matrix and native-resolution presentation have not run. Resource feasibility,
+cell runtime, report completeness, and native-resolution renderer behavior remain unobserved.
 
 #### Review Focus
 
-Review the combined `scripts/experiment_contract.py`, the v2 declaration in the RTGS-007 task, the
-active/archive task split, persistent density lineage, and the absence of any claim that the
-development viewer is an official compact result.
+Check exact data and task binding, provider-native compositor semantics, train/held-out isolation,
+global initializer matching, equal downstream schedules, fresh-process resource scope, failure
+behavior, v2 artifact completeness, claim limits, and the absence of hidden RGB/mask access or
+provider-specific fallback.
 
 #### Protected actions not taken
 
-No prospective approval, `init-run`, canonical protected execution, official result bundle,
-scientific claim promotion, default change, or Beam-specific repair was introduced during merge
-resolution.
+No run was initialized; no warmup or measured training cell ran; no downstream metric, preview,
+model, report, or result artifact exists or was inspected.
 
 #### Recommended Next Action
 
-Commit the reviewed merge, confirm remote `main` has not moved, fast-forward local `main`, and push
-the combined history.
+Write `experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md`
+bound to the exact prospective digest, recording `Outcome Access: none`. Approve only if the
+protocol safely isolates the intended factors and is executable without protected edits.
 
-### 2026-07-31 — Driver progress: historical experiment naming catalog
+### Review (2026-08-04 prospective protocol)
 
-#### Objective
+#### Verdict
 
-Apply the task-first naming scheme to the complete experiment history so old studies can be found
-without relying on inconsistent filenames or date placement.
+Revision required
 
-#### Reviewed state
+#### Self-reviewed
 
-Clean `main` at `26bd9da` with seven registered task-first experiment records, the append-only
-historical log, 402 tracked entries under `benchmarks/results/`, and local legacy run roots whose
-paths are cited by result and audit records.
+No.
 
-#### Changes
+#### Correctness
 
-Added `experiments/INDEX.md` as the canonical discovery surface. It preserves exact task IDs for
-registered experiments and assigns unique `YYYYMMDD_<task_slug>_<data_slug>` catalog aliases to
-historical studies, including independently interpretable studies that previously shared one log
-entry. Repository, experiment, run, evidence, and dated-log entrypoints now link to the catalog.
+Goodall independently recomputed protocol digest `6115bb16...`, validated the task and exact data
+seal, loaded all 78 compact fields with alpha disabled, reproduced the disjoint 23/3 split and
+3,293/3,857/3,727 train-only feasibility counts, and passed 48 outcome-free focused tests plus
+Ruff. Provider-native additive/normalized semantics and no-image guards are sound.
 
-#### Evidence
+#### Evidence Quality
 
-The catalog contains 102 unique current-scheme names and 158 relative links. A filesystem check
-resolved every link. `git diff --name-status` confirms that no file under
-`benchmarks/results/`, no ignored historical run root, and no experiment task JSON was renamed or
-modified. Ruff, docs-sync, ARA, script layout, agent workflow, experiment-contract validation, and
-`git diff --check` pass. The complete non-slow CPU suite passes with exactly the six already
-documented, host-ABI-pinned nodes deselected; the canonical `./scripts/verify.sh` reproduces only
-those six failures because this host lacks the sealed `libstdc++.so.6.0.33`. Three listener tests
-that the restricted sandbox denied pass with normal local socket permissions.
+The input and mechanism evidence is sufficient, but the executable evidence contract is not yet
+approval-ready. The provider-native held-out risk does not test the directional boundary-leakage
+hypothesis; several frozen resource fields are not emitted; promised v2 root previews and complete
+comparison-viewer smoke are absent; failure publication and clean reviewed-source enforcement are
+incomplete; and “identical sample stream” overstates provider-conditioned coordinates.
 
-#### Assumptions
+#### Simplicity
 
-The owner's request to rename sealed citations is interpreted as a request for consistent lookup,
-not authorization to invalidate the repository's append-only evidence contract. Catalog aliases
-are therefore additive navigation identities; original paths remain the authority for hashes,
-commands, audits, ARA proofs, and replay.
+Prefer narrowing the hypothesis to provider-native fidelity and clarifying shared RNG/algorithm
+controls over adding a new image-backed common-reference boundary metric to this compact-only task.
 
-#### Uncertainties
+#### Missing Cases
 
-Some pre-task studies combined several iterations or evidence phases in one prose entry. The
-catalog separates them when an independent primary record exists, but does not retroactively
-claim prospective registration, outcome isolation, or a stronger evidence phase.
+Resource-schema enforcement, root contact sheet and orbit/elevation GIF publication, synchronized
+nine-method viewer smoke, auditable failed-run publication, production-lock rejection, exact source
+hash binding, and explicit provider-conditioned sampling semantics.
 
-#### Review Focus
+#### Required Changes
 
-Check alias uniqueness, data-scope accuracy, link resolution, complete historical-log coverage,
-and the absence of renamed or edited sealed artifacts.
+Resolve all seven findings in
+`experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md`,
+recompute the digest, and obtain a fresh outcome-unseen prospective review. Do not initialize or
+execute the protected matrix first.
 
-#### Protected actions not taken
+#### Optional Improvements
 
-No result, audit, preregistration, seal, receipt, source archive, run root, task protocol, claim,
-metric, default, or scientific interpretation was renamed or changed.
-
-#### Recommended Next Action
-
-Use the catalog name in new discussion and navigation, but retain the linked original path in any
-hash, replay, or evidence citation.
+None; the seven findings are protocol blockers.

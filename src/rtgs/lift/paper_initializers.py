@@ -92,6 +92,16 @@ class MatchedPaperInitializations:
         return self.bounded_random.n
 
 
+@dataclass(frozen=True)
+class FrozenPaperInitialization:
+    """One exact-count paper initializer for a source-bound canonical worker."""
+
+    arm: str
+    gaussians: Gaussians3D
+    lineage: dict[str, torch.Tensor]
+    receipt: dict
+
+
 def bounded_random_initialization(
     inputs: ReconstructionInputs,
     count: int,
@@ -358,10 +368,136 @@ def build_matched_paper_initializations(
     )
 
 
+def build_frozen_paper_initialization(
+    inputs: ReconstructionInputs,
+    config: PaperInitializerConfig,
+    *,
+    arm: str,
+    count: int,
+) -> FrozenPaperInitialization:
+    """Construct one arm at a count already frozen by the matched preflight.
+
+    This is the canonical execution counterpart to :func:`build_matched_paper_initializations`.
+    It avoids constructing the two unused comparators in every fresh resource worker while using
+    the same structural subset, ranking functions, and initializer implementations. A structural
+    arm fails closed when its native source count no longer reaches the frozen common count.
+    """
+
+    _validate_cpu_inputs(inputs)
+    if arm not in {"bounded_random", "splat_sfm", "beam_fusion"}:
+        raise ValueError(f"unknown paper initializer arm {arm!r}")
+    if isinstance(count, bool) or not isinstance(count, int) or count <= 0:
+        raise ValueError("count must be a positive integer")
+    if config.max_starting_gaussians is not None and count > config.max_starting_gaussians:
+        raise ValueError("count exceeds the frozen maximum starting count")
+
+    base_receipt = {
+        "schema": "rtgs.frozen_paper_initializer.v1",
+        "arm": arm,
+        "common_count": count,
+        "count_policy": "exact_count_frozen_by_matched_train_only_preflight",
+        "config": asdict(config),
+    }
+    if arm == "bounded_random":
+        gaussians = bounded_random_initialization(
+            inputs,
+            count,
+            seed=config.random_seed,
+            bounds_scale=config.random_bounds_scale,
+            opacity=config.init_opacity,
+        )
+        return FrozenPaperInitialization(
+            arm=arm,
+            gaussians=gaussians,
+            lineage={},
+            receipt={
+                **base_receipt,
+                "source_count": count,
+                "selection_policy": "uniform_volume_camera_derived_sphere_neutral_gray",
+                "structural_input": None,
+                "selected_rows": None,
+                "diagnostics": {},
+            },
+        )
+
+    structural_inputs, structural_rows = structural_initialization_inputs(
+        inputs,
+        config.structural_components_per_view,
+    )
+    structural_receipt = {
+        "policy": (
+            "all_components"
+            if config.structural_components_per_view is None
+            else "grid_stratified_integrated_mass"
+        ),
+        "components_per_view_cap": config.structural_components_per_view,
+        "full_components_per_view": [field.n for field in inputs.observations],
+        "selected_components_per_view": [int(rows.numel()) for rows in structural_rows],
+        "selected_rows": [rows.tolist() for rows in structural_rows],
+        "downstream_teacher_is_full_field": True,
+    }
+    if arm == "splat_sfm":
+        result = structure_from_splats(structural_inputs, config.sfm)
+        if result.n_tracks < count:
+            raise RuntimeError(
+                f"Splat-SfM returned {result.n_tracks} rows below frozen count {count}"
+            )
+        selected = _splat_sfm_selection(result, count)
+        gaussians = result.gaussians.subset(selected)
+        lineage = {
+            "splat_sfm_selected_rows": selected,
+            "splat_sfm_track_offsets": result.track_offsets,
+            "splat_sfm_member_view_indices": result.member_view_indices,
+            "splat_sfm_member_component_indices": result.member_component_indices,
+        }
+        selection_policy = (
+            "track_views_desc,reprojection_asc,covariance_residual_asc,"
+            "triangulation_angle_desc,row_asc"
+        )
+        diagnostics = result.diagnostics
+        source_count = result.n_tracks
+    else:
+        result = fuse_gaussian_beams(structural_inputs, config.beam)
+        if result.n_components < count:
+            raise RuntimeError(
+                f"Beam Fusion returned {result.n_components} rows below frozen count {count}"
+            )
+        selected = _beam_selection(result, count)
+        gaussians = result.gaussians.subset(selected)
+        lineage = {
+            "beam_fusion_selected_rows": selected,
+            "beam_component_offsets": result.component_offsets,
+            "beam_contributor_view_indices": result.contributor_view_indices,
+            "beam_contributor_component_indices": result.contributor_component_indices,
+            "beam_component_weights": result.component_weights,
+        }
+        selection_policy = "component_weight_desc,contributor_views_desc,row_asc"
+        diagnostics = result.diagnostics
+        source_count = result.n_components
+
+    if gaussians.n != count:
+        raise RuntimeError("frozen paper initializer did not return the exact requested count")
+    return FrozenPaperInitialization(
+        arm=arm,
+        gaussians=gaussians,
+        lineage=lineage,
+        receipt={
+            **base_receipt,
+            "source_count": source_count,
+            "selection_policy": selection_policy,
+            "structural_input": structural_receipt,
+            "selected_rows": selected.tolist(),
+            "diagnostics": diagnostics,
+        },
+    )
+
+
 __all__ = [
+    "FrozenPaperInitialization",
     "MatchedPaperInitializations",
     "PaperInitializerConfig",
     "bounded_random_initialization",
+    "build_frozen_paper_initialization",
     "build_matched_paper_initializations",
     "structural_initialization_inputs",
 ]

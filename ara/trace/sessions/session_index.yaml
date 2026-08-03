@@ -118,3 +118,17 @@ sessions:
     events_count: 2
     claims_touched: []
     open_threads: 3
+  - id: "2026-08-02_001"
+    date: "2026-08-02"
+    summary: "No-boundary completed and reverified at 26/26; mask-contained reached 4/26 with C0008 active."
+    turn_count: 4
+    events_count: 2
+    claims_touched: []
+    open_threads: 3
+  - id: "2026-08-03_001"
+    date: "2026-08-03"
+    summary: "Mask-contained acquisition reached 23/26 views with C1001 active; total inputs reached 75/78."
+    turn_count: 3
+    events_count: 0
+    claims_touched: []
+    open_threads: 3

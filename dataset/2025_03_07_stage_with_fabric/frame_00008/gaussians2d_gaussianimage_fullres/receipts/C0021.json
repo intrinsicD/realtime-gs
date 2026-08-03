@@ -1,0 +1,156 @@
+{
+  "arm": "gaussianimage",
+  "canvas_size": [
+    4608,
+    5328
+  ],
+  "classification": "production conversion; diagnostic comparison only",
+  "config": {
+    "adaptive_density": false,
+    "appearance_parameterization": "weight_color_9p",
+    "backend": "native",
+    "batch_views": false,
+    "convergence_check_every": 25,
+    "convergence_patience": 0,
+    "convergence_tol": 0.05,
+    "freeze_geometry": false,
+    "grad_init_mix": 0.7,
+    "growth_waves": 5,
+    "init_strategy": "gradient",
+    "iterations": 20000,
+    "log_every": 100,
+    "lr": 0.01,
+    "mask_coverage_weight": 0.0,
+    "max_gaussians": 11000,
+    "n_gaussians": 11000,
+    "native_renderer": "cuda",
+    "pool": false,
+    "pool_capacity": null,
+    "pool_min_live": 1,
+    "pool_prune_count": 32,
+    "pool_spawn_count": 32,
+    "pool_triage_every": 50,
+    "relocate_fraction": 0.0,
+    "row_chunk": 64,
+    "structsplat_renderer": "auto",
+    "structure_sampling": "wse"
+  },
+  "config_digest": "4f7f6689c85d8608d7494a4497c4a1e8fc0e6ca874112644525d06e3bedd5b75",
+  "fit_window": [
+    0,
+    1248,
+    3519,
+    3295
+  ],
+  "foreground_pixels": 1548371,
+  "history": {
+    "bytes": 10138,
+    "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/history/C0021.json",
+    "sha256": "7c1655faf1133b97e2c01c601a393978762891bc27fe7c9a5411ae06645dfadd"
+  },
+  "input": {
+    "calibration": {
+      "bytes": 51752,
+      "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+    },
+    "mask": {
+      "bytes": 119238,
+      "name": "mask_C0021.png",
+      "sha256": "7ffe885d5ee43411f567a74324eeb0989f3fbcc24dc8ee6db5d638ef072a94cc"
+    },
+    "rgb": {
+      "bytes": 15034481,
+      "name": "C0021.jpg",
+      "sha256": "16cd8ce91ae06c8743b20fa7b966f8d6ce5f9c0048439d7bbe8d8a2a91e2c652"
+    }
+  },
+  "metrics": {
+    "foreground_psnr_db": 30.81391143798828,
+    "matted_crop_psnr_db": 34.58921813964844,
+    "outside_max_abs": 0.9748249650001526,
+    "outside_mean_abs": 0.002351179486140609
+  },
+  "n_gaussians": 11000,
+  "output": {
+    "aa_dilation": 0.0,
+    "blend_mode": "additive",
+    "bytes": 348562,
+    "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/C0021.rtgsv",
+    "provider": "native",
+    "sha256": "ac0c824fec93817db9a94617a8acb265114d57187f4f301233ecb03e2946acb3",
+    "sigma_cutoff": 3.4641016151377544,
+    "support_fade_alpha": 0.0
+  },
+  "qa": {
+    "canvas": {
+      "bytes": 458227,
+      "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/qa/C0021_reconstruction_canvas.jpg",
+      "sha256": "e976617a409b62618802e0d2a2ee6fd9a93bbe30fd6f933b9e1c13352190bea4"
+    },
+    "crop": {
+      "bytes": 306493,
+      "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/qa/C0021_reconstruction_crop.jpg",
+      "sha256": "3ce9b1cedc8e139d879fcf69e52b690ddd33ed72777d1dfe60b13052dbe397cd"
+    }
+  },
+  "runtime": {
+    "peak_cuda_allocated_bytes": 1060209152,
+    "peak_cuda_reserved_bytes": 1512046592,
+    "wall_seconds": 417.4073353530839
+  },
+  "schema": "janelle.frame00008.three_arm_11k_view.v1",
+  "seed": 30074011,
+  "semantic_digest": "cb4ab8b32a9ad6504c25e62791f9908c28f8286515e9dd3b9e505764b3a6b76a",
+  "source_binding": {
+    "aggregate_sha256": "8d46f0c21df0a3420cfae53b6472158cd50d7e0fd4f796dccb405a89cf615d84",
+    "files": {
+      "/home/alex/Documents/realtime-gs/src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+      "/home/alex/Documents/realtime-gs/src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+      "/home/alex/Documents/realtime-gs/src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/native_observation.py": "6a8d2c316150bb5e04b5d36d578b0f933758475d647fe01d168ea9c4beaec25b",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+      "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/convert_three_arm_11k.py": "89f0b64935934172babd72d172e2d9c294439133bc4a1f0947a38fb315b41d29",
+      "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_11k_protocol.json": "dab346fb647a490c021ffb9a87b184b6461cd4ea45a2df34cbe7d0144767d06b"
+    },
+    "python": "3.11.15",
+    "realtime_git": {
+      "revision": "26bd9da147e28a5979ff76a87a7ddba3630dfd20",
+      "root": "/home/alex/Documents/realtime-gs",
+      "status_short": [
+        " M .agents/state/current-task.md",
+        " M README.md",
+        " M benchmarks/results/README.md",
+        " M docs/EXPERIMENTS.md",
+        " M experiments/README.md",
+        " M runs/README.md",
+        "?? experiments/INDEX.md"
+      ]
+    },
+    "structsplat_git": {
+      "revision": "828b0d8d334f5b7cb22126ae6a59e76592aa65d7",
+      "root": "/home/alex/Documents/structsplat",
+      "status_short": [
+        " M CLAUDE.md",
+        " M tasks/ABL-002-stage-search.md",
+        " M tasks/INDEX.md",
+        " M tasks/SESSION-BRIEF.md",
+        "?? .agents/skills/structsplat-experiment",
+        "?? .claude/skills/structsplat-experiment/",
+        "?? .codex/",
+        "?? scripts/experiments/abl002_renderer_report.py",
+        "?? tasks/DOCS-006-experiment-workflow-skill.md",
+        "?? tests/test_abl002_renderer_report.py"
+      ]
+    },
+    "torch": "2.13.0+cu130",
+    "torch_cuda": "13.0"
+  },
+  "status": "PASS",
+  "view_id": "C0021",
+  "view_index": 11
+}
