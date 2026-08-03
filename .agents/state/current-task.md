@@ -12,7 +12,7 @@ RTGS-010
 
 - Driver: Codex-bench019-adapters-driver
 - Reviewer: Codex-independent-bench019-reviewer
-- Turn: driver
+- Turn: reviewer
 
 ## Mode
 
@@ -160,12 +160,12 @@ None
    gate.
 4. Completed: add bounded CLIs, public architecture documentation, and calibrated development-only
    adapter diagnostics.
-5. In progress: self-review, run focused and full verification, commit the reviewed state, and hand
-   off to the same independent reviewer.
+5. Completed: self-review, focused and full verification, implementation commit, and evidence-bound
+   handoff to the same independent reviewer.
 
 ## Status
 
-In progress
+In review
 
 ## Human Decisions
 
@@ -200,3 +200,77 @@ Use `###` for entries and `####` for their fields so entries remain nested below
 Never delete earlier entries. On terminal closeout, archive the complete record as
 `docs/tasks/<task-id>-<slug>.md`, change the archived `Turn` to `none`, and reset this file to the
 unchanged template.
+
+### Handoff (deterministic adapter and predictor boundary)
+
+#### Objective
+
+Independently audit RTGS-010's development-only source adapters and Stage-1 predictor collector for
+correctness, fail-closed protected-data behavior, deterministic replay, exact family semantics, and
+documentation/evidence consistency.
+
+#### Reviewed state
+
+Implementation revision `a592e30bd7bf44a8ca384d5ce141e8985f4e2de2` on branch
+`rtgs/010-bench019-adapters` in `/home/alex/Documents/realtime-gs-bench019`.
+
+#### Changes
+
+- Added exact-key Stage and TUM adapter manifests with deterministic source replay, safe
+  extraction-free TUM archive reads, frozen association/interpolation/keyframe/selection policies,
+  canonical camera and mask derivation, and receipt-bound exclusive-new development
+  materialization.
+- Added a strict compact-field predictor collector that rederives source alpha, preserves additive
+  versus normalized equations, samples foreground/boundary/query pixels deterministically, emits
+  sufficient statistics plus supported RGB/support/size predictors, and fully replays its sealed
+  artifact.
+- Added bounded adapter and predictor CLIs, three source-replayed development manifests, public
+  architecture/README contracts, ARA observation/architecture/claim entries, and adversarial CPU
+  coverage. Karate, confirmation payloads, and unavailable predictor classes fail closed.
+
+#### Evidence
+
+- Focused adapter/predictor suite: 21 passed.
+- All BENCH-019 tests: 52 passed.
+- Development adapter files were source-replayed at SHA-256
+  `a47fbce3551c29a7c294aa7db3186405705784b901a5983de8989b218f0d196e` (Stage),
+  `539dec4d279a124e1a6b8c58afbb80d6104cf69e250c1f3e931fbe9d0c334280` (TUM xyz), and
+  `9e264a536721eeb6714a5393726884a03c6641bfed5fb088bbdd310f5cbdcc71` (TUM rpy).
+- `PYTHONPATH=/home/alex/Documents/realtime-gs-bench019/src
+  PY=/home/alex/Documents/realtime-gs/.venv/bin/python ./scripts/verify.sh`: passed, including the
+  complete non-slow CPU suite and every structural checker; only the two established PyTorch
+  warnings were emitted.
+- `git diff --check`, focused Ruff, docs sync, ARA, script-layout, agent-workflow, and experiment
+  contract checks passed.
+
+#### Assumptions
+
+The official pre-registered TUM RGB-D convention is represented by the repository's half-integer
+camera coordinates at fx/fy 525 and cx/cy 320/240. Normalized-renderer support is exactly
+`weight_sum > 0` and remains a structural support diagnostic, never alpha.
+
+#### Uncertainties
+
+This task establishes a reproducible measurement boundary, not predictor validity against eventual
+downstream outcomes. It does not resolve Karate segmentation, perceptual metrics, feature-track
+yield, field conditioning, convergence, quality, speed, compression, or loss/default selection.
+
+#### Review Focus
+
+Audit archive traversal/link/special-member defenses and materialization cleanup/publication order;
+replay Stage/TUM sources and verify camera/mask/split identities; compare sparse source sampling to
+the calibrated dense convention; challenge compact dataset completeness and byte accounting;
+verify family relabelling and alpha/support confusion fail closed; and check that no confirmation or
+scientific outcome was accessed or implied.
+
+#### Protected actions not taken
+
+No confirmation archive payload was opened, no Stage-1 field was fitted, no realtime-gs
+reconstruction was run, no formal BENCH-019 protocol/correlation/result was produced, no loss or
+default was selected, and the dirty primary realtime-gs worktree was not modified.
+
+#### Recommended Next Action
+
+If accepted, archive RTGS-010 and open the next evidence task for the missing development-field
+production/metric experiments. Keep confirmation sealed until the prospective protocol and
+development predictor evidence are independently accepted.
