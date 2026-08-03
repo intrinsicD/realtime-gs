@@ -334,7 +334,7 @@ initialized or any downstream comparison outcome is exposed.
 #### Reviewed state
 
 Implementation checkpoint `40eb4c0b809c85c4e8d3669b49a34bab4860266d`; revised prospective
-protocol digest `5369d9045ff2427f06cf27658682e4c60edbc652956a3c6eccb494575b69eab2`.
+protocol digest `eb78742c579930b6c04d4bd538ae33c6287ad0fb7f59190ab33adaef777a4fc1`.
 The task binds the six executable/configuration files that define the canonical run by exact
 SHA-256 and requires the reviewed checkpoint to be an ancestor of the execution commit.
 
@@ -381,6 +381,6 @@ model, report, or result artifact exists or was inspected.
 
 #### Recommended Next Action
 
-Write a new V2 prospective-review artifact bound to digest `5369d904...` with `Outcome Access:
+Write a new V2 prospective-review artifact bound to digest `eb78742c...` with `Outcome Access:
 none`. Approve only if the revised protocol is outcome-independent, source-exact, executable, and
 fail-closed; otherwise return another revision-required verdict without initializing the run.
