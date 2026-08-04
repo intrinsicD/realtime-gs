@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import importlib.util
+import inspect
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -248,3 +251,254 @@ def test_protocol_narrows_provider_interpretation_and_freezes_failure_evidence()
     ] == ["proposal distributions", "fit windows", "realized 2D coordinates"]
     assert "structured_worker_and_run_failure_publication" in task["execution_guards"]
     assert "complete_root_preview_publication" in task["execution_guards"]
+    assert "exact_reviewed_tree_with_metadata_only_descendants" in task["execution_guards"]
+
+
+def _git(repo: Path, *args: str) -> str:
+    completed = subprocess.run(
+        ["git", *args],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return completed.stdout.strip()
+
+
+def _commit_all(repo: Path, message: str) -> str:
+    _git(repo, "add", ".")
+    _git(
+        repo,
+        "-c",
+        "user.name=RTGS Test",
+        "-c",
+        "user.email=rtgs-test@example.invalid",
+        "commit",
+        "-qm",
+        message,
+    )
+    return _git(repo, "rev-parse", "HEAD")
+
+
+def test_reviewed_tree_rejects_clean_descendant_behavior_changes(tmp_path):
+    module = _driver()
+    module.ROOT = tmp_path
+    _git(tmp_path, "init", "-q")
+    behavior = tmp_path / "src/behavior.py"
+    behavior.parent.mkdir()
+    behavior.write_text("VALUE = 1\n", encoding="utf-8")
+    current_task = tmp_path / ".agents/state/current-task.md"
+    current_task.parent.mkdir(parents=True)
+    current_task.write_text("review pending\n", encoding="utf-8")
+    base = _commit_all(tmp_path, "reviewed base")
+    task = {
+        "source_binding": {
+            "reviewed_base_commit": base,
+            "allowed_descendant_paths": list(module.REVIEW_METADATA_PATHS),
+        }
+    }
+
+    assert module._source_binding_passes(task, {"source_commit": base})
+
+    current_task.write_text("review approved\n", encoding="utf-8")
+    metadata_commit = _commit_all(tmp_path, "allowed review metadata")
+    assert module._source_binding_passes(task, {"source_commit": metadata_commit})
+
+    behavior.write_text("VALUE = 2\n", encoding="utf-8")
+    behavior_commit = _commit_all(tmp_path, "unreviewed behavior change")
+    assert not module._source_binding_passes(task, {"source_commit": behavior_commit})
+
+    widened = json.loads(json.dumps(task))
+    widened["source_binding"]["allowed_descendant_paths"].append("src/behavior.py")
+    assert not module._source_binding_passes(widened, {"source_commit": behavior_commit})
+
+
+def _orchestrate_fixture(module, tmp_path: Path) -> tuple[Path, Path, dict]:
+    module.ROOT = tmp_path
+    module.DEFAULT_TASK = tmp_path / "experiments/tasks" / f"{module.TASK_ID}.json"
+    module.DEFAULT_RUN = tmp_path / "runs" / module.TASK_ID
+    module.DEFAULT_TASK.parent.mkdir(parents=True)
+    module.DEFAULT_RUN.mkdir(parents=True)
+    task = _task()
+    module.DEFAULT_TASK.write_text(json.dumps(task), encoding="utf-8")
+    (module.DEFAULT_RUN / "task.lock.json").write_text(
+        json.dumps({"started_at_utc": "2026-08-04T00:00:00+00:00"}),
+        encoding="utf-8",
+    )
+    return module.DEFAULT_TASK, module.DEFAULT_RUN, task
+
+
+def test_sealed_data_failure_reaches_root_failure_publisher(tmp_path, monkeypatch):
+    module = _driver()
+    task_path, run, task = _orchestrate_fixture(module, tmp_path)
+    monkeypatch.setattr(module, "_validate_run_binding", lambda *_args: task)
+    calls = []
+
+    def fail_validate(*args, **kwargs):
+        raise subprocess.CalledProcessError(23, args[0])
+
+    monkeypatch.setattr(module.subprocess, "run", fail_validate)
+    monkeypatch.setattr(
+        module,
+        "_publish_failed_run",
+        lambda task_value, run_value, **kwargs: calls.append((task_value, run_value, kwargs)),
+    )
+
+    with pytest.raises(subprocess.CalledProcessError):
+        module._orchestrate(task_path, run)
+
+    assert len(calls) == 1
+    assert calls[0][0] == task
+    assert calls[0][1] == run
+    assert calls[0][2]["phase"] == "sealed_data_validation"
+    assert calls[0][2]["job"] is None
+
+
+def test_binding_failure_reaches_root_failure_publisher(tmp_path, monkeypatch):
+    module = _driver()
+    task_path, run, task = _orchestrate_fixture(module, tmp_path)
+    monkeypatch.setattr(
+        module,
+        "_validate_run_binding",
+        lambda *_args: (_ for _ in ()).throw(ValueError("source lock mismatch")),
+    )
+    calls = []
+    monkeypatch.setattr(
+        module,
+        "_publish_failed_run",
+        lambda task_value, run_value, **kwargs: calls.append((task_value, run_value, kwargs)),
+    )
+
+    with pytest.raises(ValueError, match="source lock mismatch"):
+        module._orchestrate(task_path, run)
+
+    assert len(calls) == 1
+    assert calls[0][0] == task
+    assert calls[0][2]["phase"] == "run_binding"
+
+
+def test_environment_failure_reaches_root_failure_publisher(tmp_path, monkeypatch):
+    module = _driver()
+    task_path, run, task = _orchestrate_fixture(module, tmp_path)
+    monkeypatch.setattr(module, "_validate_run_binding", lambda *_args: task)
+    monkeypatch.setattr(
+        module.subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 0),
+    )
+    monkeypatch.setattr(
+        module,
+        "_environment_record",
+        lambda: (_ for _ in ()).throw(RuntimeError("environment unavailable")),
+    )
+    calls = []
+    monkeypatch.setattr(
+        module,
+        "_publish_failed_run",
+        lambda task_value, run_value, **kwargs: calls.append((task_value, run_value, kwargs)),
+    )
+
+    with pytest.raises(RuntimeError, match="environment unavailable"):
+        module._orchestrate(task_path, run)
+
+    assert len(calls) == 1
+    assert calls[0][2]["phase"] == "environment_capture"
+
+
+def test_failed_publisher_writes_complete_diagnostic_sources(tmp_path, monkeypatch):
+    module = _driver()
+    module.ROOT = tmp_path
+    run = tmp_path / "runs" / module.TASK_ID
+    run.mkdir(parents=True)
+    (run / "task.lock.json").write_text(
+        json.dumps({"started_at_utc": "2026-08-04T00:00:00+00:00"}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        module.subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args[0], 1, stdout="", stderr="expected render failure"
+        ),
+    )
+
+    try:
+        raise RuntimeError("environment unavailable")
+    except RuntimeError as error:
+        module._publish_failed_run(
+            _task(),
+            run,
+            phase="environment_capture",
+            error=error,
+            job=None,
+        )
+
+    required = {
+        "environment.json",
+        "failure.json",
+        "gaussians.config.json",
+        "input_boundary_receipt.json",
+        "metrics.json",
+        "resource_receipt.json",
+        "run_receipt.json",
+        "training_history.json",
+    }
+    assert required <= {path.name for path in run.iterdir() if path.is_file()}
+    environment = json.loads((run / "environment.json").read_text(encoding="utf-8"))
+    assert contract._environment_errors(environment) == []
+    assert environment["packages"]["environment_capture"] == "failed:RuntimeError"
+    failure = json.loads((run / "failure.json").read_text(encoding="utf-8"))
+    assert failure["failure_phase"] == "environment_capture"
+    assert failure["task_lock_error"] is None
+
+
+def test_first_canonical_compact_load_is_live_guarded(tmp_path):
+    module = _driver()
+    worker_source = inspect.getsource(module._canonical_worker)
+    assert "CompactDataset.load" not in worker_source
+    assert worker_source.index("_initialize_arm(") < worker_source.index("_train(")
+    assert '"first_compact_load_guard"' in worker_source
+
+    code = f"""
+import argparse
+import importlib.util
+import json
+import tempfile
+from pathlib import Path
+
+driver = Path({str(DRIVER_PATH)!r})
+spec = importlib.util.spec_from_file_location("rtgs008_first_load_guard", driver)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+task = json.loads(Path({str(TASK_PATH)!r}).read_text(encoding="utf-8"))
+dataset = task["datasets"][0]
+module._task_and_dataset = lambda *_args: (task, dataset)
+
+def forbidden_first_load(*_args, **_kwargs):
+    Path("forbidden-first-load.png").open("rb")
+
+module._load_split_inputs = forbidden_first_load
+with tempfile.TemporaryDirectory() as directory:
+    args = argparse.Namespace(
+        task=Path("unused-task.json"),
+        dataset_id=dataset["id"],
+        seed=task["seeds"][0],
+        output=Path(directory),
+        arm="bounded_random",
+    )
+    try:
+        module._initialize_arm(args)
+    except PermissionError as error:
+        assert "denies every image-file open" in str(error)
+    else:
+        raise AssertionError("first compact load escaped the live image guard")
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=tmp_path,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr

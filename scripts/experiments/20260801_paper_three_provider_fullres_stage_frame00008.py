@@ -53,6 +53,16 @@ TASK_ID = "20260801_paper_three_provider_fullres_stage_frame00008"
 DEFAULT_TASK = ROOT / "experiments/tasks" / f"{TASK_ID}.json"
 DEFAULT_OUTPUT = ROOT / ".scratch" / TASK_ID / "development"
 DEFAULT_RUN = ROOT / "runs" / TASK_ID
+REVIEW_METADATA_PATHS = (
+    ".agents/state/current-task.md",
+    "ara/trace/exploration_tree.yaml",
+    "ara/trace/pm_reasoning_log.yaml",
+    "ara/trace/sessions/2026-08-04_001.yaml",
+    "ara/trace/sessions/session_index.yaml",
+    f"experiments/reviews/{TASK_ID}_PROTOCOL_REVIEW.md",
+    f"experiments/reviews/{TASK_ID}_PROTOCOL_REVIEW_V2_REJECTED.md",
+    f"experiments/tasks/{TASK_ID}.json",
+)
 ARMS = ("bounded_random", "splat_sfm", "beam_fusion")
 ARM_LABELS = {
     "bounded_random": "Bounded Random",
@@ -590,6 +600,50 @@ def _load_split_inputs(
     return compact, train, heldout
 
 
+def _compact_field_semantics(compact: Any) -> list[dict[str, Any]]:
+    return [
+        {
+            "view_id": view.view_id,
+            "provider": view.observation.provider,
+            "blend_mode": view.observation.blend_mode,
+            "sigma_cutoff": view.observation.sigma_cutoff,
+            "support_fade_alpha": view.observation.support_fade_alpha,
+            "aa_dilation": view.observation.aa_dilation,
+            "n_gaussians": view.observation.n,
+            "canvas": [view.observation.width, view.observation.height],
+        }
+        for view in compact.views
+    ]
+
+
+def _validate_field_semantics(
+    task: Mapping[str, Any],
+    dataset_id: str,
+    field_semantics: Sequence[Mapping[str, Any]],
+) -> None:
+    factor_key = dataset_id.removeprefix("frame_00008_")
+    expected_semantics = task["frozen_configuration"]["provider_factor"].get(factor_key)
+    if not isinstance(expected_semantics, dict):
+        raise ValueError(f"no frozen provider semantics for {dataset_id}")
+    semantic_checks = {
+        "provider": expected_semantics["rtgsv_provider"],
+        "blend_mode": expected_semantics["blend_mode"],
+        "sigma_cutoff": expected_semantics["sigma_cutoff"],
+        "support_fade_alpha": expected_semantics["support_fade_alpha"],
+        "aa_dilation": expected_semantics["aa_dilation"],
+    }
+    for view in field_semantics:
+        failed = [name for name, expected in semantic_checks.items() if view[name] != expected]
+        if view["canvas"] != expected_semantics["canvas"]:
+            failed.append("canvas")
+        if view["n_gaussians"] > expected_semantics["maximum_capacity_per_view"]:
+            failed.append("maximum_capacity_per_view")
+        if failed:
+            raise RuntimeError(
+                f"{dataset_id}/{view['view_id']} violates frozen semantics: " + ", ".join(failed)
+            )
+
+
 def _initialize(args: argparse.Namespace) -> int:
     task, dataset = _task_and_dataset(args.task, args.dataset_id)
     output = args.output.resolve() / args.dataset_id / f"seed_{args.seed}" / "initializations"
@@ -609,7 +663,9 @@ def _initialize(args: argparse.Namespace) -> int:
         )
         from rtgs.lift.splat_sfm import SplatSfMConfig
 
-        _compact, train, _heldout = _load_split_inputs(task, dataset)
+        compact, train, _heldout = _load_split_inputs(task, dataset)
+        field_semantics = _compact_field_semantics(compact)
+        _validate_field_semantics(task, args.dataset_id, field_semantics)
         common_center, common_extent = _center_and_extent(train, torch.float64)
         initializer_settings = _initializer_settings(task)
         config = PaperInitializerConfig(
@@ -717,7 +773,11 @@ def _initialize_arm(args: argparse.Namespace) -> int:
         )
         from rtgs.lift.splat_sfm import SplatSfMConfig
 
-        _compact, train, _heldout = _load_split_inputs(task, dataset)
+        load_started = time.perf_counter()
+        compact, train, _heldout = _load_split_inputs(task, dataset)
+        field_semantics = _compact_field_semantics(compact)
+        _validate_field_semantics(task, args.dataset_id, field_semantics)
+        load_elapsed = time.perf_counter() - load_started
         common_center, common_extent = _center_and_extent(train, torch.float64)
         initializer_settings = _initializer_settings(task)
         frozen_count = task["frozen_configuration"]["initializer"]["common_starting_count"]
@@ -766,6 +826,7 @@ def _initialize_arm(args: argparse.Namespace) -> int:
                 "arm": args.arm,
                 "train_views": train.view_names,
                 "heldout_views_excluded": task["splits"][args.dataset_id]["heldout"],
+                "load_elapsed_seconds": load_elapsed,
                 "elapsed_seconds": elapsed,
                 "common_count": result.gaussians.n,
                 "common_training_geometry": {
@@ -775,6 +836,7 @@ def _initialize_arm(args: argparse.Namespace) -> int:
                 },
                 "initializer_receipt": result.receipt,
                 "lineage_keys": sorted(result.lineage),
+                "field_semantics": field_semantics,
                 "input_boundary": guard_record,
                 "torch_seed": torch.initial_seed(),
             },
@@ -1101,11 +1163,19 @@ def _current_git_commit() -> str:
 
 def _source_binding_passes(task: Mapping[str, Any], lock: Mapping[str, Any]) -> bool:
     binding = task.get("source_binding")
-    if not isinstance(binding, dict) or set(binding) != {"reviewed_base_commit", "files"}:
+    if not isinstance(binding, dict) or set(binding) != {
+        "reviewed_base_commit",
+        "allowed_descendant_paths",
+    }:
         return False
     base = binding.get("reviewed_base_commit")
-    files = binding.get("files")
-    if not isinstance(base, str) or not isinstance(files, dict) or not files:
+    allowed = binding.get("allowed_descendant_paths")
+    if (
+        not isinstance(base, str)
+        or len(base) != 40
+        or any(character not in "0123456789abcdef" for character in base)
+        or allowed != list(REVIEW_METADATA_PATHS)
+    ):
         return False
     current = _current_git_commit()
     if lock.get("source_commit") != current:
@@ -1118,17 +1188,23 @@ def _source_binding_passes(task: Mapping[str, Any], lock: Mapping[str, Any]) -> 
     )
     if ancestor.returncode != 0:
         return False
-    for relative, expected in files.items():
-        if not isinstance(relative, str) or not isinstance(expected, str):
-            return False
-        path = ROOT / relative
-        try:
-            path.resolve(strict=True).relative_to(ROOT.resolve())
-        except (FileNotFoundError, ValueError):
-            return False
-        if _sha256_file(path) != expected:
-            return False
-    return True
+    changed = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--name-only",
+            "--diff-filter=ACDMRTUXB",
+            "-z",
+            f"{base}..{current}",
+        ],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+    )
+    if changed.returncode != 0:
+        return False
+    changed_paths = {os.fsdecode(value) for value in changed.stdout.split(b"\0") if value}
+    return changed_paths <= set(REVIEW_METADATA_PATHS)
 
 
 def _validate_run_binding(task_path: Path, run: Path) -> dict[str, Any]:
@@ -1443,59 +1519,11 @@ def _canonical_worker(
         nvml_sampler_started = True
         import torch
 
-        from rtgs.data.compact_views import CompactDataset
-
         torch.cuda.empty_cache()
         torch.cuda.reset_peak_memory_stats()
         resource_started = time.perf_counter()
-        failure_phase = "load_provider_fields"
-        load_started = time.perf_counter()
-        compact = CompactDataset.load(
-            (ROOT / dataset["compact_manifest"]).parent,
-            device="cpu",
-            byte_cap=_byte_cap(task),
-            load_alpha=False,
-        )
-        field_semantics = [
-            {
-                "view_id": view.view_id,
-                "provider": view.observation.provider,
-                "blend_mode": view.observation.blend_mode,
-                "sigma_cutoff": view.observation.sigma_cutoff,
-                "support_fade_alpha": view.observation.support_fade_alpha,
-                "aa_dilation": view.observation.aa_dilation,
-                "n_gaussians": view.observation.n,
-                "canvas": [view.observation.width, view.observation.height],
-            }
-            for view in compact.views
-        ]
-        factor_key = dataset_id.removeprefix("frame_00008_")
-        expected_semantics = task["frozen_configuration"]["provider_factor"].get(factor_key)
-        if not isinstance(expected_semantics, dict):
-            raise ValueError(f"no frozen provider semantics for {dataset_id}")
-        semantic_checks = {
-            "provider": expected_semantics["rtgsv_provider"],
-            "blend_mode": expected_semantics["blend_mode"],
-            "sigma_cutoff": expected_semantics["sigma_cutoff"],
-            "support_fade_alpha": expected_semantics["support_fade_alpha"],
-            "aa_dilation": expected_semantics["aa_dilation"],
-        }
-        for view in field_semantics:
-            failed = [name for name, expected in semantic_checks.items() if view[name] != expected]
-            if view["canvas"] != expected_semantics["canvas"]:
-                failed.append("canvas")
-            if view["n_gaussians"] > expected_semantics["maximum_capacity_per_view"]:
-                failed.append("maximum_capacity_per_view")
-            if failed:
-                raise RuntimeError(
-                    f"{dataset_id}/{view['view_id']} violates frozen semantics: "
-                    + ", ".join(failed)
-                )
-        del compact
-        load_seconds = time.perf_counter() - load_started
-
-        failure_phase = "construct_initializations"
-        initialize_started = time.perf_counter()
+        failure_phase = "guarded_load_and_construct_initialization"
+        initialize_call_started = time.perf_counter()
         _initialize_arm(
             argparse.Namespace(
                 task=task_path,
@@ -1505,7 +1533,21 @@ def _canonical_worker(
                 arm=arm,
             )
         )
-        initialize_seconds = time.perf_counter() - initialize_started
+        initialize_call_seconds = time.perf_counter() - initialize_call_started
+        legacy_base = legacy_root / dataset_id / f"seed_{seed}"
+        cell = legacy_base / arm
+        initializer_receipt = _load_json(cell / "initializer_receipt.json")
+        first_compact_load_guard = initializer_receipt["input_boundary"]
+        if not isinstance(first_compact_load_guard, dict) or not first_compact_load_guard.get(
+            "passed"
+        ):
+            raise RuntimeError("first canonical compact load lacks a passing live guard")
+        field_semantics = initializer_receipt["field_semantics"]
+        if not isinstance(field_semantics, list):
+            raise RuntimeError("initializer receipt lacks compact field semantics")
+        _validate_field_semantics(task, dataset_id, field_semantics)
+        load_seconds = float(initializer_receipt["load_elapsed_seconds"])
+        initialize_seconds = max(0.0, initialize_call_seconds - load_seconds)
         failure_phase = "compact_3dgs_with_density"
         train_started = time.perf_counter()
         _train(
@@ -1525,8 +1567,6 @@ def _canonical_worker(
             )
         )
         train_call_seconds = time.perf_counter() - train_started
-        legacy_base = legacy_root / dataset_id / f"seed_{seed}"
-        cell = legacy_base / arm
         summary = _load_json(cell / "summary.json")
         fitting_seconds = float(summary["elapsed_seconds"])
         failure_phase = "heldout_compact_evaluation"
@@ -1557,9 +1597,8 @@ def _canonical_worker(
                 "sealed_files": input_files,
                 "input_bytes": sum(int(item["bytes"]) for item in input_files),
                 "field_semantics": field_semantics,
-                "initializer_guard": _load_json(cell / "initializer_receipt.json")[
-                    "input_boundary"
-                ],
+                "first_compact_load_guard": first_compact_load_guard,
+                "initializer_guard": first_compact_load_guard,
                 "training_guard": summary["input_boundary"],
             },
         )
@@ -1753,6 +1792,24 @@ def _environment_record() -> dict[str, Any]:
             "type": "cuda",
             "name": torch.cuda.get_device_name(0),
             "cuda": torch.version.cuda,
+        },
+    }
+
+
+def _failed_environment_record(error: BaseException) -> dict[str, Any]:
+    """Return a schema-valid diagnostic when canonical environment capture fails."""
+
+    return {
+        "schema_version": 1,
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+        "packages": {
+            "environment_capture": f"failed:{type(error).__name__}",
+        },
+        "device": {
+            "type": "unavailable",
+            "name": "environment capture failed before the worker matrix",
+            "cuda": None,
         },
     }
 
@@ -2723,7 +2780,13 @@ def _publish_failed_run(
 ) -> None:
     if (run / "run_receipt.json").exists():
         raise FileExistsError("refusing to overwrite an existing run receipt") from error
-    lock = _load_json(run / "task.lock.json")
+    lock_error = None
+    try:
+        lock = _load_json(run / "task.lock.json")
+    except (OSError, ValueError) as caught:
+        lock = {}
+        lock_error = f"{type(caught).__name__}: {caught}"
+    failed_at = dt.datetime.now(dt.timezone.utc).isoformat()
     worker_failures = sorted(run.glob("failures/**/failure.json"))
     completed_boundaries = sorted(run.glob("cells/**/input_boundary_receipt.json"))
     completed_resources = sorted(run.glob("cells/**/resource_receipt.json"))
@@ -2733,7 +2796,7 @@ def _publish_failed_run(
             "schema_version": 1,
             "task_id": TASK_ID,
             "status": "failed",
-            "failed_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "failed_at_utc": failed_at,
             "failure_phase": phase,
             "error_type": type(error).__name__,
             "error_message": str(error),
@@ -2749,8 +2812,11 @@ def _publish_failed_run(
                 }
             ),
             "worker_failures": [path.relative_to(run).as_posix() for path in worker_failures],
+            "task_lock_error": lock_error,
         },
     )
+    if not (run / "environment.json").exists():
+        _write_json_new(run / "environment.json", _failed_environment_record(error))
     if not (run / "training_history.json").exists():
         _write_json_new(
             run / "training_history.json",
@@ -2809,8 +2875,8 @@ def _publish_failed_run(
             "schema_version": 1,
             "task_id": TASK_ID,
             "status": "failed",
-            "started_at_utc": lock["started_at_utc"],
-            "finished_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "started_at_utc": lock.get("started_at_utc", failed_at),
+            "finished_at_utc": failed_at,
             "exit_code": exit_code,
             "failure_phase": phase,
             "message": f"Protected producer failed: {type(error).__name__}: {error}",
@@ -2838,48 +2904,55 @@ def _publish_failed_run(
 def _orchestrate(task_path: Path, run: Path) -> int:
     task_path = _resolve_exact_path(task_path, DEFAULT_TASK, label="task")
     run = _resolve_exact_path(run, DEFAULT_RUN, label="run directory")
-    task = _validate_run_binding(task_path, run)
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "scripts/experiment_contract.py"),
-            "validate-data",
-            task_path.relative_to(ROOT).as_posix(),
-        ],
-        cwd=ROOT,
-        check=True,
-    )
-    forbidden = [
-        run / name
-        for name in (
-            "cells",
-            "warmups",
-            "metrics.json",
-            "training_history.json",
-            "run_receipt.json",
-            "environment.json",
-        )
-        if (run / name).exists()
-    ]
-    if forbidden:
-        raise FileExistsError(
-            "refusing to mix with existing canonical outputs: "
-            + ", ".join(str(path) for path in forbidden)
-        )
-    _write_json_new(run / "environment.json", _environment_record())
-    environment = os.environ.copy()
-    environment.update(
-        {
-            "OMP_NUM_THREADS": "1",
-            "MKL_NUM_THREADS": "1",
-            "OPENBLAS_NUM_THREADS": "1",
-            "NUMEXPR_NUM_THREADS": "1",
-        }
-    )
-    jobs = _execution_jobs(task)
-    failure_phase = "worker_matrix"
+    if not run.is_dir() or not (run / "task.lock.json").is_file():
+        raise FileNotFoundError("initialize the exact protected run before canonical execution")
+    task = _load_json(task_path)
+    failure_phase = "run_binding"
     current_job: tuple[str, int, str, bool] | None = None
     try:
+        task = _validate_run_binding(task_path, run)
+        failure_phase = "sealed_data_validation"
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts/experiment_contract.py"),
+                "validate-data",
+                task_path.relative_to(ROOT).as_posix(),
+            ],
+            cwd=ROOT,
+            check=True,
+        )
+        failure_phase = "output_collision_preflight"
+        forbidden = [
+            run / name
+            for name in (
+                "cells",
+                "warmups",
+                "metrics.json",
+                "training_history.json",
+                "run_receipt.json",
+                "environment.json",
+            )
+            if (run / name).exists()
+        ]
+        if forbidden:
+            raise FileExistsError(
+                "refusing to mix with existing canonical outputs: "
+                + ", ".join(str(path) for path in forbidden)
+            )
+        failure_phase = "environment_capture"
+        _write_json_new(run / "environment.json", _environment_record())
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "OMP_NUM_THREADS": "1",
+                "MKL_NUM_THREADS": "1",
+                "OPENBLAS_NUM_THREADS": "1",
+                "NUMEXPR_NUM_THREADS": "1",
+            }
+        )
+        jobs = _execution_jobs(task)
+        failure_phase = "worker_matrix"
         for index, current_job in enumerate(jobs, start=1):
             dataset_id, seed, arm, warmup = current_job
             kind = "warmup" if warmup else "measured"

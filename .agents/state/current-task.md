@@ -12,7 +12,7 @@ RTGS-008
 
 - Driver: Codex-three-provider-driver
 - Reviewer: Hegel
-- Turn: human
+- Turn: driver
 
 ## Mode
 
@@ -183,16 +183,16 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
 4. Completed through two outcome-unseen reviews: make the paper driver provider-neutral, add
    CPU-first and guarded CUDA tests, freeze the canonical command, and audit both the original and
    revised protocol.
-5. Blocked on human decision: either authorize one bounded third repair cycle for the three exact
-   fail-closed/source-boundary gaps in Hegel's V2 review or stop RTGS-008 without initializing it.
-6. If explicitly authorized and subsequently approved, initialize the protected run, execute every
+5. Authorized by the owner: complete one bounded third repair cycle for the three exact
+   fail-closed/source-boundary gaps in Hegel's V2 review and obtain a fresh outcome-unseen review.
+6. If subsequently approved, initialize the protected run, execute every
    provider/initializer/seed cell, render the v2 report/viewer, and validate all receipts.
 7. Run an independent scientific audit, log only supported findings, complete repository review
    and verification, and close or hand off any maturity shortfall explicitly.
 
 ## Status
 
-Blocked on human decision
+In progress
 
 ## Human Decisions
 
@@ -240,8 +240,8 @@ Do not weaken the source/input/failure claims and do not execute the current rej
 
 ### Decision
 
-Pending explicit owner direction. Repository policy forbids an unbounded third revision loop after
-two consecutive `Revision required` verdicts.
+(Owner, in chat.) Authorize the bounded third technical revision. Afterward, commit the completed
+work, merge all genuinely unmerged project branches into `main`, and push `main` to the remote.
 
 ### Date
 
