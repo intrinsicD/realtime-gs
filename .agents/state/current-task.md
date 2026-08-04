@@ -11,8 +11,8 @@ RTGS-008
 ## Role Assignment
 
 - Driver: Codex-three-provider-driver
-- Reviewer: Popper
-- Turn: driver
+- Reviewer: Hegel
+- Turn: human
 
 ## Mode
 
@@ -171,11 +171,11 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
   convergence/compression definitions but found three remaining fail-closed blockers: incomplete
   transitive source binding, pre-`try` root failures without structured publication, and an
   unguarded canonical compact semantic load whose later receipt asserts no image access.
-- The owner-authorized bounded third repair closes those three boundaries without changing the
-  scientific design: execution now accepts only descendants of the exact reviewed tree whose
-  changes are confined to an enumerated metadata allowlist; every trusted post-`init-run` root
-  phase is inside the one-shot failed-bundle publisher; and the first canonical compact load is
-  performed under the live image-denial guard and bound into the input receipt.
+- The owner-authorized bounded third repair closes the first-load boundary and improves the other
+  two without changing the scientific design: committed descendants are restricted to an exact
+  metadata allowlist, in-`try` root phases reach the failed-bundle publisher, and the first compact
+  load is guarded and receipt-bound. The independent V3 review nevertheless finds that live dirty
+  execution bytes remain unbound and task/lock preconditions still precede root publication.
 - Eighteen focused paper-driver/initializer tests, including real temporary-Git source mutation,
   root preflight failure publication, and fresh-process first-load image denial, pass. The full
   integrated repository gate passes after combining accepted RTGS-009/010, the optimizer
@@ -186,6 +186,12 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
   `experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW_V2_REJECTED.md`.
   The third prospective digest is
   `77b4e3a0cf137b21162ed9a52294aebce72a52d7fb8be0b44816640b54d02a2b`.
+- Hegel's outcome-blind V3 review rejects that digest. A temporary-Git counterexample proves an
+  uncommitted tracked behavior edit passes `_source_binding_passes`, and a malformed task at an
+  initialized-looking exact root proves task loading can fail without failed-v2 publication. The
+  first-load repair passes its fresh-process denial control. A concurrent Popper draft independently
+  recorded the same findings at SHA-256 `73bcfebe...`; no extra artifact path was added because the
+  frozen metadata allowlist does not authorize one.
 
 ## Minimal Plan
 
@@ -207,7 +213,7 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
 
 ## Status
 
-Rejected
+Blocked on human decision
 
 ## Human Decisions
 
@@ -257,6 +263,31 @@ Do not weaken the source/input/failure claims and do not execute the current rej
 
 (Owner, in chat.) Authorize the bounded third technical revision. Afterward, commit the completed
 work, merge all genuinely unmerged project branches into `main`, and push `main` to the remote.
+
+### Date
+
+2026-08-04
+
+### Question (post-V3 rejection)
+
+After the owner-authorized third outcome-blind review rejected live source binding and the outer
+root failure boundary, should RTGS-008 stop at its preserved CPU-contracted checkpoint, or receive
+new explicit authority for another bounded repair and fresh prospective review?
+
+### Options
+
+Stop without initializing the protected run; or explicitly authorize only live tracked/untracked
+execution-tree binding, task/lock-load failure publication, their outcome-free negative controls,
+and one new outcome-unseen review.
+
+### Recommendation
+
+Stop the current rejected protocol. Do not begin an unbounded revision loop or initialize the run;
+authorize another cycle only through a new explicit owner decision.
+
+### Decision
+
+Pending owner direction.
 
 ### Date
 
@@ -583,12 +614,14 @@ publisher calls. Protected execution remains prohibited.
 
 #### Evidence Quality
 
-Popper independently recomputed prospective digest `77b4e3a0...`, the exact 85-file seal totaling
+Hegel independently recomputed prospective digest `77b4e3a0...`, the exact 85-file seal totaling
 24,831,997 bytes, and all relevant ancestry. The accepted BENCH-019 and optimizer-mechanism
 lineages are inside implementation base `73dcc5f...`; Hegel's V2 artifact remains byte-preserved.
-All 18 focused tests pass, including committed-descendant, in-`try` failure-publication, and
-first-load denial controls. Two additional isolated negative controls reproduce the dirty-tree and
-pre-`try` task-load gaps. Outcome Access remained none.
+All 18 focused tests and the 59-test broader outcome-free suite pass, including
+committed-descendant, in-`try` failure-publication, and first-load denial controls. Two additional
+isolated negative controls reproduce the dirty-tree and pre-`try` task-load gaps. A concurrent
+Popper draft independently recorded the same findings at SHA-256 `73bcfebe...`. Outcome Access
+remained none.
 
 #### Simplicity
 
