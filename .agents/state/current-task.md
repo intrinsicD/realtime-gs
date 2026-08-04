@@ -12,7 +12,7 @@ RTGS-008
 
 - Driver: Codex-three-provider-driver
 - Reviewer: Popper
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -207,7 +207,7 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
 
 ## Status
 
-In review
+Rejected
 
 ## Human Decisions
 
@@ -561,3 +561,56 @@ RTGS-008 outcome inspection occurred. All checks were source/input/mechanism-onl
 Write a fresh V3 artifact at the canonical protocol-review path with `Outcome Access: none`.
 Approve only if all three V2 blockers and their negative controls are closed; otherwise preserve
 the rejection and stop without initializing the protected matrix.
+
+### Review (2026-08-04 outcome-blind prospective protocol V3)
+
+#### Verdict
+
+Rejected
+
+#### Self-reviewed
+
+No
+
+#### Correctness
+
+The first canonical compact load is now correctly covered by the live image-denial guard and bound
+into the worker receipt. Exact reviewed-tree binding and complete root failure publication remain
+incomplete. `_source_binding_passes` accepts an uncommitted behavior-bearing source edit because it
+checks only `base..HEAD` and historical lock cleanliness, while `_orchestrate` still checks the
+root/lock and loads task JSON before its publishing `try`; malformed task JSON produced zero root
+publisher calls. Protected execution remains prohibited.
+
+#### Evidence Quality
+
+Popper independently recomputed prospective digest `77b4e3a0...`, the exact 85-file seal totaling
+24,831,997 bytes, and all relevant ancestry. The accepted BENCH-019 and optimizer-mechanism
+lineages are inside implementation base `73dcc5f...`; Hegel's V2 artifact remains byte-preserved.
+All 18 focused tests pass, including committed-descendant, in-`try` failure-publication, and
+first-load denial controls. Two additional isolated negative controls reproduce the dirty-tree and
+pre-`try` task-load gaps. Outcome Access remained none.
+
+#### Simplicity
+
+No scientific or pipeline redesign is needed. The smallest repairs are a live worktree/index
+cleanliness check at root and worker binding, plus a publisher that can record task/lock loading
+failure from one outer post-root exception boundary.
+
+#### Missing Cases
+
+The suite lacks a negative control for uncommitted or untracked behavior bytes after `init-run`,
+and lacks a root-publisher assertion for missing/corrupt task or lock metadata. Protected CUDA
+feasibility, runtime, downstream presentation, and bundle completeness remain deliberately unseen.
+
+#### Required Changes
+
+1. Reject any live tracked or untracked execution-tree change not represented by the reviewed
+   commit and permitted review metadata; do not rely only on cleanliness captured at `init-run`.
+2. Publish one schema-valid failed root receipt when exact-root task or lock loading/checking fails,
+   before any worker can start.
+3. Add outcome-free negative controls for both cases and obtain explicit authority before any
+   further prospective cycle. Do not initialize or execute the current rejected task.
+
+#### Optional Improvements
+
+None. Preserve the now-sound first-load repair and do not alter the scientific protocol.
