@@ -2,9 +2,11 @@ session:
   id: "2026-08-04_001"
   date: "2026-08-04"
   started: "2026-08-04T01:12+02:00"
-  last_turn: "2026-08-04T09:52+02:00"
-  turn_count: 3
-  summary: "Sealed all 78 inputs, completed two outcome-blind RTGS-008 reviews, and audited the BENCH-019/reviewer worktrees for safe integration."
+  last_turn: "2026-08-04T10:38+02:00"
+  turn_count: 4
+  summary: >
+    Integrated all requested branch lineages, rejected RTGS-008 outcome-blind after V3
+    counterexamples, and archived its still-prohibited 0/27 disposition.
 
 events_logged:
   - turn: 1
@@ -25,6 +27,24 @@ events_logged:
     routing: direct
     provenance: user
     summary: "Decide how to integrate or retire the BENCH-019 and RTGS-008 reviewer worktrees."
+  - turn: 4
+    type: decision
+    id: N193
+    routing: direct
+    provenance: user
+    summary: "Authorize the bounded RTGS-008 V3 cycle and direct publication of all unmerged branches."
+  - turn: 4
+    type: dead_end
+    id: N194
+    routing: direct
+    provenance: ai-executed
+    summary: "Reject RTGS-008 V3 after live-dirty-source and pre-publisher metadata counterexamples."
+  - turn: 4
+    type: decision
+    id: N195
+    routing: direct
+    provenance: ai-executed
+    summary: "Integrate all requested lineages while preserving the RTGS-008 execution prohibition."
 
 ai_actions:
   - turn: 1
@@ -121,6 +141,30 @@ ai_actions:
       require semantic reconciliation when those task lines are combined.
     provenance: ai-executed
     files_changed: []
+  - turn: 4
+    action: >
+      Completed the owner-authorized bounded V3 repair and froze digest 77b4e3a0 against the
+      integrated implementation tree. Eighteen focused tests, exact 85-file data validation, and
+      the full repository gate passed. Two distinct outcome-blind reviews then reproduced live
+      dirty-source and pre-publisher task/lock counterexamples, rejected the protocol, and kept the
+      protected matrix uninitialized at 0/27; no downstream outcome path was accessed.
+    provenance: ai-executed
+    files_changed:
+      - "docs/tasks/RTGS-008-full-resolution-three-provider-paper-comparison.md"
+  - turn: 4
+    action: >
+      Fast-forwarded accepted RTGS-009/010 BENCH-019 into local main, integrated the previously
+      unmerged default-off optimizer mechanisms and the rejected RTGS-008 lineage at the owner's
+      explicit request, passed the complete mainline verification gate, and archived the V3
+      rejection. Preserved the execution prohibition and left the owner's unrelated primary-
+      worktree IDE changes untouched.
+    provenance: ai-executed
+    files_changed:
+      - "docs/tasks/RTGS-008-full-resolution-three-provider-paper-comparison.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/trace/pm_reasoning_log.yaml"
+      - "ara/trace/sessions/2026-08-04_001.yaml"
+      - "ara/trace/sessions/session_index.yaml"
 
 claims_touched: []
 
@@ -131,11 +175,13 @@ key_context:
     excerpt: "The user authorized continuing with the independent review and next implementation steps; the second rejection subsequently triggered mandatory human escalation."
   - turn: 3
     excerpt: "The user asked whether the BENCH-019 and RTGS-008 review folders are separate branches and should be merged into main."
+  - turn: 4
+    excerpt: >
+      The user explicitly authorized the bounded third repair/review cycle, committing the finished
+      work, integrating all genuinely unmerged branches into main, and pushing the final verified
+      mainline.
 
 open_threads:
-  - "Obtain explicit user authorization for a third RTGS-008 technical revision after two consecutive outcome-blind rejection verdicts."
-  - "If authorized, close full behavior-bearing source binding, pre-worker root failure publication and first-load NoImageGuard coverage, then obtain a third independent prospective review."
-  - "Only after approval, execute one warmup and 27 measured cells, aggregate the v2 bundle, independently audit results and close RTGS-008."
-  - "Await user authorization to fast-forward accepted BENCH-019 into main; do not separately merge the patch-equivalent RTGS-008 reviewer branch."
+  - "Any further RTGS-008 repair/review cycle requires a new explicit owner decision; until then the protected matrix remains rejected and 0/27."
 
 ai_suggestions_pending: []

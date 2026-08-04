@@ -3465,4 +3465,70 @@ tree:
       `rtgs/008-three-provider-fullres` branch, whose protected task remains blocked; merging the
       reviewer branch separately would duplicate rejected-protocol history. Integration or removal
       remains pending explicit user authorization.
-    status: open
+    status: resolved
+  - id: N193
+    type: decision
+    title: "Authorize the bounded RTGS-008 V3 cycle and all-branch publication"
+    provenance: user
+    timestamp: "2026-08-04T10:38+02:00"
+    choice: >
+      Perform the three exact source/failure/input-boundary repairs authorized after the second
+      rejection, obtain one fresh outcome-blind review, commit the completed work, integrate every
+      genuinely unmerged project branch into main, and push the verified mainline directly to
+      origin. Integration authority does not waive prospective approval for protected execution.
+    alternatives:
+      - "Stop before the bounded V3 repair and leave outstanding branch lineages unintegrated."
+      - "Initialize the protected run without a fresh approval."
+      - "Keep a subsequently rejected protocol off main even though the owner requested all branches."
+    evidence:
+      - N191
+      - N192
+      - "docs/tasks/RTGS-008-full-resolution-three-provider-paper-comparison.md"
+    also_depends_on: [N191, N192]
+    status: resolved
+  - id: N194
+    type: dead_end
+    title: "RTGS-008 V3 exact-execution boundary"
+    provenance: ai-executed
+    timestamp: "2026-08-04T10:38+02:00"
+    hypothesis: >
+      The owner-authorized V3 repair closes Hegel's three remaining blockers strongly enough to
+      approve digest 77b4e3a0 and initialize the 27-cell protected comparison.
+    failure_mode: >
+      Independent outcome-free counterexamples showed that an uncommitted behavior-bearing source
+      edit still passes the commit-only binding and malformed task or lock metadata can still fail
+      before structured root publication. The first compact-load guard repair is sound, but the
+      complete advertised boundary is not.
+    lesson: >
+      Prospective execution binding must cover live tracked and untracked behavior bytes, not only
+      commit ancestry, and the failure publisher must surround task/lock loading itself. Preserve
+      the 0/27 outcome boundary and require new owner authority before any further cycle.
+    evidence:
+      - N193
+      - "5c020443442664ed5c9d9e3316305810f7410398"
+      - "docs/tasks/RTGS-008-full-resolution-three-provider-paper-comparison.md"
+    also_depends_on: [N190, N191, N193]
+  - id: N195
+    type: decision
+    title: "Integrate all requested lineages while preserving the RTGS-008 execution block"
+    provenance: ai-executed
+    timestamp: "2026-08-04T10:38+02:00"
+    choice: >
+      Advance main through accepted RTGS-009/010 BENCH-019, the default-off optimizer mechanisms,
+      and the rejected RTGS-008 implementation/data/review lineage for reproducibility, while
+      archiving its V3 rejection and retaining the absolute prohibition on protected execution.
+    alternatives:
+      - "Keep the rejected RTGS-008 implementation and sealed payloads off main."
+      - "Discard the rejected lineage and its three outcome-blind reviews."
+      - "Treat Git integration as prospective approval and execute the rejected matrix."
+    evidence:
+      - N192
+      - N194
+      - "d8b1cc926b72255affedde46889cbd4e7f66fd5c"
+      - "3f86eb689a383149b19e1dc80b73cab0cf6214d1"
+      - "9002cdd9efd039f04ce9f868beaf4f53fb011e0f"
+      - "5c020443442664ed5c9d9e3316305810f7410398"
+      - "adf7309a3669dc4fe222cc3b7081f71d8dd08aef"
+      - "docs/tasks/RTGS-008-full-resolution-three-provider-paper-comparison.md"
+    also_depends_on: [N192, N194]
+    status: resolved
