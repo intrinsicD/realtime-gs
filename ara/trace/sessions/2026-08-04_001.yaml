@@ -2,9 +2,9 @@ session:
   id: "2026-08-04_001"
   date: "2026-08-04"
   started: "2026-08-04T01:12+02:00"
-  last_turn: "2026-08-04T01:37+02:00"
-  turn_count: 2
-  summary: "Sealed all 78 inputs and completed two outcome-blind RTGS-008 reviews; the still-uninitialized 27-cell protocol is blocked for a human-authorized third revision."
+  last_turn: "2026-08-04T09:52+02:00"
+  turn_count: 3
+  summary: "Sealed all 78 inputs, completed two outcome-blind RTGS-008 reviews, and audited the BENCH-019/reviewer worktrees for safe integration."
 
 events_logged:
   - turn: 1
@@ -19,6 +19,12 @@ events_logged:
     routing: direct
     provenance: ai-executed
     summary: "Reject the second RTGS-008 digest outcome-blind and require human authorization before a third revision cycle."
+  - turn: 3
+    type: question
+    id: N189
+    routing: direct
+    provenance: user
+    summary: "Decide how to integrate or retire the BENCH-019 and RTGS-008 reviewer worktrees."
 
 ai_actions:
   - turn: 1
@@ -104,6 +110,17 @@ ai_actions:
       - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md"
       - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md"
       - "experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json"
+  - turn: 3
+    action: >
+      Inspected both requested directories, worktree registrations, branch status, remote main,
+      ancestry, patch equivalence, accepted task archives and three-way overlap without modifying
+      Git state. Confirmed both worktrees are clean. BENCH-019 is 21 commits ahead of and zero
+      behind main, includes accepted archived RTGS-009 and RTGS-010, and is fast-forwardable. The
+      RTGS-008 reviewer branch's two post-package commits are patch-equivalent on the active
+      RTGS-008 branch; six workflow/ARA paths overlap between BENCH-019 and active RTGS-008 and
+      require semantic reconciliation when those task lines are combined.
+    provenance: ai-executed
+    files_changed: []
 
 claims_touched: []
 
@@ -112,10 +129,13 @@ key_context:
     excerpt: "The user requested another live progress checkpoint."
   - turn: 2
     excerpt: "The user authorized continuing with the independent review and next implementation steps; the second rejection subsequently triggered mandatory human escalation."
+  - turn: 3
+    excerpt: "The user asked whether the BENCH-019 and RTGS-008 review folders are separate branches and should be merged into main."
 
 open_threads:
   - "Obtain explicit user authorization for a third RTGS-008 technical revision after two consecutive outcome-blind rejection verdicts."
   - "If authorized, close full behavior-bearing source binding, pre-worker root failure publication and first-load NoImageGuard coverage, then obtain a third independent prospective review."
   - "Only after approval, execute one warmup and 27 measured cells, aggregate the v2 bundle, independently audit results and close RTGS-008."
+  - "Await user authorization to fast-forward accepted BENCH-019 into main; do not separately merge the patch-equivalent RTGS-008 reviewer branch."
 
 ai_suggestions_pending: []

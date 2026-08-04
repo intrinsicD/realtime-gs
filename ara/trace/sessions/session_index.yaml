@@ -134,8 +134,8 @@ sessions:
     open_threads: 3
   - id: "2026-08-04_001"
     date: "2026-08-04"
-    summary: "Sealed all 78 inputs and completed two outcome-blind RTGS-008 reviews; the still-uninitialized 27-cell protocol is blocked for a human-authorized third revision."
-    turn_count: 2
-    events_count: 2
+    summary: "Sealed all 78 inputs, completed two outcome-blind RTGS-008 reviews, and audited the BENCH-019/reviewer worktrees for safe integration."
+    turn_count: 3
+    events_count: 3
     claims_touched: []
-    open_threads: 3
+    open_threads: 4

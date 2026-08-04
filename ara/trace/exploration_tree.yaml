@@ -3382,3 +3382,19 @@ tree:
       - ".agents/state/current-task.md"
     also_depends_on: [N187]
     status: resolved
+  - id: N189
+    type: question
+    title: "How should the BENCH-019 and RTGS-008 review worktrees be integrated?"
+    provenance: user
+    timestamp: "2026-08-04T09:52+02:00"
+    description: >
+      The user asked whether `/home/alex/Documents/realtime-gs-bench019` and
+      `/home/alex/Documents/realtime-gs-rtgs008-review` are separate branches and whether both
+      should be merged to main. Read-only Git inspection established that they are clean linked
+      worktrees of the same repository. `rtgs/010-bench019-adapters` is an independently accepted,
+      archived 21-commit line that can fast-forward current local and remote main. The
+      `rtgs/008-review-v2` review commits are patch-equivalent on the active
+      `rtgs/008-three-provider-fullres` branch, whose protected task remains blocked; merging the
+      reviewer branch separately would duplicate rejected-protocol history. Integration or removal
+      remains pending explicit user authorization.
+    status: open
