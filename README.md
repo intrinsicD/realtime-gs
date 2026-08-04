@@ -97,6 +97,30 @@ matched Beam Fusion/stage arm, and a matched-initialization RGB-trained 3DGS com
 task uses the naming rule `YYYYMMDD_<task>_<data>`, a data/task lock, and the same generated
 `index.html`; see [`experiments/README.md`](experiments/README.md).
 
+The separate StructSplat BENCH-019 bridge is passive evidence infrastructure. `rtgs.bench019`
+mirrors the complete portable StructSplat v1 checks for formal protocols, preserves exact
+additive/normalized semantics and one shared downstream factor, and emits
+`structsplat.bench019.cell.v1`; assembly replays every receipt-bound source manifest, raw metric
+pointer, run binding, and six hashed cell artifacts. It never starts training or performs the
+correlation analysis.
+`rtgs.bench019_portfolio` validates the pre-outcome three-development/three-confirmation source
+inventory in
+[`experiments/data/structsplat_bench019_capture_portfolio.json`](experiments/data/structsplat_bench019_capture_portfolio.json).
+`rtgs.bench019_adapters` now binds the Stage capture and two development TUM sequences to exact
+26-view camera/mask/split recipes; the source-replayed manifests live in
+[`experiments/data/bench019_adapters/`](experiments/data/bench019_adapters/README.md). TUM inputs use
+strict timestamp association, bounded pose interpolation, pose keyframes, registered-depth masks,
+an exact ordinary-member tar allowlist, and lexical-tree exclusive-new development materialization.
+Karate and every confirmation payload remain closed because no source-backed Karate mask policy
+exists. `rtgs.bench019_predictors` strictly reloads complete compact fields, requires an
+evidence-complete portfolio family and exact production receipt, and collects deterministic sampled
+RGB/support, row, and manifest-plus-view byte statistics without relabelling normalized weight as
+alpha. Its public writer performs a complete file replay before publication. Alpha agreement,
+MS-SSIM, LPIPS, track yield, and conditioning fail closed. These are measurement contracts, not a
+BENCH-019 result or a new fitting default. Task-local entry points live under
+`scripts/experiments/rtgs009_*` and `scripts/experiments/rtgs010_*`; formal export still rejects a
+review-state protocol.
+
 Run the native field lift directly from the same compact directory. The command loads no source
 image, preserves optional packed alpha, creates an explicit deterministic held-out split, and
 safely ignores pre-split bounds/points unless they are explicitly marked train-only. It saves the

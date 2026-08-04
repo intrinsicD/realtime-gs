@@ -1,0 +1,1089 @@
+{
+  "captures": [
+    {
+      "blockers": [
+        "the mask-contained normalized family is an incomplete live production and is not bound",
+        "no BENCH-019 realtime-gs cells or formal protocol are frozen"
+      ],
+      "field_families": [
+        {
+          "blend_mode": "additive",
+          "equation": "additive_sum",
+          "evidence": {
+            "bytes": 177802,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/production_manifest.json",
+            "sha256": "6f30d7dfbe64762071d314ef033dcd5fd5eebec95440d242b016f95f5f99112b"
+          },
+          "id": "gaussianimage_additive",
+          "observed_views": 26,
+          "provider": "gaussianimage",
+          "required_views": 26,
+          "state": "complete_stage1_unbound"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": {
+            "bytes": 600096,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_no_boundary_fullres/production_manifest.json",
+            "sha256": "54b61f1ef2608adf932dd573d86ccdbd17d2e3af7682e0b50174011351bd894d"
+          },
+          "id": "structsplat_normalized_no_boundary",
+          "observed_views": 26,
+          "provider": "structsplat",
+          "required_views": 26,
+          "state": "complete_stage1_unbound"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_mask_contained",
+          "observed_views": 13,
+          "provider": "structsplat",
+          "required_views": 26,
+          "state": "incomplete_live_unbound"
+        }
+      ],
+      "frame_id": "frame_00008",
+      "frame_plan_state": "selected_source_frame",
+      "id": "janelle_stage_fabric",
+      "mask_policy_state": "source_binary_masks_bound",
+      "origin": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric",
+      "role": "development",
+      "source_artifacts": [
+        {
+          "artifact": {
+            "bytes": 51752,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/calibration_dome.json",
+            "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+          },
+          "id": "calibration"
+        },
+        {
+          "artifact": {
+            "bytes": 14268226,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0001.jpg",
+            "sha256": "ae24fe99d3f8edbd04cd2c85ebc4fe9bfd95abe878c22abb7691cadcfc5c411b"
+          },
+          "id": "rgb_C0001"
+        },
+        {
+          "artifact": {
+            "bytes": 14914857,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0004.jpg",
+            "sha256": "26eb4cf24a034eb830198df6e7a6ac409ccb7cf4814ff645c71d0b6966b7070e"
+          },
+          "id": "rgb_C0004"
+        },
+        {
+          "artifact": {
+            "bytes": 13997995,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0005.jpg",
+            "sha256": "2a4666e41688d4d66d5d1b1e12f4045556de56581c9c8caf88c85208f36ce15c"
+          },
+          "id": "rgb_C0005"
+        },
+        {
+          "artifact": {
+            "bytes": 15363205,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0006.jpg",
+            "sha256": "d61057641899878f37357fbaae2d1acfb8cbbe2f4c108f307b89b4e51f8d1f04"
+          },
+          "id": "rgb_C0006"
+        },
+        {
+          "artifact": {
+            "bytes": 13895234,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0008.jpg",
+            "sha256": "6c96cd772fd72bfd596ce9d3f588924c99167f783aa9cf0bd6a682bd223463f4"
+          },
+          "id": "rgb_C0008"
+        },
+        {
+          "artifact": {
+            "bytes": 14512725,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0009.jpg",
+            "sha256": "ebca961dacb7cb3009572373880e7b784da34b6f27c04b3b4e325cad3cea7358"
+          },
+          "id": "rgb_C0009"
+        },
+        {
+          "artifact": {
+            "bytes": 14344063,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0012.jpg",
+            "sha256": "7ec0df4004c1ba940220ef4d7bac6e7b73ed60065255be7e8d35157c804234a8"
+          },
+          "id": "rgb_C0012"
+        },
+        {
+          "artifact": {
+            "bytes": 14817975,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0014.jpg",
+            "sha256": "41b2397a6342953d253c0f695f68da1a7fdb879eee9912f9a0afbf0f1a371713"
+          },
+          "id": "rgb_C0014"
+        },
+        {
+          "artifact": {
+            "bytes": 15458176,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0018.jpg",
+            "sha256": "7002cffcd935bff27dbf31b3714ab120ea48f30125b89d28bb951cd02ab97629"
+          },
+          "id": "rgb_C0018"
+        },
+        {
+          "artifact": {
+            "bytes": 14350777,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0019.jpg",
+            "sha256": "7009cd1006b7103a0f62471c6d89d0b6c5e14c72dbdb211d2e41d1ff017b857e"
+          },
+          "id": "rgb_C0019"
+        },
+        {
+          "artifact": {
+            "bytes": 14316233,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0020.jpg",
+            "sha256": "8efcd06fed7659b33f5f29f0f5ff406d917f106666edaa7ec5737fd4a6d04e83"
+          },
+          "id": "rgb_C0020"
+        },
+        {
+          "artifact": {
+            "bytes": 15034481,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0021.jpg",
+            "sha256": "16cd8ce91ae06c8743b20fa7b966f8d6ce5f9c0048439d7bbe8d8a2a91e2c652"
+          },
+          "id": "rgb_C0021"
+        },
+        {
+          "artifact": {
+            "bytes": 14162095,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0022.jpg",
+            "sha256": "1bbdfcf2b80ef983ba83dfb166780116920a0e872e32f6de1f7e655bf9192473"
+          },
+          "id": "rgb_C0022"
+        },
+        {
+          "artifact": {
+            "bytes": 15848175,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0025.jpg",
+            "sha256": "5f0596d47f8aa518cca1d938f385576c92c17c53f68d6f2f348f3351cfd33aa0"
+          },
+          "id": "rgb_C0025"
+        },
+        {
+          "artifact": {
+            "bytes": 14138375,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0026.jpg",
+            "sha256": "62281ed8299e75b89c9bc7749e68b33d4e54c2d3332f5c49e18c505653ce05e1"
+          },
+          "id": "rgb_C0026"
+        },
+        {
+          "artifact": {
+            "bytes": 14143349,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0028.jpg",
+            "sha256": "70b09ecc55a47fa9f5e2c3182040951567144004271e69967b460e909950603f"
+          },
+          "id": "rgb_C0028"
+        },
+        {
+          "artifact": {
+            "bytes": 14255602,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0029.jpg",
+            "sha256": "d5a117c513f314967dd8eb69151104d40e4e17a46ee21e4d86c59acc568e3a83"
+          },
+          "id": "rgb_C0029"
+        },
+        {
+          "artifact": {
+            "bytes": 14307880,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0030.jpg",
+            "sha256": "4d5c45503fa82b356903f069b63e89a82657684cea53b348ba1a888f60872892"
+          },
+          "id": "rgb_C0030"
+        },
+        {
+          "artifact": {
+            "bytes": 14852562,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0031.jpg",
+            "sha256": "62e3132fe11dfc6d73f34dfba0ea8ecd2ba48cc1f3655ed21f1f3ad644c9e010"
+          },
+          "id": "rgb_C0031"
+        },
+        {
+          "artifact": {
+            "bytes": 14734106,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0034.jpg",
+            "sha256": "fe4cb235f1239d90961e69e8a19b9afd5f3d4dbd451098f439a70988cc7f21d0"
+          },
+          "id": "rgb_C0034"
+        },
+        {
+          "artifact": {
+            "bytes": 14644974,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0037.jpg",
+            "sha256": "3846e809292b216739fd1512086ea81b098c4d77cc608744c340ec283d159f07"
+          },
+          "id": "rgb_C0037"
+        },
+        {
+          "artifact": {
+            "bytes": 14986437,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C0039.jpg",
+            "sha256": "5f1123dc14929c8023110750daede9a07bfc04c693095d688a90e77f133522e6"
+          },
+          "id": "rgb_C0039"
+        },
+        {
+          "artifact": {
+            "bytes": 14266962,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C1000.jpg",
+            "sha256": "ae87ea89261db32fcd6117b96f59011c5faa50f9229300556f96dfc4e0147c52"
+          },
+          "id": "rgb_C1000"
+        },
+        {
+          "artifact": {
+            "bytes": 13295147,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C1001.jpg",
+            "sha256": "272bbf0a80e515546f8dee05f693c1d70d471c07fd38e974fb1612a8b3cce820"
+          },
+          "id": "rgb_C1001"
+        },
+        {
+          "artifact": {
+            "bytes": 14325882,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C1002.jpg",
+            "sha256": "fb96403caff44c31e4cda77fa4f14696cf0d0946f88d01897e3428582689ba7d"
+          },
+          "id": "rgb_C1002"
+        },
+        {
+          "artifact": {
+            "bytes": 14744138,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/rgb/C1004.jpg",
+            "sha256": "38adb01a1ba7d8d8bb0f87cd14c6bcc48ec9a2ab0027dd09f45ee55609e4ce6a"
+          },
+          "id": "rgb_C1004"
+        },
+        {
+          "artifact": {
+            "bytes": 145606,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0001.png",
+            "sha256": "94dcbf7005dbeb1d183e259a569d783aa5df900255e763385bed91f02d3b80c3"
+          },
+          "id": "mask_C0001"
+        },
+        {
+          "artifact": {
+            "bytes": 117272,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0004.png",
+            "sha256": "4702bfa9df354f38e35a63207a37d4ec1b753afc4d0668bd905f3cdab320f35d"
+          },
+          "id": "mask_C0004"
+        },
+        {
+          "artifact": {
+            "bytes": 121521,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0005.png",
+            "sha256": "43d49b20739b3247161f2e5d61fef63ba6551308665fc9d2e9f8a736f017a741"
+          },
+          "id": "mask_C0005"
+        },
+        {
+          "artifact": {
+            "bytes": 108229,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0006.png",
+            "sha256": "030bba01a9d1481e7a458ba61fe37779ffbaec2f61911a248ac347e36cef46f2"
+          },
+          "id": "mask_C0006"
+        },
+        {
+          "artifact": {
+            "bytes": 119275,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0008.png",
+            "sha256": "1555235ad716bfce6e2aec48a7f2dd98c9330fd3b5766bbbfb0746a63ea8956e"
+          },
+          "id": "mask_C0008"
+        },
+        {
+          "artifact": {
+            "bytes": 101605,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0009.png",
+            "sha256": "d98a986333264550b41bd0421e88d8a977c74979f14ed1fcdf9fddb75a20e084"
+          },
+          "id": "mask_C0009"
+        },
+        {
+          "artifact": {
+            "bytes": 118322,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0012.png",
+            "sha256": "0d743cac68b47c7f53c270b4a74b1869dba0c60114092fcb63358ee217471cd7"
+          },
+          "id": "mask_C0012"
+        },
+        {
+          "artifact": {
+            "bytes": 101222,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0014.png",
+            "sha256": "801c46692f557b4a9e863d8d38bc598092b74f5a941192dda0c3dd820c9262cb"
+          },
+          "id": "mask_C0014"
+        },
+        {
+          "artifact": {
+            "bytes": 113211,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0018.png",
+            "sha256": "4ecf524dbc9a51c44deffd460cf6930e6ee58e91cc2ef27bc8a12d0b9c8e4903"
+          },
+          "id": "mask_C0018"
+        },
+        {
+          "artifact": {
+            "bytes": 85893,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0019.png",
+            "sha256": "43c53247fb697d850a179a6a7de5ee89b2b08caab48790ce669b05b064e574f4"
+          },
+          "id": "mask_C0019"
+        },
+        {
+          "artifact": {
+            "bytes": 118938,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0020.png",
+            "sha256": "dcde023804b9e6bd14d43698cd8e6a68c89c1ff0718e774c117c4e9d0207b6e1"
+          },
+          "id": "mask_C0020"
+        },
+        {
+          "artifact": {
+            "bytes": 119238,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0021.png",
+            "sha256": "7ffe885d5ee43411f567a74324eeb0989f3fbcc24dc8ee6db5d638ef072a94cc"
+          },
+          "id": "mask_C0021"
+        },
+        {
+          "artifact": {
+            "bytes": 118404,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0022.png",
+            "sha256": "5951b2124784fbaafd8274d9ea1c3085b481860f4c18c6bb1101864b5f65359f"
+          },
+          "id": "mask_C0022"
+        },
+        {
+          "artifact": {
+            "bytes": 89019,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0025.png",
+            "sha256": "cd98d051eaa0a74f4316335bd901735121f2a40cabb2b227944a11571d794368"
+          },
+          "id": "mask_C0025"
+        },
+        {
+          "artifact": {
+            "bytes": 128805,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0026.png",
+            "sha256": "a8eba1df30ffa804a5356a2c7aaabc1c78903432e263d299726cd78d69c69b3f"
+          },
+          "id": "mask_C0026"
+        },
+        {
+          "artifact": {
+            "bytes": 131675,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0028.png",
+            "sha256": "64ba54bb2f248df40f16df9624c71d403a24e5ff8221ade3c3b8a602a7786e4e"
+          },
+          "id": "mask_C0028"
+        },
+        {
+          "artifact": {
+            "bytes": 134601,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0029.png",
+            "sha256": "2bb022325b30dd7658972ceb7ad1558430cb5d1d853b159c9cc66f15022a2342"
+          },
+          "id": "mask_C0029"
+        },
+        {
+          "artifact": {
+            "bytes": 86078,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0030.png",
+            "sha256": "90f8595eead175e4501623322d32c432df717f940e3624e11365cf8c3734f23c"
+          },
+          "id": "mask_C0030"
+        },
+        {
+          "artifact": {
+            "bytes": 99621,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0031.png",
+            "sha256": "c20f9c1a17c3b652967840a1d0b4223272371cd7d82083a4fc0b2375c7232a05"
+          },
+          "id": "mask_C0031"
+        },
+        {
+          "artifact": {
+            "bytes": 113731,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0034.png",
+            "sha256": "26f63cb936289661ba77078b630af0494e522b91cb42e9573bc08e8294719992"
+          },
+          "id": "mask_C0034"
+        },
+        {
+          "artifact": {
+            "bytes": 131630,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0037.png",
+            "sha256": "631b9fa799af945c9d3a4331728bdedff7609a804404c913fc5258f2c6f86e7f"
+          },
+          "id": "mask_C0037"
+        },
+        {
+          "artifact": {
+            "bytes": 86118,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0039.png",
+            "sha256": "2e882c494930b0c060f1931da0b45201300d6b448e4b5444a8f035ff854a74b5"
+          },
+          "id": "mask_C0039"
+        },
+        {
+          "artifact": {
+            "bytes": 139551,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C1000.png",
+            "sha256": "ae3567eceae9356861fbf0931dd617b72e82496697abf4bf513192bd8325f6b6"
+          },
+          "id": "mask_C1000"
+        },
+        {
+          "artifact": {
+            "bytes": 121872,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C1001.png",
+            "sha256": "c354893036c2751bdc1ae2a6f506f6465a177abafc756a342f0f55cbbe3dff0f"
+          },
+          "id": "mask_C1001"
+        },
+        {
+          "artifact": {
+            "bytes": 117952,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C1002.png",
+            "sha256": "113543d171e34cd2c774b392cd1629753f31920a744a960958367296ed320372"
+          },
+          "id": "mask_C1002"
+        },
+        {
+          "artifact": {
+            "bytes": 104799,
+            "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C1004.png",
+            "sha256": "828c359a1b8f41e652a9226ff24f68a8c1cf56fffb19a777a83053981cc0340c"
+          },
+          "id": "mask_C1004"
+        }
+      ],
+      "source_digest": "1231d36bf7e63d300ccd76d8d3ffaa8d5763b33b943e5f2a7052bccd57725d70",
+      "source_kind": "calibrated_multiview",
+      "view_ids": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0014",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0028",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1001",
+        "C1002",
+        "C1004"
+      ]
+    },
+    {
+      "blockers": [
+        "keyframe, camera, train/heldout, and mask policy adapter is not frozen",
+        "the three matched Stage-1 field families have not been produced"
+      ],
+      "field_families": [
+        {
+          "blend_mode": "additive",
+          "equation": "additive_sum",
+          "evidence": null,
+          "id": "gaussianimage_additive",
+          "observed_views": 0,
+          "provider": "gaussianimage",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_no_boundary",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_mask_contained",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        }
+      ],
+      "frame_id": "pending_keyframe_selection",
+      "frame_plan_state": "source_bound_adapter_pending",
+      "id": "tum_fr1_xyz",
+      "mask_policy_state": "registered_depth_validity_unfrozen",
+      "origin": "https://cvg.cit.tum.de/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_xyz.tgz",
+      "role": "development",
+      "source_artifacts": [
+        {
+          "artifact": {
+            "bytes": 448204271,
+            "path": "/home/alex/.cache/rtgs/tum-rgbd/rgbd_dataset_freiburg1_xyz.tgz",
+            "sha256": "a0236d97b8c30cd93b653656d2b6c293ff7c982a4130ef2a1a8beecdb124ef98"
+          },
+          "id": "official_archive"
+        }
+      ],
+      "source_digest": "9a4b4dc1bbbcdf4fc1af956fb6e77dc24d6ca0d60f9bf24aa7cb5cfd48c4c24e",
+      "source_kind": "tum_rgbd_archive",
+      "view_ids": []
+    },
+    {
+      "blockers": [
+        "keyframe, camera, train/heldout, and mask policy adapter is not frozen",
+        "the three matched Stage-1 field families have not been produced"
+      ],
+      "field_families": [
+        {
+          "blend_mode": "additive",
+          "equation": "additive_sum",
+          "evidence": null,
+          "id": "gaussianimage_additive",
+          "observed_views": 0,
+          "provider": "gaussianimage",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_no_boundary",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_mask_contained",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        }
+      ],
+      "frame_id": "pending_keyframe_selection",
+      "frame_plan_state": "source_bound_adapter_pending",
+      "id": "tum_fr1_rpy",
+      "mask_policy_state": "registered_depth_validity_unfrozen",
+      "origin": "https://cvg.cit.tum.de/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_rpy.tgz",
+      "role": "development",
+      "source_artifacts": [
+        {
+          "artifact": {
+            "bytes": 410268381,
+            "path": "/home/alex/.cache/rtgs/tum-rgbd/rgbd_dataset_freiburg1_rpy.tgz",
+            "sha256": "78103722a25873dbbb4de027eaa8c810a6382100691f02b6cf95c3adc91c4ac1"
+          },
+          "id": "official_archive"
+        }
+      ],
+      "source_digest": "6bda24fc2b3a7ba26c4ba6214d47f8746dba95ea34323e845e8f0f9dab7402f6",
+      "source_kind": "tum_rgbd_archive",
+      "view_ids": []
+    },
+    {
+      "blockers": [
+        "mask policy and train/heldout camera split are not frozen",
+        "the three matched Stage-1 field families have not been produced",
+        "confirmation outcomes remain unopened"
+      ],
+      "field_families": [
+        {
+          "blend_mode": "additive",
+          "equation": "additive_sum",
+          "evidence": null,
+          "id": "gaussianimage_additive",
+          "observed_views": 0,
+          "provider": "gaussianimage",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_no_boundary",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_mask_contained",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        }
+      ],
+      "frame_id": "frame_00005",
+      "frame_plan_state": "selected_source_frame",
+      "id": "janelle_karate",
+      "mask_policy_state": "missing_unfrozen",
+      "origin": "/home/alex/Dropbox/Work/Janelle/karate",
+      "role": "confirmation",
+      "source_artifacts": [
+        {
+          "artifact": {
+            "bytes": 49655,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/calibration_dome.json",
+            "sha256": "dfac34e5581cca9395b6858e129199a85c03a5f2e63f3dc949e5b59e5c9b6e3b"
+          },
+          "id": "calibration"
+        },
+        {
+          "artifact": {
+            "bytes": 552359,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_4.jpeg",
+            "sha256": "1692fea6b5564ef3392e065207a4c26fdc84b7f403752f866afad04aebadb72f"
+          },
+          "id": "rgb_C0004"
+        },
+        {
+          "artifact": {
+            "bytes": 548392,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_5.jpeg",
+            "sha256": "8c539a3b555667ad7aed35feff3098d2de4ce9768019e5a6e707867569cb2c1b"
+          },
+          "id": "rgb_C0005"
+        },
+        {
+          "artifact": {
+            "bytes": 563645,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_6.jpeg",
+            "sha256": "3d85fb0b60feebcc42b5bb5bb4d9bb988883966b86b3e8be9231f5a22433a61f"
+          },
+          "id": "rgb_C0006"
+        },
+        {
+          "artifact": {
+            "bytes": 581294,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_7.jpeg",
+            "sha256": "34bccd54185099e2550c7eaa580653a2868b74494d98aee9136622a4bf0afedc"
+          },
+          "id": "rgb_C0007"
+        },
+        {
+          "artifact": {
+            "bytes": 565094,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_8.jpeg",
+            "sha256": "5f7c6f73887f8b805edccd7f788712a0e93f32a07158ba1dfa3f62b7cec28126"
+          },
+          "id": "rgb_C0008"
+        },
+        {
+          "artifact": {
+            "bytes": 587847,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_10.jpeg",
+            "sha256": "b7f4baf7f96d11979bd15381f67b6da8b32bdcae47e31a858d3e67e5d9cb99a2"
+          },
+          "id": "rgb_C0010"
+        },
+        {
+          "artifact": {
+            "bytes": 555573,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_12.jpeg",
+            "sha256": "eba0233107cd4d2cd32e62177c324c4df3332f735406e3fa45a1c118c61aa9fb"
+          },
+          "id": "rgb_C0012"
+        },
+        {
+          "artifact": {
+            "bytes": 573404,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_13.jpeg",
+            "sha256": "6a7cedf99fad12e83925df92574f85f09acf32f6c4b698f156c207c0dda828f2"
+          },
+          "id": "rgb_C0013"
+        },
+        {
+          "artifact": {
+            "bytes": 562599,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_14.jpeg",
+            "sha256": "10d29798067f3048b2f635e3922efb4c5a0542a17fcf3c6ae1170fab75c84df0"
+          },
+          "id": "rgb_C0014"
+        },
+        {
+          "artifact": {
+            "bytes": 552086,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_16.jpeg",
+            "sha256": "9b0332cbda9dc18bf0b39b39b1c6ad26b0ca1120d63b27099ae0b5de05aae2f3"
+          },
+          "id": "rgb_C0016"
+        },
+        {
+          "artifact": {
+            "bytes": 566777,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_18.jpeg",
+            "sha256": "abe450e29d67320aa23b3ba8c9770021650a96ac3c478cb09ae8f0d3922e15da"
+          },
+          "id": "rgb_C0018"
+        },
+        {
+          "artifact": {
+            "bytes": 579076,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_20.jpeg",
+            "sha256": "422311d89a31e59db1a360763b345db1885d3e22308d708c7499178fe07d8efe"
+          },
+          "id": "rgb_C0020"
+        },
+        {
+          "artifact": {
+            "bytes": 560527,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_21.jpeg",
+            "sha256": "af63e0d272faa14dce7472d0e02aad71b654c36816d52a951851f943562641e0"
+          },
+          "id": "rgb_C0021"
+        },
+        {
+          "artifact": {
+            "bytes": 556700,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_22.jpeg",
+            "sha256": "f4987bf66f2e262044c6d1299170d2dc9aaed4c21198bc8af05a9d244d3fdb58"
+          },
+          "id": "rgb_C0022"
+        },
+        {
+          "artifact": {
+            "bytes": 555371,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_24.jpeg",
+            "sha256": "3e9ae4f523ab60f7fc258118791b06dff9ceac3dc687207ae0161205e59fc080"
+          },
+          "id": "rgb_C0024"
+        },
+        {
+          "artifact": {
+            "bytes": 568043,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_25.jpeg",
+            "sha256": "88c399eceb8696f7e59ffb211673cd96541b6a4342b3b660f33d23c9c6743fa7"
+          },
+          "id": "rgb_C0025"
+        },
+        {
+          "artifact": {
+            "bytes": 558635,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_26.jpeg",
+            "sha256": "f305f24a2fdd4c721afda4a4e51a24c1716aaa8b1b4a3bb50c5c49d082887d3d"
+          },
+          "id": "rgb_C0026"
+        },
+        {
+          "artifact": {
+            "bytes": 543852,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_28.jpeg",
+            "sha256": "c8f2fc0dbde3bd48d2d07dfb9fcb47512183be0a9b73fd9af28cf7ac9493d337"
+          },
+          "id": "rgb_C0028"
+        },
+        {
+          "artifact": {
+            "bytes": 539522,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_29.jpeg",
+            "sha256": "c0a73e5f1edb7db58a75e5bc824423766406c1a345e9ea36139b191e421393e1"
+          },
+          "id": "rgb_C0029"
+        },
+        {
+          "artifact": {
+            "bytes": 536411,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_30.jpeg",
+            "sha256": "282972a65da5790236cfb55dd8b6303db6904dffbf1baab4b65a5789dbb8d96e"
+          },
+          "id": "rgb_C0030"
+        },
+        {
+          "artifact": {
+            "bytes": 548180,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_31.jpeg",
+            "sha256": "00bd4564c6587f46897ba07230b0ca88593d1ccc320deffeaf2115d65c9f36d4"
+          },
+          "id": "rgb_C0031"
+        },
+        {
+          "artifact": {
+            "bytes": 541733,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_34.jpeg",
+            "sha256": "edd6640c576a209d50957fba7c246644a31fb11420119b23077bd18fbd310531"
+          },
+          "id": "rgb_C0034"
+        },
+        {
+          "artifact": {
+            "bytes": 559483,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_37.jpeg",
+            "sha256": "629482046245b940c40c3e6b39f96727e507939798d3644a4105965ef9ab45af"
+          },
+          "id": "rgb_C0037"
+        },
+        {
+          "artifact": {
+            "bytes": 554896,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_38.jpeg",
+            "sha256": "5fc2adb65e33e7a6590d52119677c0039881c6215a9cc88398a83359983c7327"
+          },
+          "id": "rgb_C0038"
+        },
+        {
+          "artifact": {
+            "bytes": 541363,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_39.jpeg",
+            "sha256": "e102e1479c2b102b2d68cca25508aa20b037c7b3127e7918b482eef81ec13040"
+          },
+          "id": "rgb_C0039"
+        },
+        {
+          "artifact": {
+            "bytes": 578013,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_1000.jpeg",
+            "sha256": "cccde242a37ffec78ef393744e816e7f7b182748eedbc505e403f840b36ddcf1"
+          },
+          "id": "rgb_C1000"
+        },
+        {
+          "artifact": {
+            "bytes": 579564,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_1001.jpeg",
+            "sha256": "7163b131146f4fa43af90fe55c779367b4edbcc9d02244cc65df06abdd5c09bf"
+          },
+          "id": "rgb_C1001"
+        },
+        {
+          "artifact": {
+            "bytes": 568204,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_1002.jpeg",
+            "sha256": "36c2bcacc706b054b91739f3f0906c7c56c437255bd38046e74205b324850408"
+          },
+          "id": "rgb_C1002"
+        },
+        {
+          "artifact": {
+            "bytes": 603994,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_1004.jpeg",
+            "sha256": "a4d44ea2f4f3fba3d82c2049defbd8d9152c2131ff47287675f8e25ca8c06274"
+          },
+          "id": "rgb_C1004"
+        },
+        {
+          "artifact": {
+            "bytes": 578541,
+            "path": "/home/alex/Dropbox/Work/Janelle/karate/frame_00005/rgb/rgb_1005.jpeg",
+            "sha256": "e24da376af80d44e27cf2a0b28222ce0fb46723400084249befad7be18ef6e26"
+          },
+          "id": "rgb_C1005"
+        }
+      ],
+      "source_digest": "733c93e94945c0cdd33f04358386f8478c35f80ee47cf06668a08ed9d7ed029a",
+      "source_kind": "calibrated_multiview",
+      "view_ids": [
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0007",
+        "C0008",
+        "C0010",
+        "C0012",
+        "C0013",
+        "C0014",
+        "C0016",
+        "C0018",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0024",
+        "C0025",
+        "C0026",
+        "C0028",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0038",
+        "C0039",
+        "C1000",
+        "C1001",
+        "C1002",
+        "C1004",
+        "C1005"
+      ]
+    },
+    {
+      "blockers": [
+        "keyframe, camera, train/heldout, and mask policy adapter is not frozen",
+        "the three matched Stage-1 field families have not been produced"
+      ],
+      "field_families": [
+        {
+          "blend_mode": "additive",
+          "equation": "additive_sum",
+          "evidence": null,
+          "id": "gaussianimage_additive",
+          "observed_views": 0,
+          "provider": "gaussianimage",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_no_boundary",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_mask_contained",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        }
+      ],
+      "frame_id": "pending_keyframe_selection",
+      "frame_plan_state": "source_bound_adapter_pending",
+      "id": "tum_fr1_desk",
+      "mask_policy_state": "registered_depth_validity_unfrozen",
+      "origin": "https://cvg.cit.tum.de/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_desk.tgz",
+      "role": "confirmation",
+      "source_artifacts": [
+        {
+          "artifact": {
+            "bytes": 344011403,
+            "path": "/home/alex/.cache/rtgs/tum-rgbd/rgbd_dataset_freiburg1_desk.tgz",
+            "sha256": "e983d6830916e66dc4a46a71368046b149b283de87769690e7aa4e0b9483530c"
+          },
+          "id": "official_archive"
+        }
+      ],
+      "source_digest": "caead8fbdffb8090d3d1f0eb631056fbb0302065bb4028d2dacb70a2321ca6bd",
+      "source_kind": "tum_rgbd_archive",
+      "view_ids": []
+    },
+    {
+      "blockers": [
+        "keyframe, camera, train/heldout, and mask policy adapter is not frozen",
+        "the three matched Stage-1 field families have not been produced"
+      ],
+      "field_families": [
+        {
+          "blend_mode": "additive",
+          "equation": "additive_sum",
+          "evidence": null,
+          "id": "gaussianimage_additive",
+          "observed_views": 0,
+          "provider": "gaussianimage",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_no_boundary",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        },
+        {
+          "blend_mode": "normalized",
+          "equation": "normalized_weighted_sum",
+          "evidence": null,
+          "id": "structsplat_normalized_mask_contained",
+          "observed_views": 0,
+          "provider": "structsplat",
+          "required_views": null,
+          "state": "not_produced"
+        }
+      ],
+      "frame_id": "pending_keyframe_selection",
+      "frame_plan_state": "source_bound_adapter_pending",
+      "id": "tum_fr1_desk2",
+      "mask_policy_state": "registered_depth_validity_unfrozen",
+      "origin": "https://cvg.cit.tum.de/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_desk2.tgz",
+      "role": "confirmation",
+      "source_artifacts": [
+        {
+          "artifact": {
+            "bytes": 349445005,
+            "path": "/home/alex/.cache/rtgs/tum-rgbd/rgbd_dataset_freiburg1_desk2.tgz",
+            "sha256": "a569e4cb453a3cd9285bc985fcb109e65f055c75b33a4b155acd9a68d96b77d2"
+          },
+          "id": "official_archive"
+        }
+      ],
+      "source_digest": "2a6549ac39e6fdde2e86f8613cc510bba026779c5c93b0436d8ff2b80c622d92",
+      "source_kind": "tum_rgbd_archive",
+      "view_ids": []
+    }
+  ],
+  "confirmation_capture_ids": [
+    "janelle_karate",
+    "tum_fr1_desk",
+    "tum_fr1_desk2"
+  ],
+  "development_capture_ids": [
+    "janelle_stage_fabric",
+    "tum_fr1_xyz",
+    "tum_fr1_rpy"
+  ],
+  "gates": {
+    "confirmation_outcomes_opened": false,
+    "field_families_complete": false,
+    "formal_protocol_frozen": false,
+    "source_groups_bound": true
+  },
+  "inventory_date": "2026-08-03",
+  "outcome_access": "none",
+  "schema": "rtgs.structsplat_bench019.capture_portfolio.v1",
+  "state": "source_bound_preproduction"
+}

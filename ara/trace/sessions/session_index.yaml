@@ -127,11 +127,13 @@ sessions:
     open_threads: 3
   - id: "2026-08-03_001"
     date: "2026-08-03"
-    summary: "Mask-contained acquisition reached 23/26 views with C1001 active; total inputs reached 75/78."
-    turn_count: 3
-    events_count: 0
-    claims_touched: []
-    open_threads: 3
+    summary: >
+      Recorded three RTGS-008 acquisition checkpoints and independently accepted and archived
+      RTGS-010's fail-closed source/predictor boundary without opening protected outcomes.
+    turn_count: 5
+    events_count: 4
+    claims_touched: [C34]
+    open_threads: 7
   - id: "2026-08-04_001"
     date: "2026-08-04"
     summary: "Sealed all 78 inputs, completed two outcome-blind RTGS-008 reviews, and audited the BENCH-019/reviewer worktrees for safe integration."

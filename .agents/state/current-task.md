@@ -117,9 +117,10 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
 
 ## Current Evidence
 
-- The realtime-gs checkout is at current `origin/main` commit `4c1a7a5`; the external StructSplat
-  checkout was fast-forwarded to current `origin/main` commit `fb357de`. The relevant StructSplat
-  fit, renderer, initializer, and safe-schedule source files are unchanged across that update.
+- The RTGS-008 branch now contains local `main` at accepted BENCH-019/RTGS-010 commit `d8b1cc9`;
+  remote `origin/main` remains `4c1a7a5` until the owner-authorized final push. The external
+  StructSplat checkout is at `fb357de`. The relevant StructSplat fit, renderer, initializer, and
+  safe-schedule source files are unchanged across that update.
 - All three owner-supplied arms are complete and pass the final three-arm verifier: 26 views per
   provider and 78 compact fields total. GaussianImage contains exactly 11,000 Gaussians per view,
   9,451,334 compact bytes, and mean foreground PSNR 33.9510 dB. StructSplat mask-contained contains
@@ -171,6 +172,10 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
   convergence/compression definitions but found three remaining fail-closed blockers: incomplete
   transitive source binding, pre-`try` root failures without structured publication, and an
   unguarded canonical compact semantic load whose later receipt asserts no image access.
+- The owner authorized exactly one third repair/review cycle and direct final publication. Local
+  `main` was fast-forwarded to the independently accepted RTGS-009/010 line, then merged into this
+  branch. Parallel ARA records were unioned without loss by retaining RTGS-008 IDs N186--N189/O149
+  and renumbering the accepted BENCH-019 records to N190--N192/O150.
 
 ## Minimal Plan
 

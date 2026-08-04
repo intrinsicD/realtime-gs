@@ -96,6 +96,10 @@ CUDA_VISIBLE_DEVICES="" .venv/bin/python -m pytest -q -m "not slow"  # verify/CI
 
 ```
 src/rtgs/
+  bench019.py, bench019_portfolio.py, bench019_adapters.py, bench019_predictors.py
+               passive cross-repository receipts, pre-outcome source inventory, deterministic
+               development adapters, and exact-semantics sampled predictors; no reconstruction
+               execution, confirmation outcome access, or BENCH-019 analysis
   core/        gaussians2d/3d, observation2d (+ experimental CUDA query ext), camera, sh,
                metrics — shared math & containers
   image2gs/    stage 1: differentiable 2D splatting (serial + fused batch_views),
