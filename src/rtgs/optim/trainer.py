@@ -24,6 +24,7 @@ from rtgs.core.gaussians3d import Gaussians3D
 from rtgs.core.metrics import image_metrics, masked_crop, ssim
 from rtgs.core.sh import DEFAULT_SMU1_MU
 from rtgs.data.scene import SceneData
+from rtgs.optim.active_set import ActiveSetConfig, ActiveSetSelector
 from rtgs.optim.density import DensityConfig, DensityController
 from rtgs.optim.init_density import InitPreservingConfig, InitPreservingController
 from rtgs.optim.init_trust import TrustConfig, TrustSchedule
@@ -124,6 +125,31 @@ class TrainConfig:
     # Retain the complete aggregate training-view metric dictionary at evaluation checkpoints.
     # Plateau stopping and best-train selection enable this automatically.
     record_train_metrics: bool = False
+    # Opt-in topology moment-inheritance research seam (registered protocol
+    # 20260731_topology_moment_inheritance). Children of arena clone/split transactions
+    # initialize Adam moments to gamma * parent instead of exact zero. Requires
+    # gaussian_storage_policy="geometric" with the gsplat-default strategy; ``None`` keeps
+    # the historical cold start bit-identical. The tuple orders
+    # (clone_gamma_m, clone_gamma_v, split_gamma_m, split_gamma_v); the field map overrides
+    # single parameter fields with the same 4-tuple.
+    topology_moment_gammas: tuple[float, float, float, float] | None = None
+    topology_moment_field_gammas: dict[str, tuple[float, float, float, float]] | None = None
+    # Opt-in active-set update masking (registered protocol 20260731_active_set_updates).
+    # ``active_fraction=1.0`` keeps dense updates untouched. Selection scores reuse existing
+    # strategy statistics; gradient masking claims no wall-clock benefit by protocol.
+    active_fraction: float = 1.0
+    active_refresh_every: int = 8
+    active_selection: str = "priority"
+    active_weight_count: float = 0.25
+    active_weight_variance: float = 0.25
+    active_weight_age: float = 0.25
+    # Opt-in step-conditional density gating (registered protocol
+    # 20260731_coarse_to_fine_density). False preserves the established rejection of
+    # non-unit step controls combined with density control or masked training. True allows
+    # the combination while running density hooks and mask supervision only at unit-scale
+    # steps and resetting screen-gradient statistics at the coarse-to-full transition, so
+    # low-resolution statistics never drive full-resolution topology decisions.
+    conditional_density: bool = False
 
 
 @dataclass(frozen=True)
@@ -206,9 +232,9 @@ def _prepare_step_controls(
     non_unit = any(
         control.render_downscale != 1 or control.loss_downscale != 1 for control in controls
     )
-    if non_unit and config.densify:
+    if non_unit and config.densify and not config.conditional_density:
         raise ValueError("non-unit step_controls require density control to be disabled")
-    if non_unit and config.use_masks and scene.masks is not None:
+    if non_unit and config.use_masks and scene.masks is not None and not config.conditional_density:
         raise ValueError("non-unit step_controls do not support masked training")
 
     required_loss_scales = {control.loss_downscale for control in controls}
@@ -360,6 +386,38 @@ class Trainer:
                 raise ValueError("geometric Gaussian storage requires the CUDA gsplat rasterizer")
             if not math.isfinite(cfg.arena_growth_factor) or cfg.arena_growth_factor <= 1.0:
                 raise ValueError("arena_growth_factor must be finite and greater than one")
+        moment_inheritance = None
+        if cfg.topology_moment_gammas is not None or cfg.topology_moment_field_gammas:
+            if cfg.gaussian_storage_policy != "geometric":
+                raise ValueError(
+                    "topology moment inheritance requires gaussian_storage_policy='geometric'"
+                )
+            from rtgs.optim.arena import MomentInheritance
+
+            gammas = cfg.topology_moment_gammas or (0.0, 0.0, 0.0, 0.0)
+            if len(gammas) != 4:
+                raise ValueError(
+                    "topology_moment_gammas orders (clone_gamma_m, clone_gamma_v, "
+                    "split_gamma_m, split_gamma_v)"
+                )
+            moment_inheritance = MomentInheritance(
+                clone_gamma_m=float(gammas[0]),
+                clone_gamma_v=float(gammas[1]),
+                split_gamma_m=float(gammas[2]),
+                split_gamma_v=float(gammas[3]),
+                field_overrides={
+                    name: tuple(float(gamma) for gamma in override)
+                    for name, override in (cfg.topology_moment_field_gammas or {}).items()
+                },
+            )
+        active_config = ActiveSetConfig(
+            fraction=cfg.active_fraction,
+            refresh_every=cfg.active_refresh_every,
+            selection=cfg.active_selection,
+            weight_count=cfg.active_weight_count,
+            weight_variance=cfg.active_weight_variance,
+            weight_age=cfg.active_weight_age,
+        )
         needs_absgrad = cfg.densify and strategy_uses_absgrad(strategy_name, cfg.density)
         renderer = get_rasterizer(
             cfg.rasterizer,
@@ -480,8 +538,13 @@ class Trainer:
                 params,
                 optimizers,
                 arena=arena,
+                moment_inheritance=moment_inheritance,
                 profile_events=cfg.profile_density_events,
             )
+        active_selector = (
+            ActiveSetSelector(active_config, init.n, device) if active_config.enabled else None
+        )
+        previous_control_non_unit = False
 
         def build() -> Gaussians3D:
             return Gaussians3D(
@@ -513,6 +576,20 @@ class Trainer:
             "density_strategy": strategy_name if cfg.densify else "none",
             "gaussian_storage_policy": cfg.gaussian_storage_policy,
             "storage_diagnostics": None,
+            "topology_moment_inheritance": None
+            if moment_inheritance is None
+            else {
+                "clone_gamma_m": moment_inheritance.clone_gamma_m,
+                "clone_gamma_v": moment_inheritance.clone_gamma_v,
+                "split_gamma_m": moment_inheritance.split_gamma_m,
+                "split_gamma_v": moment_inheritance.split_gamma_v,
+                "field_overrides": {
+                    name: list(override)
+                    for name, override in moment_inheritance.field_overrides.items()
+                },
+            },
+            "active_set": None,
+            "conditional_density": cfg.conditional_density,
             "resolved_sh_degree_interval": sh_interval,
             "iteration_offset": cfg.iteration_offset,
             "segment_iterations": cfg.iterations,
@@ -562,6 +639,17 @@ class Trainer:
             v = train_views[view_pos]
             history["sampled_train_views"].append(int(v))
             control = None if controls is None else controls[local_it]
+            control_non_unit = control is not None and (
+                control.render_downscale != 1 or control.loss_downscale != 1
+            )
+            suppress_density = cfg.conditional_density and control_non_unit
+            if cfg.conditional_density and previous_control_non_unit and not control_non_unit:
+                # Coarse-to-full transition: screen-gradient statistics accumulated at
+                # non-unit scale must never drive full-resolution topology decisions.
+                for controller in (init_controller, classic_controller, gsplat_controller):
+                    if controller is not None and hasattr(controller, "reset_statistics"):
+                        controller.reset_statistics()
+            previous_control_non_unit = control_non_unit
             if control is None:
                 target = scene.images[v].to(device)
                 render_camera = scene.cameras[v].to(device)
@@ -582,7 +670,9 @@ class Trainer:
             active_degree = min(cfg.target_sh_degree, global_it // sh_interval)
             mask = None
             background = None
-            if cfg.use_masks and scene.masks is not None:
+            # Full-resolution masks cannot supervise non-unit steps; under conditional
+            # density gating those coarse steps train unmasked.
+            if cfg.use_masks and scene.masks is not None and not control_non_unit:
                 mask = scene.masks[v].to(device=device, dtype=target.dtype).clamp(0, 1)
                 if cfg.random_background:
                     background = torch.rand(3, generator=gen, device=device)
@@ -596,7 +686,7 @@ class Trainer:
                             f"training render contains non-finite {field_name} "
                             f"at iteration {completed_step}"
                         )
-            if gsplat_controller is not None:
+            if gsplat_controller is not None and not suppress_density:
                 gsplat_controller.pre_backward(params, optimizers, out, global_it)
             color_for_loss = out.color
             if control is not None and control.loss_downscale != control.render_downscale:
@@ -680,9 +770,9 @@ class Trainer:
                     # Outcome-sized graph tensors are valid for this backward pass only.
                     out.kernel_support_diagnostics = None
 
-            if classic_controller is not None:
+            if classic_controller is not None and not suppress_density:
                 classic_controller.accumulate(out, scene.cameras[v].width, scene.cameras[v].height)
-            if init_controller is not None:
+            if init_controller is not None and not suppress_density:
                 init_controller.accumulate(
                     view=int(v),
                     camera=render_camera,
@@ -697,6 +787,25 @@ class Trainer:
                 )
             if trust_schedule is not None:
                 trust_schedule.capture(params)
+            if active_selector is not None:
+                stats_grad = stats_count = None
+                if gsplat_controller is not None:
+                    state_grad = gsplat_controller.state.get("grad2d")
+                    state_count = gsplat_controller.state.get("count")
+                    stats_grad = state_grad if isinstance(state_grad, torch.Tensor) else None
+                    stats_count = state_count if isinstance(state_count, torch.Tensor) else None
+                elif classic_controller is not None:
+                    stats_grad = classic_controller.grad_accum
+                    stats_count = classic_controller.count
+                active_selector.observe(params, out.visible, completed_step)
+                active_selector.maybe_refresh(
+                    completed_step,
+                    params,
+                    grad2d=stats_grad,
+                    count=stats_count,
+                    generator=gen,
+                )
+                active_selector.mask_gradients(params)
             observe_quaternion_step = (
                 quaternion_policy != "current" or quaternion_step_callback is not None
             )
@@ -745,7 +854,9 @@ class Trainer:
             # Exponential means-LR decay.
             optimizers["means"].param_groups[0]["lr"] *= means_gamma
 
-            if init_controller is not None:
+            if suppress_density:
+                pass
+            elif init_controller is not None:
                 params = init_controller.step(
                     completed_step, params, optimizers, trust=trust_schedule
                 )
@@ -860,6 +971,8 @@ class Trainer:
             history["trust_schedule"] = trust_schedule.summary()
         if arena is not None:
             history["storage_diagnostics"] = arena.diagnostics()
+        if active_selector is not None:
+            history["active_set"] = active_selector.diagnostics()
         if device.type == "cuda":
             history["peak_vram_gb"] = torch.cuda.max_memory_allocated(device) / 1024**3
             history["peak_vram_reserved_gb"] = torch.cuda.max_memory_reserved(device) / 1024**3

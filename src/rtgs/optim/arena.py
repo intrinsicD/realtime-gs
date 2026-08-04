@@ -13,10 +13,78 @@ policy decisions and supplies clone/split masks plus split offsets.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from typing import Any
 
 import torch
+
+
+@dataclass(frozen=True)
+class MomentInheritance:
+    """Adam-moment transfer factors for clone/split children in one topology transaction.
+
+    Each child moment initializes to ``gamma * parent_moment``; the default zero profile
+    reproduces the historical cold start exactly (children get exact-zero state, never a
+    scaled copy of non-finite parent values). ``field_overrides`` maps a parameter field
+    name to ``(clone_gamma_m, clone_gamma_v, split_gamma_m, split_gamma_v)`` and takes
+    precedence over the global factors for that field.
+    """
+
+    clone_gamma_m: float = 0.0
+    clone_gamma_v: float = 0.0
+    split_gamma_m: float = 0.0
+    split_gamma_v: float = 0.0
+    field_overrides: Mapping[str, tuple[float, float, float, float]] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        for label, value in self._global_items():
+            _validate_gamma(label, value)
+        for name, gammas in self.field_overrides.items():
+            if not isinstance(name, str) or not name:
+                raise ValueError("moment inheritance field_overrides keys must be field names")
+            if not isinstance(gammas, tuple) or len(gammas) != 4:
+                raise ValueError(
+                    f"moment inheritance override for '{name}' must be a 4-tuple "
+                    "(clone_gamma_m, clone_gamma_v, split_gamma_m, split_gamma_v)"
+                )
+            for label, value in zip(_GAMMA_LABELS, gammas, strict=True):
+                _validate_gamma(f"{name}.{label}", value)
+
+    def _global_items(self) -> tuple[tuple[str, float], ...]:
+        return (
+            ("clone_gamma_m", self.clone_gamma_m),
+            ("clone_gamma_v", self.clone_gamma_v),
+            ("split_gamma_m", self.split_gamma_m),
+            ("split_gamma_v", self.split_gamma_v),
+        )
+
+    def gammas_for(self, name: str) -> tuple[float, float, float, float]:
+        """Return (clone_m, clone_v, split_m, split_v) factors for one parameter field."""
+        override = self.field_overrides.get(name)
+        if override is not None:
+            return (
+                float(override[0]),
+                float(override[1]),
+                float(override[2]),
+                float(override[3]),
+            )
+        return (
+            float(self.clone_gamma_m),
+            float(self.clone_gamma_v),
+            float(self.split_gamma_m),
+            float(self.split_gamma_v),
+        )
+
+
+_GAMMA_LABELS = ("clone_gamma_m", "clone_gamma_v", "split_gamma_m", "split_gamma_v")
+
+
+def _validate_gamma(label: str, value: float) -> None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise TypeError(f"moment inheritance {label} must be a number")
+    if not math.isfinite(value) or value < 0.0 or value > 1.0:
+        raise ValueError(f"moment inheritance {label} must be finite and within [0, 1]")
 
 
 @dataclass(frozen=True)
@@ -315,19 +383,30 @@ def _expanded_field(
     return torch.cat((survivors, clones, child0, child1), dim=0)
 
 
+def _inherited_rows(value: torch.Tensor, rows: torch.Tensor, gamma: float) -> torch.Tensor:
+    # gamma == 0 must reproduce the historical exact-zero children even for non-finite
+    # parent moments, so it never multiplies through the parent values.
+    if gamma == 0.0:
+        return value.new_zeros((int(rows.numel()), *value.shape[1:]))
+    return value[rows] * gamma
+
+
 def _expanded_moment(
     value: torch.Tensor,
     survivor_mask: torch.Tensor,
-    clone_count: int,
-    split_count: int,
+    clone_rows: torch.Tensor,
+    split_rows: torch.Tensor,
+    *,
+    clone_gamma: float,
+    split_gamma: float,
 ) -> torch.Tensor:
-    tail = value.shape[1:]
+    split_children = _inherited_rows(value, split_rows, split_gamma)
     return torch.cat(
         (
             value[survivor_mask],
-            value.new_zeros((clone_count, *tail)),
-            value.new_zeros((split_count, *tail)),
-            value.new_zeros((split_count, *tail)),
+            _inherited_rows(value, clone_rows, clone_gamma),
+            split_children,
+            split_children,
         ),
         dim=0,
     )
@@ -346,6 +425,7 @@ def apply_default_topology_transaction(
     prune_large_scale: float | None,
     max_gaussians: int,
     iteration: int,
+    moment_inheritance: MomentInheritance | None = None,
 ) -> ArenaTopologyReceipt:
     """Apply one DefaultStrategy-equivalent grow/prune wave as a single transaction."""
     n_before = arena.active_n
@@ -405,6 +485,7 @@ def apply_default_topology_transaction(
 
     capacity_before = arena.capacity
     arena.reserve(n_after, iteration=iteration)
+    inheritance = moment_inheritance or MomentInheritance()
     for name, parameter in list(arena.params.items()):
         expanded = _expanded_field(
             name,
@@ -416,17 +497,22 @@ def apply_default_topology_transaction(
             split_factor=split_factor,
             revised_opacity=revised_opacity,
         )
+        clone_gamma_m, clone_gamma_v, split_gamma_m, split_gamma_v = inheritance.gammas_for(name)
         exp_avg = _expanded_moment(
             arena.active_state(name, "exp_avg"),
             survivor_mask,
-            n_duplicate,
-            n_split,
+            clone_rows,
+            split_rows,
+            clone_gamma=clone_gamma_m,
+            split_gamma=split_gamma_m,
         )
         exp_avg_sq = _expanded_moment(
             arena.active_state(name, "exp_avg_sq"),
             survivor_mask,
-            n_duplicate,
-            n_split,
+            clone_rows,
+            split_rows,
+            clone_gamma=clone_gamma_v,
+            split_gamma=split_gamma_v,
         )
         arena.write_field(name, expanded[keep], exp_avg[keep], exp_avg_sq[keep])
     arena.set_active_n(n_after)

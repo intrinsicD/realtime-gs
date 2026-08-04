@@ -17,7 +17,7 @@ from rtgs.optim.density import DensityConfig
 from rtgs.render.base import RenderOutput
 
 if TYPE_CHECKING:
-    from rtgs.optim.arena import GeometricParameterArena
+    from rtgs.optim.arena import GeometricParameterArena, MomentInheritance
 
 
 class GsplatStrategyController:
@@ -32,6 +32,7 @@ class GsplatStrategyController:
         optimizers: dict[str, torch.optim.Optimizer],
         *,
         arena: GeometricParameterArena | None = None,
+        moment_inheritance: MomentInheritance | None = None,
         profile_events: bool = False,
     ) -> None:
         if params["means"].device.type != "cuda":
@@ -50,10 +51,13 @@ class GsplatStrategyController:
         self.name = name
         self.config = config
         self.arena = arena
+        self.moment_inheritance = moment_inheritance
         self.profile_events = bool(profile_events)
         self.stats: list[dict[str, Any]] = []
         if arena is not None and name != "gsplat-default":
             raise ValueError("geometric arena storage currently supports gsplat-default only")
+        if moment_inheritance is not None and arena is None:
+            raise ValueError("moment inheritance requires geometric arena storage")
         if name == "gsplat-default":
             reset_every = (
                 config.opacity_reset_every
@@ -279,6 +283,7 @@ class GsplatStrategyController:
                 prune_large_scale=prune_large_scale,
                 max_gaussians=self.config.max_gaussians,
                 iteration=step,
+                moment_inheritance=self.moment_inheritance,
             )
             if self.state["grad2d"].shape[0] < self.arena.capacity:
                 device = self.state["grad2d"].device
@@ -291,6 +296,14 @@ class GsplatStrategyController:
         if step % self.strategy.reset_every == 0 and step > 0:
             self.arena.reset_opacity(self.strategy.prune_opa * 2.0)
         return receipt
+
+    @torch.no_grad()
+    def reset_statistics(self) -> None:
+        """Zero accumulated screen-gradient statistics (e.g. at a resolution transition)."""
+        for key in ("grad2d", "count"):
+            state = self.state.get(key)
+            if isinstance(state, torch.Tensor):
+                state.zero_()
 
 
 @torch.no_grad()
