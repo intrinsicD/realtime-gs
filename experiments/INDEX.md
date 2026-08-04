@@ -30,6 +30,7 @@ These are real task IDs. Their task status remains immutable after a protected r
 
 | Canonical task ID | Task status | Experiment | Primary record |
 | --- | --- | --- | --- |
+| `20260801_paper_three_provider_fullres_stage_frame00008` | draft | Full-resolution GaussianImage and StructSplat paper-path comparison | [task](tasks/20260801_paper_three_provider_fullres_stage_frame00008.json) |
 | `20260731_residual_mixture_sampling_stage_frames00008_00009` | draft | Residual-aware mixture sampling for compact point supervision | [task](tasks/20260731_residual_mixture_sampling_stage_frames00008_00009.json) |
 | `20260731_coarse_to_fine_density_stage_frames00008_00009` | draft | Coarse-to-fine standard 3DGS with late densification in one optimizer lifecycle | [task](tasks/20260731_coarse_to_fine_density_stage_frames00008_00009.json) |
 | `20260731_selective_teacher_querying_stage_frames00008_00009` | draft | Disagreement-routed selective querying of matched-capacity compact teachers | [task](tasks/20260731_selective_teacher_querying_stage_frames00008_00009.json) |

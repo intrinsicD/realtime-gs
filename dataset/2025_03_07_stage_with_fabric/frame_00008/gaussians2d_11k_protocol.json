@@ -1,0 +1,100 @@
+{
+  "arms": {
+    "gaussianimage": {
+      "adaptive_density": false,
+      "gradient_initialization_mix": 0.7,
+      "horizon_selection": {
+        "candidate_iterations": [
+          5000,
+          10000,
+          20000
+        ],
+        "development_view": "C0001",
+        "metric": "native logged matted-crop PSNR",
+        "rule": "select the first candidate whose gain over the final 500 updates is at most 0.05 dB; use 20000 if neither earlier candidate passes",
+        "selected_iterations": 20000
+      },
+      "implementation": "realtime-gs native GaussianImage-style backend",
+      "learning_rate": 0.01,
+      "max_gaussians": 11000,
+      "n_gaussians": 11000,
+      "optimizer": "Adam with native exponential learning-rate schedule",
+      "output": "gaussians2d_gaussianimage_fullres",
+      "pixel_loss": "masked L2",
+      "pool": false,
+      "renderer": "native additive CUDA"
+    },
+    "structsplat_mask_contained": {
+      "boundary_specialization": true,
+      "capacity": 11000,
+      "count_schedule": [
+        5000,
+        8000,
+        10000,
+        11000
+      ],
+      "hard_mask_containment": true,
+      "initial_boundary_gaussians": 500,
+      "initial_general_gaussians": 4500,
+      "mask_cap_mode": "anisotropic",
+      "mask_margin_pixels": 0.75,
+      "nominal_phase_step_ceiling_sum": 13250,
+      "attempted_step_accounting": "topology recovery and checkpoint work is recorded separately and can raise actual attempted updates above the nominal phase sum",
+      "output": "gaussians2d_structsplat_mask_contained_fullres",
+      "pixel_loss": "masked L2 plus phase-specific boundary undercoverage",
+      "profile": "safe-commit-schedule_2026-07-27.1",
+      "renderer": "normalized CUDA",
+      "sigma_cutoff": 3.0,
+      "support_fade_alpha": 1.0
+    },
+    "structsplat_no_boundary": {
+      "boundary_specialization": false,
+      "capacity": 11000,
+      "count_schedule": [
+        5000,
+        8000,
+        10000,
+        11000
+      ],
+      "hard_mask_containment": false,
+      "mask_used_for_crop_loss_and_alpha": true,
+      "nominal_phase_step_ceiling_sum": 13250,
+      "attempted_step_accounting": "topology recovery and checkpoint work is recorded separately and can raise actual attempted updates above the nominal phase sum",
+      "output": "gaussians2d_structsplat_no_boundary_fullres",
+      "pixel_loss": "masked L2",
+      "profile": "safe-commit-schedule_2026-07-27.1",
+      "renderer": "normalized CUDA"
+    }
+  },
+  "calibration": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/calibration_dome.json",
+  "classification": "production conversion and diagnostic comparison; not claim-ready evidence",
+  "outputs": {
+    "compact_fields": "one C####.rtgsv per view",
+    "dataset_manifest": "manifest.json in each arm folder",
+    "qa": "native-resolution fit-window reconstruction JPEG and full-canvas JPEG",
+    "receipts": "per-view source/config/runtime/metric/checksum JSON",
+    "verification": "strict CompactView/CompactDataset reload, source hashes, count/cap, provider semantics, and exact-zero-outside check for the contained arm"
+  },
+  "preprocessing": {
+    "alpha_export": "lossless packed binary crop",
+    "canvas_resolution": [
+      5328,
+      4608
+    ],
+    "downscale": 1,
+    "fit_window": "tight foreground crop plus the realtime-gs 5% margin",
+    "mask_source": "mask/mask_C####.png",
+    "mask_threshold": 0.5,
+    "undistort": true
+  },
+  "schema": "janelle.frame00008.three_arm_11k_conversion.v1",
+  "shared_budget": {
+    "byte_cap_per_view": 8388608,
+    "device": "cuda:0",
+    "maximum_gaussians_per_view": 11000,
+    "seed_base": 30074000,
+    "seed_rule": "seed_base plus lexicographically sorted view index"
+  },
+  "source_frame": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008",
+  "views": 26
+}

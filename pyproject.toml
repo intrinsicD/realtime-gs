@@ -22,8 +22,8 @@ cuda = ["gsplat>=1.4"]
 depth = ["transformers>=4.45"]
 # Interactive browser viewer (Apache-2.0; imported lazily).
 viewer = ["viser>=1.0.30,<2"]
-# Tracked benchmark experiments and the tests that import them (some use scipy).
-benchmark = ["scipy>=1.10"]
+# Tracked benchmark experiments and resource receipts (some use scipy/NVML).
+benchmark = ["scipy>=1.10", "nvidia-ml-py>=12.0"]
 # Optional perceptual evaluation used by results-bearing image experiments. Imported lazily.
 metrics = ["lpips==0.1.4"]
 dev = [
@@ -62,7 +62,12 @@ target-version = "py310"
 src = ["src", "tests", "scripts", "benchmarks"]
 # ruff 0.16 began formatting embedded code in Markdown; keep ruff scoped to Python source so
 # `ruff format --check` does not churn docs and frozen benchmark/PREREG evidence artifacts.
-extend-exclude = ["*.md"]
+extend-exclude = [
+    "*.md",
+    # Immutable owner-supplied acquisition provenance. Keep its bytes identical to the source;
+    # repository code imports neither executes nor imports this script.
+    "dataset/2025_03_07_stage_with_fabric/frame_00008/convert_three_arm_11k.py",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]

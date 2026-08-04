@@ -1,0 +1,44 @@
+{
+  "arms": [
+    {
+      "arm": "structsplat_no_boundary",
+      "gaussian_range": [
+        5000,
+        8592
+      ],
+      "mean_foreground_psnr_db": 30.391924711374138,
+      "output": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_no_boundary_fullres",
+      "status": "PASS",
+      "total_compact_bytes": 5419088,
+      "views": 26
+    },
+    {
+      "arm": "structsplat_mask_contained",
+      "gaussian_range": [
+        11000,
+        11000
+      ],
+      "mean_foreground_psnr_db": 29.121326666611893,
+      "output": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_mask_contained_fullres",
+      "status": "PASS",
+      "total_compact_bytes": 8499734,
+      "views": 26
+    },
+    {
+      "arm": "gaussianimage",
+      "gaussian_range": [
+        11000,
+        11000
+      ],
+      "mean_foreground_psnr_db": 33.95104510967548,
+      "output": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres",
+      "status": "PASS",
+      "total_compact_bytes": 9451334,
+      "views": 26
+    }
+  ],
+  "protocol_sha256": "dab346fb647a490c021ffb9a87b184b6461cd4ea45a2df34cbe7d0144767d06b",
+  "schema": "janelle.frame00008.three_arm_11k_verification.v1",
+  "semantic_digest": "b0119047ffb86383c4241d90d27dc2fd842aa4392433197ff911d589a7777d13",
+  "status": "PASS"
+}

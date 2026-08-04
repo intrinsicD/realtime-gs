@@ -1,0 +1,55 @@
+{
+  "attempts": [
+    {
+      "final_step": 4999,
+      "final_window_gain_db": 0.13163185119628906,
+      "final_window_start_step": 4500,
+      "iterations": 5000,
+      "passes": false,
+      "runtime": {
+        "peak_cuda_allocated_bytes": 513695744,
+        "peak_cuda_reserved_bytes": 740294656,
+        "wall_seconds": 36.23237344250083
+      },
+      "threshold_db": 0.05
+    },
+    {
+      "final_step": 9999,
+      "final_window_gain_db": 0.060825347900390625,
+      "final_window_start_step": 9500,
+      "iterations": 10000,
+      "passes": false,
+      "runtime": {
+        "peak_cuda_allocated_bytes": 513695744,
+        "peak_cuda_reserved_bytes": 740294656,
+        "wall_seconds": 66.56413839850575
+      },
+      "threshold_db": 0.05
+    },
+    {
+      "final_step": 19999,
+      "final_window_gain_db": 0.011379241943359375,
+      "final_window_start_step": 19500,
+      "iterations": 20000,
+      "passes": true,
+      "runtime": {
+        "peak_cuda_allocated_bytes": 513695744,
+        "peak_cuda_reserved_bytes": 740294656,
+        "wall_seconds": 130.3390198359266
+      },
+      "threshold_db": 0.05
+    }
+  ],
+  "candidate_iterations": [
+    5000,
+    10000,
+    20000
+  ],
+  "development_view": "C0001",
+  "maximum_window_gain_db": 0.05,
+  "schema": "janelle.frame00008.gaussianimage_11k_horizon_selection.v1",
+  "selected_iterations": 20000,
+  "selection_is_outcome_exposed": true,
+  "semantic_digest": "45044967715b6c1c8a84f439eee70fbe30d510484180ce822a8e8ce5968560b7",
+  "window_updates": 500
+}
