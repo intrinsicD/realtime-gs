@@ -3393,3 +3393,76 @@ tree:
       - "ab7ee66edf616e64340c9ef5996bc5aa6a96091f"
     also_depends_on: [N186, N187]
     status: resolved
+  - id: N189
+    type: question
+    title: "Why does the full-resolution three-provider acquisition take so long?"
+    provenance: user
+    timestamp: "2026-08-02T10:42+02:00"
+    description: >
+      The user asked why the active frame_00008 paper-comparison acquisition was slow. Direct
+      process inspection found the current C0029 StructSplat worker healthy at 100% GPU
+      utilization, using 3,624 MiB of device memory while total device use was 5,384 MiB of
+      8,192 MiB. Each of 26 native-resolution camera views is an independent multi-thousand-step
+      optimization, and the two StructSplat providers are therefore being produced serially with
+      one worker to preserve the exact protocol without exceeding the shared RTX 3050 boundary.
+    status: resolved
+  - id: N190
+    type: decision
+    title: "Reject the first RTGS-008 protocol digest and require a revised prospective review"
+    provenance: ai-executed
+    timestamp: "2026-08-04T01:12+02:00"
+    choice: >
+      Do not initialize the protected three-provider matrix at digest
+      6115bb16b1ef170e9c93095de3a40b60f79cf6ef898b82ace86b0b56c2d76a0d. Revise the
+      hypothesis and sampling language, selected-arm resource boundary, NVML and byte receipts,
+      root preview publication, synchronized comparison-manifest viewer, structured failed-run
+      bundle, and clean reviewed-source binding; then obtain a fresh outcome-unseen review.
+    alternatives:
+      - "Initialize despite the seven blocking prospective-review findings."
+      - "Abandon the requested comparison after completing its three input providers."
+      - "Treat Stage-1 acquisition QA as if it were the protected downstream comparison."
+    evidence:
+      - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md"
+      - "experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json"
+      - ".agents/state/current-task.md"
+    status: resolved
+  - id: N191
+    type: decision
+    title: "Block RTGS-008 after the second outcome-blind protocol rejection"
+    provenance: ai-executed
+    timestamp: "2026-08-04T01:37+02:00"
+    choice: >
+      Do not initialize the protected matrix at digest
+      eb78742c579930b6c04d4bd538ae33c6287ad0fb7f59190ab33adaef777a4fc1. Hegel's
+      independent outcome-blind review found that the six-file source allowlist admits
+      behavior-changing clean descendants, early binding/data/environment failures bypass the
+      structured root-failure publisher, and the first canonical compact semantic load occurs
+      outside NoImageGuard. After two consecutive revision verdicts, preserve the 0/27 outcome
+      boundary and escalate whether to authorize a third technical revision cycle to the user.
+    alternatives:
+      - "Initialize despite the three fail-closed and source-boundary defects."
+      - "Begin another revision cycle without the repository-required human escalation."
+      - "Stop RTGS-008 without repairing or executing the requested comparison."
+    evidence:
+      - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW.md"
+      - "experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md"
+      - "experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N190]
+    status: resolved
+  - id: N192
+    type: question
+    title: "How should the BENCH-019 and RTGS-008 review worktrees be integrated?"
+    provenance: user
+    timestamp: "2026-08-04T09:52+02:00"
+    description: >
+      The user asked whether `/home/alex/Documents/realtime-gs-bench019` and
+      `/home/alex/Documents/realtime-gs-rtgs008-review` are separate branches and whether both
+      should be merged to main. Read-only Git inspection established that they are clean linked
+      worktrees of the same repository. `rtgs/010-bench019-adapters` is an independently accepted,
+      archived 21-commit line that can fast-forward current local and remote main. The
+      `rtgs/008-review-v2` review commits are patch-equivalent on the active
+      `rtgs/008-three-provider-fullres` branch, whose protected task remains blocked; merging the
+      reviewer branch separately would duplicate rejected-protocol history. Integration or removal
+      remains pending explicit user authorization.
+    status: open

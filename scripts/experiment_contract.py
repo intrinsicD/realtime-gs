@@ -1594,8 +1594,16 @@ def _v2_commands_errors(commands: object, lock: dict[str, Any], *, completed: bo
         errors.append("a completed v2 run requires an exact viewer argv command")
     elif not completed and viewer is not None and not _strings(viewer):
         errors.append("a failed v2 run viewer command must be null or a non-empty argv list")
-    if _strings(viewer) and ("view" not in viewer or not any("gaussians.ply" in x for x in viewer)):
-        errors.append("metrics.json viewer must invoke view on gaussians.ply")
+    comparison_source = (
+        isinstance(viewer, list)
+        and "--comparison-manifest" in viewer
+        and any(item.endswith("viewer_comparison.json") for item in viewer)
+    )
+    model_source = isinstance(viewer, list) and any("gaussians.ply" in item for item in viewer)
+    if _strings(viewer) and ("view" not in viewer or not (model_source or comparison_source)):
+        errors.append(
+            "metrics.json viewer must invoke view on gaussians.ply or viewer_comparison.json"
+        )
     return errors
 
 

@@ -1,0 +1,137 @@
+{
+  "arm": "gaussianimage",
+  "canvas_size": [
+    4608,
+    5328
+  ],
+  "classification": "production conversion; diagnostic comparison only",
+  "config": {
+    "adaptive_density": false,
+    "appearance_parameterization": "weight_color_9p",
+    "backend": "native",
+    "batch_views": false,
+    "convergence_check_every": 25,
+    "convergence_patience": 0,
+    "convergence_tol": 0.05,
+    "freeze_geometry": false,
+    "grad_init_mix": 0.7,
+    "growth_waves": 5,
+    "init_strategy": "gradient",
+    "iterations": 20000,
+    "log_every": 100,
+    "lr": 0.01,
+    "mask_coverage_weight": 0.0,
+    "max_gaussians": 11000,
+    "n_gaussians": 11000,
+    "native_renderer": "cuda",
+    "pool": false,
+    "pool_capacity": null,
+    "pool_min_live": 1,
+    "pool_prune_count": 32,
+    "pool_spawn_count": 32,
+    "pool_triage_every": 50,
+    "relocate_fraction": 0.0,
+    "row_chunk": 64,
+    "structsplat_renderer": "auto",
+    "structure_sampling": "wse"
+  },
+  "config_digest": "4f7f6689c85d8608d7494a4497c4a1e8fc0e6ca874112644525d06e3bedd5b75",
+  "fit_window": [
+    0,
+    1090,
+    3294,
+    1516
+  ],
+  "foreground_pixels": 1634784,
+  "history": {
+    "bytes": 10139,
+    "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/history/C1004.json",
+    "sha256": "25c1206fd8feb5d6f939964fd0d0c11722c8404e72139576d67ce6950efe356b"
+  },
+  "input": {
+    "calibration": {
+      "bytes": 51752,
+      "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+    },
+    "mask": {
+      "bytes": 104799,
+      "name": "mask_C1004.png",
+      "sha256": "828c359a1b8f41e652a9226ff24f68a8c1cf56fffb19a777a83053981cc0340c"
+    },
+    "rgb": {
+      "bytes": 14744138,
+      "name": "C1004.jpg",
+      "sha256": "38adb01a1ba7d8d8bb0f87cd14c6bcc48ec9a2ab0027dd09f45ee55609e4ce6a"
+    }
+  },
+  "metrics": {
+    "foreground_psnr_db": 33.35878372192383,
+    "matted_crop_psnr_db": 33.65162658691406,
+    "outside_max_abs": 1.0,
+    "outside_mean_abs": 0.0025313771329820156
+  },
+  "n_gaussians": 11000,
+  "output": {
+    "aa_dilation": 0.0,
+    "blend_mode": "additive",
+    "bytes": 362560,
+    "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/C1004.rtgsv",
+    "provider": "native",
+    "sha256": "1b12d0ab6cfbb3d85d3b1dbf4a7cd4bdeaf05c2f734df9111334d5c390d2bdaf",
+    "sigma_cutoff": 3.4641016151377544,
+    "support_fade_alpha": 0.0
+  },
+  "qa": {
+    "canvas": {
+      "bytes": 480607,
+      "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/qa/C1004_reconstruction_canvas.jpg",
+      "sha256": "844d6eb994ee020b5300eea2d4122a3b5b4f44bc044ed7bcaafeed5707adf633"
+    },
+    "crop": {
+      "bytes": 249726,
+      "path": "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/qa/C1004_reconstruction_crop.jpg",
+      "sha256": "6ee48b570ae0b5f14f531e72af3b4881162f4f1fee5aea5fe6e0fe731c65b84f"
+    }
+  },
+  "runtime": {
+    "peak_cuda_allocated_bytes": 429495808,
+    "peak_cuda_reserved_bytes": 671088640,
+    "wall_seconds": 176.9999002246186
+  },
+  "schema": "janelle.frame00008.three_arm_11k_view.v1",
+  "seed": 30074025,
+  "semantic_digest": "88fe6a999a130bf8c68c681a4164e8e1c2e802cc723cbf4e662643b8e5dfb333",
+  "source_binding": {
+    "aggregate_sha256": "8d46f0c21df0a3420cfae53b6472158cd50d7e0fd4f796dccb405a89cf615d84",
+    "files": {
+      "/home/alex/Documents/realtime-gs/src/rtgs/core/observation2d.py": "e8d5dd1631ab92d8a8f36e8daa9fb6f7c316c58e9050abc0ab678ef4965e1822",
+      "/home/alex/Documents/realtime-gs/src/rtgs/data/calibrated.py": "c2d89e7a6d44ba6b1a6f21e38cdcb64362121e8ccc60e69696f34e385706b225",
+      "/home/alex/Documents/realtime-gs/src/rtgs/data/compact_views.py": "7a6472ec087ae9d0b9cdb5a7a49ab4be0b5bbeceaed6cc166b19d85f733eb65c",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/cuda/renderer2d_ext.cpp": "5bd0ce606c25232d03973583afac29e364993d3dbfb586551b10f2346d1b120a",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/cuda/renderer2d_ext.cu": "04847a0a1916cf39e819da5b4b3f4a835b8de9b76e63d95d0ccea046fa838c26",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/cuda_backend.py": "a229ce67582d196b1d0a6baf44f671166f756e4da19d3c5be6b7a872ee819685",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/fit.py": "4bcf90764277fc35c5ad10023e57103378764d428dde637e28a6c6e1fa75bd55",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/native_observation.py": "6a8d2c316150bb5e04b5d36d578b0f933758475d647fe01d168ea9c4beaec25b",
+      "/home/alex/Documents/realtime-gs/src/rtgs/image2gs/renderer2d.py": "b1f14b138fedd5cdd85b03c0a500fd7c72e821a54972e7fcd1a0518c78fa0f35",
+      "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/convert_three_arm_11k.py": "89f0b64935934172babd72d172e2d9c294439133bc4a1f0947a38fb315b41d29",
+      "/home/alex/Dropbox/Work/Janelle/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_11k_protocol.json": "dab346fb647a490c021ffb9a87b184b6461cd4ea45a2df34cbe7d0144767d06b"
+    },
+    "python": "3.11.15",
+    "realtime_git": {
+      "revision": "c1b9fa4626dca6932c449d0fa2344ec0992a1eba",
+      "root": "/home/alex/Documents/realtime-gs",
+      "status_short": []
+    },
+    "structsplat_git": {
+      "revision": "013ebe8c4f077b793bb1a188f235378ac3568912",
+      "root": "/home/alex/Documents/structsplat",
+      "status_short": []
+    },
+    "torch": "2.13.0+cu130",
+    "torch_cuda": "13.0"
+  },
+  "status": "PASS",
+  "view_id": "C1004",
+  "view_index": 25
+}
