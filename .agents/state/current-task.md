@@ -11,8 +11,8 @@ RTGS-008
 ## Role Assignment
 
 - Driver: Codex-three-provider-driver
-- Reviewer: Hegel
-- Turn: driver
+- Reviewer: Popper
+- Turn: reviewer
 
 ## Mode
 
@@ -171,6 +171,21 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
   convergence/compression definitions but found three remaining fail-closed blockers: incomplete
   transitive source binding, pre-`try` root failures without structured publication, and an
   unguarded canonical compact semantic load whose later receipt asserts no image access.
+- The owner-authorized bounded third repair closes those three boundaries without changing the
+  scientific design: execution now accepts only descendants of the exact reviewed tree whose
+  changes are confined to an enumerated metadata allowlist; every trusted post-`init-run` root
+  phase is inside the one-shot failed-bundle publisher; and the first canonical compact load is
+  performed under the live image-denial guard and bound into the input receipt.
+- Eighteen focused paper-driver/initializer tests, including real temporary-Git source mutation,
+  root preflight failure publication, and fresh-process first-load image denial, pass. The full
+  integrated repository gate passes after combining accepted RTGS-009/010, the optimizer
+  mechanisms lineage, and RTGS-008 at implementation checkpoint
+  `73dcc5f6ea4c9adb2ee99abd1184333e74b333e2`. No protected run was initialized and no downstream
+  result path was opened.
+- The rejected V2 artifact is preserved byte-for-byte as
+  `experiments/reviews/20260801_paper_three_provider_fullres_stage_frame00008_PROTOCOL_REVIEW_V2_REJECTED.md`.
+  The third prospective digest is
+  `77b4e3a0cf137b21162ed9a52294aebce72a52d7fb8be0b44816640b54d02a2b`.
 
 ## Minimal Plan
 
@@ -192,7 +207,7 @@ experiments/tasks/20260801_paper_three_provider_fullres_stage_frame00008.json
 
 ## Status
 
-In progress
+In review
 
 ## Human Decisions
 
@@ -488,3 +503,61 @@ training, native presentation, and downstream bundle completeness remain deliber
 
 None. Do not expand scientific scope, alter convergence/compression definitions, or initialize the
 protected run while these three boundaries remain unresolved.
+
+### Handoff (2026-08-04 third prospective protocol review)
+
+#### Objective
+
+Independently determine whether the owner-authorized bounded repair closes Hegel's three exact V2
+blockers before any protected RTGS-008 run is initialized or any downstream outcome is accessed.
+
+#### Reviewed state
+
+Integrated implementation checkpoint `73dcc5f6ea4c9adb2ee99abd1184333e74b333e2`; prospective
+protocol digest `77b4e3a0cf137b21162ed9a52294aebce72a52d7fb8be0b44816640b54d02a2b`.
+The only permitted descendant changes are the eight task-declared review/ARA metadata paths.
+
+#### Changes
+
+Replaced the six-file source hash boundary with exact reviewed-tree ancestry plus a closed metadata
+allowlist; moved binding, sealed-data, collision, environment, worker-matrix, and aggregation
+phases under structured root failure publication; removed the redundant unguarded compact load;
+and made the guarded first load's semantic and denial records authoritative for the worker receipt.
+Preserved both prior rejected review artifacts and integrated every accepted/unmerged project
+lineage without altering the RTGS-008 hypothesis, inputs, schedules, metrics, or result contract.
+
+#### Evidence
+
+The focused suite passes 18 tests. Negative controls reject a clean behavior-bearing descendant
+and a widened allowlist, publish schema-valid failed v2 sources for binding/data/environment
+failures, and make a fresh worker's first compact load fail when it attempts to open `.png`.
+The 85-file data seal validates, and the complete integrated `./scripts/verify.sh` gate passes.
+
+#### Assumptions
+
+The exact owner-selected inputs and provider-native semantic differences remain the intended
+single-frame development comparison. The enumerated post-checkpoint paths contain review/task/ARA
+metadata only and must not acquire execution behavior.
+
+#### Uncertainties
+
+Protected CUDA feasibility, cell runtime, native-resolution result rendering, convergence, and
+bundle completeness remain unobserved. This review cannot establish any provider ranking or
+production default.
+
+#### Review Focus
+
+Recompute the digest and data seal; adversarially test the complete-tree boundary, every root
+preflight failure path, and the first-load image guard/receipt; verify the integrated optimizer and
+BENCH-019 changes are inside the reviewed base; and confirm that approval requires no result path.
+
+#### Protected actions not taken
+
+No `init-run`, canonical worker, training cell, downstream renderer, result directory listing, or
+RTGS-008 outcome inspection occurred. All checks were source/input/mechanism-only.
+
+#### Recommended Next Action
+
+Write a fresh V3 artifact at the canonical protocol-review path with `Outcome Access: none`.
+Approve only if all three V2 blockers and their negative controls are closed; otherwise preserve
+the rejection and stop without initializing the protected matrix.
