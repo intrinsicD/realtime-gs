@@ -21,6 +21,118 @@ this log and the evidence paths it cites remain append-only.
 
 ---
 
+## 2026-08-07 — Image-backed masked/unmasked lifting for six Janelle Gaussian2D folders
+
+- **Question**: For each of the six owner-selected `gaussians2d*` folders in Janelle
+  `frame_00008`, how does the same end-to-end mask-aware field lift plus masked RGB refinement
+  compare with its unmasked counterpart when both start from that folder's actual 2D Gaussian
+  fields and train against the matching Janelle photographs?
+- **Setup**: Prospectively approved task
+  `experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json`, protocol
+  digest `61ba885523c4941c842744b142bf85700ac78eb6a2c61e28a20a22637371179b`, 103-file
+  result-producing source binding
+  `b10eb15c38bd44da97ad42464870fee64eb5a158f722e3b2cf3a6a1d77f4445a`, and complete
+  215-file/490,153,435-byte data seal
+  `1199a410a7070e23126d51c55f5f5039cd0f505ff3f2a8a9b0d8e503b4ac5a63`. The exact command was
+  `.venv/bin/python
+  scripts/experiments/20260806_gaussian2d_image_refinement_janelle_frame00008.py --task
+  experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json --run
+  runs/20260806_gaussian2d_image_refinement_janelle_frame00008`. Each folder is an independent
+  result unit with a frozen 20-optimizer/3-validation/3-held-out split, masked and unmasked arms,
+  seeds `80601`, `80602`, and `80603`, and a fixed 1,500-step endpoint. One heldout-free warmup
+  preceded the 36 measured cells.
+- **Result**: All 36 cells completed. Independent semantic and transitive-hash replay accepted all
+  37 bundles and found zero metric/accounting mismatches; validation-AUC replay differed by at most
+  `7.105427357601002e-15`. The table reports the median paired masked-minus-unmasked difference
+  within each folder; every favorable foreground/silhouette/AUC direction and every adverse
+  full-canvas direction held in `3/3` paired seeds.
+
+  | Folder | Foreground PSNR (dB) | Crop SSIM | Alpha IoU | Exterior alpha | Full PSNR (dB) | Validation FG-PSNR AUC |
+  | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+  | `gaussians2d` | +11.952 | +0.0975 | +0.8043 | -0.9569 | -8.623 | +8.043 |
+  | `gaussians2d_additive` | +10.490 | +0.0927 | +0.7803 | -0.9521 | -7.974 | +5.367 |
+  | `gaussians2d_gaussianimage_fullres` | +10.195 | +0.0745 | +0.7872 | -0.9008 | -9.012 | +8.067 |
+  | `gaussians2d_native_fullres` | +6.110 | +0.0402 | +0.7409 | -0.8902 | -9.496 | +5.144 |
+  | `gaussians2d_structsplat_mask_contained_fullres` | +11.263 | +0.0947 | +0.8055 | -0.9275 | -8.903 | +7.580 |
+  | `gaussians2d_structsplat_no_boundary_fullres` | +11.693 | +0.0941 | +0.7695 | -0.9195 | -8.253 | +7.869 |
+
+  Audit:
+  `benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.md`; root
+  report: `runs/20260806_gaussian2d_image_refinement_janelle_frame00008/index.html`; each of the
+  six `datasets/<folder>/index.html` children contains its own seed curves, endpoint metrics,
+  resources, previews, artifacts, and viewer command.
+- **Conclusion**: On this one frame and separately in every named folder, the joint masked arm
+  produced substantially better foreground, crop, silhouette, leakage, and frozen validation-AUC
+  results, while sacrificing photographed-background fidelity in full-canvas PSNR. This is an
+  end-to-end arm effect: the experiment cannot attribute it separately to mask-aware placement and
+  masked RGB loss. No cross-folder ranking or pooled treatment effect is supported. Runtime, RSS,
+  and CUDA receipts are descriptive only because arm order was fixed, endpoint capacities differ,
+  and no idle-host/load receipt was frozen. The run establishes neither a fixed-threshold
+  convergence advantage, complete source-field preservation, cross-scene generality, SOTA or
+  GPS-Gaussian equivalence, real-time operation, nor a production default.
+- **Presentation/QA**: Chrome `149.0.7827.155` loaded the root plus all six child reports with
+  `1,783/1,783` local targets returning HTTP 200 and no client errors. Each of the six live orbit
+  viewers reached its repaired Gaussian-renderer-ready state in WebGL2 on the RTX 3050, returned
+  non-background framebuffer samples, and changed camera position under a real left-drag. The
+  structured receipts are `viewer_smoke.json` and `report_browser_smoke.json` in the run root.
+- **Follow-ups**: Use a preregistered 2×2 factorial to separate lift-mask and RGB-loss effects;
+  freeze a threshold-crossing metric before testing time-to-quality; retain append-only viewer
+  attempt receipts; and repeat on distinct scenes under an idle-host protocol before any method,
+  speed, or generalization claim.
+
+## 2026-08-06 — Probabilistic compact-field pipeline over all sealed Gaussian2D sets
+
+- **Question**: Which parts of the proposed probabilistic 2D-field-to-3D-field pipeline survive
+  isolated, prospectively frozen tests, and can the complete opt-in pipeline terminate honestly on
+  every local Gaussian2D field set without imputing failed candidate results?
+- **Setup**: Prospectively approved task
+  `experiments/tasks/20260805_probabilistic_field_pipeline_association_rollback_mixed.json`,
+  protocol digest `e57d58112fd6f95467e8ddacdb4daad7fc9d83ed48b8b9f336a32b1966a92e87`,
+  result-producing source binding
+  `b17dec48edf2f07469dc9f6b197d062e4c0ee59698a05772c3674ad1fdf9b2eb`, and exact command
+  `.venv/bin/python
+  scripts/experiments/20260805_probabilistic_field_pipeline_association_rollback_mixed.py
+  --task experiments/tasks/20260805_probabilistic_field_pipeline_association_rollback_mixed.json
+  --run runs/20260805_probabilistic_field_pipeline_association_rollback_mixed`. The development
+  matrix contains 483 exact/re-componentized synthetic mechanism cells, one discarded calibrated
+  warmup, and 66 measured terminals: 11 sealed `gaussians2d*` sets × three seeds × native and
+  all-candidate arms. Calibrated inputs use the frozen deterministic 512-component-per-view proxy.
+- **Result**: Independent raw-record recomputation accepted the run for bounded development
+  interpretation. All hard synthetic invariants passed. Rank-aware covariance recovery passed its
+  exact-field rule at `3/3` seeds and probability support passed its controlled-corruption rule at
+  `3/3`. Field-mass association, projection-nonlinearity topology, and progressive scheduling each
+  failed at `0/3` and are retired for this protocol. The schedule reduced fresh-process refit time
+  by 15.8–17.4%, but violated the joint 1% endpoint guard at every seed. All 66 calibrated attempts
+  have exactly one terminal: native succeeded `33/33`; candidate succeeded `26/33`; seven
+  candidates failed explicit hard gates; and exactly two successful cells used the whole-cell
+  unmasked fallback. Failed cells contain no summary or quality/runtime value, and no native value
+  was substituted. Audit:
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md`;
+  root report:
+  `runs/20260805_probabilistic_field_pipeline_association_rollback_mixed/index.html`; all eleven
+  dataset children contain metric curves and comparison artifacts.
+- **Conclusion**: Keep rank-aware shape recovery and explicit probability-support semantics as
+  bounded synthetic evidence. Retire the tested association, topology, and schedule utility
+  hypotheses; the combined calibrated arm cannot rescue their failed isolated gates. The
+  `33/33` versus `26/33` arm counts demonstrate descriptive capped-field operability only, not
+  superiority. Rollback is path-consistent but its original caught exception was not serialized;
+  failed-primary and independent-half AABB counters were also not retained. Host timing and RSS
+  are diagnostic only. This run establishes no complete-field or source-RGB quality, physical
+  geometry, independent-half accuracy, GPU, real-time, memory, cross-scene, production-default,
+  or GPS-Gaussian comparison claim.
+- **Presentation/QA**: A final Chromium/WebGL2 smoke pass checked all 12 HTML pages, `586/586`
+  local report targets, and all 11 orbit viewers. Every viewer reached its Gaussian-renderer-ready
+  diagnostic, produced non-background framebuffer pixels, and changed camera state under orbit.
+  Receipts are `viewer_smoke.json` and `viewer_smoke_all_datasets.json` in the run root. Because
+  the source-bound renderer's repository-relative evidence links escape an HTTP server rooted at
+  the run directory, seven canonical evidence files are mirrored byte-for-byte under matching
+  run-local `benchmarks/` and `experiments/` paths; those downstream copies do not modify producer
+  data or scientific source.
+- **Follow-ups**: Do not spend further benchmark budget on the three retired variants without a
+  new mechanism. Future protected runs should serialize typed per-fit rollback exceptions and
+  primary/half AABB arrays, use a named idle-host receipt for performance work, and test uncapped
+  fields and non-exposed captures before any quality, generalization, or default claim.
+
 ## 2026-07-30 — Float64 successor confirms robust placement over bounded midpoint
 
 - **Question**: Does source-excluded robust coarse-to-fine compact-field placement improve

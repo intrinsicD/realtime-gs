@@ -1665,9 +1665,9 @@ observations:
     context: "Primary-paper comparison requested in N132; no repository implementation or result yet."
     potential_type: architecture
     bound_to: [N103, N105, N107, N132]
-    promoted: false
-    promoted_to: null
-    crystallized_via: null
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A19"
+    crystallized_via: artifact-commitment
     stale: false
   - id: O112
     timestamp: "2026-07-17T09:38+02:00"
@@ -1682,9 +1682,9 @@ observations:
     context: "Scope qualification from G²SR Sections IV-A and IV-D during N132."
     potential_type: constraint
     bound_to: [N110, N132]
-    promoted: false
-    promoted_to: null
-    crystallized_via: null
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R26"
+    crystallized_via: artifact-commitment
     stale: false
   - id: O113
     timestamp: "2026-07-17T11:53+02:00"
@@ -2391,4 +2391,280 @@ observations:
     promoted: false
     promoted_to: null
     crystallized_via: null
+    stale: false
+  - id: O151
+    timestamp: "2026-08-04T21:20+02:00"
+    provenance: ai-suggested
+    content: >
+      Source-image PSNR is not established as a sufficient objective for 3D liftability. A compact
+      2D field can improve image fidelity by crossing occlusion boundaries, choosing view-specific
+      split/merge patterns, or allocating to sensor noise and highlights, while reducing stable
+      cross-view identity. Correspondence survival, boundary leakage, triangulation conditioning,
+      and held-out geometry should therefore be evaluated separately at matched component count
+      and source fidelity.
+    context: >
+      Literature synthesis and adversarial claim audit for N196; this is a proposed Stage-1
+      selection principle, not a repository result or user-adopted objective.
+    potential_type: constraint
+    bound_to: [N132, N196]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O152
+    timestamp: "2026-08-04T21:20+02:00"
+    provenance: ai-suggested
+    content: >
+      Before implementing a large learned field converter, run a protected exact-synthetic
+      field-shape utility experiment. Cross center-only triangulation, fixed pixel footprints,
+      five-sigma-point surfel fitting, and rank-aware three-view covariance recovery while holding
+      identity, count, renderer, and refinement fixed; then compare exact projected fields with
+      independently re-fitted fields. Stop full-covariance or arbitrary-field claims if source
+      covariance adds no material held-out geometry or convergence benefit in the well-conditioned
+      exact case.
+    context: >
+      Recommended first experiment in the N196 research portfolio. The user requested the review
+      but has not selected or authorized this protected experiment.
+    potential_type: heuristic
+    bound_to: [N196]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O153
+    timestamp: "2026-08-04T23:13+02:00"
+    provenance: ai-suggested
+    content: >
+      GPS-Gaussian is prior art against broad claims to first lift "2D Gaussian parameter maps"
+      into 3D, but not against the narrower conversion of independently fitted compact 2D Gaussian
+      fields. It consumes two calibrated, rectified, foreground-masked RGB views; predicts stereo
+      depth; unprojects one Gaussian per foreground pixel; copies pixel RGB; and regresses 3D
+      rotation, scale, and opacity. The selected source pair can depend on the target view, so its
+      output is an amortized human-NVS representation rather than evidence for a single persistent,
+      arbitrary, image-free field converter.
+    context: >
+      Primary-source audit for N197 using the CVPR 2024 paper, official project page, and released
+      loader/depth code, followed by the N198 cross-domain extension. The focused review and
+      portfolio now depend on this bounded adjacent-method classification.
+    potential_type: constraint
+    bound_to: [N196, N197, N198]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R27"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O154
+    timestamp: "2026-08-05T00:01+02:00"
+    provenance: ai-suggested
+    content: >
+      Broad novelty claims for Gaussian-mixture deprojection are untenable. Astronomy MGE
+      analytically deprojects fitted 2D Gaussian brightness mixtures under prescribed
+      inclination and symmetry; random tomography recovers finite radial-location mixtures up to
+      orthogonal ambiguity from many random additive projections; and cryo-EM GMM methods fit a
+      3D mixture through known-orientation 2D particle images. The defensible open scope is much
+      narrower: few-view perspective conversion of independently fitted anisotropic image-space
+      radiance/alpha fields with visibility and occlusion, ideally after source rasters are
+      discarded, plus a measured quality or convergence advantage.
+    context: >
+      Scholar Inbox discovery and primary-source cross-domain audit for N198. The updated review's
+      novelty ledger and portfolio explicitly depend on this restriction; it does not assert that
+      the repository has solved the remaining scope.
+    potential_type: constraint
+    bound_to: [N196, N198]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R28"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O155
+    timestamp: "2026-08-05T00:01+02:00"
+    provenance: ai-suggested
+    content: >
+      Cross-view component association could be posed as epipolar-gated, capped multi-marginal
+      transport over Gaussian components, with a dustbin/background state and one-to-many mass for
+      split or merged teachers. Mixture Wasserstein transport supplies component-level coupling,
+      while CPD and joint-registration GMMs supply soft assignment and shared-latent precedents;
+      perspective cameras, visibility, appearance, and unequal cardinality still require new
+      constraints.
+    context: >
+      Candidate architecture transferred in the N198 literature portfolio. It has not been
+      implemented or compared against mutual-nearest sigma-point tracks at matched wall clock.
+    potential_type: architecture
+    bound_to: [N196, N198]
+    promoted: true
+    promoted_to: "logic/solution/architecture.md:A20"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O156
+    timestamp: "2026-08-05T00:01+02:00"
+    provenance: ai-suggested
+    content: >
+      Cryo-EM-style independent-half reconstruction can transfer as a stability audit: fit two 3D
+      fields independently from disjoint camera halves and compare aligned geometry, covariance,
+      or rendered predictions. It is not a resolution or accuracy metric by itself because the
+      halves may differ in visibility, baseline, conditioning, and scene coverage.
+    context: >
+      Validation transfer proposed in N198. No repository experiment, threshold, or acceptance
+      rule currently implements this diagnostic.
+    potential_type: constraint
+    bound_to: [N198]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R29"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O157
+    timestamp: "2026-08-05T00:01+02:00"
+    provenance: ai-suggested
+    content: >
+      Component count should be controlled by projection nonlinearity rather than a fixed global
+      densification schedule: compare an affine Gaussian projection with exact or sampled
+      projection, split only components whose discrepancy predicts held-out error, and merge
+      redundant children with moment matching and a KL upper-bound screen plus source-render
+      tolerance. Pure moment preservation is insufficient when alpha compositing and visibility
+      are active.
+    context: >
+      Uncertainty-propagation and mixture-reduction transfer proposed in N198. It remains an
+      untested heuristic and carries no quality, speed, or convergence claim.
+    potential_type: heuristic
+    bound_to: [N196, N198]
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O158
+    timestamp: "2026-08-05T02:38+02:00"
+    provenance: ai-executed
+    content: >
+      A probabilistic foreground mask, a 3D primitive's renderer opacity, and its association
+      capacity are different quantities. Probability masks may scale geometric teacher mass and
+      gate support, but must not silently rewrite renderer opacity or substitute for an explicitly
+      selected transport-capacity policy; hard and mask-ignored modes must remain independently
+      testable.
+    context: >
+      Implemented as an opt-in field-lift contract under N199, with focused tests for hard,
+      probability, and ignored-mask behavior. This is a semantic separation and mechanism
+      invariant, not evidence that probability masks improve reconstruction quality.
+    potential_type: constraint
+    bound_to: [N198, N199]
+    promoted: true
+    promoted_to: "logic/solution/constraints.md:R30"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O159
+    timestamp: "2026-08-06T17:40+02:00"
+    provenance: ai-executed
+    content: >
+      Rank-aware covariance recovery passed the frozen exact-shape decision in all three seeds.
+      It won both eligible covariance comparisons over every one of the 27 full-rank strata per
+      seed, while every synthetic hard invariant passed.
+    context: >
+      Independent raw-record recomputation of the prospectively reviewed 483-cell synthetic
+      matrix under N202 and its bounded disposition under N203. This is exact synthetic-field
+      evidence, not calibrated physical-geometry accuracy.
+    potential_type: claim
+    bound_to: [N202, N203]
+    promoted: true
+    promoted_to: "logic/claims.md:C35"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O160
+    timestamp: "2026-08-06T17:40+02:00"
+    provenance: ai-executed
+    content: >
+      Explicit probability support passed the frozen controlled corrupted-mask rule in all three
+      seeds. It was not dominated by hard or ignored support in the eligible nonzero-corruption
+      strata, and calibrated whole-cell unmasked fallbacks were excluded from this decision.
+    context: >
+      Independent raw-record recomputation under N202 and bounded decision N203. The result is
+      limited to the synthetic corruption generator and does not establish calibrated-mask or
+      reconstruction-quality superiority.
+    potential_type: claim
+    bound_to: [N202, N203]
+    promoted: true
+    promoted_to: "logic/claims.md:C36"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O161
+    timestamp: "2026-08-06T17:40+02:00"
+    provenance: ai-executed
+    content: >
+      The tested field-mass-capacity association did not improve the frozen matched-coverage
+      utility over every control: it passed row-softmax and shuffled-negative comparisons but lost
+      to no association in every seed, producing zero of three seed wins.
+    context: >
+      Independently audited negative mechanism decision N202/N203. Combined calibrated-arm
+      metrics cannot rescue the failed isolated gate, and this does not compare all possible
+      transport formulations.
+    potential_type: claim
+    bound_to: [N202, N203]
+    promoted: true
+    promoted_to: "logic/claims.md:C37"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O162
+    timestamp: "2026-08-06T17:40+02:00"
+    provenance: ai-executed
+    content: >
+      Projection-nonlinearity split selection did not improve the frozen matched-count topology
+      rule in any seed: its held-out density error was exactly equal to the largest-mass control
+      while its measured wall time was slightly higher, for zero of three seed wins.
+    context: >
+      Independently audited negative mechanism decision N202/N203. This retires the exact selector
+      and acceptance rule, not all adaptive topology or nonlinear projection diagnostics.
+    potential_type: claim
+    bound_to: [N202, N203]
+    promoted: true
+    promoted_to: "logic/claims.md:C38"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O163
+    timestamp: "2026-08-06T17:40+02:00"
+    provenance: ai-executed
+    content: >
+      Progressive-view refit reduced fresh-process refit time by 15.8 to 17.4 percent across the
+      three paired seeds but failed the joint time-to-quality rule in every seed because at least
+      one held-out endpoint exceeded the frozen one-percent deviation guard.
+    context: >
+      Independently audited negative mechanism decision N202/N203. Host-local timings are operands
+      of the frozen synthetic rule only and support no general speed or real-time claim.
+    potential_type: claim
+    bound_to: [N202, N203]
+    promoted: true
+    promoted_to: "logic/claims.md:C39"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O164
+    timestamp: "2026-08-06T17:40+02:00"
+    provenance: ai-executed
+    content: >
+      The capped calibrated matrix terminated honestly on all 66 requested cells: native succeeded
+      33 of 33, the all-candidate arm succeeded 26 of 33, seven candidate cells retained explicit
+      zero-success failures, and two successful cells used the declared unmasked fallback. No
+      failed quality or runtime value was imputed and no native result was substituted.
+    context: >
+      Independently audited accounting under N202/N203 over eleven sealed Gaussian2D field sets,
+      three seeds, and two arms. Unequal successful denominators make conditional arm metrics
+      descriptive only; this is capped-field operability rather than superiority evidence.
+    potential_type: claim
+    bound_to: [N202, N203]
+    promoted: true
+    promoted_to: "logic/claims.md:C40"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O165
+    timestamp: "2026-08-07T01:20+02:00"
+    provenance: ai-executed
+    content: >
+      On the exact single-frame RTGS-013 development matrix, the joint masked field-lift plus
+      masked RGB-refinement arm has favorable held-out foreground PSNR, crop SSIM, alpha IoU,
+      exterior-alpha leakage, and observer-excluded validation foreground-PSNR AUC in all three
+      paired seeds separately for each of six Gaussian2D folders. Full-canvas PSNR is lower in all
+      three paired seeds of every folder, establishing the bounded foreground/background tradeoff.
+    context: >
+      Independently recomputed from all 36 raw cell records under N215 and disposition N216. The
+      finding is end-to-end and per-folder; it supplies no substage attribution, pooled treatment
+      effect, cross-scene generality, fixed-threshold convergence, performance, or visual claim.
+    potential_type: claim
+    bound_to: [N215, N216]
+    promoted: true
+    promoted_to: "logic/claims.md:C41"
+    crystallized_via: artifact-commitment
     stale: false

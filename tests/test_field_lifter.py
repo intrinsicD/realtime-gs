@@ -399,6 +399,65 @@ def test_fixed_field_sweep_is_deterministic_and_seed_changes_only_the_anchor_dra
     assert varied.diagnostics["anchor_sha256"] != other.diagnostics["anchor_sha256"]
 
 
+def test_fixed_field_sweep_filters_nonintersecting_source_rays_before_anchor_draw() -> None:
+    inputs = _sweep_inputs()
+    observations = list(inputs.observations)
+    means = observations[0].means.clone()
+    means[0] = torch.tensor([1_000.0, 1_000.0], dtype=means.dtype)
+    amplitudes = observations[0].amplitudes.clone()
+    amplitudes[0] = amplitudes.max() + 100.0
+    observations[0] = replace(observations[0], means=means, amplitudes=amplitudes)
+    changed = ReconstructionInputs(
+        observations=observations,
+        cameras=inputs.cameras,
+        view_names=inputs.view_names,
+        bounds_hint=inputs.bounds_hint,
+        name=inputs.name,
+    )
+
+    result = FieldSweepInitializer(
+        replace(
+            _sweep_config("source_excluded_robust"),
+            n_init_3d=3,
+            anchor_pool_multiplier=1,
+        )
+    ).initialize(changed)
+
+    view_zero = result.lineage.source_view_indices == 0
+    assert result.lineage.source_component_indices[view_zero].tolist() == [1]
+    assert result.diagnostics["anchor_eligibility_policy"] == (
+        "forward_search_aabb_intersection_v1"
+    )
+    assert result.diagnostics["anchor_candidate_count"] == 6
+    assert result.diagnostics["anchor_forward_aabb_eligible_count"] == 5
+    assert result.diagnostics["anchor_forward_aabb_rejected_count"] == 1
+    assert result.diagnostics["anchor_forward_aabb_eligible_counts_per_view"] == [1, 2, 2]
+    assert result.diagnostics["anchor_forward_aabb_rejected_counts_per_view"] == [1, 0, 0]
+
+
+def test_fixed_field_sweep_fails_closed_when_too_few_source_rays_enter_aabb() -> None:
+    inputs = _sweep_inputs()
+    observations = [
+        replace(observation, means=torch.full_like(observation.means, 1_000.0))
+        for observation in inputs.observations
+    ]
+    changed = ReconstructionInputs(
+        observations=observations,
+        cameras=inputs.cameras,
+        view_names=inputs.view_names,
+        bounds_hint=inputs.bounds_hint,
+        name=inputs.name,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="fixed-anchor field sweep has too few forward-AABB-eligible source rays",
+    ):
+        FieldSweepInitializer(replace(_sweep_config("bounded_midpoint"), n_init_3d=1)).initialize(
+            changed
+        )
+
+
 def test_field_lifter_pipeline_exercises_opt_in_robust_sweep_without_heldout_leakage() -> None:
     config = replace(
         _config(),

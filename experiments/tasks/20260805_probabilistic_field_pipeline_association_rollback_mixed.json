@@ -1,0 +1,728 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260805_probabilistic_field_pipeline_association_rollback_mixed",
+  "date": "20260805",
+  "task_slug": "probabilistic_field_pipeline_association_rollback",
+  "data_slug": "mixed",
+  "arm": "direct_compact",
+  "status": "ready",
+  "owner": "Codex-probabilistic-field-driver",
+  "protocol_review": {
+    "reviewer": "Codex-probabilistic-field-protocol-reviewer",
+    "verdict": "approved",
+    "protocol_sha256": "e57d58112fd6f95467e8ddacdb4daad7fc9d83ed48b8b9f336a32b1966a92e87",
+    "artifact": "experiments/reviews/20260805_probabilistic_field_pipeline_association_rollback_mixed_PROTOCOL_REVIEW.md"
+  },
+  "depends_on": [],
+  "title": "Transactional association rollback for complete all-dataset probabilistic compact-field lifting",
+  "question": "Under exact and independently re-componentized synthetic 2D Gaussian fields, which of support-probability masking, projection-gated capacity-weighted soft transport, perspective-nonlinearity split selection, and progressive-view refit improves held-out field quality, geometry recovery, or time-to-quality over its native control without violating source-projection, transport/dustbin finiteness, split, or held-out-isolation gates; and how do the native-control and all-candidate pipelines behave across every sealed Gaussian2D field set currently present under dataset/?",
+  "hypothesis": "In their predeclared eligible regimes, probability masks improve the support precision-coverage frontier over hard and unmasked controls under calibrated mask corruption; projection-gated unbalanced transport with explicit field-mass capacities improves track precision times coverage over row-softmax and no-association controls in missing/split-component cases; projection-nonlinearity split selection lowers held-out field error at matched final count versus largest-mass splitting for high-perspective-curvature Gaussians; and progressive views lower full-view-cleanup wall time to matched held-out quality without degrading the final endpoint. The existing exact empty-support retry and forward-AABB source-ray filter should retain their narrow operability roles. If candidate association raises RuntimeError or ValueError on its private clone, transactional rollback should preserve the untouched placement and allow the already frozen missing-transport hard gate to record that cell as zero success without imputation, while committed association results remain subject to every transport invariant. The all-candidate arm is always executed for comparison, but only mechanisms that separately pass their synthetic rule may support interpretation.",
+  "claim_boundary": "Transactional-association-rollback successor created after the approved `20260805_probabilistic_field_pipeline_aabb_eligible_mixed` run completed the unchanged 483-cell synthetic matrix, discarded warmup, and twenty-one measured attempts, then failed closed at measured cell 22/66 (`karate_00060_default`, seed 80501, all candidate mechanisms) on exact `RuntimeError: a supported projection left the valid camera domain during M-step`. That run preserved nineteen successful terminals and two eligible `hard invariant violation: transport real mass` terminals before aborting; its root failure SHA-256 is `63206958f3fd963e277d8487000f9b76383ae5a8aa9120b4235a65cbd32216d4`, run-receipt SHA-256 is `0d1abb1b84bba0d3d72edede63cf3582e31e22a665961ef9ab25448fc97758fa`, and terminal failure SHA-256 is `07a2ff8e0fbe8cfcf2926a56b77ea8ac40704f509b38a53fca35b4324671396b`; it and every predecessor remain immutable. No quality, convergence, aggregate, report, or viewer outcome from that run was accessed. This task reruns the complete matrix and changes one candidate-association behavior only: `FieldAssociationConfig.failure_policy` becomes `rollback`, so RuntimeError or ValueError from the private association clone returns the untouched placement with exact rolled-back diagnostics and is then rejected by the unchanged missing/non-finite/insufficient-transport hard gates. Rollback cannot produce a successful candidate, impute a metric, substitute a native result, or make a rejected model claim-eligible; rejected models remain presentation-only. Native arms, synthetic cells, forward-AABB eligibility, exact empty-support retry, thresholds, seeds, splits, input/component caps, optimizers, metrics, aggregation, and decision rules are unchanged. Any exception outside private association rollback, the reviewed empty-support retry, and complete structured hard-invariant continuation still aborts the root. Evidence remains development-only over the sealed eleven-field deterministic 512-component-per-view proxy and can establish neither complete-field fidelity, source-RGB reconstruction quality, spatial resolution, true globally coupled multi-marginal OT, GPS-Gaussian reproduction, GPU or real-time performance, cross-scene generality, production-default suitability, nor accuracy from independent-half agreement. Prior exposure is immutable failure chronology only and does not authorize quality or runtime tuning. Calibrated results cannot rescue a failed synthetic invariant or mechanism gate.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "stage_00008_default",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "stage_00008_additive",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "stage_00008_gaussianimage_fullres",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "stage_00008_native_fullres",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "stage_00008_structsplat_mask_contained_fullres",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_mask_contained_fullres/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "stage_00008_structsplat_no_boundary_fullres",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_no_boundary_fullres/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "stage_00009_default",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "stage_00009_additive",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_additive/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "stage_00009_native_fullres",
+      "role": "replication",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00009",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00009/gaussians2d_native_fullres/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "karate_00005_default",
+      "role": "development",
+      "frame_path": "dataset/karate/frame_00005",
+      "compact_manifest": "dataset/karate/frame_00005/gaussians2d/manifest.json",
+      "calibration": "dataset/karate/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "karate_00060_default",
+      "role": "replication",
+      "frame_path": "dataset/karate/frame_00060",
+      "compact_manifest": "dataset/karate/frame_00060/gaussians2d/manifest.json",
+      "calibration": "dataset/karate/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "stage_00008_default": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "stage_00008_additive": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1002",
+        "C1004"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    },
+    "stage_00008_gaussianimage_fullres": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "stage_00008_native_fullres": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "stage_00008_structsplat_mask_contained_fullres": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "stage_00008_structsplat_no_boundary_fullres": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "stage_00009_default": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "stage_00009_additive": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "stage_00009_native_fullres": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "karate_00005_default": {
+      "train": ["C0004", "C0005", "C0006", "C0007", "C0008", "C0010", "C0012", "C0014", "C0016", "C0018", "C0020", "C0021", "C0022", "C0024", "C0026", "C0028", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1001", "C1002", "C1004", "C1005"],
+      "heldout": ["C0013", "C0025", "C0038"]
+    },
+    "karate_00060_default": {
+      "train": ["C0000", "C0001", "C0004", "C0005", "C0006", "C0007", "C0008", "C0012", "C0013", "C0014", "C0016", "C0018", "C0020", "C0021", "C0024", "C0025", "C0026", "C0028", "C0029", "C0030", "C0031", "C0037", "C0038", "C0039", "C1000", "C1001", "C1002", "C1004"],
+      "heldout": ["C0010", "C0022", "C0034", "C1005"]
+    }
+  },
+  "seeds": [
+    80501,
+    80502,
+    80503
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer",
+      "rtgs.carrier_pipeline",
+      "rtgs.lift.beam_fusion",
+      "rtgs.lift.carrier_refinement",
+      "rtgs.optim.carrier_schedule"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "deny_beam_imports",
+    "deny_heldout_fit_access",
+    "source_projection_invariant",
+    "transport_dustbin_validity",
+    "split_mass_and_optical_thickness_conservation",
+    "structured_worker_failure_receipt"
+  ],
+  "stages": [
+    {
+      "id": "exact_shape_recovery",
+      "label": "Exact synthetic center and covariance recovery",
+      "purpose": "Sweep camera baseline, component aspect ratio, and observation noise at the frozen four-training-view setting while comparing center-only, source-footprint, oracle sigma-surfel, and rank-aware full-covariance recovery under known identity."
+    },
+    {
+      "id": "recomponentized_association",
+      "label": "Re-componentized association factorial",
+      "purpose": "Independently split, merge, delete, and jitter per-view components, then compare no association, row-softmax plus dustbin, projection-gated unbalanced transport with uniform or field-mass capacities, and a shuffled-candidate negative control."
+    },
+    {
+      "id": "support_mask_factorial",
+      "label": "Synthetic support-mask corruption factorial",
+      "purpose": "Compare none, hard, and posterior-probability support on synthetic Gaussian fields with train-only nuisance components and a clean held-out Gaussian field under frozen false-positive and false-negative rates, while keeping support probability separate from render opacity and transport confidence."
+    },
+    {
+      "id": "topology_factorial",
+      "label": "Perspective-nonlinearity topology factorial",
+      "purpose": "Compare the native largest-density-mass split selector with the six-point perspective-nonlinearity selector at matched proposal rounds, accepted final count, and parsimony."
+    },
+    {
+      "id": "schedule_factorial",
+      "label": "Progressive-view convergence factorial",
+      "purpose": "Compare all-view refit with deterministic farthest-baseline progressive views followed by the same frozen full-view cleanup, retaining per-step active-view count, objective, and elapsed time."
+    },
+    {
+      "id": "independent_half_stability",
+      "label": "Disjoint training-half stability audit",
+      "purpose": "Fit alternating training-camera halves independently, remove shared full-set geometry hints, and report mutual-nearest world-frame agreement as stability only."
+    },
+    {
+      "id": "calibrated_compact_operability",
+      "label": "Calibrated image-free micro-capture follow-up",
+      "purpose": "After synthetic gates are evaluated, run both the native-control and all-candidate opt-in pipelines on every sealed local compact field. Embedded alpha is used only where the bundle contains it, external masks remain denied, deterministic component caps are explicit, and held-out compact fields remain reporting-only."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "shape_native_controls",
+      "label": "Center-only and source-footprint controls",
+      "purpose": "Separate center triangulation and single-view footprint lifting from additional covariance information."
+    },
+    {
+      "id": "shape_oracle_and_rank_aware",
+      "label": "Oracle sigma-surfel and rank-aware covariance",
+      "purpose": "Measure the best case for tracked nonlinear samples and the linearized multi-view covariance solve while exposing observability rank and condition number."
+    },
+    {
+      "id": "association_native_control",
+      "label": "Field refit without component association",
+      "purpose": "Test whether any explicit component transport is needed when field-level supervision can optimize without identities."
+    },
+    {
+      "id": "association_soft_controls",
+      "label": "Row-softmax and gated unbalanced transport",
+      "purpose": "Separate one-sided row normalization from dustbin-capacity-aware transport, including uniform and explicit field-mass capacities."
+    },
+    {
+      "id": "association_shuffled_negative",
+      "label": "Shuffled projection-gate negative control",
+      "purpose": "Verify that a nominal soft method cannot pass by diffuse assignment or metric insensitivity after candidate identity is deliberately corrupted."
+    },
+    {
+      "id": "mask_native_controls",
+      "label": "Unmasked and hard-mask controls",
+      "purpose": "Anchor probability-mask conclusions against both no support prior and the incumbent binary support rule."
+    },
+    {
+      "id": "topology_native_control",
+      "label": "Largest-density split selector",
+      "purpose": "Control the proposal budget, field objective, parsimony, and acceptance scheduler while changing only split selection."
+    },
+    {
+      "id": "schedule_native_control",
+      "label": "All-view refit",
+      "purpose": "Control total optimizer steps, final cleanup, objective, topology, and appearance activation while changing only early view exposure."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "world_center_rmse",
+      "label": "Known-parent 3D center RMSE",
+      "unit": "world units",
+      "direction": "lower",
+      "aggregation": "identity-matched RMSE per exact synthetic case, paired median over seeds and baseline/aspect strata"
+    },
+    {
+      "id": "covariance_relative_frobenius",
+      "label": "Known-parent covariance relative Frobenius error",
+      "unit": "ratio",
+      "direction": "lower",
+      "aggregation": "median over identity-matched parents per exact synthetic case, paired median over seeds and eligible full-rank strata"
+    },
+    {
+      "id": "track_precision_times_coverage",
+      "label": "Association precision times parent coverage",
+      "unit": "score",
+      "direction": "higher",
+      "aggregation": "transport-mass-weighted precision multiplied by fraction of known parents with accepted non-source mass; paired median over re-componentized cases and seeds"
+    },
+    {
+      "id": "support_precision_times_coverage",
+      "label": "Support precision times coverage",
+      "unit": "score",
+      "direction": "higher",
+      "aggregation": "area-weighted retained true support precision times retained true-parent coverage, paired median over mask-corruption cells and seeds"
+    },
+    {
+      "id": "calibrated_cell_success_fraction",
+      "label": "Calibrated cells passing every hard gate",
+      "unit": "fraction",
+      "direction": "higher",
+      "aggregation": "successful calibrated dataset/seed/arm cells divided by all 66 frozen attempts; a structured field-fit failure contributes zero and no quality or runtime value is imputed"
+    },
+    {
+      "id": "unmasked_support_fallback_cell_fraction",
+      "label": "Calibrated cells requiring the explicit unmasked-support fallback",
+      "unit": "fraction",
+      "direction": "descriptive",
+      "aggregation": "successful calibrated cells whose exact empty-placement-source exception triggered one whole-cell unmasked retry divided by all 66 frozen attempts"
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "one discarded global calibrated warmup followed by one fresh single-thread CPU worker per dataset, seed, and arm from compact-field loading through a successful model or structured field-fit failure publication; fixed-anchor placement first performs the identical train-only forward-AABB eligibility filter for both arms, retaining the frozen track count or failing closed; an exact empty-support exception triggers at most one whole-cell unmasked retry inside the same worker and the rejected attempt remains included in process wall time; loading, placement/transport/refit/topology/validation, accepted or rejected diagnostic model save, and directory publication are timed, while aggregate preview/report rendering and viewer smoke are excluded; deterministic synthetic mechanisms run in one guarded coordinator except that every timed schedule repeat runs in its own guarded subprocess",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median over successful finite cells on one named idle CPU host with torch thread counts frozen to one; retain an explicit successful-cell denominator for every aggregate and use null only when that denominator is zero; retain all 66 attempt terminals, min/max for successful repeats, every failure/input/resource receipt, per-seed success indicators, and successful active-view schedules; never impute a quality or runtime value for a failed cell",
+    "cuda_metrics": [
+      "not_applicable_cpu_only",
+      "torch_cuda_available_recorded",
+      "cuda_device_count_recorded"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds",
+      "stage_wall_seconds",
+      "cpu_model",
+      "torch_threads",
+      "input_bytes",
+      "output_bytes"
+    ]
+  },
+  "data_seal": "experiments/data/probabilistic_field_pipeline_mixed.json",
+  "run_command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260805_probabilistic_field_pipeline_association_rollback_mixed.py",
+    "--task",
+    "experiments/tasks/20260805_probabilistic_field_pipeline_association_rollback_mixed.json",
+    "--run",
+    "runs/20260805_probabilistic_field_pipeline_association_rollback_mixed"
+  ],
+  "frozen_configuration": {
+    "driver": "scripts/experiments/20260805_probabilistic_field_pipeline_association_rollback_mixed.py",
+    "source_binding": {
+      "algorithm": "sha256-length-prefixed-path-and-bytes-v1",
+      "scope": "scripts/experiment_contract.py, this driver, and every src/rtgs/**/*.py file",
+      "sha256": "b17dec48edf2f07469dc9f6b197d062e4c0ee59698a05772c3674ad1fdf9b2eb"
+    },
+    "base_driver_binding": {
+      "path": "scripts/experiments/20260805_probabilistic_field_pipeline_support_fallback_mixed.py",
+      "algorithm": "sha256-bytes-v1",
+      "sha256": "9d453b967b09005b63d3bef6aac48b817ac841ea2b7faa3593d4f980e4310169"
+    },
+    "fixed_anchor_eligibility": {
+      "policy": "forward_search_aabb_intersection_v1",
+      "selection_order": "train_only_bounds_then_filter_then_capacity_balance_then_seeded_mass_pool",
+      "failure_policy": "fail_if_global_eligible_count_below_n_init_3d",
+      "arm_scope": "identical_native_and_candidate_preprocessing",
+      "outcome_inputs": [],
+      "required_diagnostics": [
+        "anchor_candidate_count",
+        "anchor_forward_aabb_eligible_count",
+        "anchor_forward_aabb_rejected_count",
+        "anchor_forward_aabb_eligible_counts_per_view",
+        "anchor_forward_aabb_rejected_counts_per_view"
+      ]
+    },
+    "association_failure_completion": {
+      "policy": "transactional_clone_rollback_then_existing_hard_invariant_rejection_v1",
+      "scope": "all_candidate_mechanisms_association_only",
+      "caught_exception_types": [
+        "RuntimeError",
+        "ValueError"
+      ],
+      "success_status": "committed",
+      "failure_status": "rolled_back",
+      "failed_cell_semantics": "missing_transport_hard_gate_zero_success_no_imputation",
+      "rejected_model_semantics": "presentation_only",
+      "outcome_inputs": [],
+      "required_diagnostics": [
+        "association_status",
+        "association_failure"
+      ]
+    },
+    "cpu": {
+      "device": "cpu",
+      "dtype": "float64",
+      "torch_threads": 1,
+      "deterministic_algorithms": true
+    },
+    "synthetic_generation": {
+      "gaussians_per_case": 12,
+      "camera_count": 5,
+      "train_camera_count": 4,
+      "heldout_camera_count": 1,
+      "baseline_degrees": [
+        2.0,
+        8.0,
+        20.0
+      ],
+      "aspect_ratios": [
+        1.0,
+        4.0,
+        16.0
+      ],
+      "center_noise_pixels": [
+        0.0,
+        0.25,
+        1.0
+      ],
+      "field_forms": [
+        "exact_parent_projection",
+        "independent_split_merge_delete_jitter"
+      ],
+      "component_delete_rates": [
+        0.0,
+        0.15
+      ],
+      "component_split_rates": [
+        0.0,
+        0.25
+      ],
+      "mask_false_positive_rates": [
+        0.0,
+        0.05,
+        0.20
+      ],
+      "mask_false_negative_rates": [
+        0.0,
+        0.05,
+        0.20
+      ]
+    },
+    "pipeline": {
+      "placement_mode": "fixed_source_excluded_robust",
+      "max_tracks": 64,
+      "max_train_views": 8,
+      "target_component_cap": 512,
+      "min_views": 2,
+      "depth_samples": 24,
+      "compute_dtype": "float64",
+      "topology_rounds": 2,
+      "parsimony_per_component": 0.0001,
+      "validation_sample_cap": 512,
+      "refit_iterations": 20,
+      "appearance_start": 10,
+      "full_view_cleanup_iterations": 5,
+      "progressive_start_views": 2,
+      "association_temperatures": [
+        4.0,
+        2.0,
+        1.0
+      ],
+      "association_residual_variances": [
+        4.0,
+        2.0,
+        1.0
+      ],
+      "association_geometry_steps": 8,
+      "association_max_pair_cost": 12.0,
+      "association_dustbin_cost": 8.0,
+      "association_failure_policy": "rollback"
+    },
+    "mask_field_test": {
+      "spurious_components_per_train_view": 20,
+      "max_tracks": 32,
+      "refit_iterations": 3,
+      "validation_sample_cap": 64
+    },
+    "mechanism_cells": {
+      "shape": [
+        "center_only",
+        "source_footprint",
+        "oracle_sigma_surfel",
+        "rank_aware_full_covariance"
+      ],
+      "association": [
+        "field_no_association",
+        "row_softmax_dustbin",
+        "uot_uniform_capacity",
+        "uot_field_mass_capacity",
+        "uot_shuffled_candidate_negative"
+      ],
+      "mask": [
+        "none",
+        "hard",
+        "probability"
+      ],
+      "topology": [
+        "largest_density_mass",
+        "projection_nonlinearity"
+      ],
+      "schedule": [
+        "all",
+        "progressive_then_full_cleanup"
+      ],
+      "combined": [
+        "native_controls",
+        "all_candidate_mechanisms"
+      ]
+    },
+    "calibrated_followup": {
+      "load_embedded_alpha": true,
+      "external_mask_access": false,
+      "cell_failure_policy": "continue_structured_hard_invariant_failure",
+      "empty_support_policy": "retry_entire_cell_unmasked_on_exact_empty_placement",
+      "empty_support_exception_type": "ValueError",
+      "empty_support_exception_message": "support-mask policy rejected every field-placement source",
+      "empty_support_max_retries": 1,
+      "empty_support_retry_rng_reset": "torch_manual_seed_cell_seed",
+      "fallback_interpretation": "unmasked_operability_only_not_mask_mode_evidence",
+      "continued_failure_receipt_contract": {
+        "exact_json_key_sets": true,
+        "matching_context_receipts": [
+          "failure",
+          "input_boundary",
+          "resource"
+        ],
+        "guard": {
+          "passed": true,
+          "denied_paths": 0,
+          "denied_imports": 0,
+          "negative_control_denials": 3,
+          "forbidden_modules_loaded": []
+        },
+        "external_mask_access": false,
+        "heldout_training_access": false,
+        "compact_input_inventory": "exact_sealed_path_bytes_sha256_match",
+        "rejected_model_artifacts": [
+          "rejected_gaussians_init.ply",
+          "rejected_gaussians.ply"
+        ],
+        "rejection_preservation_error": null,
+        "support_fallback_provenance": "exact_requested_effective_retry_record_across_failure_boundary_resource_config",
+        "resource": {
+          "cpu_threads": 1,
+          "torch_threads": 1,
+          "cuda_used": false,
+          "require_cuda_inventory": true,
+          "require_input_output_bytes": true,
+          "require_finite_nonnegative_fit_scope_process_and_stage_times": true,
+          "require_positive_peak_rss": true
+        }
+      },
+      "failure_reporting_contract": {
+        "failed_cell_success_indicator": 0,
+        "successful_cell_success_indicator": 1,
+        "failed_quality_runtime_imputation": false,
+        "conditional_aggregate_when_no_success": "null_with_zero_denominator",
+        "empty_chart": "zero_success_count_fallback_labeled_unavailable",
+        "failed_history": "cell_success_indicator_only",
+        "successful_medians": "finite_successful_cells_only",
+        "rejected_models": "presentation_only"
+      },
+      "conditional_aggregate_metrics": [
+        {
+          "id": "heldout_field_rgb_mse",
+          "label": "Held-out capped compact-field RGB-numerator MSE",
+          "unit": "squared field units",
+          "direction": "lower"
+        },
+        {
+          "id": "heldout_field_density_mse",
+          "label": "Held-out capped compact-field density MSE",
+          "unit": "squared field units",
+          "direction": "lower"
+        },
+        {
+          "id": "refit_wall_seconds",
+          "label": "Refit wall time at the frozen endpoint",
+          "unit": "seconds",
+          "direction": "lower"
+        },
+        {
+          "id": "final_gaussian_count",
+          "label": "Final Gaussian count",
+          "unit": "gaussians",
+          "direction": "descriptive"
+        },
+        {
+          "id": "independent_half_center_median",
+          "label": "Independent-half mutual-match center distance",
+          "unit": "world units",
+          "direction": "descriptive"
+        }
+      ],
+      "preserve_rejected_models_for_viewer": true,
+      "projection_dilation": 0.0,
+      "compact_view_byte_caps": {
+        "stage_00008_default": 168000,
+        "stage_00008_additive": 168000,
+        "stage_00008_gaussianimage_fullres": 8388608,
+        "stage_00008_native_fullres": 8388608,
+        "stage_00008_structsplat_mask_contained_fullres": 8388608,
+        "stage_00008_structsplat_no_boundary_fullres": 8388608,
+        "stage_00009_default": 168000,
+        "stage_00009_additive": 168000,
+        "stage_00009_native_fullres": 8388608,
+        "karate_00005_default": 168000,
+        "karate_00060_default": 168000
+      },
+      "max_tracks": 64,
+      "max_train_views": 8,
+      "target_component_cap": 512,
+      "topology_rounds": 1,
+      "refit_iterations": 10,
+      "appearance_start": 5,
+      "progressive_full_view_cleanup_iterations": 3,
+      "validation_sample_cap": 256,
+      "independent_half_seed": 80501,
+      "execution_rule": "Always attempt native_controls and all_candidate_mechanisms for descriptive comparison. Before every fixed-anchor seeded draw, compute the train-only search AABB, exclude rays without a positive-depth intersection, capacity-balance the unchanged requested count across eligible views, and record total/per-view candidate, eligible, and rejected counts; fail closed if the global eligible count cannot supply the requested count. If and only if a calibrated field fit raises exact `ValueError: support-mask policy rejected every field-placement source`, reset Torch to the frozen cell seed and retry that whole cell once with mask mode `none`; include the rejected attempt in process wall time, enforce every invariant on the retry output, and record requested/effective modes plus retry seed/fallback counts. A fallback result is unmasked operability evidence only. Candidate association runs on a private clone with failure policy `rollback`: RuntimeError or ValueError must return the untouched placement plus exact rolled-back failure diagnostics, after which the unchanged required-transport invariants reject the cell; committed association must carry exact committed diagnostics and pass every transport gate. Stop the individual worker on every hard gate. Continue to the next independent cell only for a complete structured RuntimeError whose message begins exactly `hard invariant violation:` and whose phase is field_fit; require exact receipt key sets and matching task/dataset/seed/arm/warmup context, one identical requested/effective fallback record across failure, boundary, resource, and config receipts, a clean live guard with all three negative controls, exact live path/byte/hash matches for every sealed compact input and both rejected model artifacts, no mask or held-out access, no preservation error, and complete CPU/CUDA, byte, finite timing, and RSS evidence. Otherwise abort the root. A candidate mechanism may support interpretation only when it passes every applicable exact synthetic invariant and utility gate. A failed calibrated seed has only a zero success indicator; conditional aggregates use finite successful cells with explicit denominators, or null plus denominator zero and a labeled-unavailable chart when none succeed."
+    },
+    "invariant_gates": {
+      "source_projection_max_error": 1e-7,
+      "source_covariance_relative_error": 1e-7,
+      "minimum_transport_real_mass": 1e-10,
+      "finite_transport_plans": true,
+      "transport_fixed_point_residual_tolerance": 1e-6,
+      "candidate_mass_tolerance": 1e-12,
+      "split_density_mass_tolerance": 1e-10,
+      "split_optical_thickness_tolerance": 1e-10,
+      "heldout_fit_access_count": 0,
+      "shuffled_negative_must_not_match_treatment": true,
+      "progressive_final_active_views": "all_training_views"
+    },
+    "decision_rules": {
+      "shape": "Rank-aware full covariance must lower held-out covariance error and known-parent covariance relative Frobenius error versus source-footprint in the exact, three-or-more-view, full-rank strata for at least two of three seeds; otherwise retain the lower-dimensional baseline.",
+      "association": "A transport treatment must improve track precision times coverage over both field-no-association and row-softmax at matched accepted-parent coverage in the independently re-componentized strata for at least two of three seeds, keep every real/dustbin mass finite and non-negative, pass the real-mass, fixed-point, and candidate-gate checks, and beat the shuffled negative control by at least 0.10 absolute.",
+      "mask": "Probability support must be Pareto-nondominated against hard and none in support precision, coverage, held-out field density MSE, and held-out field RGB-numerator MSE in at least two nonzero-corruption strata for at least two of three seeds; opacity equality is an invariant, not a utility metric.",
+      "topology": "Projection-nonlinearity selection must lower held-out density MSE versus largest-mass selection at matched accepted final count in the high-curvature stratum for at least two of three seeds and may not worsen median wall time by more than 20 percent.",
+      "schedule": "Progressive views must lower fresh-process refit wall time by at least 10 percent versus all views for at least two of three seeds while final held-out density and RGB MSE remain within 1 percent after full-view cleanup; active-subset objective values are not compared across arms.",
+      "combined": "Descriptive only; execute both combined arms regardless of synthetic utility gates so failure remains observable, but do not interpret a candidate mechanism that failed its isolated gate and never allow the combined result to rescue a failed mechanism decision."
+    },
+    "stopping_rules": [
+      "Stop a cell immediately when the forward-AABB-eligible source-ray total is below the frozen track count, or on a non-finite or negative transport/dustbin field, source-projection violation, insufficient real transport mass, fixed-point or candidate-gate violation, split-conservation violation, measured held-out access, or unexpected image-capable import; preserve a structured failure receipt.",
+      "Retry a calibrated cell exactly once with mask mode none only after exact ValueError `support-mask policy rejected every field-placement source` during field_fit; reset Torch to the frozen cell seed, retry the whole primary/independent-half pipeline, retain the failed attempt in process wall time, record requested and effective mask modes plus retry seed/fallback counts, and treat the result only as unmasked operability evidence. A second occurrence or any different exception aborts the root.",
+      "Within all_candidate_mechanisms only, catch RuntimeError or ValueError from the private association clone via the existing transactional rollback policy, require exact rolled-back status and matching non-empty typed failure diagnostics, retain the untouched placement, and then reject the cell through the unchanged required-transport hard gate. Rollback never yields cell success, quality/runtime imputation, native substitution, or claim eligibility; malformed rollback provenance aborts the root.",
+      "After a hard-invariant RuntimeError, continue to the next independent calibrated cell only when its message begins exactly `hard invariant violation:`, phase is field_fit, every failure/boundary/resource receipt has its exact frozen key set and matching context, one exact requested/effective fallback record appears identically in those receipts and gaussians.config.json, the guard has zero real denials plus all three negative-control denials and no forbidden module, every sealed compact input and both rejected models match live path/byte/hash evidence, no preservation error occurred, and CPU/CUDA, byte, finite timing, and positive-RSS evidence is complete. Any other exception, crash, input/loading mismatch, image-boundary failure, receipt omission or mismatch, serialization failure, warmup failure, synthetic failure, or aggregation failure aborts the root.",
+      "Plot a failed calibrated seed as cell_success=0, exclude it from every quality/runtime median without imputation, and label any preserved rejected model as presentation-only in reports and viewers; when it came from the unmasked retry, also label its effective unmasked fallback status.",
+      "If every eligible source cell for a conditional aggregate fails, emit JSON null with denominator zero in conditional_metric_results, omit that conditional value from the finite canonical metric table, render the required comparison card as a clearly labeled successful-cell-count fallback, and retain failure-history success indicators only; never call a median on an empty set or fabricate a quality, resource, convergence, topology, or runtime value.",
+      "Do not tune thresholds or add seeds after any official outcome is visible; a material protocol repair receives a new task id.",
+      "Do not run the calibrated follow-up until all exact synthetic gates have been evaluated; failed mechanisms may remain present in the all-candidate diagnostic arm but are ineligible for interpretation.",
+      "Do not infer speed from optimizer-step count or active-view count; use the frozen wall-clock scope and measured repeats.",
+      "Do not infer accuracy or resolution from independent-half agreement."
+    ]
+  },
+  "blockers": []
+}

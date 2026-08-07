@@ -10,9 +10,10 @@ separate validation module evaluates the frozen renderer semantics.
 
 from __future__ import annotations
 
+import hashlib
 import math
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Literal
 
 import torch
@@ -27,6 +28,12 @@ from rtgs.lift.compact_carve import (
     CompactCarveInitializer,
     CompactInitializationResult,
     CompactLineage,
+)
+from rtgs.lift.fiber_correspondence import (
+    FiberFitConfig,
+    FiberFitResult,
+    ObservationGaussians,
+    fit_fiber_correspondence,
 )
 from rtgs.lift.field_loss import (
     AnalyticGaussianField2D,
@@ -44,6 +51,7 @@ from rtgs.lift.field_topology import (
     FieldComponent,
     FieldComponentPayload,
     FieldTopologyState,
+    MoveProposal,
     MoveReceipt,
     SourceAnchor,
     SourceLineage,
@@ -73,6 +81,34 @@ FieldPlacementMode = Literal[
     "fixed_source_excluded_robust",
 ]
 FieldComputeDtype = Literal["input", "float64"]
+FieldMaskMode = Literal["none", "hard", "probability"]
+FieldTopologySplitMode = Literal["largest_density_mass", "projection_nonlinearity"]
+FieldAssociationCapacityMode = Literal["uniform", "footprint_area", "field_mass"]
+FieldAssociationFailurePolicy = Literal["raise", "rollback"]
+
+
+@dataclass(frozen=True)
+class FieldAssociationConfig:
+    """Opt-in shared-latent per-view transport before field-level refit."""
+
+    fit: FiberFitConfig
+    observation_capacity_mode: FieldAssociationCapacityMode = "uniform"
+    track_capacity_mode: Literal["uniform", "field_mass"] = "uniform"
+    failure_policy: FieldAssociationFailurePolicy = "raise"
+
+    def __post_init__(self) -> None:
+        if self.observation_capacity_mode not in {"uniform", "footprint_area", "field_mass"}:
+            raise ValueError("observation_capacity_mode is not supported")
+        if self.track_capacity_mode not in {"uniform", "field_mass"}:
+            raise ValueError("track_capacity_mode is not supported")
+        if self.failure_policy not in {"raise", "rollback"}:
+            raise ValueError("failure_policy must be 'raise' or 'rollback'")
+        if not isinstance(self.fit, FiberFitConfig):
+            raise TypeError("fit must be FiberFitConfig")
+        if self.fit.max_pair_cost is None:
+            raise ValueError(
+                "field association requires a finite fit.max_pair_cost projection gate"
+            )
 
 
 @dataclass(frozen=True)
@@ -98,11 +134,18 @@ class FieldLiftConfig:
     background_fraction: float = 0.05
     background_ray_scale: float = 2.0
     depth_prior_window: float = 0.25
+    mask_mode: FieldMaskMode = "hard"
+    mask_probability_floor: float = 0.0
+    association: FieldAssociationConfig | None = None
     correspondence_dustbin: float = 1e-8
     topology_rounds: int = 1
     topology_merge_candidates: int = 4
+    topology_split_mode: FieldTopologySplitMode = "largest_density_mass"
+    topology_split_min_score: float = 0.0
+    topology_split_max_relative_depth: float = 0.10
     parsimony_per_component: float = 1e-4
     validation_sample_cap: int = 128
+    target_component_cap: int | None = None
     seed: int = 0
     refit: FieldRefitConfig = field(default_factory=FieldRefitConfig)
 
@@ -137,6 +180,12 @@ class FieldLiftConfig:
             or self.topology_merge_candidates <= 0
         ):
             raise ValueError("integer field-lift controls are outside their valid range")
+        if self.target_component_cap is not None and (
+            isinstance(self.target_component_cap, bool)
+            or not isinstance(self.target_component_cap, int)
+            or self.target_component_cap <= 0
+        ):
+            raise ValueError("target_component_cap must be a positive integer or None")
         if self.placement_mode not in {
             "compact_carve",
             "fixed_bounded_midpoint",
@@ -146,6 +195,13 @@ class FieldLiftConfig:
             raise ValueError("placement_mode is not supported")
         if self.compute_dtype not in {"input", "float64"}:
             raise ValueError("compute_dtype must be 'input' or 'float64'")
+        if self.mask_mode not in {"none", "hard", "probability"}:
+            raise ValueError("mask_mode must be 'none', 'hard', or 'probability'")
+        if self.topology_split_mode not in {
+            "largest_density_mass",
+            "projection_nonlinearity",
+        }:
+            raise ValueError("topology_split_mode is not supported")
         for name in (
             "robust_view_fraction",
             "sweep_refine_ratio",
@@ -157,7 +213,10 @@ class FieldLiftConfig:
             "background_fraction",
             "background_ray_scale",
             "depth_prior_window",
+            "mask_probability_floor",
             "correspondence_dustbin",
+            "topology_split_min_score",
+            "topology_split_max_relative_depth",
             "parsimony_per_component",
         ):
             if not math.isfinite(getattr(self, name)):
@@ -178,12 +237,147 @@ class FieldLiftConfig:
             raise ValueError("background_ray_scale must be at least one")
         if not 0.0 < self.depth_prior_window < 1.0:
             raise ValueError("depth_prior_window must be in (0,1)")
+        if not 0.0 <= self.mask_probability_floor < 1.0:
+            raise ValueError("mask_probability_floor must be in [0,1)")
         if self.correspondence_dustbin < 0:
             raise ValueError("correspondence_dustbin must be non-negative")
+        if self.topology_split_min_score < 0:
+            raise ValueError("topology_split_min_score must be non-negative")
+        if not 0.0 < self.topology_split_max_relative_depth < 0.5:
+            raise ValueError("topology_split_max_relative_depth must be in (0,0.5)")
         if self.parsimony_per_component < 0:
             raise ValueError("parsimony_per_component must be non-negative")
         if not isinstance(self.refit, FieldRefitConfig):
             raise TypeError("refit must be FieldRefitConfig")
+        if self.association is not None and not isinstance(
+            self.association, FieldAssociationConfig
+        ):
+            raise TypeError("association must be FieldAssociationConfig or None")
+
+
+def _component_cap_indices(
+    observation: GaussianObservationField,
+    cap: int,
+) -> torch.Tensor:
+    """Select a deterministic mass-aware, spatially stratified component subset.
+
+    Half of the approximate budget is first offered uniformly across an 8x8 image grid and
+    the remainder is filled globally by peak mass times footprint area.  This is an explicit
+    scalability approximation for very large frozen fields; it is never active by default.
+    """
+
+    if observation.n <= cap:
+        return torch.arange(observation.n, device=observation.device)
+    means = observation.native_means(dtype=torch.float64)
+    variances = observation.effective_variances().to(torch.float64)
+    score = observation.amplitudes.to(torch.float64) * variances.prod(dim=-1).sqrt()
+    grid_size = 8
+    x_bin = (means[:, 0] * grid_size / observation.width).floor().long()
+    y_bin = (means[:, 1] * grid_size / observation.height).floor().long()
+    bins = y_bin.clamp(0, grid_size - 1) * grid_size + x_bin.clamp(0, grid_size - 1)
+    per_bin = max(1, cap // (2 * grid_size * grid_size))
+    spatial: list[torch.Tensor] = []
+    for bin_index in range(grid_size * grid_size):
+        rows = torch.nonzero(bins == bin_index, as_tuple=False).flatten()
+        if rows.numel() == 0:
+            continue
+        order = torch.argsort(score[rows], descending=True, stable=True)
+        spatial.append(rows[order[:per_bin]])
+    selected = (
+        torch.cat(spatial)
+        if spatial
+        else torch.empty(0, dtype=torch.long, device=observation.device)
+    )
+    if selected.numel() > cap:
+        selected = selected[torch.argsort(score[selected], descending=True, stable=True)[:cap]]
+    selected_mask = torch.zeros(observation.n, dtype=torch.bool, device=observation.device)
+    selected_mask[selected] = True
+    remaining = cap - int(selected_mask.sum())
+    if remaining:
+        global_order = torch.argsort(score, descending=True, stable=True)
+        fill = global_order[~selected_mask[global_order]][:remaining]
+        selected_mask[fill] = True
+    return torch.nonzero(selected_mask, as_tuple=False).flatten()
+
+
+def _subset_observation(
+    observation: GaussianObservationField,
+    indices: torch.Tensor,
+) -> GaussianObservationField:
+    optional = {}
+    for name in ("color_grads", "filter_variance", "mean_residuals"):
+        value = getattr(observation, name)
+        optional[name] = None if value is None else value[indices]
+    return replace(
+        observation,
+        means=observation.means[indices],
+        log_scales=observation.log_scales[indices],
+        rotations=observation.rotations[indices],
+        colors=observation.colors[indices],
+        amplitudes=observation.amplitudes[indices],
+        **optional,
+    )
+
+
+def _cap_scene_fits(
+    fits: SceneFits,
+    cap: int | None,
+) -> tuple[SceneFits, dict[str, object]]:
+    """Return an opt-in capped SceneFits and an auditable selection receipt."""
+
+    original_counts = [observation.n for observation in fits.observations]
+    if cap is None or all(count <= cap for count in original_counts):
+        return fits, {
+            "target_component_cap": cap,
+            "target_component_counts_original": original_counts,
+            "target_component_counts_used": original_counts,
+            "target_component_selection_sha256": None,
+        }
+    index_sets = tuple(
+        _component_cap_indices(observation, cap) for observation in fits.observations
+    )
+    observations = tuple(
+        _subset_observation(observation, indices)
+        for observation, indices in zip(fits.observations, index_sets, strict=True)
+    )
+
+    def subset_optional(
+        values: tuple[torch.Tensor | None, ...] | None,
+    ) -> tuple[torch.Tensor | None, ...] | None:
+        if values is None:
+            return None
+        return tuple(
+            None if value is None else value[indices]
+            for value, indices in zip(values, index_sets, strict=True)
+        )
+
+    reduced = SceneFits(
+        observations=observations,
+        cameras=fits.cameras,
+        view_names=fits.view_names,
+        alphas=fits.alphas,
+        train_view_indices=fits.train_view_indices,
+        heldout_view_indices=fits.heldout_view_indices,
+        depth_priors=subset_optional(fits.depth_priors),
+        depth_confidences=subset_optional(fits.depth_confidences),
+        neighbors=fits.neighbors,
+        points=fits.points,
+        point_visibility=fits.point_visibility,
+        bounds_hint=fits.bounds_hint,
+        geometry_is_train_only=fits.geometry_is_train_only,
+        name=fits.name,
+    )
+    digest = hashlib.sha256()
+    for view_name, indices in zip(fits.view_names, index_sets, strict=True):
+        digest.update(view_name.encode("utf-8"))
+        digest.update(indices.detach().cpu().to(torch.int64).numpy().tobytes())
+    return reduced, {
+        "target_component_cap": cap,
+        "target_component_counts_original": original_counts,
+        "target_component_counts_used": [observation.n for observation in observations],
+        "target_component_selection_sha256": digest.hexdigest(),
+        "target_component_selection_rule": "8x8-stratified-then-global-mass-area-v1",
+    }
 
 
 @dataclass(frozen=True)
@@ -192,6 +386,7 @@ class FieldPlacementResult:
 
     fiber: InverseProjectionFiber
     field_masses: torch.Tensor
+    source_support: torch.Tensor
     source_colors: torch.Tensor
     render_opacity: torch.Tensor
     scores: torch.Tensor
@@ -208,6 +403,8 @@ class FieldLiftResult:
     gaussians: Gaussians3D
     placement: FieldPlacementResult
     refit: FieldRefitResult
+    association: FiberFitResult | None
+    association_failure: str | None
     correspondences: tuple[torch.Tensor, ...]
     correspondence_visibility: torch.Tensor
     topology_receipts: tuple[MoveReceipt, ...]
@@ -363,23 +560,47 @@ def _alpha_mask(
     return alpha.bool()
 
 
-def _alpha_valid_sources(
+def _alpha_probability(
+    alpha: PackedAlpha | torch.Tensor | None,
+    field: GaussianObservationField,
+) -> torch.Tensor | None:
+    """Return a full-canvas support probability without changing opacity semantics."""
+
+    if alpha is None:
+        return None
+    if isinstance(alpha, PackedAlpha):
+        return alpha.full_mask((field.height, field.width)).to(field.dtype)
+    if alpha.is_floating_point():
+        if bool(((alpha < 0) | (alpha > 1)).any()):
+            raise ValueError("floating alpha used as probability must lie in [0,1]")
+        return alpha.to(dtype=field.dtype)
+    return alpha.to(dtype=field.dtype).clamp(0, 1)
+
+
+def _alpha_source_support(
     fits: SceneFits,
     global_views: torch.Tensor,
-    components: torch.Tensor,
     xy: torch.Tensor,
+    *,
+    mode: FieldMaskMode,
 ) -> torch.Tensor:
-    valid = torch.ones(global_views.shape[0], dtype=torch.bool)
+    support = torch.ones(global_views.shape[0], dtype=xy.dtype)
+    if mode == "none":
+        return support
     for global_view in global_views.unique(sorted=True).tolist():
         rows = global_views == global_view
-        mask = _alpha_mask(fits.alphas[global_view], fits.observations[global_view])
-        if mask is None:
+        probability = _alpha_probability(
+            fits.alphas[global_view],
+            fits.observations[global_view],
+        )
+        if probability is None:
             continue
         local_xy = xy[rows]
-        x = local_xy[:, 0].floor().long().clamp(0, mask.shape[1] - 1)
-        y = local_xy[:, 1].floor().long().clamp(0, mask.shape[0] - 1)
-        valid[rows] = mask[y, x]
-    return valid
+        x = local_xy[:, 0].floor().long().clamp(0, probability.shape[1] - 1)
+        y = local_xy[:, 1].floor().long().clamp(0, probability.shape[0] - 1)
+        sampled = probability[y, x].to(support)
+        support[rows] = (sampled > 0).to(support) if mode == "hard" else sampled
+    return support
 
 
 def _fallback_initialization(
@@ -662,15 +883,17 @@ def _place(
 
     global_map = torch.tensor(selected_global_views, dtype=torch.long)
     global_views = global_map[initialization.lineage.source_view_indices]
-    valid_alpha = _alpha_valid_sources(
+    source_support = _alpha_source_support(
         fits,
         global_views,
-        initialization.lineage.source_component_indices,
         initialization.lineage.source_xy,
+        mode=config.mask_mode,
     )
+    valid_alpha = source_support > config.mask_probability_floor
     if not bool(valid_alpha.any()):
-        raise ValueError("lossless alpha rejected every field-placement source")
+        raise ValueError("support-mask policy rejected every field-placement source")
     selected_rows = valid_alpha.nonzero(as_tuple=True)[0]
+    source_support = source_support[selected_rows]
     local_views = initialization.lineage.source_view_indices[selected_rows]
     global_views = global_views[selected_rows]
     components = initialization.lineage.source_component_indices[selected_rows]
@@ -719,6 +942,8 @@ def _place(
             for view, component in zip(global_views, components, strict=True)
         ]
     ).to(xy)
+    if config.mask_mode == "probability":
+        field_masses = field_masses * source_support
     render_opacity = torch.full_like(field_masses, config.init_opacity)
     fiber = InverseProjectionFiber(
         cameras=inputs.cameras,
@@ -733,7 +958,9 @@ def _place(
     )
 
     background_mask = torch.zeros(fiber.n, dtype=torch.bool)
-    if all(fits.alphas[index] is None for index in selected_global_views):
+    if config.mask_mode == "none" or all(
+        fits.alphas[index] is None for index in selected_global_views
+    ):
         background_count = min(
             fiber.n,
             int(round(config.background_fraction * fiber.n)),
@@ -774,6 +1001,9 @@ def _place(
         ),
         "selected_global_views": list(selected_global_views),
         "alpha_rejected_sources": int((~valid_alpha).sum()),
+        "mask_mode": config.mask_mode,
+        "source_support_mean": float(source_support.mean()),
+        "source_support_min": float(source_support.min()),
         "sparse_depth_anchor_tracks": sparse_anchor_tracks,
         "projection_dilation": dilation,
         "background_tracks": int(background_mask.sum()),
@@ -782,6 +1012,7 @@ def _place(
     return FieldPlacementResult(
         fiber=fiber,
         field_masses=field_masses,
+        source_support=source_support,
         source_colors=source_colors,
         render_opacity=render_opacity,
         scores=scores,
@@ -789,6 +1020,81 @@ def _place(
         background_mask=background_mask,
         diagnostics=diagnostics,
     )
+
+
+def _association_observation(
+    field_value: GaussianObservationField,
+    *,
+    config: FieldAssociationConfig,
+    dtype: torch.dtype,
+) -> ObservationGaussians:
+    if config.observation_capacity_mode == "field_mass":
+        capacities: torch.Tensor | None = field_value.amplitudes.to(dtype=dtype)
+        capacity_mode = "uniform"
+    else:
+        capacities = None
+        capacity_mode = config.observation_capacity_mode
+    return ObservationGaussians.from_field(
+        field_value,
+        dtype=dtype,
+        capacity_mode=capacity_mode,
+        capacities=capacities,
+    )
+
+
+def _run_association(
+    placement: FieldPlacementResult,
+    fits: SceneFits,
+    selected_global_views: tuple[int, ...],
+    config: FieldAssociationConfig | None,
+) -> tuple[FieldPlacementResult, FiberFitResult | None, str | None]:
+    """Run the optional transport stage on a clone and commit it only on success."""
+
+    if config is None:
+        return placement, None, None
+    clone = placement.fiber.subset(
+        torch.arange(placement.fiber.n, device=placement.fiber.source_means2d.device)
+    )
+    observations = tuple(
+        _association_observation(
+            fits.observations[index],
+            config=config,
+            dtype=clone.source_means2d.dtype,
+        )
+        for index in selected_global_views
+    )
+    track_capacities: torch.Tensor | None
+    if config.track_capacity_mode == "field_mass":
+        track_capacities = placement.field_masses.to(clone.source_means2d)
+    else:
+        track_capacities = None
+    try:
+        result = fit_fiber_correspondence(
+            clone,
+            observations,
+            config=config.fit,
+            track_capacities=track_capacities,
+        )
+    except (RuntimeError, ValueError) as error:
+        if config.failure_policy == "raise":
+            raise
+        failure = f"{type(error).__name__}: {error}"
+        diagnostics = {
+            **placement.diagnostics,
+            "association_status": "rolled_back",
+            "association_failure": failure,
+        }
+        return replace(placement, diagnostics=diagnostics), None, failure
+    diagnostics = {
+        **placement.diagnostics,
+        "association_status": "committed",
+        "association_assignment": config.fit.assignment,
+        "association_outer_steps": len(result.history),
+        "association_max_pair_cost": config.fit.max_pair_cost,
+        "association_track_capacity_mode": config.track_capacity_mode,
+        "association_observation_capacity_mode": config.observation_capacity_mode,
+    }
+    return replace(placement, fiber=clone, diagnostics=diagnostics), result, None
 
 
 def _topology_state(
@@ -838,22 +1144,32 @@ def _birth_payload(
         for component in range(observation.n):
             if (local_view, component) not in used:
                 global_view = selected_global_views[local_view]
-                mask = _alpha_mask(fits.alphas[global_view], observation)
-                if mask is not None:
+                support = 1.0
+                probability = (
+                    None
+                    if config.mask_mode == "none"
+                    else _alpha_probability(fits.alphas[global_view], observation)
+                )
+                if probability is not None:
                     xy = observation.native_means(component)
-                    x = int(xy[0].floor().clamp(0, mask.shape[1] - 1))
-                    y = int(xy[1].floor().clamp(0, mask.shape[0] - 1))
-                    if not bool(mask[y, x]):
+                    x = int(xy[0].floor().clamp(0, probability.shape[1] - 1))
+                    y = int(xy[1].floor().clamp(0, probability.shape[0] - 1))
+                    sampled = float(probability[y, x])
+                    support = float(sampled > 0) if config.mask_mode == "hard" else sampled
+                    if support <= config.mask_probability_floor:
                         continue
                 amplitude = float(observation.amplitudes[component])
+                supported_amplitude = (
+                    amplitude * support if config.mask_mode == "probability" else amplitude
+                )
                 candidates.append(
                     (
                         (
-                            amplitude
+                            supported_amplitude
                             if residual_scores is None
                             else residual_scores.get((local_view, component), 0.0)
                         ),
-                        amplitude,
+                        supported_amplitude,
                         local_view,
                         component,
                     )
@@ -895,7 +1211,7 @@ def _birth_payload(
         depth=depth,
         cross=(0.0, 0.0),
         log_ray_scale=math.log(ray_sigma),
-        density_mass=max(float(observation.amplitudes[component]), 1e-12),
+        density_mass=max(_amplitude, 1e-12),
         source_color=tuple(float(value) for value in observation.colors[component]),
         render_opacity=config.init_opacity,
     )
@@ -1065,6 +1381,107 @@ def _unexplained_source_scores(
     return scores
 
 
+def _projection_nonlinearity_scores(
+    state: FieldTopologyState,
+    *,
+    fits: SceneFits,
+    selected_global_views: tuple[int, ...],
+    previous: FieldPlacementResult,
+) -> dict[int, float]:
+    """Score local-EWA disagreement against six-point perspective cubature."""
+
+    candidate = _placement_from_topology(state, fits, selected_global_views, previous)
+    means, covariances = candidate.fiber.means_covariances()
+    cholesky = torch.linalg.cholesky(covariances)
+    scale = math.sqrt(3.0)
+    offsets = torch.cat([scale * cholesky, -scale * cholesky], dim=-1).transpose(1, 2)
+    points = means[:, None, :] + offsets
+    total = means.new_zeros(means.shape[0])
+    counts = torch.zeros(means.shape[0], dtype=torch.long, device=means.device)
+    identity = torch.eye(2, dtype=means.dtype, device=means.device)
+    for camera in candidate.fiber.cameras:
+        projected_points, point_depths = camera.project(points.reshape(-1, 3))
+        projected_points = projected_points.reshape(means.shape[0], 6, 2)
+        point_depths = point_depths.reshape(means.shape[0], 6)
+        local = candidate.fiber.project(camera)
+        sampled_mean = projected_points.mean(dim=1)
+        centered = projected_points - sampled_mean[:, None, :]
+        sampled_covariance = centered.transpose(1, 2) @ centered / 6.0
+        sampled_covariance = sampled_covariance + candidate.fiber.dilation * identity
+        denominator = torch.linalg.matrix_norm(local.covariances2d).clamp_min(
+            torch.finfo(means.dtype).tiny
+        )
+        covariance_error = (
+            torch.linalg.matrix_norm(sampled_covariance - local.covariances2d) / denominator
+        )
+        mean_scale = (
+            torch.diagonal(local.covariances2d, dim1=-2, dim2=-1)
+            .sum(-1)
+            .clamp_min(torch.finfo(means.dtype).tiny)
+        )
+        mean_error = (sampled_mean - local.means2d).square().sum(-1) / mean_scale
+        valid = (
+            torch.isfinite(projected_points).all(dim=(-2, -1))
+            & torch.isfinite(sampled_covariance).all(dim=(-2, -1))
+            & (point_depths > 0.05).all(dim=1)
+            & (local.depth > 0.05)
+            & camera.in_image(local.means2d)
+        )
+        score = mean_error + covariance_error
+        total = total + torch.where(valid, score, torch.zeros_like(score))
+        counts = counts + valid.long()
+    averaged = total / counts.clamp_min(1).to(total)
+    averaged = torch.where(counts > 0, averaged, torch.full_like(averaged, -torch.inf))
+    return {
+        component.stable_id: float(averaged[index].detach())
+        for index, component in enumerate(state.components)
+    }
+
+
+def _nonlinearity_split(
+    state: FieldTopologyState,
+    *,
+    fits: SceneFits,
+    selected_global_views: tuple[int, ...],
+    previous: FieldPlacementResult,
+    config: FieldLiftConfig,
+) -> MoveProposal | None:
+    scores = _projection_nonlinearity_scores(
+        state,
+        fits=fits,
+        selected_global_views=selected_global_views,
+        previous=previous,
+    )
+    component = min(
+        state.components,
+        key=lambda item: (-scores[item.stable_id], item.stable_id),
+    )
+    score = scores[component.stable_id]
+    if not math.isfinite(score) or score <= config.topology_split_min_score:
+        return None
+    candidate = _placement_from_topology(state, fits, selected_global_views, previous)
+    row = state.stable_ids.index(component.stable_id)
+    depth = component.depth
+    bound_margin = 0.45 * min(
+        depth - float(candidate.fiber.depth_lower[row]),
+        float(candidate.fiber.depth_upper[row]) - depth,
+    )
+    uncertainty = math.exp(component.log_ray_scale)
+    offset = min(
+        max(uncertainty, 0.01 * depth),
+        config.topology_split_max_relative_depth * depth,
+        bound_margin,
+    )
+    if not math.isfinite(offset) or offset <= 1e-9:
+        return None
+    return propose_split(
+        state,
+        component.stable_id,
+        depth_offsets=(-offset, offset),
+        tag="projection-nonlinearity-ray-depth",
+    )
+
+
 class _DefaultTopologyOps(TopologyOps):
     def __init__(
         self,
@@ -1113,11 +1530,22 @@ class _DefaultTopologyOps(TopologyOps):
                     )
                 )
         if state.components:
-            split = max(
-                state.components,
-                key=lambda component: (component.density_mass, -component.stable_id),
-            )
-            proposals.append(propose_split(state, split.stable_id, tag="largest-density-mass"))
+            if self.config.topology_split_mode == "largest_density_mass":
+                split = max(
+                    state.components,
+                    key=lambda component: (component.density_mass, -component.stable_id),
+                )
+                proposals.append(propose_split(state, split.stable_id, tag="largest-density-mass"))
+            else:
+                split_proposal = _nonlinearity_split(
+                    state,
+                    fits=self.fits,
+                    selected_global_views=self.selected_global_views,
+                    previous=self.previous,
+                    config=self.config,
+                )
+                if split_proposal is not None:
+                    proposals.append(split_proposal)
         residual_scores = _unexplained_source_scores(
             state,
             inputs=self.inputs,
@@ -1195,12 +1623,23 @@ def _placement_from_topology(
             )
         )
     global_map = torch.tensor(selected_global_views, dtype=torch.long)
+    global_views = global_map[local_views]
+    mask_mode = str(previous.diagnostics.get("mask_mode", "hard"))
+    if mask_mode not in {"none", "hard", "probability"}:
+        raise RuntimeError("placement diagnostics contain an invalid mask mode")
+    source_support = _alpha_source_support(
+        fits,
+        global_views,
+        xy,
+        mode=mask_mode,
+    )
     return FieldPlacementResult(
         fiber=fiber,
         field_masses=torch.tensor(
             [component.density_mass for component in state.components],
             dtype=dtype,
         ),
+        source_support=source_support,
         source_colors=torch.tensor(
             [component.source_color for component in state.components],
             dtype=dtype,
@@ -1210,7 +1649,7 @@ def _placement_from_topology(
             dtype=dtype,
         ),
         scores=torch.zeros(len(state.components), dtype=dtype),
-        source_global_view_indices=global_map[local_views],
+        source_global_view_indices=global_views,
         background_mask=torch.zeros(len(state.components), dtype=torch.bool),
         diagnostics={
             **previous.diagnostics,
@@ -1411,7 +1850,8 @@ class FieldLifter:
         if not isinstance(fits, SceneFits):
             raise TypeError("fits must be SceneFits")
         original_device = fits.observations[0].device
-        working = fits.to(
+        capped, cap_diagnostics = _cap_scene_fits(fits, self.config.target_component_cap)
+        working = capped.to(
             "cpu",
             dtype=torch.float64 if self.config.compute_dtype == "float64" else None,
         )
@@ -1427,6 +1867,12 @@ class FieldLifter:
         initial_source_global_view_indices = placement.source_global_view_indices.detach().clone()
         initial_field_masses = placement.field_masses.detach().clone()
         initial_projection_dilation = placement.fiber.dilation
+        placement, association, association_failure = _run_association(
+            placement,
+            working,
+            selected,
+            self.config.association,
+        )
         validation_config = FieldValidationConfig(
             sample_cap_per_view=self.config.validation_sample_cap,
             seed=self.config.seed,
@@ -1502,6 +1948,7 @@ class FieldLifter:
             if math.isfinite(report.condition_number)
         ]
         diagnostics = {
+            **cap_diagnostics,
             **placement.diagnostics,
             "analytic_semantics": (
                 "exact additive peak-Gaussian density/RGB numerator"
@@ -1521,8 +1968,12 @@ class FieldLifter:
             "objective_initial": refit.objective_history[0],
             "objective_final": refit.objective_history[-1],
             "accepted_continuous_steps": refit.accepted_steps,
+            "refit_view_order": list(refit.view_order),
+            "refit_active_view_counts": list(refit.active_view_counts),
+            "association_status": placement.diagnostics.get("association_status", "disabled"),
             "topology_proposals": len(topology_receipts),
             "topology_accepted": sum(int(receipt.accepted) for receipt in topology_receipts),
+            "topology_split_mode": self.config.topology_split_mode,
             "observability_rank_histogram": {
                 str(rank): ranks.count(rank) for rank in sorted(set(ranks))
             },
@@ -1574,6 +2025,8 @@ class FieldLifter:
             gaussians=gaussians,
             placement=placement,
             refit=refit,
+            association=association,
+            association_failure=association_failure,
             correspondences=correspondence_output,
             correspondence_visibility=correspondence_visibility,
             topology_receipts=topology_receipts,
@@ -1611,10 +2064,15 @@ class FieldLifter:
 
 
 __all__ = [
+    "FieldAssociationCapacityMode",
+    "FieldAssociationConfig",
+    "FieldAssociationFailurePolicy",
     "FieldComputeDtype",
     "FieldLiftConfig",
     "FieldLiftResult",
     "FieldLifter",
+    "FieldMaskMode",
     "FieldPlacementMode",
     "FieldPlacementResult",
+    "FieldTopologySplitMode",
 ]

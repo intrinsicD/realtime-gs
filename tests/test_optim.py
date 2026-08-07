@@ -133,7 +133,11 @@ def test_checkpoint_callback_is_isolated_and_none_preserves_default_exactly():
     for field in ("means", "quats", "log_scales", "opacity", "sh"):
         assert torch.equal(getattr(default_final, field), getattr(none_final, field))
         assert torch.equal(getattr(default_final, field), getattr(observed_final, field))
-    ignored_history_keys = {"elapsed", "checkpoint_callback_seconds"}
+    ignored_history_keys = {
+        "elapsed",
+        "checkpoint_callback_elapsed",
+        "checkpoint_callback_seconds",
+    }
     for history in (none_history, observed_history):
         assert {
             key: value for key, value in history.items() if key not in ignored_history_keys
@@ -144,6 +148,61 @@ def test_checkpoint_callback_is_isolated_and_none_preserves_default_exactly():
     assert none_history["checkpoint_callback_seconds"] == 0.0
     assert observed_history["checkpoint_callback_seconds"] >= 0.0
     assert callback_steps == [2, 4]
+
+
+def test_external_only_checkpoints_skip_internal_evaluation(monkeypatch):
+    scene = make_synthetic_scene(n_gaussians=5, n_cameras=4, image_size=12, seed=26)
+    config = TrainConfig(
+        iterations=4,
+        rasterizer="torch",
+        device="cpu",
+        densify=False,
+        target_sh_degree=0,
+        ssim_lambda=0.0,
+        use_masks=False,
+        random_background=False,
+        eval_every=2,
+        internal_checkpoint_evaluation=False,
+        seed=11,
+    )
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("the built-in evaluation path must remain unopened")
+
+    monkeypatch.setattr(Trainer, "evaluate", staticmethod(forbidden))
+    monkeypatch.setattr(Trainer, "evaluate_metrics", staticmethod(forbidden))
+    callback_steps = []
+    _, history = Trainer(config).train(
+        scene,
+        scene.gt_gaussians.detach(),
+        checkpoint_callback=lambda _snapshot, step: callback_steps.append(step),
+    )
+
+    assert callback_steps == [2, 4]
+    assert history["psnr"] == []
+    assert [step for step, _elapsed in history["elapsed"]] == [2, 4]
+    assert history["checkpoint_callback_seconds"] >= 0.0
+    callback_elapsed = history["checkpoint_callback_elapsed"]
+    assert [step for step, _elapsed in callback_elapsed] == [2, 4]
+    assert [elapsed for _step, elapsed in callback_elapsed] == sorted(
+        elapsed for _step, elapsed in callback_elapsed
+    )
+    assert callback_elapsed[-1][1] == history["checkpoint_callback_seconds"]
+
+
+def test_external_only_checkpoints_reject_train_metric_selection() -> None:
+    scene = make_synthetic_scene(n_gaussians=3, n_cameras=3, image_size=10, seed=27)
+    config = TrainConfig(
+        iterations=1,
+        rasterizer="torch",
+        device="cpu",
+        densify=False,
+        checkpoint_policy="best_train_psnr",
+        internal_checkpoint_evaluation=False,
+    )
+
+    with pytest.raises(ValueError, match="internal_checkpoint_evaluation"):
+        Trainer(config).train(scene, scene.gt_gaussians.detach())
 
 
 def test_train_only_plateau_stops_after_frozen_patience():

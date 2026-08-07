@@ -1,0 +1,161 @@
+session:
+  id: "2026-08-05_001"
+  date: "2026-08-05"
+  started: "2026-08-05T00:01+02:00"
+  last_turn: "2026-08-05T02:38+02:00"
+  turn_count: 2
+  summary: >
+    Extended the 2D-to-3D Gaussian review through cross-domain primary sources, then converted its
+    bounded transport, masking, scheduling, topology, and independent-half mechanisms into an
+    opt-in CPU-verified pipeline and a protected draft experiment without opening outcomes.
+
+events_logged:
+  - turn: 1
+    type: question
+    id: N198
+    routing: direct
+    provenance: user
+    summary: "Find cross-domain tomography and probabilistic methods relevant to 2D-to-3D Gaussian lifting."
+  - turn: 1
+    type: constraint
+    id: O153
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Commit GPS-Gaussian's masked pixel-aligned scope to the review's novelty boundary."
+  - turn: 1
+    type: constraint
+    id: O154
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Exclude broad Gaussian-mixture deprojection from novelty after MGE, random tomography, and cryo-EM precedents."
+  - turn: 1
+    type: architecture
+    id: O155
+    routing: staged
+    provenance: ai-suggested
+    summary: "Test epipolar-gated capped multi-marginal transport with dustbin and split mass for component association."
+  - turn: 1
+    type: constraint
+    id: O156
+    routing: staged
+    provenance: ai-suggested
+    summary: "Use independent-half reconstruction only as a stability diagnostic, not a resolution metric."
+  - turn: 1
+    type: heuristic
+    id: O157
+    routing: staged
+    provenance: ai-suggested
+    summary: "Trigger split and merge from projection nonlinearity and source-render error instead of a fixed schedule."
+  - turn: 2
+    type: decision
+    id: N199
+    routing: direct
+    provenance: user
+    summary: "Implement the probabilistic compact-field pipeline and create its protected experiment."
+  - turn: 2
+    type: architecture
+    id: O155
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Commit the implemented shared-latent per-view transport approximation as A20."
+  - turn: 2
+    type: constraint
+    id: O156
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Commit leakage-safe independent-half fitting as stability rather than accuracy."
+  - turn: 2
+    type: constraint
+    id: O158
+    routing: crystallized
+    provenance: ai-executed
+    summary: "Keep mask probability, render opacity, and transport capacity semantically distinct."
+
+ai_actions:
+  - turn: 1
+    action: >
+      Queried Scholar Inbox for the current digest, screened its direct and adjacent Gaussian
+      reconstruction papers, and verified technical details against primary papers. Extended the
+      search into astronomy MGE, random tomography, cryo-EM GMM reconstruction, CT Gaussian
+      forward models, mixture transport and registration, nonlinear uncertainty splitting,
+      KL-bounded mixture reduction, probabilistic silhouettes, ordered subsets, and
+      independent-half validation. Author-reported results remain protocol-qualified and were not
+      treated as repository reproductions.
+    provenance: ai-executed
+    files_changed:
+      - "docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md"
+      - "docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md"
+  - turn: 1
+    action: >
+      Expanded the focused review to 11,571 words and the portfolio to 6,945 words, explicitly
+      added GPS-Gaussian and cross-domain novelty threats, updated the architecture, evaluation,
+      ablation, and first-experiment recommendations, and retained every transferred mechanism as
+      a hypothesis unless a primary source established only its narrower source-domain behavior.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+  - turn: 2
+    action: >
+      Wrote the stage-by-stage probabilistic field-lift design with expected benefits, costs,
+      failure signatures, fallbacks, mask modes, evidence ladder, and stopping rules. Implemented
+      an opt-in public pipeline spanning mask-aware field mass, explicitly gated mass association,
+      perspective-nonlinearity split proposals, progressive active-view refit with all-view
+      cleanup, and leakage-safe independent-half stability.
+    provenance: ai-executed
+    files_changed:
+      - "docs/DESIGN_probabilistic_field_pipeline.md"
+      - "src/rtgs/lift/probabilistic_pipeline.py"
+      - "src/rtgs/lift/field_lifter.py"
+      - "src/rtgs/lift/fiber_correspondence.py"
+      - "src/rtgs/lift/field_refit.py"
+      - "src/rtgs/lift/field_topology.py"
+      - "tests/test_probabilistic_field_pipeline.py"
+  - turn: 2
+    action: >
+      Created and data-sealed a report-v2 protected experiment contract with 489 unique,
+      mechanism-isolated planned cells and an outcome-free plan compiler. The task remains draft
+      and fails closed because task-bound outcome workers and report aggregation are not yet
+      implemented or independently reviewed; no protected result was opened.
+    provenance: ai-executed
+    files_changed:
+      - "experiments/tasks/20260805_probabilistic_field_pipeline_mixed.json"
+      - "experiments/data/probabilistic_field_pipeline_mixed.json"
+      - "scripts/experiments/20260805_probabilistic_field_pipeline_mixed.py"
+      - "tests/test_probabilistic_field_experiment_protocol.py"
+  - turn: 2
+    action: >
+      Passed focused mechanism tests, the complete canonical verification gate, the full CPU suite
+      including slow tests, experiment-contract validation, data-seal validation, workflow checks,
+      and Markdown/diff hygiene. A disposable calibrated compact-input integration smoke completed
+      and was moved to system trash without retaining or citing outcome metrics. RTGS-012 remains
+      provisionally self-reviewed; no quality, speed, convergence, GPU, robustness, novelty, or
+      default claim was created.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+      - "docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md"
+      - "docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md"
+  - turn: 1
+    action: >
+      Checked all 56 unique external links, passed the portfolio validator and self-test, cleaned
+      the Markdown diff, passed focused docs/ARA/layout/workflow checks, and passed the complete
+      canonical CPU verification gate with only the same two pre-existing PyTorch warnings. The
+      active RTGS-011 task remains provisionally self-reviewed pending distinct or human
+      acceptance, and the owner's unrelated IDE changes remain untouched.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+
+claims_touched: []
+
+key_context:
+  - turn: 1
+    excerpt: >
+      The user explicitly requested the research skill, Scholar Inbox, and additional relevant
+      work from tomography and probabilistic 2D-to-3D fields.
+
+open_threads:
+  - "Any further RTGS-008 repair/review cycle requires a new explicit owner decision; until then the protected matrix remains rejected and 0/27."
+  - "RTGS-012 is provisionally self-reviewed; a distinct prospective reviewer is required before protected execution."
+  - "Task-bound outcome workers and report-v2 aggregation remain unimplemented, so the 489-cell experiment stays draft and uninitialized."
+  - "True globally coupled multi-marginal transport and KL-screened merge remain unimplemented; O157 is only partially represented by the nonlinearity split proposal."

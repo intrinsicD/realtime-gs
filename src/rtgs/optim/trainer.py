@@ -64,6 +64,13 @@ class TrainConfig:
     # by default because the synchronization itself changes execution overlap.
     profile_density_events: bool = False
     eval_every: int = 50
+    # Keep the established built-in PSNR checkpoint pass by default. Research drivers with an
+    # external checkpoint observer can disable it so validation is rendered exactly once and its
+    # complete cost remains outside the native optimizer clock.
+    internal_checkpoint_evaluation: bool = True
+    # The standalone trainer owns CUDA peak accounting by default. A process-level benchmark can
+    # disable this reset after establishing its own earlier measurement boundary.
+    reset_cuda_peak_stats: bool = True
     # Opt-in checkpoint selection. "final" (default) returns the last iterate, unchanged. With
     # "best_train_psnr" the run returns the eval checkpoint with the highest TRAINING-view PSNR
     # (selection uses scene.training_views only -- never held-out/test views).
@@ -331,6 +338,10 @@ class Trainer:
             raise ValueError("non-current quaternion_update_policy requires densify=False")
         if cfg.eval_every <= 0:
             raise ValueError("eval_every must be positive")
+        if not isinstance(cfg.internal_checkpoint_evaluation, bool):
+            raise TypeError("internal_checkpoint_evaluation must be bool")
+        if not isinstance(cfg.reset_cuda_peak_stats, bool):
+            raise TypeError("reset_cuda_peak_stats must be bool")
         if cfg.checkpoint_policy not in ("final", "best_train_psnr"):
             raise ValueError("checkpoint_policy must be 'final' or 'best_train_psnr'")
         if cfg.plateau_patience_evals is not None and (
@@ -567,6 +578,7 @@ class Trainer:
             "loss_terms": [],
             "psnr": [],
             "elapsed": [],
+            "checkpoint_callback_elapsed": [],
             "n_gaussians": [],
             "active_sh_degree": [],
             "sampled_train_views": [],
@@ -614,6 +626,8 @@ class Trainer:
         select_best = cfg.checkpoint_policy == "best_train_psnr"
         plateau_enabled = cfg.plateau_patience_evals is not None
         monitor_train_psnr = select_best or plateau_enabled or cfg.record_train_metrics
+        if monitor_train_psnr and not cfg.internal_checkpoint_evaluation:
+            raise ValueError("train-metric monitoring requires internal_checkpoint_evaluation=True")
         if monitor_train_psnr:
             history["train_psnr"] = []
             history["train_metrics"] = []
@@ -624,9 +638,10 @@ class Trainer:
         plateau_best_step: int | None = None
         plateau_stale_evals = 0
 
-        if device.type == "cuda":
+        if device.type == "cuda" and cfg.reset_cuda_peak_stats:
             torch.cuda.reset_peak_memory_stats(device)
             torch.cuda.reset_accumulated_memory_stats(device)
+        if device.type == "cuda":
             torch.cuda.synchronize(device)
         callback_seconds = 0.0
         started = time.perf_counter()
@@ -879,53 +894,54 @@ class Trainer:
                 )
 
             if completed_step % cfg.eval_every == 0 or local_it == cfg.iterations - 1:
-                default_eval_views = scene.testing_views or list(range(scene.n_views))
-                train_metrics = None
-                if monitor_train_psnr and list(train_views) == list(default_eval_views):
-                    train_metrics = self.evaluate_metrics(scene, build(), renderer)
-                    evaluated_psnr = (
-                        train_metrics["psnr_fg"]
-                        if "psnr_fg" in train_metrics
-                        else train_metrics["psnr"]
-                    )
-                else:
-                    evaluated_psnr = self.evaluate(scene, build(), renderer)
-                history["psnr"].append((completed_step, evaluated_psnr))
-                train_psnr = None
-                if monitor_train_psnr:
-                    if train_metrics is None:
-                        train_metrics = self.evaluate_metrics(
-                            scene,
-                            build(),
-                            renderer,
-                            indices=train_views,
-                        )
-                    train_psnr = (
-                        train_metrics["psnr_fg"]
-                        if "psnr_fg" in train_metrics
-                        else train_metrics["psnr"]
-                    )
-                    history["train_psnr"].append((completed_step, train_psnr))
-                    history["train_metrics"].append({"step": completed_step, **train_metrics})
-                if select_best:
-                    assert train_psnr is not None
-                    if train_psnr > best_train_psnr:
-                        best_train_psnr = train_psnr
-                        best_step = completed_step
-                        best_snapshot = build().detach()
                 should_stop = False
-                if plateau_enabled:
-                    assert train_psnr is not None
-                    if train_psnr > plateau_best_train_psnr + cfg.plateau_min_delta:
-                        plateau_best_train_psnr = train_psnr
-                        plateau_best_step = completed_step
-                        plateau_stale_evals = 0
+                if cfg.internal_checkpoint_evaluation:
+                    default_eval_views = scene.testing_views or list(range(scene.n_views))
+                    train_metrics = None
+                    if monitor_train_psnr and list(train_views) == list(default_eval_views):
+                        train_metrics = self.evaluate_metrics(scene, build(), renderer)
+                        evaluated_psnr = (
+                            train_metrics["psnr_fg"]
+                            if "psnr_fg" in train_metrics
+                            else train_metrics["psnr"]
+                        )
                     else:
-                        plateau_stale_evals += 1
-                    should_stop = (
-                        local_it + 1 >= cfg.plateau_min_iterations
-                        and plateau_stale_evals >= cfg.plateau_patience_evals
-                    )
+                        evaluated_psnr = self.evaluate(scene, build(), renderer)
+                    history["psnr"].append((completed_step, evaluated_psnr))
+                    train_psnr = None
+                    if monitor_train_psnr:
+                        if train_metrics is None:
+                            train_metrics = self.evaluate_metrics(
+                                scene,
+                                build(),
+                                renderer,
+                                indices=train_views,
+                            )
+                        train_psnr = (
+                            train_metrics["psnr_fg"]
+                            if "psnr_fg" in train_metrics
+                            else train_metrics["psnr"]
+                        )
+                        history["train_psnr"].append((completed_step, train_psnr))
+                        history["train_metrics"].append({"step": completed_step, **train_metrics})
+                    if select_best:
+                        assert train_psnr is not None
+                        if train_psnr > best_train_psnr:
+                            best_train_psnr = train_psnr
+                            best_step = completed_step
+                            best_snapshot = build().detach()
+                    if plateau_enabled:
+                        assert train_psnr is not None
+                        if train_psnr > plateau_best_train_psnr + cfg.plateau_min_delta:
+                            plateau_best_train_psnr = train_psnr
+                            plateau_best_step = completed_step
+                            plateau_stale_evals = 0
+                        else:
+                            plateau_stale_evals += 1
+                        should_stop = (
+                            local_it + 1 >= cfg.plateau_min_iterations
+                            and plateau_stale_evals >= cfg.plateau_patience_evals
+                        )
                 if device.type == "cuda":
                     torch.cuda.synchronize(device)
                 if checkpoint_callback is None:
@@ -944,6 +960,9 @@ class Trainer:
                     with torch.no_grad():
                         checkpoint_callback(snapshot, completed_step)
                     callback_seconds += time.perf_counter() - observer_started
+                    history["checkpoint_callback_elapsed"].append(
+                        (completed_step, callback_seconds)
+                    )
                 history["executed_iterations"] = local_it + 1
                 if should_stop:
                     history["stop_reason"] = "train_psnr_plateau"

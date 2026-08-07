@@ -294,3 +294,76 @@
 - **Evidence**: [N161, N162,
   `benchmarks/results/20260725_init_value_program_PREREG_REVIEW_INITIAL_FAIL.md`]
 - **From staging**: O133
+
+## R26: Scope G²SR as geometry and latency evidence, not complete field-lift evidence
+
+- **Constraint**: G²SR is the direct correspondence-and-analytic-surface baseline, but its reported
+  two-/three-view 384×512 geometry, memory, and latency results do not establish high-coverage
+  photorealistic rendering, arbitrary independently fitted variable-cardinality field conversion,
+  RGB-free post-Stage-1 sufficiency, or dynamic split/merge utility. Its rendering metrics are
+  computed only on opacity-valid pixels and must remain paired with the reported 73.1–85.8%
+  coverage; its trained detector and RGB optical flow are part of the input contract.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Code ref**: [`docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md`, `docs/RESEARCH.md`]
+- **Evidence**: [N132, N196, O112, `https://arxiv.org/abs/2607.14470`]
+- **From staging**: O112
+
+## R27: Classify GPS-Gaussian as masked pixel-aligned lifting
+
+- **Constraint**: GPS-Gaussian is prior art for lifting dense 2D Gaussian parameter maps into 3D,
+  but not evidence for converting independently fitted compact 2D Gaussian mixtures. Its contract
+  uses two calibrated, rectified, foreground-masked human RGB views; predicts stereo depth;
+  unprojects one Gaussian per foreground pixel; and predicts that Gaussian's 3D rotation, scale,
+  and opacity. Claims about arbitrary scenes, unmasked inputs, source-raster-free conversion, or a
+  single persistent target-independent field remain outside its demonstrated scope.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Code ref**: [`docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md`,
+  `docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md`]
+- **Evidence**: [N196, N197, N198, O153, `https://arxiv.org/abs/2312.02155`,
+  `https://github.com/aipixel/GPS-Gaussian`]
+- **From staging**: O153
+
+## R28: Restrict novelty after cross-domain Gaussian-mixture deprojection
+
+- **Constraint**: Do not claim novelty for deprojecting a 2D Gaussian mixture into a 3D Gaussian
+  mixture in general. Analytic astronomy MGE, random tomography of radial mixtures, and cryo-EM
+  mixed-dimensional GMM fitting already cover restricted additive projection settings. A
+  defensible novelty claim must state the remaining assumptions explicitly: few perspective
+  views, independently fitted anisotropic image-space radiance/alpha fields, unknown association,
+  visibility and occlusion, optional removal of source rasters, and measured downstream benefit.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Code ref**: [`docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md`,
+  `docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md`]
+- **Evidence**: [N196, N198, O154, `https://arxiv.org/abs/astro-ph/0201430`,
+  `https://arxiv.org/abs/0909.0349`, `https://www.nature.com/articles/s41592-021-01220-5`]
+- **From staging**: O154
+
+## R29: Treat independent-half reconstruction as leakage-safe stability only
+
+- **Constraint**: Independent-half validation must fit disjoint camera subsets and remove shared
+  optional bounds, sparse points, neighbors, depth priors, and depth confidences unless their
+  half-local provenance is established. Mutual-nearest aligned-world agreement may be reported as
+  a stability diagnostic, but not as accuracy, resolution, or complete-scene evidence because the
+  halves can differ in visibility, baseline, conditioning, and coverage.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Code ref**: [`src/rtgs/lift/probabilistic_pipeline.py`,
+  `tests/test_probabilistic_field_pipeline.py`]
+- **Evidence**: [N198, N199, O156, `docs/DESIGN_probabilistic_field_pipeline.md`]
+- **From staging**: O156
+
+## R30: Separate mask probability, renderer opacity, and transport capacity
+
+- **Constraint**: A probability mask may scale geometric teacher mass and gate source support,
+  but it must not silently alter a 3D primitive's render opacity or choose its association
+  capacity. Hard, probability-weighted, and mask-ignored modes remain explicit, and uniform,
+  projected-area, or field-mass transport capacities require a separate configuration choice.
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Code ref**: [`src/rtgs/lift/field_lifter.py`,
+  `tests/test_probabilistic_field_pipeline.py`]
+- **Evidence**: [N198, N199, O158, `docs/DESIGN_probabilistic_field_pipeline.md`]
+- **From staging**: O158

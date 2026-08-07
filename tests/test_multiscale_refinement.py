@@ -50,7 +50,13 @@ def _established_history(history: dict) -> dict:
     return {
         key: value
         for key, value in history.items()
-        if key not in {"elapsed", "step_control_metadata", "checkpoint_callback_seconds"}
+        if key
+        not in {
+            "elapsed",
+            "step_control_metadata",
+            "checkpoint_callback_elapsed",
+            "checkpoint_callback_seconds",
+        }
     }
 
 

@@ -3,9 +3,9 @@
 
 Rule 7 requires every results-bearing run to save ``--out`` artifacts/previews and a generated
 experiment handoff. V2 adds a summary-bound relative-link ``index.html``, accompanying
-``README.md``, full SHA-256 manifest, and a structured browser-side smoke receipt for both the
-page and exact ``rtgs view`` command. This script is the final results-bearing gate; frozen v1
-bundles retain their historical checks.
+``README.md``, full SHA-256 manifest, and a structured browser-side smoke receipt for every
+reported page and exact ``rtgs view`` command. This script is the final results-bearing gate;
+frozen v1 bundles retain their historical checks.
 
 It validates the *bundle*, not the science: it cannot tell you whether a number is right, only
 whether the artifact a reader needs in order to check it is present and reachable. Promoting a
@@ -159,11 +159,11 @@ def _check_v2_bundle(run_dir: Path, *, previews: bool) -> list[str]:
                         "if this run legitimately has none)"
                     )
         problems.extend(_check_metrics(run_dir))
-        expected_viewer = _v2_viewer_command(run_dir)
-        if expected_viewer is None:
-            problems.append("metrics.json commands.viewer is missing or invalid")
+        expected_viewers = _v2_viewer_targets(run_dir)
+        if expected_viewers is None:
+            problems.append("metrics.json viewer commands are missing or invalid")
         else:
-            problems.extend(_check_v2_viewer_smoke(run_dir, expected_viewer))
+            problems.extend(_check_v2_viewer_smoke(run_dir, expected_viewers))
     elif status == "failed":
         problems.append(
             "run_receipt.json records a failed run; this report is inspectable but is not a "
@@ -190,11 +190,33 @@ def _v2_status(run_dir: Path, problems: list[str]) -> str | None:
     return status
 
 
-def _v2_viewer_command(run_dir: Path) -> list[str] | None:
+def _v2_viewer_targets(run_dir: Path) -> list[dict[str, object]] | None:
     try:
         metrics = json.loads((run_dir / "metrics.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
+    summaries = metrics.get("dataset_summaries") if isinstance(metrics, dict) else None
+    if isinstance(summaries, dict) and len(summaries) > 1:
+        result = []
+        for dataset_id, summary in summaries.items():
+            commands = summary.get("commands") if isinstance(summary, dict) else None
+            viewer = commands.get("viewer") if isinstance(commands, dict) else None
+            if (
+                not isinstance(dataset_id, str)
+                or not dataset_id
+                or not isinstance(viewer, list)
+                or not viewer
+                or not all(isinstance(item, str) and item for item in viewer)
+            ):
+                return None
+            result.append(
+                {
+                    "dataset_id": dataset_id,
+                    "viewer_command": viewer,
+                    "report_target": f"datasets/{dataset_id}/index.html",
+                }
+            )
+        return result
     commands = metrics.get("commands") if isinstance(metrics, dict) else None
     viewer = commands.get("viewer") if isinstance(commands, dict) else None
     if (
@@ -203,51 +225,41 @@ def _v2_viewer_command(run_dir: Path) -> list[str] | None:
         or not all(isinstance(item, str) and item for item in viewer)
     ):
         return None
-    return viewer
+    return [{"dataset_id": None, "viewer_command": viewer, "report_target": RESULTS_PAGE}]
 
 
-def _check_v2_viewer_smoke(run_dir: Path, expected_viewer: list[str]) -> list[str]:
-    """Validate the structured attestation that a browser rendered and orbited the viewer."""
-
-    path = run_dir / "viewer_smoke.json"
-    if not path.is_file():
-        return ["missing viewer_smoke.json (v2 requires a browser-side WebGL/orbit smoke receipt)"]
-    try:
-        receipt = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as error:
-        return [f"viewer_smoke.json is not valid JSON: {error}"]
-    if not isinstance(receipt, dict) or set(receipt) != {
-        "schema_version",
-        "status",
+def _viewer_smoke_entry_errors(
+    entry: object,
+    *,
+    expected_viewer: list[str],
+    expected_target: str,
+    prefix: str,
+) -> list[str]:
+    if not isinstance(entry, dict) or set(entry) != {
         "viewer_command",
         "report",
         "browser",
         "checks",
     }:
-        return ["viewer_smoke.json has the wrong top-level shape"]
-
+        return [f"{prefix} has the wrong shape"]
     problems: list[str] = []
-    if receipt["schema_version"] != 1:
-        problems.append("viewer_smoke.json schema_version must be 1")
-    if receipt["status"] != "passed":
-        problems.append("viewer_smoke.json status must be passed")
-    if receipt["viewer_command"] != expected_viewer:
-        problems.append("viewer_smoke.json viewer_command must exactly match commands.viewer")
+    if entry["viewer_command"] != expected_viewer:
+        problems.append(f"{prefix} viewer_command must exactly match commands.viewer")
 
-    report = receipt["report"]
+    report = entry["report"]
     if not isinstance(report, dict) or set(report) != {
         "target",
         "http_status",
         "local_targets_ok",
     }:
-        problems.append("viewer_smoke.json report has the wrong shape")
+        problems.append(f"{prefix} report has the wrong shape")
     else:
-        if report["target"] != RESULTS_PAGE or report["http_status"] != 200:
-            problems.append("viewer_smoke.json must record index.html HTTP 200")
+        if report["target"] != expected_target or report["http_status"] != 200:
+            problems.append(f"{prefix} must record {expected_target} HTTP 200")
         if report["local_targets_ok"] is not True:
-            problems.append("viewer_smoke.json must confirm every local report target loaded")
+            problems.append(f"{prefix} must confirm every local report target loaded")
 
-    browser = receipt["browser"]
+    browser = entry["browser"]
     if not isinstance(browser, dict) or set(browser) != {
         "name",
         "version",
@@ -255,19 +267,19 @@ def _check_v2_viewer_smoke(run_dir: Path, expected_viewer: list[str]) -> list[st
         "webgl2",
         "renderer",
     }:
-        problems.append("viewer_smoke.json browser has the wrong shape")
+        problems.append(f"{prefix} browser has the wrong shape")
     else:
         for key in ("name", "version", "user_agent"):
             if not isinstance(browser[key], str) or not browser[key].strip():
-                problems.append(f"viewer_smoke.json browser.{key} must be non-empty")
+                problems.append(f"{prefix} browser.{key} must be non-empty")
         if browser["webgl2"] is not True:
-            problems.append("viewer_smoke.json must confirm WebGL2 availability")
+            problems.append(f"{prefix} must confirm WebGL2 availability")
         if browser["renderer"] is not None and (
             not isinstance(browser["renderer"], str) or not browser["renderer"].strip()
         ):
-            problems.append("viewer_smoke.json browser.renderer must be null or non-empty")
+            problems.append(f"{prefix} browser.renderer must be null or non-empty")
 
-    checks = receipt["checks"]
+    checks = entry["checks"]
     if not isinstance(checks, dict) or set(checks) != {
         "viewer_ready",
         "canvas_count",
@@ -277,35 +289,106 @@ def _check_v2_viewer_smoke(run_dir: Path, expected_viewer: list[str]) -> list[st
         "client_errors",
         "client_warnings",
     }:
-        problems.append("viewer_smoke.json checks has the wrong shape")
+        problems.append(f"{prefix} checks has the wrong shape")
     else:
         if checks["viewer_ready"] is not True:
-            problems.append("viewer_smoke.json must confirm the viewer reached ready state")
+            problems.append(f"{prefix} must confirm the viewer reached ready state")
         if (
             not isinstance(checks["canvas_count"], int)
             or isinstance(checks["canvas_count"], bool)
             or checks["canvas_count"] < 1
         ):
-            problems.append("viewer_smoke.json canvas_count must be at least one")
+            problems.append(f"{prefix} canvas_count must be at least one")
         if checks["rendered_content_visible"] is not True:
-            problems.append("viewer_smoke.json must confirm visible rendered scene content")
+            problems.append(f"{prefix} must confirm visible rendered scene content")
         if (
             not isinstance(checks["framebuffer_nonbackground_pixels"], int)
             or isinstance(checks["framebuffer_nonbackground_pixels"], bool)
             or checks["framebuffer_nonbackground_pixels"] < 1
         ):
-            problems.append(
-                "viewer_smoke.json framebuffer_nonbackground_pixels must be at least one"
-            )
+            problems.append(f"{prefix} framebuffer_nonbackground_pixels must be at least one")
         if checks["orbit_camera_changed"] is not True:
-            problems.append("viewer_smoke.json must confirm an orbit changed the camera")
+            problems.append(f"{prefix} must confirm an orbit changed the camera")
         if checks["client_errors"] != []:
-            problems.append("viewer_smoke.json client_errors must be an empty list")
+            problems.append(f"{prefix} client_errors must be an empty list")
         warnings = checks["client_warnings"]
         if not isinstance(warnings, list) or any(
             not isinstance(item, str) or not item.strip() for item in warnings
         ):
-            problems.append("viewer_smoke.json client_warnings must be a list of non-empty strings")
+            problems.append(f"{prefix} client_warnings must be a list of non-empty strings")
+    return problems
+
+
+def _check_v2_viewer_smoke(run_dir: Path, expected_viewers: list[dict[str, object]]) -> list[str]:
+    """Validate the structured attestation that a browser rendered and orbited the viewer."""
+
+    path = run_dir / "viewer_smoke.json"
+    if not path.is_file():
+        return ["missing viewer_smoke.json (v2 requires a browser-side WebGL/orbit smoke receipt)"]
+    try:
+        receipt = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        return [f"viewer_smoke.json is not valid JSON: {error}"]
+    if len(expected_viewers) == 1:
+        if not isinstance(receipt, dict) or set(receipt) != {
+            "schema_version",
+            "status",
+            "viewer_command",
+            "report",
+            "browser",
+            "checks",
+        }:
+            return ["viewer_smoke.json has the wrong top-level shape"]
+        problems: list[str] = []
+        if receipt["schema_version"] != 1:
+            problems.append("viewer_smoke.json schema_version must be 1")
+        if receipt["status"] != "passed":
+            problems.append("viewer_smoke.json status must be passed")
+        expected = expected_viewers[0]
+        problems.extend(
+            _viewer_smoke_entry_errors(
+                {key: receipt[key] for key in ("viewer_command", "report", "browser", "checks")},
+                expected_viewer=expected["viewer_command"],
+                expected_target=expected["report_target"],
+                prefix="viewer_smoke.json",
+            )
+        )
+        return problems
+
+    if not isinstance(receipt, dict) or set(receipt) != {
+        "schema_version",
+        "status",
+        "entries",
+    }:
+        return ["multi-viewer viewer_smoke.json has the wrong top-level shape"]
+    problems = []
+    if receipt["schema_version"] != 2:
+        problems.append("multi-viewer viewer_smoke.json schema_version must be 2")
+    if receipt["status"] != "passed":
+        problems.append("multi-viewer viewer_smoke.json status must be passed")
+    entries = receipt["entries"]
+    if not isinstance(entries, list) or len(entries) != len(expected_viewers):
+        return problems + ["viewer_smoke.json entry count differs from dataset summaries"]
+    for index, (entry, expected) in enumerate(zip(entries, expected_viewers, strict=True)):
+        if not isinstance(entry, dict) or set(entry) != {
+            "dataset_id",
+            "viewer_command",
+            "report",
+            "browser",
+            "checks",
+        }:
+            problems.append(f"viewer_smoke.json entries[{index}] has the wrong shape")
+            continue
+        if entry["dataset_id"] != expected["dataset_id"]:
+            problems.append(f"viewer_smoke.json entries[{index}] dataset identity differs")
+        problems.extend(
+            _viewer_smoke_entry_errors(
+                {key: entry[key] for key in ("viewer_command", "report", "browser", "checks")},
+                expected_viewer=expected["viewer_command"],
+                expected_target=expected["report_target"],
+                prefix=f"viewer_smoke.json entries[{index}]",
+            )
+        )
     return problems
 
 

@@ -101,12 +101,13 @@ Before `render`, the task driver owns these run-local sources:
 - `viewer_smoke.json`: after the first render, a structured attestation of report targets and
   browser/WebGL readiness, visible scene pixels in a UI-free framebuffer crop, a camera-changing
   orbit interaction, an empty fatal/unclassified client-error list, classified client warnings,
-  and exact viewer argv;
+  and exact viewer argv. Multi-dataset reports require schema v2 with one exact entry per child
+  report/viewer pair;
 - completed-run models/previews and canonical RESULT/AUDIT evidence.
 
 `render` owns and atomically regenerates:
 
-- `index.html`, with status, claim/input boundaries, pipeline, one elapsed-time SVG per
+- `index.html`, with status, claim/input boundaries, pipeline, one explicitly labelled cell-wall SVG per
   metric/dataset/arm/seed series, shaded stages and explicit start/end boundaries in every curve,
   final metrics/diagrams, full parameters, provenance/environment, exact commands, and relative
   links to the entire inventory;

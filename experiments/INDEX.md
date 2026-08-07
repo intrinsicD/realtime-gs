@@ -30,6 +30,13 @@ These are real task IDs. Their task status remains immutable after a protected r
 
 | Canonical task ID | Task status | Experiment | Primary record |
 | --- | --- | --- | --- |
+| `20260805_probabilistic_field_pipeline_mixed` | ready | Mechanism-isolated probabilistic compact-field pipeline for masked/unmasked inputs | [task](tasks/20260805_probabilistic_field_pipeline_mixed.json) |
+| `20260805_probabilistic_field_pipeline_retry_mixed` | ready | Infrastructure retry after a zero-cell import-guard failure | [task](tasks/20260805_probabilistic_field_pipeline_retry_mixed.json) |
+| `20260805_probabilistic_field_pipeline_input_retry_mixed` | ready | Input-contract retry after a discarded calibrated-warmup failure | [task](tasks/20260805_probabilistic_field_pipeline_input_retry_mixed.json) |
+| `20260805_probabilistic_field_pipeline_completion_mixed` | ready | Failure-tolerant all-dataset completion with retained hard-gate failures | [task](tasks/20260805_probabilistic_field_pipeline_completion_mixed.json) |
+| `20260805_probabilistic_field_pipeline_support_fallback_mixed` | ready | Explicit unmasked-support retry after exact empty masked placement | [task](tasks/20260805_probabilistic_field_pipeline_support_fallback_mixed.json) |
+| `20260805_probabilistic_field_pipeline_aabb_eligible_mixed` | ready | Fixed-anchor forward-AABB eligibility after an immutable geometry-domain failure | [task](tasks/20260805_probabilistic_field_pipeline_aabb_eligible_mixed.json) |
+| `20260805_probabilistic_field_pipeline_association_rollback_mixed` | ready | Transactional association rollback with unchanged hard-gate rejection | [task](tasks/20260805_probabilistic_field_pipeline_association_rollback_mixed.json) |
 | `20260801_paper_three_provider_fullres_stage_frame00008` | draft | Full-resolution GaussianImage and StructSplat paper-path comparison | [task](tasks/20260801_paper_three_provider_fullres_stage_frame00008.json) |
 | `20260731_residual_mixture_sampling_stage_frames00008_00009` | draft | Residual-aware mixture sampling for compact point supervision | [task](tasks/20260731_residual_mixture_sampling_stage_frames00008_00009.json) |
 | `20260731_coarse_to_fine_density_stage_frames00008_00009` | draft | Coarse-to-fine standard 3DGS with late densification in one optimizer lifecycle | [task](tasks/20260731_coarse_to_fine_density_stage_frames00008_00009.json) |

@@ -379,13 +379,16 @@ def propose_split(
     *,
     mass_fraction: float = 0.5,
     child_anchors: tuple[SourceAnchor, SourceAnchor] | None = None,
+    depth_offsets: tuple[float, float] | None = None,
     tag: str = "",
 ) -> MoveProposal:
     """Propose a two-child mass partition.
 
-    Without ``child_anchors`` this is an exact co-located partition of additive density mass;
-    opacity is partitioned in optical-thickness space so the two-child alpha union also equals
-    the parent. Residual-directed splitting supplies two explicit source anchors.
+    Without ``child_anchors`` or ``depth_offsets`` this is an exact co-located partition of
+    additive density mass; opacity is partitioned in optical-thickness space so the two-child
+    alpha union also equals the parent. Residual-directed splitting supplies two explicit source
+    anchors. Projection-nonlinearity splitting may instead move the children in opposite
+    source-ray depth directions while preserving their identical source-view projection.
     """
 
     parent = state.component(stable_id)
@@ -400,21 +403,32 @@ def propose_split(
         ):
             raise ValueError("child_anchors must contain exactly two SourceAnchor values")
         anchors = child_anchors
+    if depth_offsets is None:
+        offsets = (0.0, 0.0)
+    else:
+        offsets = _finite_tuple("depth_offsets", depth_offsets, 2)
+        if not math.isclose(offsets[0] + offsets[1], 0.0, rel_tol=0.0, abs_tol=1e-12):
+            raise ValueError("depth_offsets must be symmetric around the parent")
+        if any(parent.depth + offset <= 0.0 for offset in offsets):
+            raise ValueError("depth_offsets must keep both child depths positive")
     opacities = _partition_opacity(parent.render_opacity, fraction)
     fractions = (fraction, 1.0 - fraction)
     child_ids = (parent.stable_id, int(state.next_stable_id))
     children = []
-    for child_id, child_fraction, opacity, anchor in zip(
+    for child_id, child_fraction, opacity, anchor, depth_offset in zip(
         child_ids,
         fractions,
         opacities,
         anchors,
+        offsets,
+        strict=True,
     ):
         lineage = tuple(sorted(set(parent.source_lineage + (anchor.source,))))
         payload = replace(
             parent.payload,
             source_lineage=lineage,
             source_anchor=anchor,
+            depth=parent.depth + depth_offset,
             density_mass=parent.density_mass * child_fraction,
             render_opacity=opacity,
         )

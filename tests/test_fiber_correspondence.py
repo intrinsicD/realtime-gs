@@ -221,6 +221,7 @@ def test_row_softmax_dustbin_masks_exactly_and_is_permutation_equivariant():
         candidate_mask=mask,
     )
     assert torch.equal(plan.real_mass[~mask], torch.zeros_like(plan.real_mass[~mask]))
+    assert torch.equal(plan.candidate_mask, mask)
     assert torch.allclose(plan.track_row_mass, capacities, atol=1e-12, rtol=1e-12)
     assert torch.equal(plan.real_mass[2], torch.zeros_like(plan.real_mass[2]))
     assert plan.track_dustbin_probability[2].item() == 1.0
@@ -286,6 +287,7 @@ def test_augmented_sinkhorn_handles_unequal_counts_masks_and_capacity_scaling():
         **kwargs,
     )
     assert torch.equal(balanced.real_mass[~mask], torch.zeros_like(balanced.real_mass[~mask]))
+    assert torch.equal(balanced.candidate_mask, mask)
     assert balanced.track_dustbin_mass[0] > 0
     assert balanced.observation_dustbin_mass[1] > 0
     assert torch.equal(balanced.augmented_mass, repeated.augmented_mass)

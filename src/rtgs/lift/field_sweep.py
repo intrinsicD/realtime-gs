@@ -233,24 +233,59 @@ def _balanced_quotas(capacities: list[int], total: int) -> list[int]:
 def _select_anchors(
     inputs: ReconstructionInputs,
     config: FieldSweepConfig,
-) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    """Select a seed-varying balanced subset from each view's top-mass pool."""
+    lower_box: torch.Tensor,
+    upper_box: torch.Tensor,
+) -> tuple[
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+    tuple[int, ...],
+    tuple[int, ...],
+]:
+    """Select balanced anchors only from rays that enter the train-only search AABB."""
 
-    quotas = _balanced_quotas(inputs.n_opt_2d, config.n_init_3d)
+    dtype = inputs.observations[0].dtype
+    eligible_masks: list[torch.Tensor] = []
+    eligible_counts: list[int] = []
+    rejected_counts: list[int] = []
+    for field, camera in zip(inputs.observations, inputs.cameras, strict=True):
+        xy = field.native_means(dtype=dtype)
+        origin, direction = camera.pixel_rays(xy)
+        origins = origin.to(dtype).expand(field.n, -1)
+        lower, upper = _ray_box(
+            origins,
+            direction.to(dtype),
+            lower_box,
+            upper_box,
+        )
+        eligible = upper > lower.clamp_min(config.near)
+        eligible_masks.append(eligible)
+        eligible_count = int(eligible.sum())
+        eligible_counts.append(eligible_count)
+        rejected_counts.append(field.n - eligible_count)
+    if sum(eligible_counts) < config.n_init_3d:
+        raise ValueError("fixed-anchor field sweep has too few forward-AABB-eligible source rays")
+
+    quotas = _balanced_quotas(eligible_counts, config.n_init_3d)
     generator = torch.Generator(device="cpu").manual_seed(config.seed)
     source_views: list[torch.Tensor] = []
     source_components: list[torch.Tensor] = []
     source_xy: list[torch.Tensor] = []
-    dtype = inputs.observations[0].dtype
-    for view, (field, quota) in enumerate(zip(inputs.observations, quotas, strict=True)):
+    for view, (field, eligible, quota) in enumerate(
+        zip(inputs.observations, eligible_masks, quotas, strict=True)
+    ):
         if quota == 0:
             continue
         component_mass = (
             field.amplitudes * (2.0 * math.pi) * field.effective_variances().prod(dim=1).sqrt()
         )
         ranked = torch.argsort(component_mass, descending=True, stable=True)
-        pool_count = min(field.n, max(quota, quota * config.anchor_pool_multiplier))
-        pool = ranked[:pool_count]
+        eligible_ranked = ranked[eligible[ranked]]
+        pool_count = min(
+            eligible_ranked.numel(),
+            max(quota, quota * config.anchor_pool_multiplier),
+        )
+        pool = eligible_ranked[:pool_count]
         draw = torch.randperm(pool_count, generator=generator)[:quota]
         # Canonical output order follows mass rank, not the random draw order.
         chosen_rank = torch.sort(draw).values
@@ -262,6 +297,8 @@ def _select_anchors(
         torch.cat(source_views),
         torch.cat(source_components),
         torch.cat(source_xy),
+        tuple(eligible_counts),
+        tuple(rejected_counts),
     )
 
 
@@ -540,14 +577,20 @@ class FieldSweepInitializer:
         ):
             raise ValueError("robust sweep has too few neighboring compact views")
         dtype = inputs.observations[0].dtype
-        source_views, source_components, source_xy = _select_anchors(inputs, self.config)
-        anchor_sha256 = _anchor_digest(source_views, source_components, source_xy)
-
         lower_box, upper_box, center, extent, bounds_source = _search_bounds(
             inputs,
             dtype,
             self.config.bounds_scale,
         )
+        (
+            source_views,
+            source_components,
+            source_xy,
+            eligible_counts,
+            rejected_counts,
+        ) = _select_anchors(inputs, self.config, lower_box, upper_box)
+        anchor_sha256 = _anchor_digest(source_views, source_components, source_xy)
+
         origins = torch.empty((self.config.n_init_3d, 3), dtype=dtype)
         directions = torch.empty_like(origins)
         for view in source_views.unique(sorted=True).tolist():
@@ -564,9 +607,7 @@ class FieldSweepInitializer:
         original_lower = original_lower.clamp_min(self.config.near)
         ray_valid = original_upper > original_lower
         if not bool(ray_valid.all()):
-            raise ValueError(
-                "fixed-anchor field sweep found a source ray with no forward AABB intersection"
-            )
+            raise RuntimeError("forward-AABB anchor eligibility invariant failed")
 
         midpoint = 0.5 * (original_lower + original_upper)
         interval = original_upper - original_lower
@@ -772,6 +813,12 @@ class FieldSweepInitializer:
             "n_init_3d": self.config.n_init_3d,
             "anchor_sha256": anchor_sha256,
             "anchor_pool_multiplier": self.config.anchor_pool_multiplier,
+            "anchor_eligibility_policy": "forward_search_aabb_intersection_v1",
+            "anchor_candidate_count": sum(inputs.n_opt_2d),
+            "anchor_forward_aabb_eligible_count": sum(eligible_counts),
+            "anchor_forward_aabb_rejected_count": sum(rejected_counts),
+            "anchor_forward_aabb_eligible_counts_per_view": list(eligible_counts),
+            "anchor_forward_aabb_rejected_counts_per_view": list(rejected_counts),
             "bounds_source": bounds_source,
             "bounds_center": center.tolist(),
             "bounds_extent": extent,

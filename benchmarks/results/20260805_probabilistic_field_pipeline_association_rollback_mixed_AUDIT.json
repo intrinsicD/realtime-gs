@@ -1,0 +1,470 @@
+{
+  "schema_version": 1,
+  "task_id": "20260805_probabilistic_field_pipeline_association_rollback_mixed",
+  "audit_date": "2026-08-06",
+  "auditor": "Codex-probabilistic-field-protocol-reviewer",
+  "verdict": "accepted_for_bounded_development_interpretation_with_three_mechanism_claims_retired",
+  "official_attempt_consumed": true,
+  "binding": {
+    "task": {
+      "path": "experiments/tasks/20260805_probabilistic_field_pipeline_association_rollback_mixed.json",
+      "sha256": "42ec54bea2636c8adce9e4bae175cc9e847a32b25cbea02b73ba3b04949dff43"
+    },
+    "protocol": {
+      "sha256": "e57d58112fd6f95467e8ddacdb4daad7fc9d83ed48b8b9f336a32b1966a92e87",
+      "review_path": "experiments/reviews/20260805_probabilistic_field_pipeline_association_rollback_mixed_PROTOCOL_REVIEW.md",
+      "review_sha256": "7c0b99c864ff7fecb0e3f5e3180c615f4e157ea70d0d010c78ce29e3238d65f4",
+      "outcome_access_at_review": "none",
+      "verdict": "approved"
+    },
+    "data_seal": {
+      "path": "experiments/data/probabilistic_field_pipeline_mixed.json",
+      "sha256": "20e719d89628375c515db94102abf6e5018dbd6d686d0633235407fad5c7deb6",
+      "validation": "pass",
+      "file_count": 309,
+      "bytes": 204306829
+    },
+    "source": {
+      "commit": "36630c7fef14c0907134d2f3c532be3da4a0c43e",
+      "source_dirty": true,
+      "development": true,
+      "source_diff_sha256": "57bcdda05300658eb579db8db1fc71c89558d662b984a72494c2f880b8f12355",
+      "result_producing_source_algorithm": "sha256-length-prefixed-path-and-bytes-v1",
+      "result_producing_source_file_count": 102,
+      "result_producing_source_sha256": "b17dec48edf2f07469dc9f6b197d062e4c0ee59698a05772c3674ad1fdf9b2eb",
+      "successor_driver_sha256": "9a53815e2e0f17c2b40c9c67295c319eec4fff163541012804438717d5801bff",
+      "base_driver_sha256": "9d453b967b09005b63d3bef6aac48b817ac841ea2b7faa3593d4f980e4310169",
+      "replay_scope": "The exact task, contract, successor, pinned base driver, and src/rtgs Python bytes are bound. The broader dirty-state digest is not itself a stored source snapshot and cannot be regenerated after append-only artifacts were added."
+    },
+    "task_lock": {
+      "path": "runs/20260805_probabilistic_field_pipeline_association_rollback_mixed/task.lock.json",
+      "sha256": "d73b1d145385ae74a2ecd6f293e5a828e908ed6d156d1932ebc82fc66a40ae7e"
+    },
+    "exact_command": [
+      ".venv/bin/python",
+      "scripts/experiments/20260805_probabilistic_field_pipeline_association_rollback_mixed.py",
+      "--task",
+      "experiments/tasks/20260805_probabilistic_field_pipeline_association_rollback_mixed.json",
+      "--run",
+      "runs/20260805_probabilistic_field_pipeline_association_rollback_mixed"
+    ]
+  },
+  "chronology": [
+    {
+      "event": "run_initialized",
+      "at_utc": "2026-08-06T05:42:15.590692+00:00"
+    },
+    {
+      "event": "run_receipt_completed",
+      "at_utc": "2026-08-06T12:33:43.927020+00:00",
+      "elapsed_seconds": 24688.336328
+    },
+    {
+      "event": "aggregate_committed",
+      "at_utc": "2026-08-06T12:33:43.929106+00:00",
+      "staged_entry_count": 15
+    }
+  ],
+  "artifact_inventory": {
+    "run_root": "runs/20260805_probabilistic_field_pipeline_association_rollback_mixed",
+    "pre_audit_file_count": 565,
+    "pre_audit_bytes": 9786401,
+    "inventory_sha256": "0e12cb1e4b4435d0344e64e1fe288c285e35daf887c16a7fff9ceabc59a46bad",
+    "inventory_definition": "SHA-256 of compact canonical JSON over every sorted producer-relative path, byte count, and SHA-256 under the run root before audit publication.",
+    "root_artifact_sha256": {
+      "task.lock.json": "d73b1d145385ae74a2ecd6f293e5a828e908ed6d156d1932ebc82fc66a40ae7e",
+      "run_receipt.json": "09166b5701445f555931fdf131be250d0c91b0f80c4537078482f2508106c3b2",
+      "aggregate_commit_receipt.json": "eb08a88b2b0332ac520e263ea0a2511f95824910f2d1215909b43dc4dfca2f2d",
+      "cell_results.json": "bdc4c1e558a74dfc772d82a3f260a228ace23194f264a516f9013c09f8d6f270",
+      "metrics.json": "ad5c43c8fd1e2eb8ffe1e2831a864c88430648505c63255958beaeafb67580a5",
+      "training_history.json": "76f3b6bf80b82fbff7fb1e06a572dd4302dce806b7589927741285a7590495f4",
+      "environment.json": "f61e1a54d71849113e62ada8b9e2c0430c10b6636ebff0c891ee6db961af8993",
+      "input_boundary_receipt.json": "5a4ef48927e451401194b404e8f293d35d01f4830752c665aa60b571e88ad9e7",
+      "resource_receipt.json": "ec160527994ee88d36cff321a9b2e15d775a9c1f76cdc25b48882e62dbe5c1ad",
+      "gaussians.config.json": "a147360d5a0336cc47511716a826f7399387f5fe119386e72e44ffab7a8796a8",
+      "gaussians_init.ply": "ae0d713fb0e675069d419b876eed8ebc8f565f7e95fecd85418da11c2f1c3944",
+      "gaussians.ply": "2010c82338a963524916ff5d9ff0f97d7f61e535c9bb9adc81dfd4adde7d4ea8",
+      "synthetic/synthetic_results.json": "7d2bae229d2b0d3a5210d5bdc3521b932ee55e412608453cc97e68db29ef0fe0",
+      "synthetic/resource_receipt.json": "f834a5347587fd0d1b3e656719fad85c55f9892572680b7b656a1d4c135eec6d"
+    },
+    "producer_result_sha256": {
+      "benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_RESULT.json": "a5aa2cfaefd74895abff600411a40d4c0bc2de1949871225ec0aa83c1b3f65b5",
+      "benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_RESULT.md": "63dc629a4e5d4698453f546a6bbf8f64bdb3172643d1a2b205f7190d2330656b"
+    }
+  },
+  "cardinality": {
+    "synthetic_cells": 483,
+    "synthetic_by_stage": {
+      "exact_shape_recovery": 324,
+      "recomponentized_association": 60,
+      "support_mask_factorial": 81,
+      "topology_factorial": 6,
+      "schedule_factorial": 6,
+      "independent_half_stability": 6
+    },
+    "discarded_warmups": 1,
+    "measured_calibrated_attempts": 66,
+    "measured_successes": 59,
+    "measured_failures": 7,
+    "native_successes": 33,
+    "native_failures": 0,
+    "candidate_successes": 26,
+    "candidate_failures": 7,
+    "warmup_excluded_from_aggregates_and_history": true
+  },
+  "synthetic_recomputation": {
+    "producer_decisions_reproduced_exactly": true,
+    "hard_invariants_passed": true,
+    "invariant_measurements": {
+      "transport_fixed_point_residual_max": 7.894663323071427e-08,
+      "candidate_gate_violation_mass_max": 0.0,
+      "source_mean_max_error": 1.7763568394002505e-14,
+      "source_covariance_relative_error_max": 1.0072114908675744e-15,
+      "split_density_mass_error_max": 0.0,
+      "split_optical_thickness_error_max": 0.0
+    },
+    "invariants": {
+      "all_metrics_finite": true,
+      "transport_finite": true,
+      "transport_positive_real_mass": true,
+      "transport_fixed_point": true,
+      "candidate_gate_exact_zero": true,
+      "source_projection": true,
+      "source_covariance": true,
+      "split_density_mass": true,
+      "split_optical_thickness": true,
+      "heldout_fit_isolation": true,
+      "mask_render_opacity_equal": true,
+      "progressive_final_all_views": true,
+      "schedule_fresh_process": true
+    },
+    "mechanism_decisions": {
+      "shape": {
+        "seed_wins": 3,
+        "passed": true,
+        "eligible_full_rank_cells_per_seed": 27,
+        "scope": "exact synthetic Gaussian fields"
+      },
+      "association": {
+        "seed_wins": 0,
+        "passed": false,
+        "disposition": "retired_for_this_protocol"
+      },
+      "mask": {
+        "seed_wins": 3,
+        "passed": true,
+        "nondominated_nonzero_corruption_strata_by_seed": {
+          "80501": 7,
+          "80502": 4,
+          "80503": 8
+        },
+        "scope": "controlled synthetic support corruption"
+      },
+      "topology": {
+        "seed_wins": 0,
+        "passed": false,
+        "disposition": "retired_for_this_protocol"
+      },
+      "schedule": {
+        "seed_wins": 0,
+        "passed": false,
+        "disposition": "retired_for_this_protocol"
+      },
+      "combined_interpretation": "descriptive_only"
+    },
+    "association_matched_coverage_score_median_by_seed": {
+      "80501": {
+        "uot_field_mass_capacity": 0.20070238160231874,
+        "row_softmax_dustbin": 0.19656624661642264,
+        "field_no_association": 0.3312623245933365,
+        "uot_shuffled_candidate_negative": 0.066828356249104
+      },
+      "80502": {
+        "uot_field_mass_capacity": 0.18572323696038903,
+        "row_softmax_dustbin": 0.16677843080714255,
+        "field_no_association": 0.27088168261793133,
+        "uot_shuffled_candidate_negative": 0.08551847448424887
+      },
+      "80503": {
+        "uot_field_mass_capacity": 0.19795736287979787,
+        "row_softmax_dustbin": 0.19190871362820458,
+        "field_no_association": 0.33146357474378885,
+        "uot_shuffled_candidate_negative": 0.07633689227612572
+      }
+    },
+    "schedule_by_seed": {
+      "80501": {
+        "progressive_to_all_refit_ratio": 0.8418741680509578,
+        "density_relative_endpoint_delta": 0.1705158896453146,
+        "rgb_relative_endpoint_delta": 0.10489423174990256,
+        "passed": false
+      },
+      "80502": {
+        "progressive_to_all_refit_ratio": 0.8308721426115305,
+        "density_relative_endpoint_delta": 0.06993335707655435,
+        "rgb_relative_endpoint_delta": 0.0008072539909189914,
+        "passed": false
+      },
+      "80503": {
+        "progressive_to_all_refit_ratio": 0.8257891014556084,
+        "density_relative_endpoint_delta": 0.08399438779285302,
+        "rgb_relative_endpoint_delta": 0.0486753089100423,
+        "passed": false
+      }
+    }
+  },
+  "calibrated_recomputation": {
+    "producer_metrics_reproduced_exactly": true,
+    "aggregate_metrics": {
+      "world_center_rmse": 0.02185523095957925,
+      "covariance_relative_frobenius": 0.009127745810987228,
+      "track_precision_times_coverage": 0.19277893157559217,
+      "support_precision_times_coverage": 0.39127218934911245,
+      "calibrated_cell_success_fraction": 0.8939393939393939,
+      "unmasked_support_fallback_cell_fraction": 0.030303030303030304
+    },
+    "conditional_successful_cell_metrics": {
+      "heldout_field_rgb_mse": {
+        "value": 0.03164297257995046,
+        "successful_cell_count": 26
+      },
+      "heldout_field_density_mse": {
+        "value": 0.8221686179262926,
+        "successful_cell_count": 26
+      },
+      "refit_wall_seconds": {
+        "value": 4.861169292009436,
+        "successful_cell_count": 26
+      },
+      "final_gaussian_count": {
+        "value": 63.0,
+        "successful_cell_count": 26
+      },
+      "independent_half_center_median": {
+        "value": 0.06372770358118819,
+        "successful_cell_count": 19,
+        "interpretation": "stability_only_not_accuracy_or_resolution"
+      }
+    },
+    "no_imputation": {
+      "failed_cells_have_no_summary": true,
+      "failed_history_is_zero_success_indicator_only": true,
+      "failed_quality_or_runtime_values": 0,
+      "native_substitution_for_failed_candidate": false,
+      "conditional_denominators_explicit": true,
+      "rejected_models_presentation_only": true
+    }
+  },
+  "failures": {
+    "all_candidate_only": true,
+    "by_message": {
+      "hard invariant violation: transport real mass": 6,
+      "hard invariant violation: transport plan missing, transport real mass, transport fixed point, candidate gate": 1
+    },
+    "cells": [
+      {
+        "dataset_id": "stage_00008_native_fullres",
+        "seed": 80501,
+        "message": "hard invariant violation: transport real mass"
+      },
+      {
+        "dataset_id": "stage_00008_structsplat_no_boundary_fullres",
+        "seed": 80502,
+        "message": "hard invariant violation: transport real mass"
+      },
+      {
+        "dataset_id": "stage_00008_structsplat_no_boundary_fullres",
+        "seed": 80503,
+        "message": "hard invariant violation: transport real mass"
+      },
+      {
+        "dataset_id": "stage_00009_native_fullres",
+        "seed": 80501,
+        "message": "hard invariant violation: transport real mass"
+      },
+      {
+        "dataset_id": "stage_00009_native_fullres",
+        "seed": 80502,
+        "message": "hard invariant violation: transport real mass"
+      },
+      {
+        "dataset_id": "stage_00009_native_fullres",
+        "seed": 80503,
+        "message": "hard invariant violation: transport real mass"
+      },
+      {
+        "dataset_id": "karate_00060_default",
+        "seed": 80501,
+        "message": "hard invariant violation: transport plan missing, transport real mass, transport fixed point, candidate gate",
+        "classification": "rollback_consistent_bound_control_flow"
+      }
+    ],
+    "exact_failure_boundary_resource_key_sets": true,
+    "matching_context_and_fallback_provenance": true,
+    "rejected_model_hashes_match": true,
+    "rejection_preservation_errors": 0
+  },
+  "support_fallback": {
+    "successful_cell_count": 2,
+    "failed_cell_count": 0,
+    "attempt_denominator": 66,
+    "cells": [
+      {
+        "dataset_id": "stage_00008_structsplat_no_boundary_fullres",
+        "seed": 80501,
+        "arm": "native_controls",
+        "requested_mask_mode": "hard",
+        "effective_mask_mode": "none"
+      },
+      {
+        "dataset_id": "stage_00008_structsplat_no_boundary_fullres",
+        "seed": 80501,
+        "arm": "all_candidate_mechanisms",
+        "requested_mask_mode": "probability",
+        "effective_mask_mode": "none"
+      }
+    ],
+    "retry_count_per_cell": 1,
+    "rng_reset_seed": 80501,
+    "trigger": "ValueError: support-mask policy rejected every field-placement source",
+    "interpretation": "unmasked_operability_only_not_mask_mode_evidence"
+  },
+  "input_and_isolation": {
+    "measured_input_boundary_receipts_checked": 66,
+    "repeated_loaded_compact_file_records_checked": 1842,
+    "distinct_dataset_input_inventories": 11,
+    "allowed_modalities": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "external_images_or_masks_opened": false,
+    "heldout_training_access": false,
+    "worker_guards_passed": true,
+    "negative_control_denials_per_worker": 3,
+    "successful_splits_reproduced_from_manifest": true,
+    "optimized_views_training_only": true,
+    "independent_halves_disjoint_and_training_only": true
+  },
+  "aabb_evidence": {
+    "serialized_successful_primary_receipts": 59,
+    "serialized_primary_candidate_total": 241664,
+    "serialized_receipts_internally_consistent": true,
+    "successful_primary_and_half_fit_count": 97,
+    "bound_validator_precedes_success_and_hard_gate_publication": true,
+    "failed_primary_receipts_serialized": false,
+    "independent_half_receipts_serialized": false,
+    "disposition": "accepted_for_current_zero_imputation_and_operability_accounting_but_narrowed_for_direct_aabb_audit",
+    "promotion_requirement": "Serialize per-fit AABB total and per-view counters for primary, both halves, and failed results."
+  },
+  "rollback_evidence": {
+    "rollback_consistent_failure_count": 1,
+    "bound_wrapper_to_base_traceback": true,
+    "missing_transport_four_gate_terminal": true,
+    "original_caught_exception_serialized": false,
+    "association_failure_string_serialized": false,
+    "disposition": "Path-proven rollback consistency and zero-success continuation are supported; the original caught exception text is not directly auditable."
+  },
+  "resource_accounting": {
+    "measured_resource_receipts_checked": 66,
+    "repeat_summaries_recomputed": 22,
+    "cpu_threads_per_worker": 1,
+    "torch_threads_per_worker": 1,
+    "cuda_used": false,
+    "torch_cuda_available_recorded": true,
+    "torch_cuda_device_count": 1,
+    "cpu_model_record": "x86_64",
+    "finite_timing_relations_passed": true,
+    "positive_rss": true,
+    "successful_process_wall_seconds": {
+      "min": 14.803075918054674,
+      "median": 281.42416535603115,
+      "max": 937.7126565260114
+    },
+    "successful_ru_maxrss_bytes": {
+      "min": 1007718400,
+      "median": 1353060352,
+      "max": 1620549632
+    },
+    "named_host_recorded": false,
+    "host_idle_or_load_recorded": false,
+    "performance_claim_supported": false,
+    "interpretation": "Raw CPU timings and RSS are descriptive host-local diagnostics only."
+  },
+  "model_history_and_presentation_integrity": {
+    "training_history_records": 2426,
+    "training_history_stage_markers": 924,
+    "failed_history_only_zero_success": true,
+    "ply_files_parsed": 192,
+    "all_ply_payloads_finite": true,
+    "all_ply_quaternions_nonzero": true,
+    "dataset_presentation_receipts_checked": 11,
+    "dataset_presentation_artifact_hashes_checked": 111,
+    "visual_artifact_hashes_checked_without_opening": 44,
+    "viewer_comparison_manifests_checked": 11,
+    "viewer_methods_checked": 28,
+    "rejected_presentation_methods": 7,
+    "root_representative_copies_match": true,
+    "viewer_launched": false,
+    "visual_interpretation_performed": false
+  },
+  "claim_disposition": {
+    "confirmed": [
+      "The complete development run is bound to the prospectively approved protocol, sealed inputs, exact command, and exact result-producing source bytes.",
+      "All 483 synthetic cells, the discarded warmup, and all 66 calibrated attempts are retained with complete success/failure accounting.",
+      "Every frozen synthetic hard invariant passed.",
+      "Rank-aware covariance passes the frozen exact-synthetic shape rule at three of three seeds.",
+      "Probability support passes the frozen controlled-corruption mask rule at three of three seeds.",
+      "Native controls complete 33 of 33 capped calibrated cells and the all-candidate arm completes 26 of 33, descriptively.",
+      "Two of 66 attempts complete through the explicit whole-cell unmasked fallback, as operability evidence only."
+    ],
+    "narrowed": [
+      "The four-gate candidate failure is rollback-consistent under the exact bound control flow, but the original caught exception and association_failure string were not serialized.",
+      "All successful primary AABB counters are directly auditable; failed-primary and independent-half counters are validated by bound control flow but not retained as raw receipts.",
+      "Calibrated quality and independent-half values are descriptive over capped successful cells and do not establish complete-field fidelity, accuracy, or arm superiority."
+    ],
+    "retired_for_this_protocol": [
+      "Field-mass-capacity association improvement.",
+      "Projection-nonlinearity topology utility.",
+      "Progressive-view frozen time-to-quality improvement.",
+      "Any combined-arm rescue of a failed isolated mechanism.",
+      "GPU, real-time, general speed, memory-superiority, production-default, GPS-Gaussian reproduction, physical-geometry, complete-field, source-RGB, resolution, and cross-scene claims."
+    ],
+    "not_yet_evaluated": [
+      "Rendered report correctness and browser behavior.",
+      "Orbit-viewer launch and visual usability."
+    ]
+  },
+  "limitations": [
+    "Development-only evidence over eleven sealed deterministic 512-component-per-view compact-field proxies.",
+    "The wider dirty-worktree digest is not a stored source archive, although the complete result-producing Python surface is separately bound.",
+    "Failed-primary and half-fit AABB counter arrays are not serialized.",
+    "The original caught association rollback exception is not serialized in the terminal receipt.",
+    "The environment does not identify a named idle host or meaningful CPU model, so performance claims are unsupported.",
+    "Visual assets were hashed but not opened; reports and viewers remain downstream of audit acceptance."
+  ],
+  "checks": {
+    "experiment_contract_validate_data": "pass",
+    "experiment_contract_validate": "pass",
+    "git_diff_check": "pass",
+    "focused_tests_initial": {
+      "passed": 27,
+      "failed": 1,
+      "failure": "test_association_rollback_successor_preserves_cells_and_binds_failure_completion still expects the pre-review task status draft, while the approved executed task is correctly ready"
+    },
+    "focused_tests_excluding_stale_lifecycle_assertion": {
+      "passed": 27,
+      "failed": 0
+    },
+    "full_verify": "not_run_due_to_known_stale_lifecycle_assertion_and_downstream_render_work",
+    "required_before_task_closeout": "Update the stale lifecycle assertion and rerun the complete ./scripts/verify.sh gate."
+  },
+  "not_performed": [
+    "No experiment rerun or producer artifact mutation.",
+    "No frozen task, protocol, or prospective-review mutation.",
+    "No report rendering or browser smoke.",
+    "No PNG/GIF opening or visual interpretation.",
+    "No orbit-viewer launch.",
+    "No CUDA/GPU execution.",
+    "No default change, commit, push, or publication."
+  ]
+}

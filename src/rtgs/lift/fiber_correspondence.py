@@ -262,6 +262,7 @@ class CorrespondencePlan:
     method: str
     iterations: int
     fixed_point_residual: float | None = None
+    candidate_mask: torch.Tensor | None = None
 
     def __post_init__(self) -> None:
         if self.real_mass.ndim != 2 or 0 in self.real_mass.shape:
@@ -317,6 +318,16 @@ class CorrespondencePlan:
             if not math.isfinite(residual) or residual < 0:
                 raise ValueError("fixed_point_residual must be finite and non-negative")
             object.__setattr__(self, "fixed_point_residual", residual)
+        if self.candidate_mask is not None:
+            if (
+                self.candidate_mask.shape != self.real_mass.shape
+                or self.candidate_mask.dtype != torch.bool
+                or self.candidate_mask.device != self.real_mass.device
+            ):
+                raise ValueError(
+                    "candidate_mask must be boolean with the same shape/device as real_mass"
+                )
+            object.__setattr__(self, "candidate_mask", self.candidate_mask.detach().clone())
 
     @property
     def track_row_mass(self) -> torch.Tensor:
@@ -428,6 +439,7 @@ def row_softmax_plan(
         method="row_softmax",
         iterations=1,
         fixed_point_residual=0.0,
+        candidate_mask=mask,
     )
 
 
@@ -530,6 +542,7 @@ def unbalanced_sinkhorn_plan(
         method="unbalanced_sinkhorn",
         iterations=completed_iterations,
         fixed_point_residual=fixed_point_residual,
+        candidate_mask=mask,
     )
 
 
@@ -567,6 +580,7 @@ class FiberFitConfig:
     marginal_penalty: float = 8.0
     sinkhorn_iterations: int = 100
     sinkhorn_tolerance: float = 1e-7
+    max_pair_cost: float | None = None
     track_batch_size: int = 128
     min_real_mass: float = 1e-10
     max_grad_norm: float | None = 10.0
@@ -596,6 +610,10 @@ class FiberFitConfig:
             raise ValueError("sinkhorn_iterations must be a positive integer")
         if not math.isfinite(self.sinkhorn_tolerance) or self.sinkhorn_tolerance < 0:
             raise ValueError("sinkhorn_tolerance must be finite and non-negative")
+        if self.max_pair_cost is not None and (
+            not math.isfinite(self.max_pair_cost) or self.max_pair_cost <= 0
+        ):
+            raise ValueError("max_pair_cost must be finite and positive when supplied")
         if not isinstance(self.track_batch_size, int) or self.track_batch_size <= 0:
             raise ValueError("track_batch_size must be a positive integer")
         if not math.isfinite(self.min_real_mass) or self.min_real_mass <= 0:
@@ -757,6 +775,7 @@ def _detached_plan(
         method=plan.method,
         iterations=plan.iterations,
         fixed_point_residual=plan.fixed_point_residual,
+        candidate_mask=(None if plan.candidate_mask is None else plan.candidate_mask.detach()),
     )
 
 
@@ -774,6 +793,10 @@ def _scatter_track_plan(
     real_mass[track_indices] = plan.real_mass
     track_dustbin_mass[track_indices] = plan.track_dustbin_mass
     track_capacities[track_indices] = plan.track_capacities
+    candidate_mask = None
+    if plan.candidate_mask is not None:
+        candidate_mask = torch.zeros_like(real_mass, dtype=torch.bool)
+        candidate_mask[track_indices] = plan.candidate_mask
     return CorrespondencePlan(
         real_mass=real_mass,
         track_dustbin_mass=track_dustbin_mass,
@@ -784,6 +807,7 @@ def _scatter_track_plan(
         method=plan.method,
         iterations=plan.iterations,
         fixed_point_residual=plan.fixed_point_residual,
+        candidate_mask=candidate_mask,
     )
 
 
@@ -807,6 +831,11 @@ def _empty_view_plan(
         method=method,
         iterations=0,
         fixed_point_residual=0.0,
+        candidate_mask=torch.zeros(
+            (track_count, observation_count),
+            dtype=torch.bool,
+            device=like.device,
+        ),
     )
 
 
@@ -878,6 +907,8 @@ def _e_step(
                 residual_variance=residual_variance,
             )
             mask = valid[track_indices, None].expand_as(cost)
+            if config.max_pair_cost is not None:
+                mask = mask & (cost <= config.max_pair_cost)
             plans.append(
                 _detached_plan(
                     _scatter_track_plan(

@@ -144,9 +144,44 @@ sessions:
   - id: "2026-08-04_001"
     date: "2026-08-04"
     summary: >
-      Integrated all requested branch lineages, rejected RTGS-008 outcome-blind after V3
-      counterexamples, and archived its still-prohibited 0/27 disposition.
-    turn_count: 4
-    events_count: 6
+      Integrated the requested branch lineages with RTGS-008 still blocked, then completed a
+      verified 2D-to-3D Gaussian literature review and classified GPS-Gaussian as adjacent
+      masked-human prior art rather than arbitrary fitted-field lifting.
+    turn_count: 6
+    events_count: 13
     claims_touched: []
+    open_threads: 3
+  - id: "2026-08-05_001"
+    date: "2026-08-05"
+    summary: >
+      Extended the cross-domain review, then implemented its bounded probabilistic mechanisms as
+      an opt-in CPU-verified field-lift path and protected draft experiment without opening
+      outcomes.
+    turn_count: 2
+    events_count: 10
+    claims_touched: []
+    open_threads: 4
+  - id: "2026-08-06_001"
+    date: "2026-08-06"
+    summary: >
+      Prospectively approved the repaired forward-AABB and transactional-rollback protocols, then
+      independently accepted the completed matrix, all-dataset reports/viewers, and archived
+      Pipeline-integrated closeout after one bounded disclaimer repair. The owner then rejected
+      that field-only proxy run as the intended Janelle image experiment and fixed the successor to
+      six named frame_00008 folders. V4 closes the remaining terminal-write bug but rejects the
+      exact task because a digest-bound approval blocker prevents a valid ready transition; a
+      blocker-only V5 decision is pending.
+    turn_count: 10
+    events_count: 13
+    claims_touched: [C35, C36, C37, C38, C39, C40]
+    open_threads: 2
+  - id: "2026-08-07_001"
+    date: "2026-08-07"
+    summary: >
+      RTGS-013 received blocker-free approval, completed its exact 36-cell image-backed run, and
+      passed independent raw audit for bounded per-folder development interpretation, then passed
+      exact report, browser, documentation, run/bundle, canonical, and full-CPU terminal closeout.
+    turn_count: 3
+    events_count: 6
+    claims_touched: [C41]
     open_threads: 1

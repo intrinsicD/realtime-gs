@@ -47,12 +47,22 @@ if TYPE_CHECKING:
         LocalDepthRefineResult,
     )
     from rtgs.lift.depth import DepthLifter
-    from rtgs.lift.field_lifter import FieldLiftConfig, FieldLifter, FieldLiftResult
+    from rtgs.lift.field_lifter import (
+        FieldAssociationConfig,
+        FieldLiftConfig,
+        FieldLifter,
+        FieldLiftResult,
+    )
     from rtgs.lift.gradient import GradientLifter
     from rtgs.lift.hybrid import HybridLifter
     from rtgs.lift.inverse_projection_fiber import (
         FreeGaussianGeometry,
         InverseProjectionFiber,
+    )
+    from rtgs.lift.probabilistic_pipeline import (
+        IndependentHalfStability,
+        ProbabilisticFieldPipelineConfig,
+        ProbabilisticFieldPipelineResult,
     )
 
 _LIFTER_MODULES = {
@@ -181,6 +191,7 @@ _LAZY_ATTRIBUTES = {
         "refine_initialization_depths",
     ),
     "DepthLifter": ("rtgs.lift.depth", "DepthLifter"),
+    "FieldAssociationConfig": ("rtgs.lift.field_lifter", "FieldAssociationConfig"),
     "FieldLiftConfig": ("rtgs.lift.field_lifter", "FieldLiftConfig"),
     "FieldLiftResult": ("rtgs.lift.field_lifter", "FieldLiftResult"),
     "FieldLifter": ("rtgs.lift.field_lifter", "FieldLifter"),
@@ -193,6 +204,18 @@ _LAZY_ATTRIBUTES = {
     "InverseProjectionFiber": (
         "rtgs.lift.inverse_projection_fiber",
         "InverseProjectionFiber",
+    ),
+    "IndependentHalfStability": (
+        "rtgs.lift.probabilistic_pipeline",
+        "IndependentHalfStability",
+    ),
+    "ProbabilisticFieldPipelineConfig": (
+        "rtgs.lift.probabilistic_pipeline",
+        "ProbabilisticFieldPipelineConfig",
+    ),
+    "ProbabilisticFieldPipelineResult": (
+        "rtgs.lift.probabilistic_pipeline",
+        "ProbabilisticFieldPipelineResult",
     ),
     "covariance_projection_design": (
         "rtgs.lift.inverse_projection_fiber",
@@ -283,6 +306,7 @@ __all__ = [
     "CompactRayDepthAuditBatch",
     "CompactRayDepthAuditCallback",
     "DepthLifter",
+    "FieldAssociationConfig",
     "InitEvaluation",
     "InitEvaluationTarget",
     "InitViewMetrics",
@@ -294,9 +318,12 @@ __all__ = [
     "GradientLifter",
     "HybridLifter",
     "InverseProjectionFiber",
+    "IndependentHalfStability",
     "Lifter",
     "FreeGaussianGeometry",
     "RandomLifter",
+    "ProbabilisticFieldPipelineConfig",
+    "ProbabilisticFieldPipelineResult",
     "SfMLifter",
     "get_lifter",
     "gate_merged_initialization",

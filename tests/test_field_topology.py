@@ -218,6 +218,29 @@ def test_colocated_split_rejects_but_residual_directed_split_accepts() -> None:
     assert tuple(component.source_anchor for component in accepted.state.components) == anchors
 
 
+def test_symmetric_ray_depth_split_conserves_mass_and_optical_thickness() -> None:
+    parent = _component(3, row=3, x=0.2, mass=2.5, depth=2.0, opacity=0.72)
+    state = FieldTopologyState((parent,), next_stable_id=4)
+
+    proposal = propose_split(
+        state,
+        3,
+        mass_fraction=0.4,
+        depth_offsets=(-0.2, 0.2),
+        tag="ray-depth",
+    )
+    left, right = proposal.add_components
+
+    assert (left.depth, right.depth) == pytest.approx((1.8, 2.2))
+    assert left.source_anchor == right.source_anchor == parent.source_anchor
+    assert left.density_mass + right.density_mass == pytest.approx(parent.density_mass)
+    assert 1.0 - (1.0 - left.render_opacity) * (1.0 - right.render_opacity) == pytest.approx(
+        parent.render_opacity
+    )
+    with pytest.raises(ValueError, match="symmetric"):
+        propose_split(state, 3, depth_offsets=(-0.1, 0.2))
+
+
 class _StaticOps:
     def __init__(self, proposals: Sequence[MoveProposal]) -> None:
         self._proposals = tuple(proposals)

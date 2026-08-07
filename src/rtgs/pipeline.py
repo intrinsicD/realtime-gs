@@ -30,6 +30,10 @@ if TYPE_CHECKING:
     from rtgs.data.scene import SceneData
     from rtgs.image2gs.fit import FitConfig
     from rtgs.lift.field_lifter import FieldLiftConfig, FieldLiftResult
+    from rtgs.lift.probabilistic_pipeline import (
+        ProbabilisticFieldPipelineConfig,
+        ProbabilisticFieldPipelineResult,
+    )
     from rtgs.optim.trainer import TrainConfig
 
 
@@ -79,6 +83,19 @@ def run_field_pipeline(
     from rtgs.lift.field_lifter import FieldLifter
 
     return FieldLifter(config).fit(fits)
+
+
+def run_probabilistic_field_pipeline(
+    fits: SceneFits,
+    config: ProbabilisticFieldPipelineConfig | None = None,
+) -> ProbabilisticFieldPipelineResult:
+    """Run the opt-in field lift plus optional independent-half stability audit."""
+
+    from rtgs.lift.probabilistic_pipeline import (
+        run_probabilistic_field_pipeline as run_pipeline_impl,
+    )
+
+    return run_pipeline_impl(fits, config)
 
 
 def run_pipeline(

@@ -3532,3 +3532,513 @@ tree:
       - "docs/tasks/RTGS-008-full-resolution-three-provider-paper-comparison.md"
     also_depends_on: [N192, N194]
     status: resolved
+  - id: N196
+    type: question
+    title: "What is the state of the art for lifting 2D Gaussian fields into 3D?"
+    provenance: user
+    timestamp: "2026-08-04T21:20+02:00"
+    description: >
+      The user requested a deep literature review of methods that produce 3D Gaussian fields from
+      2D Gaussian fields while optimizing quality, performance, and convergence for masked and
+      unmasked inputs. Primary-source review through 2026-08-04 identifies G²SR as the closest
+      direct method and closes the old broad novelty statement. The narrower open problem is
+      conversion of arbitrary independently fitted compact teacher fields, especially after source
+      RGB is discarded. The completed review separates direct lifting from 3D-embedded 2DGS
+      surfels, pixel/token predictors, dense point initialization, and mask-assisted object 3DGS.
+    evidence:
+      - "docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md"
+      - "docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md"
+      - "docs/RESEARCH.md"
+      - "https://arxiv.org/abs/2607.14470"
+    also_depends_on: [N132]
+    status: resolved
+  - id: N197
+    type: question
+    title: "Does GPS-Gaussian belong in the 2D-to-3D Gaussian review?"
+    provenance: user
+    timestamp: "2026-08-04T23:13+02:00"
+    description: >
+      The user identified GPS-Gaussian as possible prior art. The official CVPR paper, project
+      page, and released implementation establish that it predicts dense per-foreground-pixel 3D
+      Gaussian parameters from a calibrated stereo image pair, estimated disparity, and explicit
+      source masks. Its image-plane object is a tensor storing already-3D scale/rotation/opacity
+      parameters rather than an independently fitted compact 2D Gaussian mixture. It therefore
+      belongs in the adjacent pixel-aligned and masked-human branches, while remaining outside the
+      narrower arbitrary fitted-field-to-persistent-3DGS problem.
+    evidence:
+      - "https://arxiv.org/abs/2312.02155"
+      - "https://shunyuanzheng.github.io/GPS-Gaussian"
+      - "https://github.com/aipixel/GPS-Gaussian"
+    also_depends_on: [N196]
+    status: resolved
+  - id: N198
+    type: question
+    title: "Which cross-domain methods materially constrain or improve 2D-to-3D Gaussian lifting?"
+    provenance: user
+    timestamp: "2026-08-05T00:01+02:00"
+    description: >
+      The user requested a Scholar Inbox-assisted search beyond graphics, especially tomography
+      and probabilistic 2D-to-3D methods. Primary-source verification found restricted but direct
+      Gaussian-mixture deprojection precedents in astronomy MGE, random tomography, and cryo-EM;
+      these close broad mixture-deprojection novelty. Transferable but untested mechanisms include
+      epipolar-gated multi-marginal component transport, nonlinearity-triggered split and
+      KL-screened merge, calibrated Gaussian forward operators, probabilistic masks,
+      independent-half stability, and reversible ordered-view scheduling. The focused review and
+      portfolio now record the exact assumption gaps and cheapest falsification paths.
+    evidence:
+      - "docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md"
+      - "docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md"
+      - "https://arxiv.org/abs/astro-ph/0201430"
+      - "https://arxiv.org/abs/0909.0349"
+      - "https://www.nature.com/articles/s41592-021-01220-5"
+      - "https://arxiv.org/abs/1907.05254"
+      - "https://arxiv.org/abs/2412.00343"
+    also_depends_on: [N196, N197]
+    status: resolved
+  - id: N199
+    type: decision
+    title: "Implement the probabilistic field-lift pipeline and freeze its protected experiment"
+    provenance: user
+    timestamp: "2026-08-05T02:38+02:00"
+    choice: >
+      Turn the reviewed probabilistic and tomography-inspired mechanisms into a clearly documented,
+      opt-in 2D-field-to-3D-field pipeline, implement the path with explicit expectations and
+      fallbacks, and create a mechanism-isolated experiment. Preserve the repository's prospective
+      evidence boundary: creating the experiment does not authorize opening protected outcomes
+      before a distinct reviewer accepts an executable outcome worker and report-v2 aggregation.
+    alternatives:
+      - "Stop at the literature review and leave all transferred mechanisms unimplemented."
+      - "Implement only one mechanism without an end-to-end public orchestration path."
+      - "Execute an unreviewed protected matrix while implementation and protocol are still mutable."
+    evidence:
+      - N198
+      - "docs/DESIGN_probabilistic_field_pipeline.md"
+      - "src/rtgs/lift/probabilistic_pipeline.py"
+      - "experiments/tasks/20260805_probabilistic_field_pipeline_mixed.json"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N196, N198]
+    status: resolved
+  - id: N200
+    type: decision
+    title: "Approve the forward-AABB successor protocol without outcome access"
+    provenance: ai-executed
+    timestamp: "2026-08-06T03:03+02:00"
+    choice: >
+      Approve exact protocol 7237f73f45b3515b8496b6a629a1e728414f634bee61b7b74391dbbfb189db06
+      for the Driver's administrative ready transition and later exact-command execution. The v2
+      freeze repairs both outcome-blind v1 blockers, preserves all 549 scientific cells, binds the
+      pinned base producer and live source, and passes adversarial capacity-receipt and lifecycle
+      checks. Approval is fitness-to-execute evidence only and opens no successor outcome.
+    alternatives:
+      - "Approve the rejected v1 digest despite its impossible ready transition and incomplete receipt binding."
+      - "Reject v2 despite both counterexamples being repaired and complete CPU verification passing."
+      - "Initialize or inspect the protected successor before recording a prospective verdict."
+    evidence:
+      - "experiments/reviews/20260805_probabilistic_field_pipeline_aabb_eligible_mixed_PROTOCOL_REVIEW.md"
+      - "experiments/tasks/20260805_probabilistic_field_pipeline_aabb_eligible_mixed.json"
+      - "scripts/experiments/20260805_probabilistic_field_pipeline_aabb_eligible_mixed.py"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N199]
+    status: resolved
+  - id: N201
+    type: decision
+    title: "Approve the transactional association-rollback successor without outcome access"
+    provenance: ai-executed
+    timestamp: "2026-08-06T07:39+02:00"
+    choice: >
+      Approve exact protocol e57d58112fd6f95467e8ddacdb4daad7fc9d83ed48b8b9f336a32b1966a92e87
+      for the Driver's administrative ready transition and later exact-command execution. The
+      bound source rolls a caught association RuntimeError or ValueError back to untouched
+      placement state, validates exact typed provenance, and then rejects the candidate through
+      the unchanged missing-transport hard gate. All 549 cells and the native realized
+      configuration remain unchanged. Approval is fitness-to-execute evidence only and opens no
+      successor outcome.
+    alternatives:
+      - "Reject the successor despite private-clone isolation, exact provenance, and unchanged hard-gate behavior passing adversarial review."
+      - "Permit rolled-back candidates to become successes, contribute imputed metrics, or borrow native results."
+      - "Initialize or inspect the protected successor before recording a prospective verdict."
+    evidence:
+      - "experiments/reviews/20260805_probabilistic_field_pipeline_association_rollback_mixed_PROTOCOL_REVIEW.md"
+      - "experiments/tasks/20260805_probabilistic_field_pipeline_association_rollback_mixed.json"
+      - "scripts/experiments/20260805_probabilistic_field_pipeline_association_rollback_mixed.py"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N199, N200]
+    status: resolved
+  - id: N202
+    type: experiment
+    title: "Audit the completed probabilistic field pipeline matrix"
+    provenance: ai-executed
+    timestamp: "2026-08-06T17:16+02:00"
+    result: >
+      Independent raw-record recomputation accepted the immutable development run for bounded
+      interpretation. All 483 synthetic cells, one discarded warmup, and 66 calibrated terminals
+      were complete. Synthetic hard invariants passed; rank-aware covariance and probability
+      support passed their isolated rules at 3/3 seeds, while field-mass association,
+      projection-nonlinearity topology, and progressive scheduling failed at 0/3 seeds. Native
+      calibrated cells completed 33/33 and all-candidate cells 26/33, with seven structured
+      zero-success failures, two successful unmasked fallbacks, no imputation, and no native
+      substitution. Rollback and AABB conclusions were narrowed because the original caught
+      association exception and failed/half per-fit AABB counters were not serialized. Host-local
+      timings support no general performance claim.
+    evidence:
+      - "benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md"
+      - "benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.json"
+      - "runs/20260805_probabilistic_field_pipeline_association_rollback_mixed/cell_results.json"
+      - "runs/20260805_probabilistic_field_pipeline_association_rollback_mixed/synthetic/synthetic_results.json"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N199, N201]
+    status: resolved
+  - id: N203
+    type: decision
+    title: "Accept bounded results and retire three tested mechanisms"
+    provenance: ai-executed
+    timestamp: "2026-08-06T17:16+02:00"
+    choice: >
+      Accept the exact run for development-only interpretation and permit downstream report and
+      viewer smoke. Preserve the positive exact-synthetic shape and controlled-mask decisions;
+      retire the tested association, topology, and schedule utility claims; keep calibrated
+      combined-arm results descriptive; and withhold complete-field, physical-geometry,
+      independent-half accuracy, GPU, real-time, speed, memory, cross-scene, production-default,
+      and visual-usability claims.
+    alternatives:
+      - "Let combined calibrated metrics rescue mechanisms that failed their isolated gates."
+      - "Reject the complete zero-imputation run because promotion-grade failure and half-fit diagnostics were not serialized."
+      - "Treat host-local x86_64 timing receipts as general performance evidence."
+    evidence:
+      - N202
+      - "benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md"
+      - "benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.json"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N199, N201, N202]
+    status: resolved
+  - id: N204
+    type: decision
+    title: "Accept pipeline closeout after bounded disclaimer repair"
+    provenance: ai-executed
+    timestamp: "2026-08-06T18:02+02:00"
+    choice: >
+      Require the design header's absolute no-speed/no-convergence-claim sentence to distinguish
+      general or positive claims from the already audited bounded negative timing result, then
+      accept RTGS-012 after the Driver made exactly that one-line documentation repair. Preserve
+      all scientific dispositions, audit hashes, unsupported scopes, opt-in defaults, and
+      producer artifacts unchanged.
+    alternatives:
+      - "Accept the absolute disclaimer despite its conflict with the quantified negative time-to-quality disposition in section 11.1."
+      - "Rewrite or remove the bounded negative result instead of narrowing the general-claim disclaimer."
+      - "Reject the Pipeline-integrated closeout after the exact documentation-only repair and bounded checks passed."
+    evidence:
+      - N203
+      - "docs/DESIGN_probabilistic_field_pipeline.md"
+      - ".agents/state/current-task.md"
+      - "benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md"
+    also_depends_on: [N199, N202, N203]
+    status: resolved
+  - id: N205
+    type: pivot
+    title: "Reject field-only proxy run as the intended Janelle image experiment"
+    provenance: user-revised
+    timestamp: "2026-08-06T19:00+02:00"
+    from: >
+      Treating the completed compact-field-only RTGS-012 mechanism and operability run as the
+      requested all-dataset reconstruction experiment.
+    to: >
+      Treating RTGS-012 only as a bounded Stage-2 Gaussian-field proxy diagnostic and requiring a
+      new, explicitly image-grounded Janelle protocol before making reconstruction quality or
+      end-to-end convergence comparisons.
+    trigger: >
+      The owner rejected the result as nonsensical for the intended purpose after observing that
+      no Janelle RGB image was used. Read-only inspection confirmed the frozen task explicitly
+      forbade RGB, masks, PIL, SceneData, and the RGB trainer; the data seal contains 296 RTGSV
+      files and zero JPG/JPEG/PNG files, and the run receipt records
+      external_images_or_masks_opened=false.
+    also_depends_on: [N199, N202, N203, N204]
+    status: resolved
+  - id: N206
+    type: decision
+    title: "Reject unsafe RTGS-013 image-grounded execution protocol"
+    provenance: ai-executed
+    timestamp: "2026-08-06T19:46+02:00"
+    choice: >
+      Reject exact protocol 7a470a851444f69ce236ed30636741835708886812888b16361f2a5d13129744
+      before initialization. Preserve the six-folder, 20/3/3, masked/unmasked, three-seed
+      scientific matrix, but require a new outcome-unseen freeze after closing the scratch-worker
+      held-out bypass, duplicate/unreceipted validation timing, mis-scoped CUDA/wall metrics,
+      stale-cell substitution, and unenforced live source/data bindings. Defer viewer launch until
+      measured resource intervals cannot be contaminated.
+    alternatives:
+      - "Approve and execute despite a direct draft-task scratch path to held-out metrics."
+      - "Treat duplicated validation work and post-endpoint CUDA allocations as native optimizer resource measurements."
+      - "Trust path names and completed flags as proof of 36 distinct measured cells."
+    evidence:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md"
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+      - "docs/DESIGN_janelle_gaussian2d_image_pipeline.md"
+      - "scripts/experiments/20260806_gaussian2d_image_refinement_janelle_frame00008.py"
+      - "src/rtgs/optim/trainer.py"
+      - "scripts/experiment_contract.py"
+      - "tests/test_janelle_image_experiment_protocol.py"
+    also_depends_on: [N205]
+    status: resolved
+  - id: N207
+    type: decision
+    title: "Reject post-V1 RTGS-013 protocol before initialization"
+    provenance: ai-executed
+    timestamp: "2026-08-06T20:36+02:00"
+    choice: >
+      Reject exact protocol 19a47a047479e3817d78c55d3d4875716caa0b88404446201aa34d767d1ed898
+      without outcome access. The V1 worker isolation, external-only validation, resource
+      endpoint, task-specific resume/aggregation validation, live source/data checks, and deferred
+      six-viewer launch are materially repaired, but official review-artifact authorization,
+      final semantic receipt replay, late-publication failure handling, complete per-folder metric
+      curves and clock labels, and six-viewer browser attestations remain insufficient.
+    alternatives:
+      - "Approve because the original V1 execution blockers are repaired, leaving final bundle and presentation defects for after protected execution."
+      - "Treat a one-second six-process launch receipt as equivalent to six browser-render and orbit attestations."
+      - "Accept raw resource JSON as fulfillment of the requested all-metric per-folder curves."
+    evidence:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V2_REJECTED.md"
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md"
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+      - "docs/DESIGN_janelle_gaussian2d_image_pipeline.md"
+      - "scripts/experiments/20260806_gaussian2d_image_refinement_janelle_frame00008.py"
+      - "scripts/experiment_contract.py"
+      - "scripts/check_results_bundle.py"
+      - "tests/test_janelle_image_experiment_protocol.py"
+      - "tests/test_experiment_contract.py"
+    also_depends_on: [N205, N206]
+    status: resolved
+  - id: N208
+    type: decision
+    title: "Reject V3 RTGS-013 terminal completion protocol"
+    provenance: ai-executed
+    timestamp: "2026-08-06T21:22+02:00"
+    choice: >
+      Reject exact protocol c3a334db13b3cc51cbe2634cd44f5d04339cdd51115c6420eea5902497ac7b05
+      without outcome access. All five V2 authorization, semantic-bundle, retry-publication,
+      complete-curve/clock, and six-browser-smoke repairs are materially present, but the final
+      completed progress and run-receipt writes remain outside the caught terminal boundary. An
+      injected final progress-write exception produced a nonzero coordinator exit while the
+      canonical run receipt claimed completion, so initialization remains prohibited.
+    alternatives:
+      - "Approve because every previously named V2 blocker is repaired and treat terminal status-write failure as operational follow-up."
+      - "Ignore progress/run-receipt disagreement because the validated scientific cells remain intact."
+      - "Recover by creating another run-root name rather than preserving the one canonical retryable root."
+    evidence:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V3_REJECTED.md"
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+      - "docs/DESIGN_janelle_gaussian2d_image_pipeline.md"
+      - "scripts/experiments/20260806_gaussian2d_image_refinement_janelle_frame00008.py"
+      - "scripts/experiment_contract.py"
+      - "scripts/check_results_bundle.py"
+      - "tests/test_janelle_image_experiment_protocol.py"
+      - "tests/test_experiment_contract.py"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N205, N206, N207]
+    status: resolved
+  - id: N209
+    type: decision
+    title: "Fix RTGS-013 scope to six Janelle frame_00008 Gaussian2D folders"
+    provenance: user
+    timestamp: "2026-08-06T21:22+02:00"
+    choice: >
+      Run one independent image-backed experiment for each of exactly six sibling folders under
+      dataset/2025_03_07_stage_with_fabric/frame_00008: gaussians2d, gaussians2d_additive,
+      gaussians2d_gaussianimage_fullres, gaussians2d_native_fullres,
+      gaussians2d_structsplat_mask_contained_fullres, and
+      gaussians2d_structsplat_no_boundary_fullres.
+    alternatives:
+      - "Treat Gaussian2D folders elsewhere in the dataset tree as additional experiment units."
+      - "Pool the six decompositions into one experiment or reuse the image-free proxy run."
+    evidence:
+      - "User direction: one experiment for each named frame_00008 folder."
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+      - "experiments/data/janelle_frame00008_image_backed_six_gaussian2d.json"
+    also_depends_on: [N205]
+    status: resolved
+  - id: N210
+    type: decision
+    title: "Authorize bounded V4 RTGS-013 terminal repair review"
+    provenance: user
+    timestamp: "2026-08-06T22:14+02:00"
+    choice: >
+      Authorize exactly one additional outcome-blind V4 loop after V3: repair only the terminal
+      completion ordering, add one-shot completed-progress and completed-receipt failure/retry
+      tests, freeze the new source binding and protocol digest, and obtain one fresh independent
+      review before any protected initialization.
+    alternatives:
+      - "Stop RTGS-013 after V3 without repairing or initializing it."
+      - "Broaden V4 into additional scientific, report, viewer, or producer changes."
+    evidence:
+      - ".agents/state/current-task.md"
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V3_REJECTED.md"
+    also_depends_on: [N208, N209]
+    status: resolved
+  - id: N211
+    type: decision
+    title: "Reject V4 RTGS-013 blocker-bound approval transition"
+    provenance: ai-executed
+    timestamp: "2026-08-06T22:14+02:00"
+    choice: >
+      Reject exact protocol 56178a3e48eb12829a66476c7bac7b2f22fdd7273ebcaae6102e43d032fb48b5
+      without outcome access even though the bounded terminal repair and all prior guards pass.
+      The reviewed task hashes its non-empty approval-only blocker, while a ready task may retain
+      no blocker; clearing it changes the digest to
+      61ba885523c4941c842744b142bf85700ac78eb6a2c61e28a20a22637371179b.
+      Preserve the green repair evidence, block initialization, and return the task to human
+      decision rather than approving an invalid or differently bound ready state.
+    alternatives:
+      - "Clear the blocker after review and approve a task whose live digest no longer matches the review."
+      - "Retain the blocker and approve a ready task that the contract rejects."
+      - "Change protocol digest semantics during the bounded V4 review."
+    evidence:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V4_REJECTED.md"
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+      - "scripts/experiment_contract.py"
+      - "scripts/experiments/20260806_gaussian2d_image_refinement_janelle_frame00008.py"
+      - "tests/test_janelle_image_experiment_protocol.py"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N208, N210]
+    status: resolved
+  - id: N212
+    type: question
+    title: "Authorize administrative V5 RTGS-013 freeze review"
+    provenance: ai-suggested
+    timestamp: "2026-08-06T22:14+02:00"
+    description: >
+      Should the owner authorize one strictly administrative, outcome-blind V5 loop that clears
+      only the stale approval blocker while draft, freezes the resulting digest, and obtains a
+      fresh prospective review with no code, data, matrix, command, metric, or outcome change; or
+      should RTGS-013 stop without initialization?
+    also_depends_on: [N210, N211]
+    status: resolved
+  - id: N213
+    type: decision
+    title: "Authorize blocker-only V5 RTGS-013 review"
+    provenance: user
+    timestamp: "2026-08-07T00:10+02:00"
+    choice: >
+      Authorize one administrative-only V5 loop: preserve V1 through V4, clear only the stale
+      approval blocker while the task remains draft, freeze the blocker-free digest, and obtain a
+      fresh outcome-blind review. Do not change source, data, scientific matrix, command, metric,
+      report, viewer, or claim fields, and do not initialize before exact approval.
+    alternatives:
+      - "Stop RTGS-013 after V4 without initialization."
+      - "Broaden V5 into source or scientific protocol changes."
+      - "Initialize before blocker-free prospective approval."
+    evidence:
+      - ".agents/state/current-task.md"
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V4_REJECTED.md"
+    also_depends_on: [N211, N212]
+    status: resolved
+  - id: N214
+    type: decision
+    title: "Approve blocker-free V5 RTGS-013 protocol"
+    provenance: ai-executed
+    timestamp: "2026-08-07T00:10+02:00"
+    choice: >
+      Approve exact protocol 61ba885523c4941c842744b142bf85700ac78eb6a2c61e28a20a22637371179b
+      with Outcome Access none. V4 reconstruction and a retained V4 task fixture show that the
+      sole protocol change is removal of the stale approval blocker; source and data bindings are
+      unchanged; exact canonical approval metadata plus ready status validate without digest
+      drift. Set the task ready and return execution authority to the Driver without initializing.
+    alternatives:
+      - "Reject despite exact semantic-diff and ready-state validation evidence."
+      - "Approve without simulating the canonical review and ready envelope."
+      - "Treat prospective approval as a reconstruction, performance, convergence, or viewer result."
+    evidence:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW.md"
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V4_REJECTED.md"
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+      - "experiments/data/janelle_frame00008_image_backed_six_gaussian2d.json"
+      - "scripts/experiment_contract.py"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N211, N213]
+    status: resolved
+  - id: N215
+    type: experiment
+    title: "Audit six image-backed Janelle Gaussian2D masked/unmasked fields"
+    provenance: ai-executed
+    timestamp: "2026-08-07T01:20+02:00"
+    result: >
+      Independent replay of the exact RTGS-013 run found zero metric or accounting mismatches
+      across 36 measured cells. Per-view held-out means, all per-folder medians, native validation
+      clocks, resource mappings, and NPZ/PLY counts reproduce; trapezoidal AUC differs by at most
+      7.105427357601002e-15. Separately within all six folders, the joint masked arm has favorable
+      foreground PSNR, crop SSIM, alpha IoU, exterior leakage, and validation AUC in 3/3 paired
+      seeds, while full-canvas PSNR has the adverse tradeoff direction in 3/3 seeds.
+    evidence:
+      - "benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.md"
+      - "benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.json"
+      - "benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_RESULT.json"
+      - "runs/20260806_gaussian2d_image_refinement_janelle_frame00008"
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+    also_depends_on: [N205, N209, N214]
+    status: resolved
+  - id: N216
+    type: decision
+    title: "Accept RTGS-013 only as per-folder development evidence"
+    provenance: ai-executed
+    timestamp: "2026-08-07T01:20+02:00"
+    choice: >
+      Accept the exact six-folder run for bounded report rendering and separate per-folder
+      development interpretation. Confirm only the joint end-to-end masked foreground/silhouette,
+      full-canvas tradeoff, and frozen validation-AUC directions. Do not pool or rank folders;
+      treat every runtime, RSS, and CUDA value as descriptive; withhold visual usability until
+      browser smoke; and retain no SOTA, GPS-Gaussian, real-time, cross-scene, complete-field, or
+      production-default claim.
+    alternatives:
+      - "Pool the six decompositions and report one treatment effect or folder ranking."
+      - "Use the host-local clocks as general speedup or real-time evidence."
+      - "Reject the scientific cells despite exact metric, isolation, and endpoint replay."
+    evidence:
+      - "benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.md"
+      - "benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.json"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N215]
+    status: resolved
+  - id: N217
+    type: dead_end
+    title: "RTGS-013 fixed-threshold cross-folder convergence claim is untestable"
+    provenance: ai-executed
+    timestamp: "2026-08-07T01:20+02:00"
+    hypothesis: >
+      Higher-capacity or boundary-aware Gaussian2D folders reach a fixed validation-quality
+      threshold sooner.
+    failure_mode: >
+      The frozen task defines time-normalized validation AUC but no threshold or crossing rule,
+      and its aggregation policy makes each folder an independent unit that cannot be pooled or
+      ranked. The observed AUC directions therefore cannot answer the threshold/cross-folder claim.
+    lesson: >
+      A future experiment must prospectively freeze an absolute quality threshold, censoring and
+      crossing-time semantics, and a justified folder-level comparison design before outcome
+      access; AUC cannot be substituted post hoc.
+    evidence:
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+      - "benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.md"
+    also_depends_on: [N215, N216]
+    status: resolved
+  - id: N218
+    type: decision
+    title: "Accept RTGS-013 terminal report and browser closeout"
+    provenance: ai-executed
+    timestamp: "2026-08-07T02:26+02:00"
+    choice: >
+      Accept the exact downstream closeout without rewriting producer evidence. The root plus six
+      frozen child reports, 1,699-entry manifest, 1,783-target structured report receipt, six-entry
+      WebGL2/orbit receipt, live endpoints, audit-bounded documentation, official run/bundle
+      validators, canonical repository gate, and CPU full suite all pass. Advance RTGS-013 to
+      Calibrated/Accepted and return Turn to the Driver for user handoff.
+    alternatives:
+      - "Reject otherwise valid presentation evidence solely for two retained non-fatal viewer warning strings."
+      - "Rewrite immutable producer status or RESULT/AUDIT evidence after outcome access."
+      - "Use displayed host-local timing/resource curves as a speed, real-time, or general performance claim."
+    evidence:
+      - "runs/20260806_gaussian2d_image_refinement_janelle_frame00008/index.html"
+      - "runs/20260806_gaussian2d_image_refinement_janelle_frame00008/manifest.json"
+      - "runs/20260806_gaussian2d_image_refinement_janelle_frame00008/viewer_smoke.json"
+      - "runs/20260806_gaussian2d_image_refinement_janelle_frame00008/report_browser_smoke.json"
+      - "docs/EXPERIMENTS.md"
+      - "docs/DESIGN_janelle_gaussian2d_image_pipeline.md"
+      - ".agents/state/current-task.md"
+    also_depends_on: [N215, N216, N217]
+    status: resolved

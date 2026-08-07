@@ -333,3 +333,56 @@
   named support, never alpha. Alpha agreement, MS-SSIM, LPIPS, track yield, and field conditioning
   remain unavailable. The boundary fits no field, runs no reconstruction, performs no correlation,
   selects no objective, establishes no quality/speed/compression result, and changes no default.
+
+## A19: G²SR-aligned correspondence branch for compact teacher fields
+
+- **Design**: While source RGB is still authorized in Stage 1, track each reference-view 2D
+  Gaussian's center and four principal-axis sigma points with forward/backward optical or feature
+  flow. Serialize only accepted per-view Gaussian targets, track provenance, rejection reasons,
+  and camera bindings. The downstream image-free stage triangulates means, derives a local affine
+  surface frame, and fits projected Gaussian shape before any short alpha/appearance calibration.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Evidence**: [N132, N196, O111,
+  `docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md`,
+  `docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md`]
+- **Code ref**: [`benchmarks/g2sr_correspondence_diagnostic.py`,
+  `tests/test_g2sr_correspondence_diagnostic.py`]
+- **From staging**: O111
+- **Boundary**: The existing code is a mechanism diagnostic, not the complete G²SR normal/scale
+  initialization or Hellinger Gauss–Newton backend described here. The architecture is a research
+  baseline for explicit correspondence, not evidence that independently fitted fields are
+  trackable, that field-only lifting matches RGB-assisted quality, or that the branch improves a
+  production default.
+
+## A20: Probabilistic compact-field lift orchestration
+
+- **Design**: An opt-in public orchestration path applies an explicit mask policy, bounded source
+  placement, source-excluded finite-gated mass association, continuous field refit, conservative
+  topology proposals, mandatory all-view cleanup, and optional disjoint-camera half fits. The
+  association stage uses one shared latent 3D population with per-view entropic unbalanced
+  transport, capacities, and dustbins; a configured whole-stage failure policy either raises or
+  restores the pre-association field. Progressive schedules expose deterministic farthest-camera
+  order and compute target-dependent gains and observability from active views only before the
+  full-view cleanup.
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Evidence**: [N198, N199, N202, N203, O155, O159, O160, O161, O162, O163, O164,
+  `docs/DESIGN_probabilistic_field_pipeline.md`,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md`,
+  `.agents/state/current-task.md`]
+- **Code ref**: [`src/rtgs/lift/probabilistic_pipeline.py`,
+  `src/rtgs/lift/field_lifter.py`, `src/rtgs/lift/fiber_correspondence.py`,
+  `src/rtgs/lift/field_refit.py`, `src/rtgs/lift/field_topology.py`,
+  `tests/test_probabilistic_field_pipeline.py`]
+- **From staging**: O155
+- **Boundary**: This is a shared-latent collection of per-view transport problems, not a solved
+  globally coupled multi-marginal OT program or a sparse transport backend. The audited
+  development experiment supports rank-aware shape recovery and probability support only at their
+  exact synthetic scopes; field-mass association, projection-nonlinearity topology, and
+  progressive scheduling fail their isolated gates at `0/3` and are retired for this protocol.
+  The capped calibrated matrix is descriptive (`33/33` native and `26/33` candidate successes)
+  with no failed-value imputation; unequal denominators prohibit a superiority conclusion.
+  Complete-field/source-RGB quality, physical geometry, independent-half accuracy, general
+  convergence or performance, memory, CUDA/GPU behavior, cross-scene robustness, and default
+  utility remain unsupported.

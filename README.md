@@ -23,7 +23,10 @@ primitives, we:
      multi-view photometric optimization corrects depth before confidence/color-aware fusion.
    - **E · `field`** — an image-free research path places source-anchored fibers from compact
      frozen 2D fields, refits an additive density/RGB-numerator proxy, and applies transactional
-     topology proposals. Frozen StructSplat renderer semantics are validated separately.
+     topology proposals. An opt-in wrapper adds probability support, projection-gated
+     shared-latent per-view transport, nonlinearity-selected depth splits, progressive views, and
+     independent-half stability diagnostics; none is a default or quality/speed claim. Frozen
+     StructSplat renderer semantics are validated separately.
    Checked-in compact captures also support RGB-free research initializers without pretending
    that their inputs match the legacy cohort: balanced top-K compact carve, dense+merge,
    confidence-gated easy-only, calibrated splat-SfM, tomographic beam fusion, complete field lift,
@@ -141,6 +144,8 @@ execution, not a held-out/generalization, performance, topology-utility, or prod
 claim. Its analytic whole-plane loss is exact for additive peak-mixture density and RGB numerator
 only; normalized finite-support/fade/affine StructSplat teachers are evaluated by separate bounded
 deterministic sampled validation with train/held-out aggregates.
+The staged opt-in extension, expected behavior, failure modes, and native fallbacks are specified in
+[`docs/DESIGN_probabilistic_field_pipeline.md`](docs/DESIGN_probabilistic_field_pipeline.md).
 
 For a full compact-only comparison, the convergence harness accepts `topk`, `beam-fusion`,
 `dense-merge`, `easy-only`, `splat-sfm`, `field`, and `random`. The suite operator runs each
@@ -415,6 +420,9 @@ names are rejected unless their code and weights have been explicitly license-ve
 | --- | --- |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Module map, dataflow, backend abstractions, CLI |
 | [`docs/RESEARCH.md`](docs/RESEARCH.md) | State-of-the-art survey and what we reuse from where |
+| [`docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md`](docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md) | Focused 2D-field-to-3D-Gaussian literature review, masked/unmasked Pareto choices, and evaluation protocol |
+| [`docs/DESIGN_janelle_gaussian2d_image_pipeline.md`](docs/DESIGN_janelle_gaussian2d_image_pipeline.md) | Image-backed six-folder Janelle Gaussian2D lifting and refinement experiment pipeline |
+| [`docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md`](docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md) | Falsifiable follow-up ideas, transfers, killing tests, and recommended first experiment |
 | [`docs/RESEARCH_LOOP.md`](docs/RESEARCH_LOOP.md) | Reusable three-iteration R&D prompt and execution record |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Milestones and open questions |
 | [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) | How to benchmark + tracked results |

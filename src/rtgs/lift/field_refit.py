@@ -9,8 +9,10 @@ proxy; callers can separately evaluate the frozen teacher's sampled renderer sem
 from __future__ import annotations
 
 import math
+import time
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Literal
 
 import torch
 
@@ -31,6 +33,8 @@ from rtgs.lift.field_visibility import (
 from rtgs.lift.inverse_projection_fiber import InverseProjectionFiber
 from rtgs.lift.source_anchored_sh import SourceAnchoredSH
 
+ViewSchedule = Literal["all", "progressive"]
+
 
 @dataclass(frozen=True)
 class FieldRefitConfig:
@@ -49,6 +53,9 @@ class FieldRefitConfig:
     chunk_size: int = 256
     gradient_clip: float = 10.0
     force_source_visible: bool = True
+    view_schedule: ViewSchedule = "all"
+    progressive_start_views: int = 2
+    full_view_cleanup_iterations: int = 0
 
     def __post_init__(self) -> None:
         integer_fields = (
@@ -57,6 +64,8 @@ class FieldRefitConfig:
             "sh_degree",
             "visibility_refresh",
             "chunk_size",
+            "progressive_start_views",
+            "full_view_cleanup_iterations",
         )
         for name in integer_fields:
             value = getattr(self, name)
@@ -70,6 +79,14 @@ class FieldRefitConfig:
             raise ValueError("field refit uses source-anchored SH degree in [1,3]")
         if self.visibility_refresh <= 0 or self.chunk_size <= 0:
             raise ValueError("visibility_refresh and chunk_size must be positive")
+        if self.progressive_start_views <= 0:
+            raise ValueError("progressive_start_views must be positive")
+        if not 0 <= self.full_view_cleanup_iterations <= self.iterations:
+            raise ValueError("full_view_cleanup_iterations must be in [0,iterations]")
+        if self.view_schedule not in {"all", "progressive"}:
+            raise ValueError("view_schedule must be 'all' or 'progressive'")
+        if self.view_schedule == "progressive" and self.full_view_cleanup_iterations <= 0:
+            raise ValueError("progressive view scheduling requires at least one cleanup iteration")
         positive = (
             "learning_rate",
             "density_weight",
@@ -102,6 +119,54 @@ class FieldRefitResult:
     covariance_free_mask: torch.Tensor
     source_projection_max_error: float
     source_color_max_error: float
+    view_order: tuple[int, ...]
+    active_view_counts: tuple[int, ...]
+    elapsed_seconds: tuple[float, ...]
+
+
+def _greedy_view_order(cameras: Sequence[Camera]) -> tuple[int, ...]:
+    """Order cameras by deterministic farthest-point baseline coverage."""
+
+    camera_tuple = tuple(cameras)
+    if not camera_tuple:
+        raise ValueError("at least one camera is required")
+    positions = torch.stack([camera.position.detach().to(torch.float64) for camera in camera_tuple])
+    selected = [0]
+    remaining = set(range(1, len(camera_tuple)))
+    while remaining:
+        best_index = min(
+            remaining,
+            key=lambda index: (
+                -min(
+                    float(torch.linalg.vector_norm(positions[index] - positions[chosen]))
+                    for chosen in selected
+                ),
+                index,
+            ),
+        )
+        selected.append(best_index)
+        remaining.remove(best_index)
+    return tuple(selected)
+
+
+def _active_views(
+    step: int,
+    *,
+    count: int,
+    order: tuple[int, ...],
+    config: FieldRefitConfig,
+) -> tuple[int, ...]:
+    """Return the active fitting views, ending in a mandatory all-view cleanup."""
+
+    if config.view_schedule == "all" or count <= config.progressive_start_views:
+        return tuple(range(count))
+    transition_steps = config.iterations - config.full_view_cleanup_iterations
+    if step >= transition_steps:
+        return tuple(range(count))
+    start = min(config.progressive_start_views, count)
+    denominator = max(transition_steps - 1, 1)
+    active_count = start + math.floor((count - start) * step / denominator)
+    return order[:active_count]
 
 
 def _constant_initialized_appearance(
@@ -422,11 +487,14 @@ def fit_field_fibers(
         dtype=torch.bool,
         device=field_masses.device,
     )
+    view_order = _greedy_view_order(camera_tuple)
 
-    def objective(step: int) -> torch.Tensor:
+    def objective(step: int, active_views: tuple[int, ...]) -> torch.Tensor:
         total = field_masses.new_zeros(())
         include_rgb = step >= config.appearance_start
-        for view, (camera, target) in enumerate(zip(camera_tuple, target_tuple, strict=True)):
+        for view in active_views:
+            camera = camera_tuple[view]
+            target = target_tuple[view]
             predicted = _predicted_field(
                 fiber=fiber,
                 appearance=appearance,
@@ -443,7 +511,7 @@ def fit_field_fibers(
                 include_rgb=include_rgb,
                 chunk_size=config.chunk_size,
             )
-        total = total / len(camera_tuple)
+        total = total / len(active_views)
         if config.null_prior_weight:
             _means, covariances = fiber.means_covariances()
             total = total + config.null_prior_weight * _null_prior(
@@ -453,11 +521,28 @@ def fit_field_fibers(
             )
         return total
 
-    history: list[float] = [float(objective(0).detach())]
+    fit_started = time.perf_counter()
+    initial_active_views = _active_views(
+        0,
+        count=len(camera_tuple),
+        order=view_order,
+        config=config,
+    )
+    history: list[float] = [float(objective(0, initial_active_views).detach())]
+    active_view_counts: list[int] = [len(initial_active_views)]
+    elapsed_seconds: list[float] = [0.0]
     accepted = 0
     parameters = [fiber.depth_logits, fiber.cross, fiber.log_ray_scale, appearance.free]
+    previous_active_views: tuple[int, ...] | None = None
     for step in range(config.iterations):
-        if step % config.visibility_refresh == 0:
+        active_views = _active_views(
+            step,
+            count=len(camera_tuple),
+            order=view_order,
+            config=config,
+        )
+        refresh = step % config.visibility_refresh == 0 or active_views != previous_active_views
+        if refresh:
             with torch.no_grad():
                 current_gaussians = _materialize(fiber, appearance, render_opacity)
                 visibility = center_transmittance_visibility(
@@ -467,28 +552,25 @@ def fit_field_fibers(
                     force_source_visible=config.force_source_visible,
                     dilation=fiber.dilation,
                 )
-                gains = torch.stack(
-                    [
-                        _gain_for_view(
-                            fiber=fiber,
-                            appearance=appearance,
-                            camera=camera,
-                            visibility=visibility.weights[view],
-                            field_masses=field_masses,
-                            target=target,
-                            ridge=config.gain_ridge,
-                            chunk_size=config.chunk_size,
-                        )
-                        for view, (camera, target) in enumerate(
-                            zip(camera_tuple, target_tuple, strict=True)
-                        )
-                    ]
-                )
+                updated_gains = gains.clone()
+                for view in active_views:
+                    updated_gains[view] = _gain_for_view(
+                        fiber=fiber,
+                        appearance=appearance,
+                        camera=camera_tuple[view],
+                        visibility=visibility.weights[view],
+                        field_masses=field_masses,
+                        target=target_tuple[view],
+                        ridge=config.gain_ridge,
+                        chunk_size=config.chunk_size,
+                    )
+                gains = updated_gains
                 means, _covariances = fiber.means_covariances()
+                active_cameras = tuple(camera_tuple[view] for view in active_views)
                 reports = _observability_reports(
                     means,
-                    camera_tuple,
-                    visibility.weights,
+                    active_cameras,
+                    visibility.weights[list(active_views)],
                     config.observability_condition_limit,
                 )
                 covariance_free_mask = torch.tensor(
@@ -496,9 +578,10 @@ def fit_field_fibers(
                     dtype=torch.bool,
                     device=field_masses.device,
                 )
+        previous_active_views = active_views
 
         optimizer.zero_grad(set_to_none=True)
-        before = objective(step)
+        before = objective(step, active_views)
         before.backward()
         torch.nn.utils.clip_grad_norm_(parameters, config.gradient_clip)
         snapshot = [parameter.detach().clone() for parameter in parameters]
@@ -507,7 +590,7 @@ def fit_field_fibers(
             pinned = ~covariance_free_mask
             fiber.cross[pinned] = initial_cross[pinned]
             fiber.log_ray_scale[pinned] = initial_log_ray_scale[pinned]
-        after = objective(step)
+        after = objective(step, active_views)
         if bool(torch.isfinite(after)) and float(after.detach()) <= float(before.detach()) + 1e-10:
             accepted += 1
             history.append(float(after.detach()))
@@ -518,6 +601,8 @@ def fit_field_fibers(
             for group in optimizer.param_groups:
                 group["lr"] *= 0.5
             history.append(float(before.detach()))
+        active_view_counts.append(len(active_views))
+        elapsed_seconds.append(time.perf_counter() - fit_started)
 
         source_means, source_covariances, _depth = fiber.source_projection()
         source_mean_error = (source_means - fiber.source_means2d).abs().amax()
@@ -557,11 +642,15 @@ def fit_field_fibers(
         covariance_free_mask=covariance_free_mask.detach().clone(),
         source_projection_max_error=float(source_projection_error.detach()),
         source_color_max_error=float(appearance.source_max_abs_error().detach()),
+        view_order=view_order,
+        active_view_counts=tuple(active_view_counts),
+        elapsed_seconds=tuple(elapsed_seconds),
     )
 
 
 __all__ = [
     "FieldRefitConfig",
     "FieldRefitResult",
+    "ViewSchedule",
     "fit_field_fibers",
 ]

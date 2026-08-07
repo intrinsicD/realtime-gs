@@ -104,7 +104,8 @@ src/rtgs/
                metrics — shared math & containers
   image2gs/    stage 1: differentiable 2D splatting (serial + fused batch_views),
                native/StructSplat fitting, adapters; experimental CUDA ext in cuda_backend.py
-  lift/        stage 2: gradient/depth/hybrid/carve/field, compact_carve, beam_fusion,
+  lift/        stage 2: gradient/depth/hybrid/carve/field, probabilistic_pipeline,
+               compact_carve, beam_fusion,
                carrier_refinement (ADR-002 renderer-aware covariance repair; legacy
                opacity/SH0 repair controls are retired from the carrier path),
                surfel_init (cover-consistent covariance/opacity post-process),
@@ -121,7 +122,8 @@ src/rtgs/
                explicit compact train/heldout seam; reconstruction_inputs.py fixed-topology seam
   carrier_pipeline.py  compact-only Beam -> corrected covariance -> fixed-topology carrier
                sequence; accepts ReconstructionInputs only
-  pipeline.py  strict-split legacy orchestration + image-free run_field_pipeline; lazily
+  pipeline.py  strict-split legacy orchestration + image-free run_field_pipeline and opt-in
+               run_probabilistic_field_pipeline; lazily
                reexports the compact run_carrier_pipeline; visualize.py previews;
                viewer.py browser UI; live.py igsv live-training bridge; cli.py CLI including lift-field
 tests/         CPU-only pytest suite; conftest.py has seeding + tiny-scene fixtures
@@ -130,7 +132,8 @@ experiments/   active task/program registry, prospective reviews, local-data sea
 benchmarks/    reusable run.py plus immutable legacy drivers and append-only result/audit evidence
 docs/          ARCHITECTURE, RESEARCH (SOTA survey), RESEARCH_LOOP, ROADMAP, BENCHMARKS,
                EXPERIMENTS, AGENT_WORKFLOW.md; tasks/ closed agent-work records;
-               DESIGN_field_lift.md design note; TASK_* per-protocol notes;
+               DESIGN_field_lift.md + DESIGN_probabilistic_field_pipeline.md design notes;
+               TASK_* per-protocol notes;
                THREE_ARM_EXPERIMENT_PROGRAM.md active claim-arm design and math;
                ADR-XXXX-surfel-lift.md and ADR-YYYY-init-preserving-densification.md (the
                init-parameter and schedule decisions); ADR-002-carrier-refinement.md

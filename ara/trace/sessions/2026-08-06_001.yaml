@@ -1,0 +1,372 @@
+session:
+  id: "2026-08-06_001"
+  date: "2026-08-06"
+  started: "2026-08-06T03:03+02:00"
+  last_turn: "2026-08-06T22:14+02:00"
+  turn_count: 10
+  summary: >
+    Prospectively approved the repaired forward-AABB and transactional-rollback protocols, then
+    independently accepted the completed matrix, all-dataset reports/viewers, and archived
+    Pipeline-integrated closeout after one bounded disclaimer repair. The owner then rejected that
+    field-only proxy run as the intended Janelle image experiment and fixed the successor scope to
+    exactly six named frame_00008 Gaussian2D folders. Three outcome-blind RTGS-013 reviews preserve
+    that matrix. Owner-authorized V4 closes the false-completion terminal-write bug and preserves
+    every prior guard, but rejects initialization because the exact reviewed task hashes a stale
+    approval blocker that cannot remain in a valid ready state; one administrative V5 decision is
+    pending.
+
+events_logged:
+  - turn: 1
+    type: decision
+    id: N200
+    routing: direct
+    provenance: ai-executed
+    summary: "Approve exact forward-AABB successor v2 for administrative ready transition only."
+  - turn: 2
+    type: decision
+    id: N201
+    routing: direct
+    provenance: ai-executed
+    summary: "Approve exact association-rollback successor for administrative ready transition only."
+  - turn: 3
+    type: experiment
+    id: N202
+    routing: direct
+    provenance: ai-executed
+    summary: "Audit 483 synthetic cells and all 66 calibrated terminals from raw immutable records."
+  - turn: 3
+    type: decision
+    id: N203
+    routing: direct
+    provenance: ai-executed
+    summary: "Accept bounded development evidence; retire association, topology, and schedule utility claims."
+  - turn: 4
+    type: decision
+    id: N204
+    routing: direct
+    provenance: ai-executed
+    summary: "Accept Pipeline-integrated closeout after exact general/positive-claim disclaimer repair."
+  - turn: 6
+    type: pivot
+    id: N205
+    routing: direct
+    provenance: user-revised
+    summary: "Reclassify RTGS-012 as a field-only proxy diagnostic; require an image-grounded Janelle successor."
+  - turn: 7
+    type: decision
+    id: N206
+    routing: direct
+    provenance: ai-executed
+    summary: "Reject exact RTGS-013 protocol before initialization due five fail-closed execution and measurement defects."
+  - turn: 8
+    type: decision
+    id: N207
+    routing: direct
+    provenance: ai-executed
+    summary: "Reject post-V1 RTGS-013 protocol due five final authorization, bundle, publication, report, and viewer-evidence defects."
+  - turn: 9
+    type: decision
+    id: N208
+    routing: direct
+    provenance: ai-executed
+    summary: "Reject V3 RTGS-013 after reproducing a nonzero exit with a false completed run receipt."
+  - turn: 9
+    type: decision
+    id: N209
+    routing: direct
+    provenance: user
+    summary: "Fix RTGS-013 to one image-backed experiment for each of exactly six named frame_00008 Gaussian2D folders."
+  - turn: 10
+    type: decision
+    id: N210
+    routing: direct
+    provenance: user
+    summary: "Authorize one bounded outcome-blind V4 terminal-order repair and review."
+  - turn: 10
+    type: decision
+    id: N211
+    routing: direct
+    provenance: ai-executed
+    summary: "Reject V4 because its digest-bound approval blocker prevents a valid ready transition."
+  - turn: 10
+    type: question
+    id: N212
+    routing: direct
+    provenance: ai-suggested
+    summary: "Ask whether to authorize one blocker-only administrative V5 freeze and review."
+
+ai_actions:
+  - turn: 1
+    action: >
+      Recomputed protocol, live-source, pinned-base, cell-list, plan-payload, data-seal, and
+      permitted predecessor-chronology hashes. Re-ran both rejected v1 counterexamples and
+      attacked budget aliases, coherent false totals, per-view capacities, optimized indices,
+      policy/source/base bindings, and subprocess identities. All expected mutations failed
+      closed, all 549 cells remained equal to the approved base plan, and no official cell ran.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 1
+    action: >
+      Passed nine focused successor/fixed-sweep tests, the broader six-file suite, the complete CPU
+      suite including slow tests, the canonical verification gate, diff hygiene, and a simulated
+      ready-state contract parse. Authored the exact prospective approval artifact and returned
+      the durable task turn to the Driver while leaving the real task draft and run root absent.
+    provenance: ai-executed
+    files_changed:
+      - "experiments/reviews/20260805_probabilistic_field_pipeline_aabb_eligible_mixed_PROTOCOL_REVIEW.md"
+      - ".agents/state/current-task.md"
+  - turn: 2
+    action: >
+      Recomputed protocol, live-source, successor/base-driver, cell-list, plan-payload, data-seal,
+      and permitted predecessor-failure hashes. Proved exact equality of all 549 cells and native
+      realized config against the approved forward-AABB plan, with candidate failure policy as
+      the sole realized config difference. Simulated a partial association M-step failure and
+      confirmed the original placement stayed bitwise unchanged; attacked thirteen completion
+      receipts and twelve task/source/base/command mutations without opening an outcome.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 2
+    action: >
+      Passed eleven focused rollback/AABB tests, the broader six-file suite, task/data validation,
+      diff hygiene, and the canonical non-slow CPU verification gate. Authored the exact
+      prospective approval artifact and appended the verdict to the durable task record while
+      leaving the task draft and successor run root absent.
+    provenance: ai-executed
+    files_changed:
+      - "experiments/reviews/20260805_probabilistic_field_pipeline_association_rollback_mixed_PROTOCOL_REVIEW.md"
+      - ".agents/state/current-task.md"
+  - turn: 3
+    action: >
+      Independently rebound task, protocol, prospective review, data seal, 102-file source tree,
+      successor/base drivers, task lock, command, producer results, and the 565-file run inventory;
+      re-expanded the 483+66 plan and recomputed every hard invariant, per-seed gate, aggregate,
+      denominator, fallback, failure, and no-imputation surface from raw JSON.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 3
+    action: >
+      Checked all worker input/resource hashes, splits, successful primary AABB counters,
+      structured failures, fallback provenance, histories, dataset curves, presentation copies,
+      and 192 PLY payloads without rendering or visual inspection. Authored the canonical
+      independent Markdown/JSON audits, appended the accepted review, and returned task turn to
+      the Driver. Contract/data/diff checks passed; 27 focused tests passed and one stale
+      pre-review task-status assertion remains for downstream repair.
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md"
+      - "benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.json"
+      - ".agents/state/current-task.md"
+  - turn: 4
+    action: >
+      Independently reviewed the complete opt-in implementation, disabled-control parity,
+      rollback/fallback and no-imputation boundaries, three negative mechanism dispositions,
+      lifecycle-only test repair, reports, seven byte-exact mirrors, Chrome/WebGL2 receipts, ARA
+      claims, and documentation. Recomputed source/base bindings and canonical audit hashes;
+      passed the 116-test focused suite, full CPU pytest, canonical verification, run and bundle
+      contracts, and live report/viewer endpoint checks.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+  - turn: 4
+    action: >
+      Issued a revision-required closeout verdict for one absolute design-header disclaimer,
+      confirmed the Driver's exact one-line `general or positive` narrowing without reopening the
+      scientific result, passed docs-sync, ARA, workflow, and diff checks, then appended the bounded
+      acceptance and returned the task to the Driver.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+  - turn: 5
+    action: >
+      Rendered the root and eleven per-dataset reports, launched and retained eleven orbit viewers,
+      and persisted strict and all-dataset Chrome/WebGL2 receipts covering 12 pages, 586 local
+      targets, non-background framebuffers, renderer readiness, and camera-changing orbit input.
+      Added seven byte-exact run-local evidence mirrors solely to make the frozen renderer's
+      repository-relative links reachable from the run-root HTTP server.
+    provenance: ai-executed
+    files_changed:
+      - "runs/20260805_probabilistic_field_pipeline_association_rollback_mixed/"
+  - turn: 5
+    action: >
+      Repaired the stale approved-task lifecycle assertion, recorded the independently audited
+      experiment in the durable log/design/architecture and C35-C40, passed the focused 116-test
+      suite plus two complete canonical verification gates, obtained independent closeout
+      acceptance after one disclaimer repair, archived RTGS-012, restored the exact active-task
+      template, and revalidated the run bundle and all twelve live HTTP endpoints.
+    provenance: ai-executed
+    files_changed:
+      - "tests/test_probabilistic_field_experiment_protocol.py"
+      - "docs/EXPERIMENTS.md"
+      - "docs/DESIGN_probabilistic_field_pipeline.md"
+      - "ara/logic/claims.md"
+      - "ara/logic/solution/architecture.md"
+      - "ara/staging/observations.yaml"
+      - "docs/tasks/RTGS-012-probabilistic-compact-field-lifting-pipeline.md"
+      - ".agents/state/current-task.md"
+  - turn: 6
+    action: >
+      Audited the frozen task, data seal, root and per-cell input-boundary receipts, one calibrated
+      summary, dataset layout, and generated report labels after the owner's correction. Confirmed
+      that the run consumed calibration plus capped RTGSV fields and embedded alpha only: the seal
+      contains 296 RTGSV files and zero JPG/JPEG/PNG files, while RGB, external masks, SceneData,
+      PIL, and the RGB trainer were explicitly forbidden. Reclassified the displayed RGB-numerator
+      MSE as analytic compact-field agreement rather than Janelle photograph error.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 7
+    action: >
+      Recomputed the RTGS-013 protocol digest, validated the task and 215-file hybrid
+      RGB/Gaussian2D seal, traced the six-folder 36-cell matrix, mask isolation, carrier receipts,
+      held-out sequence, Trainer timing, CUDA resource scope, resume behavior, child reports, and
+      viewer command without initializing or invoking any producer. Passed 41 focused outcome-free
+      tests and compiled the driver/contract, then authored the canonical prospective rejection.
+    provenance: ai-executed
+    files_changed:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md"
+  - turn: 8
+    action: >
+      Recomputed exact protocol, source, data-seal, and preserved-V1 bindings; independently
+      retraced the repaired worker authorization, optimizer-only Trainer, external validation
+      clock, CUDA/total endpoint, cell receipts, live source/data checks, aggregation/report
+      ordering, child metric curves, and six deferred viewer paths. Passed 88 focused outcome-free
+      tests plus compilation, workflow, docs-sync, contract, and data checks without creating the
+      official run.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 8
+    action: >
+      Authored the fresh canonical rejection for digest
+      19a47a047479e3817d78c55d3d4875716caa0b88404446201aa34d767d1ed898,
+      preserving V1 unchanged and binding five exact repair requirements: review-artifact lock
+      validation, semantic final receipt replay, retry-safe late publication, complete resource
+      curves with explicit clocks, and six browser-smoked viewers.
+    provenance: ai-executed
+    files_changed:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V2_REJECTED.md"
+  - turn: 9
+    action: >
+      Recomputed exact V3 protocol/source/data/prior-review bindings and replayed all five V2
+      repairs across the producer, Trainer, generic contract, bundle checker, renderer, and
+      focused tests. In an outcome-free temporary fixture, injected failure of the final
+      completed progress write; the coordinator raised while the run receipt remained completed
+      and progress remained running.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 9
+    action: >
+      Authored the canonical V3 rejection, appended the independent task review, and applied the
+      two-revision workflow escalation to Blocked on human decision. Preserved V1/V2 unchanged,
+      left the official run absent, and passed focused CPU, compilation, Ruff, contract/data,
+      workflow, docs-sync, review-shape, and diff checks.
+    provenance: ai-executed
+    files_changed:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V3_REJECTED.md"
+      - ".agents/state/current-task.md"
+  - turn: 10
+    action: >
+      Recomputed exact V4 protocol, 103-file source, 215-file data, and V1/V2/V3 rejection
+      bindings; inspected the terminal source order; injected one-shot completed progress and run
+      receipt write failures; and proved both leave failed receipt/progress before same-root retry.
+      Replayed all 99 focused protocol, contract, and optimizer tests plus compilation, Ruff,
+      workflow, docs-sync, ARA, script-layout, and diff checks without opening any outcome.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 10
+    action: >
+      Attempted only the prescribed administrative ready transition and detected that clearing
+      the frozen approval blocker changes digest 56178a3e...48b5 to 61ba8855...119b, while
+      retaining it invalidates ready. Restored the exact reviewed digest, authored the canonical
+      V4 rejection, set the experiment task to blocked, returned the active task to human
+      decision, and left the official run root absent.
+    provenance: ai-executed
+    files_changed:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW_V4_REJECTED.md"
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+      - ".agents/state/current-task.md"
+
+claims_touched:
+  - id: C35
+    action: crystallized
+    turn: 5
+  - id: C36
+    action: crystallized
+    turn: 5
+  - id: C37
+    action: crystallized
+    turn: 5
+  - id: C38
+    action: crystallized
+    turn: 5
+  - id: C39
+    action: crystallized
+    turn: 5
+  - id: C40
+    action: crystallized
+    turn: 5
+
+key_context:
+  - turn: 1
+    excerpt: >
+      The Driver requested a second distinct Outcome Access none review of exact v2, beginning
+      with both v1 counterexamples and approving only if lifecycle and capacity receipts failed
+      closed without changing the scientific cells.
+  - turn: 2
+    excerpt: >
+      The Driver requested a distinct Outcome Access none review of the association-rollback
+      successor, authorizing only immutable predecessor failure chronology and requiring proof
+      that rollback remains zero-success, non-imputing, and subject to the unchanged hard gate.
+  - turn: 3
+    excerpt: >
+      The Driver requested a distinct Outcome Access allowed results audit before any render or
+      viewer launch, requiring exact binding, all-terminal accounting, rollback/fallback/AABB
+      classification, independent gate recomputation, no-imputation proof, and bounded claim
+      disposition.
+  - turn: 4
+    excerpt: >
+      The Driver requested final Pipeline-integrated closeout review and then an exact bounded
+      re-review after changing only the design header from an absolute no-claim statement to a
+      no-general-or-positive-claim statement.
+  - turn: 5
+    excerpt: >
+      The owner asked for progress while the all-dataset run was active; the Driver completed the
+      audit-gated reports, opened and smoke-tested every requested viewer, preserved the bounded
+      positive and negative mechanism dispositions, and closed the accepted task without commit or
+      publication.
+  - turn: 6
+    excerpt: >
+      The owner said the result made no sense and correctly identified that the Janelle images were
+      not used, invalidating the Driver's presentation of RTGS-012 as fulfillment of the intended
+      experiment rather than as a limited field-proxy diagnostic.
+  - turn: 7
+    excerpt: >
+      The Driver requested a distinct Outcome Access none review of the exact image-grounded
+      successor and instructed rejection unless its six-unit split, mask isolation, convergence,
+      resource, carrier, warmup, report/viewer, and fail-closed contracts were approval-worthy.
+  - turn: 8
+    excerpt: >
+      The Driver requested a fresh Outcome Access none review after V1 repairs, with explicit
+      adversarial attention to ticket integrity and report artifact ordering; the review preserved
+      the repaired scientific matrix but rejected initialization on five remaining final-boundary
+      counterexamples.
+  - turn: 9
+    excerpt: >
+      The Driver requested a fresh V3 Outcome Access none review under exact protocol and source
+      bindings, requiring all five V2 surfaces to be replayed and any new bypass to block
+      approval; the review confirmed those repairs but reproduced a false completed receipt after
+      terminal progress-write failure.
+  - turn: 9
+    excerpt: >
+      The owner specified the exact experiment units: one independent experiment for each of the
+      six named Gaussian2D folders inside Janelle frame_00008.
+  - turn: 10
+    excerpt: >
+      The owner authorized only the bounded V4 terminal-order repair and outcome-blind review. The
+      repair and prior guards passed, but the exact reviewed task could not transition to a valid
+      ready state because its approval blocker is digest-bound; the Driver confirmed rejection and
+      a new human decision rather than changing digest semantics or initializing.
+
+open_threads:
+  - "Obtain the owner decision on N212: authorize one blocker-only administrative V5 draft freeze and Outcome Access none review, or stop RTGS-013 without initialization."
+  - "True globally coupled multi-marginal transport and the full KL-screened split/merge heuristic remain unimplemented or untested; O157 stays staged."
+
+ai_suggestions_pending: []

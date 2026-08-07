@@ -5,6 +5,15 @@ representations; depth/lifting/carving), then updated through the 2026-07-21 exp
 Each section ends with what this repo reuses. License claims were verified against the repositories
 on the original compile date — re-verify before anything license-sensitive.
 
+For the focused, primary-source-backed review of image-plane Gaussian fields lifted into 3D,
+including masked/unmasked pipelines and evidence through 2026-08-04, see
+[`LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md`](LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md). Its
+accompanying [`RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md`](RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md)
+contains falsifiable follow-up programs. The focused review supersedes older broad novelty wording
+in this chronological document. The selected opt-in implementation contract, expected behavior,
+failure modes, masked/unmasked policy, and protected experiment are laid out in
+[`DESIGN_probabilistic_field_pipeline.md`](DESIGN_probabilistic_field_pipeline.md).
+
 ## 1. 3DGS fitting & rendering backends
 
 - **gsplat** (Ye et al., JMLR 2025, [arXiv 2409.06765](https://arxiv.org/abs/2409.06765),
@@ -844,11 +853,20 @@ training loss. Implemented in `rtgs/depth/align.py`.
 
 ## 4. Initialization literature (closest related work)
 
+- **G²SR** (Gao et al., 2026 preprint,
+  [2607.14470](https://arxiv.org/abs/2607.14470)) — the closest literal method: predicts a
+  reference-view field of boundary-respecting 2D splats, tracks five sigma points per splat with
+  optical flow, triangulates metric centers, initializes normal/scale from local affine
+  deformation, and uses a short projected-Gaussian Hellinger fit to produce thin 3D surfels. It
+  reports about 69–91 reconstructions/s in its detailed tables and 115–203 MB peak allocated GPU
+  memory on an RTX 4090, but lower rendering coverage and perceptual quality than the strongest
+  learned NVS baselines in its protocol. It does not accept arbitrary independently fitted fields
+  as its sole input; RGB flow remains part of the pipeline.
 - **EDGS** (CompVis, CVPR 2026, [2504.13204](https://arxiv.org/abs/2504.13204),
   [code](https://github.com/CompVis/EDGS)) — triangulates dense 2D correspondences (RoMa)
   into a one-shot dense init and **disables densification entirely**; reaches 3DGS LPIPS
-  in 25% of training time. **Closest published work to our idea** — but its per-image
-  unit is a point match; ours is a fitted 2D gaussian carrying covariance + color.
+  in 15% of training time in the paper's headline comparison. Its per-image unit is a point
+  match; this repository's candidate uses a fitted 2D gaussian carrying covariance + color.
 - **InstantSplat** (NVIDIA, [2403.20309](https://arxiv.org/abs/2403.20309)) — MASt3R
   pointmaps + short joint pose/gaussian optimization, no densification (non-commercial
   stack). The "foundation-model init + short joint refine" pattern is worth copying on a
@@ -863,9 +881,11 @@ training loss. Implemented in `rtgs/depth/align.py`.
   AnySplat, Flash3D, DepthSplat): networks predicting dense pixel-aligned gaussians.
   Conceptually "per-view gaussians → 3D", but none uses a *fitted, sparse* 2D
   representation.
-- **Novelty check (2026-07-07)**: no published work fits 2D gaussian splats per image and
-  lifts those primitives into a 3DGS initialization. Nearest neighbors: EDGS, MiraGe,
-  Splatter Image. Re-verify at publication time.
+- **Novelty correction (2026-08-04)**: G²SR closes the broad claim that no method constructs and
+  lifts image-plane Gaussian splats. The narrower search-qualified gap is conversion of arbitrary,
+  independently fitted GaussianImage/Image-GS-style teacher fields—especially after source RGB is
+  discarded—into a high-coverage 3D radiance field. See the focused review for the exact taxonomy,
+  search protocol, quantitative context, and limitations.
 
 ### 4.1 Scholar Inbox update (2026-07-14)
 
@@ -1080,9 +1100,10 @@ review has SHA-256 `190a43465ac1108a7f4964766ac32e7b7cb890ff5df15486cac937cf66fd
   final gaussian count, FPS. Checkpoints at 7k/30k iterations; for a speed paper the
   headline is **time-to-quality curves** (e.g., time to reach 3DGS-30k LPIPS).
 - Reference wall-clocks (consumer GPU, per 360 scene): INRIA 3DGS ~25-40 min to 30k;
-  gsplat ~19 min; accelerated ~10-15 min; DashGaussian ~200 s; FastGS ~100 s; EDGS ~25%
-  of baseline. Consider [nerfbaselines](https://github.com/nerfbaselines/nerfbaselines)
-  for reproducible comparisons.
+  gsplat ~19 min; accelerated ~10-15 min; DashGaussian ~200 s; FastGS ~100 s. EDGS instead
+  reports reaching original-3DGS quality in 15% of its reference training time under its A100
+  protocol; that ratio is not a consumer-GPU wall-clock. Consider
+  [nerfbaselines](https://github.com/nerfbaselines/nerfbaselines) for reproducible comparisons.
 - Baselines to beat: SfM-init 3DGS (gsplat Default/MCMC), EDGS, InstantSplat,
   DashGaussian/FastGS.
 

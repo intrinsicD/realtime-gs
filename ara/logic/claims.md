@@ -714,3 +714,169 @@
   Stage-1 diagnostic predicts downstream utility. It establishes no reconstruction quality,
   convergence, performance, compression, loss, objective, correlation, confirmation, or default
   result; five portfolio groups still lack matched fields and Karate still lacks a mask policy.
+
+## C35: Rank-aware covariance recovery passes the frozen exact synthetic shape rule
+
+- **Statement**: In the prospectively reviewed 483-cell synthetic matrix, rank-aware covariance
+  recovery won both eligible covariance comparisons across all 27 full-rank strata in each of
+  three seeds, so it passed the frozen exact-shape rule at `3/3` seeds while all hard synthetic
+  invariants passed.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Independent recomputation from the source-, task-, and audit-bound
+  synthetic records changes any eligible comparison, seed decision, stratum count, or hard
+  invariant, or reveals held-out leakage or a comparison that was not matched under the frozen
+  rule.
+- **Proof**: [N202, N203,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md`,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.json`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: probabilistic-field, covariance, rank-aware, exact-synthetic, development
+- **From staging**: O159
+- **Boundary**: This is exact synthetic Gaussian-field evidence under the frozen local-affine
+  generator and full-rank eligibility rule. It does not establish calibrated physical geometry,
+  spatial resolution, complete-field fidelity, source-RGB quality, or cross-scene generality.
+
+## C36: Probability support passes the frozen controlled corrupted-mask rule
+
+- **Statement**: In the same reviewed synthetic matrix, explicit probability support was not
+  dominated by hard or ignored support in the eligible nonzero-corruption strata for every seed
+  and therefore passed the frozen mask decision at `3/3` seeds.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing the bound support factorial changes any seed decision or
+  shows probability support was dominated in an eligible stratum, that a calibrated unmasked
+  fallback entered the mask decision, or that support mass silently changed renderer opacity or
+  association capacity.
+- **Proof**: [N202, N203,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md`,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.json`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: probabilistic-field, mask, probability-support, synthetic-corruption, development
+- **From staging**: O160
+- **Boundary**: This is evidence for the exact synthetic corruption generator and joint frozen
+  precision/coverage/error rule. It is not calibrated-mask, visual-quality, source-RGB,
+  segmentation-calibration, unmasked-superiority, or production-default evidence.
+
+## C37: Field-mass association improves the frozen re-componentized utility
+
+- **Statement**: The tested finite-gated field-mass-capacity association improves the frozen
+  matched-coverage utility over row-softmax, no association, and the shuffled negative in the
+  re-componentized synthetic field protocol.
+- **Status**: refuted development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: A source-bound recomputation of this attempt yields at least the
+  required seed wins against every control, or shows the audited `0/3` result arose from mismatched
+  strata, labels, gates, denominators, or an incorrectly implemented frozen decision rule.
+- **Proof**: [N202, N203,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md`,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.json`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: probabilistic-field, association, transport, negative-result, development
+- **From staging**: O161
+- **Boundary**: Field-mass beat row-softmax and the shuffled negative but lost to the
+  no-association control at every seed. This retires the exact shared-latent per-view formulation
+  and gate for this protocol, not every transport or globally coupled multi-marginal method.
+
+## C38: Projection-nonlinearity topology selection improves matched-count held-out density
+
+- **Statement**: Selecting the ray-depth split by projection nonlinearity improves held-out field
+  density error over the largest-mass control at matched final component count and wall clock.
+- **Status**: refuted development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: A source-bound recomputation of this attempt changes any exact
+  equality, timing comparison, or `0/3` decision, or shows the count, objective, acceptance rule,
+  or evaluated held-out field was not matched as preregistered.
+- **Proof**: [N202, N203,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md`,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.json`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: probabilistic-field, topology, projection-nonlinearity, negative-result, development
+- **From staging**: O162
+- **Boundary**: Candidate and control density errors were exactly equal at all three seeds while
+  candidate wall time was slightly higher. This retires this selector and acceptance rule, not all
+  adaptive densification, mixture reduction, or nonlinear projection diagnostics.
+
+## C39: Progressive views pass the frozen joint time-to-quality rule
+
+- **Statement**: Progressive-view refit saves at least 10% fresh-process time in two seeds while
+  keeping both held-out density and RGB-numerator endpoints within 1% of all-view refit after the
+  identical five-step cleanup.
+- **Status**: refuted development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing the bound fresh-process pairs changes the audited
+  endpoint deviations or produces the required joint win in the frozen number of seeds, or shows
+  the active-view schedule, cleanup, seeds, or endpoints were not matched.
+- **Proof**: [N202, N203,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md`,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.json`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: probabilistic-field, progressive-views, convergence, negative-result, development
+- **From staging**: O163
+- **Boundary**: Refit time fell by 15.8–17.4%, but at least one endpoint exceeded the 1% guard in
+  every seed. The host-local times are operands of this frozen synthetic decision only and do not
+  establish general speed, real-time behavior, GPU performance, or host-level convergence.
+
+## C40: The capped all-dataset matrix terminates without failed-metric imputation
+
+- **Statement**: Across all 66 requested calibrated terminals, native completed `33/33`, the
+  all-candidate arm completed `26/33`, seven candidates retained explicit zero-success failures,
+  and two successful cells retained the declared whole-cell unmasked fallback; no failed quality
+  or runtime value was imputed and no native result was substituted.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing the task-, source-, and audit-bound terminal records
+  changes any arm/failure/fallback count; finds more or fewer than one terminal for a planned cell;
+  finds a failed summary, quality/runtime point, or claim-eligible model; or detects native or
+  cross-seed substitution.
+- **Proof**: [N202, N203,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.md`,
+  `benchmarks/results/20260805_probabilistic_field_pipeline_association_rollback_mixed_AUDIT.json`,
+  `docs/EXPERIMENTS.md`]
+- **Dependencies**: []
+- **Tags**: probabilistic-field, calibrated, operability, failure-accounting, no-imputation,
+  development
+- **From staging**: O164
+- **Boundary**: This is descriptive operability over eleven sealed field sets reduced to the
+  deterministic 512-component-per-view proxy. Unequal success denominators prohibit an
+  unqualified arm comparison. The rollback exception text and failed/half AABB arrays were not
+  serialized. It establishes no complete-field, visual-quality, physical-geometry,
+  independent-half-accuracy, performance, memory, GPU, cross-scene, or default conclusion.
+
+## C41: Joint masking improves foreground reconstruction with a full-canvas tradeoff on Janelle frame_00008
+
+- **Statement**: In the prospectively reviewed RTGS-013 development run, the joint masked
+  field-lift plus masked RGB-refinement arm has favorable held-out foreground PSNR, crop SSIM,
+  alpha IoU, exterior-alpha leakage, and observer-excluded validation foreground-PSNR AUC in all
+  `3/3` paired seeds separately for each of the six selected Gaussian2D folders; masked
+  full-canvas PSNR is lower in all `3/3` seeds of every folder.
+- **Status**: supported development-only
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Independent replay of the task-, source-, data-, and audit-bound raw
+  cells changes any per-view aggregate, AUC clock/integral, paired direction, folder membership,
+  seed identity, or reveals validation/held-out optimization leakage or post-outcome selection.
+- **Proof**: [N215, N216,
+  `benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.md`,
+  `benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.json`,
+  `benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_RESULT.json`]
+- **Dependencies**: []
+- **Tags**: gaussian2d, image-backed, mask, foreground-quality, silhouette, convergence,
+  full-canvas-tradeoff, janelle, development
+- **From staging**: O165
+- **Boundary**: This is one calibrated frame and six separate decompositions of that frame. It is
+  an end-to-end joint-arm result and cannot attribute gains separately to field-placement masks or
+  RGB-loss masks. It supplies no pooled folder effect or ranking, fixed-threshold convergence,
+  pixel-level independent rerender, cross-scene generality, SOTA/GPS-Gaussian comparison,
+  complete-field fidelity, visual-browser usability, real-time/performance, or default evidence.

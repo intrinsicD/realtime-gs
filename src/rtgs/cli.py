@@ -206,7 +206,8 @@ def _field_split(n_views: int, heldout_stride: int) -> tuple[tuple[int, ...], tu
 def _field_lift_config(payload: str):
     """Parse field-lift JSON, including its nested continuous-refit controls."""
 
-    from rtgs.lift.field_lifter import FieldLiftConfig
+    from rtgs.lift.fiber_correspondence import FiberFitConfig
+    from rtgs.lift.field_lifter import FieldAssociationConfig, FieldLiftConfig
     from rtgs.lift.field_refit import FieldRefitConfig
 
     values = json.loads(payload)
@@ -218,6 +219,17 @@ def _field_lift_config(payload: str):
         if not isinstance(refit_values, dict):
             raise ValueError("--field-args refit must be a JSON object")
         values["refit"] = FieldRefitConfig(**refit_values)
+    association_values = values.pop("association", None)
+    if association_values is not None:
+        if not isinstance(association_values, dict):
+            raise ValueError("--field-args association must be a JSON object")
+        association_values = dict(association_values)
+        fit_values = association_values.pop("fit", None)
+        if fit_values is not None:
+            if not isinstance(fit_values, dict):
+                raise ValueError("--field-args association.fit must be a JSON object")
+            association_values["fit"] = FiberFitConfig(**fit_values)
+        values["association"] = FieldAssociationConfig(**association_values)
     return FieldLiftConfig(**values)
 
 
@@ -243,6 +255,7 @@ def _save_field_state(result, out: Path) -> Path:
     fiber = result.refit.fiber
     payload = {
         "field_masses": result.refit.field_masses.detach().cpu().numpy(),
+        "source_support": result.placement.source_support.detach().cpu().numpy(),
         "render_opacity": result.refit.render_opacity.detach().cpu().numpy(),
         "source_global_view_indices": (
             result.placement.source_global_view_indices.detach().cpu().numpy()
@@ -260,9 +273,24 @@ def _save_field_state(result, out: Path) -> Path:
         "covariance_free_mask": result.refit.covariance_free_mask.detach().cpu().numpy(),
         "optimized_view_indices": np.asarray(result.optimized_view_indices, dtype=np.int64),
         "heldout_view_indices": np.asarray(result.heldout_view_indices, dtype=np.int64),
+        "refit_view_order": np.asarray(result.refit.view_order, dtype=np.int64),
+        "refit_active_view_counts": np.asarray(
+            result.refit.active_view_counts,
+            dtype=np.int64,
+        ),
+        "refit_elapsed_seconds": np.asarray(
+            result.refit.elapsed_seconds,
+            dtype=np.float64,
+        ),
     }
     for view, correspondence in enumerate(result.correspondences):
         payload[f"correspondence_{view:04d}"] = correspondence.detach().cpu().numpy()
+    if result.association is not None:
+        for view, plan in enumerate(result.association.plans):
+            payload[f"association_real_mass_{view:04d}"] = plan.real_mass.detach().cpu().numpy()
+            payload[f"association_track_dustbin_{view:04d}"] = (
+                plan.track_dustbin_mass.detach().cpu().numpy()
+            )
     state_path = out.with_suffix(".field.npz")
     state_path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(state_path, **payload)

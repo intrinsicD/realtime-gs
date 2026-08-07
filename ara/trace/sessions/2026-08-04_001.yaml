@@ -2,11 +2,12 @@ session:
   id: "2026-08-04_001"
   date: "2026-08-04"
   started: "2026-08-04T01:12+02:00"
-  last_turn: "2026-08-04T10:38+02:00"
-  turn_count: 4
+  last_turn: "2026-08-04T23:13+02:00"
+  turn_count: 6
   summary: >
-    Integrated all requested branch lineages, rejected RTGS-008 outcome-blind after V3
-    counterexamples, and archived its still-prohibited 0/27 disposition.
+    Integrated the requested branch lineages with RTGS-008 still blocked, then completed a verified
+    2D-to-3D Gaussian literature review and classified GPS-Gaussian as adjacent masked-human prior
+    art rather than arbitrary fitted-field lifting.
 
 events_logged:
   - turn: 1
@@ -45,6 +46,48 @@ events_logged:
     routing: direct
     provenance: ai-executed
     summary: "Integrate all requested lineages while preserving the RTGS-008 execution prohibition."
+  - turn: 5
+    type: question
+    id: N196
+    routing: direct
+    provenance: user
+    summary: "Map the state of the art for 2D-Gaussian-to-3D-Gaussian reconstruction under masked and unmasked inputs."
+  - turn: 5
+    type: architecture
+    id: O111
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Commit the G²SR-aligned correspondence branch as the explicit direct geometric research baseline."
+  - turn: 5
+    type: constraint
+    id: O112
+    routing: crystallized
+    provenance: ai-suggested
+    summary: "Scope G²SR evidence to its posed few-view geometry, coverage, detector and RGB-flow contract."
+  - turn: 5
+    type: observation
+    id: O151
+    routing: staged
+    provenance: ai-suggested
+    summary: "Treat source-image fidelity and multiview liftability as separate Stage-1 objectives."
+  - turn: 5
+    type: heuristic
+    id: O152
+    routing: staged
+    provenance: ai-suggested
+    summary: "Kill or support field-shape utility with an exact synthetic center/footprint/surfel/full-covariance comparison first."
+  - turn: 6
+    type: question
+    id: N197
+    routing: direct
+    provenance: user
+    summary: "Determine whether GPS-Gaussian belongs in the focused 2D-to-3D Gaussian taxonomy."
+  - turn: 6
+    type: constraint
+    id: O153
+    routing: staged
+    provenance: ai-suggested
+    summary: "Classify GPS-Gaussian as masked pixel-aligned prior art, not compact fitted-field lifting."
 
 ai_actions:
   - turn: 1
@@ -165,6 +208,49 @@ ai_actions:
       - "ara/trace/pm_reasoning_log.yaml"
       - "ara/trace/sessions/2026-08-04_001.yaml"
       - "ara/trace/sessions/session_index.yaml"
+  - turn: 5
+    action: >
+      Searched direct and adjacent primary literature through 2026-08-04, read the closest papers
+      at method/table level, and wrote an 8,000-plus-word focused review plus a structured
+      4,800-word research portfolio. Added direct/precursor/adjacent taxonomy, projection and
+      covariance identifiability, masked/unmasked pipelines, protocol-bound quantitative tables,
+      availability, Pareto choices, evaluation controls and killing experiments.
+    provenance: ai-executed
+    files_changed:
+      - "docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md"
+      - "docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md"
+      - "README.md"
+      - "docs/RESEARCH.md"
+  - turn: 5
+    action: >
+      Ran an adversarial scientist pass over every headline. Corrected EDGS 25% to 15%, corrected
+      the ellipse precursor authors/DOI and G²SR authors/rate context, checked 37 external links,
+      validated the portfolio, numerically reproduced covariance ranks 3/5/6/6 for one through
+      four views, and passed the complete repository gate twice. No external result was presented
+      as locally reproduced and no source, benchmark, default or maturity changed.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+      - "docs/LITERATURE_REVIEW_2D_TO_3D_GAUSSIANS.md"
+      - "docs/RESEARCH_PORTFOLIO_2D_TO_3D_GAUSSIANS.md"
+      - "docs/RESEARCH.md"
+  - turn: 5
+    action: >
+      Self-reviewed RTGS-011 and left it truthfully active as Provisionally accepted because the
+      archive checker and task policy require distinct-reviewer or human acceptance before
+      terminal archival. The user's unrelated `.idea` changes remained untouched.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+  - turn: 6
+    action: >
+      Inspected the GPS-Gaussian CVPR paper, official project page, supplement/runtime details, and
+      released data-loader/depth path. Verified the two-view stereo unprojection, per-pixel 3D
+      parameter regression, foreground-mask dependency, feed-forward timing boundary, and the
+      distinction from an independently fitted compact 2D Gaussian field. No review document,
+      source, benchmark, experiment, default, or maturity was changed.
+    provenance: ai-executed
+    files_changed: []
 
 claims_touched: []
 
@@ -180,8 +266,19 @@ key_context:
       The user explicitly authorized the bounded third repair/review cycle, committing the finished
       work, integrating all genuinely unmerged branches into main, and pushing the final verified
       mainline.
+  - turn: 5
+    excerpt: >
+      The user requested a deep state-of-the-art review of methods that produce 3D Gaussian fields
+      from 2D Gaussian fields and maximize quality, performance, and convergence for masked and
+      unmasked inputs.
+  - turn: 6
+    excerpt: "The user asked whether GPS-Gaussian fits the focused literature review."
 
 open_threads:
   - "Any further RTGS-008 repair/review cycle requires a new explicit owner decision; until then the protected matrix remains rejected and 0/27."
+  - "RTGS-011 is provisionally self-reviewed; a distinct reviewer or human must accept it before archival."
+  - "GPS-Gaussian is verified adjacent masked-human prior art but has not yet been added to the focused review artifact."
 
-ai_suggestions_pending: []
+ai_suggestions_pending:
+  - "If implementation is desired, select and preregister O152's exact synthetic field-shape utility experiment before building a learned converter."
+  - "If the literature artifact is revised, add GPS-Gaussian to the evidence snapshot, pixel-aligned table, masked-input synthesis, and broad-claim novelty caveat."

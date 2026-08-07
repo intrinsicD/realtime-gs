@@ -193,6 +193,17 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _canonical_sha256(value: object) -> str:
+    encoded = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("ascii")
+    return _sha256_bytes(encoded)
+
+
 def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.tmp")
@@ -739,6 +750,12 @@ def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> lis
                     or not any("/mask/" in value for value in sealed_paths)
                 ):
                     errors.append("rgb data_seal must bind both RGB and mask files")
+                if (
+                    expected_profile == "rgb"
+                    and "gaussians2d" in policy["reconstruction_allowed"]
+                    and not any("/gaussians2d" in value for value in sealed_paths)
+                ):
+                    errors.append("hybrid RGB/Gaussian2D data_seal must bind compact view files")
 
     command = task["run_command"]
     if command is not None and not _strings(command):
@@ -757,6 +774,7 @@ def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> lis
         errors.append("blockers must be a list of non-empty strings")
     if task["status"] == "ready" and task["blockers"]:
         errors.append(f"{task['status']} tasks cannot retain blockers")
+    errors.extend(verify_source_binding(task, root=root))
     return errors
 
 
@@ -886,6 +904,9 @@ def _dataset_files(task: dict[str, Any], *, root: Path) -> tuple[dict[str, Any],
     datasets_payload: list[dict[str, Any]] = []
     files: list[Path] = []
     compact_profile = task["arm"] in {"direct_compact", "beam_fusion"}
+    bind_compact_inputs = compact_profile or (
+        "gaussians2d" in task["input_policy"]["reconstruction_allowed"]
+    )
     for dataset in task["datasets"]:
         frame = root / dataset["frame_path"]
         manifest_path = root / dataset["compact_manifest"]
@@ -912,9 +933,9 @@ def _dataset_files(task: dict[str, Any], *, root: Path) -> tuple[dict[str, Any],
             files.append(root / production_manifest)
         for view in views:
             view_id = view["view_id"]
-            if compact_profile:
+            if bind_compact_inputs:
                 files.append(manifest_path.parent / view["path"])
-            else:
+            if not compact_profile:
                 files.extend(
                     [
                         frame / f"rgb/{view_id}.jpg",
@@ -929,7 +950,11 @@ def _dataset_files(task: dict[str, Any], *, root: Path) -> tuple[dict[str, Any],
             "selected_modalities": (
                 ["calibration", "gaussians2d"]
                 if compact_profile
-                else ["calibration", "rgb", "mask"]
+                else (
+                    ["calibration", "gaussians2d", "rgb", "mask"]
+                    if bind_compact_inputs
+                    else ["calibration", "rgb", "mask"]
+                )
             ),
             "canonical_rgb_pattern": (None if compact_profile else dataset["rgb_pattern"]),
             "canonical_mask_pattern": (None if compact_profile else dataset["mask_pattern"]),
@@ -983,6 +1008,59 @@ def verify_data_seal(task: dict[str, Any], *, root: Path = ROOT) -> list[str]:
     return []
 
 
+def build_source_binding(binding: dict[str, Any], *, root: Path = ROOT) -> dict[str, Any]:
+    patterns = binding.get("patterns")
+    if not _strings(patterns):
+        raise ValueError("frozen_configuration.source_binding.patterns is invalid")
+    paths: dict[str, Path] = {}
+    for pattern in patterns:
+        if Path(pattern).is_absolute() or ".." in Path(pattern).parts:
+            raise ValueError(f"source binding pattern is unsafe: {pattern}")
+        for path in root.glob(pattern):
+            if path.is_file():
+                paths[path.relative_to(root).as_posix()] = path
+    records = [
+        {
+            "path": relative,
+            "bytes": path.stat().st_size,
+            "sha256": _sha256_file(path),
+        }
+        for relative, path in sorted(paths.items())
+    ]
+    encoded = json.dumps(
+        records,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("ascii")
+    return {
+        "patterns": list(patterns),
+        "file_count": len(records),
+        "aggregate_sha256": _sha256_bytes(encoded),
+    }
+
+
+def verify_source_binding(task: dict[str, Any], *, root: Path = ROOT) -> list[str]:
+    frozen = task.get("frozen_configuration")
+    binding = frozen.get("source_binding") if isinstance(frozen, dict) else None
+    if binding is None or (isinstance(binding, dict) and "patterns" not in binding):
+        return []
+    if not isinstance(binding, dict) or set(binding) != {
+        "patterns",
+        "file_count",
+        "aggregate_sha256",
+    }:
+        return ["frozen_configuration.source_binding has the wrong keys"]
+    try:
+        current = build_source_binding(binding, root=root)
+    except ValueError as error:
+        return [str(error)]
+    if binding != current:
+        return ["behavior-bearing source differs from the frozen prospective source binding"]
+    return []
+
+
 def _git_output(root: Path, *args: str) -> str:
     process = subprocess.run(
         ["git", *args],
@@ -992,6 +1070,52 @@ def _git_output(root: Path, *args: str) -> str:
         text=True,
     )
     return process.stdout
+
+
+def _development_source_state(root: Path) -> bytes:
+    """Return a stable dirty-source record including untracked file contents.
+
+    ``git diff HEAD`` deliberately omits untracked files. Development experiment locks must bind
+    them as well because task drivers and opt-in research modules commonly begin untracked. The
+    appended manifest records each untracked path, mode, byte count, and content digest.
+    """
+
+    tracked_diff = _git_output(root, "diff", "--binary", "HEAD").encode("utf-8")
+    untracked = sorted(
+        item
+        for item in _git_output(
+            root,
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+        ).splitlines()
+        if item
+    )
+    records = []
+    for relative in untracked:
+        path = (root / relative).resolve(strict=True)
+        try:
+            normalized = path.relative_to(root.resolve()).as_posix()
+        except ValueError as error:
+            raise ValueError(f"untracked source escapes repository: {relative}") from error
+        if not path.is_file():
+            continue
+        records.append(
+            {
+                "path": normalized,
+                "mode": path.stat().st_mode & 0o777,
+                "bytes": path.stat().st_size,
+                "sha256": _sha256_file(path),
+            }
+        )
+    manifest = json.dumps(
+        records,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("ascii")
+    return tracked_diff + b"\nRTGS-UNTRACKED-SOURCE-MANIFEST\0" + manifest
 
 
 def init_run(task_path: Path, *, root: Path = ROOT, development: bool = False) -> Path:
@@ -1028,7 +1152,7 @@ def init_run(task_path: Path, *, root: Path = ROOT, development: bool = False) -
     seal_path = root / task["data_seal"]
     review = task["protocol_review"]
     review_path = root / review["artifact"]
-    diff = _git_output(root, "diff", "--binary", "HEAD").encode("utf-8")
+    diff = _development_source_state(root)
     lock = {
         "schema_version": TASK_LOCK_SCHEMA_VERSION,
         "task_id": task["task_id"],
@@ -1638,6 +1762,7 @@ def _metric_errors_v2(
     if payload["report_template_version"] != 2:
         errors.append("metrics.json report_template_version must be 2")
     errors.extend(_v2_commands_errors(payload["commands"], lock, completed=completed))
+    errors.extend(_dataset_summary_errors(payload.get("dataset_summaries"), task, completed))
 
     if completed:
         legacy = dict(payload)
@@ -1738,6 +1863,168 @@ def _metric_errors_v2(
         isinstance(note, str) and note.strip() for note in payload["notes"]
     ):
         errors.append("notes must be a list of non-empty strings")
+    return errors
+
+
+def _dataset_summary_errors(
+    summaries: object,
+    task: dict[str, Any],
+    completed: bool,
+) -> list[str]:
+    """Validate optional canonical per-dataset report inputs."""
+
+    if summaries is None:
+        return []
+    if not isinstance(summaries, dict):
+        return ["metrics.json dataset_summaries must be an object"]
+    expected = {item["id"] for item in task["datasets"]}
+    if completed and set(summaries) != expected:
+        return ["dataset_summaries must exactly cover every frozen dataset"]
+    errors: list[str] = []
+    summary_keys = {
+        "title",
+        "summary",
+        "metrics",
+        "metric_metadata",
+        "charts",
+        "curves",
+        "artifacts",
+        "commands",
+        "notes",
+    }
+    metadata_keys = {"label", "unit", "group", "direction"}
+    for dataset_id, value in summaries.items():
+        if dataset_id not in expected or not isinstance(value, dict) or set(value) != summary_keys:
+            errors.append(f"dataset_summaries.{dataset_id} has the wrong keys or id")
+            continue
+        if not all(
+            isinstance(value[key], str) and value[key].strip() for key in ("title", "summary")
+        ):
+            errors.append(f"dataset_summaries.{dataset_id} title/summary is invalid")
+        final_metrics = value["metrics"]
+        metadata = value["metric_metadata"]
+        if (
+            not isinstance(final_metrics, dict)
+            or not final_metrics
+            or not all(_finite_number(item) for item in final_metrics.values())
+        ):
+            errors.append(f"dataset_summaries.{dataset_id}.metrics is invalid")
+        if (
+            not isinstance(metadata, dict)
+            or not isinstance(final_metrics, dict)
+            or set(metadata) != set(final_metrics)
+        ):
+            errors.append(f"dataset_summaries.{dataset_id}.metric_metadata must match metrics")
+        else:
+            for metric_id, item in metadata.items():
+                if (
+                    not isinstance(item, dict)
+                    or set(item) != metadata_keys
+                    or item.get("direction") not in {"lower", "higher", "descriptive"}
+                    or not all(
+                        isinstance(item.get(key), str) and item[key].strip()
+                        for key in ("label", "unit", "group")
+                    )
+                ):
+                    errors.append(
+                        f"dataset_summaries.{dataset_id}.metric_metadata.{metric_id} is invalid"
+                    )
+        charts = value["charts"]
+        if not isinstance(charts, list):
+            errors.append(f"dataset_summaries.{dataset_id}.charts must be a list")
+        else:
+            for index, chart in enumerate(charts):
+                if not isinstance(chart, dict) or set(chart) != {"id", "title", "unit", "values"}:
+                    errors.append(f"dataset_summaries.{dataset_id}.charts[{index}] is invalid")
+                    continue
+                values = chart["values"]
+                if (
+                    not isinstance(values, list)
+                    or not values
+                    or not all(
+                        isinstance(item, dict)
+                        and set(item) == {"label", "value"}
+                        and isinstance(item["label"], str)
+                        and item["label"].strip()
+                        and _finite_number(item["value"])
+                        for item in values
+                    )
+                ):
+                    errors.append(
+                        f"dataset_summaries.{dataset_id}.charts[{index}].values is invalid"
+                    )
+        curves = value["curves"]
+        if not isinstance(curves, list) or not curves:
+            errors.append(f"dataset_summaries.{dataset_id}.curves must be non-empty")
+        else:
+            for index, curve in enumerate(curves):
+                if not isinstance(curve, dict) or set(curve) != {
+                    "id",
+                    "title",
+                    "x_label",
+                    "unit",
+                    "direction",
+                    "series",
+                }:
+                    errors.append(f"dataset_summaries.{dataset_id}.curves[{index}] is invalid")
+                    continue
+                if curve.get("direction") not in {"lower", "higher", "descriptive"}:
+                    errors.append(
+                        f"dataset_summaries.{dataset_id}.curves[{index}].direction is invalid"
+                    )
+                series = curve["series"]
+                if not isinstance(series, list) or not series:
+                    errors.append(
+                        f"dataset_summaries.{dataset_id}.curves[{index}].series is invalid"
+                    )
+                    continue
+                for series_index, item in enumerate(series):
+                    if (
+                        not isinstance(item, dict)
+                        or set(item) != {"label", "points"}
+                        or not isinstance(item["label"], str)
+                        or not item["label"].strip()
+                        or not isinstance(item["points"], list)
+                        or not item["points"]
+                        or not all(
+                            isinstance(point, dict)
+                            and set(point) == {"x", "value"}
+                            and _finite_number(point["x"])
+                            and _finite_number(point["value"])
+                            for point in item["points"]
+                        )
+                    ):
+                        errors.append(
+                            f"dataset_summaries.{dataset_id}.curves[{index}]."
+                            f"series[{series_index}] is invalid"
+                        )
+        artifacts = value["artifacts"]
+        if (
+            not isinstance(artifacts, list)
+            or not artifacts
+            or not all(
+                isinstance(item, dict)
+                and set(item) == {"label", "path"}
+                and isinstance(item["label"], str)
+                and item["label"].strip()
+                and _is_safe_relative(item["path"])
+                for item in artifacts
+            )
+        ):
+            errors.append(f"dataset_summaries.{dataset_id}.artifacts is invalid")
+        commands = value["commands"]
+        if (
+            not isinstance(commands, dict)
+            or set(commands) != {"viewer"}
+            or not isinstance(commands["viewer"], list)
+            or not commands["viewer"]
+            or not all(isinstance(item, str) and item for item in commands["viewer"])
+        ):
+            errors.append(f"dataset_summaries.{dataset_id}.commands is invalid")
+        if not isinstance(value["notes"], list) or not all(
+            isinstance(item, str) and item.strip() for item in value["notes"]
+        ):
+            errors.append(f"dataset_summaries.{dataset_id}.notes is invalid")
     return errors
 
 
@@ -1872,6 +2159,13 @@ def _locked_task(run: Path, *, root: Path) -> tuple[dict[str, Any], dict[str, An
         errors.append("task lock uses an unsupported report template")
     elif report_version != _task_report_version(task):
         errors.append("task lock report template does not match the frozen task")
+    frozen = task.get("frozen_configuration")
+    integrity = frozen.get("live_integrity_policy") if isinstance(frozen, dict) else None
+    if isinstance(integrity, dict):
+        if integrity.get("verify_source_at_coordinator_worker_and_bundle") is True:
+            errors.extend(verify_source_binding(task, root=root))
+        if integrity.get("verify_full_data_seal_at_coordinator_entry_exit_and_bundle") is True:
+            errors.extend(verify_data_seal(task, root=root))
     return task, lock, errors
 
 
@@ -2014,6 +2308,400 @@ def _manifest_errors(
     return errors
 
 
+def _cell_bundle_errors(
+    run: Path,
+    root: Path,
+    task: dict[str, Any],
+    lock: dict[str, Any],
+) -> list[str]:
+    frozen = task.get("frozen_configuration")
+    policy = frozen.get("cell_receipt_policy") if isinstance(frozen, dict) else None
+    if policy is None:
+        return []
+    if not isinstance(policy, dict) or not _is_safe_relative(policy.get("bundle_path")):
+        return ["frozen cell_receipt_policy is invalid"]
+    required_policy = {
+        "schema",
+        "bundle_path",
+        "warmup_cells",
+        "measured_cells",
+        "validate_before_resume_and_aggregation",
+        "hash_every_required_artifact",
+        "strict_semantic_bundle_replay",
+        "warmup_artifacts",
+        "measured_artifacts",
+        "effective_sha256",
+    }
+    if set(policy) != required_policy or any(
+        policy.get(name) is not True
+        for name in (
+            "validate_before_resume_and_aggregation",
+            "hash_every_required_artifact",
+            "strict_semantic_bundle_replay",
+        )
+    ):
+        return ["frozen cell_receipt_policy lacks the strict semantic replay contract"]
+    try:
+        bundle = _load_json(run / policy["bundle_path"])
+    except ValueError as error:
+        return [str(error)]
+    required_bundle = {
+        "schema",
+        "task_id",
+        "protocol_sha256",
+        "task_lock_sha256",
+        "data_seal_sha256",
+        "source_binding_sha256",
+        "warmup_cell_count",
+        "measured_cell_count",
+        "entries",
+    }
+    errors: list[str] = []
+    if set(bundle) != required_bundle:
+        return ["cell bundle receipt has the wrong keys"]
+    source_binding = frozen.get("source_binding", {})
+    expected_header = {
+        "schema": "rtgs.janelle_gaussian2d_image_cell_bundle.v1",
+        "task_id": task["task_id"],
+        "protocol_sha256": lock["protocol_sha256"],
+        "task_lock_sha256": _sha256_file(run / "task.lock.json"),
+        "data_seal_sha256": lock["data_seal_sha256"],
+        "source_binding_sha256": source_binding.get("aggregate_sha256"),
+        "warmup_cell_count": policy.get("warmup_cells"),
+        "measured_cell_count": policy.get("measured_cells"),
+    }
+    for key, expected in expected_header.items():
+        if bundle.get(key) != expected or (
+            key in {"warmup_cell_count", "measured_cell_count"}
+            and (not isinstance(bundle.get(key), int) or isinstance(bundle.get(key), bool))
+        ):
+            errors.append(f"cell bundle receipt {key} differs from the lock/task")
+    warmup = frozen.get("warmup", {})
+    expected_identities = [
+        (
+            warmup.get("dataset_id"),
+            warmup.get("arm_id"),
+            warmup.get("seed"),
+            "warmup",
+        ),
+        *[
+            (dataset["id"], comparator["id"], seed, "measured")
+            for dataset in task["datasets"]
+            for seed in task["seeds"]
+            for comparator in task["comparators"]
+        ],
+    ]
+    entries = bundle.get("entries")
+    if not isinstance(entries, list) or len(entries) != len(expected_identities):
+        return errors + ["cell bundle receipt entry count differs from the frozen matrix"]
+    observed_identities = []
+    observed_paths: set[str] = set()
+    lock_sha256 = _sha256_file(run / "task.lock.json")
+    required_receipt = {
+        "schema",
+        "task_id",
+        "protocol_sha256",
+        "task_lock_sha256",
+        "data_seal_sha256",
+        "source_binding_sha256",
+        "dataset_id",
+        "arm",
+        "seed",
+        "mode",
+        "iterations",
+        "output_path",
+        "partition_sha256",
+        "effective_sha256",
+        "input_binding",
+        "artifacts",
+    }
+    expected_effective = policy["effective_sha256"]
+    expected_artifacts = {
+        "warmup": policy["warmup_artifacts"],
+        "measured": policy["measured_artifacts"],
+    }
+    if not all(
+        isinstance(value, list)
+        and bool(value)
+        and all(_is_safe_relative(item) for item in value)
+        and len(value) == len(set(value))
+        for value in expected_artifacts.values()
+    ):
+        return errors + ["frozen cell artifact inventories are invalid"]
+    run_relative = run.relative_to(root).as_posix()
+    frozen_iterations = frozen.get("rgb_refinement", {}).get("iterations")
+    warmup_iterations = warmup.get("iterations")
+    optimizer_views = frozen.get("optimizer_views")
+    validation_views = frozen.get("validation_views")
+    if not (
+        isinstance(frozen_iterations, int)
+        and not isinstance(frozen_iterations, bool)
+        and isinstance(warmup_iterations, int)
+        and not isinstance(warmup_iterations, bool)
+        and isinstance(optimizer_views, list)
+        and isinstance(validation_views, list)
+    ):
+        return errors + ["frozen cell iteration/partition policy is invalid"]
+    summary_metric_ids = [item.get("id") for item in task.get("primary_metrics", [])]
+    if not summary_metric_ids or not all(isinstance(item, str) for item in summary_metric_ids):
+        return errors + ["frozen primary metric inventory is invalid"]
+
+    for index, entry in enumerate(entries):
+        required_entry = {
+            "dataset_id",
+            "arm",
+            "seed",
+            "mode",
+            "receipt_path",
+            "receipt_bytes",
+            "receipt_sha256",
+        }
+        if not isinstance(entry, dict) or set(entry) != required_entry:
+            errors.append(f"cell bundle entries[{index}] has the wrong keys")
+            continue
+        if (
+            not isinstance(entry["dataset_id"], str)
+            or not isinstance(entry["arm"], str)
+            or not isinstance(entry["seed"], int)
+            or isinstance(entry["seed"], bool)
+            or not isinstance(entry["mode"], str)
+            or not isinstance(entry["receipt_bytes"], int)
+            or isinstance(entry["receipt_bytes"], bool)
+            or entry["receipt_bytes"] <= 0
+            or not isinstance(entry["receipt_sha256"], str)
+            or re.fullmatch(r"[0-9a-f]{64}", entry["receipt_sha256"]) is None
+        ):
+            errors.append(f"cell bundle entries[{index}] has invalid typed values")
+            continue
+        identity = (entry["dataset_id"], entry["arm"], entry["seed"], entry["mode"])
+        observed_identities.append(identity)
+        dataset_id, arm, seed, mode = identity
+        if mode == "warmup":
+            cell_relative = Path("warmup") / dataset_id / arm
+            iterations = warmup_iterations
+        elif mode == "measured":
+            cell_relative = Path("cells") / dataset_id / f"seed_{seed}" / arm
+            iterations = frozen_iterations
+        else:
+            errors.append(f"cell bundle entries[{index}] mode is invalid")
+            continue
+        expected_receipt_relative = (cell_relative / "cell_receipt.json").as_posix()
+        relative = entry["receipt_path"]
+        if (
+            not _is_safe_relative(relative)
+            or relative != expected_receipt_relative
+            or relative in observed_paths
+        ):
+            errors.append(f"cell bundle entries[{index}] receipt_path is invalid or duplicated")
+            continue
+        observed_paths.add(relative)
+        receipt_path = run / relative
+        if (
+            not receipt_path.is_file()
+            or receipt_path.stat().st_size != entry["receipt_bytes"]
+            or _sha256_file(receipt_path) != entry["receipt_sha256"]
+        ):
+            errors.append(f"cell receipt changed or disappeared: {relative}")
+            continue
+        try:
+            receipt = _load_json(receipt_path)
+        except ValueError as error:
+            errors.append(str(error))
+            continue
+        if set(receipt) != required_receipt:
+            errors.append(f"cell receipt has the wrong keys: {relative}")
+            continue
+        receipt_identity = (
+            receipt.get("dataset_id"),
+            receipt.get("arm"),
+            receipt.get("seed"),
+            receipt.get("mode"),
+        )
+        if receipt_identity != identity:
+            errors.append(f"cell receipt identity differs from bundle entry: {relative}")
+        if (
+            not isinstance(receipt.get("seed"), int)
+            or isinstance(receipt.get("seed"), bool)
+            or not isinstance(receipt.get("iterations"), int)
+            or isinstance(receipt.get("iterations"), bool)
+            or receipt.get("iterations") != iterations
+            or receipt.get("schema") != policy["schema"]
+        ):
+            errors.append(f"cell receipt typed identity/configuration is invalid: {relative}")
+        for key, expected in (
+            ("task_id", task["task_id"]),
+            ("protocol_sha256", lock["protocol_sha256"]),
+            ("task_lock_sha256", lock_sha256),
+            ("data_seal_sha256", lock["data_seal_sha256"]),
+            ("source_binding_sha256", source_binding.get("aggregate_sha256")),
+        ):
+            if receipt.get(key) != expected:
+                errors.append(f"cell receipt {key} differs: {relative}")
+        output_value = receipt.get("output_path")
+        expected_output = f"{run_relative}/{cell_relative.as_posix()}"
+        if not _is_safe_relative(output_value) or output_value != expected_output:
+            errors.append(f"cell receipt output_path is invalid: {relative}")
+            continue
+        output = root / output_value
+        if output.resolve() != receipt_path.parent.resolve():
+            errors.append(f"cell receipt output_path does not name its directory: {relative}")
+            continue
+        split = task.get("splits", {}).get(dataset_id)
+        if not isinstance(split, dict) or not isinstance(split.get("heldout"), list):
+            errors.append(f"cell receipt partition cannot be reconstructed: {relative}")
+            continue
+        partition_sha256 = _canonical_sha256(
+            {
+                "optimizer": optimizer_views,
+                "validation": validation_views,
+                "heldout": split["heldout"],
+            }
+        )
+        if receipt.get("partition_sha256") != partition_sha256:
+            errors.append(f"cell receipt partition digest differs: {relative}")
+
+        try:
+            expected_effective_sha256 = expected_effective[mode][arm][str(seed)]
+        except (KeyError, TypeError):
+            errors.append(f"cell receipt effective policy is absent: {relative}")
+            expected_effective_sha256 = None
+        if receipt.get("effective_sha256") != expected_effective_sha256:
+            errors.append(f"cell receipt effective configuration differs: {relative}")
+
+        artifacts = receipt.get("artifacts")
+        artifact_names = expected_artifacts[mode]
+        if (
+            not isinstance(artifacts, list)
+            or [item.get("path") if isinstance(item, dict) else None for item in artifacts]
+            != artifact_names
+        ):
+            errors.append(f"cell receipt artifact inventory differs: {relative}")
+            continue
+        artifact_paths: set[str] = set()
+        for artifact in artifacts:
+            if (
+                not isinstance(artifact, dict)
+                or set(artifact) != {"path", "bytes", "sha256"}
+                or not _is_safe_relative(artifact.get("path"))
+                or artifact["path"] in artifact_paths
+                or not isinstance(artifact.get("bytes"), int)
+                or isinstance(artifact.get("bytes"), bool)
+                or artifact["bytes"] <= 0
+                or not isinstance(artifact.get("sha256"), str)
+                or re.fullmatch(r"[0-9a-f]{64}", artifact["sha256"]) is None
+            ):
+                errors.append(f"cell receipt artifact record is invalid: {relative}")
+                continue
+            artifact_paths.add(artifact["path"])
+            target = output / artifact["path"]
+            if (
+                not target.is_file()
+                or target.stat().st_size != artifact["bytes"]
+                or _sha256_file(target) != artifact["sha256"]
+            ):
+                errors.append(
+                    f"cell artifact changed or disappeared: {output_value}/{artifact['path']}"
+                )
+
+        try:
+            summary = _load_json(output / "summary.json")
+            field = _load_json(output / "field_lift.json")
+        except ValueError as error:
+            errors.append(str(error))
+            continue
+        if (
+            summary.get("status") != "completed"
+            or summary.get("task_id") != task["task_id"]
+            or summary.get("dataset_id") != dataset_id
+            or summary.get("arm") != arm
+            or not isinstance(summary.get("seed"), int)
+            or isinstance(summary.get("seed"), bool)
+            or summary.get("seed") != seed
+            or summary.get("warmup") is not (mode == "warmup")
+        ):
+            errors.append(f"cell summary identity differs: {relative}")
+        effective = summary.get("effective")
+        if not isinstance(effective, dict) or _canonical_sha256(effective) != receipt.get(
+            "effective_sha256"
+        ):
+            errors.append(f"cell summary effective configuration differs: {relative}")
+        if mode == "warmup":
+            if (
+                summary.get("heldout_outcome_access") is not False
+                or (output / "heldout_metrics.json").exists()
+            ):
+                errors.append(f"warmup cell contains held-out outcome access: {relative}")
+        else:
+            metrics = summary.get("metrics")
+            if (
+                summary.get("heldout_opened_after_endpoint_saved") is not True
+                or summary.get("measurement_endpoint_before_heldout") is not True
+                or not isinstance(metrics, dict)
+                or set(metrics) != set(summary_metric_ids)
+                or any(not _finite_number(value) for value in metrics.values())
+            ):
+                errors.append(f"measured cell endpoint/metric semantics differ: {relative}")
+
+        input_binding = receipt.get("input_binding")
+        expected_input_keys = {
+            "manifest_sha256",
+            "compact_optimizer_sha256",
+            "camera_records_sha256",
+            "optimizer_validation_image_sha256",
+        }
+        if (
+            not isinstance(input_binding, dict)
+            or set(input_binding) != expected_input_keys
+            or any(
+                not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None
+                for value in input_binding.values()
+            )
+        ):
+            errors.append(f"cell receipt input binding is invalid: {relative}")
+            continue
+        camera_alignment = field.get("camera_alignment")
+        image_input = field.get("optimizer_validation_image_input")
+        summary_input = summary.get("input_binding")
+        expected_summary_input_keys = {
+            "camera_records_sha256",
+            "optimizer_validation_image_sha256",
+        }
+        if mode == "measured":
+            expected_summary_input_keys.add("heldout_image_sha256")
+        expected_input = {
+            "manifest_sha256": field.get("manifest_sha256"),
+            "compact_optimizer_sha256": field.get("loaded_optimizer_compact_sha256"),
+            "camera_records_sha256": (
+                camera_alignment.get("records_sha256")
+                if isinstance(camera_alignment, dict)
+                else None
+            ),
+            "optimizer_validation_image_sha256": (
+                image_input.get("records_sha256") if isinstance(image_input, dict) else None
+            ),
+        }
+        if input_binding != expected_input:
+            errors.append(f"cell receipt input binding differs from cell evidence: {relative}")
+        if (
+            not isinstance(summary_input, dict)
+            or set(summary_input) != expected_summary_input_keys
+            or summary_input.get("camera_records_sha256") != input_binding["camera_records_sha256"]
+            or summary_input.get("optimizer_validation_image_sha256")
+            != input_binding["optimizer_validation_image_sha256"]
+            or (
+                mode == "measured"
+                and (
+                    not isinstance(summary_input.get("heldout_image_sha256"), str)
+                    or re.fullmatch(r"[0-9a-f]{64}", summary_input["heldout_image_sha256"]) is None
+                )
+            )
+        ):
+            errors.append(f"cell summary input binding differs: {relative}")
+    if observed_identities != expected_identities:
+        errors.append("cell bundle identities/order differ from the frozen matrix")
+    return errors
+
+
 def validate_run(run: Path, *, root: Path = ROOT, require_index: bool = True) -> list[str]:
     run = run.resolve()
     if not run.is_dir():
@@ -2032,6 +2720,8 @@ def validate_run(run: Path, *, root: Path = ROOT, require_index: bool = True) ->
     if report_version == 2:
         completed, source_errors = _v2_source_errors(run, task, lock)
         errors.extend(source_errors)
+        if completed:
+            errors.extend(_cell_bundle_errors(run, root, task, lock))
     metrics_path = run / "metrics.json"
     try:
         metrics = _load_json(metrics_path)
@@ -2424,9 +3114,9 @@ def _history_svg(
     return (
         "<section class='panel history-chart'>"
         f"<h3>{html.escape(title)}</h3><p class='series-context'>{html.escape(series_label)}</p>"
-        f"<p class='unit'>{html.escape(unit)} over elapsed time</p>"
+        f"<p class='unit'>{html.escape(unit)} over worker cell wall time</p>"
         f'<svg viewBox="0 0 {width} {height}" role="img" '
-        f'aria-label="{html.escape(title, quote=True)} over elapsed fitting time, with '
+        f'aria-label="{html.escape(title, quote=True)} over worker cell wall time, with '
         'stage start and end boundaries">'
         + "".join(bands)
         + "".join(grid)
@@ -2439,7 +3129,7 @@ def _history_svg(
         + f'<text x="{width - right}" y="{height - 38}" text-anchor="end" '
         f'font-size="11" fill="#5c667a">{html.escape(_format_number(x_max))}</text>'
         + f'<text x="{width / 2:.1f}" y="{height - 18}" text-anchor="middle" '
-        'font-size="12" fill="#5c667a">elapsed time (s)</text></svg>'
+        'font-size="12" fill="#5c667a">worker cell wall time from worker start (s)</text></svg>'
         + "<div class='legend'>"
         + "".join(legend)
         + "</div><div class='stage-legend' aria-label='Stage intervals'>"
@@ -2738,6 +3428,237 @@ def _manifest_entries(
     return entries
 
 
+def _dataset_curve_svg(curve: dict[str, Any]) -> str:
+    """Render one compact multi-series curve for a per-dataset report."""
+
+    width, height = 820, 330
+    left, right, top, bottom = 66, 20, 42, 58
+    plot_width = width - left - right
+    plot_height = height - top - bottom
+    points = [point for series in curve["series"] for point in series["points"]]
+    xs = [float(point["x"]) for point in points]
+    ys = [float(point["value"]) for point in points]
+    x_min, x_max = min(xs), max(xs)
+    y_min, y_max = min(ys), max(ys)
+    if x_min == x_max:
+        x_min -= 0.5
+        x_max += 0.5
+    if y_min == y_max:
+        padding = abs(y_min) * 0.05 or 0.5
+        y_min -= padding
+        y_max += padding
+    else:
+        padding = 0.08 * (y_max - y_min)
+        y_min -= padding
+        y_max += padding
+
+    def x_position(value: float) -> float:
+        return left + (value - x_min) * plot_width / (x_max - x_min)
+
+    def y_position(value: float) -> float:
+        return top + (y_max - value) * plot_height / (y_max - y_min)
+
+    grid = []
+    for index in range(5):
+        fraction = index / 4
+        y = top + fraction * plot_height
+        label = y_max - fraction * (y_max - y_min)
+        grid.append(
+            f'<line x1="{left}" y1="{y:.2f}" x2="{width - right}" y2="{y:.2f}" '
+            'stroke="#d8deea"/>'
+            f'<text x="{left - 8}" y="{y + 4:.2f}" text-anchor="end" '
+            f'font-size="11" fill="#5c667a">{html.escape(_format_number(label))}</text>'
+        )
+    colors = ("#3659d9", "#d95f36", "#17876d", "#8b4cc2", "#b17a13", "#326f9f")
+    lines: list[str] = []
+    legend: list[str] = []
+    for index, series in enumerate(curve["series"]):
+        color = colors[index % len(colors)]
+        ordered = sorted(series["points"], key=lambda item: float(item["x"]))
+        coordinates = " ".join(
+            f"{x_position(float(point['x'])):.2f},{y_position(float(point['value'])):.2f}"
+            for point in ordered
+        )
+        lines.append(
+            f'<polyline points="{coordinates}" fill="none" stroke="{color}" '
+            'stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>'
+        )
+        lines.extend(
+            f'<circle cx="{x_position(float(point["x"])):.2f}" '
+            f'cy="{y_position(float(point["value"])):.2f}" r="3.2" fill="{color}">'
+            f"<title>{html.escape(series['label'])} · x={_format_number(point['x'])} · "
+            f"{_format_number(point['value'])}</title></circle>"
+            for point in ordered
+        )
+        legend.append(
+            f'<span><i style="background:{color}"></i>{html.escape(series["label"])}</span>'
+        )
+    return (
+        "<section class='panel history-chart'>"
+        f"<h3>{html.escape(curve['title'])}</h3>"
+        f"<p class='unit'>{html.escape(curve['unit'])} · better: "
+        f"{html.escape(curve['direction'])}</p>"
+        f'<svg viewBox="0 0 {width} {height}" role="img" '
+        f'aria-label="{html.escape(curve["title"], quote=True)}">'
+        + "".join(grid)
+        + f'<line x1="{left}" y1="{top + plot_height}" x2="{width - right}" '
+        f'y2="{top + plot_height}" stroke="#596277"/>'
+        + "".join(lines)
+        + f'<text x="{width / 2:.1f}" y="{height - 17}" text-anchor="middle" '
+        f'font-size="12" fill="#5c667a">{html.escape(curve["x_label"])}</text></svg>'
+        + "<div class='legend'>"
+        + "".join(legend)
+        + "</div></section>"
+    )
+
+
+def _render_dataset_pages(
+    run: Path,
+    task: dict[str, Any],
+    metrics: dict[str, Any],
+    history: dict[str, Any],
+) -> dict[str, str]:
+    """Render canonical child reports requested by a metrics dataset_summaries map."""
+
+    summaries = metrics.get("dataset_summaries")
+    if not summaries:
+        return {}
+    labels = {item["id"]: item["role"] for item in task["datasets"]}
+    links: dict[str, str] = {}
+    shared_style = """
+:root {
+  color-scheme: light;
+  --ink: #172033;
+  --muted: #5c667a;
+  --line: #d8deea;
+  --paper: #f5f7fb;
+  --panel: #fff;
+  --accent: #3659d9;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, sans-serif;
+}
+main { max-width: 1180px; margin: auto; padding: 32px 22px 70px; }
+h1 { font-size: clamp(27px, 4vw, 43px); line-height: 1.08; margin: .2rem 0 .7rem; }
+h2 { margin: 2.1rem 0 .8rem; }
+h3 { margin: .1rem 0 .7rem; }
+.eyebrow, .unit {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px;
+  font-weight: 700;
+}
+.summary { font-size: 18px; max-width: 900px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 14px;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 2px 8px #1520400a;
+  min-width: 0;
+}
+.table-wrap { overflow: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) minmax(110px, 2fr) 80px;
+  gap: 9px;
+  align-items: center;
+  margin: 9px 0;
+}
+.bar-track {
+  position: relative;
+  height: 14px;
+  background: #edf0f6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.bar-zero { position: absolute; top: 0; bottom: 0; width: 1px; background: #596277; }
+.bar-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #7b93ec);
+}
+.bar-value { text-align: right; font-variant-numeric: tabular-nums; }
+svg { width: 100%; height: auto; }
+.legend, .stage-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend i { width: 16px; height: 3px; }
+.series-context { color: var(--muted); margin: -.35rem 0 .45rem; }
+.stage-legend { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line); }
+.stage-interval { display: flex; align-items: center; gap: 5px; }
+.stage-interval i { width: 14px; height: 14px; border: 1px solid #aab3c4; }
+code, pre { background: #eef1f7; border-radius: 7px; }
+code { padding: 2px 5px; }
+pre { padding: 13px; overflow: auto; }
+a { color: #254fc4; }
+footer { color: var(--muted); margin-top: 28px; }
+"""
+    for dataset_id, summary in summaries.items():
+        directory = run / "datasets" / dataset_id
+        directory.mkdir(parents=True, exist_ok=True)
+        child_history = {
+            **history,
+            "records": [item for item in history["records"] if item["dataset_id"] == dataset_id],
+            "stage_markers": [
+                item for item in history["stage_markers"] if item["dataset_id"] == dataset_id
+            ],
+        }
+        artifact_rows = []
+        for item in summary["artifacts"]:
+            link = os.path.relpath(run / item["path"], directory)
+            artifact_rows.append(
+                f'<li><a href="{html.escape(link, quote=True)}">'
+                f"{html.escape(item['label'])}</a></li>"
+            )
+        viewer = shlex.join(summary["commands"]["viewer"])
+        notes = "".join(f"<li>{html.escape(item)}</li>" for item in summary["notes"])
+        curve_html = "".join(_dataset_curve_svg(item) for item in summary["curves"])
+        history_html = _history_charts(child_history)
+        metrics_html = _metrics_html(summary)
+        chart_html = "".join(_render_chart(item) for item in summary["charts"])
+        artifact_html = "".join(artifact_rows)
+        page = f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="rtgs-experiment-report-template" content="2">
+<title>{html.escape(summary["title"])}</title>
+<style>{shared_style}</style></head><body><main>
+<p class="eyebrow">realtime-gs · canonical per-dataset experiment report v2</p>
+<p><a href="../../index.html">← All datasets</a></p>
+<h1>{html.escape(summary["title"])}</h1>
+<p><code>{html.escape(dataset_id)}</code> · {html.escape(labels[dataset_id])}</p>
+<p class="summary">{html.escape(summary["summary"])}</p>
+<h2>All final metrics across measured seeds</h2><div class="grid">{curve_html}</div>
+<h2>Optimizer and stage curves</h2><div class="grid">{history_html}</div>
+<h2>Final metric table</h2><div class="grid">{metrics_html}</div>
+<h2>Arm comparisons</h2><div class="grid">{chart_html}</div>
+<h2>Orbit viewer</h2><section class="panel"><pre>{html.escape(viewer)}</pre></section>
+<h2>Artifacts</h2><section class="panel"><ul>{artifact_html}</ul></section>
+<h2>Notes</h2><section class="panel"><ul>{notes}</ul></section>
+<footer>Generated from metrics.json and training_history.json. Do not hand-edit this page.</footer>
+</main></body></html>"""
+        target = directory / "index.html"
+        temporary = directory / ".index.html.tmp"
+        temporary.write_text(page, encoding="utf-8")
+        temporary.replace(target)
+        links[dataset_id] = target.relative_to(run).as_posix()
+    return links
+
+
 def _render_run_v2(run: Path, *, root: Path = ROOT) -> Path:
     errors = validate_run(run, root=root, require_index=False)
     if errors:
@@ -2751,6 +3672,7 @@ def _render_run_v2(run: Path, *, root: Path = ROOT) -> Path:
     receipt = _load_json(run / "run_receipt.json")
     environment = _load_json(run / "environment.json")
     parameters = _flatten_parameters(config)
+    dataset_report_links = _render_dataset_pages(run, task, metrics, history)
     descriptors = _inventory_descriptors(run, root, metrics)
     status = receipt["status"]
     status_detail = (
@@ -2801,6 +3723,14 @@ def _render_run_v2(run: Path, *, root: Path = ROOT) -> Path:
     allowed = ", ".join(task["input_policy"]["reconstruction_allowed"])
     forbidden = ", ".join(task["input_policy"]["reconstruction_forbidden"])
     evaluation = ", ".join(task["input_policy"]["evaluation_allowed"])
+    dataset_reports = "".join(
+        "<section class='panel'><h3>"
+        + html.escape(dataset_id)
+        + "</h3><p><a href='"
+        + html.escape(path, quote=True)
+        + "'>Open metrics, curves, artifacts, and orbit command</a></p></section>"
+        for dataset_id, path in dataset_report_links.items()
+    )
     page = f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
@@ -2867,6 +3797,7 @@ margin-top:28px; }}
 <section class="panel"><h3>Evaluation may read</h3><p>{html.escape(evaluation)}</p></section></div>
 
 <h2>Pipeline</h2><ol class="pipeline">{stages}</ol>
+<h2>Per-dataset reports</h2><div class="grid">{dataset_reports}</div>
 <h2>Fitting process</h2><div class="grid">{_history_charts(history)}</div>
 <h2>Final metrics</h2><div class="grid">{_metrics_html(metrics)}</div>
 <h2>Required diagrams</h2><div class="grid">{final_charts}</div>

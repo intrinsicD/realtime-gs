@@ -1,0 +1,146 @@
+session:
+  id: "2026-08-07_001"
+  date: "2026-08-07"
+  started: "2026-08-07T00:10+02:00"
+  last_turn: "2026-08-07T02:26+02:00"
+  turn_count: 3
+  summary: >
+    RTGS-013 received blocker-free prospective approval, completed its exact 36-cell image-backed
+    run, passed an independent raw-results audit for bounded per-folder development
+    interpretation, and completed its exact report, browser, documentation, and verification
+    closeout without a required change.
+
+events_logged:
+  - turn: 1
+    type: decision
+    id: N213
+    routing: direct
+    provenance: user
+    summary: "Authorize one blocker-only administrative V5 freeze and outcome-blind review."
+  - turn: 1
+    type: decision
+    id: N214
+    routing: direct
+    provenance: ai-executed
+    summary: "Approve exact blocker-free V5 and transition RTGS-013 to ready without initialization."
+  - turn: 2
+    type: experiment
+    id: N215
+    routing: direct
+    provenance: ai-executed
+    summary: "Recompute all 36 RTGS-013 cells, paired folder metrics, clocks, resources, and counts without mismatch."
+  - turn: 2
+    type: decision
+    id: N216
+    routing: direct
+    provenance: ai-executed
+    summary: "Accept only bounded per-folder masked/unmasked development interpretation and descriptive timing."
+  - turn: 2
+    type: dead_end
+    id: N217
+    routing: direct
+    provenance: ai-executed
+    summary: "Retire the unfrozen fixed-threshold cross-folder convergence claim for this protocol."
+  - turn: 2
+    type: claim
+    id: C41
+    routing: crystallized
+    provenance: ai-executed
+    summary: "Joint masking improves foreground/silhouette/AUC with a full-canvas tradeoff on the exact single frame."
+  - turn: 3
+    type: decision
+    id: N218
+    routing: direct
+    provenance: ai-executed
+    summary: "Accept RTGS-013 terminal report, browser, documentation, and verification closeout."
+
+ai_actions:
+  - turn: 1
+    action: >
+      Recomputed exact V5 protocol, 103-file source, 215-file data-seal, and V1-V4 review hashes.
+      Reconstructed V4 by restoring only its stale blocker and reproduced exact V4 digest
+      56178a3e...48b5; the structural diff contained only blockers plus the digest-excluded status
+      and review envelope. Confirmed the official run root remained absent.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 1
+    action: >
+      Authored the canonical V5 approval, simulated its exact approval metadata and ready status
+      in memory, obtained zero full-task validation errors with unchanged digest
+      61ba8855...119b, and confirmed the protected driver accepted the candidate. Applied only
+      that administrative envelope, revalidated task/data/workflow/docs/ARA/layout/diff gates,
+      appended the independent task acceptance, and returned Turn to the Driver without init-run.
+    provenance: ai-executed
+    files_changed:
+      - "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW.md"
+      - "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+      - ".agents/state/current-task.md"
+  - turn: 2
+    action: >
+      Rebound the approved task/review/lock, 103-file source binding, and 215-file data seal;
+      semantically replayed one warmup plus all 36 measured receipts and every transitive artifact
+      hash; independently recomputed held-out means, validation AUC, paired seed differences,
+      medians, resource clocks, isolation, and NPZ/PLY counts. All metric/accounting checks passed.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 2
+    action: >
+      Authored append-only canonical AUDIT Markdown/JSON, recorded bounded claim dispositions,
+      passed 25 focused Janelle protocol tests and git diff checking, narrowed viewer recovery to
+      final same-root reuse because the initial receipt was overwritten, and returned task Turn to
+      the Driver without rendering reports or performing browser smoke.
+    provenance: ai-executed
+    files_changed:
+      - "benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.md"
+      - "benchmarks/results/20260806_gaussian2d_image_refinement_janelle_frame00008_AUDIT.json"
+      - ".agents/state/current-task.md"
+      - "ara/trace/exploration_tree.yaml"
+      - "ara/staging/observations.yaml"
+      - "ara/logic/claims.md"
+  - turn: 3
+    action: >
+      Independently checked the root and six exact child reports, 1,699-entry manifest, both
+      structured browser receipts, six live WebGL viewers, seven live report pages, and the two
+      bounded documentation sections. Replayed the official run and results-bundle checks, the
+      canonical repository gate, the CPU full suite, and diff/workflow checks; all passed.
+    provenance: ai-executed
+    files_changed: []
+  - turn: 3
+    action: >
+      Recorded an Accepted terminal closeout with no required change, advanced RTGS-013 to
+      Calibrated/Accepted, preserved the producer RESULT/AUDIT and run artifacts unchanged, and
+      returned Turn to the Driver for user handoff.
+    provenance: ai-executed
+    files_changed:
+      - ".agents/state/current-task.md"
+
+claims_touched:
+  - id: C41
+    action: crystallized
+    turn: 2
+  - id: C41
+    action: confirmed
+    turn: 3
+
+key_context:
+  - turn: 1
+    excerpt: >
+      The owner authorized only removal of V4's stale approval blocker and a fresh outcome-blind
+      review. The Driver required exact same-digest ready-state validation; it passed, so V5 was
+      approved and execution authority returned without opening any outcome.
+  - turn: 2
+    excerpt: >
+      The completed exact run has no raw metric or accounting mismatch. Foreground/silhouette and
+      validation-AUC directions hold in 3/3 paired seeds separately for every folder, full-canvas
+      fidelity trades down, fixed-threshold cross-folder convergence is untestable, and all timing
+      remains descriptive.
+  - turn: 3
+    excerpt: >
+      The exact root and six child pages, manifest, report and WebGL/orbit receipts, live endpoints,
+      audit-bounded documentation, official run/bundle validation, canonical gate, and CPU full
+      suite all pass; warning and immutable producer-status caveats remain explicitly non-blocking.
+
+open_threads:
+  - "True globally coupled multi-marginal transport and the full KL-screened split/merge heuristic remain unimplemented or untested; O157 stays staged."
+
+ai_suggestions_pending: []

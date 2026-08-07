@@ -1,0 +1,447 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260806_gaussian2d_image_refinement_janelle_frame00008",
+  "date": "20260806",
+  "task_slug": "gaussian2d_image_refinement",
+  "data_slug": "janelle_frame00008",
+  "arm": "rgb_3dgs",
+  "status": "ready",
+  "owner": "Codex-root",
+  "protocol_review": {
+    "reviewer": "Volta-protocol_review",
+    "verdict": "approved",
+    "protocol_sha256": "61ba885523c4941c842744b142bf85700ac78eb6a2c61e28a20a22637371179b",
+    "artifact": "experiments/reviews/20260806_gaussian2d_image_refinement_janelle_frame00008_PROTOCOL_REVIEW.md"
+  },
+  "depends_on": [],
+  "title": "Image-backed masked and unmasked 3D Gaussian refinement for six Janelle Gaussian2D fields",
+  "question": "For each of the six Gaussian2D folders explicitly selected by the owner in Janelle frame_00008, how do masked and unmasked executions of the same compact-field lift plus standard image-supervised 3DGS compare in validation convergence, final held-out Janelle image quality, silhouette leakage, runtime, memory, and final Gaussian capacity?",
+  "hypothesis": "Using the source-backed foreground masks in both compact-field placement and RGB refinement will improve held-out foreground PSNR, crop SSIM, alpha IoU, and exterior leakage relative to an otherwise matched unmasked execution, while folders with higher-capacity or boundary-aware 2D fields will provide an initialization that reaches a fixed validation-quality threshold sooner; any such result is expected to be dataset-specific and may trade full-canvas background fidelity for foreground quality.",
+  "claim_boundary": "Development-only, single-frame evidence over six pre-existing Gaussian2D decompositions of the same 26-camera Janelle capture. Every folder is an independent experiment unit with identical split, algorithm, seed schedule, and RGB source. The run may compare masked versus unmasked end-to-end behavior and descriptive differences among those six inputs. It cannot establish cross-scene generality, state-of-the-art quality, GPS-Gaussian reproduction, real-time performance, production-default suitability, or that a deterministic bounded field carrier preserves every low-mass source component. Held-out test views are final-reporting only.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "gaussians2d",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "gaussians2d_additive",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "gaussians2d_gaussianimage_fullres",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "gaussians2d_native_fullres",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "gaussians2d_structsplat_mask_contained_fullres",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_mask_contained_fullres/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    },
+    {
+      "id": "gaussians2d_structsplat_no_boundary_fullres",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_no_boundary_fullres/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "gaussians2d": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "gaussians2d_additive": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "gaussians2d_gaussianimage_fullres": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "gaussians2d_native_fullres": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "gaussians2d_structsplat_mask_contained_fullres": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    },
+    "gaussians2d_structsplat_no_boundary_fullres": {
+      "train": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012", "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000", "C1002", "C1004"],
+      "heldout": ["C0014", "C0028", "C1001"]
+    }
+  },
+  "seeds": [80601, 80602, 80603],
+  "input_policy": {
+    "reconstruction_allowed": ["calibration", "gaussians2d", "gaussians3d_initialization", "mask", "rgb"],
+    "reconstruction_forbidden": ["heldout_gaussians2d_for_lifting", "heldout_mask_for_training", "heldout_rgb_for_training", "validation_gaussians2d_for_lifting", "validation_mask_for_training", "validation_rgb_for_training"],
+    "evaluation_allowed": ["calibration", "gaussians2d", "gaussians3d_initialization", "mask", "rgb"]
+  },
+  "execution_guards": ["deny_heldout_training_access", "split_hash_at_exit", "train_only_compact_lift", "fixed_validation_reporting_only", "no_test_driven_selection", "authenticated_canonical_workers", "content_hashed_cell_receipts", "live_source_and_data_revalidation"],
+  "stages": [
+    {
+      "id": "input_alignment",
+      "label": "Input alignment and split guard",
+      "purpose": "Verify the selected compact manifest, full source component counts, calibrated camera ids, exact Janelle JPG/mask hashes, and optimizer/validation/test partition before outcomes are accessible."
+    },
+    {
+      "id": "field_lift",
+      "label": "Support-aware probabilistic field lift",
+      "purpose": "Lift only optimizer-camera 2D fields into a persistent 3D Gaussian initialization; the masked arm uses source-backed packed alpha and the unmasked arm ignores alpha."
+    },
+    {
+      "id": "rgb_refinement",
+      "label": "Standard image-backed 3DGS refinement",
+      "purpose": "Optimize the lifted model with the repository Trainer and gsplat using only optimizer-camera Janelle RGB; apply external Janelle masks only in the masked arm."
+    },
+    {
+      "id": "validation_reporting",
+      "label": "Fixed validation convergence reporting",
+      "purpose": "At frozen checkpoints, evaluate the untouched validation cameras for quality-versus-step and quality-versus-wall-time curves without selection or early stopping."
+    },
+    {
+      "id": "heldout_evaluation",
+      "label": "Final held-out Janelle image evaluation",
+      "purpose": "After optimization is complete, open the three test views once for full/foreground image quality and silhouette metrics; test results cannot alter any model."
+    },
+    {
+      "id": "presentation",
+      "label": "Per-folder report and orbit presentation",
+      "purpose": "Save calibrated previews, initial/final models, a masked/unmasked comparison manifest, and one canonical child index page for each Gaussian2D folder."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "masked_pipeline",
+      "label": "Masked lift and RGB refinement",
+      "purpose": "Uses each compact view's source-backed alpha in field placement and the matching Janelle PNG mask in image refinement."
+    },
+    {
+      "id": "unmasked_pipeline",
+      "label": "Unmasked lift and RGB refinement",
+      "purpose": "Ignores alpha in field placement and trains against the full Janelle RGB canvas; evaluation still retains masks for a matched foreground readout."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "heldout_foreground_psnr",
+      "label": "Held-out foreground PSNR",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "mean over the three fixed held-out views per cell; report every seed and the per-folder median"
+    },
+    {
+      "id": "heldout_full_psnr",
+      "label": "Held-out full-canvas PSNR",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "mean over the three fixed held-out views per cell; report every seed and the per-folder median"
+    },
+    {
+      "id": "heldout_crop_ssim",
+      "label": "Held-out foreground-crop SSIM",
+      "unit": "score",
+      "direction": "higher",
+      "aggregation": "mean over the three fixed held-out views per cell; report every seed and the per-folder median"
+    },
+    {
+      "id": "heldout_alpha_iou",
+      "label": "Held-out alpha IoU",
+      "unit": "score",
+      "direction": "higher",
+      "aggregation": "mean over the three fixed held-out views per cell; report every seed and the per-folder median"
+    },
+    {
+      "id": "heldout_exterior_alpha",
+      "label": "Held-out exterior alpha leakage",
+      "unit": "mean alpha",
+      "direction": "lower",
+      "aggregation": "mean over the three fixed held-out views per cell; report every seed and the per-folder median"
+    },
+    {
+      "id": "validation_auc_foreground_psnr",
+      "label": "Validation foreground PSNR area under native optimizer-time curve",
+      "unit": "dB-seconds per second",
+      "direction": "higher",
+      "aggregation": "trapezoidal time-normalized AUC over the observer-excluded native optimizer clock at frozen validation checkpoints, then per-folder median over seeds"
+    },
+    {
+      "id": "rgb_refinement_wall_seconds",
+      "label": "Native RGB optimizer wall time",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "Trainer native elapsed from first optimizer step through final synchronized step, excluding external validation observers; per-folder median over three seeds"
+    },
+    {
+      "id": "field_lift_wall_seconds",
+      "label": "Field-lift cell wall time",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "measured field-lift stage wall interval per fresh cell; per-folder median over three seeds"
+    },
+    {
+      "id": "validation_observer_seconds",
+      "label": "External validation observer wall time",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "initial plus checkpoint snapshot/render observer wall time, excluded from the native optimizer clock; per-folder median over three seeds"
+    },
+    {
+      "id": "measurement_endpoint_wall_seconds",
+      "label": "Worker-start to frozen endpoint wall time",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "fresh worker start through synchronized final PLY/NPZ save before held-out access; per-folder median over three seeds"
+    },
+    {
+      "id": "total_cell_wall_seconds",
+      "label": "Input-open to frozen endpoint wall time",
+      "unit": "seconds",
+      "direction": "lower",
+      "aggregation": "post-CUDA-reset compact-input open through synchronized final PLY/NPZ save before held-out access; per-folder median over three seeds"
+    },
+    {
+      "id": "peak_cuda_allocated_bytes",
+      "label": "Peak CUDA allocated",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "per-cell torch peak; per-folder median over three seeds"
+    },
+    {
+      "id": "peak_cuda_reserved_bytes",
+      "label": "Peak CUDA reserved",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "per-cell torch reserved-memory peak over input-open to frozen endpoint; per-folder median over three seeds"
+    },
+    {
+      "id": "peak_rss_bytes",
+      "label": "Peak process RSS",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "fresh worker ru_maxrss sampled at the frozen endpoint; per-folder median over three seeds"
+    },
+    {
+      "id": "final_gaussians",
+      "label": "Final Gaussian count",
+      "unit": "gaussians",
+      "direction": "descriptive",
+      "aggregation": "per-cell endpoint; per-folder median over three seeds"
+    }
+  ],
+  "required_charts": ["quality", "resources", "stage_runtime"],
+  "resource_protocol": {
+    "scope": "One fresh process per dataset/seed/mask arm. Process-owned CUDA peaks reset immediately before compact-field access and freeze after the synchronized final PLY/NPZ save. Total cell wall covers that same input-open-to-endpoint interval. Native optimizer elapsed excludes the initial validation render, checkpoint snapshot construction, every validation render, held-out evaluation, serialization after the endpoint, previews, reports, and viewers.",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "one frozen seed per measured repeat; retain every raw cell and report per-folder medians without pooling the six folders",
+    "cuda_metrics": ["torch.cuda.max_memory_allocated", "torch.cuda.max_memory_reserved", "nvidia_smi_device_inventory"],
+    "host_metrics": ["ru_maxrss", "field_lift_wall_seconds", "rgb_refinement_wall_seconds", "validation_observer_seconds", "measurement_endpoint_wall_seconds", "total_cell_wall_seconds"]
+  },
+  "data_seal": "experiments/data/janelle_frame00008_image_backed_six_gaussian2d.json",
+  "run_command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260806_gaussian2d_image_refinement_janelle_frame00008.py",
+    "--task",
+    "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json",
+    "--run",
+    "runs/20260806_gaussian2d_image_refinement_janelle_frame00008"
+  ],
+  "frozen_configuration": {
+    "validation_views": ["C0009", "C0022", "C0037"],
+    "optimizer_views": ["C0001", "C0004", "C0005", "C0006", "C0008", "C0012", "C0018", "C0019", "C0020", "C0021", "C0025", "C0026", "C0029", "C0030", "C0031", "C0034", "C0039", "C1000", "C1002", "C1004"],
+    "image_downscale": 16,
+    "compact_view_byte_caps": {
+      "gaussians2d": 168000,
+      "gaussians2d_additive": 168000,
+      "gaussians2d_gaussianimage_fullres": 8388608,
+      "gaussians2d_native_fullres": 8388608,
+      "gaussians2d_structsplat_mask_contained_fullres": 8388608,
+      "gaussians2d_structsplat_no_boundary_fullres": 8388608
+    },
+    "field_lift": {
+      "placement_mode": "fixed_source_excluded_robust",
+      "compute_dtype": "float64",
+      "max_tracks": 256,
+      "max_train_views": 12,
+      "target_component_cap": 2048,
+      "depth_samples": 24,
+      "min_views": 2,
+      "projection_dilation": 0.0,
+      "background_fraction": 0.0,
+      "association": null,
+      "topology_rounds": 0,
+      "refit_iterations": 10,
+      "appearance_start": 5,
+      "view_schedule": "all",
+      "validation_sample_cap": 256,
+      "component_selection_rule": "8x8-stratified-then-global-mass-area-v1",
+      "component_count_policy": "load and seal every source component; if a view exceeds 2048 components, use the deterministic receipted carrier only for the CPU field lift"
+    },
+    "rgb_refinement": {
+      "iterations": 1500,
+      "eval_every": 100,
+      "rasterizer": "gsplat",
+      "device": "cuda:0",
+      "density_strategy": "gsplat-default",
+      "densify": true,
+      "densify_start": 100,
+      "densify_stop": 1000,
+      "densify_every": 50,
+      "grad_threshold": 0.0008,
+      "absgrad": true,
+      "prune_opacity": 0.005,
+      "prune_scale_frac": 0.1,
+      "max_gaussians": 50000,
+      "target_sh_degree": 3,
+      "sh_degree_interval": 375,
+      "packed": true,
+      "antialiased": true,
+      "random_background": false,
+      "stream_scene_from_cpu": true,
+      "internal_checkpoint_evaluation": false,
+      "reset_cuda_peak_stats": false,
+      "checkpoint_policy": "final",
+      "early_stopping": false,
+      "validate_render_finite": true
+    },
+    "warmup": {
+      "dataset_id": "gaussians2d",
+      "arm_id": "masked_pipeline",
+      "seed": 80601,
+      "iterations": 50,
+      "heldout_access": "forbidden"
+    },
+    "source_binding": {
+      "patterns": [
+        "src/rtgs/**/*.py",
+        "scripts/experiment_contract.py",
+        "scripts/check_results_bundle.py",
+        "scripts/experiments/20260806_gaussian2d_image_refinement_janelle_frame00008.py"
+      ],
+      "file_count": 103,
+      "aggregate_sha256": "b10eb15c38bd44da97ad42464870fee64eb5a158f722e3b2cf3a6a1d77f4445a"
+    },
+    "cell_receipt_policy": {
+      "schema": "rtgs.janelle_gaussian2d_image_cell_receipt.v1",
+      "bundle_path": "cell_bundle_receipt.json",
+      "warmup_cells": 1,
+      "measured_cells": 36,
+      "validate_before_resume_and_aggregation": true,
+      "hash_every_required_artifact": true,
+      "strict_semantic_bundle_replay": true,
+      "warmup_artifacts": [
+        "field_lift.json",
+        "gaussians_init.npz",
+        "gaussians_init.ply",
+        "gaussians.npz",
+        "gaussians.ply",
+        "summary.json",
+        "training_history.raw.json",
+        "validation_metrics.json"
+      ],
+      "measured_artifacts": [
+        "field_lift.json",
+        "gaussians_init.npz",
+        "gaussians_init.ply",
+        "gaussians.npz",
+        "gaussians.ply",
+        "heldout_metrics.json",
+        "summary.json",
+        "training_history.raw.json",
+        "validation_metrics.json"
+      ],
+      "effective_sha256": {
+        "warmup": {
+          "masked_pipeline": {
+            "80601": "4f95caad0e3c9a115d3c6ac087a6e437cea763cd9f9a94009678c0d61986550a"
+          }
+        },
+        "measured": {
+          "masked_pipeline": {
+            "80601": "c07a0f02be67112e02595cdaf89b89019c6ce39f497beda82c0dbe6e3daae8c1",
+            "80602": "6b14a84cb0c5c16f059485ac7e864be884fde054aff8f631ff1e73a6121447ad",
+            "80603": "803da759af9bc19697e79363c8467219c016329f6985f8c1b647ca8ec5be4fc0"
+          },
+          "unmasked_pipeline": {
+            "80601": "93cb1612d79768fe0c199e836900dd0f7c6ede3d13c723c150ac3e576ea602b5",
+            "80602": "42ed66c237e750370180159e8ce6d0ad26f72ece699c6a572def0cc6671c13f3",
+            "80603": "89d188989a072bdaf42aa2773c4a652be4af468254a4f59893b08dc2ac676a83"
+          }
+        }
+      }
+    },
+    "live_integrity_policy": {
+      "verify_source_at_coordinator_worker_and_bundle": true,
+      "verify_full_data_seal_at_coordinator_entry_exit_and_bundle": true,
+      "verify_opened_input_bytes_in_every_worker": true
+    },
+    "viewer_launch": {
+      "after_all_measurement_endpoints": true,
+      "retry_reuse_live_viewers": true,
+      "require_process_and_http_probe": true,
+      "launch_receipt": "viewer_launch_receipt.json",
+      "host": "127.0.0.1",
+      "device": "cuda:0",
+      "startup_probe_seconds": 1.0,
+      "ports": {
+        "gaussians2d": 8400,
+        "gaussians2d_additive": 8401,
+        "gaussians2d_gaussianimage_fullres": 8402,
+        "gaussians2d_native_fullres": 8403,
+        "gaussians2d_structsplat_mask_contained_fullres": 8404,
+        "gaussians2d_structsplat_no_boundary_fullres": 8405
+      }
+    },
+    "viewer_smoke": {
+      "receipt": "viewer_smoke.json",
+      "schema_version": 2,
+      "required_dataset_ids": [
+        "gaussians2d",
+        "gaussians2d_additive",
+        "gaussians2d_gaussianimage_fullres",
+        "gaussians2d_native_fullres",
+        "gaussians2d_structsplat_mask_contained_fullres",
+        "gaussians2d_structsplat_no_boundary_fullres"
+      ],
+      "require_child_report_http_200": true,
+      "require_webgl2_visible_content": true,
+      "require_orbit_camera_change": true
+    },
+    "selection_policy": "No validation or held-out metric changes the endpoint, hyperparameters, arm, seed, or representative model. Seed 80601 is selected prospectively for preview and orbit presentation only.",
+    "aggregation_policy": "Each folder page is the scientific result unit. Root metrics are navigation-only medians of the twelve folder-by-arm medians and must not be used to rank folders or assert a pooled treatment effect.",
+    "failure_policy": "A failed cell writes a structured receipt and does not receive imputed quality or timing values. Continue only to independent cells; the root is incomplete unless all 36 measured cells succeed."
+  },
+  "blockers": []
+}

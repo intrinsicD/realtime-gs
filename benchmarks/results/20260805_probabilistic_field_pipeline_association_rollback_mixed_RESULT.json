@@ -1,0 +1,143 @@
+{
+  "aggregate_metrics": {
+    "calibrated_cell_success_fraction": 0.8939393939393939,
+    "covariance_relative_frobenius": 0.009127745810987228,
+    "final_gaussian_count": 63.0,
+    "final_gaussian_count_successful_cell_count": 26.0,
+    "heldout_field_density_mse": 0.8221686179262926,
+    "heldout_field_density_mse_successful_cell_count": 26.0,
+    "heldout_field_rgb_mse": 0.03164297257995046,
+    "heldout_field_rgb_mse_successful_cell_count": 26.0,
+    "independent_half_center_median": 0.06372770358118819,
+    "independent_half_center_median_successful_cell_count": 19.0,
+    "refit_wall_seconds": 4.861169292009436,
+    "refit_wall_seconds_successful_cell_count": 26.0,
+    "support_precision_times_coverage": 0.39127218934911245,
+    "track_precision_times_coverage": 0.19277893157559217,
+    "unmasked_support_fallback_cell_fraction": 0.030303030303030304,
+    "world_center_rmse": 0.02185523095957925
+  },
+  "calibrated_cell_attempt_count": 66,
+  "calibrated_cell_failure_count": 7,
+  "calibrated_cell_success_count": 59,
+  "claim_boundary": "Transactional-association-rollback successor created after the approved `20260805_probabilistic_field_pipeline_aabb_eligible_mixed` run completed the unchanged 483-cell synthetic matrix, discarded warmup, and twenty-one measured attempts, then failed closed at measured cell 22/66 (`karate_00060_default`, seed 80501, all candidate mechanisms) on exact `RuntimeError: a supported projection left the valid camera domain during M-step`. That run preserved nineteen successful terminals and two eligible `hard invariant violation: transport real mass` terminals before aborting; its root failure SHA-256 is `63206958f3fd963e277d8487000f9b76383ae5a8aa9120b4235a65cbd32216d4`, run-receipt SHA-256 is `0d1abb1b84bba0d3d72edede63cf3582e31e22a665961ef9ab25448fc97758fa`, and terminal failure SHA-256 is `07a2ff8e0fbe8cfcf2926a56b77ea8ac40704f509b38a53fca35b4324671396b`; it and every predecessor remain immutable. No quality, convergence, aggregate, report, or viewer outcome from that run was accessed. This task reruns the complete matrix and changes one candidate-association behavior only: `FieldAssociationConfig.failure_policy` becomes `rollback`, so RuntimeError or ValueError from the private association clone returns the untouched placement with exact rolled-back diagnostics and is then rejected by the unchanged missing/non-finite/insufficient-transport hard gates. Rollback cannot produce a successful candidate, impute a metric, substitute a native result, or make a rejected model claim-eligible; rejected models remain presentation-only. Native arms, synthetic cells, forward-AABB eligibility, exact empty-support retry, thresholds, seeds, splits, input/component caps, optimizers, metrics, aggregation, and decision rules are unchanged. Any exception outside private association rollback, the reviewed empty-support retry, and complete structured hard-invariant continuation still aborts the root. Evidence remains development-only over the sealed eleven-field deterministic 512-component-per-view proxy and can establish neither complete-field fidelity, source-RGB reconstruction quality, spatial resolution, true globally coupled multi-marginal OT, GPS-Gaussian reproduction, GPU or real-time performance, cross-scene generality, production-default suitability, nor accuracy from independent-half agreement. Prior exposure is immutable failure chronology only and does not authorize quality or runtime tuning. Calibrated results cannot rescue a failed synthetic invariant or mechanism gate.",
+  "conditional_metric_results": {
+    "final_gaussian_count": {
+      "successful_cell_count": 26,
+      "value": 63.0
+    },
+    "heldout_field_density_mse": {
+      "successful_cell_count": 26,
+      "value": 0.8221686179262926
+    },
+    "heldout_field_rgb_mse": {
+      "successful_cell_count": 26,
+      "value": 0.03164297257995046
+    },
+    "independent_half_center_median": {
+      "successful_cell_count": 19,
+      "value": 0.06372770358118819
+    },
+    "refit_wall_seconds": {
+      "successful_cell_count": 26,
+      "value": 4.861169292009436
+    }
+  },
+  "dataset_results": [
+    {
+      "dataset_id": "stage_00008_default",
+      "path": "datasets/stage_00008_default/result.json"
+    },
+    {
+      "dataset_id": "stage_00008_additive",
+      "path": "datasets/stage_00008_additive/result.json"
+    },
+    {
+      "dataset_id": "stage_00008_gaussianimage_fullres",
+      "path": "datasets/stage_00008_gaussianimage_fullres/result.json"
+    },
+    {
+      "dataset_id": "stage_00008_native_fullres",
+      "path": "datasets/stage_00008_native_fullres/result.json"
+    },
+    {
+      "dataset_id": "stage_00008_structsplat_mask_contained_fullres",
+      "path": "datasets/stage_00008_structsplat_mask_contained_fullres/result.json"
+    },
+    {
+      "dataset_id": "stage_00008_structsplat_no_boundary_fullres",
+      "path": "datasets/stage_00008_structsplat_no_boundary_fullres/result.json"
+    },
+    {
+      "dataset_id": "stage_00009_default",
+      "path": "datasets/stage_00009_default/result.json"
+    },
+    {
+      "dataset_id": "stage_00009_additive",
+      "path": "datasets/stage_00009_additive/result.json"
+    },
+    {
+      "dataset_id": "stage_00009_native_fullres",
+      "path": "datasets/stage_00009_native_fullres/result.json"
+    },
+    {
+      "dataset_id": "karate_00005_default",
+      "path": "datasets/karate_00005_default/result.json"
+    },
+    {
+      "dataset_id": "karate_00060_default",
+      "path": "datasets/karate_00060_default/result.json"
+    }
+  ],
+  "schema_version": 1,
+  "status": "pending_independent_audit",
+  "synthetic_decisions": {
+    "association": {
+      "passed": false,
+      "seed_wins": 0
+    },
+    "combined_interpretation": "descriptive_only",
+    "hard_invariants_passed": true,
+    "invariant_measurements": {
+      "candidate_gate_violation_mass_max": 0.0,
+      "source_covariance_relative_error_max": 1.0072114908675744e-15,
+      "source_mean_max_error": 1.7763568394002505e-14,
+      "split_density_mass_error_max": 0.0,
+      "split_optical_thickness_error_max": 0.0,
+      "transport_fixed_point_residual_max": 7.894663323071427e-08
+    },
+    "invariants": {
+      "all_metrics_finite": true,
+      "candidate_gate_exact_zero": true,
+      "heldout_fit_isolation": true,
+      "mask_render_opacity_equal": true,
+      "progressive_final_all_views": true,
+      "schedule_fresh_process": true,
+      "source_covariance": true,
+      "source_projection": true,
+      "split_density_mass": true,
+      "split_optical_thickness": true,
+      "transport_finite": true,
+      "transport_fixed_point": true,
+      "transport_positive_real_mass": true
+    },
+    "mask": {
+      "passed": true,
+      "seed_wins": 3
+    },
+    "schedule": {
+      "passed": false,
+      "seed_wins": 0
+    },
+    "shape": {
+      "passed": true,
+      "seed_wins": 3
+    },
+    "topology": {
+      "passed": false,
+      "seed_wins": 0
+    }
+  },
+  "task_id": "20260805_probabilistic_field_pipeline_association_rollback_mixed",
+  "unmasked_support_fallback_cell_count": 2
+}
