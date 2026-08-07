@@ -402,6 +402,41 @@ def test_dataset_manifest_round_trip_and_reconstruction_inputs(tmp_path) -> None
         CompactDataset.load(directory)
 
 
+def test_dataset_selected_view_load_preserves_request_order_and_does_not_open_excluded_archive(
+    tmp_path,
+) -> None:
+    directory = tmp_path / "gaussians2d"
+    directory.mkdir()
+    paths = []
+    for index, view_id in enumerate(("left", "middle", "right")):
+        path = directory / f"{view_id}.rtgsv"
+        _save_view(path, view_id, masked=False, offset=0.1 * index)
+        paths.append(path)
+    write_compact_dataset_manifest(
+        directory,
+        name="selected-frame",
+        calibration_sha256=_CALIBRATION_SHA256,
+        view_paths=paths,
+        bounds_hint=(torch.zeros(3), 1.0),
+    )
+    paths[1].write_bytes(b"excluded archive is deliberately unreadable")
+
+    selected = CompactDataset.load(
+        directory,
+        load_alpha=False,
+        view_ids=["right", "left"],
+    )
+
+    assert [view.view_id for view in selected.views] == ["right", "left"]
+    assert selected.alphas == [None, None]
+    with pytest.raises(ValueError, match="byte count mismatch"):
+        CompactDataset.load(directory, load_alpha=False)
+    with pytest.raises(ValueError, match="must not contain duplicates"):
+        CompactDataset.load(directory, view_ids=["left", "left"])
+    with pytest.raises(ValueError, match="requested compact views are absent"):
+        CompactDataset.load(directory, view_ids=["absent"])
+
+
 def test_dataset_manifest_accepts_one_explicit_nondefault_view_cap(tmp_path) -> None:
     directory = tmp_path / "gaussians2d"
     directory.mkdir()

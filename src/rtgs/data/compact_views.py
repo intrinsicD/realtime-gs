@@ -16,6 +16,7 @@ import re
 import stat
 import tempfile
 import zipfile
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -741,15 +742,30 @@ class CompactDataset:
         *,
         byte_cap: int = COMPACT_VIEW_BYTE_CAP,
         load_alpha: bool = True,
+        view_ids: Sequence[str] | None = None,
     ) -> CompactDataset:
-        """Strictly load and verify every view listed by a frame manifest.
+        """Strictly load and verify selected views listed by a frame manifest.
 
         Set ``load_alpha=False`` for Gaussian-only reconstruction.  The outer ``.rtgsv`` digest,
         ZIP member declaration, and alpha metadata remain checked, but packed alpha bytes are not
-        read or decoded and every returned ``CompactView.alpha`` is ``None``.
+        read or decoded and every returned ``CompactView.alpha`` is ``None``.  ``view_ids=None``
+        retains the historical behavior of loading every manifest view.  A non-empty explicit
+        sequence loads only those views, in the requested order, while still authenticating the
+        complete manifest.  This lets train/held-out protocols avoid opening excluded archives.
         """
         if not isinstance(load_alpha, bool):
             raise TypeError("load_alpha must be a bool")
+        requested: tuple[str, ...] | None = None
+        if view_ids is not None:
+            if isinstance(view_ids, (str, bytes)) or not isinstance(view_ids, Sequence):
+                raise TypeError("view_ids must be a sequence of view identifiers or None")
+            requested = tuple(view_ids)
+            if not requested:
+                raise ValueError("view_ids must not be empty")
+            if any(not isinstance(view_id, str) for view_id in requested):
+                raise TypeError("view_ids must contain only strings")
+            if len(set(requested)) != len(requested):
+                raise ValueError("view_ids must not contain duplicates")
         directory = Path(directory)
         if directory.name != "gaussians2d" and (directory / "gaussians2d").is_dir():
             directory = directory / "gaussians2d"
@@ -789,8 +805,10 @@ class CompactDataset:
             raise ValueError("compact dataset views must be a non-empty list")
         if len(records) > 256:
             raise ValueError("compact dataset view count exceeds its safety cap")
-        views: list[CompactView] = []
+        selected = None if requested is None else set(requested)
+        views_by_id: dict[str, CompactView] = {}
         seen: set[str] = set()
+        manifest_order: list[str] = []
         for index, value in enumerate(records):
             record = _exact_keys(
                 value,
@@ -801,26 +819,30 @@ class CompactDataset:
             if view_id in seen:
                 raise ValueError("compact dataset has duplicate view identifiers")
             seen.add(view_id)
+            manifest_order.append(view_id)
             expected_path = f"{view_id}.rtgsv"
             if record["path"] != expected_path:
                 raise ValueError("compact dataset view path is not canonical")
-            bundle_path = directory / expected_path
-            if (
-                _positive_int(record["bytes"], label=f"compact dataset view {index} bytes")
-                != os.lstat(bundle_path).st_size
-            ):
-                raise ValueError("compact dataset view byte count mismatch")
-            if _digest(
+            expected_bytes = _positive_int(
+                record["bytes"], label=f"compact dataset view {index} bytes"
+            )
+            expected_sha256 = _digest(
                 record["sha256"],
                 label=f"compact dataset view {index} sha256",
-            ) != file_sha256(bundle_path):
-                raise ValueError("compact dataset view digest mismatch")
+            )
             n_gaussians = _positive_int(
                 record["n_gaussians"],
                 label=f"compact dataset view {index} n_gaussians",
             )
             if not isinstance(record["has_alpha"], bool):
                 raise ValueError(f"compact dataset view {index} has_alpha must be boolean")
+            if selected is not None and view_id not in selected:
+                continue
+            bundle_path = directory / expected_path
+            if expected_bytes != os.lstat(bundle_path).st_size:
+                raise ValueError("compact dataset view byte count mismatch")
+            if expected_sha256 != file_sha256(bundle_path):
+                raise ValueError("compact dataset view digest mismatch")
             view = CompactView.load(
                 bundle_path,
                 device=device,
@@ -837,11 +859,18 @@ class CompactDataset:
                 raise ValueError("compact dataset alpha declaration mismatch")
             if not load_alpha and view.alpha is not None:
                 raise RuntimeError("alpha was materialized despite load_alpha=False")
-            views.append(view)
+            views_by_id[view_id] = view
+        if requested is not None:
+            missing = sorted(set(requested) - seen)
+            if missing:
+                raise ValueError("requested compact views are absent: " + ", ".join(missing))
+            views = [views_by_id[view_id] for view_id in requested]
+        else:
+            views = [views_by_id[view_id] for view_id in manifest_order]
         actual_names = {
             path.name for path in directory.iterdir() if path.is_file() and path.suffix == ".rtgsv"
         }
-        expected_names = {f"{view.view_id}.rtgsv" for view in views}
+        expected_names = {f"{view_id}.rtgsv" for view_id in seen}
         if actual_names != expected_names:
             raise ValueError("compact dataset contains unlisted view bundles")
         result = cls(

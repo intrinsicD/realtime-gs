@@ -1,0 +1,561 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260804_gps_field_proxy_depth_stage_frame00008_gaussianimage",
+  "date": "20260804",
+  "task_slug": "gps_field_proxy_depth",
+  "data_slug": "stage_frame00008_gaussianimage",
+  "arm": "beam_fusion",
+  "status": "ready",
+  "owner": "Codex-gps-field-driver",
+  "protocol_review": {
+    "reviewer": "Codex-gps-protocol-reviewer",
+    "verdict": "approved",
+    "protocol_sha256": "28cac666e0e210e26c2ec066883062799f228b4d3e8734c74bfa0930856515b5",
+    "artifact": "experiments/reviews/20260804_gps_field_proxy_depth_stage_frame00008_gaussianimage_PROTOCOL_REVIEW.md"
+  },
+  "depends_on": [],
+  "title": "GPS-Gaussian stereo depth from fitted 2D Gaussian-field proxies",
+  "question": "On the human-centered frame 00008 development capture, does frozen GPS-Gaussian stereo applied to transient renders of fitted 2D Gaussian fields produce a materially better exact-count 3D initialization than compact carve, Splat-SfM, and Beam Fusion, and what complete-boundary memory cost does the dense adapter add?",
+  "hypothesis": "The correctly calibrated GPS field-proxy arm reduces matched-count pre-refinement held-out compact area risk by at least 5% relative to the best deterministic compact initializer in at least two of three paired seeds, retains non-inferior final risk after identical short compact refinement, and outperforms the shuffled field/camera negative control. Peak memory is descriptive and is not hypothesized to beat streamed or point-sampled RGB.",
+  "claim_boundary": "Outcome-exposed single-frame development evidence for a frozen external human-stereo prior receiving transient dense tensors rendered only from fitted 2D Gaussian fields. It can test mechanism viability and measure this implementation's complete post-fit process memory. It cannot establish source-RGB quality, physical depth accuracy without ground truth, general-scene transfer, sparse-throughout execution, a production default, or compact VRAM superiority over streamed/decode-on-demand/point-sampled RGB.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008_gaussianimage",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres/production_manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008_gaussianimage": {
+      "train": [
+        "C0001", "C0004", "C0005", "C0006", "C0008", "C0009", "C0012",
+        "C0018", "C0019", "C0020", "C0021", "C0022", "C0025", "C0026",
+        "C0029", "C0030", "C0031", "C0034", "C0037", "C0039", "C1000",
+        "C1002", "C1004"
+      ],
+      "heldout": ["C0014", "C0028", "C1001"]
+    }
+  },
+  "seeds": [804001, 804002, 804003],
+  "input_policy": {
+    "reconstruction_allowed": ["calibration", "gaussians2d"],
+    "reconstruction_forbidden": [
+      "PIL", "SceneData", "mask", "rgb", "rtgs.data.calibrated", "rtgs.optim.trainer"
+    ],
+    "evaluation_allowed": ["calibration", "gaussians2d"]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "weights_only_checkpoint_load",
+    "external_source_and_checkpoint_sha256",
+    "heldout_reporting_only",
+    "fresh_process_resource_scope"
+  ],
+  "frozen_configuration": {
+    "external_model": {
+      "name": "GPS-Gaussian CVPR 2024 stage-2",
+      "official_repository": "https://github.com/aipixel/GPS-Gaussian",
+      "repository_commit": "0024776deee4824f270d4bb534a17ffd85f63cf2",
+      "repository_tree": "ad9815910afe3cd441458a1e79dd1f56bef3ab7e",
+      "repository_worktree_policy": "git HEAD and tree must equal the frozen values and git status --porcelain=v1 must be empty immediately before and after imports",
+      "source_checkpoint_bytes": 54118869,
+      "source_checkpoint_sha256": "d7ec20fb959a6949424b70f984d6e78def753f6dc0473215720c54c2ca1c76eb",
+      "sanitized_state_dict_bytes": 20680271,
+      "sanitized_state_dict_sha256": "6699a109af8f4cee0664fdbf9d581a9bbec74650b68e2acb90e4f040f6c5ba90",
+      "state_dict_load": "torch.load(weights_only=True)",
+      "used_submodules": ["img_encoder", "raft_stereo"],
+      "unused_submodules": ["gs_parm_regresser", "GaussianRender"],
+      "used_state_dict_signature": {
+        "canonical_rows": "JSON rows sorted by full key, each with exact key, shape, and torch dtype; compact separators and sorted object keys",
+        "combined_key_count": 132,
+        "combined_sha256": "79fe3c02d85b60afc3b46a1dae7bdb57d9787e903e1e6e8887cf17a2510fe553",
+        "img_encoder_key_count": 64,
+        "img_encoder_sha256": "5431406313bce1bf156e4dceb8f9b37e130c0302c3503409fb5ed491cf1b8fd2",
+        "raft_stereo_key_count": 68,
+        "raft_stereo_sha256": "735e4a2afdae68ae819c2e62b072cecb14de18c57060a0b621c3d9a67394654d",
+        "load_policy": "accept one tensor-only mapping with exactly the frozen used-prefix key/shape/dtype signatures; strip exactly one used prefix and call each submodule load_state_dict(strict=True); unused gs_parm_regresser keys are never loaded"
+      },
+      "import_policy": "prepend only the validated repository root, import core.extractor.UnetExtractor and core.raft_stereo_human.RAFTStereoHuman lazily, reject a pre-existing foreign core namespace, require every imported core/core.* origin or namespace path to resolve below the frozen repository, and record SHA-256 for every imported external Python file",
+      "correlation_backend": "reg",
+      "mixed_precision": true,
+      "iterations": 3,
+      "raft_configuration": {
+        "corr_levels": 4,
+        "corr_radius": 4,
+        "n_downsample": 3,
+        "n_gru_layers": 1,
+        "slow_fast_gru": null,
+        "encoder_dims": [32, 48, 96],
+        "hidden_dims": [96, 96, 96]
+      },
+      "execution_mode": "Construct both modules on CPU, strict-load the sanitized CPU state dict, call requires_grad_(False) on every parameter and eval() on both modules, then transfer both modules to cuda:0. The only forward is inside torch.inference_mode() and torch.autocast(device_type='cuda',dtype=torch.float16,enabled=true); the external modules' nested CUDA autocast scopes remain enabled. No activation, gradient, optimizer, or output tensor retains a model graph.",
+      "dataflow": "Concatenate rectified normalized tensors in exact [left,right] batch order to shape (2,3,1024,1024); call img_encoder once; pass only encoder pyramid element [2], shape (2,96,128,128), to raft_stereo(...,iters=3,test_mode=True); split the returned symmetric batch at size one into F_L then F_R."
+    },
+    "runtime_dependencies": {
+      "python": "3.11",
+      "scipy": "1.17.1",
+      "nvidia-ml-py": "13.610.43",
+      "readiness": "The frozen .venv command must import scipy and pynvml and report exactly these distributions before task status becomes ready; every worker repeats this version check before opening data."
+    },
+    "compact_loading": {
+      "byte_cap_per_view": 8388608,
+      "load_alpha": false,
+      "device": "cpu",
+      "policy": "CompactDataset.load is called with byte_cap=8388608 and load_alpha=False because each sealed archive declares that exact loader-contract ceiling in its internal metadata. The independently sealed maximum actual archive size remains 369477 bytes; the loader validates archive identity and contents before decoding, and packed alpha members are never decoded."
+    },
+    "pair_selection": {
+      "policy": "train-only pair minimizing absolute optical-axis separation error from 45 degrees, lexicographic tie break",
+      "target_degrees": 45.0,
+      "selected_pair": ["C0001", "C0022"],
+      "selected_pair_degrees": 45.025824253344815,
+      "shuffled_proxy_right_view": "C0005"
+    },
+    "dense_proxy": {
+      "resolution": 1024,
+      "dtype_and_layout": "float32 BCHW tensors",
+      "pixel_convention": "camera coordinates use half-integer pixel centers; proxy output index (row i,column j) is coordinate (j+0.5,i+0.5); GPS flow is an x-coordinate difference in pixels and is attached to that center",
+      "mapping": "Let L=max(native_width,native_height), pad_x=(L-native_width)/2, pad_y=(L-native_height)/2, and s=1024/L. Native coordinate (u,v) maps to proxy (s*(u+pad_x),s*(v+pad_y)); every proxy center is inverse-mapped and queried directly, without a native dense image or a second resize interpolation.",
+      "proxy_intrinsics": "fx'=s*fx, fy'=s*fy, cx'=s*(cx+pad_x), cy'=s*(cy+pad_y), width=height=1024",
+      "renderer": "exact indexed GaussianObservationField point query",
+      "query_backend_and_device": "Build one CPU rtgs.core.observation2d.GaussianObservationIndex for each rendered source field after the resource sampler starts. Fields, indexes, inverse-mapped coordinates, and unrectified RGB/support proxies remain CPU float32; GaussianObservationIndexCuda is forbidden for proxy construction.",
+      "row_batch": 32,
+      "tile_size": 16,
+      "support_threshold": 1e-6,
+      "color_and_support": "At each inverse-mapped proxy center, support is query.valid AND query.weight_sum>=1e-6. Unrectified proxy RGB is clamp(query.color,0,1) on support and exactly zero otherwise; unrectified support is binary float32.",
+      "operation_order": "Render the two unrectified letterboxed proxies first, then rectify RGB and support independently; no query is performed in rectified coordinates.",
+      "rectification_axes": "With camera centers C_L,C_R, x=normalize(C_R-C_L). Project the normalized mean world-space camera-down axis off x to obtain y, set z=cross(x,y), and if z has negative dot product with the normalized mean forward axis multiply y and z by -1. R_rect has rows x,y,z and t_rect_i=-R_rect*C_i.",
+      "rectification_intrinsics": "K_rect has fx=fy=min(fx'_L,fy'_L,fx'_R,fy'_R), cx=cy=512, width=height=1024; baseline B=norm(C_R-C_L)>0.",
+      "rectification_sampling": "For output homogeneous center p_r, sample source proxy at p_i proportional to K'_i R_i R_rect^T K_rect^-1 p_r. Use torch grid_sample bilinear, padding_mode=zeros, align_corners=False; reject nonpositive homogeneous z. The normalized source grid is (2*u/1024-1,2*v/1024-1).",
+      "tensor_transfer_and_lifetime": "After both CPU proxies exist, transfer exactly the two RGB and two support tensors once to cuda:0. Construct float32 homographies/grids on cuda:0 and rectify there. Keep only rectified GPU RGB/support and the GPS modules through stereo postprocessing; then synchronize, copy inverse-depth/error/confidence/valid maps and rectification metadata to CPU float32, delete all GPU proxy/model/flow tensors and modules, and call torch.cuda.empty_cache before CPU component lift and later compact refinement. CUDA peak counters are not reset, so the released dense-adapter peak remains in the complete-boundary maximum.",
+      "gps_tensor": "After CUDA rectification, clamp RGB and continuous resampled support M to [0,1], then feed (2*RGB-1)*M exactly as GPS preprocessing does. The binary depth-support mask is M>=0.5.",
+      "source_rgb_or_mask_materialized": false
+    },
+    "stereo_geometry": {
+      "network_outputs": "F_L and F_R are the one-channel GPS flows in rectified pixels, with F_i(p)=x_reference-x_main. No GPS confidence output exists.",
+      "flow_to_depth": "Principal-point offset is zero. Set Tf_x_L=-f_rect*B and Tf_x_R=+f_rect*B. For i in {L,R}, disparity d_i=0-F_i=-F_i, inverse depth rho_i=-d_i/Tf_x_i=F_i/Tf_x_i, and rectified metric axial depth z_rect_i=1/rho_i. This deliberately follows GPS flow2depth, whose returned quantity is inverse depth and whose depth2pc reciprocates it.",
+      "cycle_consistency": "At each main pixel center p=(u,v), q=(u+F_main(p),v). Bilinearly sample F_reference and continuous reference support at q without coordinate clamping. e_main(p)=abs(F_main(p)+F_reference(q)). A dense pixel is valid only when p and q are in bounds, both binary supports are true, rho is finite and positive, e is finite, and e<=1.0 pixel.",
+      "confidence": "c_main(p)=exp(-e_main(p)/1.0)*clamp(M_main(p),0,1)*clamp(M_reference(q),0,1) on valid pixels and zero otherwise.",
+      "component_sampling": "Map each retained source component native mean through native-to-proxy and the exact original-proxy-to-rectified homography. Bilinearly sample numerator maps rho*valid, e*valid, and c*valid plus valid-as-float; divide each numerator by max(sampled_valid,1e-8). Require the rectified coordinate in [0.5,1023.5]^2, sampled_valid>=0.5, and sampled e<=1.0 pixel.",
+      "depth_frame_conversion": "For original-camera unit-z ray d_orig=[(u-cx)/fx,(v-cy)/fy,1], q=R_rect R_orig^T d_orig. Require q_z>0, then z_orig=z_rect/q_z and X_world=camera.unproject(native_uv,z_orig).",
+      "axial_uncertainty": "At a component sample let a=abs(rho*f_rect*B), sigma_d=0.5+sampled_cycle_error pixels, and raw sigma_z_rect=f_rect*B*sigma_d/max(a^2,1e-12). Clamp sigma_z_rect to [0.005*z_rect,0.25*z_rect], then sigma_z_orig=sigma_z_rect/q_z and sigma_ray=sigma_z_orig*norm(d_orig)."
+    },
+    "initializer": {
+      "count": 3000,
+      "near": 0.05,
+      "bounds_scale": 0.5,
+      "minimum_confidence": 0.05,
+      "maximum_left_right_consistency_px": 1.0,
+      "confidence_decay_tau_px": 1.0,
+      "disparity_noise_floor_px": 0.5,
+      "minimum_axial_sigma_fraction": 0.005,
+      "maximum_axial_sigma_fraction": 0.25,
+      "voxel_size_extent_fraction": 0.001953125,
+      "color_bin_size": 0.1,
+      "init_opacity": 0.1,
+      "sh_degree": 0,
+      "candidate_population": "Exactly every component from C0001 and C0022, in source-view order then ascending component id. The shuffled arm changes only the rendered right tensor to C0005; its right camera, sampled components, covariance, lineage, and geometry remain C0022.",
+      "validity": "finite positive sampled inverse depth; sampled valid coverage>=0.5; confidence>=0.05; original axial depth>0.05; world mean inside the inclusive train-derived AABB with half extent bounds_scale*extent",
+      "component_color": "clamp(field.component_color(native_mean,component_id),0,1)",
+      "component_mass": "amplitude*2*pi*sqrt(det(effective native 2D covariance)); normalize by the total mass of that source view",
+      "component_score": "sampled confidence times per-view normalized component mass",
+      "covariance_lift": "Use the exact native effective 2D covariance and rtgs.lift.base.lift_covariance at native_uv, original axial depth, and the frozen sigma_ray; do not use GPS scale, rotation, or opacity heads.",
+      "fusion": "Call merge_by_voxel with voxel_size=extent/512, world-origin-anchored key floor(world_mean/voxel_size), appended color key floor(clipped_component_RGB/0.1), opacity_mode=union, and component_weights=component_score. This uses the implementation's opacity-times-volume-times-component_score moment weights.",
+      "ranking": "Merged group score is the sum of member component_score. Rank by group score descending, then spatial/color voxel key lexicographically ascending, then representative source view and component id ascending. A representative is the highest-score member with source-view/component-id tie break. Retain exactly the first 3000 groups in that order.",
+      "selection": "confidence_times_per_view_normalized_component_mass after confidence-weighted voxel moment fusion",
+      "fail_closed": "For either GPS arm, if valid candidates/all 22000 candidates is below 0.5, valid candidates are below 3000, merged groups are below 3000, or any exact-count/numerical invariant fails, write a cell failure receipt and do not evaluate held-out fields, refine, duplicate, pad, resample, or backfill that cell. Continue later independent cells, but the primary geometry verdict cannot pass."
+    },
+    "structural_baselines": {
+      "components_per_view": 2000,
+      "paper_initializer_shared": {
+        "random_seed": "cell seed",
+        "random_bounds_scale": 0.5,
+        "init_opacity": 0.1,
+        "max_starting_gaussians": 3000,
+        "structural_components_per_view": 2000,
+        "exact_count": 3000,
+        "failure": "Splat-SfM or Beam native count below 3000 fails that cell; no alternate initializer or padding is allowed."
+      },
+      "splat_sfm": {
+        "min_views": 2,
+        "near": 0.05,
+        "bounds_scale": 0.5,
+        "max_epipolar_sigma": 3.0,
+        "max_color_distance": 0.35,
+        "max_size_log_ratio": 1.0,
+        "cost_epipolar_weight": 1.0,
+        "cost_color_weight": 1.0,
+        "cost_size_weight": 0.5,
+        "ratio_test": 0.8,
+        "max_reprojection_px": 3.0,
+        "min_triangulation_angle_deg": 2.0,
+        "min_sigma_world": 0.0001,
+        "max_sigma_world": null,
+        "init_opacity": 0.1,
+        "source_chunk": 256,
+        "seed_pair_limit": 24
+      },
+      "beam_fusion": {
+        "min_views": 3,
+        "near": 0.05,
+        "bounds_scale": 0.5,
+        "transverse_gate_sigma": 3.0,
+        "max_color_distance": 0.35,
+        "color_sigma": 0.25,
+        "fold_in_gate_sigma": 3.0,
+        "weight_floor": 0.0001,
+        "nms_voxel_size": null,
+        "min_sigma_world": 0.0001,
+        "max_sigma_world": null,
+        "init_opacity": 0.1,
+        "source_chunk": 256,
+        "pair_limit": 24,
+        "max_components": 5000,
+        "seed_budget_multiplier": 4,
+        "fold_in_chunk": 512,
+        "max_seed_voxels": 2000000
+      },
+      "compact_carve": {
+        "n_init_3d": 3000,
+        "candidate_multiplier": 4,
+        "anchor_mode": "mass_random",
+        "max_anchor_candidates": 1000000,
+        "samples_per_ray": 48,
+        "query_batch_size": 4096,
+        "query_component_chunk": 256,
+        "max_query_pairs": 1048576,
+        "tile_size": 16,
+        "max_index_entries_per_view": 16000000,
+        "max_candidates_per_tile": 200000,
+        "max_index_entries_total": null,
+        "max_index_bytes_total": null,
+        "seed": "cell seed",
+        "bounds_scale": 0.5,
+        "near": 0.05,
+        "min_views": 2,
+        "hull_fraction": 0.85,
+        "coverage_scale": 1.0,
+        "coverage_threshold": 0.4,
+        "color_std_sigma": 0.2,
+        "min_score": 0.05,
+        "peak_radius_steps": 3.0,
+        "init_opacity": 0.1,
+        "sh_degree": 0,
+        "max_anchor_rounds": 8,
+        "select_all_eligible": false
+      },
+      "pair_compact_carve_full": {
+        "views": ["C0001", "C0022"],
+        "n_init_3d": 3000,
+        "candidate_multiplier": 1,
+        "anchor_mode": "component_centers",
+        "source_candidate_policy": "all 11000 components from each view in source-view then component-id order",
+        "max_anchor_candidates": 22000,
+        "samples_per_ray": 48,
+        "query_batch_size": 4096,
+        "query_component_chunk": 256,
+        "max_query_pairs": 1048576,
+        "tile_size": 16,
+        "max_index_entries_per_view": 16000000,
+        "max_candidates_per_tile": 200000,
+        "max_index_entries_total": null,
+        "max_index_bytes_total": null,
+        "seed": "cell seed, behaviorally inert in component_centers mode",
+        "bounds_scale": 0.5,
+        "near": 0.05,
+        "min_views": 2,
+        "hull_fraction": 0.85,
+        "coverage_scale": 1.0,
+        "coverage_threshold": 0.4,
+        "color_std_sigma": 0.2,
+        "min_score": 0.05,
+        "peak_radius_steps": 3.0,
+        "init_opacity": 0.1,
+        "sh_degree": 0,
+        "max_anchor_rounds": 8,
+        "select_all_eligible": false,
+        "selection": "existing balanced_topk by compact-carve score with stable candidate-order ties",
+        "purpose": "Same-pair, full-field deterministic depth-search control for the learned GPS prior."
+      }
+    },
+    "compact_refinement": {
+      "iterations": 250,
+      "attempts_per_step": 128,
+      "proposal_mode": "area_gaussian",
+      "schedule_mode": "balanced_cycle",
+      "target_mode": "uniform",
+      "uniform_fraction": 0.25,
+      "seed": "cell seed",
+      "extent": "one scalar from the frozen train-only camera-derived center/extent helper",
+      "device": "cuda:0",
+      "lr_means": 0.00016,
+      "lr_quats": 0.001,
+      "lr_scales": 0.005,
+      "lr_opacity": 0.05,
+      "lr_sh": 0.0025,
+      "lr_sh_rest": 0.000125,
+      "point_chunk": 64,
+      "gaussian_chunk": 1024,
+      "outer_microbatch": 128,
+      "query_component_chunk": 512,
+      "teacher_tile_size": 16,
+      "evaluation_chunk": 1024,
+      "checkpoints": [0, 50, 100, 250],
+      "evaluate_checkpoint_risks": false,
+      "sh_degree": 0,
+      "sh_color_activation": "hard",
+      "sh_smu1_mu": 0.00784313725490196,
+      "kernel_support_mode": "hard",
+      "visibility_margin_sigma": 3.0,
+      "support_mode": "none",
+      "support_loss_weight": 0.0,
+      "support_samples_per_step": 256,
+      "support_component_chunk": 512,
+      "support_sigma": 3.0,
+      "support_near": 0.05,
+      "max_views": 64,
+      "max_fitted_pixels_per_view": 50000000,
+      "max_components_per_view": 2000000,
+      "max_index_entries_per_view": 16000000,
+      "max_candidates_per_tile": 200000,
+      "max_manifest_bytes": 8388608,
+      "max_teacher_archives": 64,
+      "max_teacher_archive_bytes": 268435456,
+      "max_total_teacher_archive_bytes": 2147483648,
+      "max_zip_members": 64,
+      "max_member_uncompressed_bytes": 268435456,
+      "max_archive_uncompressed_bytes": 1073741824,
+      "query_backends": "After moving train fields to cuda:0, build one GaussianObservationIndexCuda.from_field per train view with tile_size=16, max_entries=16000000, max_candidates=200000, and max_query_pairs=1048576; inject the same ordered indexes as teacher and proposal backends. Build held-out CUDA indexes only inside each of the two reporting evaluations.",
+      "point_renderer": "GsplatPointRasterizer(absgrad=false,antialiased=true,sh_color_activation='hard',sh_smu1_mu=2/255,kernel_support_mode='hard',visibility_margin_sigma=3.0) for both training and held-out evaluation",
+      "fixed_topology": true,
+      "heldout_checkpoint_selection": false
+    },
+    "heldout_evaluation": {
+      "measure": "continuous uniform area over each fitted held-out window approximated by a fixed equal-area Cartesian midpoint lattice",
+      "samples_per_axis": 128,
+      "samples_per_view": 16384,
+      "coordinates": "For lattice row i and column j in [0,127], xy=(fit_x+(j+0.5)*fit_width/128, fit_y+(i+0.5)*fit_height/128), ordered row-major.",
+      "rng": "none",
+      "reuse": "The exact same coordinate tensors and hashes are used for every arm, every measured seed, and both initial and final evaluation.",
+      "per_view_risk": "Mean squared error over all 16384*3 RGB scalars between compact teacher query and the frozen point renderer.",
+      "aggregate": "Arithmetic mean of the three held-out per-view risks; views are equally weighted regardless of fitted-window area.",
+      "renderer": "GsplatPointRasterizer with antialiased=true, hard kernel support, black background, SH degree zero, chunks frozen by compact_refinement.",
+      "heldout_isolation": "Held-out inputs are passed only to these two terminal evaluation calls. They are never passed to initialization, refinement, scheduling, checkpoint selection, warmup, or failure diagnosis."
+    },
+    "execution_order": {
+      "warmup_seed": 804000,
+      "warmup_arm_order": [
+        "gps_field_proxy", "gps_shuffled_field", "pair_compact_carve_full",
+        "compact_carve", "splat_sfm", "beam_fusion"
+      ],
+      "warmup_scope": "One fresh process per arm: train-field load, exact initializer, and one compact train step using seed 804000; no held-out field is loaded or queried, no quality metric is computed, and model outputs are discarded.",
+      "warmup_receipt": "Persist arm, seed, process exit status, completed stage names, source/input hashes, heldout_loaded=false, quality_metrics_written=false, and any failure. Any warmup failure halts all measured launches.",
+      "measured_orders": {
+        "804001": [
+          "gps_field_proxy", "gps_shuffled_field", "pair_compact_carve_full",
+          "compact_carve", "splat_sfm", "beam_fusion"
+        ],
+        "804002": [
+          "pair_compact_carve_full", "compact_carve", "splat_sfm",
+          "beam_fusion", "gps_field_proxy", "gps_shuffled_field"
+        ],
+        "804003": [
+          "splat_sfm", "beam_fusion", "gps_field_proxy",
+          "gps_shuffled_field", "pair_compact_carve_full", "compact_carve"
+        ]
+      },
+      "rng_domains": "Parent sets PYTHONHASHSEED and CUBLAS_WORKSPACE_CONFIG=:4096:8 before each worker. Worker seeds Python random and torch CPU/CUDA from the cell seed, disables cuDNN benchmark and TF32, enables deterministic algorithms, and records all settings. Initializer/training seed is the measured seed; evaluation has no RNG.",
+      "cell_failure_policy": "A worker records failure.json and its resource receipt, exits nonzero for that cell, and the parent continues remaining independent measured cells. No failed cell is imputed or dropped from the aggregate. Primary success requires all correct-GPS and deterministic cells to complete all three seeds and at least two exact-count shuffled cells for the numeric negative-control gate."
+    },
+    "resource_execution": {
+      "input_byte_accounting": "Record non-overlapping categories and their paths/hashes: task JSON, data-seal JSON, compact and production manifests, calibration, every opened sealed .rtgsv archive, every imported external GPS Python source, and for GPS arms the 20680271-byte sanitized checkpoint. GPS input_bytes must include that checkpoint. Source RGB/masks and the unsafe source checkpoint are excluded because workers never open them; their acquisition hashes remain disclosed separately.",
+      "cuda_peak_policy": "Call torch.cuda.empty_cache then torch.cuda.reset_peak_memory_stats exactly once immediately after the sampler starts and before any scoped input/model action. Never reset peaks between adapter, lift, evaluation, refinement, or save. Record both allocated and reserved maxima plus the sampled per-process NVML maximum."
+    },
+    "decision_rule": {
+      "minimum_valid_candidate_fraction": 0.5,
+      "minimum_initial_area_risk_reduction_vs_best_deterministic": 0.05,
+      "minimum_paired_seed_wins": 2,
+      "maximum_final_area_risk_ratio_vs_best_deterministic": 1.02,
+      "minimum_shuffled_control_area_risk_degradation": 0.05,
+      "best_deterministic_set": [
+        "pair_compact_carve_full", "compact_carve", "splat_sfm", "beam_fusion"
+      ],
+      "initial_comparison": "For each seed, compare gps_field_proxy initial heldout J_area with the minimum initial J_area among the four exact-count deterministic arms from that same seed. A win requires GPS <=0.95*that minimum.",
+      "final_comparison": "For each seed, compare final J_area after exactly 250 steps with that seed's minimum final deterministic J_area. Non-inferiority requires GPS <=1.02*that minimum in at least two seeds.",
+      "shuffled_comparison": "At the initial pre-refinement stage and within a paired seed, require gps_shuffled_field J_area >=1.05*gps_field_proxy J_area. The numeric gate must hold in at least two seeds; a shuffled construction failure is reported as qualitative collapse but does not count as a numeric win.",
+      "completion_requirement": "All three gps_field_proxy cells and all twelve deterministic cells must complete at exactly 3000 Gaussians. At least two shuffled cells must complete for the numeric control. Otherwise the successor-opening verdict is inconclusive/not passed, never positive.",
+      "geometry_pass_opens_field_native_successor": true,
+      "memory_is_descriptive_until_streamed_and_point_sampled_rgb_controls_exist": true
+    }
+  },
+  "stages": [
+    {
+      "id": "load_compact_fields",
+      "label": "Load sealed fitted fields",
+      "purpose": "Load and hash train-only calibrated Gaussian fields without decoding RGB, masks, or packed alpha."
+    },
+    {
+      "id": "construct_initialization",
+      "label": "Construct one frozen initialization",
+      "purpose": "Run exactly one GPS proxy, shuffled GPS control, compact-carve, Splat-SfM, or Beam initializer at the common 3,000-Gaussian budget."
+    },
+    {
+      "id": "initial_heldout_evaluation",
+      "label": "Evaluate initialization",
+      "purpose": "After construction is frozen, measure held-out compact pixel and area risk without feeding held-out fields into placement."
+    },
+    {
+      "id": "matched_compact_refinement",
+      "label": "Run matched compact refinement",
+      "purpose": "Apply the identical fixed-topology 250-step train-field objective, RNG domains, view schedule, and renderer to every initializer."
+    },
+    {
+      "id": "final_heldout_evaluation",
+      "label": "Evaluate final model",
+      "purpose": "Report held-out compact risks once after the frozen refinement schedule, with no checkpoint or hyperparameter selection on held-out cameras."
+    },
+    {
+      "id": "save_and_report",
+      "label": "Save models and resource receipts",
+      "purpose": "Save standard 3D Gaussians, previews, exact input/model/source receipts, and complete-boundary memory and runtime measurements."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "gps_field_proxy",
+      "label": "GPS depth from field proxies",
+      "purpose": "Tests the learned stereo-depth mechanism while retaining fitted fields as the only per-scene observations."
+    },
+    {
+      "id": "gps_shuffled_field",
+      "label": "GPS shuffled-field control",
+      "purpose": "Render C0005 as the right tensor while retaining C0022's camera, source components, covariance, lineage, and downstream geometry; this breaks only field/camera correspondence while retaining network, tensor sizes, and budget."
+    },
+    {
+      "id": "pair_compact_carve_full",
+      "label": "Pair full-field compact carve",
+      "purpose": "Deterministic depth search using the identical C0001/C0022 pair and every one of their 22,000 component centers, controlling GPS's same-pair/full-field information advantage."
+    },
+    {
+      "id": "compact_carve",
+      "label": "Compact carve",
+      "purpose": "Strong field-query depth-search baseline with no learned image prior."
+    },
+    {
+      "id": "splat_sfm",
+      "label": "Splat-SfM",
+      "purpose": "Calibrated epipolar component matching and triangulation baseline."
+    },
+    {
+      "id": "beam_fusion",
+      "label": "Beam Fusion",
+      "purpose": "Current tomographic multi-view compact initializer and global-fusion baseline."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "initial_heldout_j_area",
+      "label": "Initial held-out compact area risk",
+      "unit": "MSE",
+      "direction": "lower",
+      "aggregation": "Fixed 128x128 midpoint area lattice per held-out fit window, equal-view risk per cell; coordinates are common across all cells and initial/final stages. Retain every view and report paired seed values, medians, and GPS-to-best-deterministic ratios."
+    },
+    {
+      "id": "final_heldout_j_area",
+      "label": "Final held-out compact area risk",
+      "unit": "MSE",
+      "direction": "lower",
+      "aggregation": "The identical fixed midpoint lattice after exactly 250 steps; retain every view and report paired seed values, medians, and win counts."
+    },
+    {
+      "id": "valid_depth_candidate_fraction",
+      "label": "Valid GPS depth candidate fraction",
+      "unit": "fraction",
+      "direction": "higher",
+      "aggregation": "Valid finite, confident, support-covered, train-bound depth candidates divided by all two-view fitted components; report every measured GPS cell."
+    },
+    {
+      "id": "left_right_consistency_px",
+      "label": "Stereo left-right consistency",
+      "unit": "pixels",
+      "direction": "lower",
+      "aggregation": "Median and p90 over valid candidate samples for each correctly paired or shuffled GPS cell."
+    },
+    {
+      "id": "peak_cuda_allocated_bytes",
+      "label": "Peak CUDA allocated",
+      "unit": "bytes",
+      "direction": "descriptive",
+      "aggregation": "Retain each fresh-process measured seed and report paired medians by arm."
+    },
+    {
+      "id": "nvml_process_peak_bytes",
+      "label": "NVML process peak",
+      "unit": "bytes",
+      "direction": "descriptive",
+      "aggregation": "Sample the complete frozen process boundary at 50 ms and retain every raw seed trace summary."
+    },
+    {
+      "id": "peak_process_rss_bytes",
+      "label": "Peak process RSS",
+      "unit": "bytes",
+      "direction": "descriptive",
+      "aggregation": "Retain each fresh-process measured seed and report paired medians by arm."
+    },
+    {
+      "id": "wall_seconds",
+      "label": "Complete-boundary wall time",
+      "unit": "seconds",
+      "direction": "descriptive",
+      "aggregation": "Report proxy, stereo, fusion/initializer, evaluation, refinement, and save stages separately plus total."
+    },
+    {
+      "id": "final_gaussians",
+      "label": "Final Gaussian count",
+      "unit": "gaussians",
+      "direction": "descriptive",
+      "aggregation": "Require exactly 3,000 before and after fixed-topology refinement in every completed cell."
+    }
+  ],
+  "required_charts": ["quality", "resources", "stage_runtime"],
+  "resource_protocol": {
+    "scope": "In each fresh worker, start the 50-ms NVML sampler and reset torch CUDA peak statistics before the first compact manifest/archive open, compact index construction, external GPS import, module construction, sanitized-checkpoint open/load, model device transfer, proxy allocation, or rectification tensor construction. End only after optional GPS inference, component depth sampling, 3D initialization/fusion, initial held-out evaluation, identical compact refinement, final held-out evaluation, PLY save, input/output byte accounting, and receipt publication. External repository checkout and one-time unsafe-to-safe checkpoint conversion are acquisition steps disclosed separately; source RGB-to-field fitting is upstream. No model, checkpoint tensor, reconstruction tensor, compact index, proxy, or depth preprocessing may be preloaded/precomputed outside this scope.",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "The three frozen seeds are measured in the explicit rotated arm orders after one receipt-bearing, quality-free train-only warmup process per arm. Retain every raw success/failure and report paired values plus medians/min/max on one quiescent named GPU; never impute failed cells.",
+    "cuda_metrics": [
+      "nvml_process_peak_bytes",
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved",
+      "background_device_memory_bytes",
+      "device_total_bytes",
+      "driver_and_torch_versions"
+    ],
+    "host_metrics": ["ru_maxrss", "wall_seconds", "input_bytes", "output_bytes", "stage_seconds"]
+  },
+  "data_seal": "experiments/data/stage_frame00008_gaussianimage_gps_proxy.json",
+  "run_command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260804_gps_field_proxy_depth_stage_frame00008_gaussianimage.py",
+    "--task",
+    "experiments/tasks/20260804_gps_field_proxy_depth_stage_frame00008_gaussianimage.json",
+    "--run",
+    "runs/20260804_gps_field_proxy_depth_stage_frame00008_gaussianimage",
+    "--gps-repo",
+    "external/GPS-Gaussian",
+    "--gps-checkpoint",
+    "external/checkpoints/GPS-GS_stage2_state_dict.pt",
+    "--device",
+    "cuda:0"
+  ],
+  "blockers": []
+}
