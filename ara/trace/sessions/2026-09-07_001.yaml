@@ -2,8 +2,8 @@ session:
   id: 2026-09-07_001
   date: '2026-09-07'
   started: 2026-09-07T00:06+02:00
-  last_turn: 2026-09-07T00:06+02:00
-  turn_count: 1
+  last_turn: 2026-09-07T01:33+02:00
+  turn_count: 2
   summary: Independent Fable audit accepted bounded results with seed/drift/quality limits; real browser
     and report bundle pass; RTGS-016 accepted at Calibrated maturity with final repository gate recorded
     separately.
@@ -51,6 +51,17 @@ ai_actions:
   - runs/20260906_tomography_source_constraints_haelyn_dome/index.html
   - ara/evidence/tables/20260907_tomography_final_handoff/viewer_smoke.json
   - docs/tasks/RTGS-016-captured-reference-tomography.md
+- turn: 2
+  action: Committed and pushed both repositories to main after mandatory verification; StructSplat
+    91bb834 and realtime-gs 8cd7fe7 match their remote main refs. Prepared and verified 8.16 GB of
+    private report/data archives. Automatic approval review rejected uploading this sensitive
+    payload to the newly created private intrinsicD/structsplat-research-artifacts repository;
+    no asset was uploaded. Requested explicit payload/destination approval and preserved the
+    complete local bundle under ../realtime-gs/.scratch/work-handoff-20260907/.
+  provenance: ai-executed
+  files_changed:
+  - docs/WORK_HANDOFF_2026-09-07.md
+  - README.md
 claims_touched:
 - id: C43
   action: crystallized
@@ -64,7 +75,12 @@ key_context:
   excerpt: Every reviewer assistant message used Fable 5.1. The CLI usage report unexpectedly includes
     a small Haiku call. Its purpose is not established; disclosed and preserved without substituting another
     reviewer.
+- turn: 2
+  excerpt: User explicitly requested commit, merge to main and remote push for both StructSplat
+    and realtime-gs for use at work. This authorizes code delivery; automatic approval review
+    separately requires explicit consent for the concrete private archive upload.
 open_threads:
+- Private archive upload awaits the explicit answer to the prepared payload/destination question.
 - Select a separately frozen follow-up to identify the source of lost detail; current capacity, optimization
   and objective effects are not isolated.
 - Do not promote a default, physical-density, general maskless, independent-scene or performance claim

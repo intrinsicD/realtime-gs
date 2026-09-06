@@ -4,10 +4,21 @@ The code and tracked research evidence belong to the `main` branches of
 [intrinsicD/structsplat](https://github.com/intrinsicD/structsplat) and
 [intrinsicD/realtime-gs](https://github.com/intrinsicD/realtime-gs).
 
-The complete current reports and calibrated inputs are available as checksummed assets in the
+The destination for the checksummed reports and calibrated inputs is the
 [private work-handoff release](https://github.com/intrinsicD/structsplat-research-artifacts/releases/tag/work-handoff-2026-09-07).
 Sign in with the `intrinsicD` GitHub account or another account granted access to that repository.
 The artifact repository is private because the inputs and previews include dome captures.
+
+## Transfer status
+
+Both code repositories are committed on `main` and pushed: StructSplat `91bb834`,
+realtime-gs `8cd7fe7`. Both mandatory verification gates passed.
+
+The archive upload is pending explicit approval for transferring private dome data. The private
+release is currently an empty draft; the download commands below become usable after publication.
+The verified local bundle is at
+`/home/alex/Documents/realtime-gs/.scratch/work-handoff-20260907/`.
+`delivery-payload.json`, `SHA256SUMS`, and `archive-verification.log` describe the prepared files.
 
 ## Restore at work
 

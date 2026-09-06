@@ -207,8 +207,8 @@ sessions:
     summary: Independent Fable audit accepted bounded results with seed/drift/quality limits; real browser
       and report bundle pass; RTGS-016 accepted at Calibrated maturity with final repository gate recorded
       separately.
-    turn_count: 1
+    turn_count: 2
     events_count: 5
     claims_touched:
     - C43
-    open_threads: 4
+    open_threads: 5

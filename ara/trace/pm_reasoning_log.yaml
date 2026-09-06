@@ -886,3 +886,12 @@ entries:
       protocol, measured result, historic file or model was rewritten.
     - The full repository verification receipt is separate from the reviewer and browser evidence; record
       actual exit and logs before final handoff.
+  - turn: 2026-09-07_001#2
+    notes:
+    - Record delivery operations as session ai_actions; the Git merge does not select a new
+      research method or establish a stronger scientific claim. Preserve C43 and all staged
+      observations without additional promotion.
+    - Both code pushes succeeded and were remotely verified. Preserve the distinct private
+      archive upload rejection and pending approval; no sensitive archive asset was uploaded.
+    - The frozen experiment inputs, source bindings and report bundle still validate. Packaging
+      preserves original bytes and records per-file hashes; it is not a new experiment.
