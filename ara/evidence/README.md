@@ -69,3 +69,9 @@
   consumed fixed-anchor field-sweep attempt, independently recomputed robust-versus-midpoint pass,
   scene-level all-view reversal, exact source/protocol/audit bindings, and the no-default/no-RGB-
   quality boundary.
+- `tables/20260905_tomography_contract_checks.md`: source-bound CPU tomography correction
+  contracts, calibrated execution-only smoke and preserved frozen-protocol verification conflicts.
+
+- `tables/20260906_haelyn_acquisition.json`: attributed captured-person reference, import/visual boundaries and prepared inputs; no reconstruction outcomes.
+- `tables/20260906_historical_protocol_preservation.json`: all 1,703 historical task/driver/review/run files remain byte-identical.
+- `tables/20260906_tomography_review_packet.md` and `tables/20260906_tomography_preflight/receipt.json`: source/data-bound draft comparison, CPU checks and pending review authorization.

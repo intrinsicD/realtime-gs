@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-06T02:47+02:00",
+  "task_id": "RTGS-016",
+  "protocol_sha256": "3b0b25fbb0721b138cfcb42ddfeddbc5dc7f0e883ab53dbea8d2c045931600e7",
+  "status": "running_partial",
+  "completed_measured_cells": 1,
+  "total_measured_cells": 36,
+  "warmup": "passed; heldout unopened",
+  "run": "runs/20260906_tomography_source_constraints_haelyn_dome",
+  "canonical_comparison_result_complete": false,
+  "results_audit": "not started; automatic review rejected external dome-output payload access",
+  "source_snapshot": "runs/20260906_tomography_source_constraints_haelyn_dome/source_snapshot.json",
+  "independent_protocol_review": "experiments/reviews/20260906_tomography_source_constraints_haelyn_dome_PROTOCOL_REVIEW.md",
+  "historical_files_unchanged": 1703,
+  "boundary": "This receipt is an execution checkpoint, not a comparative quality or performance claim. The coordinator continues in its frozen order."
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "report_url": "http://127.0.0.1:8765/index.html",
+  "local_targets_http_200": 441,
+  "mirror_files_byte_identical": 7,
+  "numeric_metrics_charts_and_commands_unchanged": true,
+  "manifest_sha256": "6586045b8c0068316ea4b0f0ce8a789caa1b085b9f2671afe1e118ba7a619731",
+  "viewer_smoke_sha256": "800cc85de9c5d6e7754354037055cc051c492a23eb4a65dec20287aa9f096ee0",
+  "scope": "Final served report after all artifact and verification receipts were inventoried. Browser/WebGL/orbit evidence is separately preserved in viewer_smoke.json."
+}

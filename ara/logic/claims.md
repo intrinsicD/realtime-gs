@@ -880,3 +880,58 @@
   RGB-loss masks. It supplies no pooled folder effect or ranking, fixed-threshold convergence,
   pixel-level independent rerender, cross-scene generality, SOTA/GPS-Gaussian comparison,
   complete-field fidelity, visual-browser usability, real-time/performance, or default evidence.
+
+## C42: Tomography refit contracts support exact-split invariance and optional source relaxation
+- **Statement**: The deterministic CPU regression fixtures preserve the combined analytic
+  density/RGB objective and all prediction gradients under exact co-located half-weight target
+  splits with field-energy normalization. The opt-in fixed-topology source-footprint mode starts
+  at the hard geometry, supports finite-difference-checked geometry gradients and SPD outputs,
+  and survives public-pipeline and saved-geometry round-trip checks.
+- **Status**: supported
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: The cited fixtures fail objective/gradient invariance, zero-offset
+  equality, finite differences, SPD output, legacy hard optimizer compatibility or saved geometry
+  reconstruction at their declared tolerances.
+- **Proof**: [N219, `tests/test_field_refit.py`, `tests/test_field_lifter.py`,
+  `tests/test_field_cli_integration.py`,
+  `ara/evidence/tables/20260905_tomography_contract_checks.json`,
+  `ara/evidence/tables/20260905_tomography_contract_checks.md`]
+- **Dependencies**: []
+- **Tags**: tomography, analytic-proxy, invariance, source-footprint, CPU-contract
+- **From staging**: O166
+- **Boundary**: Self-reviewed implementation contracts only. No independent acceptance, full-gate
+  success, GPU parity, calibrated reconstruction-quality improvement, speed advantage, preferred
+  tether, physical line-integral model, or normalized-renderer loss equivalence is established.
+
+## C43: Free source footprints lower MSE in the bounded captured-reference screen without establishing reconstruction detail
+
+- **Statement**: In RTGS-016, placement and proxy fits are deterministic and byte-identical
+  across seeds within each fixed input/arm; the three seeds vary only native refinement. Free
+  versus hard footprints lower final held-out teacher MSE and external full/foreground RGB MSE
+  in each of the nine native-refinement seed pairs across masked Haelyn, maskless Haelyn and the
+  dome capture. Median paired teacher-MSE reductions are 69.92%, 69.88% and 32.27%, respectively.
+  Soft versus hard worsens dome teacher MSE at both endpoints. Inspected free reconstructions
+  remain blurred, with large footprint drift; these numbers do not establish detailed quality.
+- **Status**: supported development-only descriptive
+- **Provenance**: ai-suggested
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing raw task/source/data/audit-bound values changes the
+  paired directions, seed-stage invariance, medians, input isolation or saved-model identities.
+- **Proof**: [N229, N230, N231,
+  `benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_RESULT.json`,
+  `benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.json`,
+  `benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.md`,
+  `ara/evidence/tables/20260907_tomography_final_handoff/viewer_smoke.json`]
+- **Dependencies**: []
+- **Tags**: tomography, compact-only, source-footprint, captured-reference, deterministic-proxy,
+  native-refinement-seeds, development, no-default
+- **From staging**: O170
+- **Boundary**: One deterministic proxy observation per condition, not three independent proxy
+  replications. Low fixed capacity (217/256 carriers), 100 proxy and 120 native iterations;
+  dome free accepts 69 proxy steps, so convergence is unestablished. Haelyn has black rendered
+  backgrounds; full-canvas SSIM rewards near-empty predictions and is not a detail measure.
+  Dome full-frame metrics include an unmodeled room and foreground scores have a dark-clothing
+  floor. Mask conditions differ in initialization/count and projection dilation. No physical
+  geometry truth, independent-scene generalization, mask-causal effect, speedup, full-capacity
+  quality or production-default claim. External MSE/SSIM were not independently rerendered.

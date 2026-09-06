@@ -3255,3 +3255,91 @@ this log and the evidence paths it cites remain append-only.
   depth flatters `depth`; real monocular depth adds scale error).
 - **Follow-ups**: M2 GPU validation; add merge step to `gradient` (or hybrid B→A:
   depth init + gradient polish); revisit densification budgets for dense inits (M3).
+
+## 2026-09-05 — RTGS-015 tomography implementation correction (no quality experiment)
+
+The analytic field refitter now uses cached target RGB field energy instead of squared
+coefficient energy; the explicit `legacy_coefficients` mode preserves the older objective.
+This corrects exact-split-dependent weighting and does not select a better reconstruction method.
+An opt-in soft source-footprint mode is available with fixed topology, saved state and drift
+reporting. Existing Beam covariance repair and native compact color targets remain in place.
+
+See `ara/evidence/tables/20260905_tomography_contract_checks.md` and its JSON receipt for exact
+source binding, CPU verification, the scratch calibrated-input execution boundary, and two
+frozen-protocol check failures. C42 covers deterministic contracts only. No matched calibrated
+quality/performance experiment, results viewer, GPU claim or production initializer change is
+reported. Historical experiment contracts/results were not rewritten.
+
+## 2026-09-06 — RTGS-016 captured-reference preparation (comparison unrun)
+
+Downloaded and attributed Haelyn, a real photo-captured woman Gaussian representation, and
+retained the published 357,398-component person crop in the original coordinate frame with
+full degree-2 SH (58.6 MB PLY). A replayable import receipt maps the published crop to source
+rows. Native gsplat 1.5.3 rendered 16 calibrated reference views. These are controlled renders
+of a captured model, not physical density ground truth. Full-orbit inspection shows detailed
+clothing, useful coverage, and an incomplete lower boundary.
+
+Prepared fresh masked and maskless 2D compact teachers plus a separate existing dome capture;
+registered the exact source-footprint comparison in
+`experiments/tasks/20260906_tomography_source_constraints_haelyn_dome.json`. Compact-only workers
+and a separate report evaluator are tested with generated fixtures. The task remains draft
+pending independent prospective review; no real reconstruction comparison, viewer smoke,
+quality/convergence result, or default change is reported. Offline preparation timing is loop
+scope, not a complete process-startup-inclusive workflow measurement.
+
+Historical registry validation now checks frozen protocol structure independently of current
+source execution checks. The current run guards still reject source drift. All 1,703 original
+historical files retain their hashes; portable historical effective configurations are new
+fixtures, not changes to the original evidence. Exact provenance, gates and the unresolved
+review authorization are in `ara/evidence/tables/20260906_tomography_review_packet.md`.
+
+## 2026-09-06 — RTGS-016 producer complete; results handoff incomplete
+
+The independently approved source-footprint protocol completed all 36 CPU reconstruction cells
+and three separate external-evaluation phases under the single canonical root
+`runs/20260906_tomography_source_constraints_haelyn_dome/`. The exact command, source lock, input
+seals and environment are preserved there. Reconstruction consumed compact observations; raw
+RGB/masks remained in the separate preparation/report path, with embedded compact alpha used
+only as frozen by the masked field-placement policy.
+
+Local validation in that root's `diagnostics/completed_study/` verifies saved models, input
+boundaries, paired aggregates, archived source and all 1,703 historical files. These checks and
+the audit-pending producer RESULT files do not close the experiment or promote a default/quality
+claim. The final shared report and browser/viewer checks remain incomplete because the distinct
+results audit has not been dispatched: automatic review previously rejected external access to
+private dome-derived outputs. A concrete payload inventory is prepared in
+`.scratch/rtgs016/claude_results_audit/`; explicit sharing authorization remains pending.
+
+The earlier unrun and partial entries remain historical records. No source, seed, configuration,
+threshold, representative selection, or old evidence was rewritten after outcome access.
+
+## 2026-09-07 — RTGS-016 independently audited and browser-validated
+
+The captured-reference, maskless and dome comparison completed all 36 cells. Fable 5.1 at
+maximum effort independently accepted the numerical evidence with limits; verbatim evidence is
+`benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.md` and `_AUDIT.json`.
+C43 records the permitted interpretation: free footprints reduce final teacher/RGB MSE, while
+inspected reconstructions remain blurred and the selected soft tether loses on the dome.
+Initialization/proxy models are identical across seeds; only native refinement varies. SSIM,
+dark-background/foreground floors, fixed capacity, rejected steps and timing limits remain.
+No default or detailed reconstruction claim is promoted.
+
+The exact experiment command remains in the frozen task and run lock. The generated report is
+`runs/20260906_tomography_source_constraints_haelyn_dome/index.html`; serve it with
+`.venv/bin/python -m http.server 8765 --directory runs/20260906_tomography_source_constraints_haelyn_dome --bind 127.0.0.1`.
+The local report is http://127.0.0.1:8765/index.html. The frozen representative viewer command is
+`.venv/bin/rtgs view --gaussians runs/20260906_tomography_source_constraints_haelyn_dome/gaussians.ply --initial runs/20260906_tomography_source_constraints_haelyn_dome/gaussians_init.ply --no-open`,
+currently served at http://127.0.0.1:8080/. It shows masked-Haelyn soft seed 90601 as selected
+before execution. Fixed all-arm target/prediction/error previews remain linked in the report.
+
+Chrome 149 with WebGL2/SwiftShader passed visible-framebuffer, orbit and client-error checks;
+software rendering is diagnostic only. The shared report, run and bundle gates pass. Original
+producer metadata is archived before presentation-only status/word-wrap changes. Seven
+byte-identical HTTP evidence copies and a transparent favicon repair local serving without
+changing frozen source or original evidence. The first failed browser pass remains preserved.
+Final repository verification is recorded separately in `ara/evidence/tables/20260907_tomography_final_handoff/verification_receipt.json`.
+
+The user explicitly approved sharing the 12 dome-derived previews for this review. All reviewer
+assistant messages use Fable, but the CLI also logged a 24-output-token auxiliary Haiku call;
+`reviewer_provenance.json` preserves that discrepancy. Earlier pending-review entries are
+historical state, superseded by this dated disposition rather than overwritten.

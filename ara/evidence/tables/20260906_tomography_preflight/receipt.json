@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "task_id": "RTGS-016",
+  "status": "preflight_only",
+  "protocol_path": "experiments/tasks/20260906_tomography_source_constraints_haelyn_dome.json",
+  "protocol_sha256": "e8c2e3d7a45f2710675521d470f4aed8b6d43bb98f245f8eb34f6eea7dc86ed3",
+  "source_binding": {
+    "patterns": [
+      "src/rtgs/**/*.py",
+      "src/rtgs/**/*.cu",
+      "src/rtgs/**/*.cuh",
+      "src/rtgs/**/*.cpp",
+      "scripts/experiment_contract.py",
+      "scripts/check_results_bundle.py",
+      "scripts/experiments/20260906_tomography_source_constraints_haelyn_dome*.py",
+      "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py",
+      "pyproject.toml",
+      "experiments/templates/*"
+    ],
+    "file_count": 122,
+    "aggregate_sha256": "95884b5650ee5e8fb5eae524a33321c065e7bf823085f5e907c9760d3497b308"
+  },
+  "historical_preservation": "ara/evidence/tables/20260906_historical_protocol_preservation.json",
+  "checks": [
+    {
+      "command": "env -u PYTHONDONTWRITEBYTECODE CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 .venv/bin/python -m pytest -q",
+      "exit_code": 0,
+      "log": "full_cpu.log"
+    },
+    {
+      "command": "pytest tests/test_tomography_person_protocol.py tests/test_experiment_contract.py tests/test_janelle_image_experiment_protocol.py",
+      "exit_code": 0,
+      "log": "historical_and_worker.log"
+    },
+    {
+      "command": "pytest tests/test_tomography_person_protocol.py",
+      "exit_code": 0,
+      "log": "report_fixture.log"
+    },
+    {
+      "command": "temporary fixture-only full v2 report producer",
+      "exit_code": 0,
+      "boundary": "36 copies of generated unit-fixture endpoints; no prepared capture was reconstructed or evaluated."
+    },
+    {
+      "command": "./scripts/verify.sh",
+      "exit_code": 0,
+      "log": "verify.log"
+    }
+  ],
+  "reconstruction_result_run_started": false,
+  "review_pending": true,
+  "auto_review_rejection": {
+    "action": "Clear the draft review blocker while updating the prospective source binding",
+    "reason": "The review judged this to weaken the explicit separate-review gate without authorization for that control change.",
+    "disposition": "Action rejected before execution; draft blocker retained; no workaround or init-run performed."
+  },
+  "logs": [
+    {
+      "path": "full_cpu.log",
+      "bytes": 3347,
+      "sha256": "2f08f673f1a4b59149611883987badc2e2d30e9068c642de8a24294cce1601a3"
+    },
+    {
+      "path": "historical_and_worker.log",
+      "bytes": 80,
+      "sha256": "e8ca89320215100aa98af0253237bf6f46c62048fbacd0ca2bf547d0f2ee2c58"
+    },
+    {
+      "path": "report_fixture.log",
+      "bytes": 80,
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+    },
+    {
+      "path": "verify.log",
+      "bytes": 3768,
+      "sha256": "c036ae48cb8534bdfa804eaaaf05472888c3f7621a736cff254b61ce282551ea"
+    }
+  ],
+  "final_metadata_checks": {
+    "realtime_gs_check_ara": "pass, 42 claims",
+    "realtime_gs_check_agent_workflow": "pass",
+    "realtime_gs_docs_sync": "pass",
+    "structsplat_check_ara": "pass, 75 claims"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "command": [
+    "./scripts/verify.sh"
+  ],
+  "environment_overrides": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "unset"
+  },
+  "started_at_utc": "2026-09-06T22:06:39.632963+00:00",
+  "finished_at_utc": "2026-09-06T22:08:55.663240+00:00",
+  "exit_code": 0,
+  "wall_seconds": 136.03028103901306,
+  "log_path": "ara/evidence/tables/20260907_tomography_final_handoff/verify_01.log",
+  "log_sha256": "8c6dca11d592fc1bdf5d98473f981e03ed041075c46723cfbd4238f540fa9501",
+  "scope": "Driver final mandatory repository gate after accepted task archive. This is separate from the reviewer\u2019s 53 focused tests and from browser/bundle checks."
+}

@@ -1,4 +1,4 @@
-"""Continuous field-level refitting on exact source-projection fibers.
+"""Continuous field-level refitting with hard or relaxed source footprints.
 
 The optimizer never assigns a reference component to a track.  It compares the projected
 mixture against each reference field through exact additive density/RGB-numerator inner
@@ -34,6 +34,8 @@ from rtgs.lift.inverse_projection_fiber import InverseProjectionFiber
 from rtgs.lift.source_anchored_sh import SourceAnchoredSH
 
 ViewSchedule = Literal["all", "progressive"]
+RGBNormalization = Literal["field_energy", "legacy_coefficients"]
+SourceConstraint = Literal["hard", "soft"]
 
 
 @dataclass(frozen=True)
@@ -46,6 +48,9 @@ class FieldRefitConfig:
     sh_degree: int = 1
     density_weight: float = 1.0
     rgb_weight: float = 0.25
+    rgb_normalization: RGBNormalization = "field_energy"
+    source_constraint: SourceConstraint = "hard"
+    source_anchor_weight: float = 1.0
     null_prior_weight: float = 0.05
     observability_condition_limit: float = 1e5
     visibility_refresh: int = 5
@@ -87,6 +92,10 @@ class FieldRefitConfig:
             raise ValueError("view_schedule must be 'all' or 'progressive'")
         if self.view_schedule == "progressive" and self.full_view_cleanup_iterations <= 0:
             raise ValueError("progressive view scheduling requires at least one cleanup iteration")
+        if self.rgb_normalization not in {"field_energy", "legacy_coefficients"}:
+            raise ValueError("rgb_normalization must be 'field_energy' or 'legacy_coefficients'")
+        if self.source_constraint not in {"hard", "soft"}:
+            raise ValueError("source_constraint must be 'hard' or 'soft'")
         positive = (
             "learning_rate",
             "density_weight",
@@ -97,7 +106,7 @@ class FieldRefitConfig:
         for name in positive:
             if not math.isfinite(getattr(self, name)) or getattr(self, name) <= 0:
                 raise ValueError(f"{name} must be finite and positive")
-        for name in ("rgb_weight", "null_prior_weight"):
+        for name in ("rgb_weight", "null_prior_weight", "source_anchor_weight"):
             if not math.isfinite(getattr(self, name)) or getattr(self, name) < 0:
                 raise ValueError(f"{name} must be finite and non-negative")
 
@@ -119,6 +128,10 @@ class FieldRefitResult:
     covariance_free_mask: torch.Tensor
     source_projection_max_error: float
     source_color_max_error: float
+    source_mean_max_error: float
+    source_covariance_max_error: float
+    source_constraint: SourceConstraint
+    rgb_normalization: RGBNormalization
     view_order: tuple[int, ...]
     active_view_counts: tuple[int, ...]
     elapsed_seconds: tuple[float, ...]
@@ -266,6 +279,35 @@ def _predicted_field(
     )
 
 
+def _target_rgb_scale(
+    target: AnalyticGaussianField2D,
+    *,
+    normalization: RGBNormalization = "field_energy",
+    chunk_size: int,
+) -> torch.Tensor:
+    """Frozen RGB scale; cache once per target, including the O(M²) energy cost.
+
+    Field energy is invariant to exact re-decomposition. A 1e-12 absolute floor keeps black
+    targets finite. Legacy coefficient energy is only for explicit historical replay.
+    """
+    with torch.no_grad():
+        if normalization == "legacy_coefficients":
+            return (
+                target.rgb_amplitudes.square().sum().clamp_min(torch.finfo(target.means.dtype).tiny)
+            )
+        if normalization != "field_energy":
+            raise ValueError("unsupported RGB normalization")
+        return mixture_inner_product(
+            target.means,
+            target.covariances,
+            target.rgb_amplitudes,
+            target.means,
+            target.covariances,
+            target.rgb_amplitudes,
+            chunk_size=chunk_size,
+        ).clamp_min(1e-12)
+
+
 def _variable_field_objective(
     predicted: AnalyticGaussianField2D,
     target: AnalyticGaussianField2D,
@@ -274,8 +316,9 @@ def _variable_field_objective(
     rgb_weight: float,
     include_rgb: bool,
     chunk_size: int,
+    target_rgb_scale: torch.Tensor | None = None,
 ) -> torch.Tensor:
-    """Return the prediction-dependent part of exact L2.
+    """Return the prediction-dependent part of normalized additive proxy L2.
 
     The omitted ``<target,target>`` term is constant for continuous steps and every topology
     proposal, so objective deltas remain exact while avoiding an O(M²) recomputation for frozen
@@ -324,7 +367,9 @@ def _variable_field_objective(
             chunk_size=chunk_size,
         )
         rgb_scale = (
-            target.rgb_amplitudes.square().sum().clamp_min(torch.finfo(predicted.means.dtype).tiny)
+            _target_rgb_scale(target, chunk_size=chunk_size)
+            if target_rgb_scale is None
+            else target_rgb_scale
         )
         result = result + rgb_weight * (pred_rgb - 2.0 * cross_rgb) / rgb_scale
     return result
@@ -423,7 +468,11 @@ def fit_field_fibers(
     render_opacity: torch.Tensor,
     config: FieldRefitConfig | None = None,
 ) -> FieldRefitResult:
-    """Fit geometry and staged source-exact SH appearance without component matching."""
+    """Fit compact fields with hard/soft footprints and SH anchored at initial directions.
+
+    Soft mode releases source geometry only. The fixed SH anchor direction can differ from the
+    final source ray; diagnostics report color error on that actual final ray.
+    """
 
     config = FieldRefitConfig() if config is None else config
     camera_tuple = tuple(cameras)
@@ -449,6 +498,18 @@ def fit_field_fibers(
     if bool(((render_opacity < 0) | (render_opacity > 1)).any()):
         raise ValueError("render_opacity must lie in [0,1]")
 
+    fit_started = time.perf_counter()
+    fiber.set_source_relaxation(config.source_constraint == "soft")
+    # Frozen target energies are charged to this fit and never rebuilt by optimizer steps.
+    rgb_scales = tuple(
+        _target_rgb_scale(
+            target, normalization=config.rgb_normalization, chunk_size=config.chunk_size
+        )
+        if config.rgb_weight
+        and (config.appearance_start == 0 or config.appearance_start < config.iterations)
+        else None
+        for target in target_tuple
+    )
     initial_means, initial_covariances = fiber.means_covariances()
     initial_cross = fiber.cross.detach().clone()
     initial_log_ray_scale = fiber.log_ray_scale.detach().clone()
@@ -462,10 +523,9 @@ def fit_field_fibers(
         source_directions=source_directions,
         source_colors=source_colors,
     )
-    optimizer = torch.optim.Adam(
-        [fiber.depth_logits, fiber.cross, fiber.log_ray_scale, appearance.free],
-        lr=config.learning_rate,
-    )
+    parameters = [parameter for parameter in fiber.parameters() if parameter.requires_grad]
+    parameters.append(appearance.free)
+    optimizer = torch.optim.Adam(parameters, lr=config.learning_rate)
 
     gains = field_masses.new_ones(len(camera_tuple))
     current_gaussians = _materialize(fiber, appearance, render_opacity)
@@ -510,8 +570,11 @@ def fit_field_fibers(
                 rgb_weight=config.rgb_weight,
                 include_rgb=include_rgb,
                 chunk_size=config.chunk_size,
+                target_rgb_scale=rgb_scales[view],
             )
         total = total / len(active_views)
+        if fiber.relax_source and config.source_anchor_weight:
+            total = total + config.source_anchor_weight * fiber.source_anchor_penalty()
         if config.null_prior_weight:
             _means, covariances = fiber.means_covariances()
             total = total + config.null_prior_weight * _null_prior(
@@ -521,7 +584,6 @@ def fit_field_fibers(
             )
         return total
 
-    fit_started = time.perf_counter()
     initial_active_views = _active_views(
         0,
         count=len(camera_tuple),
@@ -530,9 +592,9 @@ def fit_field_fibers(
     )
     history: list[float] = [float(objective(0, initial_active_views).detach())]
     active_view_counts: list[int] = [len(initial_active_views)]
+    # Initial geometry exists at time zero; subsequent samples charge all reference setup.
     elapsed_seconds: list[float] = [0.0]
     accepted = 0
-    parameters = [fiber.depth_logits, fiber.cross, fiber.log_ray_scale, appearance.free]
     previous_active_views: tuple[int, ...] | None = None
     for step in range(config.iterations):
         active_views = _active_views(
@@ -605,8 +667,14 @@ def fit_field_fibers(
         elapsed_seconds.append(time.perf_counter() - fit_started)
 
         source_means, source_covariances, _depth = fiber.source_projection()
-        source_mean_error = (source_means - fiber.source_means2d).abs().amax()
-        source_covariance_error = (source_covariances - fiber.source_covariances2d).abs().amax()
+        expected_means, expected_intrinsic = fiber.source_targets()
+        expected_covariances = expected_intrinsic + fiber.dilation * torch.eye(
+            2,
+            dtype=expected_intrinsic.dtype,
+            device=expected_intrinsic.device,
+        )
+        source_mean_error = (source_means - expected_means).abs().amax()
+        source_covariance_error = (source_covariances - expected_covariances).abs().amax()
         source_error = torch.maximum(source_mean_error, source_covariance_error)
         tolerance = 2e-9 if source_means.dtype == torch.float64 else 2e-4
         detached_source_error = source_error.detach()
@@ -641,7 +709,27 @@ def fit_field_fibers(
         observability=reports,
         covariance_free_mask=covariance_free_mask.detach().clone(),
         source_projection_max_error=float(source_projection_error.detach()),
-        source_color_max_error=float(appearance.source_max_abs_error().detach()),
+        source_color_max_error=float(
+            (
+                appearance.preactivation(
+                    _source_directions(
+                        gaussians.means,
+                        camera_tuple,
+                        fiber.source_view_indices,
+                    )
+                )
+                - source_colors
+            )
+            .abs()
+            .amax()
+            .detach()
+        ),
+        source_mean_max_error=float((source_means - fiber.source_means2d).abs().amax().detach()),
+        source_covariance_max_error=float(
+            (source_covariances - fiber.source_covariances2d).abs().amax().detach()
+        ),
+        source_constraint=config.source_constraint,
+        rgb_normalization=config.rgb_normalization,
         view_order=view_order,
         active_view_counts=tuple(active_view_counts),
         elapsed_seconds=tuple(elapsed_seconds),

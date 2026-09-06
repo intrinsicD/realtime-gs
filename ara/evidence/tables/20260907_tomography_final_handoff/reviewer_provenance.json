@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "task_id": "20260906_tomography_source_constraints_haelyn_dome",
+  "requested_reviewer_model": "claude-fable-5-1",
+  "requested_effort": "max",
+  "assistant_message_models": [
+    "claude-fable-5-1"
+  ],
+  "model_usage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 2573,
+      "outputTokens": 24,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.002693,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-fable-5-1": {
+      "inputTokens": 354,
+      "outputTokens": 99747,
+      "cacheReadInputTokens": 1873840,
+      "cacheCreationInputTokens": 339147,
+      "webSearchRequests": 0,
+      "costUSD": 12.242289999999999,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 47904,
+      "canonicalModel": "claude-fable-5-1",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "note": "All reviewer assistant messages use Fable 5.1. The CLI also reports an auxiliary claude-haiku-4-5-20251001 call (24 output tokens). Its internal purpose is not established here. This was not a selected alternate reviewer; preserve the discrepancy instead of claiming the CLI used one model exclusively.",
+  "authorization_sha256": "51f586d65150ceccf4489366c9e3a8898dbae90122587da5188d05c28e42d966",
+  "invocation_sha256": "6de560b6b364a970917c7584be5e1362f1ce69817a159a03f3024a9938f0071d",
+  "review_markdown_sha256": "d5ffc4a823ddd28c0f47e0e72bdc28590ecd137c0a8797edf098d3fb369a2cba"
+}

@@ -3,7 +3,8 @@
 A single 2D Gaussian does not invert to a unique 3D Gaussian.  Its center defines a camera
 ray and its covariance fixes three linear combinations of the six entries of a 3D covariance.
 This module parameterizes exactly the remaining inverse-projection fiber: one depth coordinate
-for the mean and three null coordinates for the covariance.
+for the mean and three null coordinates for the covariance. An opt-in extension also learns
+five relative source-footprint coordinates for fixed-topology constraint comparisons.
 
 The implementation is CPU-first and independent of RGB, opacity, correspondence weights, and
 topology control.  Those mechanisms can consume the geometry, but must not be conflated with
@@ -93,7 +94,12 @@ def _covariance_camera_to_world_exact(
 
 
 class InverseProjectionFiber(nn.Module):
-    """Trainable 3D geometry that exactly preserves one source 2D Gaussian per row."""
+    """Source-anchored geometry with optional relative 2D footprint coordinates.
+
+    Hard mode (the default) preserves the source exactly. Soft mode releases five source
+    coordinates: two whitened center offsets and a relative Cholesky transform (three entries).
+    Zero offsets give identical geometry in both modes. The EWA dilation stays fixed.
+    """
 
     def __init__(
         self,
@@ -187,6 +193,11 @@ class InverseProjectionFiber(nn.Module):
         self.register_buffer("intrinsic_covariances2d", intrinsic.detach().clone())
         self.register_buffer("depth_lower", lower.detach().clone())
         self.register_buffer("depth_upper", upper.detach().clone())
+        self.register_buffer("source_cholesky2d", torch.linalg.cholesky(intrinsic).detach())
+        # Keep the hard mode's original three-parameter contract for existing optimizers.
+        self.register_buffer("source_mean_offset", source_means2d.new_zeros((count, 2)))
+        self.register_buffer("source_shape_offset", source_means2d.new_zeros((count, 3)))
+        self.relax_source = False
         self.depth_logits = nn.Parameter(depth_logits.detach().clone())
         self.cross = nn.Parameter(source_means2d.new_zeros((count, 2)))
 
@@ -230,19 +241,60 @@ class InverseProjectionFiber(nn.Module):
             child.depth_logits.copy_(self.depth_logits[indices])
             child.cross.copy_(self.cross[indices])
             child.log_ray_scale.copy_(self.log_ray_scale[indices])
+            child.source_mean_offset.copy_(self.source_mean_offset[indices])
+            child.source_shape_offset.copy_(self.source_shape_offset[indices])
+        child.set_source_relaxation(self.relax_source)
         return child
+
+    def set_source_relaxation(self, enabled: bool) -> None:
+        """Release source coordinates without changing their values or initialization."""
+        if not enabled and (
+            bool(self.source_mean_offset.detach().any())
+            or bool(self.source_shape_offset.detach().any())
+        ):
+            raise ValueError("cannot restore hard source constraints after nonzero relaxation")
+        if enabled != self.relax_source:
+            for name in ("source_mean_offset", "source_shape_offset"):
+                value = getattr(self, name).detach().clone()
+                delattr(self, name)
+                if enabled:
+                    self.register_parameter(name, nn.Parameter(value))
+                else:
+                    self.register_buffer(name, value)
+        self.relax_source = enabled
+
+    def source_targets(self) -> tuple[torch.Tensor, torch.Tensor]:
+        """Return the current undilated 2D geometry defining the projection fiber."""
+        if not self.relax_source:
+            return self.source_means2d, self.intrinsic_covariances2d
+        means = self.source_means2d + (
+            self.source_cholesky2d @ self.source_mean_offset.unsqueeze(-1)
+        ).squeeze(-1)
+        transform = self.source_covariances2d.new_zeros((self.n, 2, 2))
+        transform[:, 0, 0] = self.source_shape_offset[:, 0].exp()
+        transform[:, 1, 1] = self.source_shape_offset[:, 1].exp()
+        transform[:, 1, 0] = self.source_shape_offset[:, 2]
+        cholesky = self.source_cholesky2d @ transform
+        return means, cholesky @ cholesky.transpose(-1, -2)
+
+    def source_anchor_penalty(self) -> torch.Tensor:
+        """Dimensionless squared displacement in the five relative source coordinates."""
+        return (
+            self.source_mean_offset.square().sum() + self.source_shape_offset.square().sum()
+        ) / (5 * self.n)
 
     def depths(self) -> torch.Tensor:
         fraction = torch.sigmoid(self.depth_logits)
         return self.depth_lower + fraction * (self.depth_upper - self.depth_lower)
 
     def _tangent_covariances(self, depths: torch.Tensor) -> torch.Tensor:
+        source_means, intrinsic_covariances = self.source_targets()
         result = self.source_covariances2d.new_empty((self.n, 2, 2))
         for view_index, camera in enumerate(self.cameras):
             row_indices = (self.source_view_indices == view_index).nonzero(as_tuple=True)[0]
             if row_indices.numel() == 0:
                 continue
-            means2d = self.source_means2d[row_indices]
+            means2d = source_means[row_indices]
             depth = depths[row_indices]
             ray, basis = _camera_ray_geometry(camera, means2d)
             points_cam = depth[:, None] * ray
@@ -253,13 +305,14 @@ class InverseProjectionFiber(nn.Module):
             jacobian[:, 1, 2] = -camera.fy * points_cam[:, 1] / depth.square()
             tangent_projection = jacobian @ basis[:, :, :2]
             inverse_projection = torch.linalg.inv(tangent_projection)
-            target = self.intrinsic_covariances2d[row_indices]
+            target = intrinsic_covariances[row_indices]
             tangent = inverse_projection @ target @ inverse_projection.transpose(-1, -2)
             result[row_indices] = 0.5 * (tangent + tangent.transpose(-1, -2))
         return result
 
     def means_covariances(self) -> tuple[torch.Tensor, torch.Tensor]:
         """Build differentiable world means and SPD covariances."""
+        source_means, _intrinsic = self.source_targets()
         depths = self.depths()
         tangent_covariances = self._tangent_covariances(depths)
         means = self.source_means2d.new_empty((self.n, 3))
@@ -269,7 +322,7 @@ class InverseProjectionFiber(nn.Module):
             row_indices = (self.source_view_indices == view_index).nonzero(as_tuple=True)[0]
             if row_indices.numel() == 0:
                 continue
-            means2d = self.source_means2d[row_indices]
+            means2d = source_means[row_indices]
             depth = depths[row_indices]
             ray, basis = _camera_ray_geometry(camera, means2d)
             points_cam = depth[:, None] * ray

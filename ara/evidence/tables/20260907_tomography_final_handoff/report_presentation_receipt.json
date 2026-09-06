@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "task_id": "20260906_tomography_source_constraints_haelyn_dome",
+  "recorded_at_utc": "2026-09-06T21:55:01.843596+00:00",
+  "scope": "Post-audit report presentation only; no task, source, model, cell summary, RESULT, measurement, chart, parameter or frozen command change.",
+  "changed_fields": [
+    "summary",
+    "decision",
+    "notes"
+  ],
+  "producer_metrics_path": "producer_records/metrics.json",
+  "producer_metrics_sha256": "340e74cdd563d4db1bf3467764d393ffd35adb2073c25205d83a983fd5e27e3d",
+  "report_metrics_sha256": "256f541b74448abea205da742a6ebc74915cbfd3319791d32c625845e6aedea0",
+  "audit_json_sha256": "ebc1f330214c8079f5be58873cd2d762d75730fb8fd3eb74eb5e47a8f19100a5",
+  "audit_markdown_sha256": "d5ffc4a823ddd28c0f47e0e72bdc28590ecd137c0a8797edf098d3fb369a2cba"
+}

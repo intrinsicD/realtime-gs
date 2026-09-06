@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 import torch
 
 from rtgs.cli import _field_lift_config, _field_split
@@ -102,9 +103,11 @@ def test_run_field_pipeline_uses_explicit_split_without_images(tmp_path: Path) -
     assert not hasattr(fits, "images")
 
 
+@pytest.mark.parametrize("source_constraint", ["hard", "soft"])
 def test_lift_field_cli_loads_compact_data_and_writes_diagnostics(
     tmp_path: Path,
     monkeypatch,
+    source_constraint: str,
 ) -> None:
     dataset = _dataset(tmp_path)
     loaded: dict[str, object] = {}
@@ -132,7 +135,11 @@ def test_lift_field_cli_loads_compact_data_and_writes_diagnostics(
                     "candidate_multiplier": 1,
                     "min_views": 1,
                     "topology_rounds": 0,
-                    "refit": {"iterations": 0, "appearance_start": 0},
+                    "refit": {
+                        "iterations": 2,
+                        "appearance_start": 0,
+                        "source_constraint": source_constraint,
+                    },
                 }
             ),
             "--out",
@@ -157,6 +164,30 @@ def test_lift_field_cli_loads_compact_data_and_writes_diagnostics(
         assert state["correspondence_visibility"].shape == (3, 2)
         assert state["correspondence_0000"].shape[0] == 2
         assert state["correspondence_0002"].shape[0] == 2
+        assert str(state["source_constraint"]) == source_constraint
+        assert str(state["rgb_normalization"]) == "field_energy"
+        from rtgs.core.gaussians3d import Gaussians3D
+        from rtgs.lift.inverse_projection_fiber import InverseProjectionFiber
+
+        restored = InverseProjectionFiber(
+            cameras=[dataset.views[index].camera for index in diagnostics["train_view_indices"]],
+            source_view_indices=torch.from_numpy(state["source_local_view_indices"]),
+            source_component_indices=torch.from_numpy(state["source_component_indices"]),
+            source_means2d=torch.from_numpy(state["source_means2d"]),
+            source_covariances2d=torch.from_numpy(state["source_covariances2d"]),
+            initial_depths=torch.from_numpy(state["depths"]),
+            depth_lower=torch.from_numpy(state["depth_lower"]),
+            depth_upper=torch.from_numpy(state["depth_upper"]),
+            dilation=float(state["projection_dilation"]),
+        )
+        with torch.no_grad():
+            for name in ("cross", "log_ray_scale", "source_mean_offset", "source_shape_offset"):
+                getattr(restored, name).copy_(torch.from_numpy(state[name]))
+        restored.set_source_relaxation(source_constraint == "soft")
+        means, covariances = restored.means_covariances()
+        saved = Gaussians3D.load_npz(out)
+        torch.testing.assert_close(means.to(saved.means), saved.means)
+        torch.testing.assert_close(covariances.to(saved.means), saved.covariance())
 
 
 def test_field_split_and_nested_config_validation() -> None:

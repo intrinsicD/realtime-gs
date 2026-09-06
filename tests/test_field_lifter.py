@@ -512,3 +512,18 @@ def test_fixed_sweep_reconstruction_is_invariant_to_heldout_teacher_values() -> 
         baseline.semantic_validation.heldout.rgb_mse
         != perturbed.semantic_validation.heldout.rgb_mse
     )
+
+
+def test_soft_source_lifter_is_explicit_fixed_topology_and_reports_operator_contract() -> None:
+    refit = replace(_config().refit, source_constraint="soft", appearance_start=0)
+    with pytest.raises(ValueError, match="topology_rounds=0"):
+        replace(_config(), refit=refit)
+    result = FieldLifter(config=replace(_config(), refit=refit, topology_rounds=0)).fit(_fits())
+    assert result.diagnostics["source_constraint"] == "soft"
+    assert result.diagnostics["rgb_normalization"] == "field_energy"
+    assert result.diagnostics["projection_model"] == "local_affine_ewa"
+    assert result.diagnostics["visibility_model"] == "frozen_center_transmittance"
+    assert result.diagnostics["gain_model"] == "density_only_ridge"
+    assert result.diagnostics["source_mean_max_error"] >= 0
+    assert result.diagnostics["source_covariance_max_error"] >= 0
+    assert result.diagnostics["topology_proposals"] == 0

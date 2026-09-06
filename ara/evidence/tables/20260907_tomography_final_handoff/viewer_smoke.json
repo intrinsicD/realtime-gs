@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "viewer_command": [
+    ".venv/bin/rtgs",
+    "view",
+    "--gaussians",
+    "runs/20260906_tomography_source_constraints_haelyn_dome/gaussians.ply",
+    "--initial",
+    "runs/20260906_tomography_source_constraints_haelyn_dome/gaussians_init.ply",
+    "--no-open"
+  ],
+  "report": {
+    "target": "index.html",
+    "http_status": 200,
+    "local_targets_ok": true
+  },
+  "browser": {
+    "name": "Chrome",
+    "version": "Chrome/149.0.7827.155",
+    "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.0.0 Safari/537.36",
+    "webgl2": true,
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+  },
+  "checks": {
+    "viewer_ready": true,
+    "canvas_count": 2,
+    "rendered_content_visible": true,
+    "framebuffer_nonbackground_pixels": 6974,
+    "orbit_camera_changed": true,
+    "client_errors": [],
+    "client_warnings": [
+      "Expected software WebGL: headless Chrome uses ANGLE SwiftShader; diagnostic only, not a rendering-performance measurement."
+    ]
+  }
+}

@@ -1,0 +1,176 @@
+session:
+  id: 2026-09-06_001
+  date: '2026-09-06'
+  started: 2026-09-06T01:12+02:00
+  last_turn: 2026-09-06T23:30+02:00
+  turn_count: 5
+  summary: "All 36 cells completed and locally validated; free improves teacher MSE in every condition but detail remains poor; independent audit and final report await payload authorization."
+events_logged:
+- turn: 1
+  type: decision
+  id: N220
+  routing: direct
+  provenance: user-revised
+  summary: Select a captured-person reference and sequential tomography comparison
+- turn: 1
+  type: experiment
+  id: N221
+  routing: direct
+  provenance: ai-executed
+  summary: Captured-reference preparation and historical-protocol preflight; comparison unrun
+- turn: 1
+  type: observation
+  id: O167
+  routing: staged
+  provenance: ai-executed
+  summary: Known-reference and CPU-contract boundaries; no reconstruction outcomes.
+- turn: 2
+  type: decision
+  id: N222
+  routing: direct
+  provenance: user
+  summary: Authorize Fable 5.1 independent review with a maximum effort ceiling
+- turn: 2
+  type: experiment
+  id: N223
+  routing: direct
+  provenance: ai-executed
+  summary: Independent protocol rejection repaired and exact revised digest approved
+- turn: 2
+  type: experiment
+  id: N224
+  routing: direct
+  provenance: ai-executed
+  summary: Start the locked captured-reference comparison; full result pending
+- turn: 3
+  type: experiment
+  id: N225
+  routing: direct
+  provenance: ai-executed
+  summary: Validate completed hard baselines and distinguish native quality from viewer display
+- turn: 3
+  type: observation
+  id: O168
+  routing: staged
+  provenance: ai-executed
+  summary: First hard-baseline visual limitation persists in exact native rendering; no multi-arm attribution.
+- turn: 4
+  type: experiment
+  id: N226
+  routing: direct
+  provenance: ai-executed
+  summary: Check completed Haelyn comparisons and separate pixel-error gains from reconstruction detail
+- turn: 4
+  type: observation
+  id: O169
+  routing: staged
+  provenance: ai-suggested
+  summary: Free improves MSE but loses SSIM/detail in the bounded Haelyn comparison; full replication
+    and audit pending.
+- turn: 5
+  type: experiment
+  id: N227
+  routing: direct
+  provenance: ai-executed
+  summary: Complete all frozen cells and validate the producer; independent audit still pending
+- turn: 5
+  type: observation
+  id: O170
+  routing: staged
+  provenance: ai-suggested
+  summary: Free improves MSE in all nine seed pairs but fine-detail reconstruction remains unresolved;
+    soft does not transfer consistently.
+ai_actions:
+- turn: 1
+  action: Acquired and replayably imported the captured reference; prepared/sealed three compact
+    datasets; repaired historical checks; tested guarded workers and report producer; retained automatic
+    rejection and pending review in RTGS-016 handoff.
+  provenance: ai-executed
+  files_changed:
+  - ara/evidence/tables/20260906_tomography_review_packet.md
+  - ara/evidence/tables/20260906_haelyn_acquisition.json
+  - ara/evidence/tables/20260906_historical_protocol_preservation.json
+  - experiments/tasks/20260906_tomography_source_constraints_haelyn_dome.json
+- turn: 2
+  action: Executed two independent Fable prospective reviews, repaired bounded driver/report defects,
+    passed checks, preserved exact approved source and started all frozen phases under one continuing
+    coordinator. Prepared browser checks; did not bypass rejected external results-audit export.
+  provenance: ai-executed
+  files_changed:
+  - experiments/tasks/20260906_tomography_source_constraints_haelyn_dome.json
+  - experiments/reviews/20260906_tomography_source_constraints_haelyn_dome_PROTOCOL_REVIEW.md
+  - ara/evidence/tables/20260906_tomography_revision1_preflight/receipt.json
+  - .agents/state/current-task.md
+- turn: 3
+  action: Checked the live coordinator and three completed hard baselines, opened the saved baseline in
+    a localhost viewer, verified its orbit, produced a compact-only native display diagnostic and geometry
+    statistics, and preserved them in the canonical run. No training configuration or frozen input changed.
+  provenance: ai-executed
+  files_changed:
+  - runs/20260906_tomography_source_constraints_haelyn_dome/diagnostics/hard_90601/README.md
+  - runs/20260906_tomography_source_constraints_haelyn_dome/diagnostics/hard_90601/native_teacher_endpoints.png
+  - runs/20260906_tomography_source_constraints_haelyn_dome/diagnostics/hard_90601/diagnostic_receipt.json
+  - .agents/state/current-task.md
+- turn: 4
+  action: Recomputed completed-phase metrics, inspected fixed masked previews, validated all 224 completed
+    model hashes and compact input guards, reconfirmed source/data seals, and saved an immutable partial
+    checkpoint. Left frozen coordinator running.
+  provenance: ai-executed
+  files_changed:
+  - runs/20260906_tomography_source_constraints_haelyn_dome/diagnostics/completed_haelyn_phases/README.md
+  - runs/20260906_tomography_source_constraints_haelyn_dome/diagnostics/completed_haelyn_phases/checkpoint.json
+  - ara/evidence/tables/20260906_tomography_completed_haelyn_checkpoint.json
+  - .agents/state/current-task.md
+- turn: 5
+  action: Validated the complete producer, independently recomputed aggregates, checked preserved evidence,
+    inspected dome previews and prepared a concrete external-review payload for approval. No frozen source/result
+    edits or external transfer.
+  provenance: ai-executed
+  files_changed:
+  - runs/20260906_tomography_source_constraints_haelyn_dome/diagnostics/completed_study/README.md
+  - runs/20260906_tomography_source_constraints_haelyn_dome/diagnostics/completed_study/local_validation.json
+  - ara/evidence/tables/20260906_tomography_completed_study_validation.json
+  - .scratch/rtgs016/claude_results_audit/payload_manifest.json
+  - .agents/state/current-task.md
+  - docs/EXPERIMENTS.md
+claims_touched: []
+key_context:
+- turn: 1
+  excerpt: 'User: first download a detailed modest-size female 3D Gaussian capture, use it to resolve
+    historical-protocol checks without rewriting old evidence and freeze a new comparison, then repeat
+    without masks and on another capture.'
+- turn: 1
+  excerpt: No reply to the optional reviewer-agent authorization arrived. Automatic approval review
+    rejected clearing the draft review blocker; the rejected action was not executed or bypassed.
+- turn: 2
+  excerpt: User explicitly allows Claude Code, Fable 5.1 with effort at most max, and proposes a shared
+    watched folder. No reply to the optional keep-CPU/prepare-GPU runtime preference has arrived; existing
+    frozen execution continues.
+- turn: 2
+  excerpt: Automatic approval review rejected the future external reviewer payload over potentially private
+    dome outputs. No watcher launched, no different reviewer model substituted, and local execution remains
+    active.
+- turn: 3
+  excerpt: User asks to continue. The existing coordinator remains active and advances into the soft arm.
+    This does not explicitly resolve the previously rejected external dome-output payload sharing; no
+    external audit is dispatched.
+- turn: 4
+  excerpt: "User asks \u201Cand?\u201D. This is a status request, not a choice of winner, acceptance of\
+    \ reconstruction quality, or authorization to share private dome-derived data with an external reviewer."
+- turn: 5
+  excerpt: "User asks \u201Cand?\u201D. The study has now finished. Explicit private-output sharing authorization\
+    \ is still absent; the prepared payload clearly identifies 12 previews containing downscaled dome\
+    \ camera targets."
+open_threads:
+- Obtain explicit approval for the prepared Fable 5.1 results-review payload, including 12 dome-derived
+  target/prediction/error previews; do not bypass the prior automatic rejection.
+- Run the distinct results audit, preserve its canonical AUDIT records, then render the shared v2 report
+  and complete real browser/WebGL/orbit and bundle checks.
+- Preserve all completed frozen source/input/model evidence; no retry, retuning, production default, physical-density
+  or uncontended performance claim.
+- Determine a separately frozen next experiment only after disposing of this bounded result; low capacity,
+  optimization budget and objective effects remain unresolved.
+- Paused RTGS-014 GPS remains outside this task.
+ai_suggestions_pending:
+- Tether weight 1, 256 initial carriers and fixed CPU budgets are prospective development choices;
+  their quality/cost adequacy is untested.

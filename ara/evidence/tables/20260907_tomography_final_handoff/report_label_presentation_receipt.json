@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "scope": "Human-readable chart labels with word breaks to prevent long identifiers overlapping bars. No numeric values, groups, commands, measured source or evidence changed.",
+  "before_sha256": "256f541b74448abea205da742a6ebc74915cbfd3319791d32c625845e6aedea0",
+  "after_sha256": "2e3f169b0f971e295b4f50d1774fb97f41dae6f4b78df4d215387217e361c211",
+  "changes": [
+    {
+      "chart": "quality",
+      "before": "haelyn_masked / hard",
+      "after": "Haelyn masked / hard",
+      "unchanged_value": 0.04978992777082769
+    },
+    {
+      "chart": "quality",
+      "before": "haelyn_masked / soft",
+      "after": "Haelyn masked / soft",
+      "unchanged_value": 0.04771091694764775
+    },
+    {
+      "chart": "quality",
+      "before": "haelyn_masked / free",
+      "after": "Haelyn masked / free",
+      "unchanged_value": 0.015017458629441201
+    },
+    {
+      "chart": "quality",
+      "before": "haelyn_masked / beam_reference",
+      "after": "Haelyn masked / Beam reference",
+      "unchanged_value": 0.07388142158180906
+    },
+    {
+      "chart": "quality",
+      "before": "haelyn_unmasked / hard",
+      "after": "Haelyn unmasked / hard",
+      "unchanged_value": 0.046741315851722476
+    },
+    {
+      "chart": "quality",
+      "before": "haelyn_unmasked / soft",
+      "after": "Haelyn unmasked / soft",
+      "unchanged_value": 0.023092238193506184
+    },
+    {
+      "chart": "quality",
+      "before": "haelyn_unmasked / free",
+      "after": "Haelyn unmasked / free",
+      "unchanged_value": 0.014079458613907773
+    },
+    {
+      "chart": "quality",
+      "before": "haelyn_unmasked / beam_reference",
+      "after": "Haelyn unmasked / Beam reference",
+      "unchanged_value": 0.07367847337192612
+    },
+    {
+      "chart": "quality",
+      "before": "dome_masked / hard",
+      "after": "Dome masked / hard",
+      "unchanged_value": 0.004375221165011506
+    },
+    {
+      "chart": "quality",
+      "before": "dome_masked / soft",
+      "after": "Dome masked / soft",
+      "unchanged_value": 0.0047689812508749764
+    },
+    {
+      "chart": "quality",
+      "before": "dome_masked / free",
+      "after": "Dome masked / free",
+      "unchanged_value": 0.0029631503828112496
+    },
+    {
+      "chart": "quality",
+      "before": "dome_masked / beam_reference",
+      "after": "Dome masked / Beam reference",
+      "unchanged_value": 0.005432033229129747
+    },
+    {
+      "chart": "resources",
+      "before": "haelyn_masked / hard",
+      "after": "Haelyn masked / hard",
+      "unchanged_value": 5463490560
+    },
+    {
+      "chart": "resources",
+      "before": "haelyn_masked / soft",
+      "after": "Haelyn masked / soft",
+      "unchanged_value": 5447041024
+    },
+    {
+      "chart": "resources",
+      "before": "haelyn_masked / free",
+      "after": "Haelyn masked / free",
+      "unchanged_value": 5480681472
+    },
+    {
+      "chart": "resources",
+      "before": "haelyn_masked / beam_reference",
+      "after": "Haelyn masked / Beam reference",
+      "unchanged_value": 699994112
+    },
+    {
+      "chart": "resources",
+      "before": "haelyn_unmasked / hard",
+      "after": "Haelyn unmasked / hard",
+      "unchanged_value": 6546898944
+    },
+    {
+      "chart": "resources",
+      "before": "haelyn_unmasked / soft",
+      "after": "Haelyn unmasked / soft",
+      "unchanged_value": 6617714688
+    },
+    {
+      "chart": "resources",
+      "before": "haelyn_unmasked / free",
+      "after": "Haelyn unmasked / free",
+      "unchanged_value": 6571016192
+    },
+    {
+      "chart": "resources",
+      "before": "haelyn_unmasked / beam_reference",
+      "after": "Haelyn unmasked / Beam reference",
+      "unchanged_value": 698314752
+    },
+    {
+      "chart": "resources",
+      "before": "dome_masked / hard",
+      "after": "Dome masked / hard",
+      "unchanged_value": 5913059328
+    },
+    {
+      "chart": "resources",
+      "before": "dome_masked / soft",
+      "after": "Dome masked / soft",
+      "unchanged_value": 5898469376
+    },
+    {
+      "chart": "resources",
+      "before": "dome_masked / free",
+      "after": "Dome masked / free",
+      "unchanged_value": 5884190720
+    },
+    {
+      "chart": "resources",
+      "before": "dome_masked / beam_reference",
+      "after": "Dome masked / Beam reference",
+      "unchanged_value": 697769984
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / hard / Initial geometry",
+      "after": "Haelyn masked / hard / Initial geometry",
+      "unchanged_value": 89.13158212800045
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / hard / Proxy optimization",
+      "after": "Haelyn masked / hard / Proxy optimization",
+      "unchanged_value": 661.7018213819974
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / hard / Compact native refinement",
+      "after": "Haelyn masked / hard / Compact native refinement",
+      "unchanged_value": 110.92577098299807
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / soft / Initial geometry",
+      "after": "Haelyn masked / soft / Initial geometry",
+      "unchanged_value": 105.9536803450028
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / soft / Proxy optimization",
+      "after": "Haelyn masked / soft / Proxy optimization",
+      "unchanged_value": 773.1045378839917
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / soft / Compact native refinement",
+      "after": "Haelyn masked / soft / Compact native refinement",
+      "unchanged_value": 121.80465106200427
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / free / Initial geometry",
+      "after": "Haelyn masked / free / Initial geometry",
+      "unchanged_value": 113.94789394400141
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / free / Proxy optimization",
+      "after": "Haelyn masked / free / Proxy optimization",
+      "unchanged_value": 828.7982635829976
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / free / Compact native refinement",
+      "after": "Haelyn masked / free / Compact native refinement",
+      "unchanged_value": 128.5171837930102
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / beam_reference / Initial geometry",
+      "after": "Haelyn masked / Beam reference / Initial geometry",
+      "unchanged_value": 29.640492298000026
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / beam_reference / Proxy optimization",
+      "after": "Haelyn masked / Beam reference / Proxy optimization",
+      "unchanged_value": 23.77397434100567
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_masked / beam_reference / Compact native refinement",
+      "after": "Haelyn masked / Beam reference / Compact native refinement",
+      "unchanged_value": 115.392697407995
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / hard / Initial geometry",
+      "after": "Haelyn unmasked / hard / Initial geometry",
+      "unchanged_value": 106.58991627799696
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / hard / Proxy optimization",
+      "after": "Haelyn unmasked / hard / Proxy optimization",
+      "unchanged_value": 836.9162514470081
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / hard / Compact native refinement",
+      "after": "Haelyn unmasked / hard / Compact native refinement",
+      "unchanged_value": 124.2998744489887
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / soft / Initial geometry",
+      "after": "Haelyn unmasked / soft / Initial geometry",
+      "unchanged_value": 103.44853028000216
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / soft / Proxy optimization",
+      "after": "Haelyn unmasked / soft / Proxy optimization",
+      "unchanged_value": 827.1942717659986
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / soft / Compact native refinement",
+      "after": "Haelyn unmasked / soft / Compact native refinement",
+      "unchanged_value": 122.88791025298997
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / free / Initial geometry",
+      "after": "Haelyn unmasked / free / Initial geometry",
+      "unchanged_value": 97.03331902700302
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / free / Proxy optimization",
+      "after": "Haelyn unmasked / free / Proxy optimization",
+      "unchanged_value": 780.769111200003
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / free / Compact native refinement",
+      "after": "Haelyn unmasked / free / Compact native refinement",
+      "unchanged_value": 116.08259589799854
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / beam_reference / Initial geometry",
+      "after": "Haelyn unmasked / Beam reference / Initial geometry",
+      "unchanged_value": 27.579834160002065
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / beam_reference / Proxy optimization",
+      "after": "Haelyn unmasked / Beam reference / Proxy optimization",
+      "unchanged_value": 22.059873890000745
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "haelyn_unmasked / beam_reference / Compact native refinement",
+      "after": "Haelyn unmasked / Beam reference / Compact native refinement",
+      "unchanged_value": 108.63447621699015
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / hard / Initial geometry",
+      "after": "Dome masked / hard / Initial geometry",
+      "unchanged_value": 129.71698227300658
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / hard / Proxy optimization",
+      "after": "Dome masked / hard / Proxy optimization",
+      "unchanged_value": 685.1665041839879
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / hard / Compact native refinement",
+      "after": "Dome masked / hard / Compact native refinement",
+      "unchanged_value": 171.6988339079835
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / soft / Initial geometry",
+      "after": "Dome masked / soft / Initial geometry",
+      "unchanged_value": 130.35078869198333
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / soft / Proxy optimization",
+      "after": "Dome masked / soft / Proxy optimization",
+      "unchanged_value": 703.8565509519831
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / soft / Compact native refinement",
+      "after": "Dome masked / soft / Compact native refinement",
+      "unchanged_value": 171.36059461900732
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / free / Initial geometry",
+      "after": "Dome masked / free / Initial geometry",
+      "unchanged_value": 131.4628484470013
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / free / Proxy optimization",
+      "after": "Dome masked / free / Proxy optimization",
+      "unchanged_value": 692.3127228320227
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / free / Compact native refinement",
+      "after": "Dome masked / free / Compact native refinement",
+      "unchanged_value": 173.01185441500274
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / beam_reference / Initial geometry",
+      "after": "Dome masked / Beam reference / Initial geometry",
+      "unchanged_value": 39.106762159994105
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / beam_reference / Proxy optimization",
+      "after": "Dome masked / Beam reference / Proxy optimization",
+      "unchanged_value": 33.49367903301027
+    },
+    {
+      "chart": "stage_runtime",
+      "before": "dome_masked / beam_reference / Compact native refinement",
+      "after": "Dome masked / Beam reference / Compact native refinement",
+      "unchanged_value": 165.29857505098335
+    }
+  ]
+}

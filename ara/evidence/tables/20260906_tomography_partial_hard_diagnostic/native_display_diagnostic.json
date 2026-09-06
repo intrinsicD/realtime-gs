@@ -1,0 +1,31 @@
+{
+  "scope": "Post-fit display diagnostic on first frozen training view only; not a comparative result or external RGB evaluation. No optimization, source RGB or raw mask access.",
+  "dataset_id": "haelyn_masked",
+  "arm_id": "hard",
+  "seed": 90601,
+  "view_id": "C0001",
+  "renderer": "rtgs.render.torch_points.TorchPointRasterizer",
+  "background": [
+    0,
+    0,
+    0
+  ],
+  "pixel_offsets": [
+    0.5,
+    0.5
+  ],
+  "sh_degree": 1,
+  "model_hashes": {
+    "gaussians_init.ply": "2db3ea71e30ed175ab6726a01ac964e97dd9b2d94360abca81eb19e9e5688328",
+    "gaussians_proxy.ply": "2fd916c4281504c5c798a8d018e19e7ee0a1b711206a415b88f6fb23e02c7f1b",
+    "gaussians.ply": "eb135310b12f87ccc3a04d3a7547d57737ef89626a8eeb59fda3c51d1598661f"
+  },
+  "teacher_relative_training_view_mse": {
+    "Initial": 0.07245075362807483,
+    "Proxy endpoint": 0.0683144837319871,
+    "Native endpoint": 0.051092290178535726
+  },
+  "image": "native_teacher_endpoints.png",
+  "display_clipped_to_0_1": true,
+  "mse_clipped": false
+}

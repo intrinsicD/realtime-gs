@@ -193,7 +193,7 @@ Stage 3 remains separate and unchanged.
 
 For an **additive peak-Gaussian mixture**, compare the projected and reference density `D` and RGB
 numerator `N` by whole-plane L2 discrepancies whose cross terms are product-kernel evaluations
-`⟨N₁,N₂⟩ = N(μ₁−μ₂; 0, Σ₁+Σ₂)` — closed form with analytic gradients:
+with the peak-Gaussian area factors below — closed form with analytic gradients:
 
 ```
 L_v = L2(D̂_v,D_v) + L2(N̂_v,N_v)
@@ -208,15 +208,35 @@ its actual query equation at a deterministic bounded sample, reporting isolated 
 density/RGB aggregates. Those sampled metrics validate semantics; they are not silently substituted
 into the analytic optimizer. **No Gaussian needs a component correspondence in either path.**
 
+The product kernel for two **unit-peak** 2D Gaussians includes area factors:
+`K = 2π sqrt(det(Σ₁) det(Σ₂) / det(Σ₁+Σ₂)) exp(-½ Δᵀ(Σ₁+Σ₂)⁻¹Δ)`.
+The implementation's mixture inner product includes these factors.
+
+Correction (2026-09-05, RTGS-015): the density term retains scale `(Σ a_target)²`.
+The RGB term now uses `max(⟨N_target,N_target⟩, 1e-12)`. Target RGB energies are cached once
+per refit, with that work included in elapsed time. Prediction-dependent objectives omit the
+constant target self term, so negative objective values are expected. Exact co-located
+half-amplitude splits now preserve both terms and their gradients. The former sum of squared
+RGB coefficients changes under such a split; select `rgb_normalization="legacy_coefficients"`
+only to replay that older objective. Archived protocols/results are unchanged. This is a
+correctness correction to a research objective, not evidence for a better reconstruction.
+
 ### 4.2 Visibility and amplitude semantics (must be explicit)
 
 The reference fields were fit to **occluded** images, and accumulated 2D amplitude is **not**
 3D alpha opacity (`docs/RESEARCH.md` §8). So a naive additive backprojection punishes back-surface
 gaussians for missing views they are invisible in. Fix (EM-style, cheap): per-gaussian per-view
 **visibility weight** `v_iv` (transmittance to the gaussian along the ray, from current geometry),
-held fixed for a block of iterations and refreshed periodically; plus a per-view **gain** to
-absorb amplitude non-conservation. Small effect at init with masks/convex captures; large near
-convergence and for maskless scenes.
+evaluated at each projected Gaussian center, held fixed for a block of iterations, and refreshed
+periodically. Multiplying a whole footprint by this center value approximates spatial
+transmittance. The per-view **gain** solves a density-only ridge problem, including when the
+RGB objective is active; it is not variable projection of the full combined objective.
+
+Projection uses local-affine EWA footprints with explicit fixed dilation. A normalized image
+field's denominator is not a measured physical density. No Beer-Lambert or Gaussian ray-integral
+amplitude factor is implied by these amplitudes. The native compact trainer instead queries the
+frozen teacher's rendered color, preserving its normalization/support semantics for its target.
+Mask support, field amplitudes, and 3D opacity remain separate quantities.
 
 ### 4.3 Continuous step — fiber-constrained refit
 
@@ -229,6 +249,33 @@ the isolated physical color). A topology merge retains its representative anchor
 observed source color rather than inventing an averaged anchor. The observability gate (§2.2)
 decides which gaussians get full
 covariance freedom vs. a pinned `λQ` mode.
+
+#### Optional source-footprint relaxation (RTGS-015)
+
+`FieldRefitConfig(source_constraint="soft", source_anchor_weight=1.0)` releases two source-center
+coordinates in the original footprint's Cholesky basis and three relative lower-triangular
+shape coordinates with exponential diagonal. Zero coordinates reproduce the hard initialization;
+covariances remain SPD in the finite parameter regime. EWA dilation and depth intervals stay
+fixed, while the ray can move. The tether is the mean squared value of these five dimensionless
+coordinates; weight zero removes the tether. This only releases geometry: SH remains anchored
+at the initial source direction, field masses and render opacity stay fixed, and the configured
+observability/visibility rules remain active. Actual final-ray color error is reported.
+
+The public lifter requires `topology_rounds=0` in soft mode because topology payloads encode
+hard source anchors. It rejects unsupported combinations rather than losing learned offsets.
+For a controlled comparison use the same inputs, placement, seed, count, iteration/view schedule,
+objective weights and fixed topology in both modes. Change only `source_constraint` and record
+the soft tether weight. For example, the CLI accepts:
+
+```json
+{"topology_rounds":0,"compute_dtype":"float64","refit":{"source_constraint":"soft","source_anchor_weight":1.0,"rgb_normalization":"field_energy"}}
+```
+
+Diagnostics name the projection, visibility, gain, and normalization models and report source
+mean/covariance drift separately. The `.field.npz` includes the relative coordinates, mode,
+dilation, and depth bounds to reconstruct saved geometry. CPU contract/integration evidence is
+bound in `ara/logic/claims.md` (C42); no calibrated quality comparison has established a preferred
+source-constraint mode.
 
 ### 4.4 Discrete moves — the scheduler
 

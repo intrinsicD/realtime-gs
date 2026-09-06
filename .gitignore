@@ -19,3 +19,7 @@ dataset/**/mask/*
 *.npz
 !tests/fixtures/**
 .DS_Store
+
+# RTGS-016 downloaded/prepared inputs are bound by tracked hash receipts.
+dataset/external/haelyn_halfbody/
+dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/

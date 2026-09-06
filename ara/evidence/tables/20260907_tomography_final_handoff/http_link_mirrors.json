@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "Byte-identical copies of referenced repository evidence, placed at the paths obtained when the browser normalizes outward relative links under the frozen run-root HTTP server. Original evidence and renderer source remain unchanged.",
+  "files": {
+    "experiments/tasks/20260906_tomography_source_constraints_haelyn_dome.json": {
+      "source": "experiments/tasks/20260906_tomography_source_constraints_haelyn_dome.json",
+      "bytes": 22173,
+      "sha256": "7fd81d81cf6ef346a0255d5fdc526a9827e1c643431f04911a2e1154119e125a"
+    },
+    "experiments/data/haelyn_dome_source_constraints.json": {
+      "source": "experiments/data/haelyn_dome_source_constraints.json",
+      "bytes": 14019,
+      "sha256": "9085780d67dca0a8df1a8b7485153fc66fe22a527745935fd0338196b45dbf19"
+    },
+    "experiments/reviews/20260906_tomography_source_constraints_haelyn_dome_PROTOCOL_REVIEW.md": {
+      "source": "experiments/reviews/20260906_tomography_source_constraints_haelyn_dome_PROTOCOL_REVIEW.md",
+      "bytes": 18594,
+      "sha256": "59023aeba8aee8240817af6af029e918f92a85171a408d0935e864897c18213c"
+    },
+    "benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.json": {
+      "source": "benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.json",
+      "bytes": 18315,
+      "sha256": "ebc1f330214c8079f5be58873cd2d762d75730fb8fd3eb74eb5e47a8f19100a5"
+    },
+    "benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.md": {
+      "source": "benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.md",
+      "bytes": 39212,
+      "sha256": "d5ffc4a823ddd28c0f47e0e72bdc28590ecd137c0a8797edf098d3fb369a2cba"
+    },
+    "benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_RESULT.json": {
+      "source": "benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_RESULT.json",
+      "bytes": 13709198,
+      "sha256": "cd23a1cf260d6fb206585569eb6eb765f5387d65fd3b75dc6a3217d4d52ab66e"
+    },
+    "benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_RESULT.md": {
+      "source": "benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_RESULT.md",
+      "bytes": 815,
+      "sha256": "b98c6bc3dbb1c1fb79af0af351e125317f55b73e576d2043289ff4443492d4ad"
+    }
+  }
+}

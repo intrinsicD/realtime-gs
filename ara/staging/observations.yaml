@@ -2668,3 +2668,92 @@ observations:
     promoted_to: "logic/claims.md:C41"
     crystallized_via: artifact-commitment
     stale: false
+  - id: O166
+    timestamp: "2026-09-05T23:20+02:00"
+    provenance: ai-executed
+    content: >
+      RTGS-015 corrects exact-split-dependent RGB objective weighting using cached target field
+      energy and adds opt-in fixed-topology source-footprint coordinates. Deterministic CPU
+      objective, gradient, optimizer integration and persistence contracts pass. Hard fibers
+      preserve their three-parameter API. No calibrated quality/performance comparison ran.
+    context: "User requested the recommended tomography fixes; see the scoped contract audit."
+    potential_type: claim
+    bound_to: [N219]
+    promoted: true
+    promoted_to: "logic/claims.md:C42"
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O167
+    timestamp: 2026-09-06T01:12+02:00
+    provenance: ai-executed
+    content: Prepared Haelyn views are controlled renders of a real captured Gaussian representation,
+      not physical density or independent photograph ground truth. CPU contracts and compact-input
+      preparation establish neither a relaxed-footprint quality gain nor full-workflow performance.
+      Actual masked/maskless/second-capture effects remain unmeasured pending prospective review.
+    context: RTGS-016 sealed the inputs and draft protocol while preserving the explicit review gate
+      and historical evidence.
+    potential_type: constraint
+    bound_to:
+    - N220
+    - N221
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O168
+    timestamp: 2026-09-06T03:26+02:00
+    provenance: ai-executed
+    content: In the frozen masked-Haelyn hard baseline (seed 90601), the first training compact teacher
+      is recognizable while the saved native reconstruction is sparse and streak-like. The same limitation
+      is visible with the exact Torch point renderer, so it is not solely a browser display problem. Proxy-stage
+      anisotropy increases, but no attribution to hard constraints, carrier count, budget, or the general
+      tomography method follows before the paired arms and remaining captures finish.
+    context: Post-fit local diagnostic of existing endpoints, with no retuning, optimizer run or raw image
+      access; full comparison and independent results audit remain pending.
+    potential_type: claim
+    bound_to:
+    - N225
+    - N224
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O169
+    timestamp: 2026-09-06T11:22+02:00
+    provenance: ai-suggested
+    content: In the completed bounded Haelyn screen, free source footprints improve final teacher and external
+      RGB MSE across paired seeds, but lower SSIM and the inspected blurred silhouette prevent treating
+      the MSE gain as detailed reconstruction success. The masked/maskless comparison is also coupled to
+      initial geometry and carrier count (217 versus 256). Dome is incomplete; soft loses to hard in all
+      three dome seeds. No production default, physical-truth, general maskless-robustness or performance
+      conclusion follows.
+    context: User requested progress. Local partial checkpoint only; full producer and distinct results
+      audit remain pending. Raw summaries and fixed previews preserved without tuning.
+    potential_type: claim
+    bound_to:
+    - N226
+    - N224
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O170
+    timestamp: 2026-09-06T23:30+02:00
+    provenance: ai-suggested
+    content: 'The completed development screen consistently favors free over hard source footprints for
+      final teacher MSE in all nine paired seeds across masked Haelyn, maskless Haelyn and the dome capture.
+      The selected soft tether is not a consistent improvement: it loses on the dome. RGB foreground metrics
+      support free-arm error gains, but inspected blurred reconstructions and Haelyn SSIM losses leave detailed
+      image-free reconstruction unresolved. Fixed 217/256-carrier capacity and finite budgets do not identify
+      why detail is poor.'
+    context: Local arithmetic and integrity verification of completed producer output; independent results
+      audit and final browser/report contract remain pending. User requested status, not a default change
+      or a new experiment.
+    potential_type: claim
+    bound_to:
+    - N227
+    - N224
+    promoted: true
+    promoted_to: logic/claims.md:C43
+    crystallized_via: artifact-commitment
+    stale: false

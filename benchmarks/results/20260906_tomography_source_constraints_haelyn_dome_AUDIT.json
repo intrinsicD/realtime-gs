@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "task_id": "20260906_tomography_source_constraints_haelyn_dome",
+  "reviewer": "Claude-Code-Fable-5.1-reviewer",
+  "model": "claude-fable-5-1",
+  "effort": "max",
+  "verdict": "accepted_with_limits",
+  "protocol_sha256": "3b0b25fbb0721b138cfcb42ddfeddbc5dc7f0e883ab53dbea8d2c045931600e7",
+  "source_aggregate_sha256": "3a3a7f0c1e1dc92c300c43e7a0ca53aa3b1e780fb2dcd8bfb39e93174d0c1430",
+  "run_status": "completed",
+  "digests": {
+    "source_commit": "2ebe52cc28a1b0e812a6c436d49225fac4ee943f",
+    "source_diff_sha256": "1e2a84c11827d6b6642c21f63abc0b89a30b1deac612d90f2a8cce2e2f82f07e",
+    "task_sha256": "7fd81d81cf6ef346a0255d5fdc526a9827e1c643431f04911a2e1154119e125a",
+    "protocol_review_artifact_sha256": "59023aeba8aee8240817af6af029e918f92a85171a408d0935e864897c18213c",
+    "protocol_review_v1_rejected_sha256": "5229175043fd0fce7053c45f64d11950621885cff758d58ee6f0853bec0d8ed2",
+    "data_seal_sha256": "9085780d67dca0a8df1a8b7485153fc66fe22a527745935fd0338196b45dbf19",
+    "external_seal_sha256": "a0b9173030b242badb52d22fa0240ee8e8afafbda2fb33b25eed428a838a573c",
+    "source_snapshot_archive_sha256": "39863faf3359298ade883af9b87ab6a32f370191b6a3b0c762908f4d3ed12a9d",
+    "result_json_sha256": "cd23a1cf260d6fb206585569eb6eb765f5387d65fd3b75dc6a3217d4d52ab66e",
+    "result_md_sha256": "b98c6bc3dbb1c1fb79af0af351e125317f55b73e576d2043289ff4443492d4ad",
+    "payload_manifest_sha256": "43ef926b2c7fd83a02a17c28fc9570bfbdd995ba03b807439e18157a99a070a0",
+    "haelyn_reference_ply_sha256": "b9ba7059bfce2a015e719ee4a0de3ea7dad111d7f4ae33d1ad2435e477d0b8c2"
+  },
+  "checks": [
+    {"id": "git_state", "command": "git status --short; git rev-parse HEAD; git diff --stat; git diff --check", "result": "HEAD 2ebe52cc; 24 modified tracked files, 1300 insertions, 356 deletions; whitespace clean; RTGS-016 files untracked"},
+    {"id": "protocol_digest", "command": ".venv/bin/python scripts/experiment_contract.py review-digest experiments/tasks/20260906_tomography_source_constraints_haelyn_dome.json", "result": "3b0b25fbb0721b138cfcb42ddfeddbc5dc7f0e883ab53dbea8d2c045931600e7 equals task, lock, and approved review"},
+    {"id": "contract_validate", "command": ".venv/bin/python scripts/experiment_contract.py validate", "result": "experiment_contract: OK"},
+    {"id": "data_seal", "command": ".venv/bin/python scripts/experiment_contract.py validate-data experiments/tasks/20260906_tomography_source_constraints_haelyn_dome.json", "result": "experiment_data: OK"},
+    {"id": "verify_inputs", "command": ".venv/bin/python .scratch/rtgs016/claude_review_02/verify_inputs.py", "result": "task validation passed; compact and external seals passed; effective configuration matched; live source aggregate 3a3a7f0c across 122 files"},
+    {"id": "file_digests", "command": "sha256sum on task, reviews, seals, lock, snapshot, archive, producer artifacts, payload manifest, reference PLY, representative PLYs", "result": "all equal to lock, snapshot, payload manifest, and authorization values; RESULT.json byte-identical to cell_results.json"},
+    {"id": "focused_tests", "command": ".venv/bin/python -m pytest -q tests/test_tomography_person_protocol.py tests/test_experiment_contract.py tests/test_field_refit.py", "result": "53 collected, all passed, no failure output"},
+    {"id": "cell_recomputation", "command": ".venv/bin/python -c read-only parse of cell_results.json and 36 summaries", "result": "36 completed non-warmup cells; 12 group medians, 36 paired differences and wall ratios, 36 stage medians, quality and resource charts, and top-level metrics reproduce with 0 mismatches"},
+    {"id": "model_hashes", "command": ".venv/bin/python -c sha256 of 252 saved PLY files", "result": "252 of 252 equal summary digests; run-root representative PLYs equal the masked soft seed 90601 cell"},
+    {"id": "initial_state_equality", "command": ".venv/bin/python -c compare initial_sha256", "result": "hard, soft, free identical within every dataset and seed and across seeds; proxy models identical across seeds; Beam differs"},
+    {"id": "input_guards", "command": ".venv/bin/python -c parse input_boundary records", "result": "36 of 36 passed; 0 image opens; 0 forbidden imports; 4 of 4 negative controls; heldout archives opened only after saved endpoint; roles disjoint; entry and exit bindings equal; load_alpha true only for masked field arms"},
+    {"id": "sealed_inputs", "command": ".venv/bin/python -c compare selected_input_binding to data seal", "result": "468 hashes equal the 55 sealed entries"},
+    {"id": "effective_configuration", "command": ".venv/bin/python -c rehash recorded configs", "result": "36 of 36 equal the frozen effective_configuration digests"},
+    {"id": "histories", "command": ".venv/bin/python -c check records, markers, proxy and native histories", "result": "252 finite validation records; 216 ordered markers; 101-entry finite proxy objective and elapsed histories; native histories finite; teacher and proposal digests unchanged"},
+    {"id": "heldout_metric_semantics", "command": ".venv/bin/python -c recompute J_pixel from per-view MSE", "result": "108 of 108 equal; scalar counts 147456 for Haelyn and 166221 for dome equal full canvas times three channels"},
+    {"id": "external_rows", "command": ".venv/bin/python -c parse three external_evaluation.json files", "result": "144, 144, 108 rows; views equal frozen heldout sets; 792 PSNR values recomputed from MSE with 0 mismatches; 0 non-finite; 0 perfect matches"},
+    {"id": "source_snapshot", "command": ".venv/bin/python -c hash archive members", "result": "archive digest equal; 149 members equal listed hashes and bytes; development_source_state.bin equals lock source_diff_sha256; 148 equal live tree; ara/trace/sessions/2026-09-06_001.yaml outside the binding differs"},
+    {"id": "validate_run", "command": ".venv/bin/python -c experiment_contract.validate_run", "result": "require_index false: only AUDIT.md and AUDIT.json missing; require_index true: also index.html, README.md, manifest.json"},
+    {"id": "payload_manifest", "command": ".venv/bin/python -c hash 90 manifest items", "result": "90 items, 36 PNG, 12 dome previews flagged, 0 mismatches"},
+    {"id": "previews_inspected", "command": "Read tool on PNG previews", "result": "12 final previews for all arms and conditions plus masked Haelyn and dome initial and free proxy previews viewed"},
+    {"id": "denied_commands", "command": "git -C, tar -tzf, two larger python -c scripts", "result": "denied by permission mode; plain git forms and smaller scripts covered the same checks"},
+    {"id": "not_executed", "command": "verify.sh, full pytest suite, check_results_bundle.py, render, check-run, viewer, browser, reconstruction, re-render, 1703-file historical rehash", "result": "not run in this audit"}
+  ],
+  "results": {
+    "final_teacher_mse_median": {
+      "haelyn_masked": {"hard": 0.04978992777082769, "soft": 0.04771091694764775, "free": 0.015017458629441201, "beam_reference": 0.07388142158180906},
+      "haelyn_unmasked": {"hard": 0.046741315851722476, "soft": 0.023092238193506184, "free": 0.014079458613907773, "beam_reference": 0.07367847337192612},
+      "dome_masked": {"hard": 0.004375221165011506, "soft": 0.0047689812508749764, "free": 0.0029631503828112496, "beam_reference": 0.005432033229129747}
+    },
+    "proxy_teacher_mse_deterministic": {
+      "haelyn_masked": {"hard": 0.068512, "soft": 0.070119, "free": 0.049442, "beam_reference": 0.075051},
+      "haelyn_unmasked": {"hard": 0.065803, "soft": 0.061927, "free": 0.050510, "beam_reference": 0.073912},
+      "dome_masked": {"hard": 0.005120, "soft": 0.005535, "free": 0.004437, "beam_reference": 0.005832}
+    },
+    "paired_final_difference_vs_hard": {
+      "haelyn_masked": {"soft": [-0.002374, -0.0026, -0.00182], "free": [-0.035067, -0.034814, -0.034439]},
+      "haelyn_unmasked": {"soft": [-0.023649, -0.023404, -0.023901], "free": [-0.032662, -0.032299, -0.032828]},
+      "dome_masked": {"soft": [0.000394, 0.000416, 0.000402], "free": [-0.001412, -0.001437, -0.001227]}
+    },
+    "paired_final_reduction_percent_vs_hard": {
+      "haelyn_masked": {"soft": [4.74, 5.22, 3.66], "free": [70.02, 69.92, 69.24]},
+      "haelyn_unmasked": {"soft": [50.6, 49.99, 51.17], "free": [69.88, 68.99, 70.29]},
+      "dome_masked": {"soft": [-9.0, -9.5, -9.31], "free": [32.27, 32.79, 28.4]}
+    },
+    "paired_proxy_difference_vs_hard_deterministic": {
+      "haelyn_masked": {"soft": 0.001607, "free": -0.01907},
+      "haelyn_unmasked": {"soft": -0.003875, "free": -0.015293},
+      "dome_masked": {"soft": 0.000414, "free": -0.000683}
+    },
+    "external_final_medians": {
+      "haelyn_masked": {"hard": {"full_psnr": 12.962, "fg_psnr": 7.219, "ssim": 0.5237}, "soft": {"full_psnr": 13.19, "fg_psnr": 7.183, "ssim": 0.6741}, "free": {"full_psnr": 17.667, "fg_psnr": 13.47, "ssim": 0.4277}, "beam_reference": {"full_psnr": 11.334, "fg_psnr": 5.234, "ssim": 0.6777}, "initial_ssim": 0.6963},
+      "haelyn_unmasked": {"hard": {"full_psnr": 13.114, "fg_psnr": 7.386, "ssim": 0.5268}, "soft": {"full_psnr": 15.835, "fg_psnr": 10.903, "ssim": 0.4649}, "free": {"full_psnr": 17.639, "fg_psnr": 13.354, "ssim": 0.4216}, "beam_reference": {"full_psnr": 11.266, "fg_psnr": 5.167, "ssim": 0.637}, "initial_ssim": 0.6979},
+      "dome_masked": {"hard": {"full_psnr": 3.642, "fg_psnr": 12.588, "ssim": 0.0202}, "soft": {"full_psnr": 3.59, "fg_psnr": 11.98, "ssim": 0.0103}, "free": {"full_psnr": 3.7, "fg_psnr": 14.576, "ssim": 0.0348}, "beam_reference": {"full_psnr": 3.577, "fg_psnr": 11.341, "ssim": 0.0075}, "initial_ssim": 0.0028, "initial_fg_psnr": 11.005}
+    },
+    "wall_ratio_median_vs_hard_primary": {"haelyn_masked": {"soft": 1.158, "free": 1.2565}, "haelyn_unmasked": {"soft": 0.9817, "free": 0.9296}, "dome_masked": {"soft": 1.0193, "free": 1.0103}},
+    "wall_ratio_median_vs_hard_observer_excluded": {"haelyn_masked": {"soft": 1.1713, "free": 1.2626}, "haelyn_unmasked": {"soft": 0.9865, "free": 0.9308}, "dome_masked": {"soft": 1.0238, "free": 1.0117}},
+    "source_mean_drift_median": {"haelyn_masked": {"hard": 0.0, "soft": 0.02810707546161558, "free": 1.071948541278719}, "haelyn_unmasked": {"hard": 0.0, "soft": 0.09535668916508082, "free": 1.0820094230541573}, "dome_masked": {"hard": 0.0, "soft": 0.02029119828180544, "free": 0.9085769100797927}},
+    "accepted_proxy_steps": {"haelyn_masked": {"hard": 100, "soft": 98, "free": 100}, "haelyn_unmasked": {"hard": 100, "soft": 99, "free": 100}, "dome_masked": {"hard": 100, "soft": 97, "free": 69}},
+    "carriers": {"haelyn_masked_field": 217, "haelyn_unmasked_field": 256, "dome_masked_field": 256, "beam_reference": 256, "alpha_rejected_sources_haelyn_masked": 39},
+    "top_level_reference_condition": {"native_teacher_mse": 0.04771091694764775, "wall_seconds": 999.0805752759916, "peak_host_bytes": 5447041024, "source_mean_drift": 0.02810707546161558},
+    "run_duration_hours": 9.51
+  },
+  "claim_dispositions": [
+    {"id": "K1", "claim": "Run completed with all 36 measured cells, warmup, and three report phases", "disposition": "confirm", "evidence": "coordinator_exit.json exit 0; run_receipt.json completed; 36 process receipts exit 0; no failure.json"},
+    {"id": "K2", "claim": "Protocol approved before init-run; digest and source unchanged; exact dirty source preserved", "disposition": "confirm", "evidence": "review saved 00:24:50 UTC, lock 00:25:01 UTC; archive 149 files verified; lock diff digest equals archived state; live binding equals frozen aggregate"},
+    {"id": "K3", "claim": "Reconstruction consumed only calibration and compact teachers; roles disjoint; heldout opened after endpoint; alpha policy honored", "disposition": "confirm", "evidence": "36 guard records; 468 sealed input hashes; full-canvas scalar counts 147456 and 166221"},
+    {"id": "K4", "claim": "Causal arms start from byte-identical initial states", "disposition": "confirm", "evidence": "identical gaussians_init.ply within dataset and seed, also across seeds; Beam differs; see finding F1"},
+    {"id": "K5", "claim": "Producer groups, paired rows, charts, top-level metrics follow from raw summaries", "disposition": "confirm", "evidence": "0 mismatches; representative PLYs equal masked soft seed 90601"},
+    {"id": "K6", "claim": "Free footprints lower held-out teacher MSE versus hard before and after identical refinement", "disposition": "narrow", "evidence": "all 9 final pairs negative; 3 deterministic proxy comparisons negative; proxy comparison is one observation per dataset; descriptive only"},
+    {"id": "K7", "claim": "Task hypothesis: soft tether improves native held-out color relative to hard", "disposition": "retire", "evidence": "masked final 4.74 percent median gain but proxy 2.35 percent loss; maskless gains; dome losses at both endpoints in all seeds"},
+    {"id": "K8", "claim": "Task hypothesis: zero tether may drift", "disposition": "confirm", "evidence": "drift 1.071949, 1.082009, 0.908577 whitened RMS; max source mean deviation 10.29 px masked Haelyn and 2.71 px dome; max covariance deviation 2344 and 88.7"},
+    {"id": "K9", "claim": "External RGB evaluation supports the free-arm error reduction", "disposition": "narrow", "evidence": "full and foreground MSE fall in all 9 final pairs; Haelyn SSIM falls in all pairs; empty initial model SSIM 0.696 exceeds every refined model; dome foreground floor 11.005 dB"},
+    {"id": "K10", "claim": "Detailed reconstruction, production default, physical truth, or generalization", "disposition": "retire", "evidence": "previews of all arms show streaks, blobs, or blur; no recognizable subject; 217 or 256 carriers and fixed budgets"},
+    {"id": "K11", "claim": "Effect of masks on reconstruction", "disposition": "unresolved", "evidence": "217 versus 256 carriers, different initial geometry and dilation 0.16 versus 0.30; not isolable"},
+    {"id": "K12", "claim": "Runtime or memory effect of source constraints", "disposition": "narrow", "evidence": "wall ratio medians 0.93 to 1.26 with inconsistent sign; memory within 2 percent; contended machine; clock includes imports and observers"},
+    {"id": "K13", "claim": "Beam is a practical reference only", "disposition": "confirm", "evidence": "alpha-free distinct initialization; final MSE within 0.002 of its initial; near-empty previews; excluded from causal claims"}
+  ],
+  "findings": [
+    {"id": "F1", "severity": "high", "text": "Placement and proxy refit are seed-invariant: initial and proxy models are byte-identical across the three seeds, so proxy-endpoint comparisons are single observations and final-endpoint spread reflects native-refinement randomness only."},
+    {"id": "F2", "severity": "high", "text": "Free-arm MSE gains coincide with large footprint drift and covariance growth and appear as blurred smears; no arm renders a recognizable subject; SSIM on black-background targets rewards empty predictions and is not a detail measure here."},
+    {"id": "F3", "severity": "medium", "text": "The prospectively chosen soft tether is not a consistent improvement: it loses on the dome at both endpoints in all seeds and on masked Haelyn before refinement."},
+    {"id": "F4", "severity": "medium", "text": "The dome free arm accepted only 69 of 100 proxy steps with learning-rate halving on each rejection; it is a fixed-budget comparison, not a converged optimization."},
+    {"id": "F5", "severity": "medium", "text": "Timing is descriptive only: the primary clock includes imports, hashing, loading, and observers; Driver diagnostics ran concurrently with measured cells at 01:23 and 09:20 UTC; arm ratios change sign across captures."},
+    {"id": "F6", "severity": "low", "text": "Dome full-frame metrics are dominated by the unmodeled room at about 0.43 MSE and 3.6 dB for every arm; only foreground metrics separate arms and their floor is set by dark clothing."},
+    {"id": "F7", "severity": "low", "text": "Mid-run Driver diagnostics accessed completed outcomes while later cells ran; source, configurations, and seals were re-verified at each worker and at coordinator exit and no setting changed; the diagnostics directories inside the run root are non-protocol additions the bundle manifest must inventory."},
+    {"id": "F8", "severity": "low", "text": "docs/EXPERIMENTS.md second RTGS-016 entry is stale about audit dispatch; staging observations O169 and O170 must not be promoted beyond the narrowed dispositions; a benign PyTorch warning during drift extraction affects no value."}
+  ],
+  "limitations": [
+    "Haelyn is a downloaded captured Gaussian model rendered offline on black, not physical geometry truth; maskless Haelyn does not test cluttered backgrounds",
+    "The dome capture was previously outcome-exposed",
+    "217 or 256 carriers, 100 proxy iterations, and 120 native iterations; no full-capacity quality statement and no identification of why detail is poor",
+    "Converter timings were contended GPU loop timers excluding startup; no uncontended speedup",
+    "External MSE and SSIM values were not re-rendered by this audit; only internal consistency was verified",
+    "Three seeds support sign description only; proxy-stage comparisons are single deterministic observations",
+    "verify.sh, the full CPU suite, the bundle checker, render, browser, and viewer checks were not run in this audit",
+    "The Driver's 1,703-file historical preservation rehash was not independently recomputed"
+  ],
+  "remaining_handoff_checks": [
+    "Persist this audit verbatim as benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.md and _AUDIT.json to clear the two evidence errors reported by validate_run",
+    "Render the shared v2 report to produce index.html, README.md, and manifest.json, then rerun experiment_contract validate and check-run",
+    "Run scripts/check_results_bundle.py on the run root with --no-previews, inventorying and link-checking the 36 per-cell previews and the diagnostics directories",
+    "Perform the real browser smoke of the served report and the rtgs view viewer receipt in viewer_smoke.json using the recorded serve_report and viewer commands",
+    "Append-only Driver updates to the task record, docs/EXPERIMENTS.md, and ara claim rows bound to this audit, then verify.sh on the final tree"
+  ]
+}

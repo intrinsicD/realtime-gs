@@ -1,0 +1,13 @@
+{
+  "method": "in-memory validation only; no file or task status changed",
+  "candidate": "empty checklist, ready status, pending prospective review",
+  "rejected": true,
+  "errors": [
+    "ready tasks require an approved prospective protocol review"
+  ],
+  "actual_status": "draft",
+  "actual_review": "pending",
+  "actual_blockers_retained": [
+    "Obtain distinct prospective protocol review of the exact protocol/source digest before any result-bearing execution."
+  ]
+}

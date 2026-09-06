@@ -1,0 +1,507 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260906_tomography_source_constraints_haelyn_dome",
+  "date": "20260906",
+  "task_slug": "tomography_source_constraints",
+  "data_slug": "haelyn_dome",
+  "arm": "beam_fusion",
+  "status": "ready",
+  "owner": "Codex-tomography-driver",
+  "protocol_review": {
+    "reviewer": "Claude-Code-Fable-5.1-reviewer",
+    "verdict": "approved",
+    "protocol_sha256": "3b0b25fbb0721b138cfcb42ddfeddbc5dc7f0e883ab53dbea8d2c045931600e7",
+    "artifact": "experiments/reviews/20260906_tomography_source_constraints_haelyn_dome_PROTOCOL_REVIEW.md"
+  },
+  "depends_on": [],
+  "title": "Source-footprint constraints on a captured woman Gaussian reference and a dome capture",
+  "question": "With the same compact observations, initial geometry and training budget, does relaxing the source footprint improve native color reconstruction before and after compact-only refinement?",
+  "hypothesis": "A soft tether improves native held-out color relative to hard equality, while zero tether may drift; effects must be reported separately before and after identical native refinement.",
+  "claim_boundary": "Development comparison of local-affine density/RGB field proxies and native 3D alpha compositing. Downloaded Haelyn is a known captured representation, not physical ground truth. No production default, CT-density, high-detail reconstruction, uncontended GPU timing, or unseen-scene generalization claim. The second dome capture was previously outcome-exposed. Haelyn maskless views have a uniform black rendered background; this does not test cluttered-background robustness. Proxy-stage models retain the fixed initial render opacity, so their appearance is a pre-native-refinement diagnostic.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "haelyn_masked",
+      "role": "development",
+      "frame_path": "dataset/external/haelyn_halfbody/prepared",
+      "compact_manifest": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/manifest.json",
+      "calibration": "dataset/external/haelyn_halfbody/prepared/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png",
+      "production_manifest": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/production_manifest.json"
+    },
+    {
+      "id": "haelyn_unmasked",
+      "role": "development",
+      "frame_path": "dataset/external/haelyn_halfbody/prepared",
+      "compact_manifest": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/manifest.json",
+      "calibration": "dataset/external/haelyn_halfbody/prepared/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png",
+      "production_manifest": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/production_manifest.json"
+    },
+    {
+      "id": "dome_masked",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/production_manifest.json"
+    }
+  ],
+  "splits": {
+    "haelyn_masked": {
+      "train": [
+        "C0001",
+        "C0002",
+        "C0003",
+        "C0005",
+        "C0006",
+        "C0007",
+        "C0009",
+        "C0010",
+        "C0011",
+        "C0013",
+        "C0014",
+        "C0015"
+      ],
+      "heldout": [
+        "C0004",
+        "C0008",
+        "C0012",
+        "C0016"
+      ]
+    },
+    "haelyn_unmasked": {
+      "train": [
+        "C0001",
+        "C0002",
+        "C0003",
+        "C0005",
+        "C0006",
+        "C0007",
+        "C0009",
+        "C0010",
+        "C0011",
+        "C0013",
+        "C0014",
+        "C0015"
+      ],
+      "heldout": [
+        "C0004",
+        "C0008",
+        "C0012",
+        "C0016"
+      ]
+    },
+    "dome_masked": {
+      "train": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0019",
+        "C0022",
+        "C0025",
+        "C0031",
+        "C0037"
+      ],
+      "heldout": [
+        "C0014",
+        "C0028",
+        "C1001"
+      ]
+    }
+  },
+  "seeds": [
+    90601,
+    90602,
+    90603
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "PIL",
+      "SceneData",
+      "mask",
+      "rgb",
+      "rtgs.data.calibrated",
+      "rtgs.optim.trainer"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "gaussians2d"
+    ]
+  },
+  "execution_guards": [
+    "deny_image_capable_imports",
+    "deny_image_suffix_open",
+    "forbidden_modules_absent_at_exit",
+    "negative_controls",
+    "deny_reference_3d_access",
+    "deny_unselected_view_archives",
+    "source_and_input_digest_at_entry_exit"
+  ],
+  "stages": [
+    {
+      "id": "placement",
+      "label": "Initial geometry",
+      "purpose": "Identical deterministic placement per seed for all three constraint arms; Beam is a separate practical reference."
+    },
+    {
+      "id": "field_refit",
+      "label": "Proxy optimization",
+      "purpose": "Hard equality, soft tether weight 1, and soft tether weight 0; Beam performs covariance-only repair."
+    },
+    {
+      "id": "native_refine",
+      "label": "Compact native refinement",
+      "purpose": "The identical fixed-topology compact-only optimizer for every arm; Beam remains a practical reference with different placement/covariance repair."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "hard",
+      "label": "Hard source equality",
+      "purpose": "Existing source projection constraint."
+    },
+    {
+      "id": "soft",
+      "label": "Soft source tether",
+      "purpose": "Relaxed footprint with one prospectively fixed tether weight 1. Adds five footprint coordinates per track to the same Adam optimizer and global gradient-norm clip; this capacity/optimizer coupling is inherent to the treatment."
+    },
+    {
+      "id": "free",
+      "label": "Zero source tether",
+      "purpose": "Same relaxed parameterization and all other restrictions, tether weight 0. Same five additional coordinates and global gradient-norm clip as soft; only the tether weight differs."
+    },
+    {
+      "id": "beam_reference",
+      "label": "Beam and covariance repair",
+      "purpose": "Practical reference with distinct initialization and carrier schedule; excluded from causal source-constraint claims. It also uses no embedded alpha support gating; unlike masked field placement, its initialization is alpha-free."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "native_teacher_mse",
+      "label": "Native rendered color MSE against frozen 2D teacher",
+      "unit": "MSE",
+      "direction": "lower",
+      "aggregation": "Mean squared RGB error over half-integer pixel centers in each frozen teacher fit window, equal-weighted per heldout view, then paired seed differences before and after native refinement. All 47 sealed native exports have full-canvas fit windows and the worker enforces this; Haelyn masked and maskless pixel denominators are identical."
+    },
+    {
+      "id": "wall_seconds",
+      "label": "Measured reconstruction wall time",
+      "unit": "s",
+      "direction": "lower",
+      "aggregation": "Every seed retained; report medians and paired ratios per capture and mask condition."
+    },
+    {
+      "id": "peak_host_bytes",
+      "label": "Process peak host memory",
+      "unit": "bytes",
+      "direction": "lower",
+      "aggregation": "Every seed retained; per-process peak includes imports and teacher/cache construction."
+    },
+    {
+      "id": "source_mean_drift",
+      "label": "Source footprint mean drift",
+      "unit": "whitened RMS",
+      "direction": "lower",
+      "aggregation": "Endpoint diagnostic per seed; not an optimization selection criterion."
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "Fresh CPU reconstruction worker for each dataset/arm/seed. Whole subprocess wall, driver-entry-to-saved-endpoint time, validation callback time, and process peak RSS retained separately. Offline render/conversion loop timers and report-only evaluator resources are separate; no total-startup-inclusive workflow claim and no uncontended GPU timing claim.",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "paired median with every raw repeat retained",
+    "cuda_metrics": [
+      "not_applicable_cpu_reconstruction"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds"
+    ]
+  },
+  "data_seal": "experiments/data/haelyn_dome_source_constraints.json",
+  "run_command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260906_tomography_source_constraints_haelyn_dome.py",
+    "--task",
+    "experiments/tasks/20260906_tomography_source_constraints_haelyn_dome.json",
+    "--run",
+    "runs/20260906_tomography_source_constraints_haelyn_dome"
+  ],
+  "blockers": [],
+  "frozen_configuration": {
+    "phase_order": [
+      "haelyn_masked",
+      "haelyn_unmasked",
+      "dome_masked"
+    ],
+    "phase_policy": "Complete and report the first dataset before the maskless repetition, then the independent dome capture. All arms/budgets/seeds are fixed in advance; no retuning after outcomes. Failure preserves its cell and is not replaced by a new seed.",
+    "validation_views": {
+      "haelyn_masked": [
+        "C0006",
+        "C0014"
+      ],
+      "haelyn_unmasked": [
+        "C0006",
+        "C0014"
+      ],
+      "dome_masked": [
+        "C0009",
+        "C0022",
+        "C0037"
+      ]
+    },
+    "field_lift": {
+      "placement_mode": "compact_carve",
+      "compute_dtype": "float64",
+      "max_tracks": 256,
+      "max_train_views": 12,
+      "depth_samples": 32,
+      "background_fraction": 0.0,
+      "topology_rounds": 0,
+      "target_component_cap": 2048
+    },
+    "field_refit": {
+      "iterations": 100,
+      "rgb_normalization": "field_energy",
+      "density_weight": 1.0,
+      "rgb_weight": 0.25,
+      "view_schedule": "all",
+      "appearance_start": 5,
+      "visibility_refresh": 5,
+      "source_constraints": {
+        "hard": [
+          "hard",
+          1.0
+        ],
+        "soft": [
+          "soft",
+          1.0
+        ],
+        "free": [
+          "soft",
+          0.0
+        ]
+      }
+    },
+    "native_refinement": {
+      "iterations": 120,
+      "attempts_per_step": 128,
+      "checkpoints": [
+        0,
+        30,
+        60,
+        90,
+        120
+      ],
+      "evaluate_checkpoint_risks": false,
+      "device": "cpu",
+      "sh_degree": 1
+    },
+    "converter": {
+      "backend": "native",
+      "native_renderer": "cuda",
+      "n_gaussians": 2048,
+      "max_gaussians": 2048,
+      "adaptive_density": false,
+      "iterations": 1000,
+      "lr": 0.01,
+      "seed": 90600,
+      "convergence_patience": 0,
+      "target_long_side": 256,
+      "maskless": "Fresh full-canvas fitting without alpha/mask, no support-based cropping, filtering, bounds or initialization; converter settings otherwise identical.",
+      "source_encoding": "JPEG quality=100, subsampling=0 for generated references; source reference and alpha retained separately in offline preparation.",
+      "view_byte_cap": 262144,
+      "bounds": "Camera-only axis intersection and 0.72 times median camera-center distance, same bound for masked and maskless teachers."
+    },
+    "source_reference": {
+      "path": "dataset/external/haelyn_halfbody/reference_person.ply",
+      "sha256": "b9ba7059bfce2a015e719ee4a0de3ea7dad111d7f4ae33d1ad2435e477d0b8c2",
+      "native_reference_renderer": "gsplat 1.5.3 classic, packed=false, full degree-2 SH",
+      "preparation_boundary": "Only offline rendering accesses 3D reference geometry; reconstruction receives camera-only bounds and fitted 2D fields, never projected source Gaussian identities, positions, covariance, depth, or SH.",
+      "published_source_sha256": "173bee9bd0426d836f49626946be6213d6f8bd98243a7a5ebe0c91fb9a9e7000",
+      "import_alignment": "dataset/external/haelyn_halfbody/import_alignment.json",
+      "alpha_threshold": 0.5,
+      "cameras": {
+        "count": 16,
+        "width": 192,
+        "height": 256,
+        "fov_x_deg": 32.0,
+        "azimuth_start_deg": 180.0,
+        "elevation_deg": 10.0,
+        "radius_published": 7.5,
+        "target_published": [
+          3.63277530670166,
+          4.583515644073486,
+          0.5475804209709167
+        ]
+      }
+    },
+    "checkpoint_policy": "Fixed endpoints; train/validation metrics only in histories. No heldout archive opens until final model persisted. Report all seeds and no best-arm or best-checkpoint replacement.",
+    "external_evaluation": {
+      "scope": "Separate image-capable process after every saved endpoint in a phase; no optimizer access. Evaluator timer includes imports, reference load and previews but excludes subprocess startup; memory is separate from compact reconstruction.",
+      "metrics": [
+        "full_canvas_psnr",
+        "foreground_psnr",
+        "ssim"
+      ],
+      "selection": "None; heldout reference images reporting only.",
+      "reference_files_seal": {
+        "path": "experiments/data/haelyn_dome_source_constraints_external.json",
+        "sha256": "a0b9173030b242badb52d22fa0240ee8e8afafbda2fb33b25eed428a838a573c"
+      },
+      "metric_definition": "Half-integer native point rendering at the exact compact-camera resolution. Unclamped predictions for MSE/PSNR and SSIM; reference RGB follows the frozen converter resize/undistortion. Foreground uses source mask > 0.5 only in the report process, including maskless treatment. Average per-view metrics separately per condition; report every seed. Exact zero MSE has null PSNR plus perfect_match=true."
+    },
+    "failure_policy": "Abort the entire run on the first failed warmup, measured cell, external report or integrity/aggregation check; execute no later cells. Reject placement fallback, empty/nonfinite saved Gaussian states, or nonfinite retained proxy objective/time histories. Preserve the base refitter rollback policy and record accepted_steps. Preserve raw partial artifacts and write v2 failure sources, with failed status and nonzero exit code; no result is established. This task has no retry or replacement-cell path: failure closes this task id and any successor requires a new prospective protocol.",
+    "beam_reference": {
+      "beam": {
+        "min_views": 3,
+        "max_components": 256,
+        "pair_limit": 12,
+        "source_chunk": 128,
+        "fold_in_chunk": 128
+      },
+      "repair": {
+        "covariance_steps": 100,
+        "repair_covariance": true,
+        "repair_opacity": false,
+        "repair_appearance": false,
+        "covariance_residual_mode": "renderer_log"
+      }
+    },
+    "warmup": {
+      "dataset_id": "haelyn_masked",
+      "arm_id": "hard",
+      "seed": 90601,
+      "proxy_iterations": 2,
+      "native_iterations": 2,
+      "heldout_access": false
+    },
+    "resource_clock": "Driver entry after stdlib imports through saved endpoint, including Torch/config imports, protocol/source validation, inputs/cache, optimization and validation observers. Observer time separately reported. Coordinator records complete subprocess wall time through worker exit. Offline preparation timers cover render/conversion loops, not process startup or the full workflow. Validation observer subtraction removes its measured evaluation time only; model serialization remains included. Observer-excluded times are secondary diagnostics, while the primary clock remains endpoint-inclusive.",
+    "effective_configuration": {
+      "haelyn_masked": {
+        "hard": {
+          "90601": "f2485b69aff6803536c04c2f851058390e69d09794c93d9214da4a832568b330",
+          "90602": "2896741894fd9d670ab4ff4c641bdfce403aa901cb1a63bd9307fb9c86880dea",
+          "90603": "1b2a27773a81e09d9f4c1f43303e4f7b393e832a5af85cac315a316127589a65"
+        },
+        "soft": {
+          "90601": "d6a837d1199b6bea273ef40ed73fb5805ce95c6a2dcdc8fde43ad54c24db4c7a",
+          "90602": "38757174aadaf3c23f27febc5d0b9c08f00037daa28b1f9b76917ed475933194",
+          "90603": "56069fe09292417caf5ac33bb6bd089f6b1dbe5ee743b17b0a8ff2c2dc3aa686"
+        },
+        "free": {
+          "90601": "8d5072fa99c9cfc09586e994bced32bc2c7a5d3e64bbdd59878d8d2ed7cd4365",
+          "90602": "0951d718f7e63881d4135aa8dc2e3b1b960d5b3ba9d282a1fb17a14a7673a026",
+          "90603": "61b4c2420035c0e65240abe2f181e57067f88a7b2caa878cd9c3687d7439f817"
+        },
+        "beam_reference": {
+          "90601": "f2485b69aff6803536c04c2f851058390e69d09794c93d9214da4a832568b330",
+          "90602": "2896741894fd9d670ab4ff4c641bdfce403aa901cb1a63bd9307fb9c86880dea",
+          "90603": "1b2a27773a81e09d9f4c1f43303e4f7b393e832a5af85cac315a316127589a65"
+        }
+      },
+      "haelyn_unmasked": {
+        "hard": {
+          "90601": "5a01c75fe03918094471d1df10cb4bbb1fb0c3a8f4c5c759dd32c5a08d544966",
+          "90602": "e68ba0732b8c66d8d0af9881fb05f0b958dc61dc97a926a005221e7a6afd937a",
+          "90603": "1ae2aebd5eca198922a58b40334659fc3445b1967ba801ea6d573f234ac277ad"
+        },
+        "soft": {
+          "90601": "fef4ac8f7b5cc5b59cca3d4e354c02c24d10cb157b2d49af0628c22b30d21d41",
+          "90602": "9e4e0276dcdde4e79bb35cc34fa9eda7cd16405e27c6f37c9ffb7d8574fb98f4",
+          "90603": "f4273407de7f073b3e720159576f3683c3917676a5691abde4282a33d52d384b"
+        },
+        "free": {
+          "90601": "a35a91c6863226e5627347fb1af2addfe79fcfd992966b8f63c516028edf373e",
+          "90602": "038c8d805767c2ed3f2ab7431c8208c91423ec23a29180deea7deb7d0297e382",
+          "90603": "34d150904cddc7dc0d08022e04861ff0082047519801eb35ea27f636d7cb96e7"
+        },
+        "beam_reference": {
+          "90601": "5a01c75fe03918094471d1df10cb4bbb1fb0c3a8f4c5c759dd32c5a08d544966",
+          "90602": "e68ba0732b8c66d8d0af9881fb05f0b958dc61dc97a926a005221e7a6afd937a",
+          "90603": "1ae2aebd5eca198922a58b40334659fc3445b1967ba801ea6d573f234ac277ad"
+        }
+      },
+      "dome_masked": {
+        "hard": {
+          "90601": "f2485b69aff6803536c04c2f851058390e69d09794c93d9214da4a832568b330",
+          "90602": "2896741894fd9d670ab4ff4c641bdfce403aa901cb1a63bd9307fb9c86880dea",
+          "90603": "1b2a27773a81e09d9f4c1f43303e4f7b393e832a5af85cac315a316127589a65"
+        },
+        "soft": {
+          "90601": "d6a837d1199b6bea273ef40ed73fb5805ce95c6a2dcdc8fde43ad54c24db4c7a",
+          "90602": "38757174aadaf3c23f27febc5d0b9c08f00037daa28b1f9b76917ed475933194",
+          "90603": "56069fe09292417caf5ac33bb6bd089f6b1dbe5ee743b17b0a8ff2c2dc3aa686"
+        },
+        "free": {
+          "90601": "8d5072fa99c9cfc09586e994bced32bc2c7a5d3e64bbdd59878d8d2ed7cd4365",
+          "90602": "0951d718f7e63881d4135aa8dc2e3b1b960d5b3ba9d282a1fb17a14a7673a026",
+          "90603": "61b4c2420035c0e65240abe2f181e57067f88a7b2caa878cd9c3687d7439f817"
+        },
+        "beam_reference": {
+          "90601": "f2485b69aff6803536c04c2f851058390e69d09794c93d9214da4a832568b330",
+          "90602": "2896741894fd9d670ab4ff4c641bdfce403aa901cb1a63bd9307fb9c86880dea",
+          "90603": "1b2a27773a81e09d9f4c1f43303e4f7b393e832a5af85cac315a316127589a65"
+        }
+      }
+    },
+    "reporting_policy": {
+      "representative": {
+        "dataset_id": "haelyn_masked",
+        "arm_id": "soft",
+        "seed": 90601
+      },
+      "top_level_metrics": "Masked Haelyn soft condition median across all three seeds; per-condition tables never pool different captures or mask treatments.",
+      "selection": "Fixed endpoints; no winner selection. Report all paired soft-hard and free-hard seed differences before/after native refinement, all resources, all failures. Beam is descriptive only.",
+      "qualification": "Producer RESULT remains pending independent audit; shared v2 report plus real browser smoke required before results handoff."
+    },
+    "live_integrity_policy": {
+      "verify_source_at_coordinator_worker_and_bundle": true,
+      "verify_full_data_seal_at_coordinator_entry_exit_and_bundle": false,
+      "full_seal_scope": "Coordinator entry/exit only; workers hash only selected train/validation archives before fit and after endpoint. Full seal checks may read heldout bytes and therefore never execute in workers before fitting."
+    },
+    "source_binding": {
+      "patterns": [
+        "src/rtgs/**/*.py",
+        "src/rtgs/**/*.cu",
+        "src/rtgs/**/*.cuh",
+        "src/rtgs/**/*.cpp",
+        "scripts/experiment_contract.py",
+        "scripts/check_results_bundle.py",
+        "scripts/experiments/20260906_tomography_source_constraints_haelyn_dome*.py",
+        "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py",
+        "pyproject.toml",
+        "experiments/templates/*"
+      ],
+      "file_count": 122,
+      "aggregate_sha256": "3a3a7f0c1e1dc92c300c43e7a0ca53aa3b1e780fb2dcd8bfb39e93174d0c1430"
+    },
+    "alpha_policy": {
+      "haelyn_masked_and_dome_masked": "Field arms load compact-embedded lossless alpha and apply hard source-support gating during placement. No raw mask files enter reconstruction.",
+      "haelyn_unmasked": "No alpha loaded or used; no mask-derived bounds, crop or support gating.",
+      "beam_reference": "No embedded alpha loaded or used in any condition; Beam is a separate practical reference.",
+      "report_only": "External evaluator uses original heldout masks only for foreground metrics, including maskless conditions, after every saved endpoint for that phase."
+    },
+    "teacher_window_policy": "Require each compact teacher fit_window == (0, 0, width, height), checked before optimizer/evaluator use. Native fit_image may crop internally but restores full-canvas coordinates, and this preparation driver exports with the default full-canvas window."
+  }
+}

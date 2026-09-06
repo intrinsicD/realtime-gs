@@ -1,0 +1,75 @@
+session:
+  id: 2026-09-07_001
+  date: '2026-09-07'
+  started: 2026-09-07T00:06+02:00
+  last_turn: 2026-09-07T00:06+02:00
+  turn_count: 1
+  summary: Independent Fable audit accepted bounded results with seed/drift/quality limits; real browser
+    and report bundle pass; RTGS-016 accepted at Calibrated maturity with final repository gate recorded
+    separately.
+events_logged:
+- turn: 1
+  type: decision
+  id: N228
+  routing: direct
+  provenance: user
+  summary: Authorize the concrete Fable results-review payload including dome previews
+- turn: 1
+  type: experiment
+  id: N229
+  routing: direct
+  provenance: ai-executed
+  summary: Independent results audit confirms numerical evidence and narrows interpretation
+- turn: 1
+  type: decision
+  id: N230
+  routing: direct
+  provenance: ai-executed
+  summary: Retain descriptive MSE evidence with explicit deterministic-proxy and visual-quality limits
+- turn: 1
+  type: experiment
+  id: N231
+  routing: direct
+  provenance: ai-executed
+  summary: Generate the shared report and pass real browser, orbit and bundle checks
+- turn: 1
+  type: claim
+  id: C43
+  routing: crystallized
+  provenance: ai-suggested
+  summary: Audited report and explicit decision commit the narrowed O170 interpretation; no user-endorsement
+    upgrade.
+ai_actions:
+- turn: 1
+  action: Dispatched the explicitly approved independent audit, preserved its full verdict and CLI provenance,
+    finalized the shared report and real-browser evidence, preserved original producer bytes and all historical
+    evidence, and prepared accepted task closeout with the final repository gate.
+  provenance: ai-executed
+  files_changed:
+  - benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.md
+  - benchmarks/results/20260906_tomography_source_constraints_haelyn_dome_AUDIT.json
+  - runs/20260906_tomography_source_constraints_haelyn_dome/index.html
+  - ara/evidence/tables/20260907_tomography_final_handoff/viewer_smoke.json
+  - docs/tasks/RTGS-016-captured-reference-tomography.md
+claims_touched:
+- id: C43
+  action: crystallized
+  turn: 1
+key_context:
+- turn: 1
+  excerpt: User explicitly approved the prepared Fable 5.1 / effort max payload, including 12 dome-derived
+    previews. The turn crossed midnight; completion is grouped under 2026-09-07 while the authorization
+    and review retain their actual timestamps.
+- turn: 1
+  excerpt: Every reviewer assistant message used Fable 5.1. The CLI usage report unexpectedly includes
+    a small Haiku call. Its purpose is not established; disclosed and preserved without substituting another
+    reviewer.
+open_threads:
+- Select a separately frozen follow-up to identify the source of lost detail; current capacity, optimization
+  and objective effects are not isolated.
+- Do not promote a default, physical-density, general maskless, independent-scene or performance claim
+  from this screen.
+- 'Avoid an unqualified Fable-only CLI claim: its auxiliary Haiku usage is recorded; any future invocation
+  needs attention to internal helper model routing.'
+- Paused RTGS-014 GPS remains outside the completed RTGS-016 task.
+ai_suggestions_pending: []

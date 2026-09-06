@@ -1,0 +1,49 @@
+session:
+  id: 2026-09-05_001
+  date: '2026-09-05'
+  started: 2026-09-05T23:20+02:00
+  last_turn: 2026-09-05T23:20+02:00
+  turn_count: 1
+  summary: Implemented scoped tomography corrections; CPU contracts and calibrated
+    execution smoke pass, while two frozen-protocol checks remain.
+events_logged:
+- turn: 1
+  type: decision
+  id: N219
+  routing: direct
+  provenance: user-revised
+  summary: Implement the recommended tomography corrections.
+- turn: 1
+  type: observation
+  id: O166
+  routing: crystallized
+  provenance: ai-executed
+  summary: Bound C42 to deterministic objective/geometry/persistence tests.
+ai_actions:
+- turn: 1
+  action: Implemented, tested and self-reviewed RTGS-015; preserved frozen protocols
+    and paused GPS task.
+  provenance: ai-executed
+  files_changed:
+  - src/rtgs/cli.py
+  - src/rtgs/lift/beam_fusion.py
+  - src/rtgs/lift/field_lifter.py
+  - src/rtgs/lift/field_refit.py
+  - src/rtgs/lift/inverse_projection_fiber.py
+  - tests/test_beam_fusion.py
+  - tests/test_field_cli_integration.py
+  - tests/test_field_lifter.py
+  - tests/test_field_refit.py
+claims_touched:
+- id: C42
+  action: created
+  turn: 1
+key_context:
+- turn: 1
+  excerpt: 'User: ok please fix these points as recommended'
+open_threads:
+- Independent review and frozen-protocol lifecycle before a clean commit gate.
+- Matched calibrated hard-versus-soft quality and complete-cost comparison remains
+  unrun.
+- Paused RTGS-014 GPS protocol remains pending in its archived handoff.
+ai_suggestions_pending: []

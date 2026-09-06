@@ -1,0 +1,59 @@
+{
+  "scope": "First completed baseline viewer diagnostic only; not the final representative viewer receipt or report validation.",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/149.0.7827.155",
+    "revision": "@07b52360cc15066f987c910ab34dfbcd4a8778d2",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.0.0 Safari/537.36",
+    "jsVersion": "14.9.207.29"
+  },
+  "renderer": {
+    "webgl2": true,
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "canvases": 2
+  },
+  "camera_before": {
+    "position": [
+      -2.2098610401153564,
+      1.1801507472991943,
+      0.6597820520401
+    ],
+    "quaternion": [
+      -0.11534177346544407,
+      -0.5880713006549697,
+      -0.3092381182418903,
+      0.7384038237076195
+    ]
+  },
+  "camera_after": {
+    "position": [
+      -2.143293970794253,
+      1.3289343506166782,
+      0.37369708568512683
+    ],
+    "quaternion": [
+      -0.2041826235981116,
+      -0.678589355911088,
+      -0.3128318161014556,
+      0.6324256455105469
+    ]
+  },
+  "orbit_camera_changed": true,
+  "ui_free_crop_xywh": [
+    350,
+    180,
+    600,
+    670
+  ],
+  "nonbackground_pixels": 35074,
+  "pixel_threshold": 12,
+  "background": [
+    128,
+    128,
+    128
+  ],
+  "client_errors_during_orbit": [],
+  "client_warnings_during_orbit": [],
+  "known_warning": "Software WebGL (SwiftShader), expected for this headless diagnostic.",
+  "visual_assessment": "Rendered elongated splats are visible. Exact native-renderer diagnostic also shows poor reconstruction in the first training view; no whole-comparison claim."
+}

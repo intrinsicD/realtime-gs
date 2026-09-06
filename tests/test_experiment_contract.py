@@ -1198,3 +1198,39 @@ def test_run_lock_rejects_command_drift(tmp_path: Path) -> None:
     _json(lock_path, lock)
     errors = CONTRACT.validate_run(run, root=tmp_path, require_index=False)
     assert any("lock command does not match" in error for error in errors)
+
+
+def test_historical_registry_validation_does_not_authorize_a_new_run() -> None:
+    path = REPO / "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+    task = json.loads(path.read_text(encoding="utf-8"))
+    assert CONTRACT.validate_task(task, path, root=REPO, check_live_source=False) == []
+    assert any("behavior-bearing source differs" in e for e in CONTRACT.validate_task(task, path))
+    try:
+        CONTRACT.init_run(path, root=REPO, development=True)
+    except ValueError as error:
+        assert "behavior-bearing source differs" in str(error)
+    else:
+        raise AssertionError("historical registry validation must never authorize execution")
+
+
+def test_historical_validation_still_rejects_invalid_source_envelopes() -> None:
+    path = REPO / "experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json"
+    original = json.loads(path.read_text(encoding="utf-8"))
+    for field, value in (("file_count", -1), ("aggregate_sha256", "bad"), ("patterns", ["../src"])):
+        task = copy.deepcopy(original)
+        task["frozen_configuration"]["source_binding"][field] = value
+        assert CONTRACT.validate_task(task, path, root=REPO, check_live_source=False)
+
+
+def test_removing_patterns_cannot_bypass_prospective_source_binding() -> None:
+    task = {
+        "frozen_configuration": {
+            "source_binding": {
+                "file_count": 1,
+                "aggregate_sha256": "0" * 64,
+            }
+        }
+    }
+    assert CONTRACT.verify_source_binding(task) == [
+        "frozen_configuration.source_binding has the wrong keys"
+    ]

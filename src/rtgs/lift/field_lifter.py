@@ -249,6 +249,10 @@ class FieldLiftConfig:
             raise ValueError("parsimony_per_component must be non-negative")
         if not isinstance(self.refit, FieldRefitConfig):
             raise TypeError("refit must be FieldRefitConfig")
+        if self.refit.source_constraint == "soft" and self.topology_rounds:
+            raise ValueError(
+                "soft source constraints require topology_rounds=0 for fixed-topology comparison"
+            )
         if self.association is not None and not isinstance(
             self.association, FieldAssociationConfig
         ):
@@ -1951,16 +1955,8 @@ class FieldLifter:
             **cap_diagnostics,
             **placement.diagnostics,
             "analytic_semantics": (
-                "exact additive peak-Gaussian density/RGB numerator"
-                if all(
-                    working.observations[index].blend_mode == "additive"
-                    and working.observations[index].support_fade_alpha == 0
-                    for index in selected
-                )
-                else (
-                    "untruncated density/RGB-numerator proxy; "
-                    "validate normalized teacher separately"
-                )
+                "untruncated density/RGB-numerator proxy; local-affine EWA with center visibility; "
+                "validate native teacher separately"
             ),
             "optimized_views": list(selected),
             "heldout_views": list(working.heldout_view_indices),
@@ -1982,6 +1978,14 @@ class FieldLifter:
             ),
             "covariance_free_tracks": int(refit.covariance_free_mask.sum()),
             "covariance_pinned_tracks": int((~refit.covariance_free_mask).sum()),
+            "source_constraint": refit.source_constraint,
+            "source_anchor_weight": self.config.refit.source_anchor_weight,
+            "rgb_normalization": refit.rgb_normalization,
+            "projection_model": "local_affine_ewa",
+            "visibility_model": "frozen_center_transmittance",
+            "gain_model": "density_only_ridge",
+            "source_mean_max_error": refit.source_mean_max_error,
+            "source_covariance_max_error": refit.source_covariance_max_error,
             "source_projection_max_error": refit.source_projection_max_error,
             "source_color_max_error": refit.source_color_max_error,
             "correspondence_visibility_mean": float(all_view_visibility.weights.mean()),

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "task_id": "20260906_tomography_source_constraints_haelyn_dome",
+  "status": "revision1_preflight_only",
+  "protocol_sha256": "3b0b25fbb0721b138cfcb42ddfeddbc5dc7f0e883ab53dbea8d2c045931600e7",
+  "source_binding": {
+    "patterns": [
+      "src/rtgs/**/*.py",
+      "src/rtgs/**/*.cu",
+      "src/rtgs/**/*.cuh",
+      "src/rtgs/**/*.cpp",
+      "scripts/experiment_contract.py",
+      "scripts/check_results_bundle.py",
+      "scripts/experiments/20260906_tomography_source_constraints_haelyn_dome*.py",
+      "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py",
+      "pyproject.toml",
+      "experiments/templates/*"
+    ],
+    "file_count": 122,
+    "aggregate_sha256": "3a3a7f0c1e1dc92c300c43e7a0ca53aa3b1e780fb2dcd8bfb39e93174d0c1430"
+  },
+  "effective_configuration_unchanged": true,
+  "data_seals_unchanged": true,
+  "historical_files_checked": 1703,
+  "changed_historical_files": [],
+  "reconstruction_run_started": false,
+  "review_status": "approved",
+  "checks": [
+    "44 focused protocol/contract tests passed",
+    "live source and compact/external input seals validated",
+    "all 1703 historical files rehashed unchanged"
+  ],
+  "verify": {
+    "command": "./scripts/verify.sh",
+    "exit_code": 0,
+    "log": "verify_final.log",
+    "log_sha256": "26ef5b8bcec172d63f8c14859fd0e3660c18c016834c1d69668d4fc7b23d4fb8"
+  },
+  "independent_review": {
+    "artifact": "experiments/reviews/20260906_tomography_source_constraints_haelyn_dome_PROTOCOL_REVIEW.md",
+    "sha256": "59023aeba8aee8240817af6af029e918f92a85171a408d0935e864897c18213c",
+    "model": "claude-fable-5-1",
+    "effort": "max",
+    "outcome_access": "none"
+  }
+}

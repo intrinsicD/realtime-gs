@@ -27,7 +27,11 @@ The current RGB arm is a **matched-initialization, image-supervised 3DGS compari
 2. Assign one owner and freeze dependencies, data, splits, seeds, stages, comparators, metrics,
    gates, resource accounting, and the exact argv command. Keep status `draft` while any blocker
    remains.
-3. Run `python scripts/experiment_contract.py validate`.
+3. Run `python scripts/experiment_contract.py validate`. This inspects registry structure and
+   the frozen prospective review, including source-envelope syntax; it does not require historical
+   tasks to match today's implementation. `init-run` still verifies live source equality, and
+   `check-run` retains each frozen bundle's live-integrity policy. A green registry is never
+   authorization to rerun an old protocol against changed code.
 4. Rehash local inputs with `validate-data`. Change the task or its data seal before execution if
    it fails. A generated compact dataset may declare an adjacent `production_manifest` in its
    dataset record; `seal-data` then binds that provenance sidecar in addition to calibration,

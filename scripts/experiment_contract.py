@@ -407,8 +407,15 @@ def _validate_protocol_review(
     return errors
 
 
-def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> list[str]:
-    """Return all structural and policy violations for one task."""
+def validate_task(
+    task: dict[str, Any], path: Path, *, root: Path = ROOT, check_live_source: bool = True
+) -> list[str]:
+    """Validate a task; registry inspection may opt out of live source equality.
+
+    Historical task bytes remain frozen as implementation evolves. This switch only
+    controls registry inspection: launch and bundle validation retain live checks.
+    Source-binding structure is validated in either mode.
+    """
 
     errors: list[str] = []
     required = {
@@ -774,7 +781,10 @@ def validate_task(task: dict[str, Any], path: Path, *, root: Path = ROOT) -> lis
         errors.append("blockers must be a list of non-empty strings")
     if task["status"] == "ready" and task["blockers"]:
         errors.append(f"{task['status']} tasks cannot retain blockers")
-    errors.extend(verify_source_binding(task, root=root))
+    binding_errors = _source_binding_errors(task)
+    errors.extend(binding_errors)
+    if check_live_source and not binding_errors:
+        errors.extend(verify_source_binding(task, root=root))
     return errors
 
 
@@ -852,7 +862,8 @@ def validate_repository(*, root: Path = ROOT) -> list[str]:
                 errors.append(f"duplicate task_id: {task_id}")
             tasks[task_id] = task
         errors.extend(
-            f"{path.relative_to(root)}: {item}" for item in validate_task(task, path, root=root)
+            f"{path.relative_to(root)}: {item}"
+            for item in validate_task(task, path, root=root, check_live_source=False)
         )
     if not tasks:
         errors.append("no experiment tasks registered")
@@ -1041,17 +1052,46 @@ def build_source_binding(binding: dict[str, Any], *, root: Path = ROOT) -> dict[
     }
 
 
-def verify_source_binding(task: dict[str, Any], *, root: Path = ROOT) -> list[str]:
+def _source_binding_errors(task: dict[str, Any]) -> list[str]:
+    """Validate a prospective source envelope without reading today's source files."""
     frozen = task.get("frozen_configuration")
     binding = frozen.get("source_binding") if isinstance(frozen, dict) else None
-    if binding is None or (isinstance(binding, dict) and "patterns" not in binding):
-        return []
+    if binding is None or (
+        isinstance(binding, dict) and set(binding) == {"algorithm", "scope", "sha256"}
+    ):
+        return []  # Other historical binding schemas keep their existing validators.
     if not isinstance(binding, dict) or set(binding) != {
         "patterns",
         "file_count",
         "aggregate_sha256",
     }:
         return ["frozen_configuration.source_binding has the wrong keys"]
+    errors = []
+    patterns = binding["patterns"]
+    if not _strings(patterns):
+        errors.append("frozen_configuration.source_binding.patterns is invalid")
+    else:
+        for pattern in patterns:
+            if Path(pattern).is_absolute() or ".." in Path(pattern).parts:
+                errors.append(f"source binding pattern is unsafe: {pattern}")
+    if type(binding["file_count"]) is not int or binding["file_count"] < 1:
+        errors.append("source binding file_count must be a positive integer")
+    digest = binding["aggregate_sha256"]
+    if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+        errors.append("source binding aggregate_sha256 must be a lowercase SHA-256")
+    return errors
+
+
+def verify_source_binding(task: dict[str, Any], *, root: Path = ROOT) -> list[str]:
+    frozen = task.get("frozen_configuration")
+    binding = frozen.get("source_binding") if isinstance(frozen, dict) else None
+    if binding is None or (
+        isinstance(binding, dict) and set(binding) == {"algorithm", "scope", "sha256"}
+    ):
+        return []
+    errors = _source_binding_errors(task)
+    if errors:
+        return errors
     try:
         current = build_source_binding(binding, root=root)
     except ValueError as error:

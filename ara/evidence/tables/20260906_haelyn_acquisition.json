@@ -1,0 +1,65 @@
+{
+  "acquired_at_utc": "2026-09-05T21:52:49.973089+00:00",
+  "title": "Haelyn - HalfBody - Gaussian Splat",
+  "creator": "UnchartedHearth2523",
+  "source_url": "https://poly.cam/explore/capture/BCE82A2C-8254-4946-94D4-BB0AC5E267A1/Haelyn%2B%2BHalfBody%2B%2BGaussian%2BSplat",
+  "license": "CC-BY-4.0",
+  "license_basis": {
+    "savable": true,
+    "usage_rights_url": "https://learn.poly.cam/hc/en-us/articles/27646853145748-Usage-Rights-and-Ownership"
+  },
+  "kind": "public photo-captured Gaussian representation; rendered views are controlled observations, not raw dome photographs",
+  "artifacts": [
+    {
+      "path": "capture_frames.json",
+      "bytes": 921150,
+      "sha256": "a25a60cb61435fcf934e4418a317dd7ab0881556e599b287055a270a5f49af81"
+    },
+    {
+      "path": "capture_metadata.json",
+      "bytes": 5981,
+      "sha256": "d53e05c49080144128cac8911f38cda43823dcb4582b404f00061b5578e51e1c"
+    },
+    {
+      "path": "reference.ply",
+      "bytes": 68621748,
+      "sha256": "55ddd2a0ab4cdaa4dd9606954f03ba1b94f134d56cb86c8cd93d1383b7c191e5"
+    },
+    {
+      "path": "source_preview.jpg",
+      "bytes": 40271,
+      "sha256": "87ca85835763370928b1b3ed8266e8895c3a4aa7fb9e5b6e31e40ef2cf0f9522"
+    }
+  ],
+  "ply_inspection": {
+    "vertex_count": 418419,
+    "sh_degree": 2,
+    "position_scale_quaternion_sh_finite": true,
+    "source_property_order": "noncanonical named float properties; load_ply uses property names",
+    "suitability_status": "Visually inspected native full-SH person model and full 16-view orbit; selected as controlled captured-reference input, not physical geometry truth."
+  },
+  "selected_model": {
+    "path": "dataset/external/haelyn_halfbody/reference_person.ply",
+    "bytes": 58614278,
+    "gaussians": 357398,
+    "sh_degree": 2,
+    "sha256": "b9ba7059bfce2a015e719ee4a0de3ea7dad111d7f4ae33d1ad2435e477d0b8c2",
+    "import": "Published crop mapped uniquely to original PLY rows through measured similarity; original coordinate frame and full SH retained, cameras transformed instead.",
+    "replay": "scripts/experiments/20260906_tomography_source_constraints_haelyn_dome_import.py",
+    "import_receipt": "dataset/external/haelyn_halfbody/import_alignment.json",
+    "visual_boundary": "Detailed clothing and full orbit; half-body capture with incomplete lower edge and some residual floating fragments."
+  },
+  "preparation": {
+    "known_reference_views": 16,
+    "masked_compact_views": 16,
+    "maskless_compact_views": 16,
+    "second_capture_compact_views": 15,
+    "compact_seal": "experiments/data/haelyn_dome_source_constraints.json",
+    "external_seal": {
+      "path": "experiments/data/haelyn_dome_source_constraints_external.json",
+      "sha256": "a0b9173030b242badb52d22fa0240ee8e8afafbda2fb33b25eed428a838a573c"
+    },
+    "reconstruction_outcomes_generated": false,
+    "protocol_status": "draft_pending_distinct_review"
+  }
+}

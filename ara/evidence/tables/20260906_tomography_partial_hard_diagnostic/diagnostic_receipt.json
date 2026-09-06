@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-06T01:23:14.139865+00:00",
+  "scope": "Partial baseline-only local validation. No paired comparative result, independent results audit, external RGB evaluation, or final browser/report validation.",
+  "source_binding": {
+    "patterns": [
+      "src/rtgs/**/*.py",
+      "src/rtgs/**/*.cu",
+      "src/rtgs/**/*.cuh",
+      "src/rtgs/**/*.cpp",
+      "scripts/experiment_contract.py",
+      "scripts/check_results_bundle.py",
+      "scripts/experiments/20260906_tomography_source_constraints_haelyn_dome*.py",
+      "scripts/experiments/20260729_field_sweep_placement_stage_frames00008_00009.py",
+      "pyproject.toml",
+      "experiments/templates/*"
+    ],
+    "file_count": 122,
+    "aggregate_sha256": "3a3a7f0c1e1dc92c300c43e7a0ca53aa3b1e780fb2dcd8bfb39e93174d0c1430"
+  },
+  "completed_baselines": [
+    {
+      "summary": "cells/haelyn_masked/seed_90601/hard/summary.json",
+      "summary_sha256": "c99d096d7003e7f5099c2fbbcdd110c24d3de35ca27e80474380be30b19864fa",
+      "seed": 90601,
+      "status": "completed",
+      "input_guard": "passed",
+      "saved_model_hashes": "matched",
+      "proxy_accepted_steps": 100,
+      "heldout_native_teacher_mse": {
+        "initial": 0.07367421497311369,
+        "proxy": 0.06851198982323001,
+        "final": 0.05008455248815709
+      },
+      "worker_endpoint_seconds": 858.0110407290049
+    },
+    {
+      "summary": "cells/haelyn_masked/seed_90602/hard/summary.json",
+      "summary_sha256": "8ea075f98ea62bfce7c817eb6cddbfac09e478aa27ee65c20f1519e59c08b231",
+      "seed": 90602,
+      "status": "completed",
+      "input_guard": "passed",
+      "saved_model_hashes": "matched",
+      "proxy_accepted_steps": 100,
+      "heldout_native_teacher_mse": {
+        "initial": 0.07367421497311369,
+        "proxy": 0.06851198982323001,
+        "final": 0.04978992777082769
+      },
+      "worker_endpoint_seconds": 862.8877952079929
+    },
+    {
+      "summary": "cells/haelyn_masked/seed_90603/hard/summary.json",
+      "summary_sha256": "d9726e69b1177109b50b257f8ea6e12a6b88be68d1f6a0f5263ddb965b5d377f",
+      "seed": 90603,
+      "status": "completed",
+      "input_guard": "passed",
+      "saved_model_hashes": "matched",
+      "proxy_accepted_steps": 100,
+      "heldout_native_teacher_mse": {
+        "initial": 0.07367421497311369,
+        "proxy": 0.06851198982323001,
+        "final": 0.049737657385325124
+      },
+      "worker_endpoint_seconds": 904.7241429409914
+    }
+  ],
+  "files": [
+    {
+      "path": "native_teacher_endpoints.png",
+      "sha256": "ab48117ada3c2c94401424766d832bada0da10aaad924fcd95a6cbb45da8b3d8"
+    },
+    {
+      "path": "native_display_diagnostic.json",
+      "sha256": "ba0ca61b9b42c0c726bc1270e5312afdf5d6cd5e41e529e231e383fe7fefed28"
+    },
+    {
+      "path": "saved_geometry_diagnostic.json",
+      "sha256": "db644a48b954c67d7494c4b0aeaf1a5c96b91a6c70283b941c064cef694f82cf"
+    },
+    {
+      "path": "training_camera.json",
+      "sha256": "bf3a50d04ef4aabd8e6948535c2ce4a5a4fc2da0881a5a4e518517b6014f851f"
+    },
+    {
+      "path": "final_model_training_camera.png",
+      "sha256": "32a4c692ef2cc8cb39bf79f1bdd4bfdd10c407cd50f9d190c83eeaca46eb731e"
+    },
+    {
+      "path": "final_model_orbit.png",
+      "sha256": "2bd0e1fcbe1263676dfec1affd1e6de01b411bce2d8d8b9d6da496955ff8bba8"
+    },
+    {
+      "path": "browser_diagnostic.json",
+      "sha256": "69e270837cd4684841019f88a564c543d407f0b6a4c6107b27fc653354a7c984"
+    },
+    {
+      "path": "launch.json",
+      "sha256": "bdb65afc1220da3924ac41bf5e88c7599b8dfb4c28db820cf520316800d25c04"
+    },
+    {
+      "path": "native_display_diagnostic_source.py",
+      "sha256": "fade8930d3a47d73d876fa9d2ba39d354d8e09159cfc132c3b035958ad0b96d4"
+    }
+  ]
+}

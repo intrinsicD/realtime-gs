@@ -1,0 +1,62 @@
+{
+  "scope": "Frozen input metadata only; no reconstruction or quality evaluation",
+  "datasets": [
+    {
+      "dataset_id": "haelyn_masked",
+      "views": 16,
+      "all_full_canvas": true,
+      "windows": [
+        [
+          0,
+          0,
+          192,
+          256
+        ]
+      ],
+      "canvas_sizes": [
+        [
+          192,
+          256
+        ]
+      ]
+    },
+    {
+      "dataset_id": "haelyn_unmasked",
+      "views": 16,
+      "all_full_canvas": true,
+      "windows": [
+        [
+          0,
+          0,
+          192,
+          256
+        ]
+      ],
+      "canvas_sizes": [
+        [
+          192,
+          256
+        ]
+      ]
+    },
+    {
+      "dataset_id": "dome_masked",
+      "views": 15,
+      "all_full_canvas": true,
+      "windows": [
+        [
+          0,
+          0,
+          253,
+          219
+        ]
+      ],
+      "canvas_sizes": [
+        [
+          253,
+          219
+        ]
+      ]
+    }
+  ]
+}

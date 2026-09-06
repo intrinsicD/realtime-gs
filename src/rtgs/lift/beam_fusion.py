@@ -1,34 +1,21 @@
-"""Tomographic Gaussian beam fusion: a density-based RGB-free 3D initializer.
+"""Tomography-inspired Gaussian beam initialization from compact RGB observation fields.
 
-The per-view 2D Gaussian fields are *projections* of an unknown 3D radiance density, so 3D
-initialization can be posed as reconstruction-from-projections instead of correspondence search.
-Gaussians make that tractable in closed form:
+Each fitted 2D footprint is back-projected at an implied depth using a local affine camera
+Jacobian and a finite along-ray variance. These beams are geometric proposals, not exact
+perspective back-projections or calibrated uncertainty distributions. Normalized RGB fields
+are not physical line-integral density measurements.
 
-1. **Back-projection**: each 2D splat becomes an analytic elongated 3D Gaussian *beam* — its 2D
-   covariance lifted to the ray-orthogonal tangent plane at an implied depth, plus a long
-   along-ray variance covering the working depth range. No voxel grid.
-2. **Pair seeding**: for splats in two views, the closest points between their center rays give
-   implied depths in closed form; pairs are gated by transverse ray distance (measured against
-   both beams' tangent footprints) and color agreement. The gate is the first-order Gaussian
-   product weight, so negligible cross terms are never materialized.
-3. **Fusion by covariance intersection**: surviving beams are fused with the CI rule
-   ``Lambda = mean_k Lambda_k``, ``m = Lambda^{-1} mean_k(Lambda_k m_k)``. A naive Gaussian
-   product (``Lambda = sum_k Lambda_k``) is *rejected by design*: the views are correlated
-   observations of one physical splat, and the product double-counts every axis observed by more
-   than one view (two orthogonal views of an isotropic blob would fuse to half its variance).
-   CI is the standard consistent rule for correlated sources: exact on directions all views
-   share, conservative (never overconfident) elsewhere.
-4. **Greedy fold-in**: each fused component projects into the remaining views and absorbs the
-   nearest splat within a pixel gate and color gate (at most one per view); contributors are the
-   correspondence byproduct.
-5. **Reduction**: exact contributor-signature dedupe, then per-voxel non-maximum suppression by
-   weight — selection, not moment matching, so fused covariances survive.
+Center-ray pair seeds use transverse-distance and fitted-color gates. Equal-weight covariance
+intersection averages beam precisions and information vectors. This is a heuristic initializer,
+not an inverse covariance-projection solver: three orthogonal long beams from an isotropic
+blob approach 1.5 times its covariance. Summing precisions instead approaches half its covariance.
+Neither rule generally recovers the physical footprint covariance.
 
-Every output Gaussian is a positive-weight CI fusion of at least ``min_views`` beams with bounded
-SPD covariance and complete contributor lineage; unmatched splats are reported per view for
-densification.  Association emerges from density overlap rather than discrete matching — this is
-deliberately a different family from both the consensus scoring (which drifts) and the SfM-style
-discrete matcher.  CPU-first, deterministic, no RGB.
+Greedy fold-in chooses at most one nearby, color-compatible contributor per remaining view.
+Contributor-signature deduplication and voxel selection reduce the candidates. Outputs retain
+bounded SPD covariance and complete contributor lineage. The compact carrier pipeline then
+uses renderer-aware covariance repair and native compact-field optimization. No source images
+are loaded; fitted RGB coefficients do participate in the gates and output appearance.
 """
 
 from __future__ import annotations

@@ -57,7 +57,9 @@ def test_exact_owner_selected_six_folder_matrix_is_frozen() -> None:
     )
     assert tuple(item["id"] for item in task["comparators"]) == module.ARMS
     assert len(task["datasets"]) * len(task["comparators"]) * len(task["seeds"]) == 36
-    module._assert_task(task, require_ready=False)
+    # Registry structure belongs to the frozen record. The original executable
+    # deliberately rejects today's changed dataclass semantics (covered below).
+    assert _contract_module().validate_task(task, TASK, root=ROOT, check_live_source=False) == []
 
 
 @pytest.mark.parametrize(
@@ -871,3 +873,26 @@ def test_all_six_rendered_children_enumerate_required_metrics_and_both_clocks(
         assert "native optimizer time excluding validation observers (s)" in body
         assert "worker cell wall time from worker start (s)" in body
         assert dataset_id in body
+
+
+def test_historical_effective_configs_match_the_unchanged_protocol() -> None:
+    contract = _contract_module()
+    task = _task()
+    path = ROOT / "tests/fixtures/experiment_protocols" / f"{task['task_id']}_effective.json"
+    receipt = json.loads(path.read_text(encoding="utf-8"))
+    assert receipt["task_sha256"] == contract._sha256_file(TASK)
+    expected = task["frozen_configuration"]["cell_receipt_policy"]["effective_sha256"]
+    actual: dict = {"warmup": {}, "measured": {}}
+    for row in receipt["records"]:
+        arm = actual[row["mode"]].setdefault(row["arm"], {})
+        assert str(row["seed"]) not in arm
+        arm[str(row["seed"])] = contract._canonical_sha256(row["effective"])
+    assert actual == expected
+
+
+def test_historical_driver_rejects_current_effective_config_drift() -> None:
+    module = _module()
+    with pytest.raises(ValueError, match="executable semantics"):
+        module._assert_task(_task(), require_ready=False)
+    with pytest.raises(RuntimeError, match="source"):
+        module._verify_source_binding(_task())

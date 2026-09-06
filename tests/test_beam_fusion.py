@@ -1,11 +1,9 @@
-"""CPU tests for tomographic Gaussian beam fusion (density-based RGB-free initialization).
+"""CPU tests for compact-field Gaussian beam initialization.
 
-The forward oracle is :func:`rtgs.render.projection.project_covariances_ewa` with zero dilation:
-ground-truth 3D Gaussians are projected into each view and beam fusion must localize them blind.
-The covariance contract is deliberately different from exact triangulation: covariance
-intersection is *exact on directions every view observes and conservative elsewhere* — it may
-inflate weakly-shared directions but must never be overconfident. One test pins that property
-against the rejected naive Gaussian product, which is provably overconfident on shared axes.
+The forward oracle uses local EWA footprints with zero dilation. CI localization, bounded SPD
+covariances, and contributor lineage are tested separately from exact covariance recovery.
+The orthogonal-beam control demonstrates CI inflation; these fixtures do not establish a
+universal conservative bound for heuristic beams or fitted normalized RGB observations.
 """
 
 from __future__ import annotations
@@ -143,7 +141,7 @@ def test_fusion_localizes_projected_ground_truth_exactly():
     assert float((colors - _GT_COLORS[assignment]).abs().max()) < 1e-5
 
 
-def test_covariance_intersection_is_never_overconfident_but_naive_product_is(monkeypatch):
+def test_ci_and_product_covariance_scales_on_isotropic_fixture(monkeypatch):
     cameras = _default_cameras()[:5]
     gt_means = torch.zeros(1, 3, dtype=torch.float64)
     gt_cov = (torch.eye(3, dtype=torch.float64) * 4e-4)[None]
@@ -154,7 +152,7 @@ def test_covariance_intersection_is_never_overconfident_but_naive_product_is(mon
 
     ci = fuse_gaussian_beams(inputs, config)
     ci_ratio = torch.linalg.eigvalsh(ci.gaussians.covariance().double()[0]) / gt_eigen
-    # CI: exact on well-observed directions, conservative elsewhere — never overconfident.
+    # This isotropic fixture bounds CI scale only; it is not a universal conservatism proof.
     assert float(ci_ratio.min()) > 0.9
     assert float(ci_ratio.max()) < 100.0
 
@@ -338,3 +336,21 @@ def test_bounded_production_path_enforces_output_and_seed_grid_caps():
             inputs,
             BeamFusionConfig(min_views=3, max_components=3, max_seed_voxels=999_999),
         )
+
+
+def test_three_orthogonal_beams_ci_is_not_covariance_inversion() -> None:
+    ray_variance = 1e6
+    beam_covariances = torch.eye(3, dtype=torch.float64).repeat(3, 1, 1)
+    for axis in range(3):
+        beam_covariances[axis, axis, axis] = ray_variance
+    precisions = torch.linalg.inv(beam_covariances)
+    fused_precision, mean = beam_fusion._ci_fuse(precisions, torch.zeros(3, 3, dtype=torch.float64))
+    fused_covariance = torch.linalg.inv(fused_precision)
+    expected_variance = 3.0 / (2.0 + 1.0 / ray_variance)
+    torch.testing.assert_close(
+        fused_covariance, torch.eye(3, dtype=torch.float64) * expected_variance
+    )
+    assert torch.equal(mean, torch.zeros_like(mean))
+    assert not torch.allclose(fused_covariance, torch.eye(3, dtype=torch.float64))
+    product_covariance = torch.linalg.inv(precisions.sum(0))
+    torch.testing.assert_close(product_covariance * 3, fused_covariance)

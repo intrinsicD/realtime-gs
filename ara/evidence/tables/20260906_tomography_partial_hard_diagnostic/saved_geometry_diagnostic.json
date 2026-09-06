@@ -1,0 +1,62 @@
+{
+  "scope": "Saved-state geometric diagnostic on one completed baseline; no optimization or attribution claim. Axis ratios are 3D standard-deviation ratios, not projected ellipse ratios.",
+  "rows": [
+    {
+      "stage": "initial",
+      "count": 217,
+      "axis_std_ratio_median": 1.1946561336517334,
+      "axis_std_ratio_p95": 1.9542819261550903,
+      "axis_std_ratio_max": 4.023847579956055,
+      "maximum_axis_std": 0.023020021617412567,
+      "minimum_axis_std": 0.002927686320617795,
+      "mean_bounds_min": [
+        -0.575053334236145,
+        -1.0956878662109375,
+        -0.44160565733909607
+      ],
+      "mean_bounds_max": [
+        0.387922078371048,
+        0.49288269877433777,
+        0.16439996659755707
+      ]
+    },
+    {
+      "stage": "proxy",
+      "count": 217,
+      "axis_std_ratio_median": 6.226715087890625,
+      "axis_std_ratio_p95": 18.337783813476562,
+      "axis_std_ratio_max": 28.07438087463379,
+      "maximum_axis_std": 0.34339603781700134,
+      "minimum_axis_std": 0.0011286644730716944,
+      "mean_bounds_min": [
+        -0.796302080154419,
+        -1.0947126150131226,
+        -0.6681783199310303
+      ],
+      "mean_bounds_max": [
+        0.38883155584335327,
+        0.5225633382797241,
+        0.2523118853569031
+      ]
+    },
+    {
+      "stage": "native",
+      "count": 217,
+      "axis_std_ratio_median": 6.3621697425842285,
+      "axis_std_ratio_p95": 18.990068435668945,
+      "axis_std_ratio_max": 28.850908279418945,
+      "maximum_axis_std": 0.4597321152687073,
+      "minimum_axis_std": 0.0010964855318889022,
+      "mean_bounds_min": [
+        -0.79485684633255,
+        -1.094483494758606,
+        -0.6681142449378967
+      ],
+      "mean_bounds_max": [
+        0.3894228935241699,
+        0.5223259925842285,
+        0.25273624062538147
+      ]
+    }
+  ]
+}

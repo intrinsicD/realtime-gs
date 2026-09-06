@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "data_slug": "haelyn_dome",
+  "input_profile": "compact",
+  "datasets": [
+    {
+      "id": "haelyn_masked",
+      "role": "development",
+      "frame_path": "dataset/external/haelyn_halfbody/prepared",
+      "view_ids": [
+        "C0001",
+        "C0002",
+        "C0003",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0007",
+        "C0008",
+        "C0009",
+        "C0010",
+        "C0011",
+        "C0012",
+        "C0013",
+        "C0014",
+        "C0015",
+        "C0016"
+      ],
+      "selected_modalities": [
+        "calibration",
+        "gaussians2d"
+      ],
+      "canonical_rgb_pattern": null,
+      "canonical_mask_pattern": null,
+      "production_manifest": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/production_manifest.json"
+    },
+    {
+      "id": "haelyn_unmasked",
+      "role": "development",
+      "frame_path": "dataset/external/haelyn_halfbody/prepared",
+      "view_ids": [
+        "C0001",
+        "C0002",
+        "C0003",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0007",
+        "C0008",
+        "C0009",
+        "C0010",
+        "C0011",
+        "C0012",
+        "C0013",
+        "C0014",
+        "C0015",
+        "C0016"
+      ],
+      "selected_modalities": [
+        "calibration",
+        "gaussians2d"
+      ],
+      "canonical_rgb_pattern": null,
+      "canonical_mask_pattern": null,
+      "production_manifest": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/production_manifest.json"
+    },
+    {
+      "id": "dome_masked",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "view_ids": [
+        "C0001",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0014",
+        "C0019",
+        "C0022",
+        "C0025",
+        "C0028",
+        "C0031",
+        "C0037",
+        "C1001"
+      ],
+      "selected_modalities": [
+        "calibration",
+        "gaussians2d"
+      ],
+      "canonical_rgb_pattern": null,
+      "canonical_mask_pattern": null,
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/production_manifest.json"
+    }
+  ],
+  "files": [
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "bytes": 51752,
+      "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0001.rtgsv",
+      "bytes": 68714,
+      "sha256": "dadbc90a261e173ed61b46782febef9b3daaae1b8085632b3e4e5c058e31be4d"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0004.rtgsv",
+      "bytes": 68724,
+      "sha256": "f0dc6dc6b4fdcd5f4b7a7f9b9043bddd4b995c2b31353f96156039b6079d1844"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0005.rtgsv",
+      "bytes": 68692,
+      "sha256": "ee2e4f8b9e1a6306466e75fcbe8307d38414f774d131d6497ef4fa32608148be"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0006.rtgsv",
+      "bytes": 68406,
+      "sha256": "bfc99d4d7da9a20b1ad774b0835360975f3e9914d1dfde9b10c45081b2be19bb"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0008.rtgsv",
+      "bytes": 68307,
+      "sha256": "7f21b21da6d17321731992cec10a18c39a051e243734436f0cca00f1dffba0d6"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0009.rtgsv",
+      "bytes": 68668,
+      "sha256": "eb7ee0248987cf8b4730ca54b371d317d0a1e712eb09eb38f17a63723defba6b"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0012.rtgsv",
+      "bytes": 68342,
+      "sha256": "8c2d679be01eae633e6f12040bb96e0d81d0e451597b7d4fa32a1f1ca41d7f3e"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0014.rtgsv",
+      "bytes": 68504,
+      "sha256": "2e818764a96f64233fef52f982b929c32107a391418efa938bb523709fbf7d8b"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0019.rtgsv",
+      "bytes": 68677,
+      "sha256": "27b0944044fd08fa423025093cdc5987b0366fed238e00137d54a7dc60efbe78"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0022.rtgsv",
+      "bytes": 68509,
+      "sha256": "0aaa966841dfbd371d78c5be366edba227eebc84702b4d5e60f77cbb87eb521d"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0025.rtgsv",
+      "bytes": 68617,
+      "sha256": "33a86c878518f2f3de9d976ba17ed28699f68d6a9c82aae161451998c12209ab"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0028.rtgsv",
+      "bytes": 68700,
+      "sha256": "723f74d68b02cdc3ff54db7fc08fade45c8d43e32cff98c6cd0bcedb22722d7b"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0031.rtgsv",
+      "bytes": 67419,
+      "sha256": "65bdd2e0f747eeb3842611477fdf472e13759515d9d6f17e24e489c2ca5f109c"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C0037.rtgsv",
+      "bytes": 68529,
+      "sha256": "091d7675aa35d56c7073641b782a951cd9679b71c47f7be172b1f5d936bcdf26"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/C1001.rtgsv",
+      "bytes": 67556,
+      "sha256": "e91946c6077c77f97a4ffc5ea4875b081dbbb1368ffcdc4f8d5f4a342108b005"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/manifest.json",
+      "bytes": 2860,
+      "sha256": "99cb1e298d43bed22153754f4abfdda4e7c06b45b6d02b5ab49a453756519782"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/production_manifest.json",
+      "bytes": 35502,
+      "sha256": "88ea205e50a02a4f1c8683ba09244ddd6b0654395c354034aa460195a6b3b212"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/calibration_dome.json",
+      "bytes": 15346,
+      "sha256": "f5f064d76e9a3ad919ed7d403d3a61a69ea9406cf2f99125533531ff539b6ec0"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0001.rtgsv",
+      "bytes": 68566,
+      "sha256": "57f755375f4596beb296eb3b67255539e9c59e641ffb7e31921c55a4d25a97d0"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0002.rtgsv",
+      "bytes": 68632,
+      "sha256": "b617d65c4ab3868966f23c6895463b6db0c570747555e72be837624e169309e2"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0003.rtgsv",
+      "bytes": 68531,
+      "sha256": "4fc145cb40e3504f4565c4cacdfddce33e0063b4c6f6670164c3574f2fbb4b67"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0004.rtgsv",
+      "bytes": 68831,
+      "sha256": "57d0f116fcfa479e461d43210d3a6e05af01d30f15a7bf408ff8bc06eb37813f"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0005.rtgsv",
+      "bytes": 68555,
+      "sha256": "b60fc2437f92fcdc17ea2df84c8f014930739f3dfc671cda9b213e5813947682"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0006.rtgsv",
+      "bytes": 68652,
+      "sha256": "2c5b6633f4081e1c33c703c09468af9d3a8cb47d7325c44d7f743992a7c134e7"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0007.rtgsv",
+      "bytes": 68706,
+      "sha256": "5f66f07f41b916ffdd65f81ac035136ea6e089e71fe2405f5f02e1a62f84e2f9"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0008.rtgsv",
+      "bytes": 68841,
+      "sha256": "ded4fa81acb48e8db7e8ff76a0f4e7151e25ddebe47cedfcdcec69ad4bedbfc7"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0009.rtgsv",
+      "bytes": 68814,
+      "sha256": "c5970a3b9d30195bd6c5724937a35f73e5345dc9494e7f0d7ebee0352d8d478f"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0010.rtgsv",
+      "bytes": 68701,
+      "sha256": "8847e20c955b1954433bbc3302b7cf1f82e9c1352bf56a0c878a00a72fcaffde"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0011.rtgsv",
+      "bytes": 68622,
+      "sha256": "35498b9b004596b03c23a80f4660c4ba44efc078c632c80189ea983b1bd88bc9"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0012.rtgsv",
+      "bytes": 68695,
+      "sha256": "b11c6d5918446793d30dd6e9536507a41808e45870377f519a4b96730480f2f2"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0013.rtgsv",
+      "bytes": 68852,
+      "sha256": "9e7d05a798d430ccbe73468f52a73c4ffaa7574a41f3e6e854a527e5e451850b"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0014.rtgsv",
+      "bytes": 68600,
+      "sha256": "6a47f4007d99247e2e49fb5520189aaaac9652ab3b56275636f5f662bf35a258"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0015.rtgsv",
+      "bytes": 68769,
+      "sha256": "62dd9576457e9d96cbd207b32e840404b76462b1769b0b8261d5e17414664108"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/C0016.rtgsv",
+      "bytes": 68880,
+      "sha256": "56c597909bf96434dcba445803e9ee4f241b754798bef8d1a1e7e53cead66d6a"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/manifest.json",
+      "bytes": 3032,
+      "sha256": "01b0bbbe162e5f820d2779f03321adae52c51f17e1964de7f0d44b61abdd34da"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_masked/production_manifest.json",
+      "bytes": 37546,
+      "sha256": "6d62600f003b083cd279df9d79c596cef2a8340e79c7b8595c94fc993b8dd0ae"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0001.rtgsv",
+      "bytes": 67695,
+      "sha256": "76e4b31212c8846a2e77724743f7e5efb3172b8838333b2f93cb0f7c472e6e43"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0002.rtgsv",
+      "bytes": 67725,
+      "sha256": "d05deb6b57b2097821bd27e584aecb635bdeab6a1d02ef30c7a9b998a6783757"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0003.rtgsv",
+      "bytes": 67810,
+      "sha256": "adda63881eb598f0af32eaa2766822c64a250662a2820a21617438762bd13c1f"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0004.rtgsv",
+      "bytes": 67762,
+      "sha256": "3a8adde37595e4933fc875b34cf95a63aab61d0f327ca384763195f2c6dbd4bd"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0005.rtgsv",
+      "bytes": 67923,
+      "sha256": "91262f5e5a7b1d28d0150b682b3224d6eab560ae2f5117e0b47648ece55d50b6"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0006.rtgsv",
+      "bytes": 67866,
+      "sha256": "eba77d26377c6a24bfd5b10cb12f5599f61746de35210d6fbd01ab978c47f6bf"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0007.rtgsv",
+      "bytes": 67778,
+      "sha256": "e35942bafca45a27ee8efec3c48894f5589a3eb0ec51dd5eeb5624e5b3675139"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0008.rtgsv",
+      "bytes": 67624,
+      "sha256": "7a51d78bbf4456511ab454129c02100ba250371d3833d961f10d67f3b7585500"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0009.rtgsv",
+      "bytes": 67822,
+      "sha256": "7e5bc8df8c24eb207e4e48d038cf4be3abb32b7f2febfd9e5e31f321bf5813ad"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0010.rtgsv",
+      "bytes": 67929,
+      "sha256": "cc692c0fb62455809f04b474be715a5d51fe4ed99e6ecead0115953309954402"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0011.rtgsv",
+      "bytes": 67945,
+      "sha256": "e2461057b41088fd6c2f35107c7d12890603c847baa3e2fef9d6317757d95a91"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0012.rtgsv",
+      "bytes": 67893,
+      "sha256": "23efbfb0f3a605cb02a92f4beba4bb69cf4f2b660dc103e99804f4b05e17757b"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0013.rtgsv",
+      "bytes": 67843,
+      "sha256": "65af9c7b87cd0f408274184c24c8bfe13b9bf2ebbe7ff9538f1b11f25697ea40"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0014.rtgsv",
+      "bytes": 67637,
+      "sha256": "cc1886797cb30b701fd17c50527b3e1fdd97ebb6644ed4966931305219ffbc12"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0015.rtgsv",
+      "bytes": 67515,
+      "sha256": "045511bb41c292fe542f6481c6580ace309d0cbdb6d00a24ae8ede80538933e9"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/C0016.rtgsv",
+      "bytes": 67733,
+      "sha256": "57111624e66e2054e1a4f5f495fa1f7b10ce81223682990ecdae1d0ebf32a538"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/manifest.json",
+      "bytes": 3050,
+      "sha256": "220837d477e8f84d6619f36f63fca1c84ff63414ac5cf80115f8eb65e163d85a"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/gaussians2d_unmasked/production_manifest.json",
+      "bytes": 34772,
+      "sha256": "4ec37de0ef5df6b8c55b9bea798705b0a87089dc052f14b5ae555155d196a719"
+    }
+  ]
+}

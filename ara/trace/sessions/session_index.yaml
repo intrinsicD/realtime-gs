@@ -185,3 +185,30 @@ sessions:
     events_count: 6
     claims_touched: [C41]
     open_threads: 1
+  - id: 2026-09-05_001
+    date: '2026-09-05'
+    summary: Implemented scoped tomography corrections; CPU contracts and calibrated
+      execution smoke pass, while two frozen-protocol checks remain.
+    turn_count: 1
+    events_count: 2
+    claims_touched:
+    - C42
+    open_threads: 3
+  - id: 2026-09-06_001
+    date: '2026-09-06'
+    summary: All 36 cells completed and locally validated; free improves teacher MSE in every condition
+      but detail remains poor; independent audit and final report await payload authorization.
+    turn_count: 5
+    events_count: 12
+    claims_touched: []
+    open_threads: 5
+  - id: 2026-09-07_001
+    date: '2026-09-07'
+    summary: Independent Fable audit accepted bounded results with seed/drift/quality limits; real browser
+      and report bundle pass; RTGS-016 accepted at Calibrated maturity with final repository gate recorded
+      separately.
+    turn_count: 1
+    events_count: 5
+    claims_touched:
+    - C43
+    open_threads: 4

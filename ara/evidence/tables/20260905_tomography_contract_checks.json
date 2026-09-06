@@ -1,0 +1,116 @@
+{
+  "scope": "deterministic CPU implementation contracts; no quality/performance experiment",
+  "timestamp": "2026-09-05T23:20+02:00",
+  "base_commit": "2ebe52cc28a1b0e812a6c436d49225fac4ee943f",
+  "source_and_tests_diff_sha256": "2ec04c6c9e44f3efa5408342a0992ad1e231357ee3d6dd4e98c31ecf3d3d4a75",
+  "changed_source_sha256": {
+    "src/rtgs/cli.py": "75dbb46b3c0ab7c84733cdb1142c366540e8fb62f3e957219b7691656bbc9f9f",
+    "src/rtgs/lift/beam_fusion.py": "6f71613bcb0a2321c9a7add7f004cd0e5036377e0583d5423b0621cfe23468f9",
+    "src/rtgs/lift/field_lifter.py": "57c73f94152714ffef8c79323d40108c0fbf418a2a3525bd1bf19beca5ffa63f",
+    "src/rtgs/lift/field_refit.py": "466f95fba612150dee8f00c20b5b7bfce9168474ac97976be7d320517c1a2231",
+    "src/rtgs/lift/inverse_projection_fiber.py": "0a01ddea8be3b2e8d0bc9127dba662734f21bb0066f301e46387b8de823a95c1",
+    "tests/test_beam_fusion.py": "61d82c59432837241f722373ac77ccacf029b559f4a4d24410c09406b5e2f39e",
+    "tests/test_field_cli_integration.py": "040b9e4a6448f36fc49fd4c1863508dd86cf1980893ebcb18b6b57966fd0a8fe",
+    "tests/test_field_lifter.py": "c26d5946b78974de8aec30b3ad220764564582ff92eae4d2a8fd01aaefbccb54",
+    "tests/test_field_refit.py": "f9148dd0d6706133baecef1c2d723f9fdd7da1538a41677d0e1b4f1b25615088"
+  },
+  "full_cpu_command": "env -u PYTHONDONTWRITEBYTECODE CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 .venv/bin/python -m pytest -q --junitxml=/tmp/rtgs_tomography_full_cpu_final.xml",
+  "full_cpu": {
+    "total": 2013,
+    "passed": 1987,
+    "skipped": 24,
+    "failed": 2,
+    "failures": [
+      {
+        "test": "tests.test_experiment_contract::test_registered_three_arm_program_is_valid",
+        "message": "AssertionError: assert ['experiments...urce binding'] == []\n  \n  Left contains one more item: 'experiments/tasks/20260806_gaussian2d_image_refinement_janelle_frame00008.json: behavior-bearing source differs from the frozen prospective source binding'\n  Use -v to get more diff"
+      },
+      {
+        "test": "tests.test_janelle_image_experiment_protocol::test_exact_owner_selected_six_folder_matrix_is_frozen",
+        "message": "ValueError: task cell receipt policy does not match the executable semantics"
+      }
+    ]
+  },
+  "affected_contract_tests_passed": 155,
+  "affected_contract_test_modules": [
+    "test_beam_covariance_refit",
+    "test_beam_fusion",
+    "test_carrier_refinement",
+    "test_fiber_correspondence",
+    "test_field_cli_integration",
+    "test_field_lifter",
+    "test_field_loss",
+    "test_field_refit",
+    "test_inverse_projection_fiber",
+    "test_inverse_projection_fiber_iter3",
+    "test_probabilistic_field_pipeline"
+  ],
+  "protocol_audit": {
+    "baseline_commit": "2ebe52cc28a1b0e812a6c436d49225fac4ee943f",
+    "frozen_source_matches_baseline": false,
+    "frozen_source_file_count": 103,
+    "baseline_file_count": 106,
+    "changed_bound_paths": [
+      "src/rtgs/cli.py",
+      "src/rtgs/lift/beam_fusion.py",
+      "src/rtgs/lift/field_lifter.py",
+      "src/rtgs/lift/field_refit.py",
+      "src/rtgs/lift/inverse_projection_fiber.py"
+    ],
+    "protocol_file_unchanged": true,
+    "frozen_effective_config_matches_current": false,
+    "frozen_effective_config_matches_without_new_controls": true,
+    "new_refit_controls": [
+      "rgb_normalization",
+      "source_constraint",
+      "source_anchor_weight"
+    ]
+  },
+  "calibrated_execution_check": {
+    "purpose": "scratch pipeline integration only; no retained reconstruction metrics or model",
+    "scene": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_gaussianimage_fullres",
+    "training_views": [
+      "C0001",
+      "C0022",
+      "C1000"
+    ],
+    "heldout_views_opened": [],
+    "load_alpha": false,
+    "source_images_loaded": false,
+    "controls": {
+      "byte_cap": 8388608,
+      "placement_mode": "fixed_bounded_midpoint",
+      "compute_dtype": "float64",
+      "max_tracks": 3,
+      "target_component_cap": 16,
+      "validation_sample_cap": 8,
+      "mask_mode": "none",
+      "topology_rounds": 0,
+      "iterations": 2,
+      "appearance_start": 0,
+      "source_constraint": "soft",
+      "chunk_size": 8
+    },
+    "status": "passed"
+  },
+  "review": "self-reviewed; provisional; no independent acceptance",
+  "canonical_gate": {
+    "command": "env -u PYTHONDONTWRITEBYTECODE OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 ./scripts/verify.sh",
+    "exit_code": 1,
+    "stage": "CPU tests",
+    "failures": [
+      "tests.test_experiment_contract::test_registered_three_arm_program_is_valid",
+      "tests.test_janelle_image_experiment_protocol::test_exact_owner_selected_six_folder_matrix_is_frozen"
+    ],
+    "lint": "passed",
+    "format": "passed"
+  },
+  "separately_executed_structural_gates": {
+    "docs_sync": "passed",
+    "check_ara": "passed (42 claims)",
+    "check_script_layout": "passed",
+    "check_agent_workflow": "passed",
+    "experiment_contract_validate": "failed: preserved historical source binding differs",
+    "git_diff_check": "passed"
+  }
+}

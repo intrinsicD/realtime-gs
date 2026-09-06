@@ -1,0 +1,337 @@
+{
+  "schema_version": 1,
+  "task_id": "20260906_tomography_source_constraints_haelyn_dome",
+  "boundary": "Offline preparation and post-endpoint report-only files; none are reconstruction inputs.",
+  "files": [
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "bytes": 51752,
+      "sha256": "51b8fc396fc8447f24e325e0a525f2e7d422388790dd9a293e1a81804b265091"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0001.png",
+      "bytes": 145606,
+      "sha256": "94dcbf7005dbeb1d183e259a569d783aa5df900255e763385bed91f02d3b80c3"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0004.png",
+      "bytes": 117272,
+      "sha256": "4702bfa9df354f38e35a63207a37d4ec1b753afc4d0668bd905f3cdab320f35d"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0005.png",
+      "bytes": 121521,
+      "sha256": "43d49b20739b3247161f2e5d61fef63ba6551308665fc9d2e9f8a736f017a741"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0006.png",
+      "bytes": 108229,
+      "sha256": "030bba01a9d1481e7a458ba61fe37779ffbaec2f61911a248ac347e36cef46f2"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0008.png",
+      "bytes": 119275,
+      "sha256": "1555235ad716bfce6e2aec48a7f2dd98c9330fd3b5766bbbfb0746a63ea8956e"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0009.png",
+      "bytes": 101605,
+      "sha256": "d98a986333264550b41bd0421e88d8a977c74979f14ed1fcdf9fddb75a20e084"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0012.png",
+      "bytes": 118322,
+      "sha256": "0d743cac68b47c7f53c270b4a74b1869dba0c60114092fcb63358ee217471cd7"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0014.png",
+      "bytes": 101222,
+      "sha256": "801c46692f557b4a9e863d8d38bc598092b74f5a941192dda0c3dd820c9262cb"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0019.png",
+      "bytes": 85893,
+      "sha256": "43c53247fb697d850a179a6a7de5ee89b2b08caab48790ce669b05b064e574f4"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0022.png",
+      "bytes": 118404,
+      "sha256": "5951b2124784fbaafd8274d9ea1c3085b481860f4c18c6bb1101864b5f65359f"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0025.png",
+      "bytes": 89019,
+      "sha256": "cd98d051eaa0a74f4316335bd901735121f2a40cabb2b227944a11571d794368"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0028.png",
+      "bytes": 131675,
+      "sha256": "64ba54bb2f248df40f16df9624c71d403a24e5ff8221ade3c3b8a602a7786e4e"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0031.png",
+      "bytes": 99621,
+      "sha256": "c20f9c1a17c3b652967840a1d0b4223272371cd7d82083a4fc0b2375c7232a05"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C0037.png",
+      "bytes": 131630,
+      "sha256": "631b9fa799af945c9d3a4331728bdedff7609a804404c913fc5258f2c6f86e7f"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/mask/mask_C1001.png",
+      "bytes": 121872,
+      "sha256": "c354893036c2751bdc1ae2a6f506f6465a177abafc756a342f0f55cbbe3dff0f"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0001.jpg",
+      "bytes": 14268226,
+      "sha256": "ae24fe99d3f8edbd04cd2c85ebc4fe9bfd95abe878c22abb7691cadcfc5c411b"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0004.jpg",
+      "bytes": 14914857,
+      "sha256": "26eb4cf24a034eb830198df6e7a6ac409ccb7cf4814ff645c71d0b6966b7070e"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0005.jpg",
+      "bytes": 13997995,
+      "sha256": "2a4666e41688d4d66d5d1b1e12f4045556de56581c9c8caf88c85208f36ce15c"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0006.jpg",
+      "bytes": 15363205,
+      "sha256": "d61057641899878f37357fbaae2d1acfb8cbbe2f4c108f307b89b4e51f8d1f04"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0008.jpg",
+      "bytes": 13895234,
+      "sha256": "6c96cd772fd72bfd596ce9d3f588924c99167f783aa9cf0bd6a682bd223463f4"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0009.jpg",
+      "bytes": 14512725,
+      "sha256": "ebca961dacb7cb3009572373880e7b784da34b6f27c04b3b4e325cad3cea7358"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0012.jpg",
+      "bytes": 14344063,
+      "sha256": "7ec0df4004c1ba940220ef4d7bac6e7b73ed60065255be7e8d35157c804234a8"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0014.jpg",
+      "bytes": 14817975,
+      "sha256": "41b2397a6342953d253c0f695f68da1a7fdb879eee9912f9a0afbf0f1a371713"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0019.jpg",
+      "bytes": 14350777,
+      "sha256": "7009cd1006b7103a0f62471c6d89d0b6c5e14c72dbdb211d2e41d1ff017b857e"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0022.jpg",
+      "bytes": 14162095,
+      "sha256": "1bbdfcf2b80ef983ba83dfb166780116920a0e872e32f6de1f7e655bf9192473"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0025.jpg",
+      "bytes": 15848175,
+      "sha256": "5f0596d47f8aa518cca1d938f385576c92c17c53f68d6f2f348f3351cfd33aa0"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0028.jpg",
+      "bytes": 14143349,
+      "sha256": "70b09ecc55a47fa9f5e2c3182040951567144004271e69967b460e909950603f"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0031.jpg",
+      "bytes": 14852562,
+      "sha256": "62e3132fe11dfc6d73f34dfba0ea8ecd2ba48cc1f3655ed21f1f3ad644c9e010"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C0037.jpg",
+      "bytes": 14644974,
+      "sha256": "3846e809292b216739fd1512086ea81b098c4d77cc608744c340ec283d159f07"
+    },
+    {
+      "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/rgb/C1001.jpg",
+      "bytes": 13295147,
+      "sha256": "272bbf0a80e515546f8dee05f693c1d70d471c07fd38e974fb1612a8b3cce820"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/import_alignment.json",
+      "bytes": 1529,
+      "sha256": "d949016e6f7f684d75e0de9cb22866380694d52912211daf7ec993bde42122ab"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/calibration_dome.json",
+      "bytes": 15346,
+      "sha256": "f5f064d76e9a3ad919ed7d403d3a61a69ea9406cf2f99125533531ff539b6ec0"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0001.png",
+      "bytes": 1054,
+      "sha256": "a0b44e185c6c60a6360591af214e80464a095b8ae0331f2e0678ea2f1b90f3b2"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0002.png",
+      "bytes": 1051,
+      "sha256": "019b6ced81d39661780465c286c560490c1ac1b5326bfb7b7d9f6d6335864d30"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0003.png",
+      "bytes": 1031,
+      "sha256": "690f0050bb23c6500c2c3da110bdda8274b67ff4ce6f06185f5a8e5906b2a632"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0004.png",
+      "bytes": 1173,
+      "sha256": "bc4063f7b91b757ae0931621226f28fe57a0669e8d7e3d32a984150b83a69376"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0005.png",
+      "bytes": 1158,
+      "sha256": "8931c255ba472714dc6035b9ffbb3e8a8a60a519f3ee363207324251b993f052"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0006.png",
+      "bytes": 1126,
+      "sha256": "a1b686b964b18f984a1a8ae279bd047dc30e277fec7e65a6b4e60a62a1f6bbe3"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0007.png",
+      "bytes": 1100,
+      "sha256": "cf5a91f0a31df9359d4f1bba2a297a349d540ab0f2aafa04570a9ece2f96707d"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0008.png",
+      "bytes": 1117,
+      "sha256": "8cbb00a400aac6ffcd03f05472e5be3b943682e108af53ff05c563b6f7762e24"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0009.png",
+      "bytes": 1127,
+      "sha256": "f0754b491fd02a1b5b3d06bef92c3f2e92e407e9d7b7a32777e02670044aeb8b"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0010.png",
+      "bytes": 1121,
+      "sha256": "e77eab9c19dbede751e8f081820036b5b94d78da610a4e32121d13b5c3c8a840"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0011.png",
+      "bytes": 1087,
+      "sha256": "93918d8287386683c9cb00e9c7c3e7a58e47120f09f80a36015debb6b41e8984"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0012.png",
+      "bytes": 1079,
+      "sha256": "78a392bfbf062e203991b964368641311d33900e88bdfcb275c2d5bdfde6add0"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0013.png",
+      "bytes": 1139,
+      "sha256": "87c5b2790678e0f2625c64f72e8eaedfeafc7d0560566211ceeb5987058976a3"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0014.png",
+      "bytes": 1117,
+      "sha256": "9e70df91a22258e1957b7d521e22ccd93c499f373f8f52b9e725a00ee946fc85"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0015.png",
+      "bytes": 1034,
+      "sha256": "1893d60a3fbf5f6b75fae0e19e9405b4be2fff356ae1a47842da6f8e5f07239e"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/mask/mask_C0016.png",
+      "bytes": 1018,
+      "sha256": "d903f96dad259568f3edc72cdbf4a2dd366ca62fd307f7fc248804e9ce6a959f"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0001.jpg",
+      "bytes": 36615,
+      "sha256": "08f5791394f5019e01d53b8c3fcdd7c5000767fc4c549a4930a16ecc16f88c45"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0002.jpg",
+      "bytes": 37078,
+      "sha256": "3a85b9e66685d2a5dace7eba44adbbc89581a1d86da03d7a445327d74ae3a8aa"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0003.jpg",
+      "bytes": 35667,
+      "sha256": "da66e1b18e9a184861390961d1cfa2483699f986b166cdc5bca1a9721468fd35"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0004.jpg",
+      "bytes": 34426,
+      "sha256": "c469a8ff2d5d738d5c3f202ba45747e4215af6d72d05c45d4d9803a3ec5e1fca"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0005.jpg",
+      "bytes": 32444,
+      "sha256": "48a7a844f60303a9c944161807e816e15c55d1e4563a9fd8a9c843e7be8a0bb3"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0006.jpg",
+      "bytes": 31475,
+      "sha256": "c3dde94ffa8b650691da8d6055d93541439914308b83f1184bfc2212cd0c63b6"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0007.jpg",
+      "bytes": 32577,
+      "sha256": "566ab4b3045211d14f5965c74db8a914436a55eaf91308182e736e9a4920d294"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0008.jpg",
+      "bytes": 36366,
+      "sha256": "599f5d87350c72b8b0536737cc0d3bf2114e9a30670780b620bba8593f1ccfda"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0009.jpg",
+      "bytes": 38635,
+      "sha256": "f9d930bf6e2b757055ee6bf1fe8ec368ae89fbede0d88e4932090001fae56835"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0010.jpg",
+      "bytes": 37587,
+      "sha256": "d4e91caf47155be97be94a413f6c874cfb5cb4071e2940926e52f7d1d82492c1"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0011.jpg",
+      "bytes": 36102,
+      "sha256": "705ca22aabd8efb92944db55876e4653a2a973a38b41f47f090288027ae4d84d"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0012.jpg",
+      "bytes": 33274,
+      "sha256": "d25af7ca4dba346cd5e20ca86975d3a303a8b49861cc63c0a38f30212135e650"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0013.jpg",
+      "bytes": 30824,
+      "sha256": "83e2f8a8dd9d59dad1a889c225dacbfd5708baccc572ac58a43bc362a519c7f9"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0014.jpg",
+      "bytes": 29918,
+      "sha256": "af5c8d26f3ef57ff33cfd1b38e27224d83082a8d739809ef83445a19ed0ef4aa"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0015.jpg",
+      "bytes": 32112,
+      "sha256": "bde43bab02d68c0e178658433947fa5d661bb66fe079856af368b8421fab0e52"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/prepared/rgb/C0016.jpg",
+      "bytes": 34908,
+      "sha256": "9d24d1f412a0f4d32ee426a41c29bd42eb00f4a908021701b9a7cff01b9c9ac6"
+    },
+    {
+      "path": "dataset/external/haelyn_halfbody/reference_person.ply",
+      "bytes": 58614278,
+      "sha256": "b9ba7059bfce2a015e719ee4a0de3ea7dad111d7f4ae33d1ad2435e477d0b8c2"
+    }
+  ]
+}
