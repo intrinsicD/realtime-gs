@@ -1698,7 +1698,11 @@ def test_association_rollback_successor_preserves_cells_and_binds_failure_comple
     assert candidate.association is not None
     assert candidate.association.failure_policy == "rollback"
     assert native.association is None
-    assert (ROOT / "runs" / task["task_id"]).is_dir()
+    # Execution outputs are ignored local data; portable protocol checks bind the tracked
+    # historical result instead of requiring a particular machine's run directory.
+    result_path = ROOT / "benchmarks" / "results" / f"{task['task_id']}_RESULT.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["task_id"] == task["task_id"]
 
 
 def test_association_rollback_draft_to_ready_transition_preserves_protocol_digest() -> None:

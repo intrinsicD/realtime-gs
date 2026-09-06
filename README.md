@@ -46,6 +46,7 @@ on GPU; a pure-PyTorch reference rasterizer keeps the whole pipeline testable on
 
 ```bash
 python3 -m venv .venv
+.venv/bin/pip install torch==2.9.0 --index-url https://download.pytorch.org/whl/cpu
 .venv/bin/pip install -e '.[dev]' --extra-index-url https://download.pytorch.org/whl/cpu
 # On a GPU machine use a CUDA PyTorch wheel, then install .[cuda,depth,viewer,dev].
 

@@ -18,6 +18,9 @@ It executes, in order: `ruff check`, `ruff format --check`, a
 `python scripts/experiment_contract.py validate`. CI invokes this exact script, so a clean local
 run means the hosted verification sequence is aligned.
 
+CI installs `torch==2.9.0` before the project dependencies. Use the same release for the
+canonical CPU verification environment; the README setup command includes this pin.
+
 ## Interpreting failures
 
 - **ruff format**: run `.venv/bin/ruff format .` to fix, then re-verify.
