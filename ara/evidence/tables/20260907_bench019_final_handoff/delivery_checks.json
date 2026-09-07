@@ -1,0 +1,58 @@
+{
+  "schema": "rtgs.bench019.delivery_checks.v1",
+  "status": "passed",
+  "scope": "Completed bounded RTGS execution, scientific audit, shared report and actual viewer delivery; final metadata consistency checks follow independently.",
+  "checks": {
+    "independent_scientific_audit": "accepted_for_bounded_development",
+    "rtgs_full_verify_exit_code": 0,
+    "rtgs_check_run_exit_code": 0,
+    "rtgs_check_results_bundle_exit_code": 0,
+    "structsplat_report_exit_code": 0,
+    "browser_frames": 2,
+    "browser_local_targets_per_entry": 1380
+  },
+  "evidence": [
+    {
+      "path": "ara/evidence/tables/20260907_bench019_final_handoff/viewer_smoke.json",
+      "bytes": 4969,
+      "sha256": "a1e5857f3242deb473902b1538b4482fdea1f99addae5c3f36a289b04cd9a277"
+    },
+    {
+      "path": "ara/evidence/tables/20260907_bench019_final_handoff/browser_validation.json",
+      "bytes": 1268,
+      "sha256": "f4ab942a5c742a34966df618ff5b7fc71aa021b1fa75876fd9630e293f67f3d6"
+    },
+    {
+      "path": "ara/evidence/tables/20260907_bench019_final_handoff/report_link_publication.json",
+      "bytes": 2730,
+      "sha256": "6d1117492e02346098a05a619b2b3a25e283921a3d4c2e66cd2b9f0927fbb981"
+    },
+    {
+      "path": "ara/evidence/tables/20260907_bench019_final_handoff/check-run.log",
+      "bytes": 19,
+      "sha256": "5fa94a2da63da03570170fd891976d9c503ac38d9ffa9aa2a03919ceb0b6d591"
+    },
+    {
+      "path": "ara/evidence/tables/20260907_bench019_final_handoff/check-results-bundle.log",
+      "bytes": 80,
+      "sha256": "46fc5ce0ecc353924b81e7ae6e4ac4a30c7a2cb39e4af5cff565413dbc0737c0"
+    },
+    {
+      "path": "ara/evidence/tables/20260907_bench019_final_handoff/check-struct-report.log",
+      "bytes": 131,
+      "sha256": "1d0da37b1940b2b242c1dab1475595372130cd3e814b064d43cc9a9a92e08b1a"
+    },
+    {
+      "path": "ara/evidence/tables/20260907_bench019_final_handoff/verify-rtgs.log",
+      "bytes": 3928,
+      "sha256": "d22400284287cb054f00069a6c5b067ecabeb9f861ea84bb5a4636104b33056b"
+    }
+  ],
+  "limitations": [
+    "Neither normalized family satisfies the full two-frame materiality conjunction.",
+    "Struct general-surrogate decision remains question_unavailable.",
+    "CPU full verification uses torch2.9.0+cpu; CUDA scientific replay uses torch2.13.0+cu130.",
+    "Real viewer smoke uses software WebGL2 via SwiftShader; CUDA quality metrics were independently rerendered.",
+    "Earlier sandbox socket-test and report-link failures are preserved in temporary/run receipts; no scientific output was rewritten."
+  ]
+}

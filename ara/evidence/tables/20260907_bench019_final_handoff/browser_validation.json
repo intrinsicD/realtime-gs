@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "validator": "scripts.check_results_bundle._check_v2_viewer_smoke",
+  "viewer_smoke_sha256": "a1e5857f3242deb473902b1538b4482fdea1f99addae5c3f36a289b04cd9a277",
+  "harness_sha256": "53f3c22b5a42fdfd05ed98747d9cffa7efb35b6281dd9663ecffa7830a602300",
+  "entries": [
+    {
+      "frame": "frame_00008",
+      "nonbackground_pixels": 13901,
+      "blank_pixels": 0,
+      "camera_delta": 2.4037940146478163,
+      "checked_local_targets": 1380,
+      "report_page_url": "http://127.0.0.1:8765/datasets/frame_00008/index.html",
+      "parent_report_page": {
+        "url": "http://127.0.0.1:8765/index.html",
+        "ready": true,
+        "title": "Matched local Stage-1 families through fixed ray sweep and CUDA 3D refinement",
+        "body": 326807
+      },
+      "classified_warnings": 6
+    },
+    {
+      "frame": "frame_00009",
+      "nonbackground_pixels": 16409,
+      "blank_pixels": 0,
+      "camera_delta": 2.182523986572372,
+      "checked_local_targets": 1380,
+      "report_page_url": "http://127.0.0.1:8765/datasets/frame_00009/index.html",
+      "parent_report_page": null,
+      "classified_warnings": 6
+    }
+  ],
+  "server_cleanup": "Owned report server, viewers, Chromium processes, and temporary profiles stopped/removed"
+}

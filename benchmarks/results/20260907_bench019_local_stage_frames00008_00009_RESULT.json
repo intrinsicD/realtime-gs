@@ -1,0 +1,987 @@
+{
+  "aa_replay": {
+    "checks": [
+      {
+        "absolute_delta": 0.0007608098915063977,
+        "family": "native_additive",
+        "metric": "heldout_foreground_psnr",
+        "tolerance": 0.05
+      },
+      {
+        "absolute_delta": 4.528828270577989e-05,
+        "family": "native_additive",
+        "metric": "heldout_alpha_iou",
+        "tolerance": 0.01
+      },
+      {
+        "absolute_delta": 0.005841466801904005,
+        "family": "structsplat_contained",
+        "metric": "heldout_foreground_psnr",
+        "tolerance": 0.05
+      },
+      {
+        "absolute_delta": 0.00017983266456378377,
+        "family": "structsplat_contained",
+        "metric": "heldout_alpha_iou",
+        "tolerance": 0.01
+      }
+    ],
+    "status": "passed"
+  },
+  "audit_status": "pending_independent_audit",
+  "bench019": {
+    "assembly": {
+      "bytes": 13185,
+      "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/bench019/assembly.json",
+      "sha256": "1600b3dbf035b37b8789cc9669258951669f7eaa087a3f9997545d5b0ae03367"
+    },
+    "cell_count": 19,
+    "contained_aa": "additional diagnostic, outside protocol rows",
+    "rows": {
+      "bytes": 50121,
+      "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/bench019/rows.jsonl",
+      "sha256": "25b2d271aadedcfa0049d0da0b8ab9aa4a2ae57b89e4301bc95006e2569eb26d"
+    }
+  },
+  "cells": [
+    {
+      "evaluation": {
+        "bytes": 4914,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19001_primary/evaluation/evaluation.json",
+        "sha256": "8587f983b7eeb72385640c9f9cacfe45644b661e45319fea1b83279cd93954fa"
+      },
+      "family_id": "native_additive",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3840,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19001_primary/receipt.json",
+        "sha256": "b093a21f26d62c62eb2cbf2114e51f2035c6e5886e24824af5018a42327e673e"
+      },
+      "replicate": "primary",
+      "seed": 19001
+    },
+    {
+      "evaluation": {
+        "bytes": 4914,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19002_primary/evaluation/evaluation.json",
+        "sha256": "a790013da3134dfb447dd7cd327bcb9467af2c0457b11752272eb2458ce2256f"
+      },
+      "family_id": "native_additive",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3841,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19002_primary/receipt.json",
+        "sha256": "06c3305168ae3cd6adc5abe80765755f27b284f86adf58a532e1f83a45dcec4d"
+      },
+      "replicate": "primary",
+      "seed": 19002
+    },
+    {
+      "evaluation": {
+        "bytes": 4918,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19003_primary/evaluation/evaluation.json",
+        "sha256": "b410a85ca7e99c34ed550eaef76392fe18e483563960227e8d465047b4aa3284"
+      },
+      "family_id": "native_additive",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3841,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19003_primary/receipt.json",
+        "sha256": "9e4771dd138e8dd980adabe1a584d832a4af267efca8dc19436c6a39f785a0a7"
+      },
+      "replicate": "primary",
+      "seed": 19003
+    },
+    {
+      "evaluation": {
+        "bytes": 4928,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_normalized/seed_19001_primary/evaluation/evaluation.json",
+        "sha256": "9d5833e5e5a5654b4fa83cd4521f32768756895e92158d4dd1c0c8bfc62601b0"
+      },
+      "family_id": "structsplat_normalized",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3871,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_normalized/seed_19001_primary/receipt.json",
+        "sha256": "887013759259bab00239bee0c85cb62dcd7056923f3e401f11ac12cb96177c53"
+      },
+      "replicate": "primary",
+      "seed": 19001
+    },
+    {
+      "evaluation": {
+        "bytes": 4928,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_normalized/seed_19002_primary/evaluation/evaluation.json",
+        "sha256": "1c0bf9ce0134d7b25d1e5684241d780537b60866fd5e4d088f5fa514081105b9"
+      },
+      "family_id": "structsplat_normalized",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3868,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_normalized/seed_19002_primary/receipt.json",
+        "sha256": "03541de808097d9e5f7cb413b124e45ea8ba9ce79b22a1b2cae56bfb9c1635d7"
+      },
+      "replicate": "primary",
+      "seed": 19002
+    },
+    {
+      "evaluation": {
+        "bytes": 4931,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_normalized/seed_19003_primary/evaluation/evaluation.json",
+        "sha256": "34fe88a45cb01814d60ef54c0cf77197d11b5e1644819990a05b96d968fe819c"
+      },
+      "family_id": "structsplat_normalized",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3870,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_normalized/seed_19003_primary/receipt.json",
+        "sha256": "9dd94b3dd969d2c4352b312f652be0fe4cfc4b861fbf496590d26a1ad52f2db0"
+      },
+      "replicate": "primary",
+      "seed": 19003
+    },
+    {
+      "evaluation": {
+        "bytes": 4925,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_contained/seed_19001_primary/evaluation/evaluation.json",
+        "sha256": "a82363069221d103336adb30d536393ec8ef543537e2b026636f434db732a2ae"
+      },
+      "family_id": "structsplat_contained",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3869,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_contained/seed_19001_primary/receipt.json",
+        "sha256": "7931e2c22cd0ff518041a113ff23b58c278d206a275d547e7aefe12f6e5ad8df"
+      },
+      "replicate": "primary",
+      "seed": 19001
+    },
+    {
+      "evaluation": {
+        "bytes": 4931,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_contained/seed_19002_primary/evaluation/evaluation.json",
+        "sha256": "abc665b1d3cf6e4d80bf72f02e798708784ef2d51b58cae777317b3271ac1f00"
+      },
+      "family_id": "structsplat_contained",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3867,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_contained/seed_19002_primary/receipt.json",
+        "sha256": "a3d99892eddcf27da5892204dace9eddb77060011cfeac09d844da14321629ca"
+      },
+      "replicate": "primary",
+      "seed": 19002
+    },
+    {
+      "evaluation": {
+        "bytes": 4927,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_contained/seed_19003_primary/evaluation/evaluation.json",
+        "sha256": "4b35f826a20a55e047ed2dd6ed1f79dbf59f11aac7ec089edddd30934591e17e"
+      },
+      "family_id": "structsplat_contained",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3868,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_contained/seed_19003_primary/receipt.json",
+        "sha256": "9bca9c077a5dbbbcd57d70b246bcdae421453f913b0e56666876656e599240e6"
+      },
+      "replicate": "primary",
+      "seed": 19003
+    },
+    {
+      "evaluation": {
+        "bytes": 4915,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/native_additive/seed_19001_primary/evaluation/evaluation.json",
+        "sha256": "00678f18617df7843fc9fcb59ae18aa6de26a9ca66f6f53f2baeac0c850d84c3"
+      },
+      "family_id": "native_additive",
+      "frame_id": "frame_00009",
+      "receipt": {
+        "bytes": 3840,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/native_additive/seed_19001_primary/receipt.json",
+        "sha256": "fae61ec06f294e250cfbd6219fbf9560948bf9e08a636831f9fa96a75145df80"
+      },
+      "replicate": "primary",
+      "seed": 19001
+    },
+    {
+      "evaluation": {
+        "bytes": 4913,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/native_additive/seed_19002_primary/evaluation/evaluation.json",
+        "sha256": "f5ae2bf74cc87f5883d1ae1942873bba35ae4f4cb90f57add6e51c02428cdb09"
+      },
+      "family_id": "native_additive",
+      "frame_id": "frame_00009",
+      "receipt": {
+        "bytes": 3839,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/native_additive/seed_19002_primary/receipt.json",
+        "sha256": "458d8937d095da437e00366c27c6b92b51fc024c3fd80a886d494af24e5c0537"
+      },
+      "replicate": "primary",
+      "seed": 19002
+    },
+    {
+      "evaluation": {
+        "bytes": 4916,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/native_additive/seed_19003_primary/evaluation/evaluation.json",
+        "sha256": "0f2541dc9e83440e87ce9f069573385b3390164769b9dc09e6979a44395cab7b"
+      },
+      "family_id": "native_additive",
+      "frame_id": "frame_00009",
+      "receipt": {
+        "bytes": 3839,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/native_additive/seed_19003_primary/receipt.json",
+        "sha256": "85db32d4a28734474a79b7a254e1ae9d7143ea0e4891829d79265646e76a3044"
+      },
+      "replicate": "primary",
+      "seed": 19003
+    },
+    {
+      "evaluation": {
+        "bytes": 4928,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_normalized/seed_19001_primary/evaluation/evaluation.json",
+        "sha256": "0b31ec31c66b318dbf71304d7357f88fcb23066bf154675cf26975a441d4255f"
+      },
+      "family_id": "structsplat_normalized",
+      "frame_id": "frame_00009",
+      "receipt": {
+        "bytes": 3871,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_normalized/seed_19001_primary/receipt.json",
+        "sha256": "4e352016ebe6daf5f650473834049dee3b0c8d6ae202efad5f7da4fca31bd0ba"
+      },
+      "replicate": "primary",
+      "seed": 19001
+    },
+    {
+      "evaluation": {
+        "bytes": 4934,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_normalized/seed_19002_primary/evaluation/evaluation.json",
+        "sha256": "7f921d014763a5b64697e7ce062096404cf8495dd48b4f2a50f002c85e1c88c9"
+      },
+      "family_id": "structsplat_normalized",
+      "frame_id": "frame_00009",
+      "receipt": {
+        "bytes": 3870,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_normalized/seed_19002_primary/receipt.json",
+        "sha256": "96d10f5e900b6434c53abba625f67f6266c8a090e5d7fdada99f993fe92573f8"
+      },
+      "replicate": "primary",
+      "seed": 19002
+    },
+    {
+      "evaluation": {
+        "bytes": 4932,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_normalized/seed_19003_primary/evaluation/evaluation.json",
+        "sha256": "24bf5eabe46cfc2b3230dd357e1764bc16dd1819e6c9b42717e3023c974deff5"
+      },
+      "family_id": "structsplat_normalized",
+      "frame_id": "frame_00009",
+      "receipt": {
+        "bytes": 3873,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_normalized/seed_19003_primary/receipt.json",
+        "sha256": "0c19b906e8ec16a753efcce0d55f949093ded9ee519df5eb6c4d7912eb8c2472"
+      },
+      "replicate": "primary",
+      "seed": 19003
+    },
+    {
+      "evaluation": {
+        "bytes": 4926,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_contained/seed_19001_primary/evaluation/evaluation.json",
+        "sha256": "c202b9222e38b07fbeee2b6dc59bcbfed6f85f271929029525acaea2121c7171"
+      },
+      "family_id": "structsplat_contained",
+      "frame_id": "frame_00009",
+      "receipt": {
+        "bytes": 3869,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_contained/seed_19001_primary/receipt.json",
+        "sha256": "c2ddf92538ea1ffbf1c072d27f565221c88ff9e02d495410d27578dfc66af698"
+      },
+      "replicate": "primary",
+      "seed": 19001
+    },
+    {
+      "evaluation": {
+        "bytes": 4929,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_contained/seed_19002_primary/evaluation/evaluation.json",
+        "sha256": "d2df39697f673d81c07bb2c54101ffa3887013eac24b8a3cbae0bc522ce0f134"
+      },
+      "family_id": "structsplat_contained",
+      "frame_id": "frame_00009",
+      "receipt": {
+        "bytes": 3868,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_contained/seed_19002_primary/receipt.json",
+        "sha256": "9d11198a22e66866b5f21946e75a64dcbca7a7f8847d27f07d20589be34a6386"
+      },
+      "replicate": "primary",
+      "seed": 19002
+    },
+    {
+      "evaluation": {
+        "bytes": 4929,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_contained/seed_19003_primary/evaluation/evaluation.json",
+        "sha256": "59f0e8ff5938c323ef65dc3650e1a74020546a6c4a4c51a65180dafcb9f62cf4"
+      },
+      "family_id": "structsplat_contained",
+      "frame_id": "frame_00009",
+      "receipt": {
+        "bytes": 3866,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/structsplat_contained/seed_19003_primary/receipt.json",
+        "sha256": "105cd32eaf7ed3e7d48d923d58532bd66c0cb602385a143984d787010eca5205"
+      },
+      "replicate": "primary",
+      "seed": 19003
+    },
+    {
+      "evaluation": {
+        "bytes": 4914,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19001_aa/evaluation/evaluation.json",
+        "sha256": "ed4da2dc7cb3bc0665c78bd8cf05d51c60213e7a3233e074b6139db30f7ceaea"
+      },
+      "family_id": "native_additive",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3840,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19001_aa/receipt.json",
+        "sha256": "308ca5404c5b4587f8d8e0e840f57fdc3ea39296b1981ab15895d92fc0588ad2"
+      },
+      "replicate": "aa",
+      "seed": 19001
+    },
+    {
+      "evaluation": {
+        "bytes": 4919,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_contained/seed_19001_aa/evaluation/evaluation.json",
+        "sha256": "953c33df67929849d3873dae225786688141cf765e38258ce84ee5e7f6cd191b"
+      },
+      "family_id": "structsplat_contained",
+      "frame_id": "frame_00008",
+      "receipt": {
+        "bytes": 3868,
+        "path": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/structsplat_contained/seed_19001_aa/receipt.json",
+        "sha256": "e80972a63564c1863ffff297f0f61808a3707de0952e316513bcba542815d43f"
+      },
+      "replicate": "aa",
+      "seed": 19001
+    }
+  ],
+  "claim_boundary": "Workload-specific development only: two previously exposed frames from one capture. Compare specified fitting families, not compositor equations in isolation. No general surrogate, default, novel lifter, compression-ratio, compact-only VRAM or Original-3DGS claim. Timings are exploratory under any GPU contention; shared Stage-1 acquisition is charged once and not treated as three independent fitting-time measurements. Frame00009 is within-capture consistency, not an independent replication. A null result is bounded to this fixed 256-row SH0 horizon and is not evidence of family equivalence.",
+  "execution_status": "completed",
+  "groups": [
+    {
+      "family_id": "native_additive",
+      "frame_id": "frame_00008",
+      "metrics": {
+        "evaluation_seconds": 1.5196120371110737,
+        "field_bytes": 170110,
+        "final_gaussians": 256,
+        "heldout_alpha_iou": 0.7942460571261055,
+        "heldout_exterior_leakage": 0.02323631287427358,
+        "heldout_foreground_psnr": 20.761808321796828,
+        "lift_seconds": 0.28917965199798346,
+        "peak_cuda_allocated_bytes": 76897280,
+        "refine_seconds": 4.969365472905338,
+        "wall_seconds": 8.455516909947619
+      },
+      "seeds": [
+        {
+          "metrics": {
+            "evaluation_seconds": 1.5382765599060804,
+            "field_bytes": 170110,
+            "field_load_seconds": 0.021425142884254456,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.7932320814434487,
+            "heldout_exterior_leakage": 0.023422495809686455,
+            "heldout_foreground_psnr": 20.748060548773882,
+            "lift_seconds": 0.39140793099068105,
+            "peak_cuda_allocated_bytes": 76897280,
+            "peak_cuda_reserved_bytes": 104857600,
+            "refine_seconds": 7.51302468101494,
+            "rgb_load_seconds": 3.285235421033576,
+            "wall_seconds": 11.215642181923613
+          },
+          "seed": 19001
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.465940484078601,
+            "field_bytes": 170110,
+            "field_load_seconds": 0.014460834907367826,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.796493820531411,
+            "heldout_exterior_leakage": 0.023108642052082583,
+            "heldout_foreground_psnr": 20.71505852417957,
+            "lift_seconds": 0.26846407097764313,
+            "peak_cuda_allocated_bytes": 76898816,
+            "peak_cuda_reserved_bytes": 104857600,
+            "refine_seconds": 4.8337041169870645,
+            "rgb_load_seconds": 3.169833173044026,
+            "wall_seconds": 8.289989794837311
+          },
+          "seed": 19002
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.5196120371110737,
+            "field_bytes": 170110,
+            "field_load_seconds": 0.014469753950834274,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.7930122694034569,
+            "heldout_exterior_leakage": 0.023177800761051696,
+            "heldout_foreground_psnr": 20.822305892437026,
+            "lift_seconds": 0.28917965199798346,
+            "peak_cuda_allocated_bytes": 76897280,
+            "peak_cuda_reserved_bytes": 104857600,
+            "refine_seconds": 4.969365472905338,
+            "rgb_load_seconds": 3.1789235931355506,
+            "wall_seconds": 8.455516909947619
+          },
+          "seed": 19003
+        }
+      ]
+    },
+    {
+      "family_id": "structsplat_normalized",
+      "frame_id": "frame_00008",
+      "metrics": {
+        "evaluation_seconds": 1.511718263849616,
+        "field_bytes": 159280,
+        "final_gaussians": 256,
+        "heldout_alpha_iou": 0.7281345477885192,
+        "heldout_exterior_leakage": 0.03590238338404955,
+        "heldout_foreground_psnr": 17.909545033480995,
+        "lift_seconds": 0.265984064899385,
+        "peak_cuda_allocated_bytes": 76964864,
+        "refine_seconds": 4.877648432040587,
+        "wall_seconds": 8.33438214706257
+      },
+      "seeds": [
+        {
+          "metrics": {
+            "evaluation_seconds": 1.495726911118254,
+            "field_bytes": 159280,
+            "field_load_seconds": 0.014917257940396667,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.712717533351419,
+            "heldout_exterior_leakage": 0.03666393984869392,
+            "heldout_foreground_psnr": 16.996609497896248,
+            "lift_seconds": 0.2996325269341469,
+            "peak_cuda_allocated_bytes": 76964864,
+            "peak_cuda_reserved_bytes": 104857600,
+            "refine_seconds": 4.991646744078025,
+            "rgb_load_seconds": 3.2437927001155913,
+            "wall_seconds": 8.553607836831361
+          },
+          "seed": 19001
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.511718263849616,
+            "field_bytes": 159280,
+            "field_load_seconds": 0.01436550309881568,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.731247142567979,
+            "heldout_exterior_leakage": 0.035694450596898,
+            "heldout_foreground_psnr": 18.421473726205768,
+            "lift_seconds": 0.265984064899385,
+            "peak_cuda_allocated_bytes": 76957696,
+            "peak_cuda_reserved_bytes": 104857600,
+            "refine_seconds": 4.877648432040587,
+            "rgb_load_seconds": 3.1727699090261012,
+            "wall_seconds": 8.33438214706257
+          },
+          "seed": 19002
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.5180829879827797,
+            "field_bytes": 159280,
+            "field_load_seconds": 0.014729294925928116,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.7404389674461597,
+            "heldout_exterior_leakage": 0.03534875970655673,
+            "heldout_foreground_psnr": 18.31055187634097,
+            "lift_seconds": 0.25589428609237075,
+            "peak_cuda_allocated_bytes": 76983296,
+            "peak_cuda_reserved_bytes": 104857600,
+            "refine_seconds": 4.700511303031817,
+            "rgb_load_seconds": 3.13460277300328,
+            "wall_seconds": 8.109361556125805
+          },
+          "seed": 19003
+        }
+      ]
+    },
+    {
+      "family_id": "structsplat_contained",
+      "frame_id": "frame_00008",
+      "metrics": {
+        "evaluation_seconds": 1.5021510398946702,
+        "field_bytes": 149222,
+        "final_gaussians": 256,
+        "heldout_alpha_iou": 0.7901587576790189,
+        "heldout_exterior_leakage": 0.024206464558271794,
+        "heldout_foreground_psnr": 21.658523680114314,
+        "lift_seconds": 0.16303059388883412,
+        "peak_cuda_allocated_bytes": 76904960,
+        "refine_seconds": 4.921306234085932,
+        "wall_seconds": 8.241983165964484
+      },
+      "seeds": [
+        {
+          "metrics": {
+            "evaluation_seconds": 1.5257300089579076,
+            "field_bytes": 149222,
+            "field_load_seconds": 0.014846009202301502,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.7949106160230389,
+            "heldout_exterior_leakage": 0.0237112737523984,
+            "heldout_foreground_psnr": 21.738572266077366,
+            "lift_seconds": 0.16303059388883412,
+            "peak_cuda_allocated_bytes": 76904960,
+            "peak_cuda_reserved_bytes": 104857600,
+            "refine_seconds": 5.372477410826832,
+            "rgb_load_seconds": 3.2244023180101067,
+            "wall_seconds": 8.778399761067703
+          },
+          "seed": 19001
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.5021510398946702,
+            "field_bytes": 149222,
+            "field_load_seconds": 0.01424025185406208,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.7829701793497478,
+            "heldout_exterior_leakage": 0.02501623115736458,
+            "heldout_foreground_psnr": 21.701862017373248,
+            "lift_seconds": 0.19184698606841266,
+            "peak_cuda_allocated_bytes": 76908032,
+            "peak_cuda_reserved_bytes": 104857600,
+            "refine_seconds": 4.672683326061815,
+            "rgb_load_seconds": 3.153643755009398,
+            "wall_seconds": 8.035915216896683
+          },
+          "seed": 19002
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.4962753921281546,
+            "field_bytes": 149222,
+            "field_load_seconds": 0.01443376182578504,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.7925954776642699,
+            "heldout_exterior_leakage": 0.0238918887650524,
+            "heldout_foreground_psnr": 21.535136756892324,
+            "lift_seconds": 0.14516200800426304,
+            "peak_cuda_allocated_bytes": 76903936,
+            "peak_cuda_reserved_bytes": 104857600,
+            "refine_seconds": 4.921306234085932,
+            "rgb_load_seconds": 3.1575811959337443,
+            "wall_seconds": 8.241983165964484
+          },
+          "seed": 19003
+        }
+      ]
+    },
+    {
+      "family_id": "native_additive",
+      "frame_id": "frame_00009",
+      "metrics": {
+        "evaluation_seconds": 1.487549444194883,
+        "field_bytes": 170325,
+        "final_gaussians": 256,
+        "heldout_alpha_iou": 0.8080213384808322,
+        "heldout_exterior_leakage": 0.021789161734298724,
+        "heldout_foreground_psnr": 22.345109015324777,
+        "lift_seconds": 0.2792768348008394,
+        "peak_cuda_allocated_bytes": 81076224,
+        "refine_seconds": 4.880686109885573,
+        "wall_seconds": 8.386337165953591
+      },
+      "seeds": [
+        {
+          "metrics": {
+            "evaluation_seconds": 1.4866374810226262,
+            "field_bytes": 170325,
+            "field_load_seconds": 0.014693843899294734,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.802867532724567,
+            "heldout_exterior_leakage": 0.02362213577757763,
+            "heldout_foreground_psnr": 22.666885651798143,
+            "lift_seconds": 0.3088394128717482,
+            "peak_cuda_allocated_bytes": 81076224,
+            "peak_cuda_reserved_bytes": 125829120,
+            "refine_seconds": 4.880686109885573,
+            "rgb_load_seconds": 3.1785058199893683,
+            "wall_seconds": 8.386337165953591
+          },
+          "seed": 19001
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.4977898770011961,
+            "field_bytes": 170325,
+            "field_load_seconds": 0.014589952072128654,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.8104336932625312,
+            "heldout_exterior_leakage": 0.020708857326055544,
+            "heldout_foreground_psnr": 22.387568482013176,
+            "lift_seconds": 0.2792768348008394,
+            "peak_cuda_allocated_bytes": 81090560,
+            "peak_cuda_reserved_bytes": 125829120,
+            "refine_seconds": 4.691934881033376,
+            "rgb_load_seconds": 3.139487713109702,
+            "wall_seconds": 8.128858908079565
+          },
+          "seed": 19002
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.487549444194883,
+            "field_bytes": 170325,
+            "field_load_seconds": 0.014423280023038387,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.8107627894553984,
+            "heldout_exterior_leakage": 0.021036492099262994,
+            "heldout_foreground_psnr": 21.98087291216301,
+            "lift_seconds": 0.2649255071301013,
+            "peak_cuda_allocated_bytes": 81058816,
+            "peak_cuda_reserved_bytes": 125829120,
+            "refine_seconds": 4.982191669056192,
+            "rgb_load_seconds": 3.164312300970778,
+            "wall_seconds": 8.429389343131334
+          },
+          "seed": 19003
+        }
+      ]
+    },
+    {
+      "family_id": "structsplat_normalized",
+      "frame_id": "frame_00009",
+      "metrics": {
+        "evaluation_seconds": 1.5188186019659042,
+        "field_bytes": 159643,
+        "final_gaussians": 256,
+        "heldout_alpha_iou": 0.7483875329891378,
+        "heldout_exterior_leakage": 0.030568232155604922,
+        "heldout_foreground_psnr": 19.6367724601976,
+        "lift_seconds": 0.29916049214079976,
+        "peak_cuda_allocated_bytes": 81197056,
+        "refine_seconds": 4.872494351118803,
+        "wall_seconds": 8.350012854207307
+      },
+      "seeds": [
+        {
+          "metrics": {
+            "evaluation_seconds": 1.516833100002259,
+            "field_bytes": 159643,
+            "field_load_seconds": 0.014330071164295077,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.7494998510888088,
+            "heldout_exterior_leakage": 0.03025999284964433,
+            "heldout_foreground_psnr": 19.614462519229754,
+            "lift_seconds": 0.2935925479978323,
+            "peak_cuda_allocated_bytes": 81197056,
+            "peak_cuda_reserved_bytes": 125829120,
+            "refine_seconds": 4.817225236911327,
+            "rgb_load_seconds": 3.1620519279967993,
+            "wall_seconds": 8.290736210998148
+          },
+          "seed": 19001
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.6584101121407002,
+            "field_bytes": 159643,
+            "field_load_seconds": 0.014576241141185164,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.7401723044640972,
+            "heldout_exterior_leakage": 0.031681480779045146,
+            "heldout_foreground_psnr": 19.884205936427435,
+            "lift_seconds": 0.32920118095353246,
+            "peak_cuda_allocated_bytes": 81194496,
+            "peak_cuda_reserved_bytes": 125829120,
+            "refine_seconds": 4.872494351118803,
+            "rgb_load_seconds": 3.13006672100164,
+            "wall_seconds": 8.350012854207307
+          },
+          "seed": 19002
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.5188186019659042,
+            "field_bytes": 159643,
+            "field_load_seconds": 0.014381739078089595,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.7554904434145077,
+            "heldout_exterior_leakage": 0.029763222838125294,
+            "heldout_foreground_psnr": 19.411648924935616,
+            "lift_seconds": 0.29916049214079976,
+            "peak_cuda_allocated_bytes": 81201664,
+            "peak_cuda_reserved_bytes": 125829120,
+            "refine_seconds": 4.9996497998945415,
+            "rgb_load_seconds": 3.1628432038705796,
+            "wall_seconds": 8.479672072920948
+          },
+          "seed": 19003
+        }
+      ]
+    },
+    {
+      "family_id": "structsplat_contained",
+      "frame_id": "frame_00009",
+      "metrics": {
+        "evaluation_seconds": 1.5104612889699638,
+        "field_bytes": 149058,
+        "final_gaussians": 256,
+        "heldout_alpha_iou": 0.8138856435864754,
+        "heldout_exterior_leakage": 0.021352538070998222,
+        "heldout_foreground_psnr": 22.65793474776844,
+        "lift_seconds": 0.1507840221747756,
+        "peak_cuda_allocated_bytes": 81089024,
+        "refine_seconds": 4.853239588206634,
+        "wall_seconds": 8.300844037905335
+      },
+      "seeds": [
+        {
+          "metrics": {
+            "evaluation_seconds": 1.499967087060213,
+            "field_bytes": 149058,
+            "field_load_seconds": 0.014562022173777223,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.8186965525502231,
+            "heldout_exterior_leakage": 0.02038932273747003,
+            "heldout_foreground_psnr": 22.428502029502976,
+            "lift_seconds": 0.14497063704766333,
+            "peak_cuda_allocated_bytes": 81089024,
+            "peak_cuda_reserved_bytes": 125829120,
+            "refine_seconds": 4.702924408949912,
+            "rgb_load_seconds": 3.1299230691511184,
+            "wall_seconds": 7.995917855063453
+          },
+          "seed": 19001
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.5104612889699638,
+            "field_bytes": 149058,
+            "field_load_seconds": 0.014960364904254675,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.8112496981353897,
+            "heldout_exterior_leakage": 0.021671814051045193,
+            "heldout_foreground_psnr": 23.026194084148017,
+            "lift_seconds": 0.1626333820167929,
+            "peak_cuda_allocated_bytes": 81102848,
+            "peak_cuda_reserved_bytes": 125829120,
+            "refine_seconds": 4.853239588206634,
+            "rgb_load_seconds": 3.2663383348844945,
+            "wall_seconds": 8.300844037905335
+          },
+          "seed": 19002
+        },
+        {
+          "metrics": {
+            "evaluation_seconds": 1.5287669459357858,
+            "field_bytes": 149058,
+            "field_load_seconds": 0.014334238832816482,
+            "final_gaussians": 256,
+            "heldout_alpha_iou": 0.8117106800738135,
+            "heldout_exterior_leakage": 0.02199647742447944,
+            "heldout_foreground_psnr": 22.519108129654327,
+            "lift_seconds": 0.1507840221747756,
+            "peak_cuda_allocated_bytes": 81076224,
+            "peak_cuda_reserved_bytes": 125829120,
+            "refine_seconds": 5.00828272709623,
+            "rgb_load_seconds": 3.171864210162312,
+            "wall_seconds": 8.348798464983702
+          },
+          "seed": 19003
+        }
+      ]
+    }
+  ],
+  "initializer_diagnostics": [
+    {
+      "above_25_percent": true,
+      "fractions": {
+        "native_additive": 0.18359375,
+        "structsplat_contained": 0.06640625,
+        "structsplat_normalized": 0.4609375
+      },
+      "frame_id": "frame_00008",
+      "seed": 19001,
+      "spread_above_10_percentage_points": true
+    },
+    {
+      "above_25_percent": true,
+      "fractions": {
+        "native_additive": 0.17578125,
+        "structsplat_contained": 0.05859375,
+        "structsplat_normalized": 0.50390625
+      },
+      "frame_id": "frame_00008",
+      "seed": 19002,
+      "spread_above_10_percentage_points": true
+    },
+    {
+      "above_25_percent": true,
+      "fractions": {
+        "native_additive": 0.1640625,
+        "structsplat_contained": 0.06640625,
+        "structsplat_normalized": 0.49609375
+      },
+      "frame_id": "frame_00008",
+      "seed": 19003,
+      "spread_above_10_percentage_points": true
+    },
+    {
+      "above_25_percent": true,
+      "fractions": {
+        "native_additive": 0.1953125,
+        "structsplat_contained": 0.0390625,
+        "structsplat_normalized": 0.48828125
+      },
+      "frame_id": "frame_00009",
+      "seed": 19001,
+      "spread_above_10_percentage_points": true
+    },
+    {
+      "above_25_percent": true,
+      "fractions": {
+        "native_additive": 0.1796875,
+        "structsplat_contained": 0.0390625,
+        "structsplat_normalized": 0.47265625
+      },
+      "frame_id": "frame_00009",
+      "seed": 19002,
+      "spread_above_10_percentage_points": true
+    },
+    {
+      "above_25_percent": true,
+      "fractions": {
+        "native_additive": 0.20703125,
+        "structsplat_contained": 0.0546875,
+        "structsplat_normalized": 0.48828125
+      },
+      "frame_id": "frame_00009",
+      "seed": 19003,
+      "spread_above_10_percentage_points": true
+    }
+  ],
+  "paired_comparisons": [
+    {
+      "baseline": "native_additive",
+      "family_id": "structsplat_normalized",
+      "frames": [
+        {
+          "frame_id": "frame_00008",
+          "mean_alpha_iou_delta": -0.06611150933758636,
+          "mean_psnr_delta_db": -2.852263288315831,
+          "meets_frozen_materiality_rule": false,
+          "paired_alpha_iou_deltas": [
+            -0.08051454809202974,
+            -0.06524667796343209,
+            -0.05257330195729726
+          ],
+          "paired_psnr_deltas_db": [
+            -3.751451050877634,
+            -2.2935847979738035,
+            -2.511754016096056
+          ],
+          "paired_psnr_max_db": -2.2935847979738035,
+          "paired_psnr_min_db": -3.751451050877634,
+          "paired_psnr_std_db": 0.786322723943353,
+          "seeds": [
+            19001,
+            19002,
+            19003
+          ]
+        },
+        {
+          "frame_id": "frame_00009",
+          "mean_alpha_iou_delta": -0.059633805491694315,
+          "mean_psnr_delta_db": -2.7083365551271754,
+          "meets_frozen_materiality_rule": false,
+          "paired_alpha_iou_deltas": [
+            -0.053367681635758224,
+            -0.07026138879843402,
+            -0.05527234604089071
+          ],
+          "paired_psnr_deltas_db": [
+            -3.0524231325683893,
+            -2.503362545585741,
+            -2.569223987227396
+          ],
+          "paired_psnr_max_db": -2.503362545585741,
+          "paired_psnr_min_db": -3.0524231325683893,
+          "paired_psnr_std_db": 0.2998017877785014,
+          "seeds": [
+            19001,
+            19002,
+            19003
+          ]
+        }
+      ],
+      "meets_rule_in_both_frames": false
+    },
+    {
+      "baseline": "native_additive",
+      "family_id": "structsplat_contained",
+      "frames": [
+        {
+          "frame_id": "frame_00008",
+          "mean_alpha_iou_delta": -0.004087299447086708,
+          "mean_psnr_delta_db": 0.8967153583174863,
+          "meets_frozen_materiality_rule": true,
+          "paired_alpha_iou_deltas": [
+            0.0016785345795902185,
+            -0.01352364118166327,
+            -0.00041679173918707235
+          ],
+          "paired_psnr_deltas_db": [
+            0.9905117173034839,
+            0.9868034931936762,
+            0.7128308644552988
+          ],
+          "paired_psnr_max_db": 0.9905117173034839,
+          "paired_psnr_min_db": 0.7128308644552988,
+          "paired_psnr_std_db": 0.15925943627844097,
+          "seeds": [
+            19001,
+            19002,
+            19003
+          ]
+        },
+        {
+          "frame_id": "frame_00009",
+          "mean_alpha_iou_delta": 0.005864305105643249,
+          "mean_psnr_delta_db": 0.3128257324436632,
+          "meets_frozen_materiality_rule": false,
+          "paired_alpha_iou_deltas": [
+            0.0158290198256561,
+            0.000816004872858489,
+            0.0009478906184151592
+          ],
+          "paired_psnr_deltas_db": [
+            -0.23838362229516719,
+            0.6386256021348409,
+            0.5382352174913159
+          ],
+          "paired_psnr_max_db": 0.6386256021348409,
+          "paired_psnr_min_db": -0.23838362229516719,
+          "paired_psnr_std_db": 0.4799930956752576,
+          "seeds": [
+            19001,
+            19002,
+            19003
+          ]
+        }
+      ],
+      "meets_rule_in_both_frames": false
+    }
+  ],
+  "schema": "rtgs.bench019.local.result.v1",
+  "surrogate_verdict": "not_evaluated_insufficient_scope",
+  "task_id": "20260907_bench019_local_stage_frames00008_00009"
+}

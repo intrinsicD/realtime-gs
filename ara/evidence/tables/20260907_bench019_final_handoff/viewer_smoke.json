@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "status": "passed",
+  "entries": [
+    {
+      "dataset_id": "frame_00008",
+      "viewer_command": [
+        ".venv/bin/rtgs",
+        "view",
+        "--gaussians",
+        "runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19001_primary/gaussians.ply",
+        "--initial",
+        "runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00008/native_additive/seed_19001_primary/checkpoint_0000.ply",
+        "--no-open"
+      ],
+      "report": {
+        "target": "datasets/frame_00008/index.html",
+        "http_status": 200,
+        "local_targets_ok": true
+      },
+      "browser": {
+        "name": "Chromium headless shell",
+        "version": "HeadlessChrome/152.0.7977.82",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.7977.82 Safari/537.36",
+        "webgl2": true,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "checks": {
+        "viewer_ready": true,
+        "canvas_count": 2,
+        "rendered_content_visible": true,
+        "framebuffer_nonbackground_pixels": 13901,
+        "orbit_camera_changed": true,
+        "client_errors": [],
+        "client_warnings": [
+          "Classified Viser 1.0.30 startup diagnostic: generic bounding-sphere computation received the verified finite 2D Gaussian quad; existing viewer culling repair active, visible mesh and orbit verified. Raw console error retained in browser_diagnostics.json.",
+          "Classified dependency deprecation diagnostic: THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+          "Classified WebGL readback performance diagnostic: [.WebGL-0x18ec0019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "Classified WebGL readback performance diagnostic: [.WebGL-0x18ec0019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "Classified WebGL readback performance diagnostic: [.WebGL-0x18ec0019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "Classified WebGL readback performance diagnostic: [.WebGL-0x18ec0019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+        ]
+      }
+    },
+    {
+      "dataset_id": "frame_00009",
+      "viewer_command": [
+        ".venv/bin/rtgs",
+        "view",
+        "--gaussians",
+        "runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/native_additive/seed_19001_primary/gaussians.ply",
+        "--initial",
+        "runs/20260907_bench019_local_stage_frames00008_00009/downstream/frame_00009/native_additive/seed_19001_primary/checkpoint_0000.ply",
+        "--no-open"
+      ],
+      "report": {
+        "target": "datasets/frame_00009/index.html",
+        "http_status": 200,
+        "local_targets_ok": true
+      },
+      "browser": {
+        "name": "Chromium headless shell",
+        "version": "HeadlessChrome/152.0.7977.82",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.7977.82 Safari/537.36",
+        "webgl2": true,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "checks": {
+        "viewer_ready": true,
+        "canvas_count": 2,
+        "rendered_content_visible": true,
+        "framebuffer_nonbackground_pixels": 16409,
+        "orbit_camera_changed": true,
+        "client_errors": [],
+        "client_warnings": [
+          "Classified Viser 1.0.30 startup diagnostic: generic bounding-sphere computation received the verified finite 2D Gaussian quad; existing viewer culling repair active, visible mesh and orbit verified. Raw console error retained in browser_diagnostics.json.",
+          "Classified dependency deprecation diagnostic: THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+          "Classified WebGL readback performance diagnostic: [.WebGL-0x5dc00194e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "Classified WebGL readback performance diagnostic: [.WebGL-0x5dc00194e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "Classified WebGL readback performance diagnostic: [.WebGL-0x5dc00194e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "Classified WebGL readback performance diagnostic: [.WebGL-0x5dc00194e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+        ]
+      }
+    }
+  ]
+}

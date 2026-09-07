@@ -3343,3 +3343,98 @@ The user explicitly approved sharing the 12 dome-derived previews for this revie
 assistant messages use Fable, but the CLI also logged a 24-output-token auxiliary Haiku call;
 `reviewer_provenance.json` preserves that discrepancy. Earlier pending-review entries are
 historical state, superseded by this dated disposition rather than overwritten.
+
+## 2026-09-07 — RTGS-019 matched local BENCH019 development comparison
+
+The registered comparison completed 18 primary cells, two A/A replay cells and six excluded
+warmups on calibrated Stage frames `frame_00008` and `frame_00009` from one previously exposed
+capture. Each of three Stage-1 families was acquired once per frame and reused across downstream
+seeds. The family comparison uses native additive, normalized StructSplat without containment,
+and normalized StructSplat with geometric containment; it does not isolate compositor equations
+from family-specific initialization and fitting schedules. C45 covers execution, and C46 records
+the bounded outcome.
+
+The frozen source commits are realtime-gs `f165d353ff9e9174c1ac1c936ed7855cc7a25abb` and
+StructSplat `6ff898e8682cc7d932d540b818b3f0d6a4a0e529`. Before downstream execution,
+StructSplat advanced to metadata-only `3ada86049863a6a7293cf22f47a31f9f728a9445`,
+with the executable source envelope unchanged; the transition receipt is in `protocol/source-transition.json`.
+The unchanged RTGS task and independent
+phase-2 StructSplat protocol are bound in `runs/20260907_bench019_local_stage_frames00008_00009/task.lock.json` and
+`runs/20260907_bench019_local_stage_frames00008_00009/protocol/structsplat.frozen.json`. The recorded command is:
+
+```bash
+/home/alex/Documents/realtime-gs/.venv/bin/python scripts/experiments/20260907_bench019_local_stage_frames00008_00009.py run --task experiments/tasks/20260907_bench019_local_stage_frames00008_00009.json --run-dir runs/20260907_bench019_local_stage_frames00008_00009
+```
+
+This records the executed argv; its existing canonical root must not be overwritten or rerun.
+Inputs come from `dataset/2025_03_07_stage_with_fabric/`, using
+`C0001,C0009,C0018,C0019,C0025,C0030,C1002,C1004` for training and
+`C0014,C0028,C1001` only for held-out reporting on each frame. Processing is calibrated
+undistortion and downscale 8. Each training view fits 512 fixed 2D rows for 1,000 updates on the
+same soft-alpha-matted RGB crop with unweighted L2; the crop uses a tight foreground box plus
+5% margin. The two normalized families differ by the explicit geometric containment option.
+Stage-1 seeds follow the frozen `190000 + 100*frame_index + view_index` rule. Acquisition
+histories retain these actual per-view seeds; they are not repeated timing measurements.
+
+The exact-query `FieldSweepInitializer` uses 256 3D rows, `source_excluded_robust`, 32 samples
+in each of three rounds, at least two neighboring views, and camera-only bounds. Unsupported
+anchors retain the bounded midpoint. Shared RGB refinement runs 1,000 CUDA gsplat updates with
+fixed topology, SH0, final checkpoint, CPU image streaming and no internal held-out evaluation.
+Its frozen masked L1/D-SSIM and alpha losses differ from the Stage-1 L2 objective. Downstream
+seeds are 19001/19002/19003, and warmup seed 19999 is excluded. Full dataclasses, per-cell seeds
+and preprocessing provenance remain in the task and `configuration_aggregate.json`. The runtime
+is PyTorch 2.13.0, CUDA 13.0 and gsplat 1.5.3 on an RTX 4090.
+
+Held-out foreground PSNR averages the three per-view PSNR values, then the three paired
+primary seeds. It uses clamped display RGB against full-canvas processed RGB times soft alpha
+on black, scoring source alpha >=0.5. Alpha IoU and exterior leakage use rendered 3D alpha,
+never 2D support weights.
+
+| Frame | Native additive (dB) | Normalized, uncontained (dB) | Normalized, contained (dB) |
+|---|---:|---:|---:|
+| frame_00008 | 20.761808 | 17.909545 | 21.658524 |
+| frame_00009 | 22.345109 | 19.636772 | 22.657935 |
+
+Contained minus native paired mean PSNR is +0.896715 dB on frame 8 and +0.312826 dB on frame 9.
+The frozen materiality rule is not met on both frames: frame 9 seed 19001 is -0.238384 dB,
+so the requirement that every paired seed improve fails. The rule also requires mean improvement
+>=0.25 dB and mean alpha-IoU loss <=0.02 in each frame. Uncontained normalized fields are worse
+than native in all six seed pairs, with frame mean differences -2.852263 and -2.708337 dB.
+These observations establish neither equivalence nor refutation of the general hypothesis.
+
+Initializer support is a material interpretation limit: midpoint fallback spans 46.09–50.39%
+for uncontained normalized fields, 16.41–20.70% for native additive, and 3.91–6.64% for contained
+normalized fields. Every frame/seed comparison triggers the preregistered family-spread flag.
+The result is sensitive to this fixed initializer and cannot attribute downstream differences
+solely to Stage-1 fitting fidelity. At 256 rows and this horizon the representative previews
+remain blurred; no detailed reconstruction or physical-geometry claim is made.
+
+The StructSplat report returns `question_unavailable` because one capture falls below the
+preregistered capture minimum; no predictor is selected. Its descriptive correlations are not
+general surrogate evidence. Shared acquisition is charged once per frame/family, separately
+from measured downstream workers. Foreign GPU workload was observed during all six acquisitions
+and two primary workers; timings remain descriptive. There is no speed, general memory,
+production-default or generalization claim.
+
+Evidence: `benchmarks/results/20260907_bench019_local_stage_frames00008_00009_RESULT.json`, `benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.md`,
+`benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.json`, and `runs/20260907_bench019_local_stage_frames00008_00009/structsplat_report/decision.json`.
+Final gate disposition: Independent bounded audit accepted; RTGS full verification, both RTGS bundle validators, StructSplat report checker and both real browser/viewer checks passed. Exact receipts: `ara/evidence/tables/20260907_bench019_final_handoff/delivery_checks.json`.
+The producer's original audit-pending metadata remains an immutable publication-time record.
+
+The generated RTGS page is `runs/20260907_bench019_local_stage_frames00008_00009/index.html`; child pages are
+`runs/20260907_bench019_local_stage_frames00008_00009/datasets/frame_00008/index.html` and
+`runs/20260907_bench019_local_stage_frames00008_00009/datasets/frame_00009/index.html`. The portable StructSplat report is
+`runs/20260907_bench019_local_stage_frames00008_00009/structsplat_report/index.html`. The frozen report/server and representative viewer
+commands are:
+
+```bash
+.venv/bin/python -m http.server 8765 --bind 127.0.0.1 --directory runs/20260907_bench019_local_stage_frames00008_00009
+.venv/bin/rtgs view --gaussians runs/20260907_bench019_local_stage_frames00008_00009/gaussians.ply --initial runs/20260907_bench019_local_stage_frames00008_00009/gaussians_init.ply --no-open
+```
+
+The representative is native additive, frame 8, seed 19001, selected before outcomes. Both child
+pages retain their exact per-frame native-control viewer commands and all primary models and
+held-out target/reconstruction/error/alpha previews. The real calibrated contact sheet and
+reconstruction/orbit/elevation previews are accompanied by `preview_receipt.json` at the run root
+and under `previews/frame_00009/`. Browser identity, ready/visible-framebuffer/orbit/client-error
+checks and both final validator receipts: `ara/evidence/tables/20260907_bench019_final_handoff/browser_validation.json`, `ara/evidence/tables/20260907_bench019_final_handoff/viewer_smoke.json`, and `ara/evidence/tables/20260907_bench019_final_handoff/delivery_checks.json`.

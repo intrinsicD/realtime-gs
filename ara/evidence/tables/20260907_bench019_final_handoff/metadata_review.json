@@ -1,0 +1,70 @@
+{
+  "base_commit": "f165d353ff9e9174c1ac1c936ed7855cc7a25abb",
+  "completion_conditions": [
+    "The final StructSplat full suite after the heading correction is running separately and must pass before final local commits. This review does not assert that suite has finished. Final closeout may append actual gate results and immutable log copies only."
+  ],
+  "corrections_applied": [
+    "Removed one duplicated terminal period in docs/EXPERIMENTS.md and the RTGS019 archive. No scientific or workflow content change."
+  ],
+  "correctness": "C45 records completed fixed-budget execution; C46 and the append-only ledger preserve mixed containment means, failed full materiality, all-six uncontained losses, fallback attribution limits, capture insufficiency, and no default/speed/general-memory promotion. Archive/current-template lifecycle is well formed.",
+  "date_utc": "2026-09-07T12:44:34.740546+00:00",
+  "driver": "Codex-bench019-driver",
+  "evidence_quality": {
+    "browser_backend": "HeadlessChrome 152 / WebGL2 SwiftShader; not CUDA viewer-performance evidence",
+    "browser_frames": 2,
+    "chrome_local_targets_per_entry": 1380,
+    "console_classification": "One raw bounding-sphere diagnostic per entry independently inspected: finite 2D quad with itemSize 2, existing culling repair active; classified separately from unhandled client errors.",
+    "delivery_receipt_hashes": "all seven descriptors verified",
+    "exact_browser_harness_hash_match": true,
+    "final_report_hashes_match": true,
+    "final_supplemental_http_targets": 1404,
+    "http_evidence_copies": "all seven byte-identical",
+    "original_result_and_audit_bytes": "unchanged from independent scientific audit",
+    "ready_task_and_source_binding": "unchanged and verified",
+    "viewer_visibility_controls": "Both blank controls zero; restored nonbackground 13901/16409; both orbit camera and framebuffers changed"
+  },
+  "files_sha256": {
+    ".agents/state/current-task.md": "b56970025edf50e017be8deff5ed89f6e39b59cbd8ddd5d10b7bb231ee738cdf",
+    "ara/evidence/tables/20260907_bench019_final_handoff/browser_validation.json": "f4ab942a5c742a34966df618ff5b7fc71aa021b1fa75876fd9630e293f67f3d6",
+    "ara/evidence/tables/20260907_bench019_final_handoff/check-results-bundle.log": "46fc5ce0ecc353924b81e7ae6e4ac4a30c7a2cb39e4af5cff565413dbc0737c0",
+    "ara/evidence/tables/20260907_bench019_final_handoff/check-run.log": "5fa94a2da63da03570170fd891976d9c503ac38d9ffa9aa2a03919ceb0b6d591",
+    "ara/evidence/tables/20260907_bench019_final_handoff/check-struct-report.log": "1d0da37b1940b2b242c1dab1475595372130cd3e814b064d43cc9a9a92e08b1a",
+    "ara/evidence/tables/20260907_bench019_final_handoff/delivery_checks.json": "3fb1d77823647bb0ce42a4e904f9aa80f7017f0ec9baf1f79dbdfff8752f4f63",
+    "ara/evidence/tables/20260907_bench019_final_handoff/final-http-links.json": "20839818ece2fe0d452c33a91a2b25c641ea4d6ed407aa0a76ac526a892e9cb2",
+    "ara/evidence/tables/20260907_bench019_final_handoff/report_link_publication.json": "6d1117492e02346098a05a619b2b3a25e283921a3d4c2e66cd2b9f0927fbb981",
+    "ara/evidence/tables/20260907_bench019_final_handoff/verify-rtgs-final-metadata.log": "5cfda54739481e1ad44f3ceb01c52ab849328ba8d5dbe188e4f7bc0ba5122435",
+    "ara/evidence/tables/20260907_bench019_final_handoff/verify-rtgs.log": "d22400284287cb054f00069a6c5b067ecabeb9f861ea84bb5a4636104b33056b",
+    "ara/evidence/tables/20260907_bench019_final_handoff/viewer_smoke.json": "a1e5857f3242deb473902b1538b4482fdea1f99addae5c3f36a289b04cd9a277",
+    "ara/logic/claims.md": "48bd49d8e098f9f7deb9fca3dff1737a8bf998d4b28e790b53d0f720995a61bc",
+    "benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.json": "9c91716dd7db3f26f2b824d288ff35bf16afad16df22a716185545f46ace3183",
+    "benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.md": "f154520a5e350d43421821c6b42977c4fd98c869e12ca55847e856b7f753a31a",
+    "benchmarks/results/20260907_bench019_local_stage_frames00008_00009_RESULT.json": "75617482de2d4569396775da350ae236b9627f9f078b72ebfcbdb74b3f96badf",
+    "benchmarks/results/20260907_bench019_local_stage_frames00008_00009_RESULT.md": "85c0a313fc751ac9dcb853ea3f501fe3f0976fc9d783facd5a75cce7b07bb629",
+    "docs/EXPERIMENTS.md": "ffe0a8187b55495187c017f38bf2fc3e48180fefebdd3905df767b49066b3ec9",
+    "docs/tasks/RTGS-019-local-bench019-development.md": "9617bf2fba3993824604e3b944b2fdd58bf8c9860784a9b72042c75df260f845"
+  },
+  "independent_checks": [
+    "experiment_contract.py check-run: exit 0",
+    "check_results_bundle.py: exit 0",
+    "check_agent_workflow.py: exit 0",
+    "check_ara.py: exit 0",
+    "git diff --check: exit 0",
+    "1404 final HTTP-receipt target paths exist and report hashes match",
+    "Final RTGS metadata full verify: root execution exit 0, exact copied log independently checked for terminal verify OK"
+  ],
+  "not_authorized": [
+    "scientific protocol/outcome modification",
+    "new experiment",
+    "default promotion",
+    "push",
+    "model or source-image upload"
+  ],
+  "required_changes": [],
+  "reviewed_inventory_sha256": "3a089e855c1a046108e18f5776d2f5e3fc1b610aa45f6b289b515fc4284d52da",
+  "reviewer": "Codex-cross-repo-review",
+  "run_mutations": false,
+  "schema": "rtgs.bench019.final_metadata_review.v1",
+  "scope": "Final metadata, immutable evidence copies and delivery receipts; scientific acceptance remains bounded development. This file is excluded from its own reviewed inventory.",
+  "self_reviewed": false,
+  "verdict": "Accepted"
+}

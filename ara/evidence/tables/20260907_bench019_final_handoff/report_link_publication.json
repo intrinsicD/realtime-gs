@@ -1,0 +1,49 @@
+{
+  "schema": "rtgs.report.byte_identical_http_copies.v1",
+  "reason": "Seven outward evidence references returned HTTP 404 when serving the prescribed canonical run root. Exact copies publish those same frozen records under their HTTP paths.",
+  "source_or_measurement_changes": false,
+  "files": [
+    {
+      "source": "/home/alex/Documents/realtime-gs/experiments/tasks/20260907_bench019_local_stage_frames00008_00009.json",
+      "http_path": "experiments/tasks/20260907_bench019_local_stage_frames00008_00009.json",
+      "bytes": 74149,
+      "sha256": "8a1f27a7b259b496df28e41b0ebd218536dab40920278f6908865a45dcfae6f0"
+    },
+    {
+      "source": "/home/alex/Documents/realtime-gs/experiments/data/20260907_bench019_local_stage_frames00008_00009_raw.json",
+      "http_path": "experiments/data/20260907_bench019_local_stage_frames00008_00009_raw.json",
+      "bytes": 10784,
+      "sha256": "11354a52869555b47586aded75ad550d68faae5f07fe35bb5fdddfd391c93374"
+    },
+    {
+      "source": "/home/alex/Documents/realtime-gs/experiments/reviews/20260907_bench019_local_stage_frames00008_00009_PROTOCOL_REVIEW.md",
+      "http_path": "experiments/reviews/20260907_bench019_local_stage_frames00008_00009_PROTOCOL_REVIEW.md",
+      "bytes": 6975,
+      "sha256": "11469b0736d0ba209a41722e63c062e968a49f260ccff499cb61a9f68b384abe"
+    },
+    {
+      "source": "/home/alex/Documents/realtime-gs/benchmarks/results/20260907_bench019_local_stage_frames00008_00009_RESULT.json",
+      "http_path": "benchmarks/results/20260907_bench019_local_stage_frames00008_00009_RESULT.json",
+      "bytes": 40015,
+      "sha256": "75617482de2d4569396775da350ae236b9627f9f078b72ebfcbdb74b3f96badf"
+    },
+    {
+      "source": "/home/alex/Documents/realtime-gs/benchmarks/results/20260907_bench019_local_stage_frames00008_00009_RESULT.md",
+      "http_path": "benchmarks/results/20260907_bench019_local_stage_frames00008_00009_RESULT.md",
+      "bytes": 1809,
+      "sha256": "85c0a313fc751ac9dcb853ea3f501fe3f0976fc9d783facd5a75cce7b07bb629"
+    },
+    {
+      "source": "/home/alex/Documents/realtime-gs/benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.json",
+      "http_path": "benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.json",
+      "bytes": 26628,
+      "sha256": "9c91716dd7db3f26f2b824d288ff35bf16afad16df22a716185545f46ace3183"
+    },
+    {
+      "source": "/home/alex/Documents/realtime-gs/benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.md",
+      "http_path": "benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.md",
+      "bytes": 7362,
+      "sha256": "f154520a5e350d43421821c6b42977c4fd98c869e12ca55847e856b7f753a31a"
+    }
+  ]
+}

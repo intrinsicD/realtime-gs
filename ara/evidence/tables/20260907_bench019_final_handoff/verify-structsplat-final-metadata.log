@@ -1,0 +1,66 @@
+== ruff check ==
+All checks passed!
+== pytest (portable gate: not slow, not integration) ==
+...........................................................s............ [  2%]
+..........................s............................................. [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+.................s...................................................... [ 13%]
+........................................................................ [ 16%]
+................................................s......s................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+....ss.................................................................. [ 27%]
+............................................................s........... [ 30%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+............................................................s.s......... [ 41%]
+........................................................................ [ 44%]
+..........................................sssss......................... [ 47%]
+........................................................................ [ 50%]
+..................ss.................................................... [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 58%]
+........................................................................ [ 61%]
+............s........................................................... [ 64%]
+.....sssssssssssssssssssssssssss........................................ [ 67%]
+.....................s.................................................. [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 75%]
+................s.s.s.s.s.s.s.s.s.s.s.s.s.s.s.s.s.s.s.s................. [ 78%]
+........................s............................................... [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+........................................................................ [ 92%]
+........................................................................ [ 95%]
+.....................................................s...............ss. [ 97%]
+....................................sss...ssss......                     [100%]
+=============================== warnings summary ===============================
+tests/test_additive_basis.py::test_cached_map_matches_dense_forward_adjoint_diagonal_and_owns_storage[csr]
+  /home/alex/Documents/structsplat/src/structsplat/additive_basis.py:81: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at /pytorch/aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+    self._matrix = matrix.to_sparse_csr()
+
+tests/test_hier_coupling_oracle.py::test_dense_system_bridges_to_autograd_packet_and_old_step[cpu-dtype0]
+  /tmp/structsplat-rtgs-collab/venv/lib/python3.11/site-packages/torch/__init__.py:1617: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+    _C._set_float32_matmul_precision(precision)
+
+tests/test_unit_gauge_continuation.py::test_fit_is_deterministic_resets_once_and_persists_only_additive_field
+  /home/alex/Documents/structsplat/src/structsplat/unit_gauge_continuation.py:490: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+  Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+    coefficient_abs_max=float(field.colors.abs().max().cpu()),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2495 passed, 77 skipped, 515 deselected, 3 warnings in 327.17s (0:05:27)
+== docs_sync ==
+docs_sync: OK
+== ara claim ledger ==
+check_ara: OK (78 claims)
+== task policy ==
+check_task_policy: OK (128 active, 55 retired, 128 open files, 55 done files)
+== script layout ==
+check_script_layout: OK (13 durable scripts)
+== agent workflow ==
+check_agent_workflow: OK
+verify: OK

@@ -955,22 +955,66 @@
 - **Boundary**: CPU numerical repair only; no CUDA, calibrated reconstruction, performance,
   scientific claim promotion, or maintained-default change.
 
-## C45: The local BENCH019 runner preserves a matched development comparison
+## C45: The local BENCH019 runner preserves the completed matched development comparison
 
-- **Statement**: RTGS-019 is designed to bind training-only matched Stage-1 acquisition,
-  exact observation inputs, one fixed initialization/refinement schedule, separate held-out
-  reporting, and independently reviewed source/input envelopes into one local report.
-- **Status**: untested complete execution; helper and coordinator contracts tested separately
+- **Statement**: RTGS-019 completed six training-only matched Stage-1 acquisitions, 18 primary
+  downstream cells, two A/A replay cells and six excluded warmups within one canonical local
+  run. Frozen exact observation inputs feed one fixed 256-row initialization/refinement
+  schedule; held-out rendering remains separate from fitting. The formal BENCH019 export
+  contains 18 primary rows plus native A/A, while contained A/A remains an additional diagnostic.
+  Shared acquisition costs and original per-view seeds are not represented as independent
+  downstream-seed measurements.
+- **Status**: supported bounded development execution
 - **Provenance**: ai-executed
 - **Crystallized via**: artifact-commitment
-- **Falsification criteria**: A declared cell changes its frozen input/configuration, opens
-  held-out data while fitting, misstates shared acquisition costs as independent seed
-  measurements, bypasses prospective approval, or fails raw-to-report replay.
+- **Falsification criteria**: A declared cell changes its frozen input/configuration, consumes
+  held-out data while fitting, lacks the required prospective or phase-2 approval, misstates
+  shared acquisition as independent seed measurements, fails source/raw-to-report replay,
+  or loses required report/model/browser artifacts.
 - **Proof**: [`tests/test_bench019_local_inputs.py`,
   `tests/test_bench019_local_downstream.py`, `tests/test_bench019_local_driver.py`,
-  `src/rtgs/bench019_local_report.py`]
+  `tests/test_bench019_local_report.py`,
+  `benchmarks/results/20260907_bench019_local_stage_frames00008_00009_RESULT.json`,
+  `benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.md`,
+  `benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.json`,
+  `ara/evidence/tables/20260907_bench019_final_handoff/delivery_checks.json`,
+  `ara/evidence/tables/20260907_bench019_final_handoff/viewer_smoke.json`]
 - **Dependencies**: []
 - **Tags**: experiment-contract, development, split-isolation, fixed-capacity, no-default
 - **From staging**: []
-- **Boundary**: Implementation contract under review. No calibrated result, general surrogate,
-  family equivalence, speed advantage, or production-default conclusion is established.
+- **Boundary**: Complete execution and reporting for this frozen two-frame, one-capture
+  development workload only. Independent acceptance does not imply a generally valid
+  Stage-1 surrogate, equivalent fitting families, speed advantage, detailed reconstruction,
+  or a production-default conclusion. C46 records the permitted scientific interpretation.
+
+## C46: Containment has favorable frame means but fails the frozen all-seed improvement rule
+
+- **Statement**: In RTGS-019, contained normalized StructSplat minus native additive has paired
+  mean held-out foreground-PSNR differences +0.896715 dB and +0.312826 dB on Stage frames 8
+  and 9, respectively. Frame 9 seed 19001 is -0.238384 dB, so the frozen requirement for a
+  positive difference in every paired seed fails and contained does not meet the materiality
+  rule in both frames. Uncontained normalized StructSplat is worse than native in all six
+  paired seeds, with frame mean differences -2.852263 and -2.708337 dB.
+- **Status**: supported development-only descriptive
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing the task/source/data/audit-bound per-view scores,
+  paired-seed differences or mean/positive-seed/alpha-IoU materiality gates changes these
+  values or dispositions, or identifies optimization/reporting leakage or post-outcome
+  checkpoint/configuration selection.
+- **Proof**: [`benchmarks/results/20260907_bench019_local_stage_frames00008_00009_RESULT.json`,
+  `benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.md`,
+  `benchmarks/results/20260907_bench019_local_stage_frames00008_00009_AUDIT.json`,
+  `runs/20260907_bench019_local_stage_frames00008_00009/result_sources.json`,
+  `runs/20260907_bench019_local_stage_frames00008_00009/structsplat_report/decision.json`]
+- **Dependencies**: [C45]
+- **Tags**: BENCH019, normalized-field, containment, paired-seeds, development, no-default
+- **From staging**: []
+- **Boundary**: Two previously exposed frames from one capture, 512 fixed 2D rows per training
+  view, 256 fixed SH0 3D rows and 1,000 RGB-refinement updates. The field-sweep midpoint fallback
+  differs substantially between families (uncontained 46.09–50.39%, native 16.41–20.70%,
+  contained 3.91–6.64%), so downstream ranking cannot be attributed solely to fitting fidelity
+  or compositor equations. Stage-1 family initialization/schedules also differ. Previews remain
+  blurred at this capacity/horizon. The broader surrogate question is unavailable for
+  insufficient capture scope; this is neither equivalence nor a general negative result.
+  No production-default, detailed-geometry, generalization, speed or general-memory claim.

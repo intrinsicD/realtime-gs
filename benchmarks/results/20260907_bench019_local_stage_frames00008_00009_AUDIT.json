@@ -1,0 +1,683 @@
+{
+  "artifacts": {
+    "audit_bench019_results.py": {
+      "bytes": 25739,
+      "path": "runs/20260907_bench019_local_stage_frames00008_00009/audit/audit_bench019_results.py",
+      "sha256": "0fedd25fe1b226d50c8152a9ac63aa49374f2bcf72a544b4c4bfd2a529ea4382"
+    },
+    "audit_bench019_statistics_geometry.py": {
+      "bytes": 10011,
+      "path": "runs/20260907_bench019_local_stage_frames00008_00009/audit/audit_bench019_statistics_geometry.py",
+      "sha256": "b072846bac068a57da6bd396bd1b1a2429021360e5a1473907a0049c4bfe23b8"
+    },
+    "bench019-independent-cpu-audit.json": {
+      "bytes": 226547,
+      "path": "runs/20260907_bench019_local_stage_frames00008_00009/audit/bench019-independent-cpu-audit.json",
+      "sha256": "9d4fa373634a00dde5e0c39d7f954703b6dc5dde9b4fc30865fa888bcb2dc735"
+    },
+    "bench019-independent-gpu-replay.json": {
+      "bytes": 72871,
+      "path": "runs/20260907_bench019_local_stage_frames00008_00009/audit/bench019-independent-gpu-replay.json",
+      "sha256": "6b2718f83ee71da3ab3407c16f637c35ba10826adfa5cf52a5b8dcc8d9efebc7"
+    },
+    "bench019-independent-statistics-geometry.json": {
+      "bytes": 28218,
+      "path": "runs/20260907_bench019_local_stage_frames00008_00009/audit/bench019-independent-statistics-geometry.json",
+      "sha256": "e816d1437ce7549c40c0a25a226c038ebdcdae0de96eb88eae40852f2021d783"
+    }
+  },
+  "blocking_evidence_findings": [],
+  "claims": [
+    {
+      "claim": "All frozen 18 primary cells, two A/A replays, six warmups and six shared Stage1 acquisitions completed at fixed budgets.",
+      "disposition": "confirm",
+      "evidence": [
+        "run_receipt.json",
+        "result_sources.json",
+        "audit/bench019-independent-cpu-audit.json"
+      ],
+      "id": "execution",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "measured",
+      "scope": "two exposed frames, one capture, three seeds, CUDA development"
+    },
+    {
+      "claim": "Contained StructSplat meets the complete materiality rule.",
+      "correction": "Mean PSNR changes are +0.8967153583 and +0.3128257324dB; frame 9 seed 19001 changes -0.2383836223dB, so the all-seed rule fails. Neither normalized family meets the full two-frame rule.",
+      "disposition": "narrow",
+      "evidence": [
+        "result_sources.json",
+        "audit/bench019-independent-cpu-audit.json"
+      ],
+      "id": "contained",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "measured comparison",
+      "scope": "paired held-out foreground PSNR and alpha IoU at 256 SH0 rows / 1000 updates"
+    },
+    {
+      "claim": "Uncontained normalized family underperforms native additive in this frozen pipeline.",
+      "correction": "Mean PSNR changes -2.8522632883/-2.7083365551dB; alpha IoU changes -0.06611150934/-0.05963380549. This is bounded family/pipeline evidence, not a general normalized-compositor rejection.",
+      "disposition": "confirm",
+      "evidence": [
+        "result_sources.json",
+        "audit/bench019-independent-cpu-audit.json"
+      ],
+      "id": "uncontained",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "measured",
+      "scope": "same two exposed frames and matched downstream seeds"
+    },
+    {
+      "claim": "Saved final-model metrics are independently reproducible on the named CUDA renderer.",
+      "disposition": "confirm",
+      "evidence": [
+        "audit/bench019-independent-gpu-replay.json"
+      ],
+      "id": "cold_replay",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "measured replay",
+      "scope": "18 final saved models / 54 primary held-out views, torch 2.13.0+cu130 RTX 4090"
+    },
+    {
+      "claim": "Stage1 predictors establish a general downstream surrogate or independent replication.",
+      "correction": "Decision remains question_unavailable/not_evaluated_insufficient_scope, selected_predictor=null. Descriptive pooled rank correlations -1,-1,+0.75; no scientific surrogate selected. A one-capture bootstrap is degenerate, not a confidence interval for generalization.",
+      "disposition": "retire",
+      "evidence": [
+        "structsplat_report/analysis.json",
+        "audit/bench019-independent-statistics-geometry.json"
+      ],
+      "id": "surrogate",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "unsupported generalization",
+      "scope": "one capture, two correlated frames"
+    },
+    {
+      "claim": "The comparison isolates compositor equations or containment alone.",
+      "correction": "Families retain declared equations and fit semantics. Unsupported midpoint fractions are 46.1\u201350.4% uncontained, 16.4\u201320.7% native, 3.9\u20136.6% contained. All six cross-family spreads exceed 10 percentage points; this is pipeline interaction evidence, not pure equation attribution.",
+      "disposition": "narrow",
+      "evidence": [
+        "input_boundary_receipt.json",
+        "audit/bench019-independent-statistics-geometry.json"
+      ],
+      "id": "mechanism",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "unsupported attribution",
+      "scope": "existing fitting families through fixed FieldSweep and RGB refinement"
+    },
+    {
+      "claim": "Observed local timings establish a speedup or compact-only GPU memory claim.",
+      "correction": "Retain raw clocks and medians/min/max descriptively. Three of 20 measured/replayworkers sampled foreign compute. Warmups/AAs excluded; Stage1 counted once. Process NVML, Torch allocated/reserved and device totals remain distinct; no device-total proxy.",
+      "disposition": "retire",
+      "evidence": [
+        "resource_receipt.json",
+        "audit/bench019-independent-cpu-audit.json"
+      ],
+      "id": "performance",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "unsupported performance promotion",
+      "scope": "fresh local workers, shared Stage1, mixed contention and lazy JIT/cache"
+    },
+    {
+      "claim": "Reported field bytes count complete consumed training manifests and archives.",
+      "correction": "Count 4096 Stage1 rows and 256 final 3D rows are fixed. Bytecounts are not a codec RD or compression-ratio claim.",
+      "disposition": "confirm",
+      "evidence": [
+        "generated_inputs.json",
+        "audit/bench019-independent-cpu-audit.json"
+      ],
+      "id": "bytes",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "descriptive accounting",
+      "scope": "one manifest plus eight consumed archives including cameras/alpha/framing"
+    },
+    {
+      "claim": "Execution was bound prospectively to exact source, task, raw inputs and generated fields across the two phases.",
+      "disposition": "confirm",
+      "evidence": [
+        "task.lock.json",
+        "protocol/source-transition.json",
+        "audit/bench019-independent-cpu-audit.json"
+      ],
+      "id": "provenance",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "verified provenance",
+      "scope": "RTGS f165d35, Struct 6ff898e then metadata-only 3ada860"
+    },
+    {
+      "claim": "Struct manifest claim_ready=true permits scientific promotion.",
+      "correction": "The existing field means frozen, complete, valid A/A export only; scope gate is separate and fails. The explicit decision remains authoritative.",
+      "disposition": "narrow",
+      "evidence": [
+        "structsplat_report/manifest.json",
+        "structsplat_report/decision.json"
+      ],
+      "id": "manifest_label",
+      "inventory_note": "Disposition covers the stated interpretation; unsupported rows are prohibited inferences, not necessarily producer assertions.",
+      "kind": "label interpretation",
+      "scope": "existing portable export schema"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/tmp/structsplat-rtgs-collab/venv/bin/python",
+        "/tmp/structsplat-rtgs-collab/audit_bench019_results.py",
+        "cpu",
+        "--output",
+        "/tmp/structsplat-rtgs-collab/bench019-independent-cpu-audit.json"
+      ],
+      "environment": {
+        "CUDA_VISIBLE_DEVICES": "",
+        "MKL_NUM_THREADS": "2",
+        "MKL_THREADING_LAYER": "GNU",
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "PYTHONPATH": "/home/alex/Documents/structsplat:/home/alex/Documents/structsplat/src:/home/alex/Documents/realtime-gs/src:/home/alex/Documents/realtime-gs"
+      },
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/home/alex/Documents/realtime-gs/.venv/bin/python",
+        "/tmp/structsplat-rtgs-collab/audit_bench019_results.py",
+        "gpu",
+        "--output",
+        "/tmp/structsplat-rtgs-collab/bench019-independent-gpu-replay.json"
+      ],
+      "environment": {
+        "CUDA_HOME": "/usr/local/cuda-13.0",
+        "CXX": "/usr/bin/g++-13",
+        "MKL_NUM_THREADS": "2",
+        "MKL_THREADING_LAYER": "GNU",
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "PYTHONPATH": "/home/alex/Documents/structsplat:/home/alex/Documents/structsplat/src:/home/alex/Documents/realtime-gs/src:/home/alex/Documents/realtime-gs",
+        "TORCH_CUDA_ARCH_LIST": "8.9"
+      },
+      "execution": "approved host GPU access; sandbox attempt first returned CUDA unavailable and wrote no result",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/structsplat-rtgs-collab/venv/bin/python",
+        "/tmp/structsplat-rtgs-collab/audit_bench019_statistics_geometry.py"
+      ],
+      "environment": {
+        "CUDA_VISIBLE_DEVICES": "",
+        "MKL_NUM_THREADS": "2",
+        "MKL_THREADING_LAYER": "GNU",
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "PYTHONPATH": "/home/alex/Documents/structsplat:/home/alex/Documents/structsplat/src:/home/alex/Documents/realtime-gs/src:/home/alex/Documents/realtime-gs"
+      },
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/tmp/structsplat-rtgs-collab/venv/bin/python",
+        "/home/alex/Documents/structsplat/scripts/check_report_bundle.py",
+        "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009/structsplat_report"
+      ],
+      "environment": {
+        "CUDA_VISIBLE_DEVICES": "",
+        "MKL_NUM_THREADS": "2",
+        "MKL_THREADING_LAYER": "GNU",
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "PYTHONPATH": "/home/alex/Documents/structsplat:/home/alex/Documents/structsplat/src:/home/alex/Documents/realtime-gs/src:/home/alex/Documents/realtime-gs"
+      },
+      "exit_code": 0
+    }
+  ],
+  "delivery_conditions": [
+    "Shared RTGS results renderer/manifest validators must pass after canonical AUDIT files exist.",
+    "Real browser report, reconstruction WebGL and orbit smoke must be recorded independently before task completion."
+  ],
+  "independent_verification": {
+    "all_binary_counts_exact": true,
+    "cpu_cells": 20,
+    "cuda_cold_models": 18,
+    "cuda_cold_views": 54,
+    "local_rows": 20,
+    "maximum_metric_replay_deltas": {
+      "alpha_iou": 0.0,
+      "exterior_leakage": 0.0,
+      "foreground_psnr": 3.552713678800501e-15
+    },
+    "portable_rows": 19,
+    "raw_view_records": 60,
+    "saved_initializer_geometry_cells": 20,
+    "struct_portable_checker": "passed"
+  },
+  "not_authorized_by_this_audit": [
+    "default promotion",
+    "new/protected confirmation data",
+    "rescue experiment",
+    "protocol or threshold changes",
+    "general surrogate claim",
+    "speedup claim"
+  ],
+  "producer": "Codex-bench019-driver",
+  "promotion_evidence_needed": "Any later scientific promotion needs a new prospectively approved protocol with at least three independent capture groups and the frozen materiality/safety rule; a speed claim additionally requires controlled uncontended timing with repeatable warmup/JIT accounting. This audit authorizes neither.",
+  "recalculations": {
+    "aa": [
+      {
+        "absolute_delta": 0.0007608098915063977,
+        "family": "native_additive",
+        "metric": "heldout_foreground_psnr",
+        "tolerance": 0.05
+      },
+      {
+        "absolute_delta": 4.528828270577989e-05,
+        "family": "native_additive",
+        "metric": "heldout_alpha_iou",
+        "tolerance": 0.01
+      },
+      {
+        "absolute_delta": 0.005841466801904005,
+        "family": "structsplat_contained",
+        "metric": "heldout_foreground_psnr",
+        "tolerance": 0.05
+      },
+      {
+        "absolute_delta": 0.00017983266456378377,
+        "family": "structsplat_contained",
+        "metric": "heldout_alpha_iou",
+        "tolerance": 0.01
+      }
+    ],
+    "correlations": [
+      {
+        "one_capture_bootstrap": "degenerate; not uncertainty evidence",
+        "per_frame": [
+          {
+            "frame_id": "frame_00008",
+            "predictor_top1": [
+              "structsplat_normalized"
+            ],
+            "response_top1": [
+              "structsplat_contained"
+            ],
+            "rho": -1.0
+          },
+          {
+            "frame_id": "frame_00009",
+            "predictor_top1": [
+              "structsplat_normalized"
+            ],
+            "response_top1": [
+              "structsplat_contained"
+            ],
+            "rho": -1.0
+          }
+        ],
+        "predictor": "foreground_psnr",
+        "rho": -1.0
+      },
+      {
+        "one_capture_bootstrap": "degenerate; not uncertainty evidence",
+        "per_frame": [
+          {
+            "frame_id": "frame_00008",
+            "predictor_top1": [
+              "structsplat_normalized"
+            ],
+            "response_top1": [
+              "structsplat_contained"
+            ],
+            "rho": -1.0
+          },
+          {
+            "frame_id": "frame_00009",
+            "predictor_top1": [
+              "structsplat_normalized"
+            ],
+            "response_top1": [
+              "structsplat_contained"
+            ],
+            "rho": -1.0
+          }
+        ],
+        "predictor": "boundary_mae",
+        "rho": -1.0
+      },
+      {
+        "one_capture_bootstrap": "degenerate; not uncertainty evidence",
+        "per_frame": [
+          {
+            "frame_id": "frame_00008",
+            "predictor_top1": [
+              "structsplat_contained"
+            ],
+            "response_top1": [
+              "structsplat_contained"
+            ],
+            "rho": 1.0
+          },
+          {
+            "frame_id": "frame_00009",
+            "predictor_top1": [
+              "structsplat_contained"
+            ],
+            "response_top1": [
+              "structsplat_contained"
+            ],
+            "rho": 0.5
+          }
+        ],
+        "predictor": "support_iou",
+        "rho": 0.75
+      }
+    ],
+    "fallback": [
+      {
+        "above_25_percent": true,
+        "fractions": {
+          "native_additive": 0.18359375,
+          "structsplat_contained": 0.06640625,
+          "structsplat_normalized": 0.4609375
+        },
+        "frame_id": "frame_00008",
+        "seed": 19001,
+        "spread_above_10_percentage_points": true
+      },
+      {
+        "above_25_percent": true,
+        "fractions": {
+          "native_additive": 0.17578125,
+          "structsplat_contained": 0.05859375,
+          "structsplat_normalized": 0.50390625
+        },
+        "frame_id": "frame_00008",
+        "seed": 19002,
+        "spread_above_10_percentage_points": true
+      },
+      {
+        "above_25_percent": true,
+        "fractions": {
+          "native_additive": 0.1640625,
+          "structsplat_contained": 0.06640625,
+          "structsplat_normalized": 0.49609375
+        },
+        "frame_id": "frame_00008",
+        "seed": 19003,
+        "spread_above_10_percentage_points": true
+      },
+      {
+        "above_25_percent": true,
+        "fractions": {
+          "native_additive": 0.1953125,
+          "structsplat_contained": 0.0390625,
+          "structsplat_normalized": 0.48828125
+        },
+        "frame_id": "frame_00009",
+        "seed": 19001,
+        "spread_above_10_percentage_points": true
+      },
+      {
+        "above_25_percent": true,
+        "fractions": {
+          "native_additive": 0.1796875,
+          "structsplat_contained": 0.0390625,
+          "structsplat_normalized": 0.47265625
+        },
+        "frame_id": "frame_00009",
+        "seed": 19002,
+        "spread_above_10_percentage_points": true
+      },
+      {
+        "above_25_percent": true,
+        "fractions": {
+          "native_additive": 0.20703125,
+          "structsplat_contained": 0.0546875,
+          "structsplat_normalized": 0.48828125
+        },
+        "frame_id": "frame_00009",
+        "seed": 19003,
+        "spread_above_10_percentage_points": true
+      }
+    ],
+    "groups": [
+      {
+        "family": "native_additive",
+        "frame": "frame_00008",
+        "metrics": {
+          "evaluation_seconds": 1.5196120371110737,
+          "field_bytes": 170110,
+          "final_gaussians": 256,
+          "heldout_alpha_iou": 0.7942460571261055,
+          "heldout_exterior_leakage": 0.02323631287427358,
+          "heldout_foreground_psnr": 20.761808321796828,
+          "lift_seconds": 0.28917965199798346,
+          "peak_cuda_allocated_bytes": 76897280,
+          "refine_seconds": 4.969365472905338,
+          "wall_seconds": 8.455516909947619
+        },
+        "wall_max": 11.215642181923613,
+        "wall_min": 8.289989794837311
+      },
+      {
+        "family": "structsplat_normalized",
+        "frame": "frame_00008",
+        "metrics": {
+          "evaluation_seconds": 1.511718263849616,
+          "field_bytes": 159280,
+          "final_gaussians": 256,
+          "heldout_alpha_iou": 0.7281345477885192,
+          "heldout_exterior_leakage": 0.03590238338404955,
+          "heldout_foreground_psnr": 17.909545033480995,
+          "lift_seconds": 0.265984064899385,
+          "peak_cuda_allocated_bytes": 76964864,
+          "refine_seconds": 4.877648432040587,
+          "wall_seconds": 8.33438214706257
+        },
+        "wall_max": 8.553607836831361,
+        "wall_min": 8.109361556125805
+      },
+      {
+        "family": "structsplat_contained",
+        "frame": "frame_00008",
+        "metrics": {
+          "evaluation_seconds": 1.5021510398946702,
+          "field_bytes": 149222,
+          "final_gaussians": 256,
+          "heldout_alpha_iou": 0.7901587576790189,
+          "heldout_exterior_leakage": 0.024206464558271794,
+          "heldout_foreground_psnr": 21.658523680114314,
+          "lift_seconds": 0.16303059388883412,
+          "peak_cuda_allocated_bytes": 76904960,
+          "refine_seconds": 4.921306234085932,
+          "wall_seconds": 8.241983165964484
+        },
+        "wall_max": 8.778399761067703,
+        "wall_min": 8.035915216896683
+      },
+      {
+        "family": "native_additive",
+        "frame": "frame_00009",
+        "metrics": {
+          "evaluation_seconds": 1.487549444194883,
+          "field_bytes": 170325,
+          "final_gaussians": 256,
+          "heldout_alpha_iou": 0.8080213384808322,
+          "heldout_exterior_leakage": 0.021789161734298724,
+          "heldout_foreground_psnr": 22.345109015324777,
+          "lift_seconds": 0.2792768348008394,
+          "peak_cuda_allocated_bytes": 81076224,
+          "refine_seconds": 4.880686109885573,
+          "wall_seconds": 8.386337165953591
+        },
+        "wall_max": 8.429389343131334,
+        "wall_min": 8.128858908079565
+      },
+      {
+        "family": "structsplat_normalized",
+        "frame": "frame_00009",
+        "metrics": {
+          "evaluation_seconds": 1.5188186019659042,
+          "field_bytes": 159643,
+          "final_gaussians": 256,
+          "heldout_alpha_iou": 0.7483875329891378,
+          "heldout_exterior_leakage": 0.030568232155604922,
+          "heldout_foreground_psnr": 19.6367724601976,
+          "lift_seconds": 0.29916049214079976,
+          "peak_cuda_allocated_bytes": 81197056,
+          "refine_seconds": 4.872494351118803,
+          "wall_seconds": 8.350012854207307
+        },
+        "wall_max": 8.479672072920948,
+        "wall_min": 8.290736210998148
+      },
+      {
+        "family": "structsplat_contained",
+        "frame": "frame_00009",
+        "metrics": {
+          "evaluation_seconds": 1.5104612889699638,
+          "field_bytes": 149058,
+          "final_gaussians": 256,
+          "heldout_alpha_iou": 0.8138856435864754,
+          "heldout_exterior_leakage": 0.021352538070998222,
+          "heldout_foreground_psnr": 22.65793474776844,
+          "lift_seconds": 0.1507840221747756,
+          "peak_cuda_allocated_bytes": 81089024,
+          "refine_seconds": 4.853239588206634,
+          "wall_seconds": 8.300844037905335
+        },
+        "wall_max": 8.348798464983702,
+        "wall_min": 7.995917855063453
+      }
+    ],
+    "paired_comparisons": [
+      {
+        "baseline": "native_additive",
+        "family_id": "structsplat_normalized",
+        "frames": [
+          {
+            "frame_id": "frame_00008",
+            "mean_alpha_iou_delta": -0.06611150933758636,
+            "mean_psnr_delta_db": -2.852263288315831,
+            "meets_frozen_materiality_rule": false,
+            "paired_alpha_iou_deltas": [
+              -0.08051454809202974,
+              -0.06524667796343209,
+              -0.05257330195729726
+            ],
+            "paired_psnr_deltas_db": [
+              -3.751451050877634,
+              -2.2935847979738035,
+              -2.511754016096056
+            ],
+            "paired_psnr_max_db": -2.2935847979738035,
+            "paired_psnr_min_db": -3.751451050877634,
+            "paired_psnr_std_db": 0.786322723943353,
+            "seeds": [
+              19001,
+              19002,
+              19003
+            ]
+          },
+          {
+            "frame_id": "frame_00009",
+            "mean_alpha_iou_delta": -0.059633805491694315,
+            "mean_psnr_delta_db": -2.7083365551271754,
+            "meets_frozen_materiality_rule": false,
+            "paired_alpha_iou_deltas": [
+              -0.053367681635758224,
+              -0.07026138879843402,
+              -0.05527234604089071
+            ],
+            "paired_psnr_deltas_db": [
+              -3.0524231325683893,
+              -2.503362545585741,
+              -2.569223987227396
+            ],
+            "paired_psnr_max_db": -2.503362545585741,
+            "paired_psnr_min_db": -3.0524231325683893,
+            "paired_psnr_std_db": 0.2998017877785014,
+            "seeds": [
+              19001,
+              19002,
+              19003
+            ]
+          }
+        ],
+        "meets_rule_in_both_frames": false
+      },
+      {
+        "baseline": "native_additive",
+        "family_id": "structsplat_contained",
+        "frames": [
+          {
+            "frame_id": "frame_00008",
+            "mean_alpha_iou_delta": -0.004087299447086708,
+            "mean_psnr_delta_db": 0.8967153583174863,
+            "meets_frozen_materiality_rule": true,
+            "paired_alpha_iou_deltas": [
+              0.0016785345795902185,
+              -0.01352364118166327,
+              -0.00041679173918707235
+            ],
+            "paired_psnr_deltas_db": [
+              0.9905117173034839,
+              0.9868034931936762,
+              0.7128308644552988
+            ],
+            "paired_psnr_max_db": 0.9905117173034839,
+            "paired_psnr_min_db": 0.7128308644552988,
+            "paired_psnr_std_db": 0.15925943627844097,
+            "seeds": [
+              19001,
+              19002,
+              19003
+            ]
+          },
+          {
+            "frame_id": "frame_00009",
+            "mean_alpha_iou_delta": 0.005864305105643249,
+            "mean_psnr_delta_db": 0.3128257324436632,
+            "meets_frozen_materiality_rule": false,
+            "paired_alpha_iou_deltas": [
+              0.0158290198256561,
+              0.000816004872858489,
+              0.0009478906184151592
+            ],
+            "paired_psnr_deltas_db": [
+              -0.23838362229516719,
+              0.6386256021348409,
+              0.5382352174913159
+            ],
+            "paired_psnr_max_db": 0.6386256021348409,
+            "paired_psnr_min_db": -0.23838362229516719,
+            "paired_psnr_std_db": 0.4799930956752576,
+            "seeds": [
+              19001,
+              19002,
+              19003
+            ]
+          }
+        ],
+        "meets_rule_in_both_frames": false
+      }
+    ]
+  },
+  "result_sha256": "75617482de2d4569396775da350ae236b9627f9f078b72ebfcbdb74b3f96badf",
+  "reviewed_at_utc": "2026-09-07T12:27:52.853894+00:00",
+  "reviewer": "Codex-cross-repo-review",
+  "rtgs_protocol_sha256": "0df467f6418273465167297edc866c7d526c78aac11e8c0f97fe6e409f7cf2c5",
+  "run_result_sources_sha256": "75617482de2d4569396775da350ae236b9627f9f078b72ebfcbdb74b3f96badf",
+  "schema": "rtgs.bench019.local.independent_results_audit.v1",
+  "scope": "Scientific evidence audit; final shared RTGS rendering, browser/WebGL/orbit and delivery gates are separate required completion receipts.",
+  "source_commit": "f165d353ff9e9174c1ac1c936ed7855cc7a25abb",
+  "source_transition": {
+    "generated_files": 144,
+    "metadata_transition_verified": true,
+    "protocol_sha256": "50fa2fdda311b57ff6e91294bcbe1ffcbe6c42e6e3e9ff5392e40bc1a11cb268",
+    "rtgs_execution_commit": "f165d353ff9e9174c1ac1c936ed7855cc7a25abb",
+    "structsplat_initial": "6ff898e8682cc7d932d540b818b3f0d6a4a0e529",
+    "structsplat_phase2": "3ada86049863a6a7293cf22f47a31f9f728a9445"
+  },
+  "structsplat_design_sha256": "00b85f3b7eab01d82c4e96215052670260535b7017d4791454562213223f41b6",
+  "structsplat_protocol_sha256": "6782f55f4d1f787409beae30e6b39e8e25e87b9fc51f4a5143c07d1a6d22e06b",
+  "task_id": "20260907_bench019_local_stage_frames00008_00009",
+  "verdict": "accepted_for_bounded_development"
+}

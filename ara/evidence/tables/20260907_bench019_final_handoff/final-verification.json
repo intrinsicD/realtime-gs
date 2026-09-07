@@ -1,0 +1,79 @@
+{
+  "schema": "structsplat_rtgs.local_bench019.final_verification.v1",
+  "status": "passed",
+  "scope": "Final local bounded experiment and repository verification; metadata-only evidence closeout after frozen scientific execution.",
+  "cpu_environment": {
+    "python": "/tmp/structsplat-rtgs-collab/venv/bin/python",
+    "torch": "2.9.0+cpu",
+    "absolute_pythonpath": [
+      "/home/alex/Documents/structsplat/src",
+      "/home/alex/Documents/realtime-gs/src",
+      "/home/alex/Documents/realtime-gs"
+    ],
+    "threads": 2,
+    "rtgs_loopback": "Approved host execution, existing listener tests require sockets."
+  },
+  "repository_verification": [
+    {
+      "repository": "rtgs",
+      "command": "./scripts/verify.sh",
+      "exit_code": 0,
+      "log": "/home/alex/Documents/realtime-gs/ara/evidence/tables/20260907_bench019_final_handoff/verify-rtgs-final-metadata.log",
+      "bytes": 3928,
+      "sha256": "5cfda54739481e1ad44f3ceb01c52ab849328ba8d5dbe188e4f7bc0ba5122435"
+    },
+    {
+      "repository": "structsplat",
+      "command": "./scripts/verify.sh",
+      "exit_code": 0,
+      "log": "/home/alex/Documents/realtime-gs/ara/evidence/tables/20260907_bench019_final_handoff/verify-structsplat-final-metadata.log",
+      "bytes": 5265,
+      "sha256": "c637fb6a249309b9ee06123416c7f40e5c0d6800540cc839bc0adc4f18208d4e"
+    }
+  ],
+  "structsplat_pytest": {
+    "passed": 2495,
+    "skipped": 77,
+    "deselected": 515
+  },
+  "delivery": {
+    "rtgs_check_run": 0,
+    "rtgs_check_results_bundle": 0,
+    "structsplat_check_report_bundle": 0,
+    "browser_frames": 2,
+    "final_http_targets": 1404,
+    "run": "/home/alex/Documents/realtime-gs/runs/20260907_bench019_local_stage_frames00008_00009",
+    "manifest_sha256": "f38f9efa85af284a3f87b89d8a8825f7333c1bebec5924b38f57e4b4d98d5dab",
+    "viewer_receipt_sha256": "a1e5857f3242deb473902b1538b4482fdea1f99addae5c3f36a289b04cd9a277"
+  },
+  "independent_audit": {
+    "reviewer": "Codex-cross-repo-review",
+    "verdict": "accepted_for_bounded_development",
+    "models_replayed": 18,
+    "heldout_views_replayed": 54,
+    "cpu_cell_aggregates": 20,
+    "claude_scope": "Text-only experimental-design review; original review and disposition committed under experiments/reviews."
+  },
+  "resolved_check_failures": [
+    {
+      "check": "Initial final Struct portable suite",
+      "result": "2494 passed; one task-policy failure because the Notes heading hid structured workflow blocks. Independent reviewer accepted one-line heading correction; full suite rerun passes2495."
+    },
+    {
+      "check": "Initial final RTGS sandbox suite",
+      "result": "Three existing listener tests hit sandbox PermissionError. Both approved host full verification runs passed; no test/source change."
+    },
+    {
+      "check": "First two actual browser attempts",
+      "result": "Missing outward evidence HTTP paths, then stale paths after preserving attempt logs. Exact-byte evidence copies and shared report regeneration resolved both; attempts preserved."
+    }
+  ],
+  "scientific_boundary": {
+    "materiality": "Neither normalized family satisfies the full frozen two-frame conjunction.",
+    "surrogate": "question_unavailable with one capture",
+    "defaults_changed": false,
+    "performance_claim": false,
+    "model_or_image_upload": false,
+    "push": false
+  }
+}
