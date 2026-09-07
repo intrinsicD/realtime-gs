@@ -4292,3 +4292,17 @@ tree:
     also_depends_on:
     - N230
     status: resolved
+  - id: N232
+    type: decision
+    title: Cancel archive transfer and additional image or mask uploads
+    provenance: user
+    timestamp: 2026-09-07T08:14+02:00
+    choice: The user declines the proposed 8.16 GB upload and instructs no additional images
+      or masks. Keep the prepared archives and capture files local. The previous upload
+      question is resolved by refusal; it must not remain pending or be retried elsewhere.
+    alternatives:
+    - Proposed private archive upload; declined by the user.
+    evidence:
+    - docs/WORK_HANDOFF_2026-09-07.md
+    - ara/trace/sessions/2026-09-07_001.yaml
+    status: resolved

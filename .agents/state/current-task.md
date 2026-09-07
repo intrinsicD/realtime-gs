@@ -37,7 +37,7 @@ source, protocols, results and data seals. Commit and push the bounded repair.
 
 ## Constraints
 No reconstruction rerun or production-source change. Do not modify old evidence to satisfy tests.
-The private archive upload remains separately blocked pending explicit payload approval.
+The user cancelled the private archive upload and prohibits additional image or mask uploads.
 
 ## Non-Goals
 Changing renderer derivatives, proving compatibility with every PyTorch release, changing the
@@ -129,3 +129,9 @@ The full corrected clean-checkout gate and the no-write CI benchmark smoke passe
 local in `.scratch/work-handoff-20260907/`; they are outside the public code commit. Frozen
 experiment source and data seals remain unchanged. Hosted post-pin confirmation is pending;
 this task retains its explicit provisional self-review status.
+
+### Delivery instruction (2026-09-07)
+The user declined the 8.16 GB upload and instructed no additional images or masks. The empty
+private draft release was removed without uploading any asset. Preserve earlier pending-upload
+entries as history; the current transfer decision is cancellation. Hosted CI for the CPU repair
+at commit 16dde3c passed; this does not change the task's provisional self-review disposition.

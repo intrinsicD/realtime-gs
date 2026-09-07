@@ -1,6 +1,6 @@
 # realtime-gs
 
-[7 September work handoff: restore reports and inputs](docs/WORK_HANDOFF_2026-09-07.md).
+[7 September work handoff: code sync and local results](docs/WORK_HANDOFF_2026-09-07.md).
 
 Research repository testing one idea: **make 3D Gaussian Splatting (3DGS) reconstruction
 fast by skipping the cold start.** Instead of initializing 3DGS from a sparse SfM point

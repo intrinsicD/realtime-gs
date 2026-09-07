@@ -895,3 +895,9 @@ entries:
       archive upload rejection and pending approval; no sensitive archive asset was uploaded.
     - The frozen experiment inputs, source bindings and report bundle still validate. Packaging
       preserves original bytes and records per-file hashes; it is not a new experiment.
+  - turn: 2026-09-07_001#3
+    notes:
+    - Record the explicit refusal as a direct user decision. Close the current pending-upload
+      thread while preserving earlier proposals, rejections and approval requests as history.
+    - This limits artifact transfer, not the scientific interpretation or the previous Fable
+      review payload. No scientific observation is promoted or claim disposition changed.

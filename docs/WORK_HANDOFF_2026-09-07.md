@@ -1,86 +1,30 @@
 # Work handoff — 7 September 2026
 
-The code and tracked research evidence belong to the `main` branches of
+The code and tracked research records are on `main` in
 [intrinsicD/structsplat](https://github.com/intrinsicD/structsplat) and
 [intrinsicD/realtime-gs](https://github.com/intrinsicD/realtime-gs).
+Both hosted verification runs for the CPU environment fixes passed.
 
-The destination for the checksummed reports and calibrated inputs is the
-[private work-handoff release](https://github.com/intrinsicD/structsplat-research-artifacts/releases/tag/work-handoff-2026-09-07).
-Sign in with the `intrinsicD` GitHub account or another account granted access to that repository.
-The artifact repository is private because the inputs and previews include dome captures.
+## Transfer decision
 
-## Transfer status
+The user declined the 8.16 GB archive upload on 7 September 2026 and instructed:
+**no additional images or masks**. The proposed archive transfer is cancelled. No archive asset
+was uploaded, and its empty draft release was removed. This is not a pending approval request.
 
-Both code repositories are committed on `main` and pushed: StructSplat `91bb834`,
-realtime-gs `8cd7fe7`. Both mandatory verification gates passed.
+The prepared archives, datasets, saved models and full browser reports remain on the local
+machine. They are not included in this Git handoff. The unused private artifact repository
+contains documentation only.
 
-The archive upload is pending explicit approval for transferring private dome data. The private
-release is currently an empty draft; the download commands below become usable after publication.
-The verified local bundle is at
-`/home/alex/Documents/realtime-gs/.scratch/work-handoff-20260907/`.
-`delivery-payload.json`, `SHA256SUMS`, and `archive-verification.log` describe the prepared files.
+## Update the code at work
 
-## Restore at work
+For existing clean checkouts, run `git switch main` followed by `git pull --ff-only` in each
+repository. Follow each README's setup instructions for the pinned CPU verification environment.
+Use the code and already tracked research records; do not upload additional images or masks.
 
-Clone both code repositories into the same parent directory, or run `git pull --ff-only` on
-`main` in existing clean checkouts. The example below uses `~/Documents` as that parent.
-The archives restore paths under `structsplat/` and `realtime-gs/`; extract into that parent,
-not inside either repository. Use fresh checkouts if the work computer has local changes in
-its datasets or results: extraction restores the archived files at their original relative paths.
+## Local results
 
-```bash
-mkdir -p "$HOME/Documents/work-handoff-20260907"
-gh release download work-handoff-2026-09-07 \
-  --repo intrinsicD/structsplat-research-artifacts \
-  --dir "$HOME/Documents/work-handoff-20260907"
-
-cd "$HOME/Documents/work-handoff-20260907"
-sha256sum --check SHA256SUMS
-
-for name in structsplat-reports realtime-gs-reports realtime-gs-data; do
-  cat "$name".tar.gz.part-* | tar -xz -C "$HOME/Documents"
-done
-```
-
-Each archive's `.manifest.json` lists every restored file, its byte size and SHA-256. Identical
-files share tar hard links to reduce transfer size; copy a restored file before editing it if
-its preserved evidence bytes must remain independent. The archives preserve historical reports,
-source snapshots and review receipts as they were recorded, including original machine paths.
-They do not rerun, relabel or revise frozen experiments.
-
-## Open the tomography report
-
-```bash
-cd "$HOME/Documents/realtime-gs"
-python3 -m http.server 8765 --bind 127.0.0.1 \
-  --directory runs/20260906_tomography_source_constraints_haelyn_dome
-```
-
-Open <http://127.0.0.1:8765/index.html>. After setting up the normal repository environment, the
-saved representative reconstruction can be inspected with:
-
-```bash
-.venv/bin/rtgs view \
-  --gaussians runs/20260906_tomography_source_constraints_haelyn_dome/gaussians.ply \
-  --initial runs/20260906_tomography_source_constraints_haelyn_dome/gaussians_init.ply \
-  --no-open
-```
-
-Use the canonical `RESULT` and `AUDIT` records under `benchmarks/results/` and the archived
-RTGS-016 task for interpretation. Frozen execution source is preserved in the run's
-`source_snapshot.tar.gz`; installing current dependencies alone does not recreate the original
-producer environment. The run's environment and source receipts describe that environment.
-
-## Archive scope
-
-- `realtime-gs-data`: the complete local `dataset/`, including the downloaded Haelyn reference,
-  calibrated dome inputs and compact teachers.
-- `realtime-gs-reports`: the complete local `runs/`, including the final tomography report,
-  models, previews, histories, source snapshot, audit provenance and browser receipts.
-- `structsplat-reports`: the complete local `runs/` and the 5 September code-driven,
-  HIER-033, HIER-034, HIER-035 and HIER-036 report directories. The manifests enumerate the roots.
-  Their audited evidence archives are also tracked in the code repository.
-
-Older unrelated StructSplat `results/` directories, dependency environments, build caches,
-local CLI settings and temporary scratch files are outside this handoff. Virtual environments
-must be installed on the work machine using each repository's setup instructions.
+The completed tomography report remains at
+`realtime-gs/runs/20260906_tomography_source_constraints_haelyn_dome/index.html` on the original
+machine. Its canonical result and audit records are tracked under realtime-gs `benchmarks/results/`.
+The prepared transfer files remain local at
+`realtime-gs/.scratch/work-handoff-20260907/`; their presence is not authorization to upload them.
