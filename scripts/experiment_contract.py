@@ -2294,7 +2294,7 @@ def _manifest_errors(
         path.relative_to(run).as_posix()
         for path in run.rglob("*")
         if path.is_file()
-        and path.name != "manifest.json"
+        and path != run / "manifest.json"
         and not (path.name.startswith(".") and path.name.endswith(".tmp"))
     }
     missing_run = sorted(expected_run_paths - run_paths)

@@ -190,6 +190,17 @@ can publish `complete_development`. None of these adapters or predictors fits a 
 reconstruction, opens confirmation outcomes, chooses a loss, or performs BENCH-019 correlation
 analysis.
 
+The task-owned `rtgs.bench019_local_inputs`, `rtgs.bench019_local_downstream`, and
+`rtgs.bench019_local_report` modules implement the separate local development experiment.
+Its registered coordinator requires a ready source-bound RTGS protocol before acquisition,
+then a finalized independent StructSplat protocol binding the generated fields before any
+downstream execution. Preparation and reconstruction use only declared training views;
+held-out images are loaded in separate reporting processes. Complete fitter and trainer
+dataclasses, cold field/model replay, A/A checks, raw denominators, resource receipts, and
+shared reports make the bounded comparison reproducible. Stage-1 acquisition histories are
+recorded once per family, separately from per-seed refinement histories. This experiment
+does not replace the passive adapters or open the confirmation portfolio.
+
 The standalone CPU `CompactCarveInitializer` consumes this bundle for sampled ray-tunnel
 initialization. Its optional prebuilt observation indexes are reusable by `CompactTrainer` and
 are rejected unless their tile size, total entries, and maximum candidates satisfy the configured

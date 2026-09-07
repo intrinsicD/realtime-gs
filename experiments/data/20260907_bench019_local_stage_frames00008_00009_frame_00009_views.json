@@ -1,0 +1,39 @@
+{
+  "schema": "rtgs.bench019.local.raw_selection.v1",
+  "purpose": "Raw-input selection manifest only; no precomputed compact payload is asserted.",
+  "views": [
+    {
+      "view_id": "C0001"
+    },
+    {
+      "view_id": "C0009"
+    },
+    {
+      "view_id": "C0014"
+    },
+    {
+      "view_id": "C0018"
+    },
+    {
+      "view_id": "C0019"
+    },
+    {
+      "view_id": "C0025"
+    },
+    {
+      "view_id": "C0028"
+    },
+    {
+      "view_id": "C0030"
+    },
+    {
+      "view_id": "C1001"
+    },
+    {
+      "view_id": "C1002"
+    },
+    {
+      "view_id": "C1004"
+    }
+  ]
+}

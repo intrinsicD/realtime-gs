@@ -492,7 +492,7 @@ def _check_v2_manifest(run_dir: Path) -> list[str]:
         item.relative_to(run_dir).as_posix()
         for item in run_dir.rglob("*")
         if item.is_file()
-        and item.name != "manifest.json"
+        and item != run_dir / "manifest.json"
         and not (item.name.startswith(".") and item.name.endswith(".tmp"))
     }
     if run_paths != expected_run_paths:

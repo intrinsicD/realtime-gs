@@ -954,3 +954,23 @@
 - **From staging**: []
 - **Boundary**: CPU numerical repair only; no CUDA, calibrated reconstruction, performance,
   scientific claim promotion, or maintained-default change.
+
+## C45: The local BENCH019 runner preserves a matched development comparison
+
+- **Statement**: RTGS-019 is designed to bind training-only matched Stage-1 acquisition,
+  exact observation inputs, one fixed initialization/refinement schedule, separate held-out
+  reporting, and independently reviewed source/input envelopes into one local report.
+- **Status**: untested complete execution; helper and coordinator contracts tested separately
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: A declared cell changes its frozen input/configuration, opens
+  held-out data while fitting, misstates shared acquisition costs as independent seed
+  measurements, bypasses prospective approval, or fails raw-to-report replay.
+- **Proof**: [`tests/test_bench019_local_inputs.py`,
+  `tests/test_bench019_local_downstream.py`, `tests/test_bench019_local_driver.py`,
+  `src/rtgs/bench019_local_report.py`]
+- **Dependencies**: []
+- **Tags**: experiment-contract, development, split-isolation, fixed-capacity, no-default
+- **From staging**: []
+- **Boundary**: Implementation contract under review. No calibrated result, general surrogate,
+  family equivalence, speed advantage, or production-default conclusion is established.
