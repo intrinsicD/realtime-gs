@@ -333,6 +333,115 @@ def test_csr_query_coordinate_gradients_match_reference():
     torch.testing.assert_close(indexed_grad, reference_grad, atol=1e-5, rtol=1e-5)
 
 
+def _gradient_query_backend(field: GaussianObservationField, backend: str):
+    if backend == "dense":
+        return field, {}
+    if backend == "grouped":
+        return _GroupedObservationIndexReference(field, tile_size=4), {}
+    return GaussianObservationIndex(field, tile_size=4, max_query_pairs=2), {
+        "checkpoint_pair_chunks": backend == "csr-checkpointed"
+    }
+
+
+@pytest.mark.parametrize("backend", ("dense", "grouped", "csr", "csr-checkpointed"))
+@pytest.mark.parametrize("blend_mode", ("normalized", "additive"))
+@pytest.mark.parametrize("dtype", (torch.float32, torch.float64))
+@pytest.mark.parametrize(
+    "case",
+    (
+        "empty-field",
+        "empty-points",
+        "zero-amplitudes",
+        "empty-tile",
+        "outside-window",
+        "outside-support-in-candidate-tile",
+    ),
+)
+def test_zero_observation_queries_retain_coordinate_gradients(backend, blend_mode, dtype, case):
+    n = 0 if case == "empty-field" else 1
+    field = GaussianObservationField(
+        width=16,
+        height=16,
+        means=torch.full((n, 2), 2.5, dtype=dtype),
+        log_scales=torch.full((n, 2), 0.25, dtype=dtype).log(),
+        rotations=torch.zeros(n, dtype=dtype),
+        colors=torch.ones(n, 3, dtype=dtype),
+        amplitudes=torch.full((n,), float(case != "zero-amplitudes"), dtype=dtype),
+        blend_mode=blend_mode,
+        provider="synthetic_fixture",
+    )
+    coordinates = {
+        "empty-field": [[2.5, 2.5]],
+        "empty-points": [],
+        "zero-amplitudes": [[2.5, 2.5]],
+        "empty-tile": [[12.5, 12.5]],
+        "outside-window": [[-1.0, -1.0]],
+        "outside-support-in-candidate-tile": [[0.5, 0.5]],
+    }
+    xy = torch.tensor(coordinates[case], dtype=dtype).reshape(-1, 2).requires_grad_(True)
+    query_backend, kwargs = _gradient_query_backend(field, backend)
+    query = query_backend.query(xy, **kwargs)
+    weight_sum = query_backend.query_weight_sum(xy, **kwargs)
+    for value in (query.color, query.numerator, query.weight_sum, weight_sum):
+        assert value.dtype == dtype
+        assert torch.equal(value, torch.zeros_like(value))
+        gradient = torch.autograd.grad(value.sum(), xy, retain_graph=True)[0]
+        assert torch.equal(gradient, torch.zeros_like(xy))
+    assert torch.equal(query.valid, field.valid_domain(xy))
+
+    # A gradient-carrying input must still produce detached values in inference contexts.
+    with torch.no_grad():
+        inference_query = query_backend.query(xy, **kwargs)
+        inference_weight_sum = query_backend.query_weight_sum(xy, **kwargs)
+    for value, inference in zip(
+        (query.color, query.numerator, query.weight_sum, weight_sum),
+        (
+            inference_query.color,
+            inference_query.numerator,
+            inference_query.weight_sum,
+            inference_weight_sum,
+        ),
+        strict=True,
+    ):
+        assert not inference.requires_grad
+        assert torch.equal(value, inference)
+
+
+@pytest.mark.parametrize("backend", ("dense", "grouped", "csr", "csr-checkpointed"))
+@pytest.mark.parametrize("blend_mode", ("normalized", "additive"))
+def test_mixed_observation_query_output_gradients_match_reference(backend, blend_mode):
+    field = _make_field(
+        n=8,
+        width=16,
+        height=16,
+        seed=47,
+        blend_mode=blend_mode,
+        with_color_grads=True,
+        scale_low=0.25,
+        scale_high=0.5,
+    )
+    coordinates = torch.cat([field.means[:3] + 0.15, torch.tensor([[-1.0, -1.0], [40.0, 40.0]])])
+    expected_xy = coordinates.clone().requires_grad_(True)
+    expected = field.query(expected_xy, component_chunk=1)
+    xy = coordinates.clone().requires_grad_(True)
+    query_backend, kwargs = _gradient_query_backend(field, backend)
+    actual = query_backend.query(xy, component_chunk=1, **kwargs)
+    weight_sum = query_backend.query_weight_sum(xy, component_chunk=1, **kwargs)
+    for value, reference in zip(
+        (actual.color, actual.numerator, actual.weight_sum, weight_sum),
+        (expected.color, expected.numerator, expected.weight_sum, expected.weight_sum),
+        strict=True,
+    ):
+        torch.testing.assert_close(value, reference, atol=_ATOL, rtol=_RTOL)
+        gradient = torch.autograd.grad(value.square().sum(), xy, retain_graph=True)[0]
+        reference_gradient = torch.autograd.grad(
+            reference.square().sum(), expected_xy, retain_graph=True
+        )[0]
+        torch.testing.assert_close(gradient, reference_gradient, atol=1e-5, rtol=1e-5)
+        assert bool(gradient[:3].abs().sum() > 0)
+        assert torch.equal(gradient[-2:], torch.zeros_like(gradient[-2:]))
+
+
 # --------------------------------------------------------------------------------------------- #
 # Bounded pair streaming and determinism.
 # --------------------------------------------------------------------------------------------- #

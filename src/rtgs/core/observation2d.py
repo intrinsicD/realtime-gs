@@ -90,6 +90,15 @@ def _require_exact_keys(value: object, expected: frozenset[str], *, label: str) 
     return value
 
 
+def _retain_query_gradient(value: torch.Tensor, xy: torch.Tensor) -> torch.Tensor:
+    """Connect empty accumulations to coordinates without changing evaluated query graphs."""
+    if not value.requires_grad and xy.requires_grad and torch.is_grad_enabled():
+        # Multiply before any reduction so even extreme finite coordinates produce exact zeros.
+        zero = xy[:, 0] * 0.0
+        return value + zero.reshape((xy.shape[0],) + (1,) * (value.ndim - 1))
+    return value
+
+
 @dataclass(frozen=True)
 class ObservationQuery:
     """Values returned by :meth:`GaussianObservationField.query`."""
@@ -510,6 +519,8 @@ class GaussianObservationField:
             weights, pixel_colors = self._cross_values(xy, component_ids)
             denominator = denominator + weights.sum(dim=1)
             numerator = numerator + (weights[..., None] * pixel_colors).sum(dim=1)
+        numerator = _retain_query_gradient(numerator, xy)
+        denominator = _retain_query_gradient(denominator, xy)
         if self.blend_mode == "normalized":
             color = numerator / (denominator[:, None] + self.epsilon)
         else:
@@ -534,7 +545,7 @@ class GaussianObservationField:
                 device=self.device,
             )
             denominator = denominator + self._cross_weights(xy, component_ids).sum(dim=1)
-        return denominator
+        return _retain_query_gradient(denominator, xy)
 
     def minimum_mahalanobis_squared(
         self,
@@ -1296,6 +1307,8 @@ class GaussianObservationIndex:
                 weights, colors = self.field._paired_values(xy[point_index], component_ids)
             denominator = self._accumulate(denominator, point_index, weights)
             numerator = self._accumulate(numerator, point_index, weights[:, None] * colors)
+        numerator = _retain_query_gradient(numerator, xy)
+        denominator = _retain_query_gradient(denominator, xy)
         if self.field.blend_mode == "normalized":
             color = numerator / (denominator[:, None] + self.field.epsilon)
         else:
@@ -1334,7 +1347,7 @@ class GaussianObservationIndex:
             else:
                 weights = self.field._paired_weights(xy[point_index], component_ids)
             denominator = self._accumulate(denominator, point_index, weights)
-        return denominator
+        return _retain_query_gradient(denominator, xy)
 
 
 class _GroupedObservationIndexReference:
@@ -1401,6 +1414,8 @@ class _GroupedObservationIndexReference:
                 local_num = local_num + (weights[..., None] * colors).sum(dim=1)
             numerator[point_indices] = local_num
             denominator[point_indices] = local_den
+        numerator = _retain_query_gradient(numerator, xy)
+        denominator = _retain_query_gradient(denominator, xy)
         if self.field.blend_mode == "normalized":
             color = numerator / (denominator[:, None] + self.field.epsilon)
         else:
@@ -1424,7 +1439,7 @@ class _GroupedObservationIndexReference:
                 ids = component_ids[start : start + component_chunk]
                 local = local + self.field._cross_weights(points, ids).sum(dim=1)
             denominator[point_indices] = local
-        return denominator
+        return _retain_query_gradient(denominator, xy)
 
     def _groups(self, xy: torch.Tensor):
         valid_indices = self.field.valid_domain(xy).nonzero(as_tuple=True)[0]

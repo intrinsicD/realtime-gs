@@ -935,3 +935,22 @@
   floor. Mask conditions differ in initialization/count and projection dilation. No physical
   geometry truth, independent-scene generalization, mask-causal effect, speedup, full-capacity
   quality or production-default claim. External MSE/SSIM were not independently rerendered.
+
+## C44: Empty CPU observation queries retain zero coordinate derivatives
+
+- **Statement**: RTGS-018 preserves a zero dependency on query coordinates when dense, CSR, or
+  grouped CPU observation accumulation has no autograd history. Synthetic fixtures exercise
+  empty fields and batches, unsupported and outside-window rows, both compositor modes, each
+  numeric query output, denominator-only queries, and CSR checkpointing. Existing connected
+  query graphs retain their ordinary values and derivatives.
+- **Status**: supported CPU contract
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Empty-query backward raises, a tested zero derivative becomes
+  nonzero/nonfinite, inference retains a graph, or mixed supported/unsupported output parity fails.
+- **Proof**: [`tests/test_observation_csr.py`, `tests/test_observation2d.py`]
+- **Dependencies**: []
+- **Tags**: CPU-contract, autograd, observation-query, empty-support
+- **From staging**: []
+- **Boundary**: CPU numerical repair only; no CUDA, calibrated reconstruction, performance,
+  scientific claim promotion, or maintained-default change.

@@ -272,7 +272,9 @@ Repository task recipes live under `.claude/skills/`. The repo-specific
   production default; the real TUM registered-depth reference is isolated in its research harness.
 - **Compact observation query** (`GaussianObservationField` / `GaussianObservationIndex`): the
   dependency-free field is the CPU equation anchor and the sparse CPU tile index implements the
-  same point-query surface. The index stores three flattened CSR arrays (`tile_keys`,
+  same point-query surface. Empty CPU query accumulations retain a zero coordinate derivative
+  for optimization, including CSR checkpoint queries (RTGS-018, ARA C44).
+  The index stores three flattened CSR arrays (`tile_keys`,
   `tile_offsets`, `component_ids`) instead of one tensor per tile, and answers queries by streaming
   a bounded `(point, component)` pair sequence — in canonical point-major, ascending-component
   order — through exact paired field evaluation, replacing the eager per-tile Python query loop.

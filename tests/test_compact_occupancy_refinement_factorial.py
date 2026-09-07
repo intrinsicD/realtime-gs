@@ -56,15 +56,28 @@ def _without_preloaded_rgb_modules():
         sys.modules.update(saved)
 
 
-def _run_local_source_failure_probe(kind: str) -> dict:
+@pytest.fixture
+def preload_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    preload = tmp_path / "libstdc++.so.6.0.33"
+    payload = b"CPU-only ABI binding fixture\n"
+    preload.write_bytes(payload)
+    monkeypatch.setattr(factorial, "PRELOAD", preload)
+    monkeypatch.setattr(factorial, "EXPECTED_PRELOAD_SHA256", hashlib.sha256(payload).hexdigest())
+    return preload
+
+
+def _run_local_source_failure_probe(kind: str, preload: Path) -> dict:
     script = r"""
 import json
 import os
 import sys
 import types
+from pathlib import Path
 from benchmarks import compact_occupancy_refinement_factorial as factorial
 
 kind = sys.argv[1]
+factorial.PRELOAD = Path(sys.argv[2])
+factorial.EXPECTED_PRELOAD_SHA256 = sys.argv[3]
 if kind == "shadowed":
     module = types.ModuleType("rtgs.core.camera")
     module.__file__ = str(factorial.ROOT / "tests/test_compact_occupancy_refinement_factorial.py")
@@ -96,7 +109,7 @@ print(json.dumps({
 }, sort_keys=True))
 """
     completed = subprocess.run(
-        [sys.executable, "-c", script, kind],
+        [sys.executable, "-c", script, kind, str(preload), factorial.EXPECTED_PRELOAD_SHA256],
         cwd=factorial.ROOT,
         text=True,
         capture_output=True,
@@ -677,8 +690,8 @@ print(json.dumps({
     }
 
 
-def test_shadowed_rtgs_module_fails_source_and_runtime_bindings():
-    record = _run_local_source_failure_probe("shadowed")
+def test_shadowed_rtgs_module_fails_source_and_runtime_bindings(preload_fixture):
+    record = _run_local_source_failure_probe("shadowed", preload_fixture)
     assert len(record["module_origin_violations"]) == 1
     assert record["module_origin_violations"][0].startswith("shadowed:rtgs.core.camera=")
     assert record["unbound_local_sources"] == []
@@ -686,9 +699,9 @@ def test_shadowed_rtgs_module_fails_source_and_runtime_bindings():
     assert "loaded rtgs module origin mismatch" in record["runtime_error"]
 
 
-def test_unbound_repository_local_module_fails_source_and_runtime_bindings():
+def test_unbound_repository_local_module_fails_source_and_runtime_bindings(preload_fixture):
     assert Path("src/rtgs/cli.py") not in factorial.SOURCE_PATHS
-    record = _run_local_source_failure_probe("unbound")
+    record = _run_local_source_failure_probe("unbound", preload_fixture)
     assert record["module_origin_violations"] == []
     assert "src/rtgs/cli.py" in record["unbound_local_sources"]
     assert "loaded local source closure is not sealed" in record["source_error"]
@@ -964,9 +977,24 @@ print(json.dumps({
     assert record["different"] is True
 
 
-def test_runtime_binding_rejects_perturbed_ld_preload(monkeypatch: pytest.MonkeyPatch):
+def test_runtime_binding_rejects_perturbed_ld_preload(
+    monkeypatch: pytest.MonkeyPatch, preload_fixture: Path
+):
     monkeypatch.setenv("LD_PRELOAD", f"{factorial.PRELOAD}:/tmp/foreign-libstdc++.so")
     with pytest.raises(factorial.ProtocolInvalid, match="effective LD_PRELOAD differs"):
+        factorial.runtime_binding()
+
+
+@pytest.mark.parametrize("missing", (False, True))
+def test_runtime_binding_rejects_changed_or_missing_preload(
+    monkeypatch: pytest.MonkeyPatch, preload_fixture: Path, missing: bool
+):
+    monkeypatch.setenv("LD_PRELOAD", str(preload_fixture))
+    if missing:
+        preload_fixture.unlink()
+    else:
+        preload_fixture.write_bytes(b"changed ABI binding fixture\n")
+    with pytest.raises(factorial.ProtocolInvalid, match=r"system libstdc\+\+ binding changed"):
         factorial.runtime_binding()
 
 

@@ -2284,7 +2284,15 @@ def test_phase_b_callbacks_capture_arm_and_compare_full_common_state() -> None:
 
 def test_iter3_runtime_binding_has_no_unbound_local_sources(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
+    preload = tmp_path / "libstdc++.so.6.0.33"
+    payload = b"CPU-only ABI binding fixture\n"
+    preload.write_bytes(payload)
+    monkeypatch.setattr(birth, "PRELOAD", preload)
+    monkeypatch.setattr(
+        birth.factorial, "EXPECTED_PRELOAD_SHA256", hashlib.sha256(payload).hexdigest()
+    )
     expected_origins = birth.expected_rtgs_module_origins()
     loaded_origins = {
         name: origin
@@ -2394,6 +2402,13 @@ def test_iter3_runtime_binding_has_no_unbound_local_sources(
         lambda _path, **_kwargs: {"runtime": drifted_runtime},
     )
     with pytest.raises(birth.ProtocolInvalid, match="ABI|runtime"):
+        birth.runtime_binding()
+
+    preload.write_bytes(b"changed ABI binding fixture\n")
+    with pytest.raises(birth.ProtocolInvalid, match=r"system libstdc\+\+ binding changed"):
+        birth.runtime_binding()
+    preload.unlink()
+    with pytest.raises(birth.ProtocolInvalid, match=r"system libstdc\+\+ binding changed"):
         birth.runtime_binding()
 
 

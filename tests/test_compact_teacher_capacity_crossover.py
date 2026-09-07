@@ -570,7 +570,11 @@ def test_viewer_handshake_rejects_occupied_port_and_binds_listener_pid() -> None
         assert not experiment._process_owns_listening_port(os.getpid() + 1_000_000, port)
 
 
-def test_native_evaluation_requires_exact_versioned_abi(monkeypatch) -> None:
+def test_native_evaluation_requires_exact_versioned_abi(monkeypatch, tmp_path: Path) -> None:
+    preload = tmp_path / "libstdc++.so.6.0.33"
+    payload = b"CPU-only ABI binding fixture\n"
+    preload.write_bytes(payload)
+    monkeypatch.setattr(experiment, "ABI_PRELOAD", preload)
     monkeypatch.delenv("LD_PRELOAD", raising=False)
     with pytest.raises(RuntimeError, match="first and sole"):
         experiment._assert_evaluation_abi()
@@ -584,7 +588,15 @@ def test_native_evaluation_requires_exact_versioned_abi(monkeypatch) -> None:
     record = experiment._assert_evaluation_abi()
     assert record["required_path"] == str(experiment.ABI_PRELOAD)
     assert record["first_and_sole_entry"]
-    assert len(record["required_sha256"]) == 64
+    assert record["required_sha256"] == hashlib.sha256(payload).hexdigest()
+    changed_payload = b"changed ABI binding fixture\n"
+    preload.write_bytes(changed_payload)
+    changed = experiment._assert_evaluation_abi()
+    assert changed["required_sha256"] == hashlib.sha256(changed_payload).hexdigest()
+    assert changed["required_sha256"] != record["required_sha256"]
+    preload.unlink()
+    with pytest.raises(FileNotFoundError):
+        experiment._assert_evaluation_abi()
 
 
 def test_cpu_plan_and_selection_require_empty_preload(monkeypatch) -> None:
