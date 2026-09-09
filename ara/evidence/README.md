@@ -75,3 +75,5 @@
 - `tables/20260906_haelyn_acquisition.json`: attributed captured-person reference, import/visual boundaries and prepared inputs; no reconstruction outcomes.
 - `tables/20260906_historical_protocol_preservation.json`: all 1,703 historical task/driver/review/run files remain byte-identical.
 - `tables/20260906_tomography_review_packet.md` and `tables/20260906_tomography_preflight/receipt.json`: source/data-bound draft comparison, CPU checks and pending review authorization.
+
+- `tables/20260908_field_teacher_information.md`: audited nine-cell field-target information screen, failed quality prerequisites, posthoc excess-opacity diagnostic and preserved recovery/accounting boundaries; C47.

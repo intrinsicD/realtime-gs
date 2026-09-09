@@ -1,0 +1,94 @@
+==> ruff check
+I001 [*] Import block is un-sorted or un-formatted
+ --> ara/evidence/tables/20260908_field_teacher_information/final_http_check.py:1:1
+  |
+1 | / from pathlib import Path
+2 | | from html.parser import HTMLParser
+3 | | from urllib.parse import urljoin,urldefrag
+4 | | from urllib.request import Request,urlopen
+5 | | import datetime as dt
+6 | | import hashlib
+7 | | import json
+  | |___________^
+8 |
+9 |   root=Path('/home/alex/Documents/realtime-gs')
+  |
+help: Organize imports
+
+E702 Multiple statements on one line (semicolon)
+  --> ara/evidence/tables/20260908_field_teacher_information/final_http_check.py:13:42
+   |
+11 | base='http://127.0.0.1:8765/'
+12 | class Links(HTMLParser):
+13 |     def __init__(self):super().__init__();self.targets=[]
+   |                                          ^
+14 |     def handle_starttag(self,tag,attrs):
+15 |         for key,value in attrs:
+   |
+
+E701 Multiple statements on one line (colon)
+  --> ara/evidence/tables/20260908_field_teacher_information/final_http_check.py:18:40
+   |
+16 |             if key in ('href','src') and value:
+17 |                 url=urldefrag(urljoin(base,value))[0]
+18 |                 if url.startswith(base):self.targets.append(url)
+   |                                        ^
+19 | html=(run/'index.html').read_bytes()
+20 | with urlopen(base+'index.html',timeout=30) as response:
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> ara/evidence/tables/20260908_field_teacher_information/final_http_check.py:21:27
+   |
+19 | html=(run/'index.html').read_bytes()
+20 | with urlopen(base+'index.html',timeout=30) as response:
+21 |     served=response.read();status=response.status
+   |                           ^
+22 | assert served==html and status==200
+23 | parser=Links();parser.feed(html.decode())
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> ara/evidence/tables/20260908_field_teacher_information/final_http_check.py:23:15
+   |
+21 |     served=response.read();status=response.status
+22 | assert served==html and status==200
+23 | parser=Links();parser.feed(html.decode())
+   |               ^
+24 | rows=[]
+25 | for target in sorted(set(parser.targets+[base+'index.html'])):
+   |
+
+E501 Line too long (417 > 100)
+  --> ara/evidence/tables/20260908_field_teacher_information/final_http_check.py:29:101
+   |
+27 | …
+28 | …
+29 | …HTTP check after the structured viewer receipt and final render; browser interaction evidence is preserved separately in the run.','html_sha256':hashlib.sha256(html).hexdigest(),'manifest_sha256':hashlib.sha256((run/'manifest.json').read_bytes()).hexdigest(),'served_bytes_match':True,'all_targets_ok':True,'targets':rows}
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+30 | …
+31 | …
+   |
+
+E701 Multiple statements on one line (colon)
+  --> ara/evidence/tables/20260908_field_teacher_information/final_http_check.py:31:29
+   |
+29 | record={'checked_at_utc':dt.datetime.now(dt.timezone.utc).isoformat(),'scope':'Read-only final HTTP check after the structured viewer …
+30 | out=root/'ara/evidence/tables/20260908_field_teacher_information/final_http_check.json'
+31 | with out.open('x') as stream:json.dump(record,stream,indent=2);stream.write('\n')
+   |                             ^
+32 | print(json.dumps({'status':'passed','targets':len(rows),'served_html_matches':True}))
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> ara/evidence/tables/20260908_field_teacher_information/final_http_check.py:31:63
+   |
+29 | record={'checked_at_utc':dt.datetime.now(dt.timezone.utc).isoformat(),'scope':'Read-only final HTTP check after the structured viewer …
+30 | out=root/'ara/evidence/tables/20260908_field_teacher_information/final_http_check.json'
+31 | with out.open('x') as stream:json.dump(record,stream,indent=2);stream.write('\n')
+   |                                                               ^
+32 | print(json.dumps({'status':'passed','targets':len(rows),'served_html_matches':True}))
+   |
+
+Found 8 errors.
+[*] 1 fixable with the `--fix` option.

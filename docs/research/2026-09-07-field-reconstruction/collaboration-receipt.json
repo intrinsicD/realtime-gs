@@ -1,0 +1,56 @@
+{
+  "scope": "Public-literature and general mathematics only; no repository code, benchmark payload, images, masks, models or capture datasets supplied.",
+  "driver": "Codex-field-reconstruction-research",
+  "collaborator_response_models": [
+    "claude-haiku-4-5-20251001",
+    "claude-fable-5-1"
+  ],
+  "note": "Fable main response; CLI receipt also reports auxiliary Haiku usage. Not an independent review of the repository or a protocol approval.",
+  "terminal_reason": "completed",
+  "is_error": false,
+  "permission_denials": [],
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "response_sha256": "d7d549fc7180f8eba42a78cd641bf772c379410fb32d189427ff98acadabf7e9",
+  "critique_sha256": "7b7c37f014842e860589eb50de0829c80bc9c2b6c96322da05dfd49a0e5470c0",
+  "prompt_sha256": "d1d9fa4990eef29a2c9bc7f4a0fd8d64e4e11e3ee960e4807cfe86aa4cb18c1b",
+  "safety_events": [
+    "Initial internal-context Claude request rejected by automatic approval review; no workaround transmitting that payload used.",
+    "Public-only Claude Agent request reached tool but failed: no available agent types.",
+    "Public-only CLI request completed with safe mode, no session persistence, public web tools only, fresh temporary directory."
+  ],
+  "review_disposition": "Two public research rounds completed. Codex accepts the shared forward-model distinction and exact-target equivalence; narrows or rejects remaining statements as listed in the report. This is not an independent repository or experiment-protocol approval.",
+  "followup": {
+    "terminal_reason": "completed",
+    "is_error": false,
+    "models": [
+      "claude-haiku-4-5-20251001",
+      "claude-fable-5-1"
+    ],
+    "permission_denials": [],
+    "response_sha256": "f9d055b61f036224d5ab3d017b2d6d8b86748ca3a2c010c5093eac9282a17dd2",
+    "question_sha256": "3dd8d3301df8e17185de43e632968251d235f6c2637912d8e0e08fc593e2b2e1"
+  }
+}

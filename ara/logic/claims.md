@@ -1018,3 +1018,16 @@
   blurred at this capacity/horizon. The broader surrogate question is unavailable for
   insufficient capture scope; this is neither equivalence nor a general negative result.
   No production-default, detailed-geometry, generalization, speed or general-memory claim.
+
+## C47: Dense fields improve the low-budget result but miss the frozen reconstruction-quality prerequisites
+
+- **Statement**: In the audited RTGS-021 development screen, mean held-out foreground PSNR is 24.782436 dB for photographs, 24.316375 dB for high-capacity fields and 18.552894 dB for the low-budget field family. The high teacher qualifies, but every photograph-reference seed misses the 25 dB foreground adequacy gate and every high-field pair fails the LPIPS, boundary and alpha-IoU margins. High fields outperform low-budget fields on all listed metrics and seeds. Posthoc thresholded opacity counts show that the high-field silhouette error is dominated by false-positive area, without identifying a cause. D/E are unavailable; high-quality end-to-end field-only reconstruction remains unresolved.
+- **Status**: supported development-only descriptive
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputing bound per-view/seed/arm reductions, inclusive gates or opacity counts changes the stated result, or source/input/initialization/schedule/heldout isolation fails.
+- **Proof**: [`ara/evidence/tables/20260908_field_teacher_information.md`, `benchmarks/results/20260908_field_teacher_information_stage_frame00008_RESULT.json`, `benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.md`, `benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.json`, `runs/20260908_field_teacher_information_stage_frame00008/comparison.json`, `runs/20260908_field_teacher_information_stage_frame00008/audit_checks/final_metric_audit.json`]
+- **Dependencies**: []
+- **Tags**: field-supervision, target-information, opacity, paired-seeds, development, no-default
+- **From staging**: O171
+- **Boundary**: One previously exposed capture at downscale 8, three seeds with shared RGB/mask-derived geometry,8,000 steps per completed cell. The low-budget family varies acquisition settings jointly. No strict field-only, physical-density, ground-truth geometry, full-resolution, generalization or performance claim. Two preserved interruptions and at least 500 discarded updates prevent equal-total-compute accounting. The opacity diagnostic is posthoc and non-causal.

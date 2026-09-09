@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "task_id": "20260908_field_teacher_information_stage_frame00008",
+  "summary": "Nine paired development cells completed. Heldout foreground PSNR: photographs 24.782 dB, 100k fields 24.316 dB, low-budget fields 18.553 dB.",
+  "decision": "Photograph baseline failed the frozen adequacy gate; resolve baseline geometry/solver quality before interpreting field-only viability.",
+  "claim_boundary": "Development diagnostic on one previously exposed calibrated capture at downscale eight. A/B/C share an RGB/mask-derived initialization; B/C are field-supervised refinement, not end-to-end field-only reconstruction. No physical-density, generalization, full-resolution, original-COLMAP-3DGS, speed or VRAM advantage claim. Failed A or teacher qualification leaves the high-quality field-only question unresolved.",
+  "groups": {
+    "rgb": {
+      "foreground_psnr": 24.78243605295817,
+      "full_psnr": 35.81177488962809,
+      "boundary_psnr": 20.784817059834797,
+      "crop_lpips": 0.11460884287953377,
+      "alpha_iou": 0.9571737200021744
+    },
+    "field_high": {
+      "foreground_psnr": 24.31637477874756,
+      "full_psnr": 32.88936471939087,
+      "boundary_psnr": 19.278670946757,
+      "crop_lpips": 0.17385580204427242,
+      "alpha_iou": 0.745161771774292
+    },
+    "field_low": {
+      "foreground_psnr": 18.55289379755656,
+      "full_psnr": 22.703758875528973,
+      "boundary_psnr": 11.51620864868164,
+      "crop_lpips": 0.5826492408911387,
+      "alpha_iou": 0.4947407941023509
+    }
+  },
+  "gates": {
+    "teacher_qualified": true,
+    "teacher_foreground_psnr": 36.45586239207875,
+    "teacher_crop_lpips": 0.04736961280419068,
+    "a_numeric_adequacy": [
+      {
+        "seed": 8101,
+        "numeric_pass": false
+      },
+      {
+        "seed": 8102,
+        "numeric_pass": false
+      },
+      {
+        "seed": 8103,
+        "numeric_pass": false
+      }
+    ],
+    "b_paired_numeric_gates": [
+      {
+        "seed": 8101,
+        "delta_b_minus_a": {
+          "foreground_psnr": -0.329892635345459,
+          "full_psnr": -2.8503646850585938,
+          "boundary_psnr": -1.389650821685791,
+          "crop_lpips": 0.056290505453944206,
+          "alpha_iou": -0.2120005339384079
+        },
+        "numeric_pass": false
+      },
+      {
+        "seed": 8102,
+        "delta_b_minus_a": {
+          "foreground_psnr": -0.6154108047485352,
+          "full_psnr": -3.093587875366211,
+          "boundary_psnr": -1.6472926139831543,
+          "crop_lpips": 0.060772981494665146,
+          "alpha_iou": -0.2087276130914688
+        },
+        "numeric_pass": false
+      },
+      {
+        "seed": 8103,
+        "delta_b_minus_a": {
+          "foreground_psnr": -0.4528803825378418,
+          "full_psnr": -2.8232779502868652,
+          "boundary_psnr": -1.4814949035644531,
+          "crop_lpips": 0.06067739054560661,
+          "alpha_iou": -0.21530769765377045
+        },
+        "numeric_pass": false
+      }
+    ],
+    "numeric_prerequisites_pass": false,
+    "visual_adequacy": "requires independent AUDIT record",
+    "group_means": {
+      "rgb": {
+        "foreground_psnr": 24.78243605295817,
+        "full_psnr": 35.81177488962809,
+        "boundary_psnr": 20.784817059834797,
+        "crop_lpips": 0.11460884287953377,
+        "alpha_iou": 0.9571737200021744
+      },
+      "field_high": {
+        "foreground_psnr": 24.31637477874756,
+        "full_psnr": 32.88936471939087,
+        "boundary_psnr": 19.278670946757,
+        "crop_lpips": 0.17385580204427242,
+        "alpha_iou": 0.745161771774292
+      },
+      "field_low": {
+        "foreground_psnr": 18.55289379755656,
+        "full_psnr": 22.703758875528973,
+        "boundary_psnr": 11.51620864868164,
+        "crop_lpips": 0.5826492408911387,
+        "alpha_iou": 0.4947407941023509
+      }
+    }
+  },
+  "command": [
+    "/home/alex/Documents/realtime-gs/.venv/bin/python",
+    "scripts/experiments/20260908_field_teacher_information_stage_frame00008.py",
+    "run",
+    "--task",
+    "experiments/tasks/20260908_field_teacher_information_stage_frame00008.json",
+    "--run-dir",
+    "runs/20260908_field_teacher_information_stage_frame00008"
+  ],
+  "source_lock": {
+    "schema_version": 2,
+    "task_id": "20260908_field_teacher_information_stage_frame00008",
+    "task_path": "experiments/tasks/20260908_field_teacher_information_stage_frame00008.json",
+    "task_sha256": "1da0b90bc3c59e7294727f74692815d5dcb2badbdb6b80848d9c9a5d2604af98",
+    "protocol_sha256": "b26db0f9b00acba58a86516f95b8cdac218ba5a1067cee253622f4b0e41e11d8",
+    "protocol_review": {
+      "reviewer": "Codex-protocol-reviewer",
+      "verdict": "approved",
+      "protocol_sha256": "b26db0f9b00acba58a86516f95b8cdac218ba5a1067cee253622f4b0e41e11d8",
+      "artifact": "experiments/reviews/20260908_field_teacher_information_stage_frame00008_PROTOCOL_REVIEW.md"
+    },
+    "protocol_review_artifact_sha256": "b53cb0abb59cbcd2e6f3377f57b863bfc770ce49623d2eb38336ab8d51ea6832",
+    "data_seal_path": "experiments/data/20260908_field_teacher_information_stage_frame00008.json",
+    "data_seal_sha256": "fbc09cd094e1b766657d3aa5e5098181fe596d87e450eee2368efdde4b8f9812",
+    "source_commit": "8a715051cc789cc525e880a653a45158d65b5ab1",
+    "source_dirty": true,
+    "source_diff_sha256": "1905edd1a02a6011649241f73810d09bfe2792ce77a970993d127df38a442a5a",
+    "development": true,
+    "started_at_utc": "2026-09-08T19:41:44.643044+00:00",
+    "command": [
+      "/home/alex/Documents/realtime-gs/.venv/bin/python",
+      "scripts/experiments/20260908_field_teacher_information_stage_frame00008.py",
+      "run",
+      "--task",
+      "experiments/tasks/20260908_field_teacher_information_stage_frame00008.json",
+      "--run-dir",
+      "runs/20260908_field_teacher_information_stage_frame00008"
+    ],
+    "report_template_version": 2
+  },
+  "raw_comparison_path": "runs/20260908_field_teacher_information_stage_frame00008/comparison.json"
+}

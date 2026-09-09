@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "recorded_at": "2026-09-07T20:42:27+02:00",
+  "scope": "Documentation/research task verification; no reconstruction experiment or new scientific outcome.",
+  "command": "./scripts/verify.sh",
+  "exit_code": 0,
+  "checks": [
+    "ruff check",
+    "ruff format --check",
+    "CPU pytest -m not slow",
+    "docs_sync",
+    "check_ara",
+    "check_script_layout",
+    "check_agent_workflow",
+    "experiment_contract validate"
+  ],
+  "log": "verify-final.log",
+  "log_sha256": "b02298d725e34b7479302829ed30a954c4eba7bb5efde9e4c3179abaee414127",
+  "research_report_sha256": "ba6cf4bfb77ded3fa5d289c28dc9efa49dba26abc6a9fd17c897bbab9f94d00a",
+  "initial_attempt": {
+    "exit_code": 1,
+    "failures": "Two docs-sync tests detected the same missing navigation link; added a link from docs/RESEARCH.md, then the full gate passed.",
+    "source_log_sha256": "b4de7919d547b5010c88ed52cce805d5950b4834a3b7819dd71730b708c7c97c"
+  },
+  "additional_checks": {
+    "portfolio_structure": "passed",
+    "local_report_links": {
+      "checked": 12,
+      "missing": []
+    },
+    "git_diff_check": "passed"
+  },
+  "scientific_changes": false,
+  "historical_ledger_changes": false
+}

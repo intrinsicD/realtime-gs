@@ -1,0 +1,32 @@
+from pathlib import Path
+from html.parser import HTMLParser
+from urllib.parse import urljoin,urldefrag
+from urllib.request import Request,urlopen
+import datetime as dt
+import hashlib
+import json
+
+root=Path('/home/alex/Documents/realtime-gs')
+run=root/'runs/20260908_field_teacher_information_stage_frame00008'
+base='http://127.0.0.1:8765/'
+class Links(HTMLParser):
+    def __init__(self):super().__init__();self.targets=[]
+    def handle_starttag(self,tag,attrs):
+        for key,value in attrs:
+            if key in ('href','src') and value:
+                url=urldefrag(urljoin(base,value))[0]
+                if url.startswith(base):self.targets.append(url)
+html=(run/'index.html').read_bytes()
+with urlopen(base+'index.html',timeout=30) as response:
+    served=response.read();status=response.status
+assert served==html and status==200
+parser=Links();parser.feed(html.decode())
+rows=[]
+for target in sorted(set(parser.targets+[base+'index.html'])):
+    with urlopen(Request(target,method='HEAD'),timeout=30) as response:
+        rows.append({'target':target,'status':response.status})
+assert all(row['status']==200 for row in rows)
+record={'checked_at_utc':dt.datetime.now(dt.timezone.utc).isoformat(),'scope':'Read-only final HTTP check after the structured viewer receipt and final render; browser interaction evidence is preserved separately in the run.','html_sha256':hashlib.sha256(html).hexdigest(),'manifest_sha256':hashlib.sha256((run/'manifest.json').read_bytes()).hexdigest(),'served_bytes_match':True,'all_targets_ok':True,'targets':rows}
+out=root/'ara/evidence/tables/20260908_field_teacher_information/final_http_check.json'
+with out.open('x') as stream:json.dump(record,stream,indent=2);stream.write('\n')
+print(json.dumps({'status':'passed','targets':len(rows),'served_html_matches':True}))

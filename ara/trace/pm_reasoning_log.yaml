@@ -901,3 +901,16 @@ entries:
       thread while preserving earlier proposals, rejections and approval requests as history.
     - This limits artifact transfer, not the scientific interpretation or the previous Fable
       review payload. No scientific observation is promoted or claim disposition changed.
+
+  - turn: 2026-09-08_001#1
+    notes:
+    - 'Current-request-only epilogue: no historical observation promotion, stale sweep, old-session rewrite
+      or scientific scope expansion.'
+    - Stage O171 before recording decisionN237 and C47. The audited report and decision provide artifact-commitment
+      closure; user authorization is not scientific endorsement. Keep ai-executed provenance.
+    - Represent the failed conditional prerequisite as dead_endN236, not a general impossibility claim.
+      Keep the proposed causal repair O172 staged because no experiment establishes it.
+    - Record both infrastructure interruptions, preserved complete cells, one partial-cell restart and unknown
+      failed-attempt costs. Preserve canonical source/result/audit and first browser failure.
+    - Final task/repository delivery checks are separate bookkeeping; record their actual outcomes before
+      yielding.

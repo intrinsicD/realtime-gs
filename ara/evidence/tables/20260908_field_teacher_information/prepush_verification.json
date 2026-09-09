@@ -1,0 +1,26 @@
+{
+  "recorded_at_utc": "2026-09-09T08:50:05.691390+00:00",
+  "scope": "User-authorized publication of the already audited RTGS-020/RTGS-021 source and text evidence; no additional reconstruction run or scientific promotion.",
+  "base_commit": "8a715051cc789cc525e880a653a45158d65b5ab1",
+  "verification": {
+    "command": "./scripts/verify.sh",
+    "exit_code": 0,
+    "log": "prepush_verify.log",
+    "log_sha256": "898d7ec8b226e409694523b4262c70c9e1f9051d92744d9844364095f233ef15"
+  },
+  "additional_checks": [
+    "experiment_contract.py check-run: passed",
+    "check_results_bundle.py: passed",
+    "git diff --cached --check: passed",
+    "git diff --check: passed",
+    "frozen driver/report/AUDIT bindings: unchanged",
+    "prior research report verification binding: unchanged",
+    "pending files: text/source only; no capture files or credential signatures"
+  ],
+  "archival_fixes": [
+    "Preserved exact executed final_http_check source bytes as .py.txt archival evidence.",
+    "Preserved exact public-Claude follow-up prompt including final blank line via one-file Git whitespace attribute."
+  ],
+  "delivery_boundary": "Ignored 501 MB run report/model/cache artifacts remain local; no additional images or masks uploaded.",
+  "structsplat_status": "Clean main, zero commits ahead/behind freshly fetched origin/main."
+}

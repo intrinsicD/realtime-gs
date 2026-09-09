@@ -2757,3 +2757,38 @@ observations:
     promoted_to: logic/claims.md:C43
     crystallized_via: artifact-commitment
     stale: false
+
+  - id: O171
+    timestamp: 2026-09-08T23:11+02:00
+    provenance: ai-executed
+    content: The audited RTGS-021 screen qualifies its high-capacity 2D teacher, but all three photograph-reference
+      seeds miss foreground adequacy and all three dense-field pairs fail boundary, perceptual and silhouette
+      margins. Dense fields outperform the low-budget acquisition family. Posthoc thresholded opacity errors
+      are dominated by false-positive area, without establishing their cause. High-quality field-only reconstruction
+      remains unresolved.
+    context: Nine fixed final models and reporting-only evaluation completed; independent audit and shared
+      report/browser/bundle checks passed. User authorized experiments, not scientific endorsement.
+    potential_type: claim
+    bound_to:
+    - N234
+    - N236
+    promoted: true
+    promoted_to: logic/claims.md:C47
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O172
+    timestamp: 2026-09-08T23:11+02:00
+    provenance: ai-suggested
+    content: A controlled follow-up could test whether 2D teacher boundary/background error or opacity ambiguity
+      produces the observed halos, alongside improving photograph-reference adequacy. The observed false-positive
+      opacity alone does not identify either mechanism.
+    context: Research suggestion after a failed prerequisite; no follow-up experiment or causal repair was
+      executed.
+    potential_type: claim
+    bound_to:
+    - N234
+    - N236
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false

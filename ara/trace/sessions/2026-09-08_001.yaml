@@ -1,0 +1,91 @@
+session:
+  id: 2026-09-08_001
+  date: '2026-09-08'
+  started: 2026-09-08T23:11+02:00
+  last_turn: 2026-09-08T23:11+02:00
+  turn_count: 1
+  summary: Completed and audited nine target-information cells; teacher qualifies but quality prerequisites
+    fail; report/viewer/bundle pass. Record created at end of turn; event chronology is bound in execution
+    receipts.
+events_logged:
+- turn: 1
+  type: decision
+  id: N233
+  routing: direct
+  provenance: user
+  summary: Authorize the proposed reconstruction experiments
+- turn: 1
+  type: experiment
+  id: N234
+  routing: direct
+  provenance: ai-executed
+  summary: Complete and independently audit the nine-cell target-information screen
+- turn: 1
+  type: decision
+  id: N235
+  routing: direct
+  provenance: ai-executed
+  summary: Preserve interrupted attempts and recover only unchanged unfinished work
+- turn: 1
+  type: dead_end
+  id: N236
+  routing: direct
+  provenance: ai-executed
+  summary: Do not advance to conditional field-only initialization under this screen
+- turn: 1
+  type: decision
+  id: N237
+  routing: direct
+  provenance: ai-executed
+  summary: Commit the bounded audited result and retain causal hypotheses as open
+- turn: 1
+  type: observation
+  id: O171
+  routing: staged
+  provenance: ai-executed
+  summary: The audited RTGS-021 screen qualifies its high-capacity 2D teacher, but all three photograph-reference
+    seeds miss foreground adequacy and all three dense-field pairs fail boundary, perceptual and silhouette
+    margins. Dense fields outperform the low-budget acquisition family. Posthoc thresholded opacity errors
+    are dominated by false-positive area, without establishing their cause. High-quality field-only reconstruction
+    remains unresolved.
+- turn: 1
+  type: observation
+  id: O172
+  routing: staged
+  provenance: ai-suggested
+  summary: A controlled follow-up could test whether 2D teacher boundary/background error or opacity ambiguity
+    produces the observed halos, alongside improving photograph-reference adequacy. The observed false-positive
+    opacity alone does not identify either mechanism.
+- turn: 1
+  type: claim
+  id: C47
+  routing: crystallized
+  provenance: ai-executed
+  summary: O171 committed through audited report and decisionN237; bounded result only.
+ai_actions:
+- turn: 1
+  action: Implemented and froze task driver/report helper; ran nine final CUDA fits, preserved/recovered
+    two interruptions, evaluated once, obtained independent re-render/visual audit, generated and browser-verified
+    the report, and recorded bounded evidence. Final repository check receipt follows before yielding.
+  provenance: ai-executed
+  files_changed:
+  - experiments/tasks/20260908_field_teacher_information_stage_frame00008.json
+  - scripts/experiments/20260908_field_teacher_information_stage_frame00008.py
+  - scripts/experiments/20260908_field_teacher_information_stage_frame00008_report.py
+  - benchmarks/results/20260908_field_teacher_information_stage_frame00008_RESULT.json
+  - benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.json
+  - ara/logic/claims.md
+  - docs/EXPERIMENTS.md
+claims_touched:
+- id: C47
+  action: crystallized
+  turn: 1
+key_context:
+- turn: 1
+  excerpt: Yes, please do the experiments and then report back.
+open_threads:
+- Improve photograph-reference adequacy and test boundary/opacity causes under a separate prospective
+  protocol; O172 remains untested.
+- Strict field-only initialization and high-quality end-to-end reconstruction remain unestablished.
+ai_suggestions_pending:
+- 'O172: teacher boundary/background error or opacity ambiguity as possible causes; no causal result.'

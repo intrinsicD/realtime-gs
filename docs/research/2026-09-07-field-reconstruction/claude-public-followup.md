@@ -1,0 +1,39 @@
+# Revised joint recommendation (after adversarial review)
+
+Labels: [F] verified from cited source; [D] my derivation; [H] hypothesis.
+
+## Statements I withdraw or narrow
+
+1. **Withdrawn:** the ">90 % match in the additive case" prediction and the claim that the composited case could "falsify the nonlinearity argument". The expansion of front-to-back compositing into a signed sum of up to 2^N Gaussians is algebra and cannot be falsified by any experiment. What is testable is only the *practical* recovery behaviour of N-component fits, and for that I had no basis for a number. [D] What does hold in principle: distinct Gaussian densities are linearly independent, so any finite combination of Gaussians with distinct (μ,Σ) has a unique parameterisation up to permutation [F] ([Yakowitz & Spragins 1968](https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-39/issue-1/On-the-Identifiability-of-Finite-Mixtures/10.1214/aoms/1177698520.full), whose criterion is exactly linear independence). So an exact additive projection is *identifiable*; whether a non-convex fit *finds* it is an optimisation question, not an identifiability one. In the composited case the image is also a unique (signed, 2^N-term) mixture, but it is not in the N-component model class, so an N-component fit has no defined "correct" answer.
+
+2. **Withdrawn:** "a compact 2D GMM of an RGB image is not a projection of anything." An image is a measurement of scene radiance and a fitted 2D field approximates that measurement. The defensible, narrower claim is: independently fitted components are not in bijection with 3D primitives, and their split/merge partition is set by the optimiser, not by physics. I also accept the reviewer's point fully: a field queried at the same pixel centres and fed to the same visibility-aware renderer with the same loss yields identical loss values and gradients *if* the queried colours equal the pixel colours; this is trivially true because the loss depends on the target only through those values. Nothing about geometry uniqueness follows either way — 3DGS solutions are non-unique regardless of target.
+
+3. **Narrowed:** "at least three non-coplanar views." [D] Under affine projection each view supplies Σ'_v = P_vΣP_vᵀ, three linear equations in six unknowns. Two views with directions d₁,d₂ leave the one-dimensional null space spanned by d₁d₂ᵀ+d₂d₁ᵀ (rank 5). A third direction d₃ removes it whenever d₃ is not parallel to d₁ or d₂ — *coplanar* axes suffice (e.g., d₁=e₃, d₂=e₁, d₃=(e₁+e₃)/√2 recovers Σ₁₃ through the (e₁−e₃) image axis). So "non-coplanar" was wrong and over-strict; the operative criterion is the numerical rank of the actual 3V×6 design matrix, which under perspective depends on μ through the local Jacobian [F] ([Zwicker et al.](https://www.cs.umd.edu/~zwicker/publications/EWAVolumeSplatting-VIS01.pdf); [Kerbl et al.](https://arxiv.org/abs/2308.04079)).
+
+4. **Withdrawn:** "set opacity high (surface)" as an initialisation rule. Opacity in 3DGS is not calibrated density; [F] the reference method resets α to near zero every 3000 iterations precisely to shed Gaussians accumulated near cameras, and clamps α ≤ 0.99 while skipping α < 1/255. A high-opacity start defeats that mechanism and can lock in occluders. Initial opacity should follow the renderer's own defaults and be treated as a nuisance parameter.
+
+## Corrected analysis of the covariance test (point 4)
+
+A covariance-inconsistent correspondence is **not** always a bad match. [D] Consistency P_vΣP_vᵀ ≈ Σ'_v is a *necessary* condition only when (i) the same object is entirely visible in all views, (ii) the affine approximation is accurate at that depth, and (iii) the 2D fit delineates the same patch in each view. Partial occlusion truncates a footprint and shrinks Σ'_v; foreshortening of a surface patch is consistent only if Σ is allowed to be rank-2 (a surfel); and fit partitioning [H] varies with view. The test therefore has false negatives and should be used as a soft residual weight, reporting the design-matrix condition number per track, not as a hard rejection gate.
+
+## Point 5: where a closed-form objective exists and where it does not
+
+[D] If *both* target and rendering are additive Gaussian mixtures, the L2 distance is closed-form: ∫ g_i g_j has the Gaussian form N(μ_i − μ_j; 0, Σ_i + Σ_j) times amplitudes, giving an O(N·M) analytic loss and gradient without pixel sampling. [F] GaussianImage itself renders by "accumulated summation" ([arXiv:2403.08551](https://arxiv.org/abs/2403.08551)), and attenuation renderers ([R²-Gaussian](https://arxiv.org/abs/2405.20693), [X-Gaussian](https://arxiv.org/abs/2403.04116)) are additive, so this shortcut is exact in those settings.
+
+It does **not** exist for 3DGS: [F] the compositing loop is depth-sorted, clamps α at 0.99, skips α < 1/255, terminates on saturation, and the loss is (1−λ)L1 + λ D-SSIM with λ = 0.2 — clipping and L1/SSIM break the Gaussian algebra, and the exact 2^N expansion is exponential in overlap depth. Normalised-blending variants (quotients of mixtures) also have no closed form. A truncated second-order expansion [H] is plausible only in the low-opacity/low-overlap regime and would need its error bounded empirically. I do not promise a shortcut here.
+
+## Revised experiment plan (no numeric success predictions)
+
+**E0 — null/control (point 3).** Identical initial state, seed, renderer, loss, sampling schedule, densification and opacity resets; targets: (a) original images, (b) a high-fidelity field queried at pixel centres, with target discrepancy reported (PSNR of (b) vs (a)). Expected: differences in geometry bounded by target discrepancy; deviations indicate schedule sensitivity, not method merit.
+
+**E1 — field-derived supervision.** Same setup, targets drawn from the field at supersampled/sub-pixel positions, analytic multi-scale blurs, or random patches. Geometry from (a) serves only as a **labelled diagnostic control**; on synthetic scenes compare against ground-truth surfaces, never against (a) as "truth".
+
+**E2 — correspondence, redesigned (point 1).** Synthetic N known 3D Gaussians, V views; render additive and composited; fit N-component GMMs from data-driven (not ground-truth) initialisation with R restarts. Report (i) restart-to-restart match rate within one view as the *ceiling* on cross-view repeatability, (ii) cross-view match rate versus opacity o ∈ [0.05, 1]. Pre-registered directional expectation only: as o→0 the composited image tends to the additive one to first order [D], so the two conditions should converge; divergence at high o measures the practical cost of compositing. Neither outcome touches the algebraic identity.
+
+**E3 — lifting.** For matched tracks, report numerical rank/condition number of the actual design matrix and lifted-Σ error against V and axis configuration, including coplanar triples.
+
+## Remaining disagreement
+
+I still hold that independently fitted per-view components should not be the latent representation for opaque scenes: identifiability of additive mixtures does not transfer to composited images, and the visible-surface null space (interiors) remains regardless of target. Where I now agree with the reviewer: fields can legitimately replace pixel targets under a fixed renderer; the value, if any, lies in E1-style supervision, and that must be shown, not argued. No empirical success is claimed.
+
+**Sources:** [Kerbl et al. 2023 (3DGS)](https://arxiv.org/abs/2308.04079) · [Zwicker et al. EWA](https://www.cs.umd.edu/~zwicker/publications/EWAVolumeSplatting-VIS01.pdf) · [GaussianImage](https://arxiv.org/abs/2403.08551) · [Yakowitz & Spragins 1968](https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-39/issue-1/On-the-Identifiability-of-Finite-Mixtures/10.1214/aoms/1177698520.full) · [R²-Gaussian](https://arxiv.org/abs/2405.20693) · [X-Gaussian](https://arxiv.org/abs/2403.04116)

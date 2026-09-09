@@ -1,0 +1,53 @@
+{
+  "task_id": "20260908_field_teacher_information_stage_frame00008",
+  "recorded_at_utc": "2026-09-08T21:19:10.850086+00:00",
+  "scope": "Delivery verification after the completed frozen nine-cell experiment and distinct results audit. No additional scientific experiments or numerical result changes.",
+  "full_repository_verification": {
+    "command": "./scripts/verify.sh",
+    "exit_code": 0,
+    "completed_exec_session": 46950,
+    "log": "ara/evidence/tables/20260908_field_teacher_information/final_verify.log",
+    "log_sha256": "898d7ec8b226e409694523b4262c70c9e1f9051d92744d9844364095f233ef15"
+  },
+  "final_checks": [
+    {
+      "command": ".venv/bin/python scripts/experiment_contract.py check-run runs/20260908_field_teacher_information_stage_frame00008",
+      "exit_code": 0,
+      "stdout": "experiment_run: OK\n"
+    },
+    {
+      "command": ".venv/bin/python scripts/check_results_bundle.py runs/20260908_field_teacher_information_stage_frame00008",
+      "exit_code": 0,
+      "stdout": "check_results_bundle: OK (runs/20260908_field_teacher_information_stage_frame00008)\n"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "stdout": ""
+    }
+  ],
+  "final_report": {
+    "html_sha256": "55738d4fceb2975bb57bec928fc4c84aefe766c9dcaa09747884809b85cd1202",
+    "manifest_sha256": "cb25378ccee53a268b9425a4ffb145e8f5f992bd6b2e8b99372fe2c029a8d3b2",
+    "http_targets_checked": 624,
+    "all_http_targets_ok": true,
+    "served_bytes_match": true,
+    "http_evidence": "ara/evidence/tables/20260908_field_teacher_information/final_http_check.json"
+  },
+  "browser_evidence": [
+    "runs/20260908_field_teacher_information_stage_frame00008/verification/report-client.json",
+    "runs/20260908_field_teacher_information_stage_frame00008/verification/viewer-client.json",
+    "runs/20260908_field_teacher_information_stage_frame00008/verification/framebuffer_measurements.json",
+    "runs/20260908_field_teacher_information_stage_frame00008/viewer_smoke.json"
+  ],
+  "unchanged_artifact_sha256": {
+    "benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.md": "1c417b1b7d598e747c038ad2f39bc8d7f38bd7d338c9aec7ebd6e153d9d452ff",
+    "benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.json": "61e791a053e3c0f086b160f3f6aed284c991bb3add3bb3728a45da12187fa6dd",
+    "scripts/experiments/20260908_field_teacher_information_stage_frame00008.py": "8b4336df15f9f8232b6bfc7ac394034018ecc93518c0603dc79f11b6e36ac302",
+    "scripts/experiments/20260908_field_teacher_information_stage_frame00008_report.py": "739ed845b5127f5c28422b061ab7b26f60581b55788ddb8753dc156e6a775006"
+  },
+  "independent_results_reviewer": "Codex-protocol-reviewer",
+  "review_scope": "Execution and bounded results accepted with limits; high-quality reconstruction gates failed. Earlier Claude collaboration covered public literature, not these private run results.",
+  "scientific_disposition": "A/B/C completed across three seeds. A adequacy and B paired-quality prerequisites failed; conditional D/E were not run. High-quality end-to-end field-only reconstruction remains unresolved.",
+  "task_record": "docs/tasks/RTGS-021-field-target-information-experiment.md"
+}

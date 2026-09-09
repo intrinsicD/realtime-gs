@@ -1,5 +1,10 @@
 # State-of-the-art survey and reuse decisions
 
+Dated reconstruction proposal: [2026-09-07 — high-quality reconstruction from 2D Gaussian fields](RESEARCH_2026-09-07_FIELD_RECONSTRUCTION.md), including the CT/RGB distinction, public Claude critique and an unexecuted diagnostic plan.
+
+
+Dated execution result: [2026-09-08 — field-target information screen](../benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.md). Nine runs show stronger dense-field results than the low-budget family, but the photograph adequacy and field boundary/perceptual/silhouette gates fail. High-quality field-only reconstruction remains unresolved; see [C47 proof](../ara/evidence/tables/20260908_field_teacher_information.md).
+
 Compiled 2026-07-07 from three research sweeps (3DGS fitting/rendering; 2D gaussian image
 representations; depth/lifting/carving), then updated through the 2026-07-21 experiment record.
 Each section ends with what this repo reuses. License claims were verified against the repositories

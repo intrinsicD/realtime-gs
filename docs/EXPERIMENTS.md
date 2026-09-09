@@ -3438,3 +3438,29 @@ held-out target/reconstruction/error/alpha previews. The real calibrated contact
 reconstruction/orbit/elevation previews are accompanied by `preview_receipt.json` at the run root
 and under `previews/frame_00009/`. Browser identity, ready/visible-framebuffer/orbit/client-error
 checks and both final validator receipts: `ara/evidence/tables/20260907_bench019_final_handoff/browser_validation.json`, `ara/evidence/tables/20260907_bench019_final_handoff/viewer_smoke.json`, and `ara/evidence/tables/20260907_bench019_final_handoff/delivery_checks.json`.
+
+## 2026-09-08 — RTGS-021 field-target information screen
+
+The user authorized executing the reconstruction research proposal. The registered experiment completed nine final fitting cells and reporting-only evaluation; the distinct Codex-protocol-reviewer accepted the bounded numerical and visual evidence. C47 records the result.
+
+| Input | Foreground PSNR | Full PSNR | Boundary PSNR | Crop LPIPS | Alpha IoU |
+|---|---:|---:|---:|---:|---:|
+| Photographs | 24.782436 | 35.811775 | 20.784817 | 0.114609 | 0.957174 |
+| 100k/view fields | 24.316375 | 32.889365 | 19.278671 | 0.173856 | 0.745162 |
+| Low-budget fields | 18.552894 | 22.703759 | 11.516209 | 0.582649 | 0.494741 |
+
+Three seeds 8101/8102/8103 each average heldout C0001/C0018/C0029/C1002. The other 22 calibrated cameras train on Stage frame_00008 at downscale 8. A uses premultiplied photograph targets, B decoded native additive 100k/view fields, C the existing 640/view low-budget family. C also changes acquisition steps and seeds. Shared initialization is an 8001-point training-RGB/mask visual hull; the existing CUDA gsplat Trainer runs 8000 updates per final cell with matched schedules and density settings. This is a teacher-information/refinement diagnostic.
+
+The high teacher qualifies at 36.455862 dB foreground PSNR and 0.047370 crop LPIPS. All A seeds miss25 dB foreground adequacy; B fails paired perceptual/boundary/IoU margins in all seeds. B retains a recognizable subject with halos and softer contours; C is severely blurred. Posthoc alpha precision/recall separates excess opacity from missing coverage: B 0.747409/0.996096 versus A 0.972716/0.983525. This does not establish why the halos occur. D/E remain unavailable, and high-quality end-to-end field-only reconstruction remains unresolved.
+
+Source commit 8a715051cc789cc525e880a653a45158d65b5ab1 plus the preserved exact dirty source; reviewed protocol digest b26db0f9b00acba58a86516f95b8cdac218ba5a1067cee253622f4b0e41e11d8 and source envelope d83422a66c3a2bb6137ce0a4059d94554dbb97a7941cd7f0c8002b65b1134382. All 119 source/snapshot and 105 input hashes pass. The frozen fresh-run argv is:
+
+```bash
+/home/alex/Documents/realtime-gs/.venv/bin/python scripts/experiments/20260908_field_teacher_information_stage_frame00008.py run --task experiments/tasks/20260908_field_teacher_information_stage_frame00008.json --run-dir runs/20260908_field_teacher_information_stage_frame00008
+```
+
+The existing canonical run must not be overwritten. Two exit 143 interruptions have unconfirmed causes; preserved attempts and independent continuation/retry decisions are under `runs/20260908_field_teacher_information_stage_frame00008/attempts/` and `audit_checks/`. Only the partial ninth cell was restarted from its original initialization/seed. At least 500 discarded updates and unavailable failed-attempt costs mean successful-cell counters omit some attempted compute. The GPU was already contended; no performance claim follows.
+
+Canonical evidence is `benchmarks/results/20260908_field_teacher_information_stage_frame00008_RESULT.md/json` and `_AUDIT.md/json`. Independent rerenders reproduce all 36 metric rows; all 9 contact sheets and six fixed frames from each of 18 orbit/elevation animations were reviewed. Report: `runs/20260908_field_teacher_information_stage_frame00008/index.html`, locally http://127.0.0.1:8765/index.html. The preselected B/8101 orbit viewer is http://127.0.0.1:8879/. Its exact argv is in the report.
+
+The shared renderer, browser link/image/layout check, visible WebGL scene/orbit and both run/bundle gates pass. Original producer metadata, first failed report-link pass, seven byte-identical HTTP mirrors, environment-schema sidecar repair and classified nonfatal Viser/SwiftShader notices are preserved. Final repository checks are recorded in `ara/evidence/tables/20260908_field_teacher_information/verification_receipt.json`. No production default, private upload or push was performed.

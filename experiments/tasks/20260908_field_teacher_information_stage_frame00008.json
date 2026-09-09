@@ -1,0 +1,820 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260908_field_teacher_information_stage_frame00008",
+  "date": "20260908",
+  "task_slug": "field_teacher_information",
+  "data_slug": "stage_frame00008",
+  "arm": "rgb_3dgs",
+  "status": "ready",
+  "owner": "Codex-field-experiments",
+  "protocol_review": {
+    "reviewer": "Codex-protocol-reviewer",
+    "verdict": "approved",
+    "protocol_sha256": "b26db0f9b00acba58a86516f95b8cdac218ba5a1067cee253622f4b0e41e11d8",
+    "artifact": "experiments/reviews/20260908_field_teacher_information_stage_frame00008_PROTOCOL_REVIEW.md"
+  },
+  "depends_on": [],
+  "title": "Separate 2D target information from 3D reconstruction initialization",
+  "question": "With a shared training-only visual-hull initialization and adequate-capacity 3DGS solver, do 100k-row field targets approach photograph targets, and how do 640-row targets compare?",
+  "hypothesis": "High-capacity field targets approach the photograph reference more closely than low-budget fields under identical solver settings.",
+  "claim_boundary": "Development diagnostic on one previously exposed calibrated capture at downscale eight. A/B/C share an RGB/mask-derived initialization; B/C are field-supervised refinement, not end-to-end field-only reconstruction. No physical-density, generalization, full-resolution, original-COLMAP-3DGS, speed or VRAM advantage claim. Failed A or teacher qualification leaves the high-quality field-only question unresolved.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/production_manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0014",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0028",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1001",
+        "C1004"
+      ],
+      "heldout": [
+        "C0001",
+        "C0018",
+        "C0029",
+        "C1002"
+      ]
+    }
+  },
+  "seeds": [
+    8101,
+    8102,
+    8103
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "heldout_rgb",
+      "heldout_masks",
+      "heldout_fields",
+      "test_metrics_for_selection"
+    ],
+    "evaluation_allowed": [
+      "calibration",
+      "rgb",
+      "mask",
+      "saved_models"
+    ]
+  },
+  "execution_guards": [
+    "deny_heldout_training_access",
+    "split_hash_at_exit",
+    "data_seals_at_entry_exit",
+    "shared_initialization_digest",
+    "explicit_cuda_no_fallback",
+    "fields_no_alpha_decode",
+    "field_workers_deny_source_images",
+    "exact_target_camera_grid",
+    "preserve_existing_gpu_processes"
+  ],
+  "stages": [
+    {
+      "id": "prepare",
+      "label": "Prepare targets",
+      "purpose": "Training-only source acquisition and teacher qualification; CPU/CUDA query parity."
+    },
+    {
+      "id": "initialize",
+      "label": "Shared initialization",
+      "purpose": "Training-only mask visual hull shell with reference RGB colors; identical saved initialization per paired seed."
+    },
+    {
+      "id": "fit",
+      "label": "3DGS fitting",
+      "purpose": "Same dense CUDA renderer, loss and density schedule for all target families."
+    },
+    {
+      "id": "evaluate",
+      "label": "Final reporting",
+      "purpose": "Evaluate fixed final models on reporting-only heldout photographs and masks."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "rgb",
+      "label": "A: photographs",
+      "purpose": "Check baseline adequacy with the shared initializer and solver."
+    },
+    {
+      "id": "field_high",
+      "label": "B: 100k Gaussian fields",
+      "purpose": "Test target information under shared reference initialization."
+    },
+    {
+      "id": "field_low",
+      "label": "C: 640 Gaussian fields",
+      "purpose": "Compare the existing low-budget teacher family (640rows,100fit steps and different fit seed) to100krows/2000steps. This is not a row-count-only causal ablation."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "foreground_psnr",
+      "label": "Heldout foreground PSNR",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "Arithmetic mean of per-view values within each seed, then mean of three paired seeds; preserve every view/seed and paired delta."
+    },
+    {
+      "id": "full_psnr",
+      "label": "Heldout full-canvas PSNR",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "Arithmetic mean of per-view values within each seed, then mean of three paired seeds; preserve every view/seed and paired delta."
+    },
+    {
+      "id": "boundary_psnr",
+      "label": "Heldout boundary PSNR",
+      "unit": "dB",
+      "direction": "higher",
+      "aggregation": "Arithmetic mean of per-view values within each seed, then mean of three paired seeds; preserve every view/seed and paired delta."
+    },
+    {
+      "id": "crop_lpips",
+      "label": "Heldout masked-crop LPIPS",
+      "unit": "distance",
+      "direction": "lower",
+      "aggregation": "Arithmetic mean of per-view values within each seed, then mean of three paired seeds; preserve every view/seed and paired delta."
+    },
+    {
+      "id": "alpha_iou",
+      "label": "Heldout alpha IoU",
+      "unit": "fraction",
+      "direction": "higher",
+      "aggregation": "Arithmetic mean of per-view values within each seed, then mean of three paired seeds; preserve every view/seed and paired delta."
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "Fresh process per fitting cell, including loading and final model save; target preparation and evaluation recorded separately. GPU already contended; resource values descriptive only.",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "All three paired seeds retained; no timing/speed inference on shared GPU.",
+    "cuda_metrics": [
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds"
+    ]
+  },
+  "data_seal": "experiments/data/20260908_field_teacher_information_stage_frame00008.json",
+  "run_command": [
+    "/home/alex/Documents/realtime-gs/.venv/bin/python",
+    "scripts/experiments/20260908_field_teacher_information_stage_frame00008.py",
+    "run",
+    "--task",
+    "experiments/tasks/20260908_field_teacher_information_stage_frame00008.json",
+    "--run-dir",
+    "runs/20260908_field_teacher_information_stage_frame00008"
+  ],
+  "blockers": [],
+  "field_inputs": {
+    "field_high": {
+      "directory": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres",
+      "byte_cap": 8388608,
+      "files": [
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/manifest.json",
+          "sha256": "0a43263bb42e7695483bd35a8be92ed09422dcfb1f0334d117a5a2e49f73cb48"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/production_manifest.json",
+          "sha256": "aa6f654117cde6a5e267a9ab530e4c7a669af5743caa9a0de325c3ea36f1c84f"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0004.rtgsv",
+          "sha256": "484dc32951e269e78cb71332bf4dbe30718b8530985d6a9309ec7120083c2df2"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0005.rtgsv",
+          "sha256": "ba59626a68766746970cfe017750f20c5851efa2741a9f11fd710435989cd977"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0006.rtgsv",
+          "sha256": "cf74c349912925c7280704f2e316b34c26f35a57da31f2eabb599e97443772b7"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0008.rtgsv",
+          "sha256": "56d33dcfe416cfa5a74b9bd2c8ff965286d4b91996541658a4635e9c88804ce3"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0009.rtgsv",
+          "sha256": "f38b39c672fde8caf4f4cb6db49aab605c0a7ec69260aad7be0f9416e1fdc097"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0012.rtgsv",
+          "sha256": "25b3598a3ce384838f57f567c055840f99872672603215851ea61070099f9907"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0014.rtgsv",
+          "sha256": "e0d43eb17a4f3c5f495b539f4a47bb85f87d094b4a0ae3fe1ecc4d4a2e8b7b92"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0019.rtgsv",
+          "sha256": "3b8b45ba7cca6e47c6028b097dd4ef9ee6a2f5fe78bdfd027a91ea90232e23fb"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0020.rtgsv",
+          "sha256": "77cc0f9186f6d2fa7594014647a89024859eeb3bab12488226f5667ac79a8be9"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0021.rtgsv",
+          "sha256": "9e51eea7d6d37ebf5114eeb25b2b7127dc2c6e53a9ca68706d246584a271030c"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0022.rtgsv",
+          "sha256": "ba7bd5f702d857583c47d8ce029f2de4902be34a661b3dae2c45a73ea54dd1cd"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0025.rtgsv",
+          "sha256": "142426515ddbf9e7fe7d46ac842200556e8723171ec9d248c19e8b02d245fb42"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0026.rtgsv",
+          "sha256": "6ea25eb360312907a8146b70d87bde1dec664470a983f950df348d7077c0e45a"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0028.rtgsv",
+          "sha256": "7f21dd69ade979aa155ca49002422e6b6f9969c3f89af87f2d4f80f2326624df"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0030.rtgsv",
+          "sha256": "2a7c5e66a1fcb0cf78dac1033c4367a009e18d9e975c7bdb248c76b81a727631"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0031.rtgsv",
+          "sha256": "0b5e650e858ab0282698a9f30318ab9701d0cc5ded07cc21d82573a877de38f0"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0034.rtgsv",
+          "sha256": "8b64b582c28d3e60e01364cc8d7fb2164a5f2afc3005099d884815602adbbab8"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0037.rtgsv",
+          "sha256": "82a3351fcb178e373860477fb2c796222e612e817d9e71d6cadbd404e40a79f9"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C0039.rtgsv",
+          "sha256": "03c6d0742030bdab0f6c849e565bebd03994b39f87d62d1e92e6895c378c77be"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C1000.rtgsv",
+          "sha256": "e006f83aa42251c6e77213fe1d0cf87fbc745051061653bc76352e77312791cc"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C1001.rtgsv",
+          "sha256": "189e8f8b612a4b9b00d33b039de91e7fbce7bd58c820f59bf0b302378971a1c4"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/C1004.rtgsv",
+          "sha256": "7e10a02bdede80e4d78e8c56cc95c9f67e4ce1a0af000c4b7229e4ee7c5e3e0d"
+        }
+      ]
+    },
+    "field_low": {
+      "directory": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive",
+      "byte_cap": 168000,
+      "files": [
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/manifest.json",
+          "sha256": "fa1240c8e3f17ae1d4a4581d0ad054504e2a9fd2e03c27d805773eff801ae2c6"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/production_manifest.json",
+          "sha256": "ee8c9e5bf9866d38c35513d0e9bdcee59f9bdb6208cd6f18d410bdcf6dfd1046"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0004.rtgsv",
+          "sha256": "68402c50c6d034a55572ebf444dc25d92d1c0e67268191279ffb81149da0c3c7"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0005.rtgsv",
+          "sha256": "2a99ca44e3221b2ad44bbf192b4d7ea75007a4f883b037f00a16e70f720b0647"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0006.rtgsv",
+          "sha256": "bc9ba258f52e33c9467688a455ba74db6babe7c2a3da67266b08c1063d4169de"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0008.rtgsv",
+          "sha256": "784d6f031b929c204dc8d2efa4af511de433055888ee9b10b85d34868373c4b4"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0009.rtgsv",
+          "sha256": "02c536facccfda1a98015d72ac61e9c84434cb9e2896eff136da027fbc1671b0"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0012.rtgsv",
+          "sha256": "38887fd6f3f4c66c1c8c2de1c448929efbb96538844c7c36cd38f68283c15269"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0014.rtgsv",
+          "sha256": "11f06643ee1968308e132c15d536b3b741797670de28fcf29b4e10b431c4d1c9"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0019.rtgsv",
+          "sha256": "016ab7af44f287ca34909751c6012ef15ee42e2f723458d8b802ae3411767b8a"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0020.rtgsv",
+          "sha256": "2143c7df7bd59bc74edfdf769e8f29f4ef25b8b6fd8a79d1e247c4cac364753d"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0021.rtgsv",
+          "sha256": "32b22430c6513bd299e1eb6bb31556cc6ebcabf77d7cb1a5c4233b02cd4a099d"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0022.rtgsv",
+          "sha256": "610b44732ba747faa1b7e2b54f43b5f3a15b282811453b42895099398d035d5c"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0025.rtgsv",
+          "sha256": "678c0a6f23854677de0d0ecf60c68e59aeb3312ab93ab4a070641e0778829008"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0026.rtgsv",
+          "sha256": "e2fe26dcd621d32ee8855fa4fcbb2e4cf6968e5619bb056abc60e3bdb2f3ce51"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0028.rtgsv",
+          "sha256": "3821c0532d97d25c7d135d42453e1d0c8d776b2e3ae56f769db909a82d9c6b1b"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0030.rtgsv",
+          "sha256": "54c43a5efbac5009d87dd55a5e68e0b85c5fc38dd9a0426b10498b111ccabb79"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0031.rtgsv",
+          "sha256": "6233fdc1835f1ae96bb35a66046bbc9911411624c003e88499b1fc15d0305015"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0034.rtgsv",
+          "sha256": "69cfa5837648ae8fba44dba149c5e76d6ad17f1eb0b960ace2d0e5e9be75b6c5"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0037.rtgsv",
+          "sha256": "4d5371bcb13852aa4c61489f21b435e3116382450b65effa57fea25bc4f606d8"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C0039.rtgsv",
+          "sha256": "957b73e319c411a6ba937ffac2eceba5776c474395ec689b9c8369a7cb9282dc"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C1000.rtgsv",
+          "sha256": "a121f7d89d54d3d79a473b4b7fb0277b06617f24e91657feb5566257dba2a775"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C1001.rtgsv",
+          "sha256": "016f7ba6ed5751c45b4e81ad7257fd6096d089e23590957149e2b41c176d0838"
+        },
+        {
+          "path": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_additive/C1004.rtgsv",
+          "sha256": "b6e6e36c113de41670ff7113b471f7dc7fc0d9f59edc9ce415a459298a7c1365"
+        }
+      ]
+    }
+  },
+  "preprocessing": {
+    "downscale": 8,
+    "undistort_full_resolution_first": true,
+    "target_operator": "Average four bilinear/continuous samples at quarter and three-quarter offsets of each downscaled pixel footprint; same coordinates for photograph image and Gaussian field. Clamp final RGB to [0,1] in every arm. Photographs premultiplied by lossless foreground mask before sampling; fields already fitted to zeroed foreground crop. No field alpha bitmap used.",
+    "field_decoder": "GaussianObservationIndexCuda; CPU indexed and direct queries on fixed training samples; max abs error <= 0.00002 CPU/CUDA and <=0.00001 CPU direct/index; decoded sampled tensor error <=0.00002. Fixed-state equal-target loss and gradient exact equality test.",
+    "teacher_qualification": "Mean training foreground PSNR >=30dB and mean masked-crop LPIPS <=0.08 for high field vs identically sampled photographs. Failure retained and B/C still run as diagnostic; cannot reject high-fidelity premise on unqualified teacher.",
+    "masks": "Only A acquisition/shared init and separate evaluation; B/C fitting scenes have masks=None,use_masks=False.",
+    "sample_coordinates": "For output pixel(x,y), average fullres samples at ((x+dx)*8,(y+dy)*8), dx,dy in{0.25,0.75}; edge-origin coordinates. Raw fullres bilinear grid_sample align_corners=False. Output evaluation/hull mask is the average of four samples of fullres binary undistorted mask >=0.5.",
+    "parity_samples": {
+      "seed_base": 818100,
+      "per_view_count": 512,
+      "sites": "256 uniform fullcanvas and256 uniform fit-window points using seed_base+view index; add four fit-window boundary corners and points\u00b10.001 from each corner; decoded parity uses first128 output pixels intersecting fit-window."
+    },
+    "lpips_failure": "Import, cached pretrained alexnet weights and computation must succeed; no alternate backbone, random weights or substitute metric.",
+    "index_config": {
+      "tile_size": 16,
+      "max_entries": 16000000,
+      "max_candidates": 200000,
+      "max_query_pairs": 1048576,
+      "query_chunk": 65536
+    }
+  },
+  "initialization": {
+    "method": "Train-mask visual hull boundary on 128 cubed camera/mask-derived bounding cube, requiring positive-depth in-frame foreground in every training view; binary mask threshold0.5, dilation1 output pixel. Select up to20000 shell voxels uniformly by paired seed, isotropic scale one voxel, opacity0.1, colors sampled from reference training images, no heldout data.",
+    "minimum_points": 1000,
+    "n_max": 20000,
+    "grid_resolution": 128,
+    "bounds": "Load only22 training views at downscale1, compute object bounds from their cameras and masks, use cube center plus/minus extent/2 (extent is full diameter); identical explicit bound in all cells.",
+    "failure": "If fewer than1000 shellpoints or nonfinite geometry, stop before fitting and report initialization failure.",
+    "boundary_guard": "Abort if occupied visual-hull voxels touch any cube face; no silent cropped initialization.",
+    "color_policy": "Arithmetic mean of bilinearly sampled reference training target RGB over all22views at each selected shellpoint; no visibility oracle."
+  },
+  "training": {
+    "iterations": 8000,
+    "rasterizer": "gsplat",
+    "device": "cuda:0",
+    "density_strategy": "gsplat-default",
+    "densify": true,
+    "density": {
+      "start_iter": 500,
+      "stop_iter": 6000,
+      "every": 100,
+      "max_gaussians": 100000,
+      "opacity_reset_every": 3000
+    },
+    "target_sh_degree": 3,
+    "sh_degree_interval": 1000,
+    "checkpoint_policy": "final",
+    "eval_every": 500,
+    "internal_checkpoint_evaluation": false,
+    "use_masks": false,
+    "random_background": false,
+    "ssim_lambda": 0.2,
+    "stream_scene_from_cpu": true,
+    "record_train_metrics": false,
+    "other_defaults": "TrainConfig and DensityConfig at source commit8a71505, preserved in effective config before execution."
+  },
+  "scoring": {
+    "foreground": "Squared RGB error averaged on fixed heldout binary mask, -10log10, per view. No fitted-alpha denominator.",
+    "full": "Full-canvas black-background reference RGB MSE/PSNR.",
+    "boundary": "Fixed three-pixel dilation XOR erosion of heldout mask, both sides; full RGB MSE/PSNR.",
+    "lpips": "alex net, fixed GT-mask bounding box padded8 output pixels, LPIPS(normalize=True) on prediction and reference black composited images; no model-alpha crop.",
+    "alpha_iou": "Saved-model alpha>=0.5 vs fixed heldout mask>=0.5.",
+    "selection": "No heldout fitting, checkpoint/hyperparameter selection; final8000 only. Save every heldout view PNG for each cell, plus fixed orbits."
+  },
+  "decision_policy": {
+    "a_adequate": "All three seeds mean foreground PSNR>=25dB, mean cropLPIPS<=0.15, mean alphaIoU>=0.90; independent visual audit must show recognizable complete subject and retained limbs/cloth outline. Thresholds engineering gates, not a guarantee of high quality.",
+    "b_approaches_a": "Teacher qualified and A adequate; each paired seed B foregroundPSNR >= A-0.5dB, B cropLPIPS<=A+0.02, B boundaryPSNR>=A-0.5dB, B alphaIoU>=A-0.02, no audit-observed coverage/detail regression.",
+    "conditional_next": "Only after teacher qualification and A/B gate pass, register a separately reviewed D/E field-derived initialization task under same training budget. No automatic default promotion. Otherwise report which prerequisite failed and next resolving experiment.",
+    "stopping": "Fixed final8000 steps. No metric-based early stopping. Abort failed cell on nonfinite values, CUDA OOM or 3600s wall time; preserve failure and completed cells under same root. Stop matrix on first execution failure."
+  },
+  "source_lifecycle": "Development init-run --development; preserve exact tracked/untracked executed Python/CUDA source bytes plus git diff and checksums under canonical run before first execution. No commit or push needed; no source mutation during protected execution.",
+  "execution_order": {
+    "cells": [
+      [
+        "rgb",
+        8101
+      ],
+      [
+        "field_high",
+        8101
+      ],
+      [
+        "field_low",
+        8101
+      ],
+      [
+        "field_high",
+        8102
+      ],
+      [
+        "field_low",
+        8102
+      ],
+      [
+        "rgb",
+        8102
+      ],
+      [
+        "field_low",
+        8103
+      ],
+      [
+        "rgb",
+        8103
+      ],
+      [
+        "field_high",
+        8103
+      ]
+    ],
+    "warmup": "One disposable32x32 two-Gaussian forward/backward CUDA render in every fresh fitting worker, before peak-stat reset; excluded from reported training iterations. No capture outcomes retained from warmup."
+  },
+  "preview_policy": {
+    "selected_model": "field_high seed8101, fixed before outcomes; allcells get fullheldout comparisons and24-frame orbit/elevation GIFs via shared visualize helper",
+    "selection": "No best-model selection."
+  },
+  "execution_controls": {
+    "validate_render_finite": true,
+    "reset_cuda_peak_stats": false,
+    "torch_num_threads": 2,
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2",
+    "timing": "Exact callback observed run-wall timestamps; no synthetic per-step timestamps.",
+    "rng_policy": "After disposable warmup and before fitting, seed Pythonrandom, NumPy, globaltorch CPU and allCUDA generators with the paired seed; Trainer also uses its private seeded camera generator. Same seeds bind topology stochasticity; CUDA floating-point bitwise determinism is not assumed."
+  },
+  "resolved_training_configs": {
+    "8101": {
+      "iterations": 8000,
+      "lr_means": 0.00016,
+      "lr_quats": 0.001,
+      "lr_scales": 0.005,
+      "lr_opacity": 0.05,
+      "lr_sh": 0.0025,
+      "lr_sh_rest": 0.000125,
+      "ssim_lambda": 0.2,
+      "rasterizer": "gsplat",
+      "device": "cuda:0",
+      "densify": true,
+      "density_strategy": "gsplat-default",
+      "density": {
+        "start_iter": 500,
+        "stop_iter": 6000,
+        "every": 100,
+        "grad_threshold": 0.0002,
+        "absgrad": false,
+        "split_scale_frac": 0.01,
+        "split_factor": 1.6,
+        "prune_opacity": 0.005,
+        "prune_scale_frac": 0.1,
+        "max_gaussians": 100000,
+        "opacity_reset_every": 3000,
+        "opacity_reset_value": 0.011,
+        "revised_opacity": true,
+        "mcmc_noise_lr": 500000.0,
+        "clone_only": false,
+        "clone_all": false,
+        "clone_jitter_fraction": 0.0,
+        "clone_tangent_only": false,
+        "clone_child_opacity_scale": 1.0,
+        "protect_first_n": 0
+      },
+      "gaussian_storage_policy": "dynamic",
+      "arena_growth_factor": 2.0,
+      "arena_initial_capacity": null,
+      "profile_density_events": false,
+      "eval_every": 500,
+      "internal_checkpoint_evaluation": false,
+      "reset_cuda_peak_stats": false,
+      "checkpoint_policy": "final",
+      "target_sh_degree": 3,
+      "sh_degree_interval": 1000,
+      "use_masks": false,
+      "outside_alpha_lambda": 0.01,
+      "mask_alpha_lambda": 0.05,
+      "random_background": false,
+      "opacity_reg": null,
+      "scale_reg": null,
+      "packed": false,
+      "antialiased": false,
+      "sh_color_activation": "hard",
+      "sh_smu1_mu": 0.00784313725490196,
+      "collect_sh_color_diagnostics": false,
+      "kernel_support_mode": "hard",
+      "collect_kernel_support_diagnostics": false,
+      "visibility_margin_sigma": 3.0,
+      "validate_render_finite": true,
+      "quaternion_update_policy": "current",
+      "seed": 8101,
+      "iteration_offset": 0,
+      "schedule_iterations": null,
+      "means_lr_final_factor": 0.01,
+      "opacity_logit_epsilon": 0.0001,
+      "init_density": null,
+      "trust": null,
+      "init_coherence": null,
+      "plateau_patience_evals": null,
+      "plateau_min_delta": 0.0,
+      "plateau_min_iterations": 0,
+      "stream_scene_from_cpu": true,
+      "record_train_metrics": false,
+      "topology_moment_gammas": null,
+      "topology_moment_field_gammas": null,
+      "active_fraction": 1.0,
+      "active_refresh_every": 8,
+      "active_selection": "priority",
+      "active_weight_count": 0.25,
+      "active_weight_variance": 0.25,
+      "active_weight_age": 0.25,
+      "conditional_density": false
+    },
+    "8102": {
+      "iterations": 8000,
+      "lr_means": 0.00016,
+      "lr_quats": 0.001,
+      "lr_scales": 0.005,
+      "lr_opacity": 0.05,
+      "lr_sh": 0.0025,
+      "lr_sh_rest": 0.000125,
+      "ssim_lambda": 0.2,
+      "rasterizer": "gsplat",
+      "device": "cuda:0",
+      "densify": true,
+      "density_strategy": "gsplat-default",
+      "density": {
+        "start_iter": 500,
+        "stop_iter": 6000,
+        "every": 100,
+        "grad_threshold": 0.0002,
+        "absgrad": false,
+        "split_scale_frac": 0.01,
+        "split_factor": 1.6,
+        "prune_opacity": 0.005,
+        "prune_scale_frac": 0.1,
+        "max_gaussians": 100000,
+        "opacity_reset_every": 3000,
+        "opacity_reset_value": 0.011,
+        "revised_opacity": true,
+        "mcmc_noise_lr": 500000.0,
+        "clone_only": false,
+        "clone_all": false,
+        "clone_jitter_fraction": 0.0,
+        "clone_tangent_only": false,
+        "clone_child_opacity_scale": 1.0,
+        "protect_first_n": 0
+      },
+      "gaussian_storage_policy": "dynamic",
+      "arena_growth_factor": 2.0,
+      "arena_initial_capacity": null,
+      "profile_density_events": false,
+      "eval_every": 500,
+      "internal_checkpoint_evaluation": false,
+      "reset_cuda_peak_stats": false,
+      "checkpoint_policy": "final",
+      "target_sh_degree": 3,
+      "sh_degree_interval": 1000,
+      "use_masks": false,
+      "outside_alpha_lambda": 0.01,
+      "mask_alpha_lambda": 0.05,
+      "random_background": false,
+      "opacity_reg": null,
+      "scale_reg": null,
+      "packed": false,
+      "antialiased": false,
+      "sh_color_activation": "hard",
+      "sh_smu1_mu": 0.00784313725490196,
+      "collect_sh_color_diagnostics": false,
+      "kernel_support_mode": "hard",
+      "collect_kernel_support_diagnostics": false,
+      "visibility_margin_sigma": 3.0,
+      "validate_render_finite": true,
+      "quaternion_update_policy": "current",
+      "seed": 8102,
+      "iteration_offset": 0,
+      "schedule_iterations": null,
+      "means_lr_final_factor": 0.01,
+      "opacity_logit_epsilon": 0.0001,
+      "init_density": null,
+      "trust": null,
+      "init_coherence": null,
+      "plateau_patience_evals": null,
+      "plateau_min_delta": 0.0,
+      "plateau_min_iterations": 0,
+      "stream_scene_from_cpu": true,
+      "record_train_metrics": false,
+      "topology_moment_gammas": null,
+      "topology_moment_field_gammas": null,
+      "active_fraction": 1.0,
+      "active_refresh_every": 8,
+      "active_selection": "priority",
+      "active_weight_count": 0.25,
+      "active_weight_variance": 0.25,
+      "active_weight_age": 0.25,
+      "conditional_density": false
+    },
+    "8103": {
+      "iterations": 8000,
+      "lr_means": 0.00016,
+      "lr_quats": 0.001,
+      "lr_scales": 0.005,
+      "lr_opacity": 0.05,
+      "lr_sh": 0.0025,
+      "lr_sh_rest": 0.000125,
+      "ssim_lambda": 0.2,
+      "rasterizer": "gsplat",
+      "device": "cuda:0",
+      "densify": true,
+      "density_strategy": "gsplat-default",
+      "density": {
+        "start_iter": 500,
+        "stop_iter": 6000,
+        "every": 100,
+        "grad_threshold": 0.0002,
+        "absgrad": false,
+        "split_scale_frac": 0.01,
+        "split_factor": 1.6,
+        "prune_opacity": 0.005,
+        "prune_scale_frac": 0.1,
+        "max_gaussians": 100000,
+        "opacity_reset_every": 3000,
+        "opacity_reset_value": 0.011,
+        "revised_opacity": true,
+        "mcmc_noise_lr": 500000.0,
+        "clone_only": false,
+        "clone_all": false,
+        "clone_jitter_fraction": 0.0,
+        "clone_tangent_only": false,
+        "clone_child_opacity_scale": 1.0,
+        "protect_first_n": 0
+      },
+      "gaussian_storage_policy": "dynamic",
+      "arena_growth_factor": 2.0,
+      "arena_initial_capacity": null,
+      "profile_density_events": false,
+      "eval_every": 500,
+      "internal_checkpoint_evaluation": false,
+      "reset_cuda_peak_stats": false,
+      "checkpoint_policy": "final",
+      "target_sh_degree": 3,
+      "sh_degree_interval": 1000,
+      "use_masks": false,
+      "outside_alpha_lambda": 0.01,
+      "mask_alpha_lambda": 0.05,
+      "random_background": false,
+      "opacity_reg": null,
+      "scale_reg": null,
+      "packed": false,
+      "antialiased": false,
+      "sh_color_activation": "hard",
+      "sh_smu1_mu": 0.00784313725490196,
+      "collect_sh_color_diagnostics": false,
+      "kernel_support_mode": "hard",
+      "collect_kernel_support_diagnostics": false,
+      "visibility_margin_sigma": 3.0,
+      "validate_render_finite": true,
+      "quaternion_update_policy": "current",
+      "seed": 8103,
+      "iteration_offset": 0,
+      "schedule_iterations": null,
+      "means_lr_final_factor": 0.01,
+      "opacity_logit_epsilon": 0.0001,
+      "init_density": null,
+      "trust": null,
+      "init_coherence": null,
+      "plateau_patience_evals": null,
+      "plateau_min_delta": 0.0,
+      "plateau_min_iterations": 0,
+      "stream_scene_from_cpu": true,
+      "record_train_metrics": false,
+      "topology_moment_gammas": null,
+      "topology_moment_field_gammas": null,
+      "active_fraction": 1.0,
+      "active_refresh_every": 8,
+      "active_selection": "priority",
+      "active_weight_count": 0.25,
+      "active_weight_variance": 0.25,
+      "active_weight_age": 0.25,
+      "conditional_density": false
+    }
+  },
+  "frozen_configuration": {
+    "source_binding": {
+      "patterns": [
+        "src/rtgs/**/*.py",
+        "src/rtgs/**/*.cu",
+        "src/rtgs/**/*.cpp",
+        "src/rtgs/**/*.h",
+        "scripts/experiment_contract.py",
+        "scripts/check_results_bundle.py",
+        "scripts/experiments/20260908_field_teacher_information_stage_frame00008.py",
+        "scripts/experiments/20260908_field_teacher_information_stage_frame00008_report.py",
+        "tests/test_field_teacher_information_report.py",
+        "pyproject.toml"
+      ],
+      "file_count": 116,
+      "aggregate_sha256": "d83422a66c3a2bb6137ce0a4059d94554dbb97a7941cd7f0c8002b65b1134382"
+    },
+    "live_integrity_policy": {
+      "verify_source_at_coordinator_worker_and_bundle": true,
+      "verify_full_data_seal_at_coordinator_entry_exit_and_bundle": true
+    }
+  }
+}

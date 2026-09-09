@@ -212,3 +212,13 @@ sessions:
     claims_touched:
     - C43
     open_threads: 4
+
+  - id: 2026-09-08_001
+    date: '2026-09-08'
+    summary: Nine audited target-information cells complete; dense teacher qualifies, quality prerequisites
+      fail, report/viewer/bundle pass.
+    turn_count: 1
+    events_count: 8
+    claims_touched:
+    - C47
+    open_threads: 2

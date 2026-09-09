@@ -1,0 +1,2 @@
+# Preserve the exact public-Claude prompt bytes bound by its collaboration receipt.
+docs/research/2026-09-07-field-reconstruction/claude-followup-question.txt whitespace=-blank-at-eof

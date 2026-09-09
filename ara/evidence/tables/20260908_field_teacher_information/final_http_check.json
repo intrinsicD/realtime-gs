@@ -1,0 +1,2506 @@
+{
+  "checked_at_utc": "2026-09-08T21:14:29.954382+00:00",
+  "scope": "Read-only final HTTP check after the structured viewer receipt and final render; browser interaction evidence is preserved separately in the run.",
+  "html_sha256": "55738d4fceb2975bb57bec928fc4c84aefe766c9dcaa09747884809b85cd1202",
+  "manifest_sha256": "cb25378ccee53a268b9425a4ffb145e8f5f992bd6b2e8b99372fe2c029a8d3b2",
+  "served_bytes_match": true,
+  "all_targets_ok": true,
+  "targets": [
+    {
+      "target": "http://127.0.0.1:8765/README.md",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/authorization.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/fit_field_high_8103_started.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/fit_field_low_8102_completed.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/fit_field_low_8102_started.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/fit_field_low_8103_completed.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/fit_field_low_8103_started.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/fit_rgb_8102_completed.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/fit_rgb_8102_started.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/fit_rgb_8103_completed.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/fit_rgb_8103_started.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/interruption.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/orchestrator.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/partial_field_high_8103/cell/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/partial_field_high_8103/cell/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/partial_field_high_8103/cell/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/partial_field_high_8103/fit.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/continuation/partial_field_high_8103/started.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/final_cell_retry/authorization.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/final_cell_retry/completed.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/final_cell_retry/evaluate_started.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/final_cell_retry/fit_field_high_8103_completed.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/final_cell_retry/fit_field_high_8103_started.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/final_cell_retry/orchestrator.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/attempts/initial/interruption.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/final_metric_audit.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/final_metric_audit.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/final_metric_audit_ideal_quadrature_attempt.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/final_record_audit.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/fit_invariants_07_cells.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/fit_invariants_09_cells.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/fit_invariants_audit.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/fit_invariants_final_audit.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/infrastructure_continuation_review.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/infrastructure_continuation_review.md",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/partial_final_cell_retry_review.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/partial_final_cell_retry_review.md",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/preparation_audit.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/preparation_audit.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/viewer_warning_review.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/visuals/novel_elevation_8101.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/visuals/novel_elevation_8102.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/visuals/novel_elevation_8103.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/visuals/novel_orbit_8101.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/visuals/novel_orbit_8102.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/audit_checks/visuals/novel_orbit_8103.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.md",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/benchmarks/results/20260908_field_teacher_information_stage_frame00008_RESULT.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/benchmarks/results/20260908_field_teacher_information_stage_frame00008_RESULT.md",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/evaluation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/gaussians.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/comparison/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/comparison/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/comparison/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/comparison/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/error/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/error/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/error/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/error/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/final/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/final/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/final/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/final/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/initial/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/initial/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/initial/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/initial/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/reference/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/reference/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/reference/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8101/renders/reference/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/evaluation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/gaussians.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/comparison/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/comparison/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/comparison/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/comparison/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/error/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/error/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/error/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/error/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/final/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/final/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/final/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/final/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/initial/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/initial/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/initial/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/initial/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/reference/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/reference/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/reference/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8102/renders/reference/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/evaluation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/gaussians.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/comparison/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/comparison/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/comparison/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/comparison/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/error/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/error/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/error/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/error/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/final/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/final/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/final/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/final/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/initial/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/initial/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/initial/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/initial/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/reference/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/reference/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/reference/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_high/8103/renders/reference/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/evaluation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/gaussians.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/comparison/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/comparison/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/comparison/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/comparison/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/error/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/error/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/error/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/error/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/final/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/final/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/final/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/final/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/initial/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/initial/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/initial/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/initial/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/reference/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/reference/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/reference/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8101/renders/reference/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/evaluation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/gaussians.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/comparison/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/comparison/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/comparison/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/comparison/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/error/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/error/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/error/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/error/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/final/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/final/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/final/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/final/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/initial/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/initial/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/initial/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/initial/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/reference/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/reference/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/reference/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8102/renders/reference/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/evaluation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/gaussians.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/comparison/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/comparison/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/comparison/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/comparison/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/error/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/error/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/error/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/error/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/final/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/final/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/final/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/final/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/initial/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/initial/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/initial/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/initial/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/reference/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/reference/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/reference/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/field_low/8103/renders/reference/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/evaluation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/gaussians.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/comparison/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/comparison/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/comparison/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/comparison/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/error/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/error/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/error/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/error/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/final/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/final/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/final/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/final/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/initial/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/initial/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/initial/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/initial/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/reference/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/reference/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/reference/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8101/renders/reference/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/evaluation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/gaussians.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/comparison/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/comparison/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/comparison/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/comparison/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/error/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/error/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/error/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/error/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/final/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/final/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/final/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/final/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/initial/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/initial/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/initial/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/initial/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/reference/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/reference/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/reference/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8102/renders/reference/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/effective_config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/evaluation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/gaussians.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/comparison/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/comparison/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/comparison/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/comparison/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/error/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/error/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/error/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/error/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/final/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/final/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/final/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/final/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/initial/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/initial/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/initial/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/initial/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/reference/C0001.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/reference/C0018.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/reference/C0029.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/cells/rgb/8103/renders/reference/C1002.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/comparison.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/environment.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/environment_details.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/experiments/data/20260908_field_teacher_information_stage_frame00008.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/experiments/reviews/20260908_field_teacher_information_stage_frame00008_PROTOCOL_REVIEW.md",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/experiments/tasks/20260908_field_teacher_information_stage_frame00008.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/favicon.ico",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/gaussians.config.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/gaussians.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/index.html",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/initialization.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/initialization/8101/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/initialization/8101/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/initialization/8102/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/initialization/8102/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/initialization/8103/gaussians_init.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/initialization/8103/gaussians_init.ply",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/input_boundary_receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/input_integrity_entry.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/input_integrity_exit.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/evaluate.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/fit_field_high_8101.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/fit_field_high_8102.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/fit_field_high_8103.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/fit_field_low_8101.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/fit_field_low_8102.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/fit_field_low_8103.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/fit_rgb_8101.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/fit_rgb_8102.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/fit_rgb_8103.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/initialize.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/logs/prepare.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/manifest.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/metrics.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/novel_elevation.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/novel_orbit.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/preparation.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/reconstruction.gif",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/reconstruction_contact_sheet.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/report_presentation/annotations.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/report_presentation/apply_annotations.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/report_presentation/environment_schema_repair.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/report_presentation/http_evidence_mirrors.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/report_presentation/http_protocol_mirrors.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/report_presentation/producer_environment.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/report_presentation/producer_metrics.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/report_presentation/producer_resource_receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/report_presentation/producer_run_receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/resource_receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/run_receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/experiments/data/20260908_field_teacher_information_stage_frame00008.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/experiments/reviews/20260908_field_teacher_information_stage_frame00008_PROTOCOL_REVIEW.md",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/experiments/tasks/20260908_field_teacher_information_stage_frame00008.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/pyproject.toml",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/scripts/check_results_bundle.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/scripts/experiment_contract.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/scripts/experiments/20260908_field_teacher_information_stage_frame00008.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/scripts/experiments/20260908_field_teacher_information_stage_frame00008_report.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/bench.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/bench019.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/bench019_adapters.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/bench019_local_downstream.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/bench019_local_inputs.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/bench019_local_report.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/bench019_portfolio.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/bench019_predictors.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/carrier_pipeline.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/cli.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/camera.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/cuda/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/cuda/observation2d_ext.cpp",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/cuda/observation2d_ext.cu",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/gaussians2d.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/gaussians3d.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/metrics.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/observation2d.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/observation2d_cuda.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/core/sh.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/data/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/data/calibrated.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/data/colmap.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/data/compact_views.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/data/field_inputs.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/data/reconstruction_inputs.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/data/scene.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/data/synthetic.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/depth/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/depth/align.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/depth/base.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/depth/depth_anything.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/depth/gps_gaussian.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/depth/mock.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/depth/stereo.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/adapters.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/batched.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/cuda/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/cuda/renderer2d_ext.cpp",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/cuda/renderer2d_ext.cu",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/cuda_backend.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/fit.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/native_observation.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/pool.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/renderer2d.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/structsplat_backend.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/image2gs/structure_init.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/base.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/baselines.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/beam_fusion.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/beam_partition.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/carrier_refinement.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/carve.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/compact_carve.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/compact_confidence_gate.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/compact_init_eval.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/compact_refine.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/depth.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/fiber_correspondence.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/field_lifter.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/field_loss.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/field_measurement.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/field_observability.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/field_refit.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/field_sweep.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/field_topology.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/field_validation.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/field_visibility.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/gaussian_correspondence.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/gps_field.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/gradient.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/hybrid.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/inverse_projection_fiber.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/matching.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/merge.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/paper_initializers.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/probabilistic_pipeline.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/source_anchored_sh.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/splat_sfm.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/surface.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/surfel_init.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/surfel_lift.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/lift/topology.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/live.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/active_set.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/arena.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/carrier_schedule.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/compact_density.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/compact_trainer.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/density.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/init_density.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/init_trust.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/strategies.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/optim/trainer.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/pipeline.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/render/__init__.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/render/base.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/render/gsplat_backend.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/render/gsplat_points.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/render/point_base.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/render/projection.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/render/torch_points.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/render/torch_ref.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/viewer.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/src/rtgs/visualize.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/files/tests/test_field_teacher_information_report.py",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/git-status.txt",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/manifest.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/source_snapshot/tracked.diff",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0004.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0005.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0006.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0008.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0009.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0012.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0014.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0019.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0020.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0021.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0022.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0025.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0026.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0028.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0030.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0031.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0034.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0037.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C0039.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C1000.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C1001.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_high/C1004.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0004.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0005.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0006.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0008.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0009.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0012.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0014.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0019.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0020.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0021.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0022.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0025.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0026.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0028.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0030.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0031.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0034.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0037.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C0039.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C1000.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C1001.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/field_low/C1004.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0004.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0005.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0006.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0008.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0009.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0012.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0014.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0019.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0020.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0021.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0022.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0025.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0026.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0028.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0030.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0031.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0034.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0037.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C0039.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C1000.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C1001.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/initialization_masks/C1004.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/metadata.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0004.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0005.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0006.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0008.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0009.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0012.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0014.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0019.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0020.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0021.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0022.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0025.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0026.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0028.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0030.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0031.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0034.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0037.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C0039.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C1000.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C1001.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/targets/rgb/C1004.npz",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/task.lock.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/training_history.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/framebuffer_measurements.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/http_server.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/nvidia-smi-before.txt",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/preflight-host.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/preflight-sandbox.log",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/receipt.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/report-browser-top.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/report-browser.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/report-client.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/report-smoke.mjs",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/report_attempt_1/disposition.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/report_attempt_1/report-browser-top.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/report_attempt_1/report-browser.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/report_attempt_1/report-client.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/report_attempt_1/smoke.mjs",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/viewer-after.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/viewer-before.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/viewer-client.json",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/viewer-framebuffer-after.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/viewer-framebuffer-before.png",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/verification/viewer-smoke.mjs",
+      "status": 200
+    },
+    {
+      "target": "http://127.0.0.1:8765/viewer_smoke.json",
+      "status": 200
+    }
+  ]
+}

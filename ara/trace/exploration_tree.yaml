@@ -4306,3 +4306,89 @@ tree:
     - docs/WORK_HANDOFF_2026-09-07.md
     - ara/trace/sessions/2026-09-07_001.yaml
     status: resolved
+
+  - id: N233
+    type: decision
+    title: Authorize the proposed reconstruction experiments
+    provenance: user
+    timestamp: 2026-09-08T23:11+02:00
+    choice: 'The user requests: Yes, please do the experiments and then report back. Execute the diagnostic
+      screen and report the bounded outcome.'
+    alternatives: []
+    evidence:
+    - docs/tasks/RTGS-021-field-target-information-experiment.md
+    - experiments/tasks/20260908_field_teacher_information_stage_frame00008.json
+    status: resolved
+  - id: N234
+    type: experiment
+    title: Complete and independently audit the nine-cell target-information screen
+    provenance: ai-executed
+    timestamp: 2026-09-08T23:11+02:00
+    result: Three paired seeds of photograph, high-capacity field and low-budget field refinement completed
+      8000 updates each on Stage frame_00008, with 22 training and four reporting-only cameras at downscale8.
+      Foreground PSNR means A24.782436, B24.316375, C18.552894dB; LPIPS .114609/.173856/.582649; alphaIoU
+      .957174/.745162/.494741. High teacher qualifies. Shared RGB/mask-derived initialization prevents a
+      strict field-only claim. Independent 36-row rerenders and all source/input/schedule invariants agree.
+    evidence:
+    - benchmarks/results/20260908_field_teacher_information_stage_frame00008_RESULT.json
+    - benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.json
+    - runs/20260908_field_teacher_information_stage_frame00008/comparison.json
+    - runs/20260908_field_teacher_information_stage_frame00008/audit_checks/final_metric_audit.json
+    also_depends_on:
+    - N233
+    status: resolved
+  - id: N235
+    type: decision
+    title: Preserve interrupted attempts and recover only unchanged unfinished work
+    provenance: ai-executed
+    timestamp: 2026-09-08T23:11+02:00
+    choice: Two exit143 interruptions have unconfirmed initiating causes. Independent review approved preserving
+      the first four, then eight, completed cells. The partial ninth was quarantined and restarted once
+      from the same initialization and seed for the full budget. At least500 discarded updates occurred;
+      exact count and failed-attempt costs are unknown. No total-compute equality or performance claim.
+    alternatives: []
+    evidence:
+    - runs/20260908_field_teacher_information_stage_frame00008/attempts/initial/interruption.json
+    - runs/20260908_field_teacher_information_stage_frame00008/attempts/continuation/interruption.json
+    - runs/20260908_field_teacher_information_stage_frame00008/attempts/final_cell_retry/authorization.json
+    - runs/20260908_field_teacher_information_stage_frame00008/audit_checks/partial_final_cell_retry_review.json
+    also_depends_on:
+    - N234
+    status: resolved
+  - id: N236
+    type: dead_end
+    title: Do not advance to conditional field-only initialization under this screen
+    provenance: ai-executed
+    timestamp: 2026-09-08T23:11+02:00
+    hypothesis: The qualified dense-field teacher and matched photograph baseline will satisfy every prerequisite
+      for D/E.
+    failure_mode: A foreground means24.750247/24.770340/24.826721dB all miss25dB. B fails paired LPIPS,
+      boundaryPSNR and alphaIoU in every seed and visibly regresses.
+    lesson: Foreground colour proximity and teacher qualification do not establish the complete reconstruction-quality
+      gate. Preserve this bounded failure; it neither disproves Gaussian reconstruction nor tests physical-density
+      tomography.
+    evidence:
+    - benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.md
+    - runs/20260908_field_teacher_information_stage_frame00008/audit_checks/final_metric_audit.json
+    also_depends_on:
+    - N234
+    status: resolved
+  - id: N237
+    type: decision
+    title: Commit the bounded audited result and retain causal hypotheses as open
+    provenance: ai-executed
+    timestamp: 2026-09-08T23:11+02:00
+    choice: Record O171 as C47 with exact proof bindings and the completed canonical report. D/E remain
+      unavailable. Preserve O172 as an untested suggestion; no source/default, private-upload, physical-density
+      or performance claim.
+    alternatives: []
+    evidence:
+    - O171
+    - benchmarks/results/20260908_field_teacher_information_stage_frame00008_AUDIT.json
+    - runs/20260908_field_teacher_information_stage_frame00008/index.html
+    - runs/20260908_field_teacher_information_stage_frame00008/viewer_smoke.json
+    also_depends_on:
+    - N234
+    - N235
+    - N236
+    status: resolved
