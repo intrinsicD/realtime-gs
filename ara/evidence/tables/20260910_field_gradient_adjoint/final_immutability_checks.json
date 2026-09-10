@@ -1,0 +1,19 @@
+{
+  "source_checks": [
+    {
+      "task": "20260909_field_target_gradient_stage_frame00008",
+      "source_files": 118,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "task": "20260910_field_gradient_adjoint_stage_frame00008",
+      "source_files": 122,
+      "passed": true,
+      "failures": []
+    }
+  ],
+  "report_result_audit_bindings_unchanged": true,
+  "binding_failures": [],
+  "passed": true
+}

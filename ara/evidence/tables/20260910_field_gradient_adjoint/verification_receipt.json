@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "task_id": "20260910_field_gradient_adjoint_stage_frame00008",
+  "completed_at": "2026-09-10T01:29:11.102037+02:00",
+  "status": "passed",
+  "scope": "Terminal repository and delivery verification after bounded scientific and documentation reviews; no new measurement, source/result rewrite or reconstruction claim.",
+  "full_verification": {
+    "command": [
+      "./scripts/verify.sh"
+    ],
+    "execution": "Host, required for existing localhost socket tests",
+    "exit_code": 0,
+    "log": "verify-host-closeout.log",
+    "summary_lines": [
+      "check_ara: OK (48 claims)",
+      "check_agent_workflow: OK (9 skills, 24 archived tasks, active task/template valid)",
+      "==> verify OK"
+    ]
+  },
+  "additional_checks": {
+    "diff_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "ara": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/check_ara.py"
+      ],
+      "exit_code": 0,
+      "stdout": "check_ara: OK (48 claims)\n",
+      "stderr": ""
+    },
+    "workflow": {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/check_agent_workflow.py"
+      ],
+      "exit_code": 0,
+      "stdout": "check_agent_workflow: OK (9 skills, 24 archived tasks, active task/template valid)\n",
+      "stderr": ""
+    }
+  },
+  "report": {
+    "url": "http://127.0.0.1:8765/index.html",
+    "local_targets": 593,
+    "all_http_200": true,
+    "served_local_html_sha256_equal": true,
+    "run_validator_exit_code": 0,
+    "bundle_complete": true
+  },
+  "viewer": {
+    "url": "http://127.0.0.1:8880/",
+    "receipt": "viewer_smoke.json",
+    "corrected_scene_proof": "viewer-visual-check-corrected.json",
+    "nonfatal_console_notices_preserved": true,
+    "numeric_camera_vectors_available": false
+  },
+  "scientific_audit": "benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.json",
+  "documentation_review_closeout_item": "Resolved: this receipt now exists and records the completed required terminal verification. Original review remains unchanged.",
+  "source_binding_checks": {
+    "source_checks": [
+      {
+        "task": "20260909_field_target_gradient_stage_frame00008",
+        "source_files": 118,
+        "passed": true,
+        "failures": []
+      },
+      {
+        "task": "20260910_field_gradient_adjoint_stage_frame00008",
+        "source_files": 122,
+        "passed": true,
+        "failures": []
+      }
+    ],
+    "report_result_audit_bindings_unchanged": true,
+    "binding_failures": [],
+    "passed": true
+  },
+  "evidence_sha256": {
+    "verify-host-closeout.log": "1a4f4a4cfc1d5de84af649acf102d8c5e93b768ff770875436dcb4ee8a691929",
+    "verify-host-before-closeout.log": "fdc65c6db95365be24e21ec071c34b004ad94c737936618ccc0483a1132ef87c",
+    "report-dom-final.json": "3431385e301bdd4a447c6193b4a4e244def8226468b10da4fe0100c127c74f25",
+    "report-http-final.json": "fc784a28ae6cd2c77b54876bb2261433507fc5f10c2245e16ca64b8cb7e3e948",
+    "check-run-final.log": "5fa94a2da63da03570170fd891976d9c503ac38d9ffa9aa2a03919ceb0b6d591",
+    "check-bundle-final.json": "531cd6f1d8eeaa4455aad227ef8396911c5469fe270ca279cd62f5e13fcb3053",
+    "viewer_smoke.json": "b477cc88a7d6eb7e4f5ded367185a115dca8e9f567c1212de1cb45f2fe6fb4c7",
+    "viewer-visual-check-corrected.json": "7c5489bc3de66be1c38aac8b89262d5d43064fbc9747e479c72c673f687b2244",
+    "artifact_bindings.json": "2a7f43d1d092bc1bb491de98c7d83fc3ba6bcf71104d66baa11d948b89812aea",
+    "final_immutability_checks.json": "aa0358b48ff0a3dbe3ac172a2120119dfec332ddc8aa11a8b3cfb6269bae870e",
+    "documentation_review.md": "da0be3f46167e2b4f029ff65782332b75abf3dd32fa1c1da98b5d3212382c9ab"
+  },
+  "git": {
+    "realtime_gs_head": "66afd22fb4b1eebf86904c21cac19ccf61c9fca3",
+    "structsplat_head": "03ae7d434039ecab9732a32a96a08f7803053d0c",
+    "structsplat_clean": true,
+    "commit_or_push_performed": false,
+    "realtime_gs_status_before_receipt": " M ara/evidence/README.md\n M ara/logic/claims.md\n M ara/staging/observations.yaml\n M ara/trace/exploration_tree.yaml\n M ara/trace/pm_reasoning_log.yaml\n M ara/trace/sessions/session_index.yaml\n M docs/EXPERIMENTS.md\n M docs/RESEARCH.md\n?? ara/evidence/tables/20260910_field_gradient_adjoint.md\n?? ara/evidence/tables/20260910_field_gradient_adjoint/\n?? ara/trace/sessions/2026-09-09_001.yaml\n?? ara/trace/sessions/2026-09-10_001.yaml\n?? benchmarks/results/20260909_field_target_gradient_stage_frame00008_AUDIT.json\n?? benchmarks/results/20260909_field_target_gradient_stage_frame00008_AUDIT.md\n?? benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.json\n?? benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.md\n?? benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_RESULT.json\n?? benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_RESULT.md\n?? docs/RESEARCH_2026-09-09_CONTINUATION.md\n?? docs/RESEARCH_2026-09-10_GRADIENT_DIAGNOSTIC.md\n?? docs/research/2026-09-09-field-continuation/\n?? docs/tasks/RTGS-022-claude-continuation-discussion.md\n?? docs/tasks/RTGS-023-field-target-gradient-diagnostic.md\n?? docs/tasks/RTGS-024-field-gradient-adjoint-diagnostic.md\n?? experiments/reviews/20260909_field_target_gradient_stage_frame00008_DESIGN_REVIEW.md\n?? experiments/reviews/20260909_field_target_gradient_stage_frame00008_PROTOCOL_REVIEW.md\n?? experiments/reviews/20260910_field_gradient_adjoint_stage_frame00008_DESIGN_REVIEW.md\n?? experiments/reviews/20260910_field_gradient_adjoint_stage_frame00008_PROTOCOL_REVIEW.md\n?? experiments/tasks/20260909_field_target_gradient_stage_frame00008.json\n?? experiments/tasks/20260910_field_gradient_adjoint_stage_frame00008.json\n?? scripts/experiments/20260909_field_target_gradient_stage_frame00008.py\n?? scripts/experiments/20260909_field_target_gradient_stage_frame00008_report.py\n?? scripts/experiments/20260910_field_gradient_adjoint_stage_frame00008.py\n?? scripts/experiments/20260910_field_gradient_adjoint_stage_frame00008_report.py\n?? tests/test_field_gradient_adjoint.py\n?? tests/test_field_gradient_adjoint_report.py\n?? tests/test_field_target_gradient.py\n?? tests/test_field_target_gradient_report.py\n"
+  },
+  "history": "The prior canonical audit correctly recorded delivery pending at its publication; these later checks complete that obligation without rewriting it. Earlier sandbox verification and first browser/crop failures remain preserved."
+}

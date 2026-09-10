@@ -1,0 +1,495 @@
+{
+  "schema_version": 1,
+  "task_id": "20260909_field_target_gradient_stage_frame00008",
+  "reviewer": "Codex-protocol-reviewer",
+  "self_reviewed": false,
+  "created_at_utc": "2026-09-09T22:29:04.436431+00:00",
+  "verdict": "failed_inconclusive",
+  "execution_disposition": "Stopped correctly on frozen numerical-control failure; preserve the consumed run.",
+  "scientific_disposition": "No completed residual/target-gradient hypothesis, causal remedy, reconstruction or performance claim; partial rows are retained but not promoted.",
+  "run_status": "failed",
+  "protocol_sha256": "2246a380965a67c7d487ebae11ba607c42829e115e82a788b5bfe51e50c57426",
+  "source_aggregate_sha256": "247d75336fe7f1d03563a245ea30895646d4c1c557b5b01ed3e3e08654e7d317",
+  "source_lock": {
+    "schema_version": 2,
+    "task_id": "20260909_field_target_gradient_stage_frame00008",
+    "task_path": "experiments/tasks/20260909_field_target_gradient_stage_frame00008.json",
+    "task_sha256": "4d7b95002d4609cb1c774e01a1944e4fbb35400c667a72b4f0d45857ac3d7d55",
+    "protocol_sha256": "2246a380965a67c7d487ebae11ba607c42829e115e82a788b5bfe51e50c57426",
+    "protocol_review": {
+      "reviewer": "Codex-protocol-reviewer",
+      "verdict": "approved",
+      "protocol_sha256": "2246a380965a67c7d487ebae11ba607c42829e115e82a788b5bfe51e50c57426",
+      "artifact": "experiments/reviews/20260909_field_target_gradient_stage_frame00008_PROTOCOL_REVIEW.md"
+    },
+    "protocol_review_artifact_sha256": "a179edb2b89c6167d50a24ba16103d2de0ded489c5682392a074ed2a8e3dcd78",
+    "data_seal_path": "experiments/data/20260908_field_teacher_information_stage_frame00008.json",
+    "data_seal_sha256": "fbc09cd094e1b766657d3aa5e5098181fe596d87e450eee2368efdde4b8f9812",
+    "source_commit": "66afd22fb4b1eebf86904c21cac19ccf61c9fca3",
+    "source_dirty": true,
+    "source_diff_sha256": "72385a9b0525d93f80b5357c535ce4b93255f44b19f254cf1e86e32a14389168",
+    "development": true,
+    "started_at_utc": "2026-09-09T22:21:10.397567+00:00",
+    "command": [
+      ".venv/bin/python",
+      "scripts/experiments/20260909_field_target_gradient_stage_frame00008.py",
+      "run",
+      "--task",
+      "experiments/tasks/20260909_field_target_gradient_stage_frame00008.json"
+    ],
+    "report_template_version": 2
+  },
+  "failure_audit": {
+    "protocol_sha256": "2246a380965a67c7d487ebae11ba607c42829e115e82a788b5bfe51e50c57426",
+    "source_binding": {
+      "patterns": [
+        "src/rtgs/**/*.py",
+        "src/rtgs/**/*.cu",
+        "src/rtgs/**/*.cpp",
+        "src/rtgs/**/*.h",
+        "src/rtgs/**/*.js",
+        "scripts/experiment_contract.py",
+        "scripts/check_results_bundle.py",
+        "scripts/experiments/20260909_field_target_gradient_stage_frame00008.py",
+        "scripts/experiments/20260909_field_target_gradient_stage_frame00008_report.py",
+        "tests/test_field_target_gradient.py",
+        "tests/test_field_target_gradient_report.py",
+        "pyproject.toml"
+      ],
+      "file_count": 118,
+      "aggregate_sha256": "247d75336fe7f1d03563a245ea30895646d4c1c557b5b01ed3e3e08654e7d317"
+    },
+    "source_files_checked_live_and_snapshot": 118,
+    "preserved_untracked_files_checked": 21,
+    "cached_input_hashes_checked": 76,
+    "administrative_raw_seal_hashes_checked": 81,
+    "raw_seal_check_scope": "Byte hashes only, including heldout bytes; no decode or scoring.",
+    "controls": [
+      {
+        "state_id": "initial_8101",
+        "status": "completed",
+        "measured_view_pairs": 22,
+        "identity_pass": true,
+        "failed_component_groups": [],
+        "stage_interval": [
+          19.29566445708042,
+          20.949440265074372
+        ],
+        "diagnostics_sha256": "45f4bdc3de36f8aecbfb6922def4ff1cac4c6ef9dc6ee45ed0437189e4042c51"
+      },
+      {
+        "state_id": "rgb_final_8101",
+        "status": "completed",
+        "measured_view_pairs": 22,
+        "identity_pass": true,
+        "failed_component_groups": [],
+        "stage_interval": [
+          20.954024054051843,
+          26.97755412105471
+        ],
+        "diagnostics_sha256": "5efc80608ac3f32c3ccb610364bb70db15c2da3af6acab0beabf48525447e2fc"
+      },
+      {
+        "state_id": "field_high_final_8101",
+        "status": "completed",
+        "measured_view_pairs": 22,
+        "identity_pass": true,
+        "failed_component_groups": [],
+        "stage_interval": [
+          26.986085358075798,
+          33.25149121508002
+        ],
+        "diagnostics_sha256": "62daa225da0dca162faabc326eeb40b04dc790e0a75c2f91746ac2490c3730b1"
+      },
+      {
+        "state_id": "initial_8102",
+        "status": "completed",
+        "measured_view_pairs": 22,
+        "identity_pass": true,
+        "failed_component_groups": [],
+        "stage_interval": [
+          33.25750644609798,
+          34.91966781410156
+        ],
+        "diagnostics_sha256": "47101248e7adc308e38784fa3ce63e82c10e48152b1bd526b8934e3a2b4343c9"
+      },
+      {
+        "state_id": "rgb_final_8102",
+        "status": "completed",
+        "measured_view_pairs": 22,
+        "identity_pass": true,
+        "failed_component_groups": [],
+        "stage_interval": [
+          34.92446633707732,
+          40.99737395608099
+        ],
+        "diagnostics_sha256": "e5b20d90b423cdacc7420d3f1ddde41b126285b7c60df08f679ce28afda9eba2"
+      },
+      {
+        "state_id": "field_high_final_8102",
+        "status": "failed",
+        "measured_view_pairs": 0,
+        "identity_pass": false,
+        "failed_component_groups": [
+          [
+            "dssim",
+            "quats"
+          ]
+        ],
+        "stage_interval": [
+          41.004578875086736,
+          41.17155954806367
+        ],
+        "diagnostics_sha256": "93a9490e7576ef8cd89707454eaaa038f38fa0ede7dc165750a4529763125db0"
+      }
+    ],
+    "failed_control": {
+      "state_id": "field_high_final_8102",
+      "view_id": "C0004",
+      "passed": false,
+      "losses": {
+        "l1": {
+          "photo_path": 0.0020651458762586117,
+          "teacher_path": 0.0020651458762586117,
+          "absolute_difference": 0.0
+        },
+        "dssim": {
+          "photo_path": 0.022090792655944824,
+          "teacher_path": 0.022090792655944824,
+          "absolute_difference": 0.0
+        },
+        "total": {
+          "photo_path": 0.006070275325328112,
+          "teacher_path": 0.006070275325328112,
+          "absolute_difference": 0.0
+        }
+      },
+      "comparisons": {
+        "l1": {
+          "means": {
+            "photo_norm": 0.006576302526090347,
+            "field_norm": 0.0065763029892339986,
+            "difference_norm": 2.3572471663296755e-09,
+            "difference_over_photo_norm": 3.5844567018894033e-07,
+            "cosine": 0.9999999999999376,
+            "max_absolute_difference": 1.7462298274040222e-09,
+            "element_count": 77529,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "quats": {
+            "photo_norm": 0.0009118850965398919,
+            "field_norm": 0.0009118739923541446,
+            "difference_norm": 3.5724309368715704e-08,
+            "difference_over_photo_norm": 3.917632770210856e-05,
+            "cosine": 0.9999999993067403,
+            "max_absolute_difference": 2.472370397299528e-08,
+            "element_count": 103372,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "scales": {
+            "photo_norm": 0.00010894881297145745,
+            "field_norm": 0.0001089488843796151,
+            "difference_norm": 1.1965382472201944e-09,
+            "difference_over_photo_norm": 1.0982572591531263e-05,
+            "cosine": 0.9999999999399093,
+            "max_absolute_difference": 7.839844329282641e-10,
+            "element_count": 77529,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "opacities": {
+            "photo_norm": 7.492371940000048e-05,
+            "field_norm": 7.492371948332753e-05,
+            "difference_norm": 9.169758231553015e-12,
+            "difference_over_photo_norm": 1.223879207410645e-07,
+            "cosine": 0.9999999999999927,
+            "max_absolute_difference": 3.637978807091713e-12,
+            "element_count": 25843,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "sh0": {
+            "photo_norm": 0.00013521122552329277,
+            "field_norm": 0.00013521122403058186,
+            "difference_norm": 1.1296619658946769e-11,
+            "difference_over_photo_norm": 8.354794223058577e-08,
+            "cosine": 0.9999999999999931,
+            "max_absolute_difference": 3.637978807091713e-12,
+            "element_count": 77529,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "shN": {
+            "photo_norm": 0.0005236707685765597,
+            "field_norm": 0.0005236707606145383,
+            "difference_norm": 4.701993740160889e-11,
+            "difference_over_photo_norm": 8.978911984989795e-08,
+            "cosine": 1.0,
+            "max_absolute_difference": 1.4551915228366852e-11,
+            "element_count": 1162935,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          }
+        },
+        "dssim": {
+          "means": {
+            "photo_norm": 0.0648765871746225,
+            "field_norm": 0.06487658885100676,
+            "difference_norm": 1.567027853744338e-08,
+            "difference_over_photo_norm": 2.4153980996665404e-07,
+            "cosine": 0.9999999999999704,
+            "max_absolute_difference": 9.313225746154785e-09,
+            "element_count": 77529,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "quats": {
+            "photo_norm": 0.00708319699920486,
+            "field_norm": 0.00708319021404043,
+            "difference_norm": 2.040613192401611e-07,
+            "difference_over_photo_norm": 2.8809211329724196e-05,
+            "cosine": 0.9999999995854738,
+            "max_absolute_difference": 1.0244548320770264e-07,
+            "element_count": 103372,
+            "tolerance_violations": 6,
+            "max_tolerance_excess": 3.322169406805188e-08
+          },
+          "scales": {
+            "photo_norm": 0.0010941981385865895,
+            "field_norm": 0.0010941988249270644,
+            "difference_norm": 2.8288607558959535e-09,
+            "difference_over_photo_norm": 2.5853276990126147e-06,
+            "cosine": 0.9999999999968574,
+            "max_absolute_difference": 2.1391315385699272e-09,
+            "element_count": 77529,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "opacities": {
+            "photo_norm": 0.0005926380279322364,
+            "field_norm": 0.0005926380345002813,
+            "difference_norm": 7.393737778976419e-11,
+            "difference_over_photo_norm": 1.2475975942302907e-07,
+            "cosine": 0.9999999999999925,
+            "max_absolute_difference": 4.3655745685100555e-11,
+            "element_count": 25843,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "sh0": {
+            "photo_norm": 0.0021163998563152996,
+            "field_norm": 0.0021163997877662183,
+            "difference_norm": 2.2015750481703824e-10,
+            "difference_over_photo_norm": 1.0402453211291437e-07,
+            "cosine": 0.9999999999999943,
+            "max_absolute_difference": 1.4551915228366852e-10,
+            "element_count": 77529,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "shN": {
+            "photo_norm": 0.00819678040801418,
+            "field_norm": 0.008196780115895001,
+            "difference_norm": 8.710748161748235e-10,
+            "difference_over_photo_norm": 1.0627036138764358e-07,
+            "cosine": 1.0,
+            "max_absolute_difference": 2.9103830456733704e-10,
+            "element_count": 1162935,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          }
+        },
+        "total": {
+          "means": {
+            "photo_norm": 0.017113836396217125,
+            "field_norm": 0.017113837304298805,
+            "difference_norm": 4.090319992340334e-09,
+            "difference_over_photo_norm": 2.3900660831632503e-07,
+            "cosine": 0.9999999999999725,
+            "max_absolute_difference": 3.259629011154175e-09,
+            "element_count": 77529,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "quats": {
+            "photo_norm": 0.0020007124032363085,
+            "field_norm": 0.0020006970832837116,
+            "difference_norm": 3.237082238457455e-08,
+            "difference_over_photo_norm": 1.617964797549724e-05,
+            "cosine": 0.9999999998984251,
+            "max_absolute_difference": 1.6996636986732483e-08,
+            "element_count": 103372,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "scales": {
+            "photo_norm": 0.00028079385259644765,
+            "field_norm": 0.00028079404174711174,
+            "difference_norm": 1.0044072491561883e-09,
+            "difference_over_photo_norm": 3.5770272029413196e-06,
+            "cosine": 0.999999999993831,
+            "max_absolute_difference": 6.402842700481415e-10,
+            "element_count": 77529,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "opacities": {
+            "photo_norm": 0.0001659476536158939,
+            "field_norm": 0.00016594765511664868,
+            "difference_norm": 1.8767144654110834e-11,
+            "difference_over_photo_norm": 1.1309075027688961e-07,
+            "cosine": 0.9999999999999942,
+            "max_absolute_difference": 1.0913936421275139e-11,
+            "element_count": 25843,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "sh0": {
+            "photo_norm": 0.000508354933310265,
+            "field_norm": 0.0005083549228446991,
+            "difference_norm": 4.531859087795136e-11,
+            "difference_over_photo_norm": 8.914753828166746e-08,
+            "cosine": 0.9999999999999961,
+            "max_absolute_difference": 2.9103830456733704e-11,
+            "element_count": 77529,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          },
+          "shN": {
+            "photo_norm": 0.0019688499700804,
+            "field_norm": 0.0019688498960457133,
+            "difference_norm": 2.0212762101302121e-10,
+            "difference_over_photo_norm": 1.0266278491741406e-07,
+            "cosine": 1.0,
+            "max_absolute_difference": 8.731149137020111e-11,
+            "element_count": 1162935,
+            "tolerance_violations": 0,
+            "max_tolerance_excess": 0.0
+          }
+        }
+      },
+      "gradient_atol": 1e-08,
+      "gradient_rtol": 0.0001,
+      "loss_atol": 1e-07,
+      "independent_render_graphs": true
+    },
+    "partial_measured_view_pairs": 110,
+    "measured_states_complete": 5,
+    "failed_state_measured_views": 0,
+    "unstarted_states": [
+      "initial_8103",
+      "rgb_final_8103",
+      "field_high_final_8103"
+    ],
+    "prior_and_current_model_files_unchanged": true,
+    "input_guard_reads_checked": 231,
+    "recorded_scalar_losses_exactly_equal": true,
+    "independently_recomputed_control_boolean_and_ratios": true,
+    "elementwise_recount_possible": false,
+    "elementwise_recount_limit": "The two identity parameter-gradient arrays, render buffers and image-space adjoints were not persisted; the count/maxima are bound producer observations, not independently recounted elements.",
+    "warnings_in_execution_log": [],
+    "all_checks_pass": true,
+    "resource_scope_note": "Failed-state interval is separate: global gradient interval ends after the fifth successful state; the worker resource wall includes failed control and failure integrity checks. No preview or fitting occurred.",
+    "evidence_sha256": {
+      "runs/20260909_field_target_gradient_stage_frame00008/states/initial_8101/diagnostics.json": "45f4bdc3de36f8aecbfb6922def4ff1cac4c6ef9dc6ee45ed0437189e4042c51",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/initial_8101/mean_gradients.npz": "c97c052f6f6ad2d965d485c491944cedadcc35ad1624e5171158f1bfbd45dbf8",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/rgb_final_8101/diagnostics.json": "5efc80608ac3f32c3ccb610364bb70db15c2da3af6acab0beabf48525447e2fc",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/rgb_final_8101/mean_gradients.npz": "693415b13a90b42bc91a5e0fa5c2426ddc0d7d6850a920fdce2abbea4434b0b1",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/field_high_final_8101/diagnostics.json": "62daa225da0dca162faabc326eeb40b04dc790e0a75c2f91746ac2490c3730b1",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/field_high_final_8101/mean_gradients.npz": "48ae2531cea1f02b707c784a723a20291fc6e54000923b7b93b18ed7e8100df6",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/initial_8102/diagnostics.json": "47101248e7adc308e38784fa3ce63e82c10e48152b1bd526b8934e3a2b4343c9",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/initial_8102/mean_gradients.npz": "bf30344c6a3562cf50229cae62dca7f2f9202abcf6719b7f9d9950896ceb370f",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/rgb_final_8102/diagnostics.json": "e5b20d90b423cdacc7420d3f1ddde41b126285b7c60df08f679ce28afda9eba2",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/rgb_final_8102/mean_gradients.npz": "30da3d11f294984485a1333e1a42c7c3f10a0254f67add61816e8a23c60fb237",
+      "runs/20260909_field_target_gradient_stage_frame00008/states/field_high_final_8102/diagnostics.json": "93a9490e7576ef8cd89707454eaaa038f38fa0ede7dc165750a4529763125db0",
+      "runs/20260909_field_target_gradient_stage_frame00008/task.lock.json": "2d8191c5aa17878440cc3801fb13e1d6a14ac61ba8013e96876a25c49f1498a3",
+      "runs/20260909_field_target_gradient_stage_frame00008/execution.log": "632ef4f193de8bad7fe9cedaca8ee0d29cab97793ae8bd243c70b7b274d1dfa7",
+      "runs/20260909_field_target_gradient_stage_frame00008/execution.json": "b88ccf882137a9ad44ef47999f56203acd212de9f6955cbc66f393a4f01f7e5b",
+      "runs/20260909_field_target_gradient_stage_frame00008/execution_failure.json": "fcb26f82a805e3993d587f69e01dd1325fb09f4e5c443b152cb2ea923eeac6ea",
+      "runs/20260909_field_target_gradient_stage_frame00008/run_receipt.json": "b4d558200731bbe0298a981896dfe5526c386051b9df530eafc97b58064dd1c5",
+      "runs/20260909_field_target_gradient_stage_frame00008/residuals.json": "5645a7040df68b211ae01d2ecfd4fdba42926df8edc76caf7ab66a444e560e54",
+      "runs/20260909_field_target_gradient_stage_frame00008/input_integrity_entry.json": "8a7f565114e6824c6fdb11306a81c5db03cf7c563f42a32d5e488fef4bfe530a",
+      "runs/20260909_field_target_gradient_stage_frame00008/input_integrity_exit.json": "8a7f565114e6824c6fdb11306a81c5db03cf7c563f42a32d5e488fef4bfe530a",
+      "runs/20260909_field_target_gradient_stage_frame00008/input_boundary_receipt.json": "1ec4f6b6824a5a9c4ee1b83a78b5b6f94d3fe38488cb0bea144a443c9e2ebc97",
+      "runs/20260909_field_target_gradient_stage_frame00008/input_access.json": "f9af03fd11935756e6dd31acf498dc61652c0b9f2631a56a5c5513a2308328bc",
+      "runs/20260909_field_target_gradient_stage_frame00008/resource_receipt.json": "c96d605f3dbc2d19291aa4d4a41c7a33d04e2dacb73c72cc6a771a016bac40ed",
+      "runs/20260909_field_target_gradient_stage_frame00008/administrative_data_entry.json": "46693ffef34abcba04faf2274bce1dca40685dd57a457b9af36db9500bddfab3",
+      "runs/20260909_field_target_gradient_stage_frame00008/administrative_data_exit.json": "5bd8e647a6992030e8d8097172f46cc9eb7a52b59347512c04408b4cb270f6c8",
+      "runs/20260909_field_target_gradient_stage_frame00008/environment.json": "caf64c56ca877075b0146ddc1ec0df8760940590f581783b041b2c6ffd51c28e",
+      "runs/20260909_field_target_gradient_stage_frame00008/environment_details.json": "3b77f69a3438616e06a91b085aa5bf682458f75e8ec67a765c1cd7859b3ded5a",
+      "runs/20260909_field_target_gradient_stage_frame00008/source_snapshot/manifest.json": "4db83c97ec4840f4ce7c38e3675113c71118de9a185235b5b74cb6fda856b474",
+      "runs/20260909_field_target_gradient_stage_frame00008/source_snapshot/development_source_state.bin": "72385a9b0525d93f80b5357c535ce4b93255f44b19f254cf1e86e32a14389168",
+      "runs/20260909_field_target_gradient_stage_frame00008/source_snapshot/untracked_manifest.json": "524e1cc98909b4a1119112e4ccba9b4fd703620f5dca37cc705bddc3e48cbaad",
+      ".venv/lib/python3.12/site-packages/gsplat/cuda/csrc/RasterizeToPixels3DGSBwd.cu": "2848738467309afa7d277c692ae1a53643f0658a23a06f066b8eaa9daf67c455"
+    }
+  },
+  "claim_dispositions": [
+    {
+      "claim": "Frozen control was enforced",
+      "disposition": "confirm"
+    },
+    {
+      "claim": "Identity repeat satisfies frozen tolerance",
+      "disposition": "retire"
+    },
+    {
+      "claim": "Nine-state scientific diagnostic completed",
+      "disposition": "retire"
+    },
+    {
+      "claim": "Partial outcomes explain target effects or halo cause",
+      "disposition": "retire"
+    },
+    {
+      "claim": "Observed difference is numerical repeat variation with known cause",
+      "disposition": "narrow",
+      "limit": "Same target paths, but render/image-adjoint/parameter-VJP contributions were not separately saved; exact cause unknown."
+    },
+    {
+      "claim": "Common-render adjoint difference repairs the diagnostic",
+      "disposition": "narrow",
+      "limit": "Proposed future resolving test, not an observed repair."
+    },
+    {
+      "claim": "Source/input boundaries preserved",
+      "disposition": "confirm"
+    },
+    {
+      "claim": "Reconstruction, physical-density or performance advantage",
+      "disposition": "retire"
+    }
+  ],
+  "next_protocol_recommendation": {
+    "status": "recommendation_only_no_execution",
+    "selection": "Failure-focused development selection after exposure; field_high_final_8102/C0004 only.",
+    "inputs": "Already sealed saved state, camera and cached RGB; no teacher target required initially.",
+    "measurements": [
+      "Fixed-count repeats of rendered pixels",
+      "Independent repeated image-space loss adjoints on one fixed image",
+      "Parameter VJP repeats for a fixed image-space adjoint"
+    ],
+    "candidate_measurement": "Shared render, independent target image-adjoint difference, single renderer VJP; do not subtract separately accumulated parameter gradients.",
+    "necessary_controls": [
+      "Save raw arrays/indices and environment/module identities",
+      "Keep independent equal-target loss routes; never make zero by reusing the same loss tensor",
+      "Verify zero-input VJP and nonzero synthetic algebra/directional checks",
+      "Freeze repeats/budget and interpretation before execution; no posthoc tolerance fitting"
+    ],
+    "boundary": "New registered, prospectively reviewed protocol required. Preserve this failure and do not resume or reclassify it."
+  },
+  "limitations": [
+    "Identity gradient arrays, rendered pixels and image-space adjoints were not persisted; six violating elements and maxima cannot be independently recounted.",
+    "All recorded scalar losses agree; this does not imply identical render pixels or intermediate adjoints.",
+    "Installed gsplat rasterization backward has atomic reductions; this is a plausible mechanism, not demonstrated attribution.",
+    "The global gradient interval covers five complete states; failed sixth-state interval is recorded separately.",
+    "No capture render/backward or scientific rerun executed by this audit."
+  ],
+  "audit_artifacts": {
+    "human_audit_sha256": "974768012c99de2a1e646e09dd9b4273f8026d2d89c95d5e9f67ebcc3c07ff4f",
+    "audit_checks_sha256": "3391ca3b069704cb835ab1027873e924b63de2e4a3813b877ed3746dc18ff1f3",
+    "audit_script_sha256": "4e3d2652d2e654f8f8308c78417679684a4dc0a761c5a7e553a8c17a5a203483"
+  },
+  "pending_delivery": "Failure-page links and bounded docs/ARA disposition remain Driver-owned. Completed-bundle acceptance must not be claimed."
+}

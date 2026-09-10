@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "recorded_at_utc": "2026-09-09T20:58:50.461373+00:00",
+  "scope": "RTGS-022 discussion/documentation verification only; no new reconstruction experiment or claim promotion.",
+  "command": "./scripts/verify.sh",
+  "exit_code": 0,
+  "log": "verify-final.log",
+  "log_sha256": "57fca31e463cc458915465edd59cbe890248bd9fe1325845c95b979f004491fd",
+  "initial_attempt": {
+    "exit_code": 1,
+    "log": "verify-initial.log",
+    "log_sha256": "6980e56bf0e4467c06c433ae1c36eccaf52f6ddd78ed5d544732dadcd1a2c6ce",
+    "failure": "The workflow test read the review Verdict and Self-reviewed fields before their required enum-only formatting correction. The structured task fields were normalized without changing review scope or scientific content; the full gate was rerun and passed."
+  },
+  "reviewed_note_sha256": "655cc17f9e7fa995a36d2b9c4f12d32d19302eacf204db66b4f89118137cd6d9",
+  "collaboration_receipt_sha256": "8081cbc0a68f0dc8317086383b9a76f2b347ddf79d118fbfc08e3cd6701d3c7b",
+  "independent_documentation_review": "review.md",
+  "additional_checks": [
+    "all local continuation-note links resolve",
+    "both saved public prompts/responses and raw JSON response hashes match their receipts",
+    "C47, RTGS-021 AUDIT MD/JSON and frozen protocol unchanged from HEAD",
+    "all previous ARA observations and exploration nodes preserved; three current-turn proposals remain unpromoted",
+    "git diff --check passed"
+  ],
+  "scientific_experiments_executed": false,
+  "production_changes": false,
+  "private_context_sent_to_claude": false,
+  "commit_or_push_performed": false
+}

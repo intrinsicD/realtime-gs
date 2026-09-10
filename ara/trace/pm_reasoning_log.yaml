@@ -914,3 +914,30 @@ entries:
       failed-attempt costs. Preserve canonical source/result/audit and first browser failure.
     - Final task/repository delivery checks are separate bookkeeping; record their actual outcomes before
       yielding.
+
+  - turn: 2026-09-09_001#1
+    notes:
+    - 'Current-request-only epilogue: do not sweep historical observations, rewrite earlier sessions or
+      infer endorsement from a request to discuss.'
+    - Record Claude calls as session actions and their public-only scope in exact receipts. Opus 5 answers
+      plus auxiliary Haiku were reported; Claude did not review private runs.
+    - Stage O173-O175 as untested proposals. No closure signal establishes the repair or selects a protocol;
+      O172 remains unchanged and unpromoted. C47 and the previous failure retain their existing disposition.
+    - Record the user discussion request as N238 and the open diagnostic question as N239. Documentation
+      acceptance validates the bounded recommendation, not a scientific remedy.
+
+  - turn: 2026-09-10_001#1
+    notes:
+    - 'Current-request-only epilogue: preserve all prior observations, claim dispositions and earlier session
+      chronology; no historical promotion/stale sweep.'
+    - User authorization selects the first diagnostic, not every conditional intervention or a scientific
+      conclusion. Stage O176 before the N245 artifact-commitment decision and C48; preserve ai-executed
+      provenance.
+    - RTGS-023 remains failed/inconclusive, with source-bound counts and missing old identity arrays disclosed.
+      RTGS-024 is a separately prospectively reviewed successor, not a retuned old run.
+    - All 198 position sites pass sampled repeat flags, which are not statistical confidence or systematic-error
+      bounds. Residual regions do not causally localize gradient or halo effects.
+    - Keep O177 and broader O172-O175 unpromoted; no counterfactual, reconstruction trial, tomography or
+      private Claude result upload occurred.
+    - Preserve the original browser crop failure and correction. Store final delivery checks outside the
+      recursively hashed run; canonical audits/results remain immutable.

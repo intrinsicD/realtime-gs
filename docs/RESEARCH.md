@@ -1,5 +1,9 @@
 # State-of-the-art survey and reuse decisions
 
+Dated diagnostic result: [2026-09-10 — common-state target gradients](RESEARCH_2026-09-10_GRADIENT_DIAGNOSTIC.md). Audited C48 records differing photograph/field position gradients and target error concentrated around/outside the silhouette. A controlled outside-mask attribution test is proposed; no reconstruction repair or tomography result is established.
+
+Dated continuation discussion: [2026-09-09 — next diagnostics after RTGS-021](RESEARCH_2026-09-09_CONTINUATION.md), with two public Claude rounds, explicit disagreements and conditional test proposals; no new reconstruction result.
+
 Dated reconstruction proposal: [2026-09-07 — high-quality reconstruction from 2D Gaussian fields](RESEARCH_2026-09-07_FIELD_RECONSTRUCTION.md), including the CT/RGB distinction, public Claude critique and an unexecuted diagnostic plan.
 
 

@@ -222,3 +222,22 @@ sessions:
     claims_touched:
     - C47
     open_threads: 2
+
+  - id: 2026-09-09_001
+    date: '2026-09-09'
+    summary: Completed public Claude continuation discussion; conditional diagnostics proposed, original
+      failed gates unchanged.
+    turn_count: 1
+    events_count: 5
+    claims_touched: []
+    open_threads: 3
+
+  - id: 2026-09-10_001
+    date: '2026-09-10'
+    summary: 'First diagnostic complete: preserve RTGS-023 failure, independently audit RTGS-024 residual/gradient
+      evidence, and record bounded C48 with working report/viewer.'
+    turn_count: 1
+    events_count: 10
+    claims_touched:
+    - C48
+    open_threads: 3

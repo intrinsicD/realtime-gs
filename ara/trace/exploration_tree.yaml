@@ -4392,3 +4392,142 @@ tree:
     - N235
     - N236
     status: resolved
+
+  - id: N238
+    type: decision
+    title: Discuss the continuation with Claude after the failed quality gates
+    provenance: user
+    timestamp: 2026-09-09T22:50+02:00
+    choice: 'The user requests: Now discuss with Claude how we should continue. This selects discussion,
+      not experiment execution or a repair hypothesis.'
+    alternatives: []
+    evidence:
+    - docs/tasks/RTGS-022-claude-continuation-discussion.md
+    status: resolved
+  - id: N239
+    type: question
+    title: Which targeted diagnostic can separate field error and reconstruction ambiguity?
+    provenance: ai-suggested
+    timestamp: 2026-09-09T22:50+02:00
+    description: Compare training-target residuals and parameter-group gradient differences at declared
+      common states, then conditionally test matched appearance/topology interventions and a separate tomography
+      control. Geometry, visibility, target error and optimization can interact. No proposed mechanism is
+      established.
+    evidence:
+    - docs/RESEARCH_2026-09-09_CONTINUATION.md
+    - docs/research/2026-09-09-field-continuation/collaboration-receipt.json
+    - docs/research/2026-09-09-field-continuation/review.md
+    also_depends_on:
+    - N238
+    - N234
+    - N236
+    status: open
+
+  - id: N240
+    type: decision
+    title: Authorize the first training-target residual and gradient diagnostic
+    provenance: user
+    timestamp: 2026-09-10T01:22+02:00
+    choice: 'The user says: Ok yes please do that. This authorizes the first diagnostic proposed in RTGS-022,
+      not scientific endorsement or every conditional future intervention.'
+    alternatives: []
+    evidence:
+    - docs/tasks/RTGS-023-field-target-gradient-diagnostic.md
+    also_depends_on:
+    - N239
+    status: resolved
+  - id: N241
+    type: experiment
+    title: Preserve RTGS-023 as a failed numerical-control attempt
+    provenance: ai-executed
+    timestamp: 2026-09-10T01:22+02:00
+    result: Five states completed 110 target pairs before the sixth state field_high_final_8102/C0004 failed
+      the frozen same-target DSSIM/quaternion identity tolerance. Six of 103372 elements were reported above
+      1e-8 plus 1e-4 times magnitude, with maximum difference 1.0244548320770264e-7. Partial diagnostics
+      are not promoted; original identity arrays were not saved, so six is the source-bound producer count.
+    evidence:
+    - benchmarks/results/20260909_field_target_gradient_stage_frame00008_AUDIT.md
+    - benchmarks/results/20260909_field_target_gradient_stage_frame00008_AUDIT.json
+    also_depends_on:
+    - N240
+    status: resolved
+  - id: N242
+    type: dead_end
+    title: Stop the first independent-parameter-gradient identity protocol at its frozen failure
+    provenance: ai-executed
+    timestamp: 2026-09-10T01:22+02:00
+    hypothesis: Repeated independent parameter backward passes meet the original elementwise identity rule.
+    failure_mode: The declared numerical gate fails at the sixth saved state; no old threshold is relaxed
+      and the run is not resumed.
+    lesson: A numerical measurement failure is inconclusive for the target-gradient question and says nothing
+      about Gaussian reconstruction impossibility. A new measurement needs its own prospective review.
+    evidence:
+    - benchmarks/results/20260909_field_target_gradient_stage_frame00008_AUDIT.md
+    also_depends_on:
+    - N241
+    status: resolved
+  - id: N243
+    type: pivot
+    title: Separate image-adjoint differences from observed nonzero VJP repeat variation
+    provenance: ai-executed
+    timestamp: 2026-09-10T01:22+02:00
+    from: Independent full parameter-gradient subtraction with the failed RTGS-023 identity gate.
+    to: Separately registered RTGS-024 photo-only repeat calibration, common-render direct image-adjoint
+      difference and saved two-repeat VJPs, followed by the fixed diagnostic matrix.
+    trigger: Preserved numerical failure; distinct design and exact-source approvals obtained after synthetic
+      CPU/CUDA checks and before capture execution.
+    evidence:
+    - experiments/tasks/20260910_field_gradient_adjoint_stage_frame00008.json
+    - experiments/reviews/20260910_field_gradient_adjoint_stage_frame00008_DESIGN_REVIEW.md
+    - experiments/reviews/20260910_field_gradient_adjoint_stage_frame00008_PROTOCOL_REVIEW.md
+    also_depends_on:
+    - N242
+    status: resolved
+  - id: N244
+    type: experiment
+    title: Complete and independently audit the common-state target-gradient diagnostic
+    provenance: ai-executed
+    timestamp: 2026-09-10T01:22+02:00
+    result: Nine frozen states and 22 training views completed without fitting, topology changes or heldout
+      decoding. Photo-only controls and all zero controls passed. Independent NumPy reductions checked 241
+      NPZs and 77603 scalars; source and input bindings passed. Nonzero VJP repeats vary at the calibration
+      probe even with identical image adjoints. Results are development-only with sampled precision limits.
+    evidence:
+    - benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_RESULT.json
+    - benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.md
+    - benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.json
+    - runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/raw_reduction_artifacts.json
+    also_depends_on:
+    - N243
+    status: resolved
+  - id: N245
+    type: decision
+    title: Commit the bounded audited finding to C48 and preserve unresolved mechanisms
+    provenance: ai-executed
+    timestamp: 2026-09-10T01:22+02:00
+    choice: Use the completed independently audited evidence and report as artifact-commitment closure for
+      O176 to C48. Keep C47, D/E failure, O172 halo hypothesis and broader conditional O173-O175 proposals
+      unchanged. This is ledger commitment, not a Git commit or user endorsement.
+    alternatives: []
+    evidence:
+    - O176
+    - benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.json
+    - ara/evidence/tables/20260910_field_gradient_adjoint.md
+    - runs/20260910_field_gradient_adjoint_stage_frame00008/viewer_smoke.json
+    also_depends_on:
+    - N244
+    status: resolved
+  - id: N246
+    type: question
+    title: How much of local gradient disagreement comes from the outside-mask teacher signal?
+    provenance: ai-suggested
+    timestamp: 2026-09-10T01:22+02:00
+    description: A separately frozen photograph/mask-assisted outside-region counterfactual could test local
+      attribution before any paired quality trial. No counterfactual or reconstruction intervention has
+      run; even gradient repair would not establish adequate photograph-reference quality or strict field-only
+      recovery.
+    evidence:
+    - benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.md
+    also_depends_on:
+    - N244
+    status: open

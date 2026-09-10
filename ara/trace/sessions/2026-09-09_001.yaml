@@ -1,0 +1,79 @@
+session:
+  id: 2026-09-09_001
+  date: '2026-09-09'
+  started: 2026-09-09T22:50+02:00
+  last_turn: 2026-09-09T22:50+02:00
+  turn_count: 1
+  summary: Two public Claude rounds completed; corrected continuation note independently accepted for
+    discussion only. No new experiment or causal claim.
+events_logged:
+- turn: 1
+  type: decision
+  id: N238
+  routing: direct
+  provenance: user
+  summary: Discuss the continuation with Claude after the failed quality gates
+- turn: 1
+  type: question
+  id: N239
+  routing: direct
+  provenance: ai-suggested
+  summary: Which targeted diagnostic can separate field error and reconstruction ambiguity?
+- turn: 1
+  type: observation
+  id: O173
+  routing: staged
+  provenance: ai-suggested
+  summary: A training-only residual and common-state gradient diagnostic is the proposed next step before
+    choosing a remedy. Follow-up colour-only, opacity-only, joint and paired topology interventions would
+    need a separate prospective protocol. Small target errors or one-state gradient agreement do not identify
+    the eventual cause.
+- turn: 1
+  type: observation
+  id: O174
+  routing: staged
+  provenance: ai-suggested
+  summary: A separate mass-normalized parallel-ray Gaussian-density positive control could test the tomography
+    analogy under a matching observation operator. Independent density/projection checks, optimizer sensitivity
+    and finite-view limits must be reported; success would not establish opaque RGB reconstruction. This
+    control is proposed and unexecuted.
+- turn: 1
+  type: observation
+  id: O175
+  routing: staged
+  provenance: ai-suggested
+  summary: A proposed future field-only protocol should distinguish the scene-specific runtime input boundary
+    from a declared generic learned prior. Source masks and photograph-derived initialization are extra
+    information; using only decoded field patches at inference does not establish prior-free identifiability.
+    No protocol was adopted.
+ai_actions:
+- turn: 1
+  action: Read the already audited local evidence, completed and challenged two public-only Claude research
+    rounds, verified relevant primary sources, saved the conditional note and obtained distinct documentation
+    review. Final repository verification is recorded separately.
+  provenance: ai-executed
+  files_changed:
+  - docs/RESEARCH_2026-09-09_CONTINUATION.md
+  - docs/research/2026-09-09-field-continuation/
+  - docs/tasks/RTGS-022-claude-continuation-discussion.md
+claims_touched: []
+key_context:
+- turn: 1
+  excerpt: Now discuss with Claude how we should continue
+open_threads:
+- Select and prospectively specify a smallest diagnostic before execution; O172/O173 remain untested.
+- A separate tomography positive control is proposed, not run; O174.
+- Adequate reference, paired field targets and strict field-only geometry remain conditional; O175.
+ai_suggestions_pending:
+- 'O173: A training-only residual and common-state gradient diagnostic is the proposed next step before
+  choosing a remedy. Follow-up colour-only, opacity-only, joint and paired topology interventions would
+  need a separate prospective protocol. Small target errors or one-state gradient agreement do not identify
+  the eventual cause.'
+- 'O174: A separate mass-normalized parallel-ray Gaussian-density positive control could test the tomography
+  analogy under a matching observation operator. Independent density/projection checks, optimizer sensitivity
+  and finite-view limits must be reported; success would not establish opaque RGB reconstruction. This
+  control is proposed and unexecuted.'
+- 'O175: A proposed future field-only protocol should distinguish the scene-specific runtime input boundary
+  from a declared generic learned prior. Source masks and photograph-derived initialization are extra
+  information; using only decoded field patches at inference does not establish prior-free identifiability.
+  No protocol was adopted.'

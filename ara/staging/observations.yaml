@@ -2792,3 +2792,88 @@ observations:
     promoted_to: null
     crystallized_via: null
     stale: false
+
+  - id: O173
+    timestamp: 2026-09-09T22:50+02:00
+    provenance: ai-suggested
+    content: A training-only residual and common-state gradient diagnostic is the proposed next step before
+      choosing a remedy. Follow-up colour-only, opacity-only, joint and paired topology interventions would
+      need a separate prospective protocol. Small target errors or one-state gradient agreement do not identify
+      the eventual cause.
+    context: Two public Claude discussion rounds and independent documentation review; user requested discussion
+      and did not endorse or authorize a proposed experiment.
+    potential_type: heuristic
+    bound_to:
+    - N239
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O174
+    timestamp: 2026-09-09T22:50+02:00
+    provenance: ai-suggested
+    content: A separate mass-normalized parallel-ray Gaussian-density positive control could test the tomography
+      analogy under a matching observation operator. Independent density/projection checks, optimizer sensitivity
+      and finite-view limits must be reported; success would not establish opaque RGB reconstruction. This
+      control is proposed and unexecuted.
+    context: Two public Claude discussion rounds and independent documentation review; user requested discussion
+      and did not endorse or authorize a proposed experiment.
+    potential_type: heuristic
+    bound_to:
+    - N239
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+  - id: O175
+    timestamp: 2026-09-09T22:50+02:00
+    provenance: ai-suggested
+    content: A proposed future field-only protocol should distinguish the scene-specific runtime input boundary
+      from a declared generic learned prior. Source masks and photograph-derived initialization are extra
+      information; using only decoded field patches at inference does not establish prior-free identifiability.
+      No protocol was adopted.
+    context: Two public Claude discussion rounds and independent documentation review; user requested discussion
+      and did not endorse or authorize a proposed experiment.
+    potential_type: constraint
+    bound_to:
+    - N239
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false
+
+  - id: O176
+    timestamp: 2026-09-10T01:22+02:00
+    provenance: ai-executed
+    content: In the audited RTGS-024 diagnostic, mean total position-gradient cosines are 0.273494 initial,
+      0.352577 photograph-final and 0.415299 field-final, with all 198 view/state sites passing the frozen
+      observed-repeat precision flags. Boundary and exterior account for 93.2569% of mean per-view absolute
+      cached target error. These are local training-target differences, not an attribution of the halo or
+      a reconstruction improvement.
+    context: Completed 9 frozen states by 22 training views after the separately reviewed photo-only numerical
+      stage. Distinct raw/source/results audit accepted narrowed claims; actual report/viewer and bundle
+      checks passed. RTGS-023 remains failed/inconclusive.
+    potential_type: claim
+    bound_to:
+    - N244
+    promoted: true
+    promoted_to: logic/claims.md:C48
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O177
+    timestamp: 2026-09-10T01:22+02:00
+    provenance: ai-suggested
+    content: A separately preregistered gradient-only counterfactual could replace teacher pixels outside
+      the frozen training mask with cached photograph values, preserving teacher pixels inside, saved states,
+      loss and cameras. Compare with original teacher, photograph and sham controls. This tests outside-mask
+      signal attribution and adds photograph/mask information; it is not a field-only remedy.
+    context: Post-outcome next-test suggestion from the independent RTGS-024 audit. No counterfactual generation,
+      gradient evaluation, fitting intervention or tomography experiment was launched.
+    potential_type: heuristic
+    bound_to:
+    - N246
+    - N244
+    promoted: false
+    promoted_to: null
+    crystallized_via: null
+    stale: false

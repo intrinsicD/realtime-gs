@@ -1,0 +1,41 @@
+{
+  "created_at": "2026-09-10T01:22+02:00",
+  "files": {
+    "experiments/tasks/20260910_field_gradient_adjoint_stage_frame00008.json": {
+      "sha256": "03c0af2515c0c30ef410e9d4b5de9192852772de39d772a00150d65624b86347",
+      "bytes": 42481
+    },
+    "experiments/reviews/20260910_field_gradient_adjoint_stage_frame00008_PROTOCOL_REVIEW.md": {
+      "sha256": "6c9d0025e7932ff00b70831b07f7eb934f49c24c0cf6c13b88f12447687ca752",
+      "bytes": 5576
+    },
+    "benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_RESULT.json": {
+      "sha256": "4e04232d2d8b9e6421ba6a938f7178b406eb84d246bc5e57bad56b352ae24a66",
+      "bytes": 5060368
+    },
+    "benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_RESULT.md": {
+      "sha256": "2a5a7a8ed9cd967ec19bba5969784bf6cfcd6a58e7d03f1c0cb7d8ff62bd8977",
+      "bytes": 4736
+    },
+    "benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.json": {
+      "sha256": "e61485ba1d25f8ba34874eb5a19ecb56685c9e68b3f976c78f88d0be55d17891",
+      "bytes": 32915
+    },
+    "benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.md": {
+      "sha256": "ebca037deb1b649f2640957629b6a11748ef80e148d2a972ddfd0f196024a2c6",
+      "bytes": 10198
+    },
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/index.html": {
+      "sha256": "d69ee528fd4ed3652fef918c463886c2fd13bfaca2e5eaa43daafb3ed17bf716",
+      "bytes": 286529
+    },
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/manifest.json": {
+      "sha256": "834b99f0babfd6d2d3635db1e8f20ac118c355706e50d49e9b64e9aa234ab4b5",
+      "bytes": 199132
+    },
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/viewer_smoke.json": {
+      "sha256": "b477cc88a7d6eb7e4f5ded367185a115dca8e9f567c1212de1cb45f2fe6fb4c7",
+      "bytes": 1679
+    }
+  }
+}

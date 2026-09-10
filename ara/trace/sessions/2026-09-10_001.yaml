@@ -1,0 +1,108 @@
+session:
+  id: 2026-09-10_001
+  date: '2026-09-10'
+  started: 2026-09-10T01:22+02:00
+  last_turn: 2026-09-10T01:22+02:00
+  turn_count: 1
+  summary: 'First diagnostic complete: preserve RTGS-023 failure, independently audit RTGS-024 residual/gradient
+    evidence, and record bounded C48 with working report/viewer.'
+events_logged:
+- turn: 1
+  type: decision
+  id: N240
+  routing: direct
+  provenance: user
+  summary: Authorize the first training-target residual and gradient diagnostic
+- turn: 1
+  type: experiment
+  id: N241
+  routing: direct
+  provenance: ai-executed
+  summary: Preserve RTGS-023 as a failed numerical-control attempt
+- turn: 1
+  type: dead_end
+  id: N242
+  routing: direct
+  provenance: ai-executed
+  summary: Stop the first independent-parameter-gradient identity protocol at its frozen failure
+- turn: 1
+  type: pivot
+  id: N243
+  routing: direct
+  provenance: ai-executed
+  summary: Separate image-adjoint differences from observed nonzero VJP repeat variation
+- turn: 1
+  type: experiment
+  id: N244
+  routing: direct
+  provenance: ai-executed
+  summary: Complete and independently audit the common-state target-gradient diagnostic
+- turn: 1
+  type: decision
+  id: N245
+  routing: direct
+  provenance: ai-executed
+  summary: Commit the bounded audited finding to C48 and preserve unresolved mechanisms
+- turn: 1
+  type: question
+  id: N246
+  routing: direct
+  provenance: ai-suggested
+  summary: How much of local gradient disagreement comes from the outside-mask teacher signal?
+- turn: 1
+  type: observation
+  id: O176
+  routing: staged
+  provenance: ai-executed
+  summary: In the audited RTGS-024 diagnostic, mean total position-gradient cosines are 0.273494 initial,
+    0.352577 photograph-final and 0.415299 field-final, with all 198 view/state sites passing the frozen
+    observed-repeat precision flags. Boundary and exterior account for 93.2569% of mean per-view absolute
+    cached target error. These are local training-target differences, not an attribution of the halo or
+    a reconstruction improvement.
+- turn: 1
+  type: observation
+  id: O177
+  routing: staged
+  provenance: ai-suggested
+  summary: A separately preregistered gradient-only counterfactual could replace teacher pixels outside
+    the frozen training mask with cached photograph values, preserving teacher pixels inside, saved states,
+    loss and cameras. Compare with original teacher, photograph and sham controls. This tests outside-mask
+    signal attribution and adds photograph/mask information; it is not a field-only remedy.
+- turn: 1
+  type: claim
+  id: C48
+  routing: crystallized
+  provenance: ai-executed
+  summary: O176 crystallized via the audited evidence/report artifact-commitment decision N245.
+ai_actions:
+- turn: 1
+  action: Prospectively register/review and execute two distinct measurement protocols; preserve the failed
+    first attempt; independently audit the complete successor and its raw/source/input evidence; verify
+    the actual browser report and viewer; record the narrowed finding. No further fitting, tomography,
+    private Claude upload, default change, commit or push. Final closeout verification is recorded separately.
+  provenance: ai-executed
+  files_changed:
+  - experiments/tasks/20260909_field_target_gradient_stage_frame00008.json
+  - experiments/tasks/20260910_field_gradient_adjoint_stage_frame00008.json
+  - scripts/experiments/
+  - tests/test_field_gradient_adjoint.py
+  - tests/test_field_gradient_adjoint_report.py
+  - benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.json
+  - docs/RESEARCH_2026-09-10_GRADIENT_DIAGNOSTIC.md
+  - ara/evidence/tables/20260910_field_gradient_adjoint.md
+claims_touched:
+- id: C48
+  action: crystallized
+  turn: 1
+key_context:
+- turn: 1
+  excerpt: Ok yes please do that
+open_threads:
+- 'O177/N246: separately register an outside-mask attribution control before any execution.'
+- 'O172/O173: halo causality, reconstruction repair and photograph-reference adequacy remain unresolved;
+  only the first diagnostic was executed.'
+- 'O174/O175: matching-operator tomography and strict field-only input/prior protocols remain proposed
+  and unexecuted.'
+ai_suggestions_pending:
+- 'O177: gradient-only outside-mask photograph replacement; unexecuted.'
+- Earlier O172-O175 remain unchanged historical proposals; first diagnostic only is now complete.

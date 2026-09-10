@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "reviewer": "Codex-protocol-reviewer",
+  "created_at_utc": "2026-09-09T23:02:00.876567+00:00",
+  "scope": "Visible scene movement in a rectangle excluding UI, on the original native-resolution PNGs. No numeric camera-vector, reconstruction-quality or performance claim.",
+  "supersedes_measurement": "viewer-visual-check.json (preserved): its browser-clipped images included the control panel and changed text selection; the prior claim that the 11306 changed pixels were UI-free is retired.",
+  "sources": {
+    "viewer-before.png": "64d6a0d150fb5d0124a641ec99036a7fdd1922790cc8edd0f36235fc639f5d47",
+    "viewer-orbit.png": "b50830f26688e9db4caa33a005a04eaf9121596d9c3672333b043c0f95a932ed"
+  },
+  "native_png_shape": [
+    720,
+    1280,
+    3
+  ],
+  "crop": {
+    "x": 400,
+    "y": 250,
+    "width": 500,
+    "height": 280,
+    "coordinates": "native original PNG pixels; no browser clip or CSS/DPR conversion"
+  },
+  "roi_reason": "Visually inspected original screenshot: right controls begin around x969, corner axis near x32/y690. Rectangle x400:900,y250:530 contains the displayed subject and gray canvas only.",
+  "changed_pixels_gt_2": 33238,
+  "changed_pixel_rule": "max channel absolute byte difference > 2",
+  "mean_absolute_rgb_pixel_difference": 4.281814285714286,
+  "chromatic_pixels_before": 10401,
+  "chromatic_pixel_rule": "max RGB channel minus min RGB channel > 10; display visibility check only",
+  "passed": true
+}

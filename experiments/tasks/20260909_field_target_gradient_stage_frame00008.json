@@ -1,0 +1,794 @@
+{
+  "schema_version": 2,
+  "report_template_version": 2,
+  "task_id": "20260909_field_target_gradient_stage_frame00008",
+  "date": "20260909",
+  "task_slug": "field_target_gradient",
+  "data_slug": "stage_frame00008",
+  "arm": "rgb_3dgs",
+  "status": "ready",
+  "owner": "Codex-gradient-driver",
+  "protocol_review": {
+    "reviewer": "Codex-protocol-reviewer",
+    "verdict": "approved",
+    "protocol_sha256": "2246a380965a67c7d487ebae11ba607c42829e115e82a788b5bfe51e50c57426",
+    "artifact": "experiments/reviews/20260909_field_target_gradient_stage_frame00008_PROTOCOL_REVIEW.md"
+  },
+  "depends_on": [],
+  "title": "Training-target residuals and fixed-state 3DGS gradients",
+  "question": "Where do the high-capacity field and photograph targets differ, and how do those differences change the exact L1/SSIM parameter gradients at predeclared common saved 3D states?",
+  "hypothesis": "High-capacity field errors have region-dependent bias and alter some within-group loss-gradient directions at common saved states beyond equal-target numerical repeat variation. This is descriptive development diagnosis, not a causal test of final halos.",
+  "claim_boundary": "One previously exposed calibrated capture, cached downscale-eight training targets, three existing seeds and saved initial/final states. No optimization, optimizer-update replay, topology change, heldout evaluation, high-quality reconstruction, end-to-end field-only recovery, physical density, causal failure attribution or speed claim. Gradients use the stated reconstructed saved-state coordinates; exported opacity is not a preserved raw optimizer logit.",
+  "evidence_phase": "development",
+  "datasets": [
+    {
+      "id": "frame_00008",
+      "role": "development",
+      "frame_path": "dataset/2025_03_07_stage_with_fabric/frame_00008",
+      "compact_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/manifest.json",
+      "production_manifest": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_native_fullres/production_manifest.json",
+      "calibration": "dataset/2025_03_07_stage_with_fabric/calibration_dome.json",
+      "rgb_pattern": "rgb/C*.jpg",
+      "mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "splits": {
+    "frame_00008": {
+      "train": [
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0008",
+        "C0009",
+        "C0012",
+        "C0014",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0025",
+        "C0026",
+        "C0028",
+        "C0030",
+        "C0031",
+        "C0034",
+        "C0037",
+        "C0039",
+        "C1000",
+        "C1001",
+        "C1004"
+      ],
+      "heldout": [
+        "C0001",
+        "C0018",
+        "C0029",
+        "C1002"
+      ]
+    }
+  },
+  "seeds": [
+    8101,
+    8102,
+    8103
+  ],
+  "input_policy": {
+    "reconstruction_allowed": [
+      "calibration",
+      "gaussians3d_initialization",
+      "mask",
+      "rgb",
+      "gaussians2d"
+    ],
+    "reconstruction_forbidden": [
+      "heldout_decoding",
+      "optimizer_step",
+      "densification",
+      "new_target_acquisition",
+      "external_upload"
+    ],
+    "evaluation_allowed": [
+      "cached_training_rgb",
+      "cached_training_field_high",
+      "cached_training_masks_for_strata_only",
+      "saved_states",
+      "cached_training_cameras"
+    ]
+  },
+  "execution_guards": [
+    "deny_heldout_training_access",
+    "split_hash_at_exit",
+    "exact_cached_input_allowlist",
+    "deny_raw_dataset_open_in_worker",
+    "source_and_cache_hash_at_entry_exit",
+    "finite_values",
+    "equal_target_negative_control",
+    "no_optimizer_or_topology_updates"
+  ],
+  "stages": [
+    {
+      "id": "residual",
+      "label": "Target residuals",
+      "purpose": "Measure the exact cached teacher minus photo signal by fixed mask regions."
+    },
+    {
+      "id": "gradient",
+      "label": "Common-state gradients",
+      "purpose": "Compare photo and field loss gradients on identical saved-state parameter coordinates; no updates."
+    },
+    {
+      "id": "presentation",
+      "label": "Diagnostic previews",
+      "purpose": "Render unchanged selected saved model and training-view evidence for inspection."
+    }
+  ],
+  "comparators": [
+    {
+      "id": "rgb",
+      "label": "Photograph target",
+      "purpose": "Reference target evaluated at each common state."
+    },
+    {
+      "id": "field_high",
+      "label": "High-capacity field target",
+      "purpose": "Change target only in each paired gradient comparison."
+    },
+    {
+      "id": "identity",
+      "label": "Photograph target through both paths",
+      "purpose": "Independent render/backward repeat numerical negative control at the first training view of each state."
+    }
+  ],
+  "primary_metrics": [
+    {
+      "id": "target_boundary_mae",
+      "label": "Boundary teacher absolute error",
+      "unit": "RGB",
+      "direction": "descriptive",
+      "aggregation": "Mean of 22 per-view region-normalized absolute errors."
+    },
+    {
+      "id": "target_exterior_bias",
+      "label": "Exterior teacher signed bias",
+      "unit": "RGB",
+      "direction": "descriptive",
+      "aggregation": "Mean of 22 per-view region-normalized signed RGB means."
+    },
+    {
+      "id": "means_total_cosine",
+      "label": "Means full-loss gradient cosine",
+      "unit": "cosine",
+      "direction": "descriptive",
+      "aggregation": "Mean over defined per-view comparisons, first views within state then three seeds then the three declared state types. Keep every state, group and component, undefined counts and full-view-mean gradient separately; headline is descriptive only."
+    },
+    {
+      "id": "means_total_relative_delta",
+      "label": "Means full-loss relative gradient difference",
+      "unit": "ratio",
+      "direction": "descriptive",
+      "aggregation": "Same nested descriptive mean as cosine; denominator reference gradient norm, undefined when <=1e-12; no claim from aggregate alone."
+    }
+  ],
+  "required_charts": [
+    "quality",
+    "resources",
+    "stage_runtime"
+  ],
+  "resource_protocol": {
+    "scope": "Descriptive measurement-worker accounting: wall time from coordinator entry through completed diagnostic/previews and entry/exit cache/source receipts, ending before publish(); external administrative raw-seal checks and shared report generation are excluded. CUDA process-wide allocated/reserved peaks reset after synthetic warmup and cover diagnostics/previews through receipt collection. Host ru_maxrss is the process-lifetime high-water mark (including warmup). Per-state and per-view measurements are wall intervals only, not independent memory peaks. No fitting time exists; GPU may be shared.",
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "aggregation": "Three existing seeds are paired saved states, not independent timing repeats. Retain every measured state/view wall interval, global stage intervals, and the recorded process-wide CUDA/host peaks. Do not sum shared/global intervals across series. No performance inference.",
+    "cuda_metrics": [
+      "torch.cuda.max_memory_allocated",
+      "torch.cuda.max_memory_reserved"
+    ],
+    "host_metrics": [
+      "ru_maxrss",
+      "wall_seconds"
+    ]
+  },
+  "data_seal": "experiments/data/20260908_field_teacher_information_stage_frame00008.json",
+  "run_command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260909_field_target_gradient_stage_frame00008.py",
+    "run",
+    "--task",
+    "experiments/tasks/20260909_field_target_gradient_stage_frame00008.json"
+  ],
+  "blockers": [],
+  "source_run": "runs/20260908_field_teacher_information_stage_frame00008",
+  "cached_input_policy": "Use saved four-site quadrature targets verbatim. The inherited raw-data seal is administrative provenance; contract validation/init hashes all original files including heldout bytes but never decodes or computes heldout outcomes. The result-bearing worker opens only the listed training caches and saved states, and rejects all raw dataset reads and other source-run reads. No source reconstruction/refit or new decode.",
+  "states": [
+    {
+      "id": "initial_8101",
+      "kind": "initial",
+      "seed": 8101,
+      "model": "runs/20260908_field_teacher_information_stage_frame00008/initialization/8101/gaussians_init.npz",
+      "sh_degree": 0,
+      "source_step": 0
+    },
+    {
+      "id": "rgb_final_8101",
+      "kind": "rgb_final",
+      "seed": 8101,
+      "model": "runs/20260908_field_teacher_information_stage_frame00008/cells/rgb/8101/gaussians.npz",
+      "sh_degree": 3,
+      "source_step": 8000
+    },
+    {
+      "id": "field_high_final_8101",
+      "kind": "field_high_final",
+      "seed": 8101,
+      "model": "runs/20260908_field_teacher_information_stage_frame00008/cells/field_high/8101/gaussians.npz",
+      "sh_degree": 3,
+      "source_step": 8000
+    },
+    {
+      "id": "initial_8102",
+      "kind": "initial",
+      "seed": 8102,
+      "model": "runs/20260908_field_teacher_information_stage_frame00008/initialization/8102/gaussians_init.npz",
+      "sh_degree": 0,
+      "source_step": 0
+    },
+    {
+      "id": "rgb_final_8102",
+      "kind": "rgb_final",
+      "seed": 8102,
+      "model": "runs/20260908_field_teacher_information_stage_frame00008/cells/rgb/8102/gaussians.npz",
+      "sh_degree": 3,
+      "source_step": 8000
+    },
+    {
+      "id": "field_high_final_8102",
+      "kind": "field_high_final",
+      "seed": 8102,
+      "model": "runs/20260908_field_teacher_information_stage_frame00008/cells/field_high/8102/gaussians.npz",
+      "sh_degree": 3,
+      "source_step": 8000
+    },
+    {
+      "id": "initial_8103",
+      "kind": "initial",
+      "seed": 8103,
+      "model": "runs/20260908_field_teacher_information_stage_frame00008/initialization/8103/gaussians_init.npz",
+      "sh_degree": 0,
+      "source_step": 0
+    },
+    {
+      "id": "rgb_final_8103",
+      "kind": "rgb_final",
+      "seed": 8103,
+      "model": "runs/20260908_field_teacher_information_stage_frame00008/cells/rgb/8103/gaussians.npz",
+      "sh_degree": 3,
+      "source_step": 8000
+    },
+    {
+      "id": "field_high_final_8103",
+      "kind": "field_high_final",
+      "seed": 8103,
+      "model": "runs/20260908_field_teacher_information_stage_frame00008/cells/field_high/8103/gaussians.npz",
+      "sh_degree": 3,
+      "source_step": 8000
+    }
+  ],
+  "gradient_protocol": {
+    "targets": [
+      "rgb",
+      "field_high"
+    ],
+    "state_order": [
+      "initial_8101",
+      "rgb_final_8101",
+      "field_high_final_8101",
+      "initial_8102",
+      "rgb_final_8102",
+      "field_high_final_8102",
+      "initial_8103",
+      "rgb_final_8103",
+      "field_high_final_8103"
+    ],
+    "view_order": [
+      "C0004",
+      "C0005",
+      "C0006",
+      "C0008",
+      "C0009",
+      "C0012",
+      "C0014",
+      "C0019",
+      "C0020",
+      "C0021",
+      "C0022",
+      "C0025",
+      "C0026",
+      "C0028",
+      "C0030",
+      "C0031",
+      "C0034",
+      "C0037",
+      "C0039",
+      "C1000",
+      "C1001",
+      "C1004"
+    ],
+    "loss": "0.8 * mean(abs(unclamped rendered RGB - cached target)) + 0.2 * (1 - rtgs.core.metrics.ssim(rendered RGB, cached target)); all RGB channels and canvas pixels; exact default tiled 11x11 sigma1.5 SSIM/zero-padding. Black background, use_masks=False, no regularizers.",
+    "renderer": {
+      "backend": "gsplat",
+      "packed": false,
+      "absgrad": false,
+      "antialiased": false,
+      "sh_color_activation": "hard",
+      "kernel_support_mode": "hard"
+    },
+    "coordinates": "means, raw saved quats (renderer normalizes), log_scales, effective-opacity leaf mapped to local logit gradient g_alpha*alpha*(1-alpha), sh0, shN. Pad initial SH to16 bases and evaluate degree0 so shN is zero. For initial reproduce Trainer sigmoid(logit(clamp(opacity,1e-4,1-1e-4))) on CUDA. For final render saved opacity verbatim without clamp or logit roundtrip; map its effective-opacity gradient through the exact local sigmoid factor. Endpoint0/1 has zero mapped gradient and explicit counts. This is a saved-effective-state first-order comparison; raw logits/Adam history are not claimed recovered.",
+    "components": [
+      "l1",
+      "dssim",
+      "total"
+    ],
+    "component_weighting": "L1 and DSSIM gradients are unweighted components; total=0.8*g_L1+0.2*g_DSSIM; exact autograd loss parity selftest.",
+    "statistics": [
+      "photo_norm",
+      "field_norm",
+      "difference_norm",
+      "difference_over_photo_norm",
+      "cosine",
+      "max_absolute_difference"
+    ],
+    "reduction": "float64 statistics on float32 CUDA gradients; per-view plus gradient-of-mean-over22views for each state/group/component. Do not compare raw norms between parameter groups with different units. Means of per-view norms and norms of mean gradients are separately labelled. Do not treat seeds/view/state rows as new independent captures. Never compare gradient vectors across different states/topologies; only targets within the same state have row identity.",
+    "near_zero_norm": 1e-12,
+    "undefined": "Relative difference null if photo norm<=1e-12, cosine null if either norm<=1e-12; retain absolute norms and undefined counts.",
+    "identity_control": "At each of9states, first training view C0004, compare two independent render/backward evaluations with identical RGB target through photo/teacher paths. Equal-target loss absolute tolerance1e-7, gradient elementwise atol1e-8+rtol1e-4*max(abs(a),abs(b)); fail closed, retain max differences and actual norms. No altered tolerance or fallback after outcome.",
+    "memory": "One state/view render graph at a time; component gradient extraction and CPU float64 accumulators. Save aggregate gradient arrays perstate to enable independent numerical reduction checks, allperview scalar statistics and losses; do not optimize.",
+    "synthetic_parity": {
+      "full_loss_component_gradient_atol": 1e-07,
+      "full_loss_component_gradient_rtol": 0.0001,
+      "rule": "elementwise abs(a-b) <= atol + rtol*max(abs(a),abs(b)); tested before capture outcomes",
+      "opacity_chain_atol": 1e-07,
+      "opacity_chain_rtol": 0.0001
+    }
+  },
+  "residual_protocol": {
+    "regions": "binary saved mask; boundary=dilation(mask,radius3) XOR erosion(mask,radius3), square7x7 footprint and outside-image background; interior=mask AND NOT boundary; exterior=NOT mask AND NOT boundary. Three disjoint exhaustive regions.",
+    "metrics": [
+      "pixel_count",
+      "signed_mean_per_channel",
+      "signed_mean_rgb",
+      "mae_region",
+      "mse_region",
+      "absolute_error_sum",
+      "absolute_error_share_full_canvas",
+      "full_canvas_l1_contribution",
+      "photo_local_contrast",
+      "field_local_contrast",
+      "residual_lowpass_mse",
+      "residual_highpass_mse"
+    ],
+    "denominators": "Per-channel signed means divide by region pixel_count N. Scalar RGB signed means/MAE/MSE divide by3*N. Full-canvas L1 contribution divides3*H*W. Absolute-error share divides total full-canvas absolute error and is null if that total is zero. Empty regions yield null means/contributions/shares. Regions do not mask the fitting loss or gradients.",
+    "spatial_operator": "Local mean=separable box7x7 with reflect padding; local contrast=sqrt(max(box(x^2)-box(x)^2,0)) mean RGB/pixels perregion. Residual lowpass=box(field-photo); highpass=residual-lowpass. These are descriptive spatial-scale summaries, not an orthogonal spectral-energy partition. Full-image neighborhoods are computed before region scoring; no artificial masked SSIM edges."
+  },
+  "execution_budget": {
+    "max_seconds": 5400,
+    "max_state_seconds": 600,
+    "failure": "CUDA unavailable/OOM/nonfinite/control failure or timeout: preserve failed attempt and stop; no CPU fallback, target/state/view changes or metric-based stopping. No automatic retry after outcome.",
+    "warmup": "One synthetic tiny CUDA render/backward, no capture outcomes before approval."
+  },
+  "presentation_protocol": {
+    "selected_state": "field_high_final_8101",
+    "initial_state": "initial_8101",
+    "report_port": 8765,
+    "viewer_port": 8880,
+    "previews": "New diagnostic plots and calibrated training-view contact sheet plus novel-orbit preview from unchanged selected saved states. No new fitted output; root gaussians.ply and gaussians_init.ply are explicitly labelled existing snapshots.",
+    "history": "Dimensioned diagnostic view records only: step=measurement ordinal; not optimization iterations or a fitting trajectory. Stage markers reflect actual measurements; no fabricated training.",
+    "server_lifecycle": "Use canonical report port8765; an earlier task-owned report server may be replaced for this new diagnostic handoff. Do not stop unrelated services; report locally if an unrelated process owns the port.",
+    "unavailable_primary": "The existing v2 bundle schema requires finite primary scalar metrics. If every applicable value for a primary is undefined (e.g. all reference means gradients <=1e-12), preserve raw null diagnostics and issue a failed presentation/unavailable-primary receipt with no completed metric claim; do not manufacture a value or retry. Partial undefined state/region/group metrics remain null and display as undefined; numeric chart bars omit undefined states with explicit notes/counts retained."
+  },
+  "source_lifecycle": "Development init-run --development after distinct exact final protocol/source approval; preserve all executed repo source bytes plus task/review/data, source manifest and exact dirty git state before worker; validate source and cached inputs at entry/exit. Production code and previous artifacts unchanged. Source binding added and reapproved before init.",
+  "cached_inputs": [
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/cells/field_high/8101/gaussians.npz",
+      "bytes": 5509086,
+      "sha256": "e2f883f8d644c11243e630725ba1e2a2108b2b7b8f6ddf846c2b33ea663808c5"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/cells/field_high/8102/gaussians.npz",
+      "bytes": 5674716,
+      "sha256": "852ff36cda03c8806f44a0c53abff9f1417a0c937560f596916c6d48d197dac0"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/cells/field_high/8103/gaussians.npz",
+      "bytes": 5501709,
+      "sha256": "1a62d2694e2e11d0625301f3489aeb16c094bf0bc8f3608d86271631493fc3d8"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/cells/rgb/8101/gaussians.npz",
+      "bytes": 5305644,
+      "sha256": "788661f51a8c8ab3b45036e79b0c4f502ffbe07d2960ab3a22f3e4306043b3a3"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/cells/rgb/8102/gaussians.npz",
+      "bytes": 5455908,
+      "sha256": "712d72f10a5f22f31f89f081f3882da2cc15ebf61deff6d974ab53520f0b8201"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/cells/rgb/8103/gaussians.npz",
+      "bytes": 5414677,
+      "sha256": "89241a3271532e2d17d3d7bc29dc3d598869ea9c6ae29d3fabd9e047b5ebe4d0"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/initialization/8101/gaussians_init.npz",
+      "bytes": 112357,
+      "sha256": "0d02494b5f9f5820a8e46949565188291260059e6c1d23ef489f1880eb498906"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/initialization/8102/gaussians_init.npz",
+      "bytes": 112272,
+      "sha256": "7e1aab8132efd46d023ada3c3e1eadd45759c75e273c888d626f15510c2db7b9"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/initialization/8103/gaussians_init.npz",
+      "bytes": 112271,
+      "sha256": "ee765e2334f4f23f4c6b9cbeff4f0d4feeb52e505d15f757bd6417afda1c614b"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0004.npz",
+      "bytes": 4603656,
+      "sha256": "141e53359d0e41ba05540edaba032cf2eae28f0c7d1ffc7217664b740340254e"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0005.npz",
+      "bytes": 4603656,
+      "sha256": "3c1f936d4f13740391eb07f7ea1b4c779b5cfb8a0f37f3a1a27f96cdba14df38"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0006.npz",
+      "bytes": 4603656,
+      "sha256": "492d3e3a3054b4e0d941a44c991295723e8087b1aafc387c3d8dd4d1f85001e1"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0008.npz",
+      "bytes": 4603656,
+      "sha256": "165f66ba44c40f887bbc67bb8fbc5f9fb9c9e26ea8b2c186b81494e9cf78fd06"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0009.npz",
+      "bytes": 4603656,
+      "sha256": "9cb62b589871463ce6caa00742505ad339a70ac459799811d9a5dcad4650539a"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0012.npz",
+      "bytes": 4603656,
+      "sha256": "e52d696e4b322f4f4b5b57197abbf35bdb57c6251945efe362a62bf4c040be74"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0014.npz",
+      "bytes": 4603656,
+      "sha256": "c3cd92497eb244ac1e136508adb1df8fb180274dcaf96a45ded44dc2d3e070f4"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0019.npz",
+      "bytes": 4603656,
+      "sha256": "b532ec56bfb023be48fb1c31a267b43bdf6ee76bbcc30490117f1310e194e653"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0020.npz",
+      "bytes": 4603656,
+      "sha256": "203936fc3a3fbb03660c18d2e3631d760b3687128ec72ed3ddabd879701ee3c4"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0021.npz",
+      "bytes": 4603656,
+      "sha256": "5e63b793215efb7ff9aa8dfde988032c447affa3c43c7f53efe36a9be0d0dadf"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0022.npz",
+      "bytes": 4603656,
+      "sha256": "b37c54a83ff92490ed4e25e04163011b5605539cea644af91f8f3af9b4423abf"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0025.npz",
+      "bytes": 4603656,
+      "sha256": "bfce6f234281ff1e9070141748b84e5490a84232dac3fd909a7515500ccbe13e"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0026.npz",
+      "bytes": 4603656,
+      "sha256": "f7401a7329b8aa98681228dc8940fde43ce5f15465eef2a672e5972df48a3261"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0028.npz",
+      "bytes": 4603656,
+      "sha256": "7ad21ff0b93e97bdb6552b55726087fb985ac725faa8ae425681e1ac160963c8"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0030.npz",
+      "bytes": 4603656,
+      "sha256": "d9383c27a639718e45379040c498060b9ab3fa052991a03b1ab67116ee14a0ff"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0031.npz",
+      "bytes": 4603656,
+      "sha256": "39f6a06a7ba1e8de8f7fac4886f31f11861df2fc4436270f5290f38fa9749974"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0034.npz",
+      "bytes": 4603656,
+      "sha256": "0cc858a42b2ec6d4e4a6914d7e43b2c6ab3a139ac04bb19980a0ce1929f577d6"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0037.npz",
+      "bytes": 4603656,
+      "sha256": "2f50f993f70d5d09672c5ec6a28145205531c63c0a289ddd417483bee5df3a0b"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C0039.npz",
+      "bytes": 4603656,
+      "sha256": "9fbfc48033d52041ca5f972c2def26781af029d1dc2f959ec1c189797f1b7fa6"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C1000.npz",
+      "bytes": 4603656,
+      "sha256": "404da0e6080636e824a5fe531bbb3ad95c9b6f6c4c100dcaf777a700eb244088"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C1001.npz",
+      "bytes": 4603656,
+      "sha256": "35d9e5399bd813e34a12a890db6948deaeed85a58deeedc11672d6cca227e919"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/field_high/C1004.npz",
+      "bytes": 4603656,
+      "sha256": "7d928515edc40adeb59594c61584eefe67e47c097a2b3b12c769165359e89a86"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0004.npz",
+      "bytes": 383878,
+      "sha256": "08653ddd31e4033d021803b823ed9c4534ab93c618eda5e4f7bde483aced991d"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0005.npz",
+      "bytes": 383878,
+      "sha256": "b288eae958bea84e4e613f0d23988afc7808f405c27d41941886de2090567796"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0006.npz",
+      "bytes": 383878,
+      "sha256": "ef1ac51f3c61fa68613962e9f83863a5d4f05f57033b4256f58c8816dfe162f3"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0008.npz",
+      "bytes": 383878,
+      "sha256": "4e239228e28f76e0822fa958d7170075c1e438aff67c1d30fee048b0c5eddbd3"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0009.npz",
+      "bytes": 383878,
+      "sha256": "50c4c6599b35f90d4df8a0d58c2ea35e350c248d054fc3294e8d7422de61b2ad"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0012.npz",
+      "bytes": 383878,
+      "sha256": "3a23e40e46e99ee75275c326c51aa43687334a08ae505c92f3ccca6fab3ab2f1"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0014.npz",
+      "bytes": 383878,
+      "sha256": "1df8bd22aef2df46e0c155a5c5a7a69ab5d2305dc72a4467a185b837f47b2d77"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0019.npz",
+      "bytes": 383878,
+      "sha256": "226fd83f2c2a15664360590f0909f834efbdc1d0f57fe5dad9e4922cb4fbcc58"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0020.npz",
+      "bytes": 383878,
+      "sha256": "252f3470e7adafbc141b6daa5523498833c6266cb6e17ff43957e0d60a997cb0"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0021.npz",
+      "bytes": 383878,
+      "sha256": "147e9d7923a140fdf493f5beba7181706e48c05101b18efc1a4b4e5b31102979"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0022.npz",
+      "bytes": 383878,
+      "sha256": "4bb4143c233f233c8d9f8e9d047f112d57ee4e260f76db2766eae79be2c8c8d6"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0025.npz",
+      "bytes": 383878,
+      "sha256": "b716b8ed1ae1fb9d03a9dc41a0742b54dc72292c1e931dcb462d4edd71b1e3a2"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0026.npz",
+      "bytes": 383878,
+      "sha256": "7d3545322b56e9a1cea1c206e16d1df95dd46f85da69d1ff600e6462b5027f64"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0028.npz",
+      "bytes": 383878,
+      "sha256": "d53f21442502e20d6cf4baf91304ce31ca7d148afc5a4dfffb1b6ad223acd674"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0030.npz",
+      "bytes": 383878,
+      "sha256": "807672ca364c9b437b485543f10d0cf247683a8624120f0ea695a0b5bf8204d4"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0031.npz",
+      "bytes": 383878,
+      "sha256": "b7e1b59b162794acee74285ce5522418e5816bdfbcaf05fb229b13331eb14e32"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0034.npz",
+      "bytes": 383878,
+      "sha256": "6ad551984b25e6575d974fbe3089ad6df4889c94eace1c3ce2915a35a81d0aec"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0037.npz",
+      "bytes": 383878,
+      "sha256": "d0b911e0db062553a50c27551f97c35c94e269d5f5051f0ec1743b390175c656"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C0039.npz",
+      "bytes": 383878,
+      "sha256": "cb6040c3641b6b2114a669c22278161d5a90de4e505c4e42ab6b1113c63dcdb0"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C1000.npz",
+      "bytes": 383878,
+      "sha256": "a9907b7cb5958d0087359924bef133dc0debb7039a54fcf631c6f82ed6673508"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C1001.npz",
+      "bytes": 383878,
+      "sha256": "8f364fc351a4222a56cd5c54e13cbf05f3d4888965ad86c5e5f8d89659e6580d"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/initialization_masks/C1004.npz",
+      "bytes": 383878,
+      "sha256": "fbe6c2e5dfb496a797d4b640eb2951259b11eb55ec51b7904c7c6f4801de5ae1"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/metadata.json",
+      "bytes": 14535,
+      "sha256": "2ce5be63d36a2c4823b0558184418b14b004d3dd1fdc51991c13c96cb8089c93"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0004.npz",
+      "bytes": 4603656,
+      "sha256": "e48ca1cd8d36ac2c15af33a905324b9c4644c4a658ae8752a80ade204c521779"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0005.npz",
+      "bytes": 4603656,
+      "sha256": "6f3f74c86be1fedd646b60ae930a496bd487398248e1e29d4a6dad568b781b72"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0006.npz",
+      "bytes": 4603656,
+      "sha256": "8dd7ebee8154499a9052b0ef646fbd83c10926e4801c8ad17c76569d6507464a"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0008.npz",
+      "bytes": 4603656,
+      "sha256": "e1bfc6c5b12b0a82bb2772f9edbecefe5112205c8e021496bfa7a920ef007069"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0009.npz",
+      "bytes": 4603656,
+      "sha256": "e3e61d751ab7e953772c4432c12da54800f0929890f9b71a16c4a7c26bdb3d1d"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0012.npz",
+      "bytes": 4603656,
+      "sha256": "4eaeaad81b554fa52abdfa397bc5c8a1d86f1faacd0774894f9c659867452aa6"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0014.npz",
+      "bytes": 4603656,
+      "sha256": "0dc0ff1d3f495cd39d3ad0fa98edf74d1ae96bb306d9e1e44630d31fd5446c45"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0019.npz",
+      "bytes": 4603656,
+      "sha256": "5071e04db89e8d49af1b726d5e48277fa8d5fadc572e10fd6e65bf7493b47842"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0020.npz",
+      "bytes": 4603656,
+      "sha256": "c74a884b60b021275942add237e6944bbde8182b74529b5a09bf43efbfe76b7f"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0021.npz",
+      "bytes": 4603656,
+      "sha256": "99d1a9e968b2c4b0cfcae08bdd9c859ee5b7e2da1d5031b3f2b2d6be6bf4b84a"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0022.npz",
+      "bytes": 4603656,
+      "sha256": "468ba19c25c2ee38c970f76b0da516a49a481c3861c73b1f75cc641e12e5fd72"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0025.npz",
+      "bytes": 4603656,
+      "sha256": "5c1de6e395b9fe2f58f7da87196e8071a41e027720357204eced23898abbbf57"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0026.npz",
+      "bytes": 4603656,
+      "sha256": "ef75a09a4e717e550117b8713dba763fcb3ef935aa834e7b954f254acd350b64"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0028.npz",
+      "bytes": 4603656,
+      "sha256": "83f67338b751432a5e7a4d0cf2628f3b11337b145360cadef8c7c22b9568706e"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0030.npz",
+      "bytes": 4603656,
+      "sha256": "46a533927bbe6fdc516b27ad3c22c1fb0076e043989d168c7973d944d6c86ae7"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0031.npz",
+      "bytes": 4603656,
+      "sha256": "bcb37af36fa14e73050ec0d20827fe208d3e91201a015d2dc091f3cb4bf0c35b"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0034.npz",
+      "bytes": 4603656,
+      "sha256": "d8e24c3cf75393beaf5fc0943f6a299f5a1c80b0855cf49dcbd96d5959c1facd"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0037.npz",
+      "bytes": 4603656,
+      "sha256": "67d0cda94c5a3a2aada9c4d515306b3fd6f48943dd89caea7b5c78261f4bb0c9"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C0039.npz",
+      "bytes": 4603656,
+      "sha256": "a425b9e5ae8290bf635b1938d27fa1d92fa07d4f2baa4e739cab62392a40eace"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C1000.npz",
+      "bytes": 4603656,
+      "sha256": "b76d410c92113a1e514dee70e24bb3c9433658730224692b5155895378a9b2c5"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C1001.npz",
+      "bytes": 4603656,
+      "sha256": "ab9f6fad269dfffd92718dbc7658e314b3891da3c2cf053096f84ee21fdef050"
+    },
+    {
+      "path": "runs/20260908_field_teacher_information_stage_frame00008/targets/rgb/C1004.npz",
+      "bytes": 4603656,
+      "sha256": "dc63468d8b473e1fcc79a1b942673ccf3d79b8e174aaea09ca8daccd0a466e6c"
+    }
+  ],
+  "frozen_configuration": {
+    "source_binding": {
+      "patterns": [
+        "src/rtgs/**/*.py",
+        "src/rtgs/**/*.cu",
+        "src/rtgs/**/*.cpp",
+        "src/rtgs/**/*.h",
+        "src/rtgs/**/*.js",
+        "scripts/experiment_contract.py",
+        "scripts/check_results_bundle.py",
+        "scripts/experiments/20260909_field_target_gradient_stage_frame00008.py",
+        "scripts/experiments/20260909_field_target_gradient_stage_frame00008_report.py",
+        "tests/test_field_target_gradient.py",
+        "tests/test_field_target_gradient_report.py",
+        "pyproject.toml"
+      ],
+      "file_count": 118,
+      "aggregate_sha256": "247d75336fe7f1d03563a245ea30895646d4c1c557b5b01ed3e3e08654e7d317"
+    },
+    "live_integrity_policy": {
+      "verify_source_at_coordinator_worker_and_bundle": true,
+      "verify_full_data_seal_at_coordinator_entry_exit_and_bundle": true
+    }
+  }
+}

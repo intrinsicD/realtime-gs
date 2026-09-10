@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "viewer_command": [
+    ".venv/bin/rtgs",
+    "view",
+    "--gaussians",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/gaussians.ply",
+    "--initial",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/gaussians_init.ply",
+    "--no-open",
+    "--port",
+    "8880"
+  ],
+  "report": {
+    "target": "index.html",
+    "http_status": 200,
+    "local_targets_ok": true
+  },
+  "browser": {
+    "name": "Codex In-app Browser",
+    "version": "152.0.0.0 (Chrome version reported by the visible user agent)",
+    "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+    "webgl2": true,
+    "renderer": "WebKit WebGL"
+  },
+  "checks": {
+    "viewer_ready": true,
+    "canvas_count": 2,
+    "rendered_content_visible": true,
+    "framebuffer_nonbackground_pixels": 10401,
+    "orbit_camera_changed": true,
+    "client_errors": [],
+    "client_warnings": [
+      "Known nonfatal Viser two-component Gaussian quad bounding-sphere console error retained verbatim and classified in verification/viewer-client.json; both model NPZs independently finite. This is not a claim of a clean console.",
+      "THREE.Clock deprecation warning retained in verification/viewer-client.json.",
+      "Orbit is a visual inference from the left-drag and independently inspected subject orientation change: 33238 changed pixels in a native scene-only ROI. Numeric camera vectors were unavailable in the supported browser scope.",
+      "Initial browser clip included UI and its movement metric is retired; use verification/viewer-visual-check-corrected.json."
+    ]
+  }
+}

@@ -1031,3 +1031,16 @@
 - **Tags**: field-supervision, target-information, opacity, paired-seeds, development, no-default
 - **From staging**: O171
 - **Boundary**: One previously exposed capture at downscale 8, three seeds with shared RGB/mask-derived geometry,8,000 steps per completed cell. The low-budget family varies acquisition settings jointly. No strict field-only, physical-density, ground-truth geometry, full-resolution, generalization or performance claim. Two preserved interruptions and at least 500 discarded updates prevent equal-total-compute accounting. The opacity diagnostic is posthoc and non-causal.
+
+## C48: Cached field and photograph targets produce differing gradients at the same saved states
+
+- **Statement**: In RTGS-024 on Stage frame_00008, mean total-loss position-gradient cosines between photograph and high-field targets are 0.273494 for initial states, 0.352577 for photograph-final states and 0.415299 for field-final states. All 198 within-state/view position comparisons pass the prospectively fixed observed-repeat precision flags. Boundary and exterior together account for 93.2569% of the mean per-view absolute cached target error; regional MAE is 0.00344643 interior, 0.04856269 boundary and 0.00206723 exterior. These target differences produce different local fitting gradients under the preserved loss and parameter coordinates.
+- **Status**: supported development-only descriptive
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Independent reductions of bound raw residuals or repeated gradient arrays change these values or flags, or task/source/input/common-state/coordinate/phase-isolation bindings fail.
+- **Proof**: [`ara/evidence/tables/20260910_field_gradient_adjoint.md`, `benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_RESULT.json`, `benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.md`, `benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_AUDIT.json`, `runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/residual_and_primary_reduction.json`, `runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/raw_reduction_artifacts.json`]
+- **Dependencies**: []
+- **Tags**: field-supervision, target-residual, image-adjoint, gradient, development, no-default
+- **From staging**: O176
+- **Boundary**: One exposed capture, nine frozen states from three inherited seeds and 22 training views at downscale 8. Cosines average views and then seeds; error shares average per-view shares, not pooled pixels. Two repeats and the ten-times rule describe sampled precision, not a confidence interval or systematic-error bound. Initial quaternion and inactive SHN cosines remain undefined. The separately measured nonzero VJP repeat variation does not establish the original RTGS-023 failure's exact cause. No optimizer/topology update, heldout quality test, halo-cause attribution, improved reconstruction, physical-density, strict field-only, generalization or performance claim; C47 and unavailable D/E are unchanged.

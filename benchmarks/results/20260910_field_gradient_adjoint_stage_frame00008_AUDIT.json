@@ -1,0 +1,737 @@
+{
+  "schema_version": 1,
+  "task_id": "20260910_field_gradient_adjoint_stage_frame00008",
+  "reviewer": "Codex-protocol-reviewer",
+  "self_reviewed": false,
+  "created_at_utc": "2026-09-09T23:05:07.836538+00:00",
+  "verdict": "accepted_with_narrowed_claims",
+  "execution_disposition": "Completed frozen diagnostic; no material numerical, source, data-boundary or chronology discrepancy found. Preserve predecessor as failed.",
+  "scientific_disposition": "Accept cached residual and saved-state local gradient findings only; no causal remedy, newquality, field-only, density orperformance conclusion.",
+  "run_status": "completed",
+  "protocol_sha256": "7f2e833b172e88592f7103aaaabd112b6a8112f4aceff10b5f4a1d528e5a341f",
+  "source_aggregate_sha256": "f29e6e8343b63a6285ced94c7578c93bc240329ec45715fbdd0f3e490fd8c7b1",
+  "source_lock": {
+    "schema_version": 2,
+    "task_id": "20260910_field_gradient_adjoint_stage_frame00008",
+    "task_path": "experiments/tasks/20260910_field_gradient_adjoint_stage_frame00008.json",
+    "task_sha256": "03c0af2515c0c30ef410e9d4b5de9192852772de39d772a00150d65624b86347",
+    "protocol_sha256": "7f2e833b172e88592f7103aaaabd112b6a8112f4aceff10b5f4a1d528e5a341f",
+    "protocol_review": {
+      "reviewer": "Codex-continuation-reviewer",
+      "verdict": "approved",
+      "protocol_sha256": "7f2e833b172e88592f7103aaaabd112b6a8112f4aceff10b5f4a1d528e5a341f",
+      "artifact": "experiments/reviews/20260910_field_gradient_adjoint_stage_frame00008_PROTOCOL_REVIEW.md"
+    },
+    "protocol_review_artifact_sha256": "6c9d0025e7932ff00b70831b07f7eb934f49c24c0cf6c13b88f12447687ca752",
+    "data_seal_path": "experiments/data/20260908_field_teacher_information_stage_frame00008.json",
+    "data_seal_sha256": "fbc09cd094e1b766657d3aa5e5098181fe596d87e450eee2368efdde4b8f9812",
+    "source_commit": "66afd22fb4b1eebf86904c21cac19ccf61c9fca3",
+    "source_dirty": true,
+    "source_diff_sha256": "f5d4263e58748e8429afa18e23cedc18902e6c1b949d13c839e82a9357778bd6",
+    "development": true,
+    "started_at_utc": "2026-09-09T22:48:56.866257+00:00",
+    "command": [
+      ".venv/bin/python",
+      "scripts/experiments/20260910_field_gradient_adjoint_stage_frame00008.py",
+      "run",
+      "--task",
+      "experiments/tasks/20260910_field_gradient_adjoint_stage_frame00008.json"
+    ],
+    "report_template_version": 2
+  },
+  "independent_check_counts": {
+    "raw_npz_files": 241,
+    "numerical_repeat_pairs": 45,
+    "numerical_zero_controls": 6,
+    "state_zero_controls": 9,
+    "state_view_sites": 198,
+    "raw_site_component_group_arrays": 9504,
+    "mean_arrays": 486,
+    "residual_views": 22,
+    "scalar_reconciliations": 77603,
+    "source_files_live_and_preserved": 122,
+    "untracked_files_preserved": 31,
+    "cache_files": 76,
+    "administrative_raw_byte_hashes": 81
+  },
+  "reductions": {
+    "numerical": {
+      "whole_chain": {
+        "repeats_checked": 6,
+        "pairs_checked": 15,
+        "upstream_gate_passed": true,
+        "maximum_render_difference": 0.0,
+        "maximum_adjoint_difference": 0.0,
+        "old_parameter_threshold_exceedances": {
+          "l1": {
+            "means": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 2.9764585414022246e-09,
+              "largest_relative_delta": 4.52603649595844e-07,
+              "largest_max_abs": 2.5320332497358322e-09
+            },
+            "quats": {
+              "pairs_with_exceedance": 6,
+              "largest_count": 2,
+              "largest_delta_norm": 6.195722410947325e-08,
+              "largest_relative_delta": 6.794344257499286e-05,
+              "largest_max_abs": 4.367029760032892e-08
+            },
+            "scales": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 5.728799972344808e-10,
+              "largest_relative_delta": 5.258250514674033e-06,
+              "largest_max_abs": 5.572928785113618e-10
+            },
+            "opacities": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 9.586936221184504e-12,
+              "largest_relative_delta": 1.2795595681389293e-07,
+              "largest_max_abs": 7.275957614183426e-12
+            },
+            "sh0": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 1.2932016619384112e-11,
+              "largest_relative_delta": 9.564307134156569e-08,
+              "largest_max_abs": 7.275957614183426e-12
+            },
+            "shN": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 5.5128434317830207e-11,
+              "largest_relative_delta": 1.0527308228976322e-07,
+              "largest_max_abs": 2.1827872842550278e-11
+            }
+          },
+          "dssim": {
+            "means": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 4.9943922909404856e-08,
+              "largest_relative_delta": 7.698296521082455e-07,
+              "largest_max_abs": 3.5390257835388184e-08
+            },
+            "quats": {
+              "pairs_with_exceedance": 15,
+              "largest_count": 10,
+              "largest_delta_norm": 5.479618809084142e-07,
+              "largest_relative_delta": 7.736170228766191e-05,
+              "largest_max_abs": 3.3155083656311035e-07
+            },
+            "scales": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 1.4728166821649983e-08,
+              "largest_relative_delta": 1.3460237365276443e-05,
+              "largest_max_abs": 1.3009412214159966e-08
+            },
+            "opacities": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 1.0405261636272754e-10,
+              "largest_relative_delta": 1.7557532516112798e-07,
+              "largest_max_abs": 8.731149137020111e-11
+            },
+            "sh0": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 2.5306635865849213e-10,
+              "largest_relative_delta": 1.195739855332231e-07,
+              "largest_max_abs": 1.7462298274040222e-10
+            },
+            "shN": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 9.404768685973258e-10,
+              "largest_relative_delta": 1.1473735456588944e-07,
+              "largest_max_abs": 2.9103830456733704e-10
+            }
+          },
+          "total": {
+            "means": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 1.1786522411359494e-08,
+              "largest_relative_delta": 6.887130765705314e-07,
+              "largest_max_abs": 7.916241884231567e-09
+            },
+            "quats": {
+              "pairs_with_exceedance": 8,
+              "largest_count": 3,
+              "largest_delta_norm": 1.6396291038818907e-07,
+              "largest_relative_delta": 8.195181539414583e-05,
+              "largest_max_abs": 9.225914254784584e-08
+            },
+            "scales": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 2.753884755049104e-09,
+              "largest_relative_delta": 9.807488011342423e-06,
+              "largest_max_abs": 2.496562956366688e-09
+            },
+            "opacities": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 2.1706805656698846e-11,
+              "largest_relative_delta": 1.308051292011774e-07,
+              "largest_max_abs": 1.4551915228366852e-11
+            },
+            "sh0": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 7.42353258476665e-11,
+              "largest_relative_delta": 1.4603049784258263e-07,
+              "largest_max_abs": 5.820766091346741e-11
+            },
+            "shN": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 2.69754230810452e-10,
+              "largest_relative_delta": 1.370110640696018e-07,
+              "largest_max_abs": 1.1641532182693481e-10
+            }
+          }
+        }
+      },
+      "fixed_image": {
+        "repeats_checked": 6,
+        "pairs_checked": 15,
+        "upstream_gate_passed": true,
+        "maximum_render_difference": 0.0,
+        "maximum_adjoint_difference": 0.0,
+        "old_parameter_threshold_exceedances": {}
+      },
+      "fixed_vjp": {
+        "repeats_checked": 6,
+        "pairs_checked": 15,
+        "upstream_gate_passed": null,
+        "maximum_render_difference": 0,
+        "maximum_adjoint_difference": 0,
+        "old_parameter_threshold_exceedances": {
+          "l1": {
+            "means": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 2.7490307287098887e-09,
+              "largest_relative_delta": 4.1802071972715396e-07,
+              "largest_max_abs": 2.0954757928848267e-09
+            },
+            "quats": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 3.1298395097369386e-08,
+              "largest_relative_delta": 3.4322934599557306e-05,
+              "largest_max_abs": 1.9528670236468315e-08
+            },
+            "scales": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 1.0998329845877417e-09,
+              "largest_relative_delta": 1.009495503765502e-05,
+              "largest_max_abs": 8.230927051045001e-10
+            },
+            "opacities": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 1.1993984214287653e-11,
+              "largest_relative_delta": 1.6008260072141796e-07,
+              "largest_max_abs": 9.094947017729282e-12
+            },
+            "sh0": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 1.5053463196523924e-11,
+              "largest_relative_delta": 1.1133293749547545e-07,
+              "largest_max_abs": 7.275957614183426e-12
+            },
+            "shN": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 6.425804918618287e-11,
+              "largest_relative_delta": 1.2270695901699124e-07,
+              "largest_max_abs": 2.1827872842550278e-11
+            }
+          },
+          "dssim": {
+            "means": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 7.119906877356272e-08,
+              "largest_relative_delta": 1.0974536547410855e-06,
+              "largest_max_abs": 5.587935447692871e-08
+            },
+            "quats": {
+              "pairs_with_exceedance": 15,
+              "largest_count": 12,
+              "largest_delta_norm": 8.781529098627755e-07,
+              "largest_relative_delta": 0.00012398630815006065,
+              "largest_max_abs": 4.444736987352371e-07
+            },
+            "scales": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 1.1510212407851196e-08,
+              "largest_relative_delta": 1.051930001795425e-05,
+              "largest_max_abs": 9.655195754021406e-09
+            },
+            "opacities": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 7.576534049467908e-11,
+              "largest_relative_delta": 1.278442088486887e-07,
+              "largest_max_abs": 5.820766091346741e-11
+            },
+            "sh0": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 3.567693916627708e-10,
+              "largest_relative_delta": 1.6857371893181562e-07,
+              "largest_max_abs": 2.3283064365386963e-10
+            },
+            "shN": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 1.3767362057776764e-09,
+              "largest_relative_delta": 1.6796060743242293e-07,
+              "largest_max_abs": 4.656612873077393e-10
+            }
+          },
+          "total": {
+            "means": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 9.266129090415403e-09,
+              "largest_relative_delta": 5.414407678654735e-07,
+              "largest_max_abs": 7.450580596923828e-09
+            },
+            "quats": {
+              "pairs_with_exceedance": 9,
+              "largest_count": 4,
+              "largest_delta_norm": 1.3371162920563356e-07,
+              "largest_relative_delta": 6.683245720921642e-05,
+              "largest_max_abs": 6.7870132625103e-08
+            },
+            "scales": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 3.0299262936878862e-09,
+              "largest_relative_delta": 1.0790566140441036e-05,
+              "largest_max_abs": 2.307388058397919e-09
+            },
+            "opacities": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 3.4689559454848404e-11,
+              "largest_relative_delta": 2.0903916945492575e-07,
+              "largest_max_abs": 2.9103830456733704e-11
+            },
+            "sh0": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 8.983362130264014e-11,
+              "largest_relative_delta": 1.7671436554297147e-07,
+              "largest_max_abs": 7.275957614183426e-11
+            },
+            "shN": {
+              "pairs_with_exceedance": 0,
+              "largest_count": 0,
+              "largest_delta_norm": 3.0770695239718867e-10,
+              "largest_relative_delta": 1.5628765725064814e-07,
+              "largest_max_abs": 1.1641532182693481e-10
+            }
+          }
+        }
+      }
+    },
+    "region": {
+      "interior": {
+        "signed_mean_rgb": {
+          "mean": 0.0011556066674591442,
+          "min": 0.0004493165667598806,
+          "max": 0.006227290054372001,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "mae_region": {
+          "mean": 0.003446426264793025,
+          "min": 0.0022390813804447165,
+          "max": 0.0078432918429794,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "mse_region": {
+          "mean": 3.855649848959932e-05,
+          "min": 1.3023935516711914e-05,
+          "max": 0.000132513926180659,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "absolute_error_sum": {
+          "mean": 194.97149009223688,
+          "min": 83.13933073729277,
+          "max": 445.62426318228245,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "absolute_error_share_full_canvas": {
+          "mean": 0.06743056826081906,
+          "min": 0.029217604528547048,
+          "max": 0.11674533889092875,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "full_canvas_l1_contribution": {
+          "mean": 0.00016941550065016135,
+          "min": 7.224179973140916e-05,
+          "max": 0.0003872138311769082,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "photo_local_contrast": {
+          "mean": 0.026773606513529183,
+          "min": 0.017364446095832375,
+          "max": 0.03736679136112035,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "field_local_contrast": {
+          "mean": 0.02644060925692637,
+          "min": 0.017803036130398516,
+          "max": 0.0367402412503414,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "residual_lowpass_mse": {
+          "mean": 1.4493844994219574e-05,
+          "min": 7.817726160450158e-07,
+          "max": 0.0001026290247966404,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "residual_highpass_mse": {
+          "mean": 2.554916934099086e-05,
+          "min": 1.26513163124431e-05,
+          "max": 5.667067294675956e-05,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "pixel_count": {
+          "mean": 19680.227272727272,
+          "min": 9287,
+          "max": 27958,
+          "defined_count": 22,
+          "undefined_count": 0
+        }
+      },
+      "boundary": {
+        "signed_mean_rgb": {
+          "mean": 0.04698457830775293,
+          "min": 0.02325899456502307,
+          "max": 0.09829389329600156,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "mae_region": {
+          "mean": 0.048562690612496136,
+          "min": 0.024575601466388094,
+          "max": 0.09918122859142656,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "mse_region": {
+          "mean": 0.00713384332554792,
+          "min": 0.0014046372413178867,
+          "max": 0.026321331135615227,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "absolute_error_sum": {
+          "mean": 1151.0117968971003,
+          "min": 456.44264603522606,
+          "max": 2456.9493861985393,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "absolute_error_share_full_canvas": {
+          "mean": 0.3910032833307186,
+          "min": 0.21110402528354208,
+          "max": 0.5171860375968653,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "full_canvas_l1_contribution": {
+          "mean": 0.0010001423271336443,
+          "min": 0.0003966141888722282,
+          "max": 0.0021349034678763306,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "photo_local_contrast": {
+          "mean": 0.10786943723656811,
+          "min": 0.09433860489761516,
+          "max": 0.11750603449186625,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "field_local_contrast": {
+          "mean": 0.08857623168482655,
+          "min": 0.06662669405241421,
+          "max": 0.09810239724183502,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "residual_lowpass_mse": {
+          "mean": 0.00506089255412678,
+          "min": 0.0008491316774467764,
+          "max": 0.019191361264132675,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "residual_highpass_mse": {
+          "mean": 0.0012839746412305142,
+          "min": 0.0003404578026319828,
+          "max": 0.004219655358112865,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "pixel_count": {
+          "mean": 7993.636363636364,
+          "min": 5597,
+          "max": 10297,
+          "defined_count": 22,
+          "undefined_count": 0
+        }
+      },
+      "exterior": {
+        "signed_mean_rgb": {
+          "mean": 0.002067225923652148,
+          "min": 0.0004322951785385709,
+          "max": 0.007749840903313047,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "mae_region": {
+          "mean": 0.002067225923652148,
+          "min": 0.00043229517853857083,
+          "max": 0.0077498409033130485,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "mse_region": {
+          "mean": 0.000298938705202393,
+          "min": 1.796248749336577e-05,
+          "max": 0.0017781387690780773,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "absolute_error_sum": {
+          "mean": 2205.9546504070827,
+          "min": 470.157319455693,
+          "max": 8246.791701397095,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "absolute_error_share_full_canvas": {
+          "mean": 0.5415661484084623,
+          "min": 0.39847364277084935,
+          "max": 0.7556573158757751,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "full_canvas_l1_contribution": {
+          "mean": 0.0019168079975870683,
+          "min": 0.0004085312043429654,
+          "max": 0.007165839191098299,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "photo_local_contrast": {
+          "mean": 1.7735557408514594e-05,
+          "min": 6.29067986233948e-06,
+          "max": 3.689874528696582e-05,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "field_local_contrast": {
+          "mean": 0.0005843417819134418,
+          "min": 0.00019336773211326203,
+          "max": 0.0015653915628430644,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "residual_lowpass_mse": {
+          "mean": 0.00028631685247394295,
+          "min": 1.6551754226594236e-05,
+          "max": 0.001719749218455411,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "residual_highpass_mse": {
+          "mean": 4.530716845581687e-06,
+          "min": 4.913796531883829e-07,
+          "max": 1.7895594160012373e-05,
+          "defined_count": 22,
+          "undefined_count": 0
+        },
+        "pixel_count": {
+          "mean": 355942.13636363635,
+          "min": 345361,
+          "max": 368732,
+          "defined_count": 22,
+          "undefined_count": 0
+        }
+      }
+    },
+    "kind_total_means": [
+      {
+        "kind": "initial",
+        "total_means_cosine_mean": 0.27349427790825803,
+        "total_means_relative_delta_mean": 1.034622536181492,
+        "resolved_views": 66,
+        "total_views": 66
+      },
+      {
+        "kind": "rgb_final",
+        "total_means_cosine_mean": 0.3525774196982357,
+        "total_means_relative_delta_mean": 1.8356982755182554,
+        "resolved_views": 66,
+        "total_views": 66
+      },
+      {
+        "kind": "field_high_final",
+        "total_means_cosine_mean": 0.41529879283317656,
+        "total_means_relative_delta_mean": 0.911465081147816,
+        "resolved_views": 66,
+        "total_views": 66
+      }
+    ],
+    "primary_metrics": {
+      "target_boundary_mae": 0.048562690612496136,
+      "target_exterior_bias": 0.002067225923652148,
+      "means_total_cosine": 0.34712349681322346,
+      "means_total_relative_delta": 1.2605952976158545
+    },
+    "fully_repeat_resolved_comparisons": 3168,
+    "zero_or_undefined_comparisons": 396
+  },
+  "claim_dispositions": [
+    {
+      "id": "C1",
+      "claim": "The repeated nonzero parameter VJP varies at the exposed probe even with fixed render graph and fixed image adjoint.",
+      "kind": "measured real-data development numerical diagnostic",
+      "disposition": "confirm within this one saved state/view",
+      "evidence": [
+        "numerical_control.json",
+        "audit_checks/numerical_reduction.json"
+      ],
+      "boundary": "All fixed-image and whole-chain renders/adjoints compared exactly equal. Fixed-VJP DSSIM/quats exceeded the predecessor threshold in all15 pairs, up to12elements. This localizes observed variation to the nonzero VJP path in these executions; it does not prove the exact cause of the old run failure or retroactively pass it."
+    },
+    {
+      "id": "C2",
+      "claim": "The cached teacher-minus-photo signal is concentrated around and outside the silhouette.",
+      "kind": "measured cached training targets,22views,onecapture",
+      "disposition": "confirm",
+      "evidence": [
+        "residuals.json",
+        "audit_checks/residual_and_primary_reduction.json"
+      ],
+      "boundary": "Mean per-view absolute-error shares: interior6.7431%,boundary39.1003%,exterior54.1566%. Exterior covers much more area; its per-pixel MAE is smaller than the boundary. No regional gradient intervention was performed."
+    },
+    {
+      "id": "C3",
+      "claim": "Photo and teacher losses produce different local saved-state gradient directions beyond the observed pair-repeat proxy.",
+      "kind": "measured first-order local within-state target comparison",
+      "disposition": "confirm with numerical/scope limits",
+      "evidence": [
+        "comparison.json",
+        "audit_checks/state_reduction.json"
+      ],
+      "boundary": "All198 total-means sites and all3168 defined component/group/site comparisons satisfy allthree observed-repeat flags. Initial quaternion and SHN comparisons comprise396 zero/null cases. Two repeats cannot bound common systematic error or certify aggregate precision; gradients are not historical optimizer updates."
+    },
+    {
+      "id": "C4",
+      "claim": "The selected saved reconstruction is visible and changes orientation in the viewer.",
+      "kind": "display-only existing snapshot",
+      "disposition": "confirm corrected scene-only proof; retire original UI-free count",
+      "evidence": [
+        "snapshot_provenance.json",
+        "verification/viewer-visual-check-corrected.json",
+        "audit_checks/preview_frame_montage.png"
+      ],
+      "boundary": "The old browser clips included UI/text selection. Corrected nativePNG scene ROI yields33238changedpixels. No clean-console, numericalcamera-vector or reconstruction-quality claim."
+    },
+    {
+      "id": "C5",
+      "claim": "This diagnostic proves a remedy, high-quality reconstruction from fields, physical-density recovery, or enables the failed RTGS-021 D/E prerequisites.",
+      "kind": "unsupported capability/causal claim",
+      "disposition": "retire / not established",
+      "evidence": [
+        "execution.json",
+        "benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_RESULT.md"
+      ],
+      "boundary": "Zero fitting/topology updates, no new heldout evaluation. Masks/RGB informed inherited initialization. RTGS-021 quality gates and RTGS-023 numerical failure remain unchanged."
+    },
+    {
+      "id": "C6",
+      "claim": "Recorded resource counters establish a speed or performance improvement.",
+      "kind": "unsupported performance claim",
+      "disposition": "retire / not established",
+      "evidence": [
+        "resource_receipt.json",
+        "environment.json"
+      ],
+      "boundary": "SharedGPU, descriptive worker counters; no independent benchmark or idle-GPU repeats."
+    }
+  ],
+  "next_protocol_recommendation": {
+    "status": "post-outcome proposal only; no execution authorization implied by this audit",
+    "smallest_intervention": "A separately registered, prospectively reviewed target-only counterfactual: replace teacher RGB outside the existing frozen training mask with the corresponding cached photo RGB, retaining teacher pixels inside the mask and preserving all states/cameras/loss weights/coordinates/controls. Compare corrected-target direct gradients with the original teacher and photo at the same frozen states; no fitting initially.",
+    "purpose": "Tests whether the observed outside-mask signal contributes to local target-gradient disagreement. It does not assume that residual mass causes the halo.",
+    "decision_boundary": "Freeze alignment/relative-delta checks, numerical-repeat gates and stopping criteria before generating the counterfactual. An improved local-gradient comparison would still need a separately authorized paired reconstruction-quality trial with adequate RGB control and heldout reporting; no automatic D/E launch."
+  },
+  "limitations": [
+    "Single already-exposed capture and22trainingcameras; three inherited seeds/states are not independent captures. Initial seed models preserve the same geometry multiset in different row orders.",
+    "Directdelta is a common-render chain-rule diagnostic; derived fieldgradient is not an independent historical GPU-backward result. Effective-opacity local-logit mapping does not recover stored rawlogits or Adam state.",
+    "The zero controls test null/routing only; synthetic distinct-target parity and observed two-repeat flags do not bound global/shared systematic error. No aggregate precision certificate.",
+    "Loss scalars are source-bound worker records; this audit recomputes their repeat differences and raw-array gradient statistics without rerendering or repeating backward. It does not independently replay every loss evaluation.",
+    "Repository122-file source is preserved exactly with dirtydiff/untracked files. Third-party binary contents are outside that envelope; environment versions are recorded.",
+    "No original heldout image/depth decoded. Administrative81-file byte hashes include heldout bytes and are distinct from numerical data access.",
+    "Shared report browser/manifest/bundle delivery checks are pending this audit; producer will supply separate receipts. Initial sandbox verify failures were socket-permission failures; the preserved host rerun passes."
+  ],
+  "commands_executed": [
+    "python3 /tmp/rtgs024_independent_reductions.py (generated-array selftest before outcome access)",
+    "python3 /tmp/rtgs024_audit.py (saved-array and cached-target reductions, after authorization)",
+    "python3 /tmp/rtgs024_provenance_audit.py (hashes, coordinates, chronology; no GPU work)"
+  ],
+  "verification": "Inspected producer fullhost ./scripts/verify.sh pass and prior prospective CPU/CUDA synthetic receipts; reviewer performed no new renderer, backward, optimization or GPU measurement.",
+  "audit_artifacts": {
+    "benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_RESULT.json": "4e04232d2d8b9e6421ba6a938f7178b406eb84d246bc5e57bad56b352ae24a66",
+    "benchmarks/results/20260910_field_gradient_adjoint_stage_frame00008_RESULT.md": "2a5a7a8ed9cd967ec19bba5969784bf6cfcd6a58e7d03f1c0cb7d8ff62bd8977",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/numerical_reduction.json": "96a722b0ffcfcc2e603c0c555dfbf286811d931a85631ac1216ed87ddcfccc35",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/preview_frame_montage.png": "7fc92c6448942f6a96ce319c99c7d3fbb986e75a28df1cd22c372962fce1aa0a",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/provenance_checks.json": "46fa04f8c0f381e434c2f19899f17ddf8f8f2c3935ed1c0e271b4bd9437a4a76",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/raw_reduction_artifacts.json": "c0dae423f109e6ae9d49d35030e557845f293439344588e7e6eb12e0b9ca0bad",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/residual_and_primary_reduction.json": "ff8c01e93875cfdc5611151bb14fed33ee5217ddcb31af8f0860f3d43c2b226c",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/rtgs024_audit.py": "321388598e207e6c6d13333480aa1a834e542d4dee406dc3c81e3c28c2f6e36b",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/rtgs024_independent_reductions.py": "e64f63874cb8317f9ded793ce51697f61a3f3b3aa32e4c11059663edef820568",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/rtgs024_provenance_audit.py": "29796484c3ba058d29e908288be2ef0106140638325697a4e384602b0289f919",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/audit_checks/state_reduction.json": "91d558e0f04569b5d4dd50a833f4154d08cefd2f188409242a223cdd7c11a8c7",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/comparison.json": "8ee810d6fd8992a1570f5469a0a12737d6eac940dc167a0667d589639503cb55",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/execution.json": "804ce50e55755a44cca33a8a54b31b0e890a7ab842801a043569117b05a85111",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/numerical_control.json": "a93f140b806c796270e715708865a240d5f6265dc9af9af21ded861390471890",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/residuals.json": "8f2fec767c95473e593342f27acf80975cb6e627fa9d9ea1cde3b3c7402f51bd",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/source_snapshot/manifest.json": "3b8f55480f073663f3ca043f0f80b416384b999c1ba8f4d86d52f72555aad6b6",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/task.lock.json": "8eeba0218bd59a44cf1af70bb231d62e1875df1186196764adefa023d7d98219",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/verification/rtgs024-verify-host.log": "fdc65c6db95365be24e21ec071c34b004ad94c737936618ccc0483a1132ef87c",
+    "runs/20260910_field_gradient_adjoint_stage_frame00008/verification/viewer-visual-check-corrected.json": "7c5489bc3de66be1c38aac8b89262d5d43064fbc9747e479c72c673f687b2244"
+  },
+  "pending_delivery": [
+    "shared report rendering",
+    "actual in-app report browser checks",
+    "final manifest/bundle checks and task/documentation handoff"
+  ]
+}
