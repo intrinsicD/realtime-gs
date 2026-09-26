@@ -1,0 +1,54 @@
+"""Diagnostic: 3DGS trained ONLY from compact 2D Gaussian teachers + cameras (no images).
+Held-out evaluation against the real GT renders (evaluation only)."""
+import math, json, torch
+from rtgs.data.compact_views import CompactDataset
+from rtgs.data.calibrated import load_calibrated_scene, _object_bounds
+from rtgs.core.gaussians3d import Gaussians3D
+from rtgs.render.gsplat_backend import GsplatRasterizer
+root="dataset/external/haelyn_halfbody/prepared"
+train=["C0001","C0002","C0003","C0005","C0006","C0007","C0009","C0010","C0011","C0013","C0014","C0015"]
+held=["C0004","C0008","C0012","C0016"]
+ds=CompactDataset.load(f"{root}/gaussians2d_unmasked", device="cuda", load_alpha=False, view_ids=train, byte_cap=262144)
+tc=[v.camera.to("cuda") for v in ds.views]
+H,W=tc[0].height,tc[0].width
+ys,xs=torch.meshgrid(torch.arange(H,device="cuda")+0.5,torch.arange(W,device="cuda")+0.5,indexing="ij")
+xy=torch.stack([xs,ys],-1).reshape(-1,2)
+ti=[]
+with torch.no_grad():
+    for v in ds.views:
+        obs=v.observation
+        q=obs.query(xy.to(obs.dtype)); ti.append(q.color.float().clamp(0,1).reshape(H,W,3))
+s=load_calibrated_scene(root, calibration_path=f"{root}/calibration_dome.json", downscale=1, view_ids=held, load_masks=True)
+hc=[c.to("cuda") for c in s.cameras]; hi=[i.cuda() for i in s.images]; hm=[m.cuda().float().reshape(H,W)[...,None] for m in s.masks]
+# teacher-vs-GT fidelity on train views (evaluation only)
+st=load_calibrated_scene(root, calibration_path=f"{root}/calibration_dome.json", downscale=1, view_ids=train)
+print("teacher psnr vs GT (train):", round(sum(-10*math.log10(((a-b.cuda())**2).mean().item()) for a,b in zip(ti,st.images))/len(ti),2), flush=True)
+center,extent=_object_bounds(tc,None); center=torch.as_tensor(center).float().cuda()
+r=GsplatRasterizer(packed=False, antialiased=False)
+def run(N, iters, seed=0):
+    g=torch.Generator(device="cuda").manual_seed(seed)
+    d=torch.randn(N,3,device="cuda",generator=g); d=d/d.norm(dim=1,keepdim=True)*torch.rand(N,1,device="cuda",generator=g)**(1/3)
+    p={"means":(center+0.6*extent*d),"quats":torch.nn.functional.normalize(torch.randn(N,4,device="cuda",generator=g),dim=1),
+       "log_scales":torch.full((N,3),math.log(0.6*extent/N**(1/3)),device="cuda"),
+       "opa":torch.full((N,),-2.0,device="cuda"),"sh":torch.zeros(N,4,3,device="cuda")}
+    for v in p.values(): v.requires_grad_(True)
+    lrs={"means":1.6e-4*extent*10,"quats":1e-3,"log_scales":5e-3,"opa":5e-2,"sh":1e-2}
+    opt=torch.optim.Adam([{"params":[p[k]],"lr":lrs[k]} for k in p],eps=1e-15)
+    model=lambda: Gaussians3D(p["means"],torch.nn.functional.normalize(p["quats"],dim=1),p["log_scales"],torch.sigmoid(p["opa"]),p["sh"])
+    bg=torch.zeros(3,device="cuda")
+    for it in range(iters):
+        k=it%len(tc); o=r.render(model(),tc[k],background=bg).color
+        loss=(o-ti[k]).abs().mean()*0.8+((o-ti[k])**2).mean()*0.2
+        opt.zero_grad(); loss.backward(); opt.step()
+    res={}
+    with torch.no_grad():
+        res["train_vs_teacher"]=sum(-10*math.log10(((r.render(model(),c,background=bg).color.clamp(0,1)-t)**2).mean().item()) for c,t in zip(tc,ti))/len(tc)
+        ps=[];fg=[]
+        for c,im,mm in zip(hc,hi,hm):
+            o=r.render(model(),c,background=bg).color.clamp(0,1)
+            ps.append(-10*math.log10(((o-im)**2).mean().item()))
+            fg.append(-10*math.log10((((o-im)**2)*mm).sum().item()/(3*mm.sum().item())))
+        res["held_vs_GT"]=sum(ps)/4; res["held_fg_vs_GT"]=sum(fg)/4
+    return res
+for N,iters in [(256,3000),(20000,15000)]:
+    print(N,iters,json.dumps({k:round(v,2) for k,v in run(N,iters).items()}),flush=True)

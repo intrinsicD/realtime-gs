@@ -1,0 +1,79 @@
+"""Diagnostic demo (not a registered experiment): 3DGS from Janelle 2D Gaussians + cameras.
+Held-out real photos/masks are used for evaluation only."""
+import sys, math, json, zipfile, time, torch, numpy as np
+from pathlib import Path
+from PIL import Image
+from rtgs.data.compact_views import CompactDataset
+from rtgs.data.calibrated import load_calibrated_scene
+from rtgs.core.camera import Camera
+from rtgs.core.gaussians3d import Gaussians3D
+from rtgs.render.gsplat_backend import GsplatRasterizer
+SRC, N, ITERS = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+OUT=Path(sys.argv[4]); OUT.mkdir(parents=True, exist_ok=True)
+frame=Path("dataset/2025_03_07_stage_with_fabric/frame_00008"); calib="dataset/2025_03_07_stage_with_fabric/calibration_dome.json"
+D=8; dev="cuda"
+ids=sorted(p.stem for p in (frame/"gaussians2d_native_fullres").glob("*.rtgsv"))
+held=["C0009","C0022","C0031","C1004"]; train=[i for i in ids if i not in held]
+def scaled(c):
+    return Camera(c.fx/D,c.fy/D,c.cx/D,c.cy/D,c.width//D,c.height//D,c.R,c.t).to(dev)
+def targets_from_teacher(name):
+    d=frame/name; meta=json.loads(zipfile.ZipFile(next(d.glob("*.rtgsv"))).read("metadata.json")) if False else None
+    z=zipfile.ZipFile(next(d.glob("*.rtgsv"))); cap=json.loads(z.read([n for n in z.namelist() if n.endswith(".json")][0]))["byte_cap"]
+    ds=CompactDataset.load(d, byte_cap=cap, load_alpha=True, view_ids=train, device=dev)
+    cams=[];ims=[];wts=[]
+    for v in ds.views:
+        c=scaled(v.camera); H,W=c.height,c.width
+        ys,xs=torch.meshgrid(torch.arange(H,device=dev),torch.arange(W,device=dev),indexing="ij")
+        xy=torch.stack([(xs+0.5)*D,(ys+0.5)*D],-1).reshape(-1,2).to(v.observation.dtype)
+        col=torch.zeros(H*W,3,device=dev)
+        with torch.no_grad():
+            for s in range(0,xy.shape[0],8192):
+                q=v.observation.query(xy[s:s+8192]); col[s:s+8192]=(q.color*q.valid[:,None]).float()
+        full=v.alpha.full_mask((v.camera.height,v.camera.width),device=dev)
+        a=full[(ys*D+D//2).clamp(max=full.shape[0]-1),(xs*D+D//2).clamp(max=full.shape[1]-1)].float()
+        cams.append(c); ims.append(col.reshape(H,W,3).clamp(0,1)*a[...,None]); wts.append(None)
+    return cams,ims
+def targets_from_photos(view_ids):
+    s=load_calibrated_scene(frame, calibration_path=calib, downscale=D, view_ids=view_ids, load_masks=True)
+    cams=[c.to(dev) for c in s.cameras]; ims=[]; ms=[]
+    for c,i,m in zip(cams,s.images,s.masks):
+        m=m.to(dev).float().reshape(c.height,c.width)[...,None]; ims.append(i.to(dev)*m); ms.append(m)
+    return cams,ims,ms
+t0=time.time()
+if SRC=="photos": tc,ti,_=targets_from_photos(train)
+else: tc,ti=targets_from_teacher(SRC)
+prep=time.time()-t0
+hc,hi,hm=targets_from_photos(held)
+# camera parity: compact-derived vs loader-derived intrinsics/extrinsics for one train view
+lc,_,_=targets_from_photos(train[:1])
+cam_diff=float(max((tc[0].K-lc[0].K).abs().max(),(tc[0].viewmat-lc[0].viewmat).abs().max())) if SRC!="photos" else 0.0
+pos=torch.stack([c.position for c in tc]); center=pos.mean(0)
+# object roughly at the rig centre; initialise inside a sphere of 0.35 x mean camera distance
+rad=0.35*(pos-center).norm(dim=1).mean()
+g=torch.Generator(device=dev).manual_seed(0)
+d=torch.randn(N,3,device=dev,generator=g); d=d/d.norm(dim=1,keepdim=True)*torch.rand(N,1,device=dev,generator=g)**(1/3)
+p={"means":center+rad*d,"quats":torch.nn.functional.normalize(torch.randn(N,4,device=dev,generator=g),dim=1),
+   "log_scales":torch.full((N,3),math.log(rad.item()/N**(1/3)),device=dev),"opa":torch.full((N,),-2.0,device=dev),"sh":torch.zeros(N,4,3,device=dev)}
+for v in p.values(): v.requires_grad_(True)
+lrs={"means":1.6e-3*rad.item(),"quats":1e-3,"log_scales":5e-3,"opa":5e-2,"sh":1e-2}
+opt=torch.optim.Adam([{"params":[p[k]],"lr":lrs[k]} for k in p],eps=1e-15)
+model=lambda: Gaussians3D(p["means"],torch.nn.functional.normalize(p["quats"],dim=1),p["log_scales"],torch.sigmoid(p["opa"]),p["sh"])
+r=GsplatRasterizer(packed=False, antialiased=False); bg=torch.zeros(3,device=dev)
+t1=time.time(); perm=torch.randperm(ITERS,generator=torch.Generator().manual_seed(0))%len(tc)
+for it in range(ITERS):
+    k=int(perm[it]); o=r.render(model(),tc[k],background=bg).color
+    loss=(o-ti[k]).abs().mean()*0.8+((o-ti[k])**2).mean()*0.2
+    opt.zero_grad(); loss.backward(); opt.step()
+train_s=time.time()-t1
+res={"source":SRC,"N":N,"iters":ITERS,"prep_s":round(prep,1),"train_s":round(train_s,1),"cam_parity_maxabs":cam_diff}
+with torch.no_grad():
+    res["train_vs_target_psnr"]=round(sum(-10*math.log10(((r.render(model(),c,background=bg).color.clamp(0,1)-t)**2).mean().item()) for c,t in zip(tc,ti))/len(tc),2)
+    fg=[];rows=[]
+    for vid,c,im,m in zip(held,hc,hi,hm):
+        o=r.render(model(),c,background=bg).color.clamp(0,1)*m
+        fg.append(-10*math.log10((((o-im)**2)*m).sum().item()/(3*m.sum().item())))
+        rows.append(torch.cat([im,o],1))
+    res["held_fg_psnr_per_view"]=[round(x,2) for x in fg]; res["held_fg_psnr"]=round(sum(fg)/len(fg),2)
+    Image.fromarray((torch.cat(rows,0).cpu().numpy()*255).astype(np.uint8)).save(OUT/f"heldout_{SRC}_{N}.png")
+model().save_ply(OUT/f"gaussians_{SRC}_{N}.ply")
+print(json.dumps(res),flush=True)

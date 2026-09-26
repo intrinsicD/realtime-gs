@@ -3481,3 +3481,19 @@ Evidence: `benchmarks/results/20260909_field_target_gradient_stage_frame00008_AU
 The actual report browser has no horizontal overflow or console errors; all 593 local targets return HTTP 200 and its served/local hash agrees. Visible WebGL content and orbit pass independent native screenshot checks; original mis-scaled clips and known nonfatal Viser console messages are disclosed. Both run/bundle validators pass. Full host verification passed before closeout; terminal repository checks are recorded separately in `ara/evidence/tables/20260910_field_gradient_adjoint/verification_receipt.json`.
 
 A separately frozen outside-mask photograph-replacement gradient control is proposed and unexecuted. It adds oracle photograph/mask information and would test attribution before any quality trial. C47, its failed prerequisites and unavailable D/E remain unchanged. No new high-quality reconstruction, physical-density, strict field-only, generalization, performance or default claim follows; no private upload, commit or push was performed.
+
+## 2026-09-26 — RTGS-025 main-path decision and unregistered Gaussian-only diagnostics
+
+The user set photometric distillation (alpha-composited 3DGS fitted to decoded compact 2D
+fields plus cameras) as the current main 2D→3D path; tomographic/field-lift inversion remains an
+initializer candidate. The review behind this decision found that the RTGS-016 forward model
+treats opaque RGB observations as additive line integrals, uses the non-identified 2D fit weight
+as density, binds 3D primitives to independently fitted 2D footprints, and lacked a photometric
+positive control. RTGS-021 (C47) had already trained recognizable Janelle models from decoded
+fields, with a photograph/mask visual-hull initialization and boundary halos.
+
+Interactive single-seed diagnostics on Haelyn and Janelle frame_00008 (random initialization,
+field-only targets) are staged as O178 with scripts and raw outputs in
+`ara/evidence/tables/20260926_gaussian_only_diagnostic/`. They are not registered, reviewed or
+audited, do not measure halos outside the silhouette, and support no claim or default. The next
+step is a registered field-only initializer/halo experiment under the roadmap's main-path list.

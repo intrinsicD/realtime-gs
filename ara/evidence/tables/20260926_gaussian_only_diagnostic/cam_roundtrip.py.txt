@@ -1,0 +1,16 @@
+import torch, math
+from rtgs.data.calibrated import load_calibrated_scene
+from rtgs.core.gaussians3d import Gaussians3D
+from rtgs.render.gsplat_backend import GsplatRasterizer
+root="dataset/external/haelyn_halfbody"
+scene=load_calibrated_scene(f"{root}/prepared", calibration_path=f"{root}/prepared/calibration_dome.json", downscale=1, load_masks=True)
+m=Gaussians3D.load_ply(f"{root}/reference_person.ply").to("cuda")
+r=GsplatRasterizer(packed=False, antialiased=False)
+print("n ref", m.n if hasattr(m,'n') else None)
+for cam,img,mask in list(zip(scene.cameras, scene.images, scene.masks)):
+    with torch.no_grad():
+        out=r.render(m, cam.to("cuda"), background=torch.zeros(3,device="cuda"))
+    c=out.color.clamp(0,1).cpu(); mse=((c-img)**2).mean().item()
+    a=(out.alpha.cpu().squeeze()>=0.5).float(); mk=mask.squeeze().float()
+    iou=(a*mk).sum()/((a+mk)>0).float().sum()
+    print(cam.width,cam.height, f"psnr={-10*math.log10(mse):.2f} mask_iou={iou:.4f} fg_frac={mk.mean():.3f}")

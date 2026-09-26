@@ -1,0 +1,3 @@
+{"source": "photos", "N": 30000, "iters": 15000, "prep_s": 10.5, "train_s": 46.7, "cam_parity_maxabs": 0.0, "train_vs_target_psnr": 37.0, "held_fg_psnr_per_view": [25.43, 25.27, 23.93, 22.91], "held_fg_psnr": 24.39}
+{"source": "gaussians2d_native_fullres", "N": 30000, "iters": 15000, "prep_s": 939.1, "train_s": 45.7, "cam_parity_maxabs": 0.0, "train_vs_target_psnr": 35.64, "held_fg_psnr_per_view": [25.05, 25.16, 23.64, 23.22], "held_fg_psnr": 24.27}
+{"source": "gaussians2d_structsplat_mask_contained_fullres", "N": 30000, "iters": 15000, "prep_s": 139.9, "train_s": 49.8, "cam_parity_maxabs": 0.0, "train_vs_target_psnr": 35.81, "held_fg_psnr_per_view": [24.96, 24.8, 23.62, 22.91], "held_fg_psnr": 24.07}

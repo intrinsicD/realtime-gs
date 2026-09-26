@@ -1,5 +1,23 @@
 # Roadmap
 
+## Current main path (RTGS-025, decided 2026-09-26)
+
+Compact 2D Gaussians plus calibrated cameras → 3DGS by **photometric distillation**: render the
+3D Gaussians with ordinary alpha compositing and fit them to the decoded 2D fields at sampled or
+full-grid pixel centers. No source image is required; the 2D field is the image function.
+Tomographic inversion is not the main path. Its additive line-integral forward model does not
+describe opaque RGB observations, and it binds 3D primitives to independently fitted 2D
+footprints (see the RTGS-016 limits in C43). Tomography, Beam Fusion and field-lift stay
+available as **initializer candidates** and must beat a simple field-only initializer before use.
+
+Open questions, in order:
+- [ ] Field-only initialization: camera-bound random and 2D-coverage visual hull against the
+      photograph/mask visual hull used in RTGS-021 (C47).
+- [ ] Boundary halos and excess opacity in field-trained models (C47, C48): alpha/coverage target,
+      robust loss, teacher confidence.
+- [ ] Teacher fidelity as the ceiling: 2D budget per view against held-out 3DGS quality.
+- [ ] Capacity and density control (adaptive/MCMC) under the field-only target.
+
 ## M0 — Infrastructure (done)
 - [x] Agent workflow: CLAUDE.md/AGENTS.md, skills (verify, bench, docs-sync, experiment)
 - [x] Verification: ruff + pytest (CPU) + docs_sync, mirrored in CI

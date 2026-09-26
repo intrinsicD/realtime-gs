@@ -2,6 +2,11 @@
 
 [7 September work handoff: code sync and local results](docs/WORK_HANDOFF_2026-09-07.md).
 
+**Current main path (RTGS-025, 2026-09-26):** compact 2D Gaussians + cameras → 3DGS by
+photometric distillation: alpha-composited 3DGS renders are fitted to the decoded 2D fields.
+Tomographic/field-lift inversion is retained only as an initializer candidate. See
+[the roadmap](docs/ROADMAP.md#current-main-path-rtgs-025-decided-2026-09-26).
+
 Research repository testing one idea: **make 3D Gaussian Splatting (3DGS) reconstruction
 fast by skipping the cold start.** Instead of initializing 3DGS from a sparse SfM point
 cloud (or random points) and spending most of the optimization budget growing/placing

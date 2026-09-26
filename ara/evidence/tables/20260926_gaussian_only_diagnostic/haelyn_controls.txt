@@ -1,0 +1,12 @@
+# photometric_control.py (Haelyn, photo targets)
+256 3000 {"train": 22.13, "held": 21.49, "held_fg": 15.92}
+256 15000 {"train": 22.61, "held": 21.59, "held_fg": 16.22}
+20000 15000 {"train": 27.84, "held": 24.51, "held_fg": 19.06}
+
+[exited with code 0]
+# gaussian_only_control.py (Haelyn, compact-field targets only)
+teacher psnr vs GT (train): 27.73
+256 3000 {"train_vs_teacher": 23.99, "held_vs_GT": 21.39, "held_fg_vs_GT": 16.09}
+20000 15000 {"train_vs_teacher": 33.43, "held_vs_GT": 22.93, "held_fg_vs_GT": 18.97}
+
+[exited with code 0]
