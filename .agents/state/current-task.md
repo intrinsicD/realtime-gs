@@ -16,7 +16,7 @@ RTGS-025
 
 ## Mode
 
-Decide
+Implement
 
 ## Risk
 
@@ -24,8 +24,8 @@ Protected
 
 ## Maturity
 
-- Target: Not applicable
-- Reached: Not applicable
+- Target: CPU-contracted
+- Reached: CPU-contracted
 
 ## Goal
 
@@ -164,3 +164,70 @@ None.
 
 #### Optional Improvements
 Archive to docs/tasks after a human or distinct reviewer promotes it.
+
+### Human decision and handoff (2026-09-26, target decoder)
+
+#### Objective
+The user asked to commit the decision record and to implement faster compact-field target
+decoding. This extends RTGS-025 from Decide to a bounded Implement slice; a trainer remains out
+of scope.
+
+#### Reviewed state
+Branch `rtgs-025-main-path` after `3c096c4`, plus `src/rtgs/data/field_targets.py`,
+`tests/test_field_targets.py`, and ARCHITECTURE/CLAUDE.md map rows.
+
+#### Changes
+`rtgs.data.field_targets`: exact edge-origin pinhole downscale, box quadrature sites, decode of
+a compact view through the CSR tile index or its lazy CUDA twin (in-window sites only, zero
+outside), packed-alpha fraction on the same grid, and an optional SHA-256-keyed local cache.
+
+#### Evidence
+CPU tests: index decode equals the all-component reference and a direct clamped box average;
+coverage/zero-outside; alpha fraction; cache round trip; projection consistency of the scaled
+camera. CUDA parity test self-skips on CPU and passed on the local RTX 3050. Local timing
+(diagnostic, contended desktop GPU, not a benchmark claim): Janelle `gaussians2d_native_fullres`
+26 views at downscale 8 decoded in about 2 s after the one-time CUDA JIT build, against the
+reference scan used in the O178 demo; the CPU index took about 0.6 s per view. Max
+difference to the reference scan on 3000 in-window sites was 1.8e-7. `./scripts/verify.sh` exit 0.
+
+#### Assumptions
+Clamping each site to [0,1] before averaging matches the RTGS-021 target convention.
+
+#### Uncertainties
+No tracked benchmark entry; timings are not claims. Cache files derived from private captures
+must stay in untracked local directories.
+
+#### Review Focus
+Coordinate convention of sites and scaled cameras; unbounded index caps for offline decoding.
+
+#### Protected actions not taken
+No default, trainer, protocol or claim change; no push or merge.
+
+#### Recommended Next Action
+Use `decode_compact_view` in the registered field-only initializer/halo experiment.
+
+### Review (2026-09-26, self, target decoder)
+
+#### Verdict
+Accepted
+
+#### Self-reviewed
+Yes
+
+#### Correctness
+Parity against the reference scan and a direct box average; CPU-first import (CUDA lazy).
+
+#### Evidence Quality
+CPU-contracted; GPU parity locally only.
+
+#### Simplicity
+Reuses the existing CSR index and CUDA backend; no new kernel.
+
+#### Missing Cases
+Normalized-blend fields with partial windows are covered only through the shared query paths.
+
+#### Required Changes
+None.
+
+#### Optional Improvements
+Add a tracked `benchmarks/run.py` decode entry if decode time becomes a reported quantity.

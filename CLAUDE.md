@@ -122,7 +122,8 @@ src/rtgs/
                carrier_schedule.py (ADR-002 compact fixed-topology two-phase maturation +
                strict fitting-view projected-center containment)
   data/        scenes/loaders plus compact_views.py capped view bundles; field_inputs.py
-               explicit compact train/heldout seam; reconstruction_inputs.py fixed-topology seam
+               explicit compact train/heldout seam; field_targets.py fast indexed/CUDA decode of
+               compact views into dense photometric targets (RTGS-025 main path); reconstruction_inputs.py fixed-topology seam
   carrier_pipeline.py  compact-only Beam -> corrected covariance -> fixed-topology carrier
                sequence; accepts ReconstructionInputs only
   pipeline.py  strict-split legacy orchestration + image-free run_field_pipeline and opt-in
