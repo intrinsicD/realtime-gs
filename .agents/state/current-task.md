@@ -69,7 +69,7 @@ or retiring the tomography/field-lift code.
 
 ## Experiment Contract
 
-None
+experiments/tasks/20260926_field_only_distillation_stage_frame00008.json
 
 ## Current Evidence
 
@@ -83,7 +83,7 @@ RTGS-016 (C43), RTGS-021 (C47), RTGS-024 (C48) and the unregistered 2026-09-26 d
 
 ## Status
 
-Provisionally accepted (self-reviewed)
+In progress
 
 ## Human Decisions
 
@@ -231,3 +231,36 @@ None.
 
 #### Optional Improvements
 Add a tracked `benchmarks/run.py` decode entry if decode time becomes a reported quantity.
+
+### Human decision and handoff (2026-09-26, experiment draft)
+
+#### Objective
+The user asked to push the branch and draft the field-only experiment, using 2D Gaussians fitted
+with a masked loss but without mask containment, supervising colour only inside the mask, and
+avoiding floaters.
+
+#### Reviewed state
+Branch `rtgs-025-main-path` after `8814d92`; draft task
+`experiments/tasks/20260926_field_only_distillation_stage_frame00008.json` (review digest
+`3c63b72f076e2afa9edb63ac623c0f01b1d94c1f6020503ef69bc72fcc605d5b`) and its data seal.
+
+#### Changes
+Draft protocol: 7 conditions x 3 paired seeds. The existing Trainer's `use_masks` objective
+supplies mask-restricted colour plus a silhouette/outside-alpha term, so floaters are
+controlled without trusting field colour outside the mask. Primary teacher
+`gaussians2d_structsplat_no_boundary_fullres`; contrasts: mask_contained, gaussianimage,
+photographs, alpha-hull initialization, premultiplied-black objective. Held-out colour metrics
+are inside the held-out mask only; floaters are measured by outside-mask alpha.
+
+#### Evidence
+`experiment_contract validate` and `validate-data` pass. Packed training alpha equals the
+thresholded undistorted source mask pixel-for-pixel for C0004 and C0022 in all three families.
+no_boundary retains 5000-8592 Gaussians/view versus 11000 for the other families (recorded
+confound for H2).
+
+#### Protected actions not taken
+No driver, source binding, prospective review, init-run or outcome access.
+
+#### Recommended Next Action
+Implement the driver and its CPU contract tests, freeze `source_binding`, then obtain a distinct
+prospective reviewer named/authorized by the user.
