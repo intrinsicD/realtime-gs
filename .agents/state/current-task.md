@@ -304,3 +304,56 @@ No init-run, protected execution, held-out access or outcome inspection.
 
 #### Recommended Next Action
 Fable 5.1 prospective protocol review of the exact digest.
+
+### Review (2026-09-26, Fable 5.1 prospective protocol review V1)
+
+#### Verdict
+Revision required
+
+#### Self-reviewed
+No
+
+#### Correctness
+Claude-Code-Fable-5.1-reviewer (claude-fable-5-1, effort max, no nested agents, no outcome
+access) rejected digest `ef904cd7...`: B1 environment lookup of a non-existent `realtime-gs`
+distribution outside the coordinator's error handling; B2/B3 protocol wording precision.
+Verbatim: `experiments/reviews/20260926_field_only_distillation_stage_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md`.
+
+#### Evidence Quality
+Reviewer recomputed the digest, ran validate/validate-data and the focused tests; it could not
+recompute the source-binding aggregate in its sandbox.
+
+#### Simplicity
+Design accepted as is; fixes are bounded to driver start-up and protocol text.
+
+#### Missing Cases
+Coordinator start-up path was not exercised by the smoke.
+
+#### Required Changes
+B1-B3.
+
+#### Optional Improvements
+R1-R8.
+
+### Handoff (2026-09-27, revision 1 for review round 2)
+
+#### Objective
+Obtain a second prospective review of the revised digest.
+
+#### Reviewed state
+Digest `05048698cc34656fd562c8f60d534037745d99acf91b9cac6712a5f314b23f61`, source binding 118
+files `587419c468566af2a1a3181f992012a00eff253a5942950e3bfd90be74dab206`.
+
+#### Changes
+See `experiments/reviews/20260926_field_only_distillation_stage_frame00008_DRIVER_RESPONSE_R1.md`:
+B1-B3 and R1-R6, R8 adopted; R7 declined with reason.
+
+#### Evidence
+Focused tests pass; `./scripts/verify.sh` exit 0; repeated non-protocol GPU smoke passed including
+preflight and the new prepare checks.
+
+#### Protected actions not taken
+No init-run, protected execution, held-out access or outcome inspection.
+
+#### Recommended Next Action
+Fable 5.1 review round 2. A second rejection escalates to a human decision per workflow.

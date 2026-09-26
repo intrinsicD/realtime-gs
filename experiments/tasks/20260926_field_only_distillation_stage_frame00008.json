@@ -6,13 +6,13 @@
  "task_slug": "field_only_distillation",
  "data_slug": "stage_frame00008",
  "arm": "rgb_3dgs",
- "status": "blocked",
+ "status": "draft",
  "owner": "Claude-Code-Opus-5.5-driver",
  "protocol_review": {
-  "reviewer": "Claude-Code-Fable-5.1-reviewer",
-  "verdict": "rejected",
-  "protocol_sha256": "ef904cd749a80de5f25b9c6706cc705617aebfe56bd0b16912695626a99e44af",
-  "artifact": "experiments/reviews/20260926_field_only_distillation_stage_frame00008_PROTOCOL_REVIEW.md"
+  "reviewer": null,
+  "verdict": "pending",
+  "protocol_sha256": null,
+  "artifact": null
  },
  "depends_on": [],
  "title": "Field-only photometric distillation with mask-restricted color and silhouette supervision on Janelle frame 00008",
@@ -206,7 +206,7 @@
   "stage_runtime"
  ],
  "resource_protocol": {
-  "scope": "Fresh process per fitting cell including loading and final save; target decoding and evaluation timed separately. Local desktop GPU; descriptive only.",
+  "scope": "Fresh process per fitting cell including loading and final save; target decoding and evaluation timed separately. Local desktop GPU; descriptive only. The driver resets CUDA peak statistics after warmup and the Trainer does not reset them again (reset_cuda_peak_stats=false), so each peak includes cell loading and initialization.",
   "warmup_runs": 1,
   "measured_runs": 3,
   "aggregation": "All three paired seeds retained; no speed inference.",
@@ -592,8 +592,8 @@
  "preprocessing": {
   "downscale": 8,
   "undistort_full_resolution_first": true,
-  "target_operator": "Field targets: rtgs.data.field_targets.decode_compact_view(downscale=8, supersample=2): box average of four clamped field queries at edge-origin quarter offsets; zero outside the fit window. Photograph targets: same four sites, bilinear grid_sample(align_corners=False) of the undistorted full-resolution photograph, clamped. Field colors outside the training mask are never supervised because the Trainer composites the target with a random background outside the mask.",
-  "training_masks": "All arms: packed training alpha from the no_boundary compact views, decode_alpha_grid(downscale=8, supersample=2) as a soft fraction. The packed crops are required to equal the thresholded lossless source masks; this equality is checked once for the photograph arms, which otherwise use the identical tensor.",
+  "target_operator": "Field targets: rtgs.data.field_targets.decode_compact_view(downscale=8, supersample=2): box average of four clamped field queries at edge-origin quarter offsets; zero outside the fit window. Photograph targets: same four sites, bilinear grid_sample(align_corners=False) of the undistorted full-resolution photograph, clamped. The Trainer supervises target*mask + random_background*(1-mask) with L1 weight 0.1 + 0.9*mask, where mask is the soft packed-alpha fraction. Where that fraction is 0 the target colour is ignored and only alpha is penalized. At boundary pixels with fraction 0.25, 0.5 or 0.75 the box-averaged target still contains outside-mask sites, so outside-mask target colour enters in proportion to the fraction. In that band the families differ: the mask-contained teacher is black at outside sites, uncontained teachers extrapolate foreground colour, and photographs contain the room background. This band difference is in scope for H2 and must be named in the audit.",
+  "training_masks": "All arms: packed training alpha from the no_boundary compact views, decode_alpha_grid(downscale=8, supersample=2) as a soft fraction. prepare aborts unless, for every training view, the packed alpha equals the thresholded lossless source mask pixel for pixel, every field family's compact view records the sealed photograph and mask SHA-256 it was fitted to, and no training pixel with soft alpha > 0 lies partly outside any family's fit window; the same tensor is used by every arm.",
   "premultiplied_arm": "nb_rand_pm target = decoded field color times the same soft training alpha, black outside; use_masks=False, random_background=False.",
   "teacher_qualification": "Report, not gate: mean training-view foreground PSNR of each decoded field family against identically sampled photographs inside the training mask.",
   "decoder_parity": "Per training view and field family: 512 in-window sites from torch.Generator seed 926100 + training-view index; CPU index vs reference scan max abs <= 1e-5 and CUDA vs CPU index <= 2e-5, else abort before fitting.",
@@ -603,7 +603,7 @@
   "bounds": "rtgs.data.calibrated._object_bounds on the 22 downscale-8 training cameras and their soft packed training alpha thresholded at 0.5; extent is the full diameter; identical in every cell.",
   "random": "20000 points uniform in the ball of radius 0.5 x extent about the bound center (float64 draws from the paired seed), isotropic scale equal to the mean nearest-neighbour distance, opacity 0.1, colour 0.5 gray.",
   "alpha_hull": "Packed-alpha visual hull on a 128^3 grid over the bound cube: voxels whose center projects in-frame with soft alpha >= 0.5 in every training view; up to 20000 shell voxels chosen by paired seed; isotropic scale one voxel; opacity 0.1; colour = mean of the arm's own training targets sampled at the projected center (field arms: decoded fields; photograph arms: photographs). Abort if fewer than 1000 voxels or the hull touches a cube face.",
-  "sharing": "The random initialization is byte-identical across all random cells of one seed; the hull geometry is identical across hull cells of one seed and differs only in colour by target family. The hull shell on this frame is smaller than n_points (a non-protocol training-view smoke found 7740 shell voxels), so hull cells start with fewer Gaussians than random cells; H3 therefore compares initializers including their initial count and remains descriptive.",
+  "sharing": "The random initialization is byte-identical across all random cells of one seed; the hull geometry is identical across hull cells of one seed and differs only in colour by target family. The hull shell on this frame is smaller than n_points (a non-protocol training-view smoke found 7740 shell voxels), so hull cells start with fewer Gaussians than random cells; H3 therefore compares initializers including their initial count and remains descriptive. Random points use the mean nearest-neighbour distance as isotropic scale; hull points use one voxel.",
   "grid": 128,
   "n_points": 20000,
   "hull_minimum_points": 1000
@@ -675,7 +675,7 @@
     "profile_density_events": false,
     "eval_every": 500,
     "internal_checkpoint_evaluation": false,
-    "reset_cuda_peak_stats": true,
+    "reset_cuda_peak_stats": false,
     "checkpoint_policy": "final",
     "target_sh_degree": 3,
     "sh_degree_interval": 1000,
@@ -759,7 +759,7 @@
     "profile_density_events": false,
     "eval_every": 500,
     "internal_checkpoint_evaluation": false,
-    "reset_cuda_peak_stats": true,
+    "reset_cuda_peak_stats": false,
     "checkpoint_policy": "final",
     "target_sh_degree": 3,
     "sh_degree_interval": 1000,
@@ -843,7 +843,7 @@
     "profile_density_events": false,
     "eval_every": 500,
     "internal_checkpoint_evaluation": false,
-    "reset_cuda_peak_stats": true,
+    "reset_cuda_peak_stats": false,
     "checkpoint_policy": "final",
     "target_sh_degree": 3,
     "sh_degree_interval": 1000,
@@ -929,7 +929,7 @@
     "profile_density_events": false,
     "eval_every": 500,
     "internal_checkpoint_evaluation": false,
-    "reset_cuda_peak_stats": true,
+    "reset_cuda_peak_stats": false,
     "checkpoint_policy": "final",
     "target_sh_degree": 3,
     "sh_degree_interval": 1000,
@@ -1013,7 +1013,7 @@
     "profile_density_events": false,
     "eval_every": 500,
     "internal_checkpoint_evaluation": false,
-    "reset_cuda_peak_stats": true,
+    "reset_cuda_peak_stats": false,
     "checkpoint_policy": "final",
     "target_sh_degree": 3,
     "sh_degree_interval": 1000,
@@ -1097,7 +1097,7 @@
     "profile_density_events": false,
     "eval_every": 500,
     "internal_checkpoint_evaluation": false,
-    "reset_cuda_peak_stats": true,
+    "reset_cuda_peak_stats": false,
     "checkpoint_policy": "final",
     "target_sh_degree": 3,
     "sh_degree_interval": 1000,
@@ -1152,11 +1152,11 @@
  },
  "decision_policy": {
   "g0_photo_reference": "ph_rand_ms foreground PSNR >= 24.0 dB in every seed and recognizable complete subject in the independent visual audit. If it fails, H1/H2 are reported as inconclusive.",
-  "h1_main_path": "Pass iff for every paired seed: nb_rand_ms foreground PSNR >= ph_rand_ms - 0.5 dB, crop LPIPS <= ph_rand_ms + 0.02, outside_alpha_mass <= ph_rand_ms + 0.005.",
-  "h2_teacher_containment": "Pass iff for every paired seed nb_rand_ms foreground PSNR >= mc_rand_ms + 0.2 dB and outside_alpha_mass <= mc_rand_ms + 0.005; reverse inequality in every seed rejects; otherwise inconclusive. Count confound stated in claim_boundary.",
+  "h1_main_path": "Pass iff for every paired seed: nb_rand_ms foreground PSNR >= ph_rand_ms foreground PSNR - 0.5 dB, nb_rand_ms crop LPIPS <= ph_rand_ms crop LPIPS + 0.02, nb_rand_ms outside_alpha_mass <= ph_rand_ms outside_alpha_mass + 0.005 (evaluated in this written form); otherwise fail.",
+  "h2_teacher_containment": "Pass iff for every paired seed nb_rand_ms foreground PSNR >= mc_rand_ms foreground PSNR + 0.2 dB and nb_rand_ms outside_alpha_mass <= mc_rand_ms outside_alpha_mass + 0.005. Reject iff for every paired seed nb_rand_ms foreground PSNR <= mc_rand_ms foreground PSNR - 0.2 dB and nb_rand_ms outside_alpha_mass >= mc_rand_ms outside_alpha_mass - 0.005. Otherwise inconclusive. Inequalities are evaluated in this written form. Count confound stated in claim_boundary.",
   "h3_h4": "Descriptive with paired deltas; no pass/fail promotion.",
   "consequence": "A pass keeps the RTGS-025 main path and selects the uncontained teacher family for the next task; no default promotion from this development screen.",
-  "stopping": "Fixed final 8000 steps; no metric-based early stopping. Abort a cell on non-finite values, CUDA OOM or 3600 s wall; preserve the failure and completed cells; stop the matrix on the first execution failure."
+  "stopping": "Fixed final 8000 steps; no metric-based early stopping. Abort a cell on non-finite values, CUDA OOM or 3600 s wall; preserve the failure and completed cells; stop the matrix on the first execution failure. The coordinator preflights CUDA, gsplat and the LPIPS evaluator before the first protected worker and records a timed_out receipt for a killed fitting worker."
  },
  "execution_order": {
   "cells": [
@@ -1275,7 +1275,7 @@
     "pyproject.toml"
    ],
    "file_count": 118,
-   "aggregate_sha256": "b924ea17f43cd8d8a9041ccc5b76a4a1d8ff8d4e2d535ea25ba4af937e24b77d"
+   "aggregate_sha256": "587419c468566af2a1a3181f992012a00eff253a5942950e3bfd90be74dab206"
   },
   "live_integrity_policy": {
    "verify_source_at_coordinator_worker_and_bundle": true,

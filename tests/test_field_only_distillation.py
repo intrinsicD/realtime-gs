@@ -197,3 +197,19 @@ def test_selftest_denies_forbidden_worker_opens() -> None:
     )
     result = json.loads(completed.stdout.strip().splitlines()[-1])
     assert result["field_worker_input_guard"] == "5 forbidden open probes denied"
+
+
+def test_publish_refuses_non_canonical_run_root(report, task, tmp_path) -> None:
+    with pytest.raises(ValueError, match="canonical run root"):
+        report.publish(task, tmp_path)
+
+
+def test_environment_record_uses_installed_distributions(driver, tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(driver.torch.cuda, "get_device_name", lambda _index: "test-device")
+    driver.write_environment(tmp_path)
+    environment = json.loads((tmp_path / "environment.json").read_text())
+    assert environment["packages"]["rtgs"] != "not-installed"
+    assert set(environment) == {"schema_version", "python", "platform", "packages", "device"}
+    before = (tmp_path / "environment.json").read_bytes()
+    driver.write_environment(tmp_path)
+    assert (tmp_path / "environment.json").read_bytes() == before

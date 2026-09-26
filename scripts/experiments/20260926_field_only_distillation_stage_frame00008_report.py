@@ -76,21 +76,28 @@ def gates(task: dict, cells: list[dict]) -> dict:
         {"seed": s, "pass": _cell(cells, "ph_rand_ms", s)["foreground_psnr"] >= 24.0} for s in seeds
     ]
     g0 = all(row["pass"] for row in g0_rows)
-    h1_rows = []
-    for row in _paired(cells, seeds, "nb_rand_ms", "ph_rand_ms"):
-        d = row["delta"]
-        row["pass"] = (
-            d["foreground_psnr"] >= -0.5
-            and d["crop_lpips"] <= 0.02
-            and d["outside_alpha_mass"] <= 0.005
+    h1_rows, h2_rows = [], []
+    for seed in seeds:
+        nb, ph, mc = (_cell(cells, c, seed) for c in ("nb_rand_ms", "ph_rand_ms", "mc_rand_ms"))
+        h1_rows.append(
+            {
+                "seed": seed,
+                "delta": {key: nb[key] - ph[key] for key in nb},
+                "pass": nb["foreground_psnr"] >= ph["foreground_psnr"] - 0.5
+                and nb["crop_lpips"] <= ph["crop_lpips"] + 0.02
+                and nb["outside_alpha_mass"] <= ph["outside_alpha_mass"] + 0.005,
+            }
         )
-        h1_rows.append(row)
-    h2_rows = []
-    for row in _paired(cells, seeds, "nb_rand_ms", "mc_rand_ms"):
-        d = row["delta"]
-        row["pass"] = d["foreground_psnr"] >= 0.2 and d["outside_alpha_mass"] <= 0.005
-        row["reverse"] = d["foreground_psnr"] <= -0.2 and d["outside_alpha_mass"] >= -0.005
-        h2_rows.append(row)
+        h2_rows.append(
+            {
+                "seed": seed,
+                "delta": {key: nb[key] - mc[key] for key in nb},
+                "pass": nb["foreground_psnr"] >= mc["foreground_psnr"] + 0.2
+                and nb["outside_alpha_mass"] <= mc["outside_alpha_mass"] + 0.005,
+                "reverse": nb["foreground_psnr"] <= mc["foreground_psnr"] - 0.2
+                and nb["outside_alpha_mass"] >= mc["outside_alpha_mass"] - 0.005,
+            }
+        )
     if not g0:
         h1, h2 = "inconclusive", "inconclusive"
     else:
@@ -246,6 +253,8 @@ def row_means(rows: list[dict], names: list[str], keys: list[str]) -> dict:
 def publish(task: dict, run: Path) -> dict:
     """Build repeatable report sources and once-only pre-audit result records."""
     run = run.resolve()
+    if run != ROOT / "runs" / task["task_id"]:
+        raise ValueError("only the canonical run root may publish evidence")
     preparation = read(run / "preparation.json")
     initialization = read(run / "initialization.json")
     metric_keys = [item["id"] for item in task["primary_metrics"]]

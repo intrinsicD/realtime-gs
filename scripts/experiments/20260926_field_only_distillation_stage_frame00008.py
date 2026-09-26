@@ -157,7 +157,7 @@ def access_guard(task: dict, phase: str, condition: str | None = None) -> dict:
     Held-out photographs, masks and compact views are readable only in ``evaluate``.
     """
     frame = (ROOT / task["datasets"][0]["frame_path"]).resolve()
-    targets = ROOT / "runs" / task["task_id"] / "targets"
+    targets = (ROOT / "runs" / task["task_id"] / "targets").resolve()
     heldout = set(task["splits"][DATASET]["heldout"])
     family = CONDITIONS[condition][0] if condition else None
     receipt = {"phase": phase, "condition": condition, "dataset_opens": [], "denied": []}
@@ -169,7 +169,7 @@ def access_guard(task: dict, phase: str, condition: str | None = None) -> dict:
     def audit(event, args):
         if event != "open" or not args or not isinstance(args[0], (str, bytes, os.PathLike)):
             return
-        path = Path(os.fsdecode(args[0])).absolute()
+        path = Path(os.fsdecode(args[0])).resolve()
         if phase == "fit" and path.is_relative_to(targets):
             relative = path.relative_to(targets)
             allowed = {family, MASKS}
@@ -393,6 +393,10 @@ def prepare(task: dict, run: Path) -> None:
     field_families = [f for f in families(task) if f != PHOTOGRAPHS]
     cameras, masks, records = [], [], []
     teacher_rows: dict[str, list] = {family: [] for family in field_families}
+    frame = task["datasets"][0]["frame_path"]
+    sealed = {item["path"]: item["sha256"] for item in read_json(ROOT / task["data_seal"])["files"]}
+    source_digests = {v: sealed[f"{frame}/rgb/{v}.jpg"] for v in train}
+    mask_digests = {v: sealed[f"{frame}/mask/mask_{v}.png"] for v in train}
     for index, view_id in enumerate(train):
         print(f"prepare {index + 1}/{len(train)} {view_id}", flush=True)
         source = load_source(task, view_id)
@@ -420,8 +424,17 @@ def prepare(task: dict, run: Path) -> None:
             view = load_view(task, family, view_id, load_alpha=False)
             if camera_record(view.camera) != camera_record(full_camera):
                 raise RuntimeError(f"{family}/{view_id} camera mismatch")
+            for kind, expected in (
+                ("rgb", source_digests[view_id]),
+                ("mask", mask_digests[view_id]),
+            ):
+                if view.source[kind]["sha256"] != expected:
+                    raise RuntimeError(f"{family}/{view_id} was not fitted to the sealed {kind}")
             parity = parity_record(view, 926100 + index)
             decoded = decode_compact_view(view, downscale=factor, supersample=2, backend="cuda")
+            clipped = int(((soft > 0) & (decoded.coverage < 1)).sum())
+            if clipped:
+                raise RuntimeError(f"{family}/{view_id}: fit window clips {clipped} mask pixels")
             np.savez(_path(target_dir / family / f"{view_id}.npz"), color=decoded.color.numpy())
             error = (decoded.color - photo).square().mean(-1)[inside].mean().clamp_min(1e-12)
             teacher_rows[family].append(
@@ -431,6 +444,8 @@ def prepare(task: dict, run: Path) -> None:
                 **parity,
                 "n_gaussians": view.observation.n,
                 "compact_sha256": view.sha256,
+                "mask_pixels_outside_fit_window": clipped,
+                "source_digests_match_seal": True,
             }
         cameras.append(camera)
         masks.append(soft)
@@ -860,17 +875,27 @@ def snapshot_source(task: dict, run: Path) -> None:
             "git_diff_sha256": hashlib.sha256(diff).hexdigest(),
         },
     )
-    from importlib.metadata import version
 
+
+def write_environment(run: Path) -> None:
+    """Record the execution environment; written on every start that lacks it."""
+    from importlib.metadata import PackageNotFoundError, version
+
+    if (run / "environment.json").exists():
+        return
+    packages = {}
+    for name in ("torch", "numpy", "gsplat", "lpips", "rtgs"):
+        try:
+            packages[name] = version(name)
+        except PackageNotFoundError:
+            packages[name] = "not-installed"
     write_json(
         run / "environment.json",
         {
             "schema_version": 1,
             "python": platform.python_version(),
             "platform": platform.platform(),
-            "packages": {
-                name: version(name) for name in ("torch", "numpy", "gsplat", "lpips", "realtime-gs")
-            },
+            "packages": packages,
             "device": {
                 "type": "cuda",
                 "name": torch.cuda.get_device_name(0),
@@ -880,10 +905,24 @@ def snapshot_source(task: dict, run: Path) -> None:
     )
 
 
+def preflight() -> dict:
+    """Fail before any protected worker if CUDA, gsplat or the LPIPS evaluator is unusable."""
+    if not torch.cuda.is_available():
+        raise RuntimeError("CUDA unavailable: no CPU fallback in this protocol")
+    import gsplat
+
+    model = lpips_model()
+    probe = torch.rand(1, 3, 32, 32, device="cuda:0")
+    with torch.no_grad():
+        value = float(model(probe, probe.flip(-1), normalize=True))
+    if not math.isfinite(value):
+        raise RuntimeError("LPIPS preflight produced a nonfinite value")
+    del model
+    torch.cuda.empty_cache()
+    return {"cuda": torch.cuda.get_device_name(0), "gsplat": gsplat.__version__, "lpips": value}
+
+
 def coordinate(task_path: Path, task: dict, run: Path) -> None:
-    snapshot_source(task, run)
-    source_guard(task_path, task, run)
-    write_json(run / "input_integrity_entry.json", data_guard(task))
     split_digest = hashlib.sha256(json.dumps(task["splits"], sort_keys=True).encode()).hexdigest()
     logs = run / "logs"
     logs.mkdir(exist_ok=True)
@@ -912,11 +951,30 @@ def coordinate(task_path: Path, task: dict, run: Path) -> None:
             )
 
     try:
+        snapshot_source(task, run)
+        write_environment(run)
+        source_guard(task_path, task, run)
+        write_json(run / "input_integrity_entry.json", data_guard(task))
+        write_json(run / "preflight.json", preflight())
         worker("prepare")
         worker("initialize")
         for condition, seed in task["execution_order"]["cells"]:
             print(f"starting {condition}/{seed}", flush=True)
-            worker("fit", condition, seed)
+            try:
+                worker("fit", condition, seed)
+            except subprocess.TimeoutExpired:
+                cell = run / "cells" / condition / str(seed)
+                cell.mkdir(parents=True, exist_ok=True)
+                write_json(
+                    cell / "receipt.json",
+                    {
+                        "condition": condition,
+                        "seed": seed,
+                        "status": "timed_out",
+                        "timeout_s": 3600,
+                    },
+                )
+                raise
         worker("evaluate")
         source_guard(task_path, task, run)
         write_json(
