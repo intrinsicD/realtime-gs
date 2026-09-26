@@ -6,13 +6,13 @@
  "task_slug": "field_only_distillation",
  "data_slug": "stage_frame00008",
  "arm": "rgb_3dgs",
- "status": "draft",
+ "status": "blocked",
  "owner": "Claude-Code-Opus-5.5-driver",
  "protocol_review": {
-  "reviewer": null,
-  "verdict": "pending",
-  "protocol_sha256": null,
-  "artifact": null
+  "reviewer": "Claude-Code-Fable-5.1-reviewer",
+  "verdict": "rejected",
+  "protocol_sha256": "ef904cd749a80de5f25b9c6706cc705617aebfe56bd0b16912695626a99e44af",
+  "artifact": "experiments/reviews/20260926_field_only_distillation_stage_frame00008_PROTOCOL_REVIEW.md"
  },
  "depends_on": [],
  "title": "Field-only photometric distillation with mask-restricted color and silhouette supervision on Janelle frame 00008",
