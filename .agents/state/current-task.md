@@ -11,8 +11,8 @@ RTGS-025
 ## Role Assignment
 
 - Driver: Claude-Code-Opus-5.5-driver
-- Reviewer: Claude-Code-Opus-5.5-driver
-- Turn: driver
+- Reviewer: Claude-Code-Fable-5.1-reviewer
+- Turn: reviewer
 
 ## Mode
 
@@ -83,7 +83,7 @@ RTGS-016 (C43), RTGS-021 (C47), RTGS-024 (C48) and the unregistered 2026-09-26 d
 
 ## Status
 
-In progress
+In review
 
 ## Human Decisions
 
@@ -264,3 +264,43 @@ No driver, source binding, prospective review, init-run or outcome access.
 #### Recommended Next Action
 Implement the driver and its CPU contract tests, freeze `source_binding`, then obtain a distinct
 prospective reviewer named/authorized by the user.
+
+### Human decision and handoff (2026-09-26, driver for prospective review)
+
+#### Objective
+The user asked to implement the driver and named Fable 5.1 as the prospective reviewer
+(label `Claude-Code-Fable-5.1-reviewer`).
+
+#### Reviewed state
+Task `experiments/tasks/20260926_field_only_distillation_stage_frame00008.json`, status draft,
+protocol digest `ef904cd749a80de5f25b9c6706cc705617aebfe56bd0b16912695626a99e44af`, source binding
+118 files, aggregate `b924ea17f43cd8d8a9041ccc5b76a4a1d8ff8d4e2d535ea25ba4af937e24b77d`.
+
+#### Changes
+Driver `scripts/experiments/20260926_field_only_distillation_stage_frame00008.py`, report module
+`..._report.py`, CPU contract tests `tests/test_field_only_distillation.py`; protocol gained
+machine-readable initialization parameters, the mask family, decoder parity seeds, the
+source binding, and two disclosed boundary notes.
+
+#### Evidence
+Focused tests pass on CPU and GPU; `./scripts/verify.sh` exit 0. A non-protocol GPU smoke in
+`.scratch/` (60 iterations, one seed, two training views standing in for held-out) exercised
+prepare, initialize, all seven fit conditions, evaluate and the gate code end to end.
+
+#### Assumptions
+Each phase runs in a fresh worker process; the audit-hook guards are per process (the smoke
+confirmed the prepare guard denies later held-out opens within the same process).
+
+#### Uncertainties
+The smoke exposed training-view teacher fidelity to the Driver before review (disclosed in the
+claim boundary; thresholds unchanged). The alpha hull has fewer shell voxels than n_points.
+
+#### Review Focus
+Leakage boundaries per phase; mask-restricted scoring; gate inequalities; init count confound;
+whether the smoke disclosure affects approval.
+
+#### Protected actions not taken
+No init-run, protected execution, held-out access or outcome inspection.
+
+#### Recommended Next Action
+Fable 5.1 prospective protocol review of the exact digest.

@@ -18,7 +18,7 @@
  "title": "Field-only photometric distillation with mask-restricted color and silhouette supervision on Janelle frame 00008",
  "question": "Trained only from decoded compact 2D Gaussian fields, their cameras and the packed training alpha, with color supervised inside the mask and a silhouette term outside, does a random-initialized 3DGS match photograph supervision inside held-out masks without more floaters, and does a teacher fitted without mask containment beat the mask-contained teacher?",
  "hypothesis": "H1: no_boundary/random/masked-silhouette is within 0.5 dB held-out foreground PSNR and 0.02 masked-crop LPIPS of photographs/random/masked-silhouette in every paired seed, with outside-mask alpha mass at most 0.005 above it. H2: no_boundary beats mask_contained by at least 0.2 dB foreground PSNR in every paired seed without higher outside-mask alpha mass. H3 (descriptive): random initialization is not worse than the alpha visual hull by more than 0.5 dB. H4 (descriptive): the silhouette objective lowers outside-mask alpha mass relative to the premultiplied-black objective.",
- "claim_boundary": "Development screen on one previously outcome-exposed frame (RTGS-021/024 used it), one train/held-out split, three paired seeds and one fixed 8000-step budget at downscale 8. Packed training alpha is mask-derived and is used for supervision and the hull; this is field-plus-silhouette, not strictly Gaussian-only reconstruction. Held-out photographs and masks are evaluation-only. no_boundary retains 5000-8592 Gaussians per view versus 11000 for mask_contained and gaussianimage, and uses a different topology schedule outcome, so H2 compares teacher families, not containment alone. No default, SOTA, generalization, physical-geometry or speed claim.",
+ "claim_boundary": "Development screen on one previously outcome-exposed frame (RTGS-021/024 used it), one train/held-out split, three paired seeds and one fixed 8000-step budget at downscale 8. Packed training alpha is mask-derived and is used for supervision and the hull; this is field-plus-silhouette, not strictly Gaussian-only reconstruction. Held-out photographs and masks are evaluation-only. no_boundary retains 5000-8592 Gaussians per view versus 11000 for mask_contained and gaussianimage, and uses a different topology schedule outcome, so H2 compares teacher families, not containment alone. No default, SOTA, generalization, physical-geometry or speed claim. Before protocol review, a non-protocol driver smoke on training views only exposed training-view teacher fidelity to the Driver; no reconstruction or held-out outcome was observed and no threshold changed afterwards.",
  "evidence_phase": "development",
  "datasets": [
   {
@@ -229,11 +229,7 @@
   "--run-dir",
   "runs/20260926_field_only_distillation_stage_frame00008"
  ],
- "blockers": [
-  "The task driver scripts/experiments/20260926_field_only_distillation_stage_frame00008.py and its CPU contract tests are not implemented yet.",
-  "frozen_configuration.source_binding must be computed after the driver exists.",
-  "Distinct prospective protocol review pending; the user must name/authorize the reviewer."
- ],
+ "blockers": [],
  "field_inputs": {
   "no_boundary": {
    "directory": "dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_structsplat_no_boundary_fullres",
@@ -600,13 +596,17 @@
   "training_masks": "All arms: packed training alpha from the no_boundary compact views, decode_alpha_grid(downscale=8, supersample=2) as a soft fraction. The packed crops are required to equal the thresholded lossless source masks; this equality is checked once for the photograph arms, which otherwise use the identical tensor.",
   "premultiplied_arm": "nb_rand_pm target = decoded field color times the same soft training alpha, black outside; use_masks=False, random_background=False.",
   "teacher_qualification": "Report, not gate: mean training-view foreground PSNR of each decoded field family against identically sampled photographs inside the training mask.",
-  "decoder_parity": "Per training view: 512 fixed-seed in-window sites, CUDA index vs CPU index max abs <= 2e-5 and CPU index vs reference scan <= 1e-5; failure aborts before fitting."
+  "decoder_parity": "Per training view and field family: 512 in-window sites from torch.Generator seed 926100 + training-view index; CPU index vs reference scan max abs <= 1e-5 and CUDA vs CPU index <= 2e-5, else abort before fitting.",
+  "mask_family": "no_boundary"
  },
  "initialization": {
-  "bounds": "Object bounds from the 22 training cameras and their packed training alpha (rtgs.data.calibrated._object_bounds with those masks); identical in every cell.",
-  "random": "20000 points uniform in the ball of radius 0.5 x extent about the bound center, paired-seed RNG; isotropic scale equal to the mean nearest-neighbour distance; opacity 0.1; SH0 color 0.5 gray.",
+  "bounds": "rtgs.data.calibrated._object_bounds on the 22 downscale-8 training cameras and their soft packed training alpha thresholded at 0.5; extent is the full diameter; identical in every cell.",
+  "random": "20000 points uniform in the ball of radius 0.5 x extent about the bound center (float64 draws from the paired seed), isotropic scale equal to the mean nearest-neighbour distance, opacity 0.1, colour 0.5 gray.",
   "alpha_hull": "Packed-alpha visual hull on a 128^3 grid over the bound cube: voxels whose center projects in-frame with soft alpha >= 0.5 in every training view; up to 20000 shell voxels chosen by paired seed; isotropic scale one voxel; opacity 0.1; colour = mean of the arm's own training targets sampled at the projected center (field arms: decoded fields; photograph arms: photographs). Abort if fewer than 1000 voxels or the hull touches a cube face.",
-  "sharing": "The random initialization is byte-identical across all random cells of one seed; the hull geometry is identical across hull cells of one seed and differs only in colour by target family."
+  "sharing": "The random initialization is byte-identical across all random cells of one seed; the hull geometry is identical across hull cells of one seed and differs only in colour by target family. The hull shell on this frame is smaller than n_points (a non-protocol training-view smoke found 7740 shell voxels), so hull cells start with fewer Gaussians than random cells; H3 therefore compares initializers including their initial count and remains descriptive.",
+  "grid": 128,
+  "n_points": 20000,
+  "hull_minimum_points": 1000
  },
  "training": {
   "iterations": 8000,
@@ -1258,5 +1258,28 @@
   "selected_model": "nb_rand_ms seed 9261, fixed before outcomes",
   "selection": "No best-model selection."
  },
- "source_lifecycle": "Development init-run --development; archive the exact executed source under the canonical run before the first cell; no source mutation during execution."
+ "source_lifecycle": "Development init-run --development; archive the exact executed source under the canonical run before the first cell; no source mutation during execution.",
+ "frozen_configuration": {
+  "source_binding": {
+   "patterns": [
+    "src/rtgs/**/*.py",
+    "src/rtgs/**/*.cu",
+    "src/rtgs/**/*.cpp",
+    "src/rtgs/**/*.h",
+    "scripts/experiment_contract.py",
+    "scripts/check_results_bundle.py",
+    "scripts/experiments/20260926_field_only_distillation_stage_frame00008.py",
+    "scripts/experiments/20260926_field_only_distillation_stage_frame00008_report.py",
+    "tests/test_field_only_distillation.py",
+    "tests/test_field_targets.py",
+    "pyproject.toml"
+   ],
+   "file_count": 118,
+   "aggregate_sha256": "b924ea17f43cd8d8a9041ccc5b76a4a1d8ff8d4e2d535ea25ba4af937e24b77d"
+  },
+  "live_integrity_policy": {
+   "verify_source_at_coordinator_worker_and_bundle": true,
+   "verify_full_data_seal_at_coordinator_entry_exit_and_bundle": true
+  }
+ }
 }
