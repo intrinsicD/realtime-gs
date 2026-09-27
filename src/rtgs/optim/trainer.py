@@ -302,6 +302,9 @@ class Trainer:
             Callable[[torch.Tensor, torch.Tensor, torch.Tensor, int], None] | None
         ) = None,
         density_surgery_callback: (Callable[[torch.Tensor, torch.Tensor, int], None] | None) = None,
+        parameter_step_callback: (
+            Callable[[dict[str, torch.Tensor], dict[str, torch.optim.Optimizer], int], None] | None
+        ) = None,
     ) -> tuple[Gaussians3D, dict]:
         """Run optimization and return ``(refined, history)``.
 
@@ -321,6 +324,11 @@ class Trainer:
         ``density_surgery_callback`` receives detached ``(keep_mask, parent_rows, step)`` records
         after each classic-controller edit, allowing opt-in lineage diagnostics without changing
         density decisions or optimizer surgery.
+        ``parameter_step_callback`` is an opt-in research seam that receives the live raw
+        parameter and optimizer dictionaries plus the completed step under ``torch.no_grad`` after
+        the optimizer step and density control of every iteration. It may edit parameter rows in
+        place and their optimizer state (for example ``SilhouetteRelocator``) but must not change
+        the Gaussian count. The default ``None`` path is unchanged.
         """
         from rtgs.optim.strategies import (
             GsplatStrategyController,
@@ -892,6 +900,13 @@ class Trainer:
                     optimizers["means"].param_groups[0]["lr"],
                     cfg.packed,
                 )
+
+            if parameter_step_callback is not None:
+                count = params["means"].shape[0]
+                with torch.no_grad():
+                    parameter_step_callback(params, optimizers, completed_step)
+                if params["means"].shape[0] != count:
+                    raise RuntimeError("parameter_step_callback must not change the Gaussian count")
 
             if completed_step % cfg.eval_every == 0 or local_it == cfg.iterations - 1:
                 should_stop = False

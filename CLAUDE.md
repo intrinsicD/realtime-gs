@@ -120,7 +120,8 @@ src/rtgs/
                priority-ranked update masking); ADR-YYYY init_density.py
                (three-channel appearance-preserving growth) + init_trust.py (trust schedule);
                carrier_schedule.py (ADR-002 compact fixed-topology two-phase maturation +
-               strict fitting-view projected-center containment)
+               strict fitting-view projected-center containment); silhouette_relocation.py (RTGS-026 opt-in
+               all-mask visual-hull floater relocation via parameter_step_callback)
   data/        scenes/loaders plus compact_views.py capped view bundles; field_inputs.py
                explicit compact train/heldout seam; field_targets.py fast indexed/CUDA decode of
                compact views into dense photometric targets (RTGS-025 main path); reconstruction_inputs.py fixed-topology seam
