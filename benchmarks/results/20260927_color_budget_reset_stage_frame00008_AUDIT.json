@@ -1,0 +1,511 @@
+{
+  "schema_version": 1,
+  "task_id": "20260927_color_budget_reset_stage_frame00008",
+  "task_record": "RTGS-028",
+  "reviewer": "Claude-Code-Fable-5.1-reviewer",
+  "model": "claude-fable-5-1",
+  "self_reviewed": false,
+  "verdict": "accepted_with_limits",
+  "protocol_sha256": "7a55197b8d83df6c241b41fd9037acc4e6cd4f93bc101e26e463231e68b096b9",
+  "outcome_access": "full post-run results audit",
+  "audited_at": "2026-09-28",
+  "authorization": {
+    "payload_manifest_sha256": "f473cc3d437747e5a1aec553d9801b26f76ea71a6b1dd976474fb7ec901219b0",
+    "manifest_items": 111,
+    "previews_viewed": 19,
+    "all_item_hashes_match": true
+  },
+  "bindings": {
+    "task_sha256": "8f7c6fc33ac1b098e473bedc0cc53ee441900476a23723e39f50cb0a6553b7c8",
+    "protocol_review_artifact_sha256": "331b1db6b829ca36b41513de6d8c8de0a0a598798850902d8251e657f4736141",
+    "data_seal_sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087",
+    "source_commit": "14281753c4544a0841236aa80ead3006e35e9b0e",
+    "source_dirty": false,
+    "lock_source_diff_sha256_equals_clean_tree_no_untracked": true,
+    "snapshot_entries_verified_against_live_tree": 122,
+    "source_binding_file_count": 120,
+    "source_binding_aggregate_sha256": "28b7fb80b74d1b520e9ec176e0e9161d6c81ec699868340c43f6736158486af5",
+    "sealed_inputs_verified": 81,
+    "split_sha256": "150a365952b69296c9dab14a15787064b03e2415caef044e117d1d73306b2452",
+    "review_digest_reproduced": true,
+    "contract_validate": "OK",
+    "contract_validate_data": "OK",
+    "bound_cpu_tests": "15 collected, 14 passed, 1 skipped (CUDA)",
+    "result_md_sha256": "1ddef7f2722ba7de413fe54a9fb9e5ad4891a1dc2f8d5d848949b737d6c68a19",
+    "result_json_sha256": "c2a8dca1602c79223799fe132fd6dbacff80266a204f7a23e5a7a4e70fbccd9f"
+  },
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3050",
+    "torch": "2.9.0",
+    "cuda": "12.8",
+    "gsplat": "1.5.3",
+    "lpips": "0.1.4",
+    "python": "3.12.9"
+  },
+  "chronology": {
+    "approval_commit": "1428175 at 2026-09-27T20:52:49Z",
+    "lock_started_at_utc": "2026-09-27T20:53:42.073180+00:00",
+    "run_finished_at_utc": "2026-09-27T21:57:48.602962+00:00",
+    "prepare_s": [
+      3.086,
+      58.469
+    ],
+    "initialize_s": [
+      59.421,
+      61.098
+    ],
+    "fit_cells_s": [
+      62.553,
+      3791.776
+    ],
+    "evaluate_s": [
+      3803.365,
+      3844.914
+    ],
+    "single_invocation": true,
+    "execution_failure_present": false,
+    "sibling_run_roots": 0,
+    "fit_intervals_sequential_and_disjoint": true,
+    "heldout_opens_before_evaluate": 0
+  },
+  "official_gates": {
+    "recomputed_from": "72 per-view rows in cells/<condition>/<seed>/evaluation.json",
+    "agreement_with_producer": "group means, per-seed deltas and verdicts equal comparison.json and RESULT.json to 1e-12",
+    "group_means": {
+      "nb_8k_up": {
+        "foreground_psnr": 23.488748,
+        "crop_lpips": 0.145397,
+        "outside_alpha_mass": 0.001135,
+        "floater_fraction": 0.000834,
+        "interior_alpha": 0.999002
+      },
+      "nb_8k_rs": {
+        "foreground_psnr": 23.552471,
+        "crop_lpips": 0.145665,
+        "outside_alpha_mass": 0.001102,
+        "floater_fraction": 0.000849,
+        "interior_alpha": 0.999054
+      },
+      "nb_30k_up": {
+        "foreground_psnr": 22.768617,
+        "crop_lpips": 0.165498,
+        "outside_alpha_mass": 0.000927,
+        "floater_fraction": 0.000789,
+        "interior_alpha": 0.999061
+      },
+      "nb_30k_rs": {
+        "foreground_psnr": 22.731253,
+        "crop_lpips": 0.166686,
+        "outside_alpha_mass": 0.000942,
+        "floater_fraction": 0.000817,
+        "interior_alpha": 0.998985
+      },
+      "ph_8k_up": {
+        "foreground_psnr": 23.878357,
+        "crop_lpips": 0.129246,
+        "outside_alpha_mass": 0.001095,
+        "floater_fraction": 0.000845,
+        "interior_alpha": 0.999033
+      },
+      "ph_30k_rs": {
+        "foreground_psnr": 23.260886,
+        "crop_lpips": 0.140215,
+        "outside_alpha_mass": 0.000881,
+        "floater_fraction": 0.000785,
+        "interior_alpha": 0.998997
+      }
+    },
+    "h1_budget": {
+      "treatment": "nb_30k_up",
+      "control": "nb_8k_up",
+      "rule": "pass iff every seed dPSNR >= 0.2 and dLPIPS <= 0.005; reject iff every seed dPSNR <= -0.2",
+      "verdict": "reject",
+      "rows": [
+        {
+          "seed": 9461,
+          "d_foreground_psnr": -0.735061,
+          "d_crop_lpips": 0.02241,
+          "d_outside_alpha_mass": -0.000228,
+          "pass": false,
+          "reverse": true
+        },
+        {
+          "seed": 9462,
+          "d_foreground_psnr": -0.748869,
+          "d_crop_lpips": 0.021235,
+          "d_outside_alpha_mass": -0.000205,
+          "pass": false,
+          "reverse": true
+        },
+        {
+          "seed": 9463,
+          "d_foreground_psnr": -0.676461,
+          "d_crop_lpips": 0.016658,
+          "d_outside_alpha_mass": -0.00019,
+          "pass": false,
+          "reverse": true
+        }
+      ],
+      "per_view_psnr_deltas_negative": "12 of 12",
+      "per_view_psnr_delta_range": [
+        -1.231,
+        -0.381
+      ]
+    },
+    "h2_reset": {
+      "treatment": "nb_30k_rs",
+      "control": "nb_30k_up",
+      "rule": "pass iff every seed dPSNR >= 0.1, dLPIPS <= 0.005 and dOutsideAlpha <= 0.005; reject iff every seed dPSNR <= -0.1",
+      "verdict": "inconclusive",
+      "rows": [
+        {
+          "seed": 9461,
+          "d_foreground_psnr": -0.030763,
+          "d_crop_lpips": -0.000548,
+          "d_outside_alpha_mass": 2.3e-05,
+          "pass": false,
+          "reverse": false
+        },
+        {
+          "seed": 9462,
+          "d_foreground_psnr": -0.046946,
+          "d_crop_lpips": -0.000746,
+          "d_outside_alpha_mass": -7e-06,
+          "pass": false,
+          "reverse": false
+        },
+        {
+          "seed": 9463,
+          "d_foreground_psnr": -0.034384,
+          "d_crop_lpips": 0.004859,
+          "d_outside_alpha_mass": 2.9e-05,
+          "pass": false,
+          "reverse": false
+        }
+      ],
+      "per_view_psnr_delta_range": [
+        -0.191,
+        0.094
+      ]
+    },
+    "descriptive": {
+      "reset_at_8k_descriptive": {
+        "pair": [
+          "nb_8k_rs",
+          "nb_8k_up"
+        ],
+        "d_foreground_psnr": [
+          0.007533,
+          0.013394,
+          0.170242
+        ],
+        "d_crop_lpips": [
+          0.001092,
+          0.003214,
+          -0.0035
+        ],
+        "d_outside_alpha_mass": [
+          -6.6e-05,
+          -1e-05,
+          -2.2e-05
+        ]
+      },
+      "field_vs_photographs_8k_descriptive": {
+        "pair": [
+          "nb_8k_up",
+          "ph_8k_up"
+        ],
+        "d_foreground_psnr": [
+          -0.323472,
+          -0.431396,
+          -0.41396
+        ],
+        "d_crop_lpips": [
+          0.014471,
+          0.015466,
+          0.018515
+        ]
+      },
+      "field_vs_photographs_30k_reset_descriptive": {
+        "pair": [
+          "nb_30k_rs",
+          "ph_30k_rs"
+        ],
+        "d_foreground_psnr": [
+          -0.518954,
+          -0.498674,
+          -0.57127
+        ],
+        "d_crop_lpips": [
+          0.025413,
+          0.02415,
+          0.029851
+        ]
+      },
+      "photographs_30k_reset_vs_8k_descriptive": {
+        "pair": [
+          "ph_30k_rs",
+          "ph_8k_up"
+        ],
+        "d_foreground_psnr": [
+          -0.570342,
+          -0.728536,
+          -0.553535
+        ],
+        "d_crop_lpips": [
+          0.01092,
+          0.011806,
+          0.010182
+        ],
+        "couples_budget_and_reset": true,
+        "per_view_psnr_deltas_negative": "12 of 12"
+      }
+    },
+    "cells": {
+      "completed": 18,
+      "frozen_iterations_reached": true,
+      "initialization_digest_matched": true,
+      "effective_config_equals_frozen": true,
+      "training_sampled_only_train_indices_0_to_21": true,
+      "heldout_evaluation_during_training": 0,
+      "final_counts": {
+        "nb_8k_up": [
+          43504,
+          43303,
+          44433
+        ],
+        "nb_8k_rs": [
+          37410,
+          35677,
+          36512
+        ],
+        "nb_30k_up": [
+          73969,
+          73039,
+          72118
+        ],
+        "nb_30k_rs": [
+          35733,
+          37282,
+          37244
+        ],
+        "ph_8k_up": [
+          47004,
+          46639,
+          48023
+        ],
+        "ph_30k_rs": [
+          39203,
+          42144,
+          41178
+        ]
+      },
+      "wall_seconds_range_8k": [
+        77.3,
+        85.1
+      ],
+      "wall_seconds_range_30k": [
+        301.0,
+        365.2
+      ],
+      "timeout_s": 3600,
+      "timings_descriptive": true
+    },
+    "cap_100000": {
+      "reached_in_any_cell": false,
+      "pruned_to_budget_total": 0,
+      "max_live_count": 73969,
+      "max_live_cell": "nb_30k_up/9461"
+    },
+    "reset_events": {
+      "clock": "gsplat iteration g = completed_step - 1; events recorded at completed steps g + 1",
+      "value": 0.01,
+      "value_source": "2 * prune_opacity via IntendedOpacityReset.from_density; opacity_reset_value 0.011 unused on this path",
+      "nb_8k_rs": [
+        3000
+      ],
+      "nb_30k_rs": [
+        3000,
+        6000,
+        9000,
+        12000
+      ],
+      "ph_30k_rs": [
+        3000,
+        6000,
+        9000,
+        12000
+      ],
+      "nb_8k_up": [],
+      "nb_30k_up": [],
+      "ph_8k_up": [],
+      "matches_frozen_schedule_in_all_cells": true
+    },
+    "means_lr_horizon": {
+      "means_gamma_8k": 0.9994245193792801,
+      "means_gamma_30k": 0.9998465061085267,
+      "factor_30k_at_8000": 0.293,
+      "factor_30k_at_15000": 0.1,
+      "factor_30k_at_30000": 0.01,
+      "factor_8k_at_8000": 0.01,
+      "disclosed_in_result_md": false,
+      "disclosed_in_this_audit": true
+    },
+    "training_objective_descriptive": {
+      "nb_8k_up_9461_final_loss": 0.00184,
+      "nb_30k_up_9461_loss_at_7500_8000": 0.00172,
+      "nb_30k_up_9461_final_loss": 0.00075,
+      "note": "training objective fell while held-out PSNR fell; no training-view PSNR recorded; overfitting is a hypothesis"
+    }
+  },
+  "claim_dispositions": [
+    {
+      "id": "P1",
+      "statement": "18 paired development cells completed",
+      "disposition": "confirm"
+    },
+    {
+      "id": "P2",
+      "statement": "Field-only 23.489/22.769/22.731 dB; photographs 23.878/23.261 dB",
+      "disposition": "narrow",
+      "note": "numbers confirmed; three-seed means on one exposed frame; 23.261 is ph_30k_rs (budget and reset coupled)"
+    },
+    {
+      "id": "P3",
+      "statement": "H1 longer budget: reject",
+      "disposition": "narrow",
+      "note": "verdict confirmed; refutes the 30000-step package (iterations, densification to 15000, means-LR horizon) on this frame, not iteration count alone; mechanism unidentified"
+    },
+    {
+      "id": "P4",
+      "statement": "H2 intended opacity reset at 30000 steps: inconclusive",
+      "disposition": "confirm",
+      "note": "all seeds inside +/-0.1 dB; margins met; count halved with no measurable colour or floater change"
+    },
+    {
+      "id": "P5",
+      "statement": "Group metric table",
+      "disposition": "confirm",
+      "note": "interior alpha saturated and non-discriminating"
+    },
+    {
+      "id": "P6",
+      "statement": "Descriptive paired deltas",
+      "disposition": "confirm",
+      "note": "no verdicts; photograph pair couples budget and reset; reset-at-8k mean driven by seed 9463"
+    },
+    {
+      "id": "P7",
+      "statement": "30000-step budget also extends densification to step 15000",
+      "disposition": "narrow",
+      "note": "also changes the means-LR decay horizon"
+    },
+    {
+      "id": "P8",
+      "statement": "30000-step cells scale only iterations and the densification stop",
+      "disposition": "narrow",
+      "note": "silent on the derived means-LR schedule"
+    },
+    {
+      "id": "P9",
+      "statement": "upstream gsplat 1.5.3 never resets",
+      "disposition": "confirm"
+    },
+    {
+      "id": "P10",
+      "statement": "held-out masks are evaluation-only; alpha metrics out-of-sample",
+      "disposition": "confirm"
+    },
+    {
+      "id": "P11",
+      "statement": "targets decoded with the exact CPU tile index",
+      "disposition": "confirm"
+    },
+    {
+      "id": "P12",
+      "statement": "timings descriptive; no timing advantage inferred",
+      "disposition": "confirm"
+    },
+    {
+      "id": "P13",
+      "statement": "pre-review non-protocol smoke disclosure",
+      "disposition": "unresolved",
+      "note": "not verifiable from tracked state; no threshold changed after it"
+    },
+    {
+      "id": "P14",
+      "statement": "task-record pre-start claims (GPU canary, prior walls, GPU free at launch)",
+      "disposition": "unresolved",
+      "note": "not used as evidence; CPU canary and preflight version reproduced"
+    },
+    {
+      "id": "P15",
+      "statement": "root preview is the prospectively selected nb_30k_rs/9461 model",
+      "disposition": "confirm",
+      "note": "contact sheets byte-identical; root PLYs left to the bundle checker"
+    },
+    {
+      "id": "P16",
+      "statement": "visual adequacy and any promotion require the independent audit; no default changes",
+      "disposition": "confirm"
+    }
+  ],
+  "visual_disposition": {
+    "status": "adequate",
+    "cells_viewed": 18,
+    "root_preview_identity": "byte-identical to cells/nb_30k_rs/9461/reconstruction_contact_sheet.png",
+    "floaters": "a few faint isolated specks outside the silhouette in several 8000-step cells; 30000-step cells slightly cleaner outside, consistent with lower outside-alpha mass",
+    "halos": "none",
+    "shared_artifact": "magenta/white rim at the C0001 hem region in every cell of every arm (not treatment-related)",
+    "arm_differences": "subtle at contact-sheet scale; 30000-step error maps show more interior texture residual"
+  },
+  "limitations": [
+    "Development screen on one previously outcome-exposed frame (00008), one split (22 train / 4 held-out), downscale 8, three paired seeds; no generalization, default, SOTA, speed or VRAM claim.",
+    "H1 measures the 30000-step convention as a package: iterations, densification window (15000 vs 6000) and the derived means-LR horizon (29.3 percent at step 8000, 10 percent at 15000, 1 percent at 30000 vs 1 percent at 8000); the RESULT boundary text omits the LR horizon and cannot be edited, so this audit and the downstream records carry it.",
+    "The photograph budget pair couples budget and reset (no ph_30k_up arm).",
+    "No training-view PSNR was recorded; the overfitting interpretation of the budget effect rests only on the falling training objective and remains a hypothesis.",
+    "H2 is inconclusive: any reset effect on colour is below the 0.1 dB floor in all three seeds; benefit untested, harm not shown.",
+    "The Hard Rule 7 bundle (index.html, README.md, manifest.json, page smoke receipt, rtgs view receipt, check_results_bundle pass) does not exist yet; the run is not results-bearing until it does.",
+    "Timings on a local desktop GPU are descriptive; the Driver's launch note that the GPU was free is a claim, not a receipt.",
+    "LPIPS AlexNet weights and installed packages are recorded but not bound; the CUDA seam test and the Driver's GPU canary receipt were not reproduced here."
+  ],
+  "commands_executed_by_reviewer": [
+    "sha256sum .scratch/20260927_color_budget_reset_stage_frame00008/claude_results_audit/payload_manifest.json",
+    ".venv/bin/python -c <verify all 111 payload manifest item SHA-256 against disk>",
+    "git status --short; git log --oneline -8; git rev-parse HEAD",
+    "git log -4 --format='%h %cI %aI %s'; git rev-parse HEAD:<bound paths>; git diff --stat 1428175 HEAD; git status --porcelain --untracked-files=all",
+    ".venv/bin/python scripts/experiment_contract.py review-digest experiments/tasks/20260927_color_budget_reset_stage_frame00008.json",
+    ".venv/bin/python scripts/experiment_contract.py validate",
+    ".venv/bin/python scripts/experiment_contract.py validate-data experiments/tasks/20260927_color_budget_reset_stage_frame00008.json",
+    ".venv/bin/python -m pytest -q tests/test_color_budget_reset_protocol.py tests/test_gsplat_opacity_reset.py -rs",
+    ".venv/bin/python -c <recompute per-cell and group means, H1/H2 rules, descriptive pairs, per-view deltas, mask invariants, summary string from the 18 evaluation.json files>",
+    ".venv/bin/python -c <per-cell receipt, effective_config and history checks: status, initialization digest, frozen config equality, iterations, loss finiteness, reset events vs schedule, pruned_to_budget, max live count, sequential fit intervals, wall equality, loss means>",
+    ".venv/bin/python -c <snapshot manifest vs live tree, lock task/review/seal hashes, lock source_diff digest vs clean-tree constant, split digest>",
+    ".venv/bin/python -c <seal and field-input unique count, held-out coverage, means-LR gamma and factors, history means_lr_gamma, sampled_train_views range, held-out psnr entries, stop_reason>",
+    ".venv/bin/python -c <replicate build_source_binding by hashing the 120 pattern files; training_history record and marker counts; loss_terms decomposition>",
+    "Glob/Grep name and text listings: run root files, runs/*/task.lock.json, bundle file presence, RTGS-028 mentions in docs/ara, C49/C51 rows, O18x ids",
+    "Read: CLAUDE.md, results-audit skill, task JSON, protocol review, RTGS-027 record, current-task.md, driver, report, strategies.py 300-440, trainer.py excerpts, experiment_contract.py 1022-1101 and 1100-1219, both bound tests, RESULT.md/RESULT.json, all manifest run and cell records, 18 cell contact sheets"
+  ],
+  "denied_and_redone_in_allowed_form": [
+    "one heredoc Python script (re-run as python -c)",
+    "one combined python -c importing scripts/experiment_contract.py for build_source_binding/verify_source_binding/validate_task (replaced by plain-hashing replication and the CLI validate/validate-data)"
+  ],
+  "not_executed": [
+    "scripts/check_results_bundle.py",
+    "experiment_contract.py init-run / check-run / render or any report page rendering",
+    "driver run/prepare/initialize/fit/evaluate (protocol tests ran selftest and a guarded coordinate on a temporary root only)",
+    "any GPU work (CUDA not visible; CUDA seam test skipped)",
+    "./scripts/verify.sh, ruff, docs_sync.py, check_ara.py, check_agent_workflow.py",
+    "rtgs view",
+    "opening raw photographs, masks, .rtgsv, .npz, .ply, targets/, renders/, GIFs, logs/, source_snapshot/git-status.txt, tracked.diff, gaussians.config.json, the .scratch smoke directory, RTGS-025/026 RESULT and AUDIT records",
+    "any file modification, run root creation, checkpoint selection or RESULT edit"
+  ],
+  "remaining_handoff_checks": [
+    "Persist AUDIT.md and AUDIT.json verbatim; commit with the untracked RESULT files unchanged (hashes recorded in bindings).",
+    "Generate index.html, README.md and manifest.json from the shared schemas; record the page smoke receipt and the rtgs view receipt for the root nb_30k_rs/9461 PLYs; run scripts/check_results_bundle.py on the run root and cite its pass.",
+    "Confirm the bundle checker's treatment of the Driver-written launch_context.json (provenance note, not a receipt).",
+    "Carry the condition-5 disclosures (means-LR horizon factors, cap never reached, reset events and value 0.01, floater clause via outside alpha mass, coupled photograph pair, gsplat 1.5.3 from preflight, descriptive timings, RTGS-025/026 not comparators) into the task record, docs/EXPERIMENTS.md and the ARA observation/claim; do not edit the RESULT files or the frozen task.",
+    "Append the post-run handoff and this verdict to .agents/state/current-task.md; run check_agent_workflow.py, check_ara.py, docs_sync.py and ./scripts/verify.sh before closing RTGS-028 at development maturity; no default changes.",
+    "Optional follow-up task to resolve the mechanism: 30000-step arm with densification stop 6000 and fixed means-LR horizon, a ph_30k_up arm, and record_train_metrics enabled."
+  ]
+}

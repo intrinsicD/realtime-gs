@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "task_id": "20260927_color_budget_reset_stage_frame00008",
+  "summary": "18 paired development cells completed. Held-out foreground PSNR inside the mask, field-only: 23.489 dB at 8000 steps, 22.769 dB at 30000 steps, 22.731 dB at 30000 steps with the intended reset; photographs 23.878 / 23.261 dB.",
+  "decision": "H1 longer budget (30000 vs 8000 steps, field-only): reject. H2 intended opacity reset at 30000 steps: inconclusive. Visual adequacy and any promotion require the independent audit; no default changes.",
+  "claim_boundary": "Development screen on one previously outcome-exposed frame (RTGS-021/024/025/026 used it), the RTGS-025 split (22 training, 4 held-out views), three paired seeds, downscale 8. The 30000-step budget also extends densification to step 15000 (the 3DGS convention); 8000-step cells keep densification to 6000, as in RTGS-025/026. The intended reset is the RTGS-027 opt-in callback on gsplat's own iteration clock; upstream gsplat 1.5.3 never resets. Training packed alpha is mask-derived; held-out masks are evaluation-only, so alpha metrics are out-of-sample. Targets are decoded with the exact CPU tile index. Timings on a possibly shared local GPU are descriptive. No default, SOTA, generalization, physical-geometry or speed claim. Before protocol review, a non-protocol driver smoke (60/120 iterations, reset period 20, two training views standing in for held-out, no real held-out access) exposed training-view teacher fidelity, reset events and a meaningless tiny-budget gate value to the Driver; no threshold changed afterwards.",
+  "groups": {
+    "nb_8k_up": {
+      "foreground_psnr": 23.48874791463216,
+      "crop_lpips": 0.14539659395813942,
+      "outside_alpha_mass": 0.0011349348666650865,
+      "floater_fraction": 0.0008337294354229622,
+      "interior_alpha": 0.9990017165740331
+    },
+    "nb_8k_rs": {
+      "foreground_psnr": 23.55247100194295,
+      "crop_lpips": 0.14566530473530293,
+      "outside_alpha_mass": 0.0011023270684139181,
+      "floater_fraction": 0.0008490230387299865,
+      "interior_alpha": 0.9990540047486623
+    },
+    "nb_30k_up": {
+      "foreground_psnr": 22.768617471059162,
+      "crop_lpips": 0.16549784814318022,
+      "outside_alpha_mass": 0.0009272840616176836,
+      "floater_fraction": 0.0007889868308363172,
+      "interior_alpha": 0.9990608443816503
+    },
+    "nb_30k_rs": {
+      "foreground_psnr": 22.731253147125244,
+      "crop_lpips": 0.16668617352843285,
+      "outside_alpha_mass": 0.0009421311175780526,
+      "floater_fraction": 0.0008167261154691611,
+      "interior_alpha": 0.9989852209885915
+    },
+    "ph_8k_up": {
+      "foreground_psnr": 23.87835709253947,
+      "crop_lpips": 0.12924580151836076,
+      "outside_alpha_mass": 0.0010954765384667553,
+      "floater_fraction": 0.0008449824390481808,
+      "interior_alpha": 0.9990328798691431
+    },
+    "ph_30k_rs": {
+      "foreground_psnr": 23.26088587443034,
+      "crop_lpips": 0.1402148480216662,
+      "outside_alpha_mass": 0.0008809366966791762,
+      "floater_fraction": 0.0007846790831536055,
+      "interior_alpha": 0.9989974002043406
+    }
+  },
+  "gates": {
+    "h1_budget": {
+      "verdict": "reject",
+      "rows": [
+        {
+          "seed": 9461,
+          "delta": {
+            "foreground_psnr": -0.7350611686706543,
+            "crop_lpips": 0.022409873083233833,
+            "outside_alpha_mass": -0.00022803665342507884,
+            "floater_fraction": -5.855856215930544e-05,
+            "interior_alpha": -7.297098636627197e-05
+          },
+          "pass": false,
+          "reverse": true
+        },
+        {
+          "seed": 9462,
+          "delta": {
+            "foreground_psnr": -0.7488689422607422,
+            "crop_lpips": 0.021235473453998566,
+            "outside_alpha_mass": -0.00020460676023503765,
+            "floater_fraction": -5.132629848958459e-05,
+            "interior_alpha": 6.355345249176025e-05
+          },
+          "pass": false,
+          "reverse": true
+        },
+        {
+          "seed": 9463,
+          "delta": {
+            "foreground_psnr": -0.6764612197875977,
+            "crop_lpips": 0.016658416017889977,
+            "outside_alpha_mass": -0.00019030900148209184,
+            "floater_fraction": -2.4342953111045063e-05,
+            "interior_alpha": 0.00018680095672607422
+          },
+          "pass": false,
+          "reverse": true
+        }
+      ]
+    },
+    "h2_reset": {
+      "verdict": "inconclusive",
+      "rows": [
+        {
+          "seed": 9461,
+          "delta": {
+            "foreground_psnr": -0.030762672424316406,
+            "crop_lpips": -0.0005480200052261353,
+            "outside_alpha_mass": 2.299448533449322e-05,
+            "floater_fraction": 4.168807208770886e-05,
+            "interior_alpha": 9.569525718688965e-05
+          },
+          "pass": false,
+          "reverse": false
+        },
+        {
+          "seed": 9462,
+          "delta": {
+            "foreground_psnr": -0.046946048736572266,
+            "crop_lpips": -0.0007458403706550598,
+            "outside_alpha_mass": -7.185604772530496e-06,
+            "floater_fraction": 1.91587969311513e-06,
+            "interior_alpha": -0.00013242661952972412
+          },
+          "pass": false,
+          "reverse": false
+        },
+        {
+          "seed": 9463,
+          "delta": {
+            "foreground_psnr": -0.03438425064086914,
+            "crop_lpips": 0.004858836531639099,
+            "outside_alpha_mass": 2.8732287319144234e-05,
+            "floater_fraction": 3.9613902117707767e-05,
+            "interior_alpha": -0.0001901388168334961
+          },
+          "pass": false,
+          "reverse": false
+        }
+      ]
+    },
+    "reset_at_8k_descriptive": [
+      {
+        "seed": 9461,
+        "delta": {
+          "foreground_psnr": 0.007533073425292969,
+          "crop_lpips": 0.0010920483618974686,
+          "outside_alpha_mass": -6.566668162122369e-05,
+          "floater_fraction": 6.3193892856361344e-06,
+          "interior_alpha": 2.4273991584777832e-05
+        }
+      },
+      {
+        "seed": 9462,
+        "delta": {
+          "foreground_psnr": 0.013393878936767578,
+          "crop_lpips": 0.0032142139971256256,
+          "outside_alpha_mass": -1.0366675269324332e-05,
+          "floater_fraction": 1.3726521501666866e-05,
+          "interior_alpha": 4.89652156829834e-05
+        }
+      },
+      {
+        "seed": 9463,
+        "delta": {
+          "foreground_psnr": 0.1702423095703125,
+          "crop_lpips": -0.0035001300275325775,
+          "outside_alpha_mass": -2.1790037862956524e-05,
+          "floater_fraction": 2.5834899133769795e-05,
+          "interior_alpha": 8.362531661987305e-05
+        }
+      }
+    ],
+    "field_vs_photographs_8k_descriptive": [
+      {
+        "seed": 9461,
+        "delta": {
+          "foreground_psnr": -0.3234720230102539,
+          "crop_lpips": 0.014470905065536499,
+          "outside_alpha_mass": 5.26089352206327e-05,
+          "floater_fraction": -2.985712853842415e-05,
+          "interior_alpha": -0.00013090670108795166
+        }
+      },
+      {
+        "seed": 9462,
+        "delta": {
+          "foreground_psnr": -0.4313955307006836,
+          "crop_lpips": 0.015466002747416496,
+          "outside_alpha_mass": 4.059538332512602e-05,
+          "floater_fraction": 1.2450382200768217e-06,
+          "interior_alpha": 0.00018166005611419678
+        }
+      },
+      {
+        "seed": 9463,
+        "delta": {
+          "foreground_psnr": -0.41395998001098633,
+          "crop_lpips": 0.018515469506382942,
+          "outside_alpha_mass": 2.517066604923457e-05,
+          "floater_fraction": -5.146920557308476e-06,
+          "interior_alpha": -0.0001442432403564453
+        }
+      }
+    ],
+    "field_vs_photographs_30k_reset_descriptive": [
+      {
+        "seed": 9461,
+        "delta": {
+          "foreground_psnr": -0.518953800201416,
+          "crop_lpips": 0.025413090363144875,
+          "outside_alpha_mass": 7.6718395575881e-05,
+          "floater_fraction": 4.984897168469615e-05,
+          "interior_alpha": 9.861588478088379e-05
+        }
+      },
+      {
+        "seed": 9462,
+        "delta": {
+          "foreground_psnr": -0.4986743927001953,
+          "crop_lpips": 0.024149727076292038,
+          "outside_alpha_mass": 3.2967898732749745e-05,
+          "floater_fraction": 2.5177503630402498e-05,
+          "interior_alpha": -6.020069122314453e-06
+        }
+      },
+      {
+        "seed": 9463,
+        "delta": {
+          "foreground_psnr": -0.5712699890136719,
+          "crop_lpips": 0.029851159080863,
+          "outside_alpha_mass": 7.389696838799864e-05,
+          "floater_fraction": 2.1114621631568298e-05,
+          "interior_alpha": -0.0001291334629058838
+        }
+      }
+    ],
+    "photographs_30k_reset_vs_8k_descriptive": [
+      {
+        "seed": 9461,
+        "delta": {
+          "foreground_psnr": -0.5703420639038086,
+          "crop_lpips": 0.010919667780399323,
+          "outside_alpha_mass": -0.00022915162844583392,
+          "floater_fraction": -9.657659029471688e-05,
+          "interior_alpha": -0.00020679831504821777
+        }
+      },
+      {
+        "seed": 9462,
+        "delta": {
+          "foreground_psnr": -0.7285361289978027,
+          "crop_lpips": 0.011805908754467964,
+          "outside_alpha_mass": -0.00020416488041519187,
+          "floater_fraction": -7.334288420679513e-05,
+          "interior_alpha": 0.00011880695819854736
+        }
+      },
+      {
+        "seed": 9463,
+        "delta": {
+          "foreground_psnr": -0.5535354614257812,
+          "crop_lpips": 0.010181562975049019,
+          "outside_alpha_mass": -0.00021030301650171168,
+          "floater_fraction": -1.099059318221407e-05,
+          "interior_alpha": -1.84476375579834e-05
+        }
+      }
+    ],
+    "visual_adequacy": "requires the independent AUDIT record"
+  },
+  "command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260927_color_budget_reset_stage_frame00008.py",
+    "run",
+    "--task",
+    "experiments/tasks/20260927_color_budget_reset_stage_frame00008.json",
+    "--run-dir",
+    "runs/20260927_color_budget_reset_stage_frame00008"
+  ],
+  "source_lock": {
+    "schema_version": 2,
+    "task_id": "20260927_color_budget_reset_stage_frame00008",
+    "task_path": "experiments/tasks/20260927_color_budget_reset_stage_frame00008.json",
+    "task_sha256": "8f7c6fc33ac1b098e473bedc0cc53ee441900476a23723e39f50cb0a6553b7c8",
+    "protocol_sha256": "7a55197b8d83df6c241b41fd9037acc4e6cd4f93bc101e26e463231e68b096b9",
+    "protocol_review": {
+      "reviewer": "Claude-Code-Fable-5.1-reviewer",
+      "verdict": "approved",
+      "protocol_sha256": "7a55197b8d83df6c241b41fd9037acc4e6cd4f93bc101e26e463231e68b096b9",
+      "artifact": "experiments/reviews/20260927_color_budget_reset_stage_frame00008_PROTOCOL_REVIEW.md"
+    },
+    "protocol_review_artifact_sha256": "331b1db6b829ca36b41513de6d8c8de0a0a598798850902d8251e657f4736141",
+    "data_seal_path": "experiments/data/20260927_color_budget_reset_stage_frame00008.json",
+    "data_seal_sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087",
+    "source_commit": "14281753c4544a0841236aa80ead3006e35e9b0e",
+    "source_dirty": false,
+    "source_diff_sha256": "448d83d61bb792851b4008c5850d278208b0d73534859ed160fac37034360d09",
+    "development": false,
+    "started_at_utc": "2026-09-27T20:53:42.073180+00:00",
+    "command": [
+      ".venv/bin/python",
+      "scripts/experiments/20260927_color_budget_reset_stage_frame00008.py",
+      "run",
+      "--task",
+      "experiments/tasks/20260927_color_budget_reset_stage_frame00008.json",
+      "--run-dir",
+      "runs/20260927_color_budget_reset_stage_frame00008"
+    ],
+    "report_template_version": 2
+  },
+  "raw_comparison_path": "runs/20260927_color_budget_reset_stage_frame00008/comparison.json"
+}

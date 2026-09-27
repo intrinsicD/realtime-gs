@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "Byte-identical copies of referenced repository evidence at the paths a browser resolves for outward relative links under the run-root HTTP server. Originals are unchanged.",
+  "files": {
+    "benchmarks/results/20260927_color_budget_reset_stage_frame00008_AUDIT.json": {
+      "source": "benchmarks/results/20260927_color_budget_reset_stage_frame00008_AUDIT.json",
+      "bytes": 20093,
+      "sha256": "523a15b0546fe381244c0e28696f17fd46dea4c80717fd0eb17fe3d032caa8d2"
+    },
+    "benchmarks/results/20260927_color_budget_reset_stage_frame00008_AUDIT.md": {
+      "source": "benchmarks/results/20260927_color_budget_reset_stage_frame00008_AUDIT.md",
+      "bytes": 51746,
+      "sha256": "b364bb80d9c6e8d13ec3ecca144d5e8d60c7b57341b540ed97a24240ba54a3be"
+    },
+    "benchmarks/results/20260927_color_budget_reset_stage_frame00008_RESULT.json": {
+      "source": "benchmarks/results/20260927_color_budget_reset_stage_frame00008_RESULT.json",
+      "bytes": 11850,
+      "sha256": "c2a8dca1602c79223799fe132fd6dbacff80266a204f7a23e5a7a4e70fbccd9f"
+    },
+    "benchmarks/results/20260927_color_budget_reset_stage_frame00008_RESULT.md": {
+      "source": "benchmarks/results/20260927_color_budget_reset_stage_frame00008_RESULT.md",
+      "bytes": 2391,
+      "sha256": "1ddef7f2722ba7de413fe54a9fb9e5ad4891a1dc2f8d5d848949b737d6c68a19"
+    },
+    "experiments/data/20260927_color_budget_reset_stage_frame00008.json": {
+      "source": "experiments/data/20260927_color_budget_reset_stage_frame00008.json",
+      "bytes": 18603,
+      "sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087"
+    },
+    "experiments/reviews/20260927_color_budget_reset_stage_frame00008_PROTOCOL_REVIEW.md": {
+      "source": "experiments/reviews/20260927_color_budget_reset_stage_frame00008_PROTOCOL_REVIEW.md",
+      "bytes": 33013,
+      "sha256": "331b1db6b829ca36b41513de6d8c8de0a0a598798850902d8251e657f4736141"
+    },
+    "experiments/tasks/20260927_color_budget_reset_stage_frame00008.json": {
+      "source": "experiments/tasks/20260927_color_budget_reset_stage_frame00008.json",
+      "bytes": 36328,
+      "sha256": "8f7c6fc33ac1b098e473bedc0cc53ee441900476a23723e39f50cb0a6553b7c8"
+    }
+  }
+}

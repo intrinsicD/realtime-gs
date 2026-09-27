@@ -4572,3 +4572,16 @@ tree:
     also_depends_on:
     - N247
     status: resolved
+  - id: N250
+    type: experiment
+    title: Do a longer budget or the intended opacity reset improve field-only colour quality?
+    provenance: ai-executed
+    timestamp: 2026-09-28T00:30+02:00
+    description: RTGS-028; the 30000-step package lowered held-out colour in every seed (H1 rejected); the
+      intended reset at 30000 steps had no colour effect (H2 inconclusive). Fable 5.1 audit accepted_with_limits.
+    evidence:
+    - benchmarks/results/20260927_color_budget_reset_stage_frame00008_RESULT.json
+    - benchmarks/results/20260927_color_budget_reset_stage_frame00008_AUDIT.md
+    also_depends_on:
+    - N249
+    status: resolved

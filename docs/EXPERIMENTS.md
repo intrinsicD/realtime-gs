@@ -3569,3 +3569,30 @@ multiples of the period there is no final-iteration reset); a CUDA test confirms
 gsplat-default training. `opacity_reset_every` was never fully inert: it still paused refinement
 after each would-be reset and gated gsplat's large-scale pruning onset. No default changed and no
 quality effect has been measured.
+
+## 2026-09-28 — RTGS-028 training budget x intended opacity reset (H1 rejected, H2 inconclusive)
+
+After RTGS-026, the user approved a colour-quality follow-up. Task `20260927_color_budget_reset_stage_frame00008` crossed a 30000-step
+budget (densification to 15000, the 3DGS convention) with the RTGS-027 intended opacity reset for
+field-only distillation from decoded no_boundary fields (exact CPU-index decoding, masked
+objective, random initialization), plus photograph references, on the RTGS-025 split (22 training
+/ 4 held-out views), 3 paired seeds, downscale 8. Held-out masks never entered fitting, so alpha
+metrics are out-of-sample. The run started automatically once the GPU was free (review condition 3).
+
+H1 is rejected (C52): the 30000-step package lowered held-out foreground PSNR inside the mask by
+0.68-0.75 dB in every seed and every view, with worse crop LPIPS; photographs lost 0.55-0.73 dB
+under the coupled 30000-step-plus-reset pair. The package changes three coupled factors: iterations,
+densification window and the means learning-rate horizon (29.3 percent of the initial rate at step
+8000, 10 percent at 15000, 1 percent at 30000, versus 1 percent at 8000 for the 8000-step arm), so
+iteration count alone is not identified; training-objective traces fell while held-out quality
+fell, but an overfitting mechanism is a hypothesis. H2 is inconclusive: the intended reset at
+30000 steps changed colour by -0.03 to -0.05 dB and did not raise floaters while halving the final
+Gaussian count. No cell reached the 100000 cap; the reset value was 0.01; H2's floater clause used
+outside-mask alpha mass. A pre-review smoke exposed tiny-budget values to the Driver without
+changing thresholds; RTGS-025/026 numbers are not comparators. The independent Fable 5.1 audit is
+`accepted_with_limits`. The 8000-step configuration remains the best tested; the next lever is
+regularization or more views rather than longer training.
+
+Evidence: `benchmarks/results/20260927_color_budget_reset_stage_frame00008_RESULT.md/json` and `_AUDIT.md/json`; report
+`runs/20260927_color_budget_reset_stage_frame00008/index.html` (local); receipts in
+`ara/evidence/tables/20260928_color_budget_reset_final_handoff/`.

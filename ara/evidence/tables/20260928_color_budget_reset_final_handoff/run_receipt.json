@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "task_id": "20260927_color_budget_reset_stage_frame00008",
+  "status": "completed",
+  "started_at_utc": "2026-09-27T20:53:42.073180+00:00",
+  "finished_at_utc": "2026-09-27T21:57:48.602962+00:00",
+  "exit_code": 0,
+  "failure_phase": null,
+  "message": "All frozen fitting cells and final evaluations completed."
+}

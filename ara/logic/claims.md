@@ -1083,3 +1083,16 @@
 - **Tags**: field-supervision, floaters, visual-hull, relocation, development, no-default
 - **From staging**: O181
 - **Boundary**: One previously exposed frame, one split with two held-out colour views, three seeds, one 8000-step budget at downscale 8. The held-out masks define the hull, so all alpha and hull descriptors (including interior alpha) are in-sample; only held-out colour is a novel-view measurement. The first event moves most random start points onto the hull, but about 96 percent of initial Gaussians are pruned at the first refinement. The installed gsplat never resets opacity. Numbers are not comparable to the published RTGS-025 run (different decoder). No default, speed or generalization claim.
+
+## C52: A 30000-step training package lowered field-only held-out colour; the intended opacity reset had no colour effect
+
+- **Statement**: In RTGS-028 on Stage frame_00008, field-only distillation with the 30000-step package (densification to 15000, means learning-rate horizon over 30000 steps) gave lower held-out foreground PSNR inside the mask than the 8000-step configuration in every paired seed (-0.735, -0.749, -0.677 dB; group means 23.489 to 22.769 dB) with worse crop LPIPS, so the frozen H1 expectation is refuted. At 30000 steps the intended gsplat Default opacity reset changed held-out foreground PSNR by -0.031, -0.047 and -0.034 dB (H2 inconclusive) without raising outside-mask alpha, while halving the final Gaussian count.
+- **Status**: refuted development expectation (H1); untested reset benefit (H2 inconclusive)
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Independent recomputation from the per-view evaluation rows changes a per-seed sign or verdict, or task/source/input bindings fail.
+- **Proof**: [`benchmarks/results/20260927_color_budget_reset_stage_frame00008_RESULT.json`, `benchmarks/results/20260927_color_budget_reset_stage_frame00008_AUDIT.md`, `benchmarks/results/20260927_color_budget_reset_stage_frame00008_AUDIT.json`]
+- **Dependencies**: [C49]
+- **Tags**: field-supervision, training-budget, opacity-reset, development, no-default
+- **From staging**: O183
+- **Boundary**: One previously exposed frame, one split, three seeds, downscale 8. The budget package couples iterations, densification window and the means learning-rate horizon, so iteration count alone is not identified, and an overfitting mechanism is a hypothesis. No cell reached the 100000 cap. Reset value 0.01. No default, speed or generalization claim.
