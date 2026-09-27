@@ -2897,3 +2897,35 @@ observations:
     promoted_to: null
     crystallized_via: null
     stale: false
+  - id: O179
+    timestamp: 2026-09-27T09:30+02:00
+    provenance: ai-executed
+    content: In RTGS-025 on Stage frame_00008 (downscale 8, 8000 steps, three paired seeds), the
+      photograph-supervised reference reached 23.887, 23.770 and 23.837 dB held-out foreground PSNR, below
+      its frozen 24.0 dB floor in every seed, so H1 and H2 are inconclusive. Descriptively, random-initialized
+      training on decoded no_boundary fields plus packed alpha was 0.18-0.43 dB below that reference with
+      0.015-0.019 higher masked-crop LPIPS and at most 0.00013 higher outside-mask alpha; the uncontained
+      teacher led the mask-contained teacher by 0.07-0.20 dB, below the frozen 0.2 dB margin.
+    context: Independent Fable 5.1 audit accepted_with_limits; the H1 inequalities describe agreement with a
+      sub-floor reference and must not be worded as field-only matching photographs.
+    potential_type: claim
+    bound_to:
+    - N247
+    promoted: true
+    promoted_to: logic/claims.md:C49
+    crystallized_via: artifact-commitment
+    stale: false
+  - id: O180
+    timestamp: 2026-09-27T09:30+02:00
+    provenance: ai-executed
+    content: In the same screen the masked-colour-plus-silhouette objective did not lower outside-mask alpha
+      relative to premultiplied black targets; outside alpha was higher by 0.00066-0.00076 in all three seeds,
+      while foreground PSNR was 1.34-1.58 dB higher and interior alpha about 0.017-0.019 higher.
+    context: Descriptive H4 of RTGS-025; confounded by view schedule and final capacity (audit).
+    potential_type: claim
+    bound_to:
+    - N247
+    promoted: true
+    promoted_to: logic/claims.md:C50
+    crystallized_via: artifact-commitment
+    stale: false

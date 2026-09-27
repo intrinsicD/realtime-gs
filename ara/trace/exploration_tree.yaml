@@ -4531,3 +4531,30 @@ tree:
     also_depends_on:
     - N244
     status: open
+  - id: N247
+    type: experiment
+    title: Does field-only distillation with mask-restricted colour and silhouette supervision reach photograph supervision?
+    provenance: ai-executed
+    timestamp: 2026-09-27T09:30+02:00
+    description: RTGS-025 registered 21-cell development screen on Stage frame_00008. The photograph reference
+      missed its frozen 24.0 dB adequacy floor in every seed, so H1 and H2 are inconclusive; H3/H4 are
+      descriptive. Independent Fable 5.1 audit accepted_with_limits.
+    evidence:
+    - benchmarks/results/20260926_field_only_distillation_stage_frame00008_RESULT.json
+    - benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.md
+    also_depends_on:
+    - N244
+    status: resolved
+  - id: N248
+    type: question
+    title: Can the photograph reference clear its adequacy floor so field-only parity becomes testable?
+    provenance: ai-suggested
+    timestamp: 2026-09-27T09:30+02:00
+    description: Register a successor that lifts the photograph-supervised reference above the unchanged floor
+      (budget, schedule, resolution or initializer), then retest H1/H2 with paired seeds on a fresh or
+      declared-exposed frame.
+    evidence:
+    - benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.md
+    also_depends_on:
+    - N247
+    status: open

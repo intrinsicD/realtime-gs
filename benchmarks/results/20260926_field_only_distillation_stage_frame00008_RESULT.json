@@ -1,0 +1,328 @@
+{
+  "schema_version": 1,
+  "task_id": "20260926_field_only_distillation_stage_frame00008",
+  "summary": "21 paired development cells completed. Held-out foreground PSNR inside the mask: field-only 23.492 dB, photographs 23.831 dB, mask-contained teacher 23.350 dB.",
+  "decision": "The photograph reference failed its frozen adequacy gate; H1 and H2 are inconclusive and the trainer/initializer must be resolved first.",
+  "claim_boundary": "Development screen on one previously outcome-exposed frame (RTGS-021/024 used it), one train/held-out split, three paired seeds and one fixed 8000-step budget at downscale 8. Packed training alpha is mask-derived and is used for supervision and the hull; this is field-plus-silhouette, not strictly Gaussian-only reconstruction. Held-out photographs and masks are evaluation-only. no_boundary retains 5000-8592 Gaussians per view versus 11000 for mask_contained and gaussianimage, and uses a different topology schedule outcome, so H2 compares teacher families, not containment alone. No default, SOTA, generalization, physical-geometry or speed claim. Before protocol review, a non-protocol driver smoke on training views only exposed training-view teacher fidelity to the Driver; no reconstruction or held-out outcome was observed and no threshold changed afterwards.",
+  "groups": {
+    "nb_rand_ms": {
+      "foreground_psnr": 23.491974035898846,
+      "crop_lpips": 0.1457617295285066,
+      "outside_alpha_mass": 0.0011384430084338721,
+      "floater_fraction": 0.0008285538418325208,
+      "interior_alpha": 0.9991047481695811
+    },
+    "nb_hull_ms": {
+      "foreground_psnr": 23.488123734792072,
+      "crop_lpips": 0.14575044810771942,
+      "outside_alpha_mass": 0.0010199628571475234,
+      "floater_fraction": 0.0008440176176615447,
+      "interior_alpha": 0.9992999086777369
+    },
+    "nb_rand_pm": {
+      "foreground_psnr": 22.067390600840252,
+      "crop_lpips": 0.17021465549866358,
+      "outside_alpha_mass": 0.000436415538994576,
+      "floater_fraction": 0.0004083228964191221,
+      "interior_alpha": 0.9811206459999084
+    },
+    "mc_rand_ms": {
+      "foreground_psnr": 23.350365320841473,
+      "crop_lpips": 0.14037970888117948,
+      "outside_alpha_mass": 0.0010028053366113454,
+      "floater_fraction": 0.0007727126479342891,
+      "interior_alpha": 0.9991734524567922
+    },
+    "gi_rand_ms": {
+      "foreground_psnr": 23.618332068125408,
+      "crop_lpips": 0.1319463929782311,
+      "outside_alpha_mass": 0.0010164824840709723,
+      "floater_fraction": 0.0007760647452717725,
+      "interior_alpha": 0.9991646409034729
+    },
+    "ph_rand_ms": {
+      "foreground_psnr": 23.83111810684204,
+      "crop_lpips": 0.12889784388244152,
+      "outside_alpha_mass": 0.001078289009456057,
+      "floater_fraction": 0.0008164480956717549,
+      "interior_alpha": 0.9991104553143183
+    },
+    "ph_hull_ms": {
+      "foreground_psnr": 23.921833992004395,
+      "crop_lpips": 0.12456083297729492,
+      "outside_alpha_mass": 0.0009375696196608866,
+      "floater_fraction": 0.0007743467125086075,
+      "interior_alpha": 0.9993429432312647
+    }
+  },
+  "gates": {
+    "g0_photo_reference": {
+      "numeric_pass": false,
+      "rows": [
+        {
+          "seed": 9261,
+          "pass": false
+        },
+        {
+          "seed": 9262,
+          "pass": false
+        },
+        {
+          "seed": 9263,
+          "pass": false
+        }
+      ]
+    },
+    "h1_main_path": {
+      "verdict": "inconclusive",
+      "rows": [
+        {
+          "seed": 9261,
+          "delta": {
+            "foreground_psnr": -0.4309072494506836,
+            "crop_lpips": 0.018798964098095894,
+            "outside_alpha_mass": 0.00012198301556054503,
+            "floater_fraction": 3.3394500860595144e-05,
+            "interior_alpha": 2.7135014533996582e-05
+          },
+          "pass": true
+        },
+        {
+          "seed": 9262,
+          "delta": {
+            "foreground_psnr": -0.17785024642944336,
+            "crop_lpips": 0.016740361228585243,
+            "outside_alpha_mass": 7.888833351898938e-06,
+            "floater_fraction": -2.676086842257064e-05,
+            "interior_alpha": -8.632242679595947e-05
+          },
+          "pass": true
+        },
+        {
+          "seed": 9263,
+          "delta": {
+            "foreground_psnr": -0.4086747169494629,
+            "crop_lpips": 0.015052331611514091,
+            "outside_alpha_mass": 5.059014802100137e-05,
+            "floater_fraction": 2.9683606044272892e-05,
+            "interior_alpha": 4.2065978050231934e-05
+          },
+          "pass": true
+        }
+      ]
+    },
+    "h2_teacher_containment": {
+      "verdict": "inconclusive",
+      "rows": [
+        {
+          "seed": 9261,
+          "delta": {
+            "foreground_psnr": 0.19681358337402344,
+            "crop_lpips": 0.006918177008628845,
+            "outside_alpha_mass": 0.0002536283864174038,
+            "floater_fraction": 0.00014279566494224127,
+            "interior_alpha": -5.866587162017822e-05
+          },
+          "pass": false,
+          "reverse": false
+        },
+        {
+          "seed": 9262,
+          "delta": {
+            "foreground_psnr": 0.15340232849121094,
+            "crop_lpips": 0.005513457581400871,
+            "outside_alpha_mass": 5.7163801102433354e-05,
+            "floater_fraction": -1.1778711268561892e-05,
+            "interior_alpha": -0.0001036226749420166
+          },
+          "pass": false,
+          "reverse": false
+        },
+        {
+          "seed": 9263,
+          "delta": {
+            "foreground_psnr": 0.07461023330688477,
+            "crop_lpips": 0.003714427351951599,
+            "outside_alpha_mass": 9.612082794774324e-05,
+            "floater_fraction": 3.6506628021015786e-05,
+            "interior_alpha": -4.382431507110596e-05
+          },
+          "pass": false,
+          "reverse": false
+        }
+      ]
+    },
+    "h3_initializer_descriptive": {
+      "field": [
+        {
+          "seed": 9261,
+          "delta": {
+            "foreground_psnr": 0.007844924926757812,
+            "crop_lpips": -0.00038729235529899597,
+            "outside_alpha_mass": 0.0002446011421852745,
+            "floater_fraction": 8.906761104299221e-05,
+            "interior_alpha": -0.00012154877185821533
+          }
+        },
+        {
+          "seed": 9262,
+          "delta": {
+            "foreground_psnr": 0.0865015983581543,
+            "crop_lpips": 0.0016664136201143265,
+            "outside_alpha_mass": 5.571195652009919e-05,
+            "floater_fraction": -6.243355528567918e-05,
+            "interior_alpha": -0.000253140926361084
+          }
+        },
+        {
+          "seed": 9263,
+          "delta": {
+            "foreground_psnr": -0.08279561996459961,
+            "crop_lpips": -0.001245277002453804,
+            "outside_alpha_mass": 5.51273551536724e-05,
+            "floater_fraction": -7.302538324438501e-05,
+            "interior_alpha": -0.00021079182624816895
+          }
+        }
+      ],
+      "photographs": [
+        {
+          "seed": 9261,
+          "delta": {
+            "foreground_psnr": -0.014014720916748047,
+            "crop_lpips": 0.003139263018965721,
+            "outside_alpha_mass": 0.00016922673603403382,
+            "floater_fraction": 6.258009398152353e-05,
+            "interior_alpha": -0.00019225478172302246
+          }
+        },
+        {
+          "seed": 9262,
+          "delta": {
+            "foreground_psnr": -0.19907808303833008,
+            "crop_lpips": 0.005453458055853844,
+            "outside_alpha_mass": 0.00011855959019158036,
+            "floater_fraction": 3.0790413802606054e-05,
+            "interior_alpha": -0.00025212764739990234
+          }
+        },
+        {
+          "seed": 9263,
+          "delta": {
+            "foreground_psnr": -0.05905485153198242,
+            "crop_lpips": 0.004418311640620232,
+            "outside_alpha_mass": 0.00013437184315989725,
+            "floater_fraction": 3.2933641705312766e-05,
+            "interior_alpha": -0.0002530813217163086
+          }
+        }
+      ]
+    },
+    "h4_objective_descriptive": [
+      {
+        "seed": 9261,
+        "delta": {
+          "foreground_psnr": 1.3567280769348145,
+          "crop_lpips": -0.022707883268594742,
+          "outside_alpha_mass": 0.0007603529888910998,
+          "floater_fraction": 0.00047106825604714686,
+          "interior_alpha": 0.016694173216819763
+        }
+      },
+      {
+        "seed": 9262,
+        "delta": {
+          "foreground_psnr": 1.577070713043213,
+          "crop_lpips": -0.024409880861639977,
+          "outside_alpha_mass": 0.0006868985824439733,
+          "floater_fraction": 0.0003928536184503173,
+          "interior_alpha": 0.01939976215362549
+        }
+      },
+      {
+        "seed": 9263,
+        "delta": {
+          "foreground_psnr": 1.339951515197754,
+          "crop_lpips": -0.026241013780236244,
+          "outside_alpha_mass": 0.0006588308369828155,
+          "floater_fraction": 0.00039677096174273174,
+          "interior_alpha": 0.017858371138572693
+        }
+      }
+    ],
+    "gaussianimage_vs_no_boundary_descriptive": [
+      {
+        "seed": 9261,
+        "delta": {
+          "foreground_psnr": 0.11000967025756836,
+          "crop_lpips": -0.014701370149850845,
+          "outside_alpha_mass": -0.00022107534823589958,
+          "floater_fraction": -0.00010484927952347789,
+          "interior_alpha": 0.00011593103408813477
+        }
+      },
+      {
+        "seed": 9262,
+        "delta": {
+          "foreground_psnr": 0.054677486419677734,
+          "crop_lpips": -0.01573462039232254,
+          "outside_alpha_mass": -7.15610949555412e-05,
+          "floater_fraction": -3.1090001357370056e-05,
+          "interior_alpha": 1.1548399925231934e-05
+        }
+      },
+      {
+        "seed": 9263,
+        "delta": {
+          "foreground_psnr": 0.2143869400024414,
+          "crop_lpips": -0.011010019108653069,
+          "outside_alpha_mass": -7.324512989725918e-05,
+          "floater_fraction": -2.1528008801396936e-05,
+          "interior_alpha": 5.219876766204834e-05
+        }
+      }
+    ],
+    "visual_adequacy": "requires the independent AUDIT record"
+  },
+  "command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260926_field_only_distillation_stage_frame00008.py",
+    "run",
+    "--task",
+    "experiments/tasks/20260926_field_only_distillation_stage_frame00008.json",
+    "--run-dir",
+    "runs/20260926_field_only_distillation_stage_frame00008"
+  ],
+  "source_lock": {
+    "schema_version": 2,
+    "task_id": "20260926_field_only_distillation_stage_frame00008",
+    "task_path": "experiments/tasks/20260926_field_only_distillation_stage_frame00008.json",
+    "task_sha256": "27afde3837e3da01ef9e01cd07348afb7694842b12edea267bb2316a2bef1335",
+    "protocol_sha256": "05048698cc34656fd562c8f60d534037745d99acf91b9cac6712a5f314b23f61",
+    "protocol_review": {
+      "reviewer": "Claude-Code-Fable-5.1-reviewer",
+      "verdict": "approved",
+      "protocol_sha256": "05048698cc34656fd562c8f60d534037745d99acf91b9cac6712a5f314b23f61",
+      "artifact": "experiments/reviews/20260926_field_only_distillation_stage_frame00008_PROTOCOL_REVIEW.md"
+    },
+    "protocol_review_artifact_sha256": "ef2b5e075de41de59bb68bae621137c86c2d197e2121b2d35b11307be0a8e6be",
+    "data_seal_path": "experiments/data/20260926_field_only_distillation_stage_frame00008.json",
+    "data_seal_sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087",
+    "source_commit": "bc28af326babde2bd49eae7dc71bdedea9ba3db0",
+    "source_dirty": false,
+    "source_diff_sha256": "448d83d61bb792851b4008c5850d278208b0d73534859ed160fac37034360d09",
+    "development": false,
+    "started_at_utc": "2026-09-27T06:01:43.754696+00:00",
+    "command": [
+      ".venv/bin/python",
+      "scripts/experiments/20260926_field_only_distillation_stage_frame00008.py",
+      "run",
+      "--task",
+      "experiments/tasks/20260926_field_only_distillation_stage_frame00008.json",
+      "--run-dir",
+      "runs/20260926_field_only_distillation_stage_frame00008"
+    ],
+    "report_template_version": 2
+  },
+  "raw_comparison_path": "runs/20260926_field_only_distillation_stage_frame00008/comparison.json"
+}

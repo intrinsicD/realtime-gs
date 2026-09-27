@@ -1,0 +1,493 @@
+{
+  "schema_version": 1,
+  "task_id": "20260926_field_only_distillation_stage_frame00008",
+  "reviewer": "Claude-Code-Fable-5.1-reviewer",
+  "model": "claude-fable-5-1",
+  "effort": "max",
+  "self_reviewed": false,
+  "verdict": "accepted_with_limits",
+  "protocol_sha256": "05048698cc34656fd562c8f60d534037745d99acf91b9cac6712a5f314b23f61",
+  "outcome_access": "full post-run results audit",
+  "audit_date_utc": "2026-09-27",
+  "payload_manifest_sha256": "ee2ab3d7547ae86093d2e3385b45fd99c6a45754dcad0b9e05908e25065d95ab",
+  "payload_items_verified": 126,
+  "source_binding": {
+    "source_commit": "bc28af326babde2bd49eae7dc71bdedea9ba3db0",
+    "snapshot_files": 120,
+    "snapshot_live_drift": 0,
+    "snapshot_copy_drift": 0,
+    "git_diff_sha256_is_empty_diff": true,
+    "src_rtgs_tree_object_id": "641dbc4ee15b2c9ff697c2b3e2f83fb25135c195",
+    "bound_object_ids_equal_reviewed_f5ddaa2": true,
+    "approval_commit_changed_only_status_and_protocol_review": true,
+    "task_sha256": "27afde3837e3da01ef9e01cd07348afb7694842b12edea267bb2316a2bef1335",
+    "review_artifact_sha256": "ef2b5e075de41de59bb68bae621137c86c2d197e2121b2d35b11307be0a8e6be",
+    "data_seal_sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087",
+    "review_digest_reproduced": true,
+    "validate_ok": true,
+    "validate_data_ok": true,
+    "focused_tests": "16 passed, 1 skipped",
+    "aggregate_sha256_recomputed": false
+  },
+  "run_chronology": {
+    "approval_commit_utc": "2026-09-27T05:49:29Z",
+    "lock_started_at_utc": "2026-09-27T06:01:43.754696+00:00",
+    "launch_note_utc": "2026-09-27T06:02:21Z",
+    "finished_at_utc": "2026-09-27T06:59:20.311491+00:00",
+    "development_lock": false,
+    "source_dirty": false,
+    "single_invocation": true,
+    "execution_failure_json_exists": false,
+    "attempts_dir_exists": false,
+    "stage_intervals_run_seconds": {
+      "prepare": [
+        42.0,
+        109.6
+      ],
+      "initialize": [
+        110.9,
+        114.0
+      ],
+      "fit_cells": [
+        115.8,
+        3389.1
+      ],
+      "evaluate": [
+        3401.9,
+        3455.5
+      ]
+    },
+    "fit_intervals_sequential_non_overlapping": true
+  },
+  "input_boundary": {
+    "sealed_files_checked_entry_exit": 137,
+    "all_match": true,
+    "prepare_opens": 242,
+    "prepare_stems": 22,
+    "prepare_heldout_opens": 0,
+    "prepare_denied": 0,
+    "packed_alpha_mismatch_pixels": 0,
+    "mask_pixels_outside_fit_window": 0,
+    "source_digests_match_seal": true,
+    "parity_max_index_vs_reference": 2.38e-07,
+    "parity_max_cuda_vs_index": 2.21e-06,
+    "initialize_opens": 0,
+    "fit_opens_all_cells": 0,
+    "fit_denied_all_cells": 0,
+    "evaluate_opens": 36,
+    "evaluate_denied": 0,
+    "heldout_first_opened_in_evaluate_after_all_receipts": true
+  },
+  "cells": {
+    "count": 21,
+    "all_completed": true,
+    "all_executed_iterations_8000": true,
+    "all_losses_finite": true,
+    "all_effective_configs_equal_frozen": true,
+    "all_initial_digests_match_initialization_json": true,
+    "random_init_points": 20000,
+    "hull_shell_voxels": 7881,
+    "hull_shell_voxels_in_protocol_smoke_text": 7740,
+    "first_density_event_prunes_random_init_to": "1084 to 1154 (950 to 977 premultiplied)",
+    "masked_cells_share_view_schedule_per_seed": true,
+    "premultiplied_cells_share_view_schedule": false,
+    "final_count_ranges": {
+      "nb_rand_ms": [
+        42863,
+        43664
+      ],
+      "nb_hull_ms": [
+        46535,
+        46906
+      ],
+      "nb_rand_pm": [
+        18932,
+        19609
+      ],
+      "mc_rand_ms": [
+        32389,
+        33846
+      ],
+      "gi_rand_ms": [
+        40105,
+        41296
+      ],
+      "ph_rand_ms": [
+        46197,
+        48167
+      ],
+      "ph_hull_ms": [
+        50514,
+        51683
+      ]
+    }
+  },
+  "official_gates": {
+    "recomputed_from_per_view_rows": true,
+    "producer_values_reproduced_to": 1e-09,
+    "g0_photo_reference": {
+      "floor_db": 24.0,
+      "per_seed_ph_rand_ms_foreground_psnr": {
+        "9261": 23.886778,
+        "9262": 23.769848,
+        "9263": 23.836728
+      },
+      "shortfall_db": {
+        "9261": 0.113,
+        "9262": 0.23,
+        "9263": 0.163
+      },
+      "numeric_pass": false,
+      "visual_recognizable_complete_subject": true,
+      "verdict": "fail"
+    },
+    "h1_main_path": {
+      "verdict": "inconclusive",
+      "reason": "G0 failed; frozen policy",
+      "all_seed_inequalities_hold": true,
+      "per_seed_delta_nb_minus_ph": {
+        "9261": {
+          "foreground_psnr": -0.4309,
+          "crop_lpips": 0.0188,
+          "outside_alpha_mass": 0.000122
+        },
+        "9262": {
+          "foreground_psnr": -0.1779,
+          "crop_lpips": 0.0167,
+          "outside_alpha_mass": 8e-06
+        },
+        "9263": {
+          "foreground_psnr": -0.4087,
+          "crop_lpips": 0.0151,
+          "outside_alpha_mass": 5.1e-05
+        }
+      }
+    },
+    "h2_teacher_containment": {
+      "verdict": "inconclusive",
+      "inconclusive_independent_of_g0": true,
+      "per_seed_delta_nb_minus_mc": {
+        "9261": {
+          "foreground_psnr": 0.1968,
+          "crop_lpips": 0.0069,
+          "outside_alpha_mass": 0.000254,
+          "pass": false,
+          "reverse": false
+        },
+        "9262": {
+          "foreground_psnr": 0.1534,
+          "crop_lpips": 0.0055,
+          "outside_alpha_mass": 5.7e-05,
+          "pass": false,
+          "reverse": false
+        },
+        "9263": {
+          "foreground_psnr": 0.0746,
+          "crop_lpips": 0.0037,
+          "outside_alpha_mass": 9.6e-05,
+          "pass": false,
+          "reverse": false
+        }
+      },
+      "confounds_named": [
+        "per-view count 5000-8592 vs 11000",
+        "topology schedule outcome",
+        "boundary-band colour (B2)",
+        "teacher inside-mask fidelity gap 4.6 dB"
+      ]
+    },
+    "h3_initializer_descriptive": {
+      "field_nb_rand_minus_nb_hull_psnr": {
+        "9261": 0.0078,
+        "9262": 0.0865,
+        "9263": -0.0828
+      },
+      "photo_ph_rand_minus_ph_hull_psnr": {
+        "9261": -0.014,
+        "9262": -0.1991,
+        "9263": -0.0591
+      },
+      "within_0_5_db": true,
+      "note": "random start pruned to about 1100 points at step 600; not a test of initialization quality"
+    },
+    "h4_objective_descriptive": {
+      "nb_rand_ms_minus_nb_rand_pm": {
+        "9261": {
+          "foreground_psnr": 1.3567,
+          "crop_lpips": -0.0227,
+          "outside_alpha_mass": 0.00076,
+          "floater_fraction": 0.000471,
+          "interior_alpha": 0.0167
+        },
+        "9262": {
+          "foreground_psnr": 1.5771,
+          "crop_lpips": -0.0244,
+          "outside_alpha_mass": 0.000687,
+          "floater_fraction": 0.000393,
+          "interior_alpha": 0.0194
+        },
+        "9263": {
+          "foreground_psnr": 1.34,
+          "crop_lpips": -0.0262,
+          "outside_alpha_mass": 0.000659,
+          "floater_fraction": 0.000397,
+          "interior_alpha": 0.0179
+        }
+      },
+      "direction_vs_frozen_statement": "opposite for outside_alpha_mass in all three seeds"
+    },
+    "gaussianimage_vs_no_boundary_descriptive": {
+      "gi_minus_nb_psnr": {
+        "9261": 0.11,
+        "9262": 0.0547,
+        "9263": 0.2144
+      },
+      "gi_minus_nb_lpips": {
+        "9261": -0.0147,
+        "9262": -0.0157,
+        "9263": -0.011
+      }
+    },
+    "group_means": {
+      "nb_rand_ms": {
+        "foreground_psnr": 23.491974,
+        "crop_lpips": 0.145762,
+        "outside_alpha_mass": 0.001138,
+        "floater_fraction": 0.000829,
+        "interior_alpha": 0.999105
+      },
+      "nb_hull_ms": {
+        "foreground_psnr": 23.488124,
+        "crop_lpips": 0.14575,
+        "outside_alpha_mass": 0.00102,
+        "floater_fraction": 0.000844,
+        "interior_alpha": 0.9993
+      },
+      "nb_rand_pm": {
+        "foreground_psnr": 22.067391,
+        "crop_lpips": 0.170215,
+        "outside_alpha_mass": 0.000436,
+        "floater_fraction": 0.000408,
+        "interior_alpha": 0.981121
+      },
+      "mc_rand_ms": {
+        "foreground_psnr": 23.350365,
+        "crop_lpips": 0.14038,
+        "outside_alpha_mass": 0.001003,
+        "floater_fraction": 0.000773,
+        "interior_alpha": 0.999173
+      },
+      "gi_rand_ms": {
+        "foreground_psnr": 23.618332,
+        "crop_lpips": 0.131946,
+        "outside_alpha_mass": 0.001016,
+        "floater_fraction": 0.000776,
+        "interior_alpha": 0.999165
+      },
+      "ph_rand_ms": {
+        "foreground_psnr": 23.831118,
+        "crop_lpips": 0.128898,
+        "outside_alpha_mass": 0.001078,
+        "floater_fraction": 0.000816,
+        "interior_alpha": 0.99911
+      },
+      "ph_hull_ms": {
+        "foreground_psnr": 23.921834,
+        "crop_lpips": 0.124561,
+        "outside_alpha_mass": 0.000938,
+        "floater_fraction": 0.000774,
+        "interior_alpha": 0.999343
+      }
+    },
+    "teacher_training_view_foreground_psnr": {
+      "no_boundary": 30.788,
+      "mask_contained": 26.217,
+      "gaussianimage": 29.166
+    }
+  },
+  "claim_dispositions": [
+    {
+      "id": 1,
+      "statement": "21 paired development cells completed",
+      "source": "RESULT",
+      "disposition": "confirm"
+    },
+    {
+      "id": 2,
+      "statement": "group-mean table, 7 conditions by 5 metrics",
+      "source": "RESULT",
+      "disposition": "confirm",
+      "boundary": "development screen, exposed frame 00008, one split, three seeds, downscale 8, 8000 steps"
+    },
+    {
+      "id": 3,
+      "statement": "photograph reference failed its frozen adequacy gate; H1 and H2 inconclusive",
+      "source": "RESULT",
+      "disposition": "confirm"
+    },
+    {
+      "id": 4,
+      "statement": "the trainer/initializer must be resolved first",
+      "source": "RESULT decision text (frozen)",
+      "disposition": "narrow",
+      "permitted": "the photograph-supervised reference under this trainer, budget and resolution is below the floor; which component is responsible is unresolved"
+    },
+    {
+      "id": 5,
+      "statement": "numerically every H1 per-seed inequality holds",
+      "source": "Driver handoff",
+      "disposition": "narrow",
+      "permitted": "descriptive observation with the G0 caveat only; never 'field-only matches photographs'"
+    },
+    {
+      "id": 6,
+      "statement": "H2 foreground margin 0.07-0.20 dB below the frozen 0.2 dB in all seeds",
+      "source": "Driver handoff",
+      "disposition": "confirm",
+      "boundary": "descriptive; inconclusive independent of G0; fully confounded; no family selection"
+    },
+    {
+      "id": 7,
+      "statement": "H3 random not worse than the hull by more than 0.5 dB",
+      "source": "task hypothesis (descriptive)",
+      "disposition": "confirm",
+      "boundary": "absolute deltas at most 0.2 dB; random start mostly pruned at step 600"
+    },
+    {
+      "id": 8,
+      "statement": "H4 silhouette objective lowers outside-mask alpha relative to premultiplied black",
+      "source": "task hypothesis (descriptive)",
+      "disposition": "retire",
+      "basis": "opposite direction in all three seeds; premultiplied black has lower outside alpha and floaters at 1.3-1.6 dB lower PSNR, worse LPIPS, lower coverage; confounded by schedule and capacity"
+    },
+    {
+      "id": 9,
+      "statement": "gaussianimage leads no_boundary in PSNR and LPIPS",
+      "source": "report descriptive",
+      "disposition": "confirm",
+      "boundary": "descriptive, non-gating"
+    },
+    {
+      "id": 10,
+      "statement": "count confound 5000-8592 vs 11000; pre-review smoke disclosure",
+      "source": "claim_boundary",
+      "disposition": "confirm",
+      "correction": "official hull shell count 7881, not 7740"
+    },
+    {
+      "id": 11,
+      "statement": "no default, SOTA, generalization, physical-geometry or speed claim",
+      "source": "claim_boundary",
+      "disposition": "confirm",
+      "addition": "no timing statement; GPU contended"
+    },
+    {
+      "id": 12,
+      "statement": "one run invocation, exit 0, 06:01:43-06:59:20 UTC, 21/21 cells",
+      "source": "Driver handoff",
+      "disposition": "confirm",
+      "boundary": "logs not inspected; exit code synthesized by report module"
+    },
+    {
+      "id": 13,
+      "statement": "peak cell memory about 0.2 GB",
+      "source": "Driver handoff",
+      "disposition": "confirm",
+      "boundary": "per-process peak reserved 144-224 MB, allocated 101-145 MB, descriptive"
+    },
+    {
+      "id": 14,
+      "statement": "colour scored only inside held-out masks; floaters from alpha outside the 3-px dilated mask",
+      "source": "RESULT notes",
+      "disposition": "confirm"
+    },
+    {
+      "id": 15,
+      "statement": "field arms are field-plus-silhouette, not Gaussian-only",
+      "source": "RESULT notes",
+      "disposition": "confirm"
+    },
+    {
+      "id": 16,
+      "statement": "teacher training-view fidelity 30.79 / 26.22 / 29.17 dB",
+      "source": "comparison.json",
+      "disposition": "confirm",
+      "boundary": "report only"
+    },
+    {
+      "id": 17,
+      "statement": "Report: runs/<task_id>/index.html",
+      "source": "RESULT",
+      "disposition": "unresolved",
+      "basis": "render, viewer smoke, check-run and bundle gate pending"
+    },
+    {
+      "id": 18,
+      "statement": "a pass keeps the main path and selects the uncontained teacher family",
+      "source": "task consequence",
+      "disposition": "not triggered"
+    }
+  ],
+  "visual_disposition": {
+    "sheets_viewed": 22,
+    "resolution": "contact sheets displayed at 2000x450 from 5328x1200; no crops generated",
+    "g0_recognizable_complete_subject": true,
+    "floaters_or_halos": "small background speckles in most cells, most visible around C0001 and C1002; bright silhouette rims and a consistent head-region colour error in error panels",
+    "between_arm_differences_resolvable": false,
+    "conclusion": "visual component of G0 satisfied for ph_rand_ms in all seeds; G0 fails on the numeric floor"
+  },
+  "resource_disposition": {
+    "gpu": "NVIDIA GeForce RTX 3050, shared at launch with pid 3823481 (experiments.latent_agent, about 3.7 GB) and pid 3823530 (pytest)",
+    "timing_usable_for_claims": false,
+    "memory_usable_as_descriptive_per_process_peak": true,
+    "contention_recorded_in_bundle_before_this_audit": false
+  },
+  "limitations": [
+    "development screen on the previously outcome-exposed frame 00008; one split, three seeds, one budget, downscale 8",
+    "G0 failed; H1 and H2 carry no claim; H3 and H4 descriptive only",
+    "visual audit at contact-sheet resolution only",
+    "timing contended and non-decisional; memory per-process and descriptive",
+    "source-binding aggregate not recomputed; binding rests on per-file digests and git object ids",
+    "boundary-band population unquantified; teacher-family confound unresolvable in this design",
+    "logs, targets, renders and models not inspected"
+  ],
+  "commands_executed_by_reviewer": [
+    "git status --short; git rev-parse HEAD; git log --oneline -12; wc -c <run JSON records>",
+    "git rev-parse bc28af3:<8 bound paths>; git rev-parse f5ddaa2:<8 bound paths>; git rev-parse HEAD:src/rtgs",
+    "git diff --stat f5ddaa2 bc28af3; git log -6 --format='%h %ci %s'",
+    "git diff --stat HEAD -- <bound paths>; git status --ignored --short -- <bound paths> | grep -v __pycache__",
+    "git diff f5ddaa2 bc28af3 -- experiments/tasks/20260926_field_only_distillation_stage_frame00008.json",
+    ".venv/bin/python scripts/experiment_contract.py review-digest experiments/tasks/20260926_field_only_distillation_stage_frame00008.json",
+    ".venv/bin/python scripts/experiment_contract.py validate",
+    ".venv/bin/python scripts/experiment_contract.py validate-data experiments/tasks/20260926_field_only_distillation_stage_frame00008.json",
+    ".venv/bin/python -m pytest -q tests/test_field_only_distillation.py tests/test_field_targets.py",
+    ".venv/bin/python -c <read-only recomputation: payload/snapshot/lock hashes and run-root existence>",
+    ".venv/bin/python -c <read-only recomputation: per-view means, group means, paired deltas, gates>",
+    ".venv/bin/python -c <read-only recomputation: 21 cell receipts, histories, effective configs, chronology, resources>",
+    ".venv/bin/python -c <read-only summary: preparation, training_history, resource_receipt, metrics, data seal>",
+    ".venv/bin/python -c <read-only extraction: n_gaussians trajectories, density events, history fields>",
+    ".venv/bin/python -c <read-only check: training-view schedule sharing across paired cells>",
+    "Read: manifest records, driver and report sources, trainer.py 676-745, visualize.py 17-80, experiment_contract.py and gsplat_backend.py greps, launch_context.json, 22 preview PNGs"
+  ],
+  "denied_by_sandbox": [
+    "four heredoc 'python -' invocations, re-issued as python -c with identical content"
+  ],
+  "not_executed": [
+    "driver run/prepare/initialize/fit/evaluate/selftest",
+    "init-run, render, check-run, check_results_bundle.py",
+    "scripts/verify.sh (outside allowed set)",
+    "any GPU work",
+    "source-binding aggregate recomputation",
+    "opening raw photographs, masks, .rtgsv, .npz, .ply, GIFs, logs, targets/, renders/, or scratch smoke directories",
+    "generation of derived images"
+  ],
+  "remaining_handoff_checks": [
+    "persist AUDIT.md and AUDIT.json verbatim; leave RESULT files untouched",
+    "carry launch_context.json into the run root or the experiment-log entry, then render, browser viewer smoke, render again, check-run, check_results_bundle.py",
+    "append docs/EXPERIMENTS.md: G0 fail all seeds, H1/H2 inconclusive, H4 opposite direction, H3 prune mechanism, teacher fidelity, hull count 7881, contention note",
+    "ARA: staging observations; H1/H2 rows untested with G0 falsification record; H4 direction refuted (descriptive, single frame); bind to RESULT.json and this audit",
+    "register the next task to lift the photograph reference above the unchanged floor before retesting H1/H2; frame 00008 remains exposed",
+    "human inspection of full-resolution contact sheets and the viewer for halos and floaters",
+    "record the Reviewer verdict in the task record with distinct labels; maturity development; no default change"
+  ]
+}

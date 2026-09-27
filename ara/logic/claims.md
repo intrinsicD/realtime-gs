@@ -1044,3 +1044,29 @@
 - **Tags**: field-supervision, target-residual, image-adjoint, gradient, development, no-default
 - **From staging**: O176
 - **Boundary**: One exposed capture, nine frozen states from three inherited seeds and 22 training views at downscale 8. Cosines average views and then seeds; error shares average per-view shares, not pooled pixels. Two repeats and the ten-times rule describe sampled precision, not a confidence interval or systematic-error bound. Initial quaternion and inactive SHN cosines remain undefined. The separately measured nonzero VJP repeat variation does not establish the original RTGS-023 failure's exact cause. No optimizer/topology update, heldout quality test, halo-cause attribution, improved reconstruction, physical-density, strict field-only, generalization or performance claim; C47 and unavailable D/E are unchanged.
+
+## C49: Field-only parity with photographs is untested because the photograph reference missed its floor
+
+- **Statement**: In RTGS-025 on Stage frame_00008, the photograph-supervised reference missed its frozen 24.0 dB held-out foreground PSNR floor in all three seeds (23.887, 23.770, 23.837 dB), so the frozen policy leaves H1 (field-only parity with photographs) and H2 (uncontained versus mask-contained teacher) inconclusive. The H2 foreground margin was also below its frozen 0.2 dB threshold in every seed (0.197, 0.153, 0.075 dB).
+- **Status**: untested field-only parity; G0 reference floor failed
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Independent recomputation from the per-view evaluation rows changes the G0 shortfall or the H2 margins, or task/source/input bindings fail.
+- **Proof**: [`benchmarks/results/20260926_field_only_distillation_stage_frame00008_RESULT.json`, `benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.md`, `benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.json`]
+- **Dependencies**: []
+- **Tags**: field-supervision, field-only, mask-silhouette, teacher-containment, development, no-default
+- **From staging**: O179
+- **Boundary**: One previously exposed frame, one split, three seeds, one 8000-step budget at downscale 8; packed alpha is mask-derived, so arms are field-plus-silhouette. Descriptive agreement with a sub-floor reference is not a quality or parity claim. H2 compares teacher families confounded by count, topology, containment, boundary-band colour and teacher fidelity. No default, speed or generalization claim; timings were contended.
+
+## C50: The silhouette objective did not reduce outside-mask alpha versus premultiplied black targets
+
+- **Statement**: In RTGS-025 on Stage frame_00008, masked-colour-plus-silhouette training on decoded no_boundary fields had higher outside-mask alpha than premultiplied-black training in all three seeds (by 0.00066-0.00076), with 1.34-1.58 dB higher held-out foreground PSNR and higher interior coverage. The prospectively stated descriptive expectation that the silhouette objective lowers outside-mask alpha is refuted for this setting.
+- **Status**: refuted descriptive single-frame expectation
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Independent recomputation from the per-view evaluation rows reverses the sign of the outside-alpha difference in any seed.
+- **Proof**: [`benchmarks/results/20260926_field_only_distillation_stage_frame00008_RESULT.json`, `benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.md`, `benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.json`]
+- **Dependencies**: []
+- **Tags**: mask-silhouette, floaters, objective, development, descriptive
+- **From staging**: O180
+- **Boundary**: Descriptive H4 only; the premultiplied arm also differs in view schedule and ends with about half the final Gaussian count. One exposed frame, three seeds, downscale 8. Outside-alpha levels are about 0.1 percent in both arms.

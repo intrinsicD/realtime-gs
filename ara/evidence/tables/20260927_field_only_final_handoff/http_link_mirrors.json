@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "Byte-identical copies of referenced repository evidence at the paths a browser resolves for the outward relative links under the run-root HTTP server. Originals are unchanged.",
+  "files": {
+    "benchmarks/results/20260926_field_only_distillation_stage_frame00008_RESULT.md": {
+      "source": "benchmarks/results/20260926_field_only_distillation_stage_frame00008_RESULT.md",
+      "bytes": 2192,
+      "sha256": "75799d328f7553141e44fe5146635f8a842542cf861264a75b7ee8e8b2c0abfe"
+    },
+    "benchmarks/results/20260926_field_only_distillation_stage_frame00008_RESULT.json": {
+      "source": "benchmarks/results/20260926_field_only_distillation_stage_frame00008_RESULT.json",
+      "bytes": 12219,
+      "sha256": "9b285bf215b152f85d61fc1480faf040b1a83adc4df80a11a436d04f1eabd287"
+    },
+    "benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.md": {
+      "source": "benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.md",
+      "bytes": 42219,
+      "sha256": "2a9795365c7aa47829e37f07483651be78b8f2b5472549fca98f56dcb7fca5f3"
+    },
+    "benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.json": {
+      "source": "benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.json",
+      "bytes": 18275,
+      "sha256": "f570a9d1be1ab505a62d3fdfe18ddb8d19d16e8090093f590ddbe8cbffc5a4a5"
+    },
+    "experiments/data/20260926_field_only_distillation_stage_frame00008.json": {
+      "source": "experiments/data/20260926_field_only_distillation_stage_frame00008.json",
+      "bytes": 18603,
+      "sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087"
+    },
+    "experiments/reviews/20260926_field_only_distillation_stage_frame00008_PROTOCOL_REVIEW.md": {
+      "source": "experiments/reviews/20260926_field_only_distillation_stage_frame00008_PROTOCOL_REVIEW.md",
+      "bytes": 19502,
+      "sha256": "ef2b5e075de41de59bb68bae621137c86c2d197e2121b2d35b11307be0a8e6be"
+    },
+    "experiments/tasks/20260926_field_only_distillation_stage_frame00008.json": {
+      "source": "experiments/tasks/20260926_field_only_distillation_stage_frame00008.json",
+      "bytes": 52296,
+      "sha256": "27afde3837e3da01ef9e01cd07348afb7694842b12edea267bb2316a2bef1335"
+    }
+  }
+}

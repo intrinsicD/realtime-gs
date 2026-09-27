@@ -3497,3 +3497,29 @@ field-only targets) are staged as O178 with scripts and raw outputs in
 `ara/evidence/tables/20260926_gaussian_only_diagnostic/`. They are not registered, reviewed or
 audited, do not measure halos outside the silhouette, and support no claim or default. The next
 step is a registered field-only initializer/halo experiment under the roadmap's main-path list.
+
+## 2026-09-27 — RTGS-025 field-only distillation screen (G0 failed; H1/H2 inconclusive)
+
+The user asked for the RTGS-025 main path to be tested with 2D Gaussians fitted without mask
+containment, colour scored only inside masks, and a silhouette term against floaters. Task
+`20260926_field_only_distillation_stage_frame00008` froze 7 conditions × 3 paired seeds on Stage frame_00008 (22 training / 4 held-out
+views, downscale 8, gsplat Trainer, 8000 steps). Fable 5.1 rejected the first protocol digest
+(environment lookup of a non-existent distribution outside error handling; two wording fixes) and
+approved digest `05048698…`. One non-development `run`, exit 0, completed all 21 cells.
+
+The photograph-supervised reference missed its frozen 24.0 dB foreground floor in every seed, so
+H1 and H2 are inconclusive (C49). Descriptively, random-initialized training on decoded
+`no_boundary` fields plus packed alpha stayed close to that sub-floor reference, and the
+uncontained teacher led the mask-contained one by less than the frozen margin; this must not be
+worded as field-only parity. The masked-plus-silhouette objective did not lower outside-mask
+alpha versus premultiplied black targets but gained foreground PSNR and interior coverage (C50).
+Random initialization was pruned to about 1100 Gaussians at the first density event, so the
+initializer comparison is not a test of initialization quality. The official hull had 7881 shell
+voxels. Teacher training-view fidelity is recorded in the RESULT. The GPU was shared with an
+unrelated process during the run; timings are contended and non-decisional.
+
+The independent Fable 5.1 results audit is `accepted_with_limits`. Evidence:
+`benchmarks/results/20260926_field_only_distillation_stage_frame00008_RESULT.md/json` and `_AUDIT.md/json`; report
+`runs/20260926_field_only_distillation_stage_frame00008/index.html` (local). The frozen report command names port 8765, which another local
+server occupied; the report was served on 8766 for the browser check. The viewer check ran in headless Chrome (SwiftShader WebGL2) because the app browser pane was unavailable; `check-run` and the bundle gate pass. Receipts: `ara/evidence/tables/20260927_field_only_final_handoff/`. Next step (N248): register
+a successor that lifts the photograph reference above the unchanged floor before retesting H1/H2.

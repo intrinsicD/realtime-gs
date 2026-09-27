@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "task_id": "20260926_field_only_distillation_stage_frame00008",
+  "status": "completed",
+  "started_at_utc": "2026-09-27T06:01:43.754696+00:00",
+  "finished_at_utc": "2026-09-27T06:59:20.311491+00:00",
+  "exit_code": 0,
+  "failure_phase": null,
+  "message": "All frozen fitting cells and final evaluations completed."
+}

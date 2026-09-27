@@ -12,7 +12,7 @@ RTGS-025
 
 - Driver: Claude-Code-Opus-5.5-driver
 - Reviewer: Claude-Code-Fable-5.1-reviewer
-- Turn: driver
+- Turn: human
 
 ## Mode
 
@@ -83,7 +83,7 @@ RTGS-016 (C43), RTGS-021 (C47), RTGS-024 (C48) and the unregistered 2026-09-26 d
 
 ## Status
 
-In progress
+Blocked on human decision
 
 ## Human Decisions
 
@@ -98,6 +98,20 @@ The user asked to set photometric distillation as the current main path and to d
 the Janelle (stage with fabric) 2D Gaussians.
 ### Date
 2026-09-26
+
+### Question
+Merge branch `rtgs-025-main-path` (main-path decision, `rtgs.data.field_targets`, audited
+field-only screen) into `main`, and register the N248 successor that lifts the photograph
+reference above its unchanged floor?
+### Options
+Merge and register the successor; merge only; hold the branch.
+### Recommendation
+Merge and register the successor; the decoder and experiment records are verified and the
+experiment carries an independent accepted_with_limits audit.
+### Decision
+Pending.
+### Date
+2026-09-27
 
 ## Handoff Log
 
@@ -412,3 +426,103 @@ Coordinator re-entry hardening deferred to a later task (condition 6).
 Driver note: condition 4 satisfied by a non-protocol prepare-only smoke over all 22 frozen
 training views in `.scratch/` (0 clipped mask pixels, all source digests match the seal; no
 held-out access). The task is `ready`; `init-run` and execution await the user's go-ahead.
+
+### Handoff (2026-09-27, protected run completed; results audit pending)
+
+#### Objective
+Execute the approved protocol once and hand the producer records to an independent results audit.
+
+#### Reviewed state
+Canonical run `runs/20260926_field_only_distillation_stage_frame00008/` locked at commit
+`bc28af326babde2bd49eae7dc71bdedea9ba3db0` (clean tree, non-development), protocol digest
+`05048698...`; producer RESULT under `benchmarks/results/20260926_field_only_distillation_stage_frame00008_RESULT.*`.
+
+#### Changes
+None to source or protocol. One `run` invocation, exit 0, 06:01:43-06:59:20 UTC; 21/21 cells.
+
+#### Evidence
+Producer decision: G0 photograph reference failed its frozen 24.0 dB floor in all seeds
+(ph_rand_ms mean 23.831 dB), so H1 and H2 are formally inconclusive. Numerically, every H1
+per-seed inequality holds, and the H2 foreground margin (0.07-0.20 dB) is below the frozen 0.2 dB
+in all seeds. These are pre-audit producer values, not claims.
+
+#### Assumptions
+The GPU was shared at launch with an unrelated process (experiments.latent_agent, ~3.7 GB);
+peak cell memory stayed at about 0.2 GB. Timings are contended and descriptive only.
+
+#### Uncertainties
+Visual adequacy, boundary-band teacher differences and the H2 family confound await the audit.
+
+#### Review Focus
+Results audit per the approved review's conditions 5; no post-hoc reinterpretation of the G0 floor.
+
+#### Protected actions not taken
+No report render, viewer receipt, results audit dispatch, claim promotion, default change or merge.
+The results audit would read dome-derived previews; user authorization for that payload is required.
+
+#### Recommended Next Action
+Ask the user to authorize the Fable 5.1 results audit including dome-derived previews; then render,
+viewer smoke, check-run, bundle check, EXPERIMENTS.md and ARA updates.
+
+### Review (2026-09-27, independent results audit)
+
+#### Verdict
+Accepted with follow-up
+
+#### Self-reviewed
+No
+
+#### Correctness
+Claude-Code-Fable-5.1-reviewer (claude-fable-5-1, effort max) returned `accepted_with_limits`
+for the protected run after the user explicitly authorized reading 22 dome-derived previews.
+All producer numbers reproduce to 1e-9; G0 fails in every seed; H1/H2 inconclusive; the
+descriptive H4 expectation is refuted; H3 is not an initialization-quality test (random start
+pruned to about 1100 Gaussians at step 600). Verbatim:
+`benchmarks/results/20260926_field_only_distillation_stage_frame00008_AUDIT.md/json`.
+
+#### Evidence Quality
+Receipts, bindings, input boundaries and all 21 cells checked; downscaled contact sheets only.
+
+#### Simplicity
+No rerun or source change.
+
+#### Missing Cases
+Full-resolution human inspection of halos/floaters; the photograph reference floor.
+
+#### Required Changes
+Record C49/C50 as untested/refuted with the audit's wording limits (done).
+
+#### Optional Improvements
+Successor task (N248): lift the photograph reference above the unchanged floor, then retest H1/H2.
+
+### Handoff (2026-09-27, bundle complete)
+
+#### Objective
+Close the RTGS-025 experiment bundle after the independent audit.
+
+#### Reviewed state
+Run `runs/20260926_field_only_distillation_stage_frame00008/` with AUDIT records, second render,
+viewer receipt; tracked receipts in `ara/evidence/tables/20260927_field_only_final_handoff/`.
+
+#### Changes
+AUDIT.md/json persisted verbatim; HTTP link mirrors and neutral favicon in the run root; headless
+Chrome viewer receipt; report re-rendered; EXPERIMENTS.md entry; N247/N248, O179/O180, C49/C50.
+
+#### Evidence
+`check-run` OK, `check_results_bundle.py` OK (with previews), 974 report targets HTTP 200,
+`./scripts/verify.sh` exit 0.
+
+#### Assumptions
+Headless SwiftShader WebGL is an acceptable viewer receipt when the app pane is unavailable (as in RTGS-016).
+
+#### Uncertainties
+Report served on port 8766 instead of the frozen 8765 (occupied by an unrelated server).
+
+#### Review Focus
+Promotion of the whole RTGS-025 record (decision, decoder, experiment) by a human or distinct reviewer.
+
+#### Protected actions not taken
+No default change, no merge into main, no new experiment.
+
+#### Recommended Next Action
+Human decision on merging `rtgs-025-main-path`; register the N248 successor before any rerun.

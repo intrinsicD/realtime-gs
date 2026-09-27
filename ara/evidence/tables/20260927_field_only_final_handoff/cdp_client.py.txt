@@ -1,0 +1,31 @@
+"""Minimal Chrome DevTools Protocol client for the headless report/viewer smoke."""
+import json, os, urllib.request
+import websocket
+
+class CDP:
+    def __init__(self, port=None):
+        port = port or int(os.environ.get("CDP_PORT", "9333"))
+        pages = json.loads(urllib.request.urlopen(f"http://127.0.0.1:{port}/json").read())
+        page = next(p for p in pages if p.get("type") == "page")
+        self.ws = websocket.create_connection(page["webSocketDebuggerUrl"], timeout=60, suppress_origin=True)
+        self.next_id = 0
+        self.events = []
+
+    def call(self, method, params=None):
+        self.next_id += 1
+        ident = self.next_id
+        self.ws.send(json.dumps({"id": ident, "method": method, "params": params or {}}))
+        while True:
+            message = json.loads(self.ws.recv())
+            if message.get("id") == ident:
+                if "error" in message:
+                    raise RuntimeError(message["error"])
+                return message.get("result", {})
+            if "method" in message:
+                self.events.append(message)
+
+    def evaluate(self, expression):
+        result = self.call("Runtime.evaluate", {"expression": expression, "returnByValue": True, "awaitPromise": True})
+        if "exceptionDetails" in result:
+            raise RuntimeError(result["exceptionDetails"])
+        return result["result"].get("value")
