@@ -12,7 +12,7 @@ RTGS-026
 
 - Driver: Claude-Code-Opus-5.5-driver
 - Reviewer: Claude-Code-Fable-5.1-reviewer
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -85,7 +85,7 @@ RTGS-025 (C49, C50) and its audited run; `rtgs.data.field_targets`.
 
 ## Status
 
-In review
+In progress
 
 ## Human Decisions
 
@@ -268,3 +268,31 @@ No init-run of the retry, no protected execution.
 
 #### Recommended Next Action
 Fable 5.1 prospective review of the retry digest.
+
+### Review (2026-09-27, Fable 5.1 prospective review of the index-decoding retry)
+
+#### Verdict
+Accepted
+
+#### Self-reviewed
+No
+
+#### Correctness
+Approved digest `27f7b23ac0ad4be45e22fc2f8afbd17bb223d2d1680e70dc2a336b288000f815`; the only
+substantive change from the approved predecessor is exact CPU-index decoding; failure disclosed;
+seed reuse acceptable. Verbatim: `experiments/reviews/20260927_silhouette_relocation_index_decode_stage_frame00008_PROTOCOL_REVIEW.md`.
+
+#### Evidence Quality
+Byte-level diffs against the predecessor, digest and focused tests reproduced.
+
+#### Simplicity
+Minimal retry.
+
+#### Missing Cases
+Residual conditions 1-6 carried over (single invocation, production sequence, disclosures).
+
+#### Required Changes
+None.
+
+#### Optional Improvements
+Investigate the CUDA query kernel's near-zero-weight normalization in a later task.
