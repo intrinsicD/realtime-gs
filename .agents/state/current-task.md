@@ -320,3 +320,84 @@ No default change, no merge.
 
 #### Recommended Next Action
 Fable 5.1 code review round 3.
+
+### Review (2026-09-27, Fable 5.1 code review round 3, verbatim)
+
+#### Verdict
+Revision required
+
+#### Self-reviewed
+No
+
+#### Correctness
+- **Precedence claim re-verified.** The installed file `.venv/lib/python3.12/site-packages/gsplat/strategy/default.py` hashes to `8f9cf7d5cb02999cdb3abfb85d796e6989d5249c25ed7b08ee58538a4288a622`, unchanged since round 1. The AST of the guard at `default.py:195` is one `Compare` with ops `[Eq, Gt]`, left `step % self.reset_every` and comparators `['0 & step', '0']`, so the last term is `0 > 0`. A brute force over periods 1 to 50 and steps from minus 100 to 4999 gives zero hits, and `upstream_default_reset_fires` gives zero hits over steps 0 to 30000 at period 3000. The probe docstring states this correctly.
+- **Fired set now equals upstream's at every boundary I could probe.** The trainer passes `global_it` to the gsplat controller (`trainer.py:899`) and `completed_step = global_it + 1` to the callback (`trainer.py:658`, `:907`), both from the same `cfg.density` (`trainer.py:553-555`). `due` evaluates `g = step - 1 = global_it` with `0 < g < stop_iter` and `g % reset_every == 0`. Upstream returns early at `step >= refine_stop_iter` (`default.py:162`, `refine_stop_iter = config.stop_iter` at `strategies.py:73`) and intended `step % reset_every == 0 and step > 0` (`default.py:195`); the arena branch is the same at `strategies.py:229` and `:296`. Probed with period 5: steps 1 to 12 fire at completed steps 6 and 11 (gsplat iterations 5 and 10); `stop_iter = 10` does not fire at `g = 10`, matching the upstream early return; a resumed segment with offset 10 fires at the end of its first iteration, as upstream would. The round-2 boundary defects are closed.
+- **Clamp and moment semantics match upstream.** `reset_opa` (`ops.py:228-241`) clamps to the float32 `logit(value)` and zeroes every optimizer-state key except `step` through `_update_param_with_optimizer` (`ops.py:84-87`). The callback computes the same float32 cap, clamps in place under `no_grad`, and zeroes every state tensor whose shape equals the parameter shape, so Adam's scalar `step` survives; the unit test asserts it. `GeometricParameterArena.reset_opacity` (`arena.py:317-322`) is the same clamp plus zeroed moments. In-place mutation keeps parameter identity, which is safe for the trainer's `build()` closure.
+- **Ordering.** Adam steps at `trainer.py:837-844`, density control at `:880-902`, callback at `:904-909`. Grow and prune precede the reset within an iteration, as in `step_post_backward` (`default.py:167-201`).
+- **Counterexample to the new wording (required).** An 11-iteration CPU run with period 5 and the default `stop_iter` fires at gsplat iterations `[5, 10]`; iteration 10 is the run's final iteration and the returned Gaussians have maximum opacity exactly 0.0500. This is what gsplat's strategy would have done had its guard worked, so the code is correct under the human decision. But the sentence "never resets on a run's final iteration" is false in general; it holds only when the run length is a multiple of the period, which is the case the new test covers. The sentence originates in my round-2 review, where it was scoped to reset-multiple run lengths, and the Driver generalized it into four claim surfaces: the docstring at `strategies.py:374-375`, the `rtgs/optim` row of `docs/ARCHITECTURE.md`, the RTGS-027 note in `docs/EXPERIMENTS.md`, and the O182 context line "no final-iteration reset". The commit message repeats it; that is history and should stay.
+- **No default or config change.** `git diff --stat 271cce5 e14624c` lists exactly six files: the task record, `observations.yaml`, `ARCHITECTURE.md`, `EXPERIMENTS.md`, `strategies.py` additions, and the new test file. `density.py`, `trainer.py` and `arena.py` are untouched.
+- **CPU-first.** Module-level imports in `strategies.py` are `torch`, `torch.nn.functional`, `DensityConfig` and `RenderOutput`; gsplat is imported only inside functions. The canary test imports gsplat through `importorskip` and runs on this CPU box.
+- **Task record.** The round-3 commit only appended to the record (94 lines added, 0 deleted). Status `In review`, Turn `reviewer`, distinct labels, and the Human Decisions entry after two consecutive `Revision required` verdicts are consistent with `docs/AGENT_WORKFLOW.md`. No closed `docs/tasks/RTGS-027*` exists yet, which is correct.
+
+#### Evidence Quality
+- Reproduced on CPU with the allowed command over the four files: 35 collected, 34 passed, 1 skipped; the skip is the CUDA test. The new file alone gives 7 passed, 1 skipped.
+- Reproduced the terminal case directly: a 10-iteration run with period 5 fires at `[5]` and returns maximum opacity 0.0570, above the 0.05 floor. The floor is a genuine discriminator because a final-iteration reset returns exactly 0.0500. Recovery uses the default `lr_opacity` of 5e-2 over four post-reset steps, deterministic under the conftest autouse seed and the seeded scene.
+- Not reproduced: the CUDA test (no GPU in this session), `./scripts/verify.sh`, ruff, `docs_sync.py` and `check_ara.py`, all outside my allowed commands. The round-3 handoff's Evidence names only test counts; neither it nor the commit message states a `verify.sh` result for `e14624c`. The longest changed line is exactly the 100-character ruff limit; formatting is otherwise unverified by me.
+- O182 binds to N249, which exists (`exploration_tree.yaml:4561`). The gsplat-version statements are unchanged since round 2. `git diff --check` is clean.
+- The handoff's "Reviewed state" says "the next commit" rather than `e14624c`.
+
+#### Simplicity
+- The predicate is now upstream's predicate on upstream's clock, and the three-place "one iteration earlier" caveat is gone instead of documented. This is the smallest opt-in under the no-config-change constraint; I see nothing simpler within the human decision.
+- Recording both `step` and `gsplat_iteration` in each event is fine; the latter aligns with `GsplatStrategyController.stats["iteration"]`, closing the round-2 log-mismatch note.
+
+#### Missing Cases
+- No test or wording covers a run whose length is one more than a reset multiple, where a final-iteration reset is the intended behavior.
+- The unit test's "values below the cap are unchanged" assertion is vacuous: `linspace(-3, 3, 4)` lies entirely above `logit(0.01) = -4.595`, so the `below` mask is empty and two empty tensors are compared.
+- The docstring warns only against the geometric arena. The classic controller also resets, on the completed-step clock (`density.py:352`), so combining gives resets on adjacent iterations; `init-preserving` deliberately relocates instead of resetting. The callback also fires with `densify=False` or a non-gsplat rasterizer.
+- A resumed segment starting at a reset multiple is matched by the predicate but not covered at trainer level.
+
+#### Required Changes
+1. Wording only, in four places: the docstring at `strategies.py:374-375`, the `rtgs/optim` row of `docs/ARCHITECTURE.md`, the RTGS-027 note in `docs/EXPERIMENTS.md`, and the O182 context in `ara/staging/observations.yaml`. Replace "never on a run's final iteration" and "no final-iteration reset" with a statement that holds: the callback fires on exactly the set gsplat's strategy would have used, `0 < global_it < stop_iter` with `global_it % reset_every == 0`, including a resumed segment's first iteration; for run lengths that are multiples of the period this means no reset on the final iteration. No code change is required and the human decision on the clock stands; this does not reopen the design.
+2. In the next handoff, bind "Reviewed state" to the corrected commit hash and state the `./scripts/verify.sh` result for that commit.
+
+#### Optional Improvements
+- Make the below-cap assertion non-vacuous, for example `value=0.5` or a wider `linspace`, so the test exercises the property it names.
+- Add a period-plus-one CPU seam test asserting the final-iteration reset, which pins the corrected wording.
+- Extend the docstring's incompatibility sentence to the classic and init-preserving controllers and note that the callback fires regardless of `densify`.
+- Add a trainer-level test with `iteration_offset` equal to a reset multiple.
+
+### Handoff (2026-09-27, revision 3: wording only, for round 4)
+
+#### Objective
+Correct the over-generalized final-iteration wording; no design change (human decision stands).
+
+#### Reviewed state
+Round 3 reviewed `e14624c`; this revision is the commit that appends this entry on
+`rtgs-027-gsplat-opacity-reset` (verify result below is for that tree).
+
+#### Changes
+Docstring, ARCHITECTURE, EXPERIMENTS and O182 now say the callback fires on exactly gsplat's
+intended iterations (`0 < global_it < stop_iter`, `global_it % reset_every == 0`, including a
+resumed segment's first iteration), and only for period-multiple run lengths is there no
+final-iteration reset. Docstring extends the incompatibility note to the classic and
+init-preserving controllers and states it fires regardless of `densify`. Tests: non-vacuous
+below-cap assertion (value 0.5); new period-plus-one seam test asserting the final-iteration reset.
+
+#### Evidence
+GPU (RTX 3050, torch 2.9.0+cu128, gsplat 1.5.3): 9 tests pass; CPU: 8 pass, 1 skip;
+`./scripts/verify.sh` exit 0 on this tree.
+
+#### Assumptions
+None new.
+
+#### Uncertainties
+No quality effect measured.
+
+#### Review Focus
+The four wording sites and the two test changes.
+
+#### Protected actions not taken
+No default change, no merge.
+
+#### Recommended Next Action
+Fable 5.1 round 4 confirmation.

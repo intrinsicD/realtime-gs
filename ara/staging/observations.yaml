@@ -2958,7 +2958,7 @@ observations:
       performs the reset itself.
     context: Found in the RTGS-026 Fable 5.1 review (R1); reproduced by tests/test_gsplat_opacity_reset.py.
       RTGS-025/026 receipts record gsplat 1.5.3; RTGS-021 relies on the uv.lock pin of 1.5.3.
-      RTGS-027 adds the opt-in IntendedOpacityReset on gsplat's iteration clock (no final-iteration reset);
+      RTGS-027 adds the opt-in IntendedOpacityReset firing on exactly gsplat's intended iterations;
       no default or historical result changes.
     potential_type: heuristic
     bound_to:

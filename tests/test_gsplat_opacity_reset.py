@@ -41,7 +41,7 @@ def _params(n: int = 4):
 
 
 def test_intended_reset_clamps_and_zeroes_moments_only_when_due() -> None:
-    reset = IntendedOpacityReset(reset_every=10, stop_iter=25, value=0.01)
+    reset = IntendedOpacityReset(reset_every=10, stop_iter=25, value=0.5)
     # Completed steps 11 and 21 are gsplat iterations 10 and 20.
     assert [s for s in range(0, 40) if reset.due(s)] == [11, 21]
     params, optimizers = _params()
@@ -49,9 +49,10 @@ def test_intended_reset_clamps_and_zeroes_moments_only_when_due() -> None:
     reset(params, optimizers, 5)
     assert torch.equal(params["opacities"].detach(), before) and reset.events == []
     reset(params, optimizers, 11)
-    cap = torch.logit(torch.tensor(0.01))
+    cap = torch.logit(torch.tensor(0.5))
     assert float(params["opacities"].detach().max()) <= float(cap) + 1e-7
     below = before <= cap
+    assert bool(below.any()) and bool((~below).any())
     assert torch.equal(params["opacities"].detach()[below], before[below])
     state = optimizers["opacities"].state[params["opacities"]]
     assert torch.count_nonzero(state["exp_avg"]) == 0
@@ -148,3 +149,20 @@ def test_no_reset_on_the_final_iteration_of_a_reset_multiple_run() -> None:
     )
     assert [event["gsplat_iteration"] for event in reset.events] == [5]
     assert float(refined.opacity.max()) > 0.05
+
+
+def test_final_iteration_resets_when_it_is_a_gsplat_reset_iteration() -> None:
+    from rtgs.data.synthetic import make_synthetic_scene
+    from rtgs.optim.trainer import TrainConfig, Trainer
+
+    scene = make_synthetic_scene(n_gaussians=8, n_cameras=3, image_size=16, seed=4)
+    config = TrainConfig(
+        iterations=11, rasterizer="torch", densify=False, eval_every=11, ssim_lambda=0.0
+    )
+    reset = IntendedOpacityReset(reset_every=5, stop_iter=10_000_000, value=0.05)
+    refined, _ = Trainer(config).train(
+        scene, scene.gt_gaussians.detach(), parameter_step_callback=reset
+    )
+    # gsplat iteration 10 is the final iteration of an 11-iteration run, as gsplat intends.
+    assert [event["gsplat_iteration"] for event in reset.events] == [5, 10]
+    assert float(refined.opacity.max()) <= 0.05 + 1e-6

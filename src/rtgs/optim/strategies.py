@@ -371,12 +371,16 @@ class IntendedOpacityReset:
     The callback receives the Trainer's completed step and evaluates gsplat's intended predicate
     on gsplat's own iteration counter ``g = step - 1``: it fires at the end of exactly the
     iterations with ``0 < g < stop_iter`` and ``g % reset_every == 0``, the same iterations the
-    gsplat strategy and the geometric-arena path use, so it never resets on a run's final
-    iteration. It clamps opacity logits to ``logit(value)`` and zeroes the opacity Adam moments
-    (Adam's scalar ``step`` survives), matching gsplat's ``reset_opa`` (value ``2 * prune_opacity``
-    by default). Do not combine it with ``gaussian_storage_policy="geometric"``, whose arena already
-    resets. Under opt-in ``conditional_density`` it also fires during coarse phases whose density
-    hooks are suppressed. No gsplat import is needed; the Gaussian count never changes.
+    gsplat strategy and the geometric-arena path use, including a resumed segment's first
+    iteration. Like gsplat, it resets on a run's final iteration only when that iteration's
+    ``g`` is a multiple of the period; for run lengths that are multiples of the period there
+    is no final-iteration reset. It clamps opacity logits to ``logit(value)`` and zeroes the
+    opacity Adam moments (Adam's scalar ``step`` survives), matching gsplat's ``reset_opa``
+    (value ``2 * prune_opacity`` by default). It fires regardless of ``densify``; do not combine
+    it with ``gaussian_storage_policy="geometric"`` or the classic and init-preserving
+    controllers, which manage opacity resets themselves. Under opt-in ``conditional_density`` it
+    also fires during coarse phases whose density hooks are suppressed. No gsplat import is
+    needed; the Gaussian count never changes.
     """
 
     def __init__(self, reset_every: int, stop_iter: int, value: float) -> None:
