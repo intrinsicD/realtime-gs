@@ -48,7 +48,8 @@ changed. No held-out view or reconstruction outcome was observed.
 
 ## Verification
 
-Focused CPU tests in the two task files: 16 pass and the CUDA decode-parity test self-skips on CPU (it passes on the local GPU); `./scripts/verify.sh` passes on the committed
+Focused CPU tests in the two task files: 16 pass and the CUDA decode-parity test self-skips on
+CPU (it passes on the local GPU); `./scripts/verify.sh` passes on the committed
 tree. A repeated non-protocol GPU smoke in `.scratch/` (60 iterations, one seed, two training
 views standing in for held-out) exercised preflight, the environment record, the new prepare
 checks (0 clipped mask pixels, all source digests matching), all seven fit conditions, evaluation

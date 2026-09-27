@@ -258,6 +258,16 @@ thresholded undistorted source mask pixel-for-pixel for C0004 and C0022 in all t
 no_boundary retains 5000-8592 Gaussians/view versus 11000 for the other families (recorded
 confound for H2).
 
+#### Assumptions
+The existing Trainer `use_masks` objective is the intended mask-restricted colour plus
+silhouette supervision; photographs are an oracle reference, not a field-only arm.
+
+#### Uncertainties
+Teacher-family differences confound H2 (count, topology schedule, containment).
+
+#### Review Focus
+Leakage boundaries, mask-restricted scoring, gate definitions.
+
 #### Protected actions not taken
 No driver, source binding, prospective review, init-run or outcome access.
 
@@ -351,6 +361,15 @@ B1-B3 and R1-R6, R8 adopted; R7 declined with reason.
 #### Evidence
 Focused tests pass; `./scripts/verify.sh` exit 0; repeated non-protocol GPU smoke passed including
 preflight and the new prepare checks.
+
+#### Assumptions
+Each phase runs in a fresh process; the V1 design findings stand unchanged.
+
+#### Uncertainties
+The live source-binding aggregate was not independently recomputed by the V1 reviewer.
+
+#### Review Focus
+B1-B3 fixes and the adopted R1-R6/R8 changes; confirm no scientific design drift.
 
 #### Protected actions not taken
 No init-run, protected execution, held-out access or outcome inspection.
