@@ -1,0 +1,1 @@
+{"note": "GPU shared at launch with pid 3896722 (.venv/bin/python -m experiments.latent_agent --stage symbolic --size full --devi, ~3.6 GB); timings are contended and descriptive only", "launched_utc": "2026-09-27T12:20:08Z"}

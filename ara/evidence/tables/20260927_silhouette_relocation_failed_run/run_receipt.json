@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "task_id": "20260927_silhouette_relocation_stage_frame00008",
+  "status": "failed",
+  "started_at_utc": "2026-09-27T12:20:08.429592+00:00",
+  "finished_at_utc": "2026-09-27T12:20:50.224210+00:00",
+  "exit_code": 1,
+  "failure_phase": "execution",
+  "message": "Command '['/home/alex/Documents/realtime-gs/.venv/bin/python', '/home/alex/Documents/realtime-gs/scripts/experiments/20260927_silhouette_relocation_stage_frame00008.py', 'prepare', '--task', '/home/alex/Documents/realtime-gs/experiments/tasks/20260927_silhouette_relocation_stage_frame00008.json', '--run-dir', '/home/alex/Documents/realtime-gs/runs/20260927_silhouette_relocation_stage_frame00008']' returned non-zero exit status 1."
+}

@@ -12,7 +12,7 @@ RTGS-026
 
 - Driver: Claude-Code-Opus-5.5-driver
 - Reviewer: Claude-Code-Fable-5.1-reviewer
-- Turn: driver
+- Turn: reviewer
 
 ## Mode
 
@@ -71,7 +71,7 @@ Changing Trainer defaults, footprint/scale clamping, new frames, or promoting a 
 
 ## Experiment Contract
 
-experiments/tasks/20260927_silhouette_relocation_stage_frame00008.json
+experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json
 
 ## Current Evidence
 
@@ -85,7 +85,7 @@ RTGS-025 (C49, C50) and its audited run; `rtgs.data.field_targets`.
 
 ## Status
 
-In progress
+In review
 
 ## Human Decisions
 
@@ -230,3 +230,41 @@ None.
 
 #### Optional Improvements
 Validate `dilation_px >= 0` in `SilhouetteHull`; broaden the non-position-row test (later task).
+
+### Handoff (2026-09-27, predecessor run failed closed; index-decoding retry for review)
+
+#### Objective
+Replace the consumed predecessor run with a new task that differs only in exact CPU-index decoding.
+
+#### Reviewed state
+New task `experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json`, digest
+`27f7b23ac0ad4be45e22fc2f8afbd17bb223d2d1680e70dc2a336b288000f815`, source binding 120 files
+`8dacd07f7eb57b3d0343f1b7107cd3e2aaa7f4901e726771f5b29b96c05bb365`.
+
+#### Changes
+The approved predecessor `20260927_silhouette_relocation_stage_frame00008` ran once (lock at
+`f88f3d0`, preflight passed) and failed closed in `prepare` at its frozen CUDA-vs-CPU decoder
+parity gate: 1.889e-4 > 2e-5 at 1 of 512 sites of training view C0026 (normalized blend, weight
+sum ~4e-7). No initialization, cell, held-out access or outcome. Receipts:
+`ara/evidence/tables/20260927_silhouette_relocation_failed_run/`. The retry copies the approved
+driver/report/tests with decoding switched to the exact CPU index (parity vs reference only);
+hypothesis, thresholds, seeds, split, arms, metrics and budget are unchanged.
+
+#### Evidence
+17 focused CPU tests pass; a non-protocol prepare+initialize smoke over the frozen split passed
+(all 24 training views, index parity <= 1.8e-7, 21391 hull voxels).
+
+#### Assumptions
+Seeds may be reused because the predecessor produced no outcome.
+
+#### Uncertainties
+The CUDA query kernel's near-zero-weight normalization behaviour remains uninvestigated beyond this site.
+
+#### Review Focus
+That the only substantive change is the decoder backend and parity rule, and that the failure is disclosed.
+
+#### Protected actions not taken
+No init-run of the retry, no protected execution.
+
+#### Recommended Next Action
+Fable 5.1 prospective review of the retry digest.
