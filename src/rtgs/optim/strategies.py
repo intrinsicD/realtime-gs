@@ -353,3 +353,67 @@ def validate_strategy_name(name: str) -> None:
     choices = {"classic", "gsplat-default", "gsplat-mcmc", "init-preserving"}
     if name not in choices:
         raise ValueError(f"unknown density strategy '{name}' (expected one of {sorted(choices)})")
+
+
+def upstream_default_reset_fires(step: int, reset_every: int) -> bool:
+    """Evaluate gsplat 1.5.3's DefaultStrategy reset condition exactly as written upstream.
+
+    ``step % reset_every == 0 & step > 0`` parses as the chained comparison
+    ``(step % reset_every == (0 & step)) and ((0 & step) > 0)``; the last term is ``0 > 0``, so the
+    upstream opacity reset never fires. Kept as a documented probe, not a behaviour switch.
+    """
+    return step % reset_every == 0 & step > 0
+
+
+class IntendedOpacityReset:
+    """Opt-in ``parameter_step_callback`` restoring gsplat Default's intended opacity reset.
+
+    At every completed step with ``0 < step < stop_iter`` and ``step % reset_every == 0``, opacity
+    logits are clamped to ``logit(value)`` and the opacity Adam moments are zeroed, matching
+    gsplat's ``reset_opa`` and the repository's geometric-arena path (value ``2 * prune_opacity``
+    by default). No gsplat import is needed; the Gaussian count never changes.
+    """
+
+    def __init__(self, reset_every: int, stop_iter: int, value: float) -> None:
+        if reset_every <= 0 or not 0.0 < value < 1.0:
+            raise ValueError("reset_every must be positive and value in (0, 1)")
+        self.reset_every = int(reset_every)
+        self.stop_iter = int(stop_iter)
+        self.value = float(value)
+        self.events: list[dict[str, Any]] = []
+
+    @classmethod
+    def from_density(cls, config: DensityConfig) -> IntendedOpacityReset:
+        return cls(config.opacity_reset_every, config.stop_iter, 2.0 * config.prune_opacity)
+
+    def due(self, step: int) -> bool:
+        return 0 < step < self.stop_iter and step % self.reset_every == 0
+
+    @torch.no_grad()
+    def __call__(self, params: dict, optimizers: dict, step: int) -> None:
+        if not self.due(step):
+            return
+        opacities = params["opacities"]
+        cap = float(torch.logit(torch.tensor(self.value)))
+        clamped = int((opacities > cap).sum())
+        opacities.data.clamp_(max=cap)
+        optimizer = optimizers["opacities"]
+        for group in optimizer.param_groups:
+            for parameter in group["params"]:
+                for moment in optimizer.state.get(parameter, {}).values():
+                    if torch.is_tensor(moment) and moment.shape == parameter.shape:
+                        moment.zero_()
+        self.events.append({"step": int(step), "clamped": clamped, "n": int(opacities.shape[0])})
+
+
+def chain_parameter_callbacks(*callbacks):
+    """Compose ``parameter_step_callback`` users in order, skipping ``None``."""
+    active = [callback for callback in callbacks if callback is not None]
+    if not active:
+        return None
+
+    def chained(params, optimizers, step):
+        for callback in active:
+            callback(params, optimizers, step)
+
+    return chained

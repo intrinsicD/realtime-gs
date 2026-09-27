@@ -3555,3 +3555,13 @@ Evidence: `benchmarks/results/20260927_silhouette_relocation_index_decode_stage_
 `runs/20260927_silhouette_relocation_index_decode_stage_frame00008/index.html` (local); receipts in
 `ara/evidence/tables/20260927_silhouette_relocation_final_handoff/`. The viewer check used headless
 Chrome (SwiftShader WebGL2); the report was served on port 8767.
+
+## 2026-09-27 — RTGS-027 inert gsplat Default opacity reset (implementation note)
+
+gsplat 1.5.3 never executes its DefaultStrategy opacity reset (operator precedence; O182,
+`tests/test_gsplat_opacity_reset.py`). Every gsplat-default run on the default dynamic storage path,
+including RTGS-021, RTGS-025 and RTGS-026, trained without opacity resets; their records are not
+changed. RTGS-027 adds the opt-in `rtgs.optim.strategies.IntendedOpacityReset` (clamp to
+`2 * prune_opacity`, zero opacity Adam moments at `0 < step < stop_iter`, `step % reset_every == 0`)
+and `chain_parameter_callbacks`; a CUDA test confirms the reset fires inside gsplat-default training.
+No default changed and no quality effect has been measured.
