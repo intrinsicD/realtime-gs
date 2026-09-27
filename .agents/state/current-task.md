@@ -12,7 +12,7 @@ RTGS-028
 
 - Driver: Claude-Code-Opus-5.5-driver
 - Reviewer: Claude-Code-Fable-5.1-reviewer
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -77,7 +77,7 @@ C49, C51, O182; RTGS-027 `IntendedOpacityReset`.
 
 ## Status
 
-In review
+In progress
 
 ## Human Decisions
 
@@ -135,3 +135,36 @@ No init-run or protected execution.
 
 #### Recommended Next Action
 Fable 5.1 prospective review.
+
+### Review (2026-09-27, Fable 5.1 prospective protocol review)
+
+#### Verdict
+Accepted
+
+#### Self-reviewed
+No
+
+#### Correctness
+Approved digest `7a55197b8d83df6c241b41fd9037acc4e6cd4f93bc101e26e463231e68b096b9` with residual
+execution conditions 1-8 (verbatim: `experiments/reviews/20260927_color_budget_reset_stage_frame00008_PROTOCOL_REVIEW.md`).
+Readiness only, not results.
+
+#### Evidence Quality
+Digest and source-binding aggregate reproduced; 14 CPU tests pass.
+
+#### Simplicity
+Minimal factorial for the stated questions.
+
+#### Missing Cases
+Means-LR horizon and 100000-cap interaction carried as disclosures (condition 5).
+
+#### Required Changes
+None.
+
+#### Optional Improvements
+A 30000-step arm with densification stop 6000 in a later task.
+
+Driver pre-start checks: condition 4 canary passed on the GPU (9 tests, gsplat 1.5.3); condition 3
+prior 8000-step cell walls were 142-187 s (below 700 s), but the GPU is currently shared with an
+unrelated heavy process (path-wm experiments.latent_agent, pid 4057089, ~1.6 GB, ~46% util), so
+the run waits until that process exits.

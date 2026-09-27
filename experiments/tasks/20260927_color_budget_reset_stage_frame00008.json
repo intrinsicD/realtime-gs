@@ -6,13 +6,13 @@
  "task_slug": "color_budget_reset",
  "data_slug": "stage_frame00008",
  "arm": "rgb_3dgs",
- "status": "draft",
+ "status": "ready",
  "owner": "Claude-Code-Opus-5.5-driver",
  "protocol_review": {
-  "reviewer": null,
-  "verdict": "pending",
-  "protocol_sha256": null,
-  "artifact": null
+  "reviewer": "Claude-Code-Fable-5.1-reviewer",
+  "verdict": "approved",
+  "protocol_sha256": "7a55197b8d83df6c241b41fd9037acc4e6cd4f93bc101e26e463231e68b096b9",
+  "artifact": "experiments/reviews/20260927_color_budget_reset_stage_frame00008_PROTOCOL_REVIEW.md"
  },
  "depends_on": [],
  "title": "Training budget and intended opacity reset for field-only distillation colour quality on Janelle frame 00008",
