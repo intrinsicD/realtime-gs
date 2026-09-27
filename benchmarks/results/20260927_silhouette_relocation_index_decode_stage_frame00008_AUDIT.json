@@ -1,0 +1,447 @@
+{
+  "schema_version": 1,
+  "task_id": "20260927_silhouette_relocation_index_decode_stage_frame00008",
+  "reviewer": "Claude-Code-Fable-5.1-reviewer",
+  "model": "claude-fable-5-1",
+  "self_reviewed": false,
+  "verdict": "accepted_with_limits",
+  "protocol_sha256": "27f7b23ac0ad4be45e22fc2f8afbd17bb223d2d1680e70dc2a336b288000f815",
+  "outcome_access": "full post-run results audit",
+  "audit_date": "2026-09-27",
+  "authorization": {
+    "record": ".scratch/20260927_silhouette_relocation_index_decode_stage_frame00008/claude_results_audit/authorization.json",
+    "payload_manifest_sha256": "61a778d388e6e7933395ed71b0f5c44611a6f37662d41ad1d278065ca53fd377",
+    "payload_items": 85,
+    "payload_items_verified": 85,
+    "dome_derived_previews_viewed": 13
+  },
+  "run_binding": {
+    "run_root": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008",
+    "source_commit": "70e4bc6dcb09442b99e511fcd9a2ffa036275a06",
+    "source_dirty": false,
+    "development": false,
+    "task_sha256": "fdcfca2bad4ebce826a2d822b8ef68c94dd44f1581e1856cb765dd28ed9a867d",
+    "protocol_review_artifact_sha256": "a58ce3e924fe2c8d1305dcd2437f108c9848ac32a76c194a97a96c36bb62f400",
+    "data_seal_sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087",
+    "source_snapshot_files": 122,
+    "source_snapshot_live_mismatches": 0,
+    "snapshot_tracked_diff_empty": true,
+    "source_binding_aggregate_reproduced": false,
+    "review_digest_reproduced": true,
+    "validate": "OK",
+    "validate_data": "OK",
+    "focused_tests": "17 passed",
+    "started_at_utc": "2026-09-27T12:46:04.984296+00:00",
+    "finished_at_utc": "2026-09-27T13:18:24.806813+00:00",
+    "wall_seconds": 1939.8,
+    "exit_code": 0,
+    "single_invocation": true,
+    "re_entry": false,
+    "execution_failure_present": false,
+    "production_directory_present": false,
+    "render_artifacts_present": false,
+    "split_sha256": "0ab039b757b99ce9ae2eeb308013f3923263742fc3a417d4809b7c65ccbcc160",
+    "input_integrity_files_checked": 81,
+    "gpu_shared_at_launch": true,
+    "environment": {
+      "python": "3.12.9",
+      "torch": "2.9.0",
+      "gsplat": "1.5.3",
+      "lpips": "0.1.4",
+      "cuda": "12.8",
+      "device": "NVIDIA GeForce RTX 3050"
+    }
+  },
+  "input_boundary": {
+    "prepare_heldout_photograph_or_mask_opens": 0,
+    "initialize_dataset_opens": 0,
+    "fit_dataset_opens": 0,
+    "evaluate_first_heldout_colour_access": true,
+    "denied_opens_all_phases": 0,
+    "selftest_probes_denied": 4,
+    "decoder_backend": "index",
+    "parity_index_vs_reference_max": 1.7881393432617188e-07,
+    "hull_occupied_voxels": 21391,
+    "initial_hull_rejected_fraction": {
+      "9361": 0.9816,
+      "9362": 0.9805,
+      "9363": 0.981
+    }
+  },
+  "cells": {
+    "count": 12,
+    "all_completed_8000_iterations": true,
+    "all_initial_digests_match": true,
+    "all_configs_equal_frozen": true,
+    "relocation_events_per_relocation_cell": 66,
+    "relocation_schedule": "completed steps 500..7000 every 100",
+    "first_event_relocated_range": [
+      19393,
+      19406
+    ],
+    "first_refinement_dead_before_range": [
+      19149,
+      19297
+    ],
+    "first_refinement_survivors_range": [
+      867,
+      1030
+    ],
+    "final_counts": {
+      "nb_ms": {
+        "9361": 45529,
+        "9362": 43821,
+        "9363": 44287
+      },
+      "nb_ms_reloc": {
+        "9361": 46565,
+        "9362": 44658,
+        "9363": 45901
+      },
+      "ph_ms": {
+        "9361": 48183,
+        "9362": 48352,
+        "9363": 47591
+      },
+      "ph_ms_reloc": {
+        "9361": 48424,
+        "9362": 47768,
+        "9363": 48206
+      }
+    },
+    "count_invariance_verified": true,
+    "opacity_reset_inert_confirmed_on_traces": true
+  },
+  "official_gates": {
+    "h1_relocation": {
+      "rule": "pass iff for every paired seed nb_ms_reloc foreground PSNR >= nb_ms foreground PSNR + 0.1 dB and nb_ms_reloc crop LPIPS <= nb_ms crop LPIPS + 0.005; reject iff for every paired seed nb_ms_reloc foreground PSNR <= nb_ms foreground PSNR - 0.1 dB; otherwise inconclusive",
+      "verdict_recomputed": "inconclusive",
+      "verdict_producer": "inconclusive",
+      "rows_match_result_json": true,
+      "rows": [
+        {
+          "seed": 9361,
+          "nb_ms_foreground_psnr": 23.069614,
+          "nb_ms_reloc_foreground_psnr": 23.297866,
+          "delta_foreground_psnr": 0.228251,
+          "nb_ms_crop_lpips": 0.1707,
+          "nb_ms_reloc_crop_lpips": 0.163625,
+          "delta_crop_lpips": -0.007075,
+          "pass": true,
+          "reverse": false
+        },
+        {
+          "seed": 9362,
+          "nb_ms_foreground_psnr": 23.231079,
+          "nb_ms_reloc_foreground_psnr": 23.215189,
+          "delta_foreground_psnr": -0.01589,
+          "nb_ms_crop_lpips": 0.168418,
+          "nb_ms_reloc_crop_lpips": 0.163751,
+          "delta_crop_lpips": -0.004667,
+          "pass": false,
+          "reverse": false
+        },
+        {
+          "seed": 9363,
+          "nb_ms_foreground_psnr": 23.172918,
+          "nb_ms_reloc_foreground_psnr": 23.149668,
+          "delta_foreground_psnr": -0.023251,
+          "nb_ms_crop_lpips": 0.163713,
+          "nb_ms_reloc_crop_lpips": 0.16735,
+          "delta_crop_lpips": 0.003637,
+          "pass": false,
+          "reverse": false
+        }
+      ]
+    },
+    "production_gate": {
+      "required": "h1_relocation == pass",
+      "passed": false,
+      "production_run": false,
+      "production_model_exists": false
+    },
+    "descriptive_pairs": {
+      "photographs_relocation": [
+        {
+          "seed": 9361,
+          "delta_foreground_psnr": 0.037866,
+          "delta_crop_lpips": -0.000911
+        },
+        {
+          "seed": 9362,
+          "delta_foreground_psnr": -0.006865,
+          "delta_crop_lpips": -0.004303
+        },
+        {
+          "seed": 9363,
+          "delta_foreground_psnr": -0.087214,
+          "delta_crop_lpips": 0.002097
+        }
+      ],
+      "field_vs_photographs_with_relocation": [
+        {
+          "seed": 9361,
+          "delta_foreground_psnr": -0.410354,
+          "delta_crop_lpips": 0.021843
+        },
+        {
+          "seed": 9362,
+          "delta_foreground_psnr": -0.552173,
+          "delta_crop_lpips": 0.025363
+        },
+        {
+          "seed": 9363,
+          "delta_foreground_psnr": -0.471156,
+          "delta_crop_lpips": 0.022664
+        }
+      ],
+      "field_vs_photographs_without_relocation": [
+        {
+          "seed": 9361,
+          "delta_foreground_psnr": -0.600739,
+          "delta_crop_lpips": 0.028007
+        },
+        {
+          "seed": 9362,
+          "delta_foreground_psnr": -0.543147,
+          "delta_crop_lpips": 0.025726
+        },
+        {
+          "seed": 9363,
+          "delta_foreground_psnr": -0.53512,
+          "delta_crop_lpips": 0.021124
+        }
+      ],
+      "all_match_result_json": true
+    }
+  },
+  "recomputed_groups": {
+    "nb_ms": {
+      "foreground_psnr": 23.157871,
+      "crop_lpips": 0.16761,
+      "outside_alpha_mass": 0.001782,
+      "floater_fraction": 0.00147,
+      "interior_alpha": 0.998727,
+      "hull_rejected_fraction": 0.054677
+    },
+    "nb_ms_reloc": {
+      "foreground_psnr": 23.220908,
+      "crop_lpips": 0.164909,
+      "outside_alpha_mass": 0.001314,
+      "floater_fraction": 0.001026,
+      "interior_alpha": 0.998808,
+      "hull_rejected_fraction": 0.001825
+    },
+    "ph_ms": {
+      "foreground_psnr": 23.717539,
+      "crop_lpips": 0.142658,
+      "outside_alpha_mass": 0.001695,
+      "floater_fraction": 0.001403,
+      "interior_alpha": 0.998775,
+      "hull_rejected_fraction": 0.044078
+    },
+    "ph_ms_reloc": {
+      "foreground_psnr": 23.698802,
+      "crop_lpips": 0.141619,
+      "outside_alpha_mass": 0.001368,
+      "floater_fraction": 0.001077,
+      "interior_alpha": 0.998893,
+      "hull_rejected_fraction": 0.001171
+    },
+    "match_result_json_tolerance": 1e-12,
+    "in_sample_metrics": [
+      "outside_alpha_mass",
+      "floater_fraction",
+      "interior_alpha",
+      "hull_rejected_fraction"
+    ],
+    "novel_view_metrics": [
+      "foreground_psnr",
+      "crop_lpips"
+    ],
+    "result_md_regenerated_byte_identical": true
+  },
+  "claim_dispositions": [
+    {
+      "id": "P1",
+      "statement": "12 paired development cells completed.",
+      "source": "RESULT.md/json, metrics.json",
+      "disposition": "confirm",
+      "basis": "12 receipts completed, 8000 iterations each, one invocation"
+    },
+    {
+      "id": "P2",
+      "statement": "Held-out foreground PSNR inside the mask: nb_ms 23.158, nb_ms_reloc 23.221, ph_ms 23.718, ph_ms_reloc 23.699 dB",
+      "source": "RESULT.md/json",
+      "disposition": "confirm",
+      "narrowing": "in-task development numbers on one outcome-exposed frame; not comparable to the published RTGS-025 run (different decoder); no absolute floor"
+    },
+    {
+      "id": "P3",
+      "statement": "H1 all-mask floater relocation versus the masked objective alone: inconclusive",
+      "source": "RESULT decision",
+      "disposition": "confirm",
+      "basis": "recomputed in written form: seed 9361 pass, seeds 9362 and 9363 neither pass nor reverse"
+    },
+    {
+      "id": "P4",
+      "statement": "No production model is trained; the frozen rule is not met.",
+      "source": "RESULT decision",
+      "disposition": "confirm",
+      "basis": "no production/ directory; gate inconclusive; production() refuses without pass"
+    },
+    {
+      "id": "P5",
+      "statement": "Table rows for crop_lpips, outside_alpha_mass, floater_fraction, interior_alpha, hull_rejected_fraction",
+      "source": "RESULT.md",
+      "disposition": "confirm",
+      "narrowing": "mechanism descriptors; alpha and hull rows in-sample, including interior_alpha whose label lacks the tag"
+    },
+    {
+      "id": "P6",
+      "statement": "Relocation lowered the final hull-rejected Gaussian fraction from about 5.5 percent to about 0.2 percent",
+      "source": "task record handoff",
+      "disposition": "confirm",
+      "narrowing": "in-sample compliance descriptor of the relocation objective under the frozen hull; not a quality statement"
+    },
+    {
+      "id": "P7",
+      "statement": "in-sample outside-mask alpha by about a quarter",
+      "source": "task record handoff",
+      "disposition": "confirm",
+      "narrowing": "0.001782 to 0.001314 (-26 percent), lower in all six field view pairs; in-sample only"
+    },
+    {
+      "id": "P8",
+      "statement": "the first event moved about 19400 of 20000 start points",
+      "source": "task record handoff",
+      "disposition": "confirm",
+      "qualification": "19393 to 19406 per cell; 19149 to 19297 of the 20000 initial Gaussians were pruned at the first gsplat refinement in every cell, so the hull-guided placement is mostly transient"
+    },
+    {
+      "id": "P9",
+      "statement": "seed 9361 passes at +0.228 dB; seeds 9362/9363 at -0.016 and -0.023 dB",
+      "source": "task record handoff",
+      "disposition": "confirm",
+      "basis": "recomputed; the seed-9361 gain is carried by C0001 (+0.41 dB), C0029 changes by less than 0.07 dB in every seed"
+    },
+    {
+      "id": "P10",
+      "statement": "the only design change is exact CPU-index decoding",
+      "source": "claim boundary",
+      "disposition": "confirm",
+      "basis": "20-line task diff of identifiers, paths, wording, disclosure and aggregate; backend index at every decode; parity gate index-versus-reference only"
+    },
+    {
+      "id": "P11",
+      "statement": "Run locked at 70e4bc6 (clean, non-development); one run invocation, exit 0, 12/12 cells; GPU shared",
+      "source": "task record handoff",
+      "disposition": "confirm",
+      "basis": "lock, receipts, launch context, run root listing"
+    },
+    {
+      "id": "P12",
+      "statement": "Descriptive photograph relocation pair and field-versus-photograph pairs",
+      "source": "RESULT.json gates",
+      "disposition": "confirm",
+      "narrowing": "descriptive only; the photograph pair's two views disagree in sign in every seed; no direction claim"
+    },
+    {
+      "id": "P13",
+      "statement": "Numeric gates precede the independent audit and do not assert visual adequacy.",
+      "source": "RESULT.md",
+      "disposition": "confirm",
+      "basis": "visual disposition given in this audit with its resolution limit"
+    },
+    {
+      "id": "P14",
+      "statement": "Relocation improves novel-view colour or reduces novel-view floaters",
+      "source": "hypothesis (not asserted by the producer)",
+      "disposition": "unresolved",
+      "basis": "H1 inconclusive; floater metrics in-sample; needs a hull-initialized no-relocation arm, hull masks without held-out silhouettes, more frames and seeds or a longer budget"
+    }
+  ],
+  "visual_disposition": {
+    "status": "adequate_at_contact_sheet_scale",
+    "sheets_viewed": 13,
+    "root_preview_equals_selected_cell": true,
+    "reconstruction_failures": 0,
+    "observations": [
+      "all 12 final renders reproduce silhouette, pose and colours of both held-out views",
+      "bright silhouette-rim error in every arm; interior error denser for C0001 than C0029",
+      "a few isolated background specks in the no-relocation field arms, fewer in the relocation arms",
+      "no halo, ghost, detached fragment or missing body part in any arm"
+    ],
+    "limits": [
+      "sheets rendered at 2000x225 from 5328x600; native-resolution crops denied by the sandbox and not retried",
+      "individual renders excluded by the payload policy",
+      "floater and halo differences between arms not visually decisive; quantitative basis is the in-sample alpha descriptors",
+      "browser viewer smoke still pending"
+    ]
+  },
+  "disclosures_carried": [
+    "frame 00008 is outcome-exposed (RTGS-021/024/025)",
+    "held-out alpha, floater, hull-rejection and interior-alpha metrics are in-sample",
+    "the first relocation event re-initializes most random start points onto the hull (19393 to 19406 of 20000) and about 96 percent of them are pruned at the first gsplat refinement in every arm",
+    "gsplat refinement after each event uses screen-gradient statistics accumulated partly at pre-relocation positions",
+    "the installed gsplat 1.5.3 never executes its opacity reset, also for the RTGS-025 baseline; confirmed on loss and density traces",
+    "heldout_mask_alpha is a declared reconstruction input",
+    "first pre-review smoke (60 iterations, training stand-ins) exposed relocation counts, hull size and a meaningless gate value; no threshold changed",
+    "second pre-review smoke (prepare plus initialize over the frozen split) exposed per-view index parity, the hull voxel count, per-view teacher PSNR and initial hull-rejected fractions; no threshold changed",
+    "predecessor task failed closed at its CUDA parity gate; receipts at ara/evidence/tables/20260927_silhouette_relocation_failed_run/",
+    "targets, held-out diagnostic and production inputs are CPU-index decoded; nb_ms is an in-task re-fit not comparable to the published RTGS-025 run",
+    "RESULT.md lacks four of these disclosures (post-event statistics, inert reset, second smoke, RTGS-025 non-comparability); EXPERIMENTS.md and ARA rows must repeat them"
+  ],
+  "limitations": [
+    "development screen on one outcome-exposed frame, one split, two held-out colour views, three paired seeds, one 8000-step budget at downscale 8",
+    "H1 inconclusive; no production model; no default, SOTA, generalization, physical-geometry, speed or VRAM claim",
+    "alpha and hull descriptors are in-sample; held-out colour is novel under in-sample silhouettes in the relocation arms",
+    "GPU contended at launch; all timing and memory numbers descriptive only",
+    "field relocation arms ended with 2.3, 1.9 and 3.6 percent more Gaussians than their baselines (capacity confound not controlled)",
+    "visual inspection at contact-sheet scale only",
+    "source-binding aggregate not reproduced by the auditor",
+    "held-out compact views are parsed whole in prepare; alpha-only use is code discipline, not hook-enforced",
+    "interior_alpha label lacks the in-sample tag"
+  ],
+  "commands_executed_by_reviewer": [
+    "git status --short; git rev-parse HEAD; git log --oneline -8",
+    "git log --format='%h %cI %s' -4; git diff --stat HEAD; git diff HEAD -- .agents/state/current-task.md",
+    "git diff --no-index [--stat] experiments/tasks/20260927_silhouette_relocation_stage_frame00008.json experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+    ".venv/bin/python scripts/experiment_contract.py validate",
+    ".venv/bin/python scripts/experiment_contract.py validate-data experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+    ".venv/bin/python scripts/experiment_contract.py review-digest experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+    ".venv/bin/python -m pytest -q tests/test_silhouette_relocation.py tests/test_silhouette_relocation_index_decode_protocol.py",
+    ".venv/bin/python -c (payload manifest hashes versus disk and authorization)",
+    ".venv/bin/python -c (source_snapshot/manifest.json versus live tree; task, review and seal bytes versus task.lock.json)",
+    ".venv/bin/python -c (per-cell receipt, effective_config, history and evaluation summary)",
+    ".venv/bin/python -c (group means, paired deltas, H1 verdict and descriptive pairs from per-view rows)",
+    ".venv/bin/python -c (RESULT.md regeneration from comparison.json; metrics.json and training_history.json checks)",
+    ".venv/bin/python -c (relocation events versus checkpoint counts; count trajectories; density statistics; loss windows at 3000 and 6000)",
+    ".venv/bin/python -c (split digest and run wall time)",
+    "rg and sed over trainer.py, strategies.py, gsplat_backend.py, visualize.py, experiment_contract.py, installed gsplat strategy/default.py, docs/, ara/, experiments/README.md"
+  ],
+  "sandbox_denied_not_worked_around": [
+    "compound contract and pytest invocations (re-run plainly)",
+    "combined snapshot-and-archived-copies hash script (re-run without the archived copies)",
+    "PIL crop of native-resolution contact-sheet panels into the session scratchpad"
+  ],
+  "not_executed": [
+    "init-run",
+    "driver run / prepare / initialize / fit / evaluate / production / selftest",
+    "render, check-run, scripts/check_results_bundle.py, viewer",
+    "scripts/verify.sh and the full test suite",
+    "any GPU work",
+    "reproduction of the source-binding aggregate",
+    "reading of photographs, masks, .rtgsv, .npz, .ply, targets/, renders/, GIFs, logs, gaussians.config.json, archived source copies, the predecessor run root, or the RTGS-025 RESULT/AUDIT records",
+    "any file creation, modification or deletion under the repository or the run root"
+  ],
+  "remaining_handoff_checks": [
+    "persist AUDIT.md and AUDIT.json verbatim under benchmarks/results/ and commit them with the unchanged RESULT.md and RESULT.json",
+    "run render once, serve the report, perform the browser viewer smoke with the frozen viewer command, write viewer_smoke.json, rerun render",
+    "pass check-run and scripts/check_results_bundle.py on the run root",
+    "append the dated outcome to docs/EXPERIMENTS.md carrying all disclosures and corrections listed here",
+    "add ARA observations for the in-sample descriptors and the first-refinement prune finding, and a hypothesis row for H1 bound to RESULT and AUDIT; update docs/ROADMAP.md status if RTGS-026 is listed",
+    "close the task record with this verdict under the Reviewer label; move Maturity Reached to Calibrated only after the viewer receipt and both gates pass; archive to docs/tasks/ on closeout",
+    "production sequence not triggered (gate inconclusive); no production invocation may run"
+  ]
+}

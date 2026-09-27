@@ -4558,3 +4558,17 @@ tree:
     also_depends_on:
     - N247
     status: open
+  - id: N249
+    type: experiment
+    title: Does all-mask silhouette floater relocation improve novel-view colour in field-only distillation?
+    provenance: ai-executed
+    timestamp: 2026-09-27T16:30+02:00
+    description: RTGS-026 retry; the frozen per-seed rule was inconclusive (one of three seeds passed); no
+      production model. Relocation reduced in-sample hull rejection and outside-mask alpha. Independent
+      Fable 5.1 audit accepted_with_limits.
+    evidence:
+    - benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_RESULT.json
+    - benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_AUDIT.md
+    also_depends_on:
+    - N247
+    status: resolved

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "Byte-identical copies of referenced repository evidence at the paths a browser resolves for outward relative links under the run-root HTTP server. Originals are unchanged.",
+  "files": {
+    "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_AUDIT.json": {
+      "source": "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_AUDIT.json",
+      "bytes": 19853,
+      "sha256": "64ff6f1d82a835bcef001d759a69b6648cffbc53ee954b05303ef0c2757cbdd4"
+    },
+    "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_AUDIT.md": {
+      "source": "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_AUDIT.md",
+      "bytes": 47897,
+      "sha256": "1846f5f2e56e62be5a36430c20cb8e4da0d69bdebace1b64c6fd5c9c502301b4"
+    },
+    "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_RESULT.json": {
+      "source": "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_RESULT.json",
+      "bytes": 10832,
+      "sha256": "8ccba0b53245cb20a63c778f98d388f091be2f9b13f967d117c1fe08e78a2c80"
+    },
+    "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_RESULT.md": {
+      "source": "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_RESULT.md",
+      "bytes": 3003,
+      "sha256": "d0662dd68b600725b3d49a6438ca3d8b5bdf8ba95bb67f8dadb53805f669c15a"
+    },
+    "experiments/data/20260927_silhouette_relocation_index_decode_stage_frame00008.json": {
+      "source": "experiments/data/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+      "bytes": 18603,
+      "sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087"
+    },
+    "experiments/reviews/20260927_silhouette_relocation_index_decode_stage_frame00008_PROTOCOL_REVIEW.md": {
+      "source": "experiments/reviews/20260927_silhouette_relocation_index_decode_stage_frame00008_PROTOCOL_REVIEW.md",
+      "bytes": 34885,
+      "sha256": "a58ce3e924fe2c8d1305dcd2437f108c9848ac32a76c194a97a96c36bb62f400"
+    },
+    "experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json": {
+      "source": "experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+      "bytes": 31870,
+      "sha256": "fdcfca2bad4ebce826a2d822b8ef68c94dd44f1581e1856cb765dd28ed9a867d"
+    }
+  }
+}

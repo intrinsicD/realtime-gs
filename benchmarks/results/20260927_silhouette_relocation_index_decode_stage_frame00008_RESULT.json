@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "task_id": "20260927_silhouette_relocation_index_decode_stage_frame00008",
+  "summary": "12 paired development cells completed. Held-out foreground PSNR inside the mask: field-only 23.158 dB without and 23.221 dB with relocation; photographs 23.718 / 23.699 dB.",
+  "decision": "H1 all-mask floater relocation versus the masked objective alone: inconclusive. No production model is trained; the frozen rule is not met. Visual adequacy and any promotion require the independent audit; no default changes.",
+  "claim_boundary": "Development screen on one previously outcome-exposed frame (RTGS-021/024/025 used it), one split with two held-out colour views, three paired seeds and one 8000-step budget at downscale 8. The masks of all 26 views, including both held-out views, define the visual hull by the user's design, so held-out alpha, floater and hull-rejection metrics are in-sample; only held-out colour is a novel-view measurement. Training packed alpha is mask-derived; the field arms are field-plus-silhouette and the photograph arms photograph-plus-silhouette. No default, SOTA, generalization, physical-geometry or speed claim. The conditional all-view production model has no held-out view and is not evidence. Relocation also re-places the random initialization: most random start points lie outside the hull and move to its surface at the first event, so H1 measures the method as a whole (hull-guided placement plus ongoing relocation), not ongoing relocation alone. Before protocol review, a non-protocol driver smoke (60 iterations, two training views standing in for held-out, no real held-out colour) exposed relocation counts, hull size and a meaningless 60-iteration gate value to the Driver; no threshold changed afterwards. This task repeats the approved design of 20260927_silhouette_relocation_stage_frame00008, whose single run failed closed at its CUDA-versus-CPU decoder-parity gate (1.889e-4 at 1 of 512 sites of training view C0026, a near-empty normalized-blend region) before any initialization, fitting cell or held-out access; the only design change is exact CPU-index decoding. The Driver diagnosed that site after the failure; no reconstruction outcome exists from the predecessor.",
+  "groups": {
+    "nb_ms": {
+      "foreground_psnr": 23.157870610555012,
+      "crop_lpips": 0.1676103211939335,
+      "outside_alpha_mass": 0.0017817154148360714,
+      "floater_fraction": 0.0014700365585061566,
+      "interior_alpha": 0.9987267951170603,
+      "hull_rejected_fraction": 0.05467691272497177
+    },
+    "nb_ms_reloc": {
+      "foreground_psnr": 23.22090752919515,
+      "crop_lpips": 0.16490876177946726,
+      "outside_alpha_mass": 0.0013135148910805583,
+      "floater_fraction": 0.0010255445420928784,
+      "interior_alpha": 0.9988080561161041,
+      "hull_rejected_fraction": 0.0018251279834657907
+    },
+    "ph_ms": {
+      "foreground_psnr": 23.717539469401043,
+      "crop_lpips": 0.142658069729805,
+      "outside_alpha_mass": 0.0016946209216257557,
+      "floater_fraction": 0.0014025175308537048,
+      "interior_alpha": 0.9987752139568329,
+      "hull_rejected_fraction": 0.044078068186839424
+    },
+    "ph_ms_reloc": {
+      "foreground_psnr": 23.698801676432293,
+      "crop_lpips": 0.14161896581451097,
+      "outside_alpha_mass": 0.0013677399838343263,
+      "floater_fraction": 0.0010774766672814924,
+      "interior_alpha": 0.9988925457000732,
+      "hull_rejected_fraction": 0.0011709070919702451
+    }
+  },
+  "gates": {
+    "h1_relocation": {
+      "verdict": "inconclusive",
+      "rows": [
+        {
+          "seed": 9361,
+          "delta": {
+            "foreground_psnr": 0.22825145721435547,
+            "crop_lpips": -0.0070747435092926025,
+            "outside_alpha_mass": -0.00047893407463561743,
+            "floater_fraction": -0.0004199386403342942,
+            "interior_alpha": 0.00011005997657775879,
+            "hull_rejected_fraction": -0.05222121241968125
+          },
+          "pass": true,
+          "reverse": false
+        },
+        {
+          "seed": 9362,
+          "delta": {
+            "foreground_psnr": -0.015890121459960938,
+            "crop_lpips": -0.004666827619075775,
+            "outside_alpha_mass": -0.0005425749259302393,
+            "floater_fraction": -0.000503922313782823,
+            "interior_alpha": 7.799267768859863e-05,
+            "hull_rejected_fraction": -0.05215705593582243
+          },
+          "pass": false,
+          "reverse": false
+        },
+        {
+          "seed": 9363,
+          "delta": {
+            "foreground_psnr": -0.023250579833984375,
+            "crop_lpips": 0.0036368928849697113,
+            "outside_alpha_mass": -0.0003830925707006827,
+            "floater_fraction": -0.0004096150951227173,
+            "interior_alpha": 5.5730342864990234e-05,
+            "hull_rejected_fraction": -0.05417708586901426
+          },
+          "pass": false,
+          "reverse": false
+        }
+      ]
+    },
+    "photographs_relocation_descriptive": [
+      {
+        "seed": 9361,
+        "delta": {
+          "foreground_psnr": 0.037865638732910156,
+          "crop_lpips": -0.0009107515215873718,
+          "outside_alpha_mass": -0.0002880929969251156,
+          "floater_fraction": -0.0003268858199589886,
+          "interior_alpha": 0.00021007657051086426,
+          "hull_rejected_fraction": -0.04209469654597342
+        }
+      },
+      {
+        "seed": 9362,
+        "delta": {
+          "foreground_psnr": -0.0068645477294921875,
+          "crop_lpips": -0.004303455352783203,
+          "outside_alpha_mass": -0.0004409450921230018,
+          "floater_fraction": -0.0004069627748322091,
+          "interior_alpha": -9.626150131225586e-06,
+          "hull_rejected_fraction": -0.043809028109535575
+        }
+      },
+      {
+        "seed": 9363,
+        "delta": {
+          "foreground_psnr": -0.08721446990966797,
+          "crop_lpips": 0.0020968951284885406,
+          "outside_alpha_mass": -0.000251604724326171,
+          "floater_fraction": -0.00024127399592543952,
+          "interior_alpha": 0.00015154480934143066,
+          "hull_rejected_fraction": -0.042817758629098535
+        }
+      }
+    ],
+    "field_vs_photographs_with_relocation_descriptive": [
+      {
+        "seed": 9361,
+        "delta": {
+          "foreground_psnr": -0.4103536605834961,
+          "crop_lpips": 0.0218425951898098,
+          "outside_alpha_mass": -6.98318617651239e-05,
+          "floater_fraction": -3.862111952912528e-05,
+          "interior_alpha": 4.0531158447265625e-05,
+          "hull_rejected_fraction": 0.0004922043299302459
+        }
+      },
+      {
+        "seed": 9362,
+        "delta": {
+          "foreground_psnr": -0.5521726608276367,
+          "crop_lpips": 0.025362852960824966,
+          "outside_alpha_mass": -6.791518535465002e-05,
+          "floater_fraction": -7.281789339685929e-05,
+          "interior_alpha": -0.000186920166015625,
+          "hull_rejected_fraction": 0.000603956519626081
+        }
+      },
+      {
+        "seed": 9363,
+        "delta": {
+          "foreground_psnr": -0.47115612030029297,
+          "crop_lpips": 0.022663939744234085,
+          "outside_alpha_mass": -2.4928231141529977e-05,
+          "floater_fraction": -4.4357362639857456e-05,
+          "interior_alpha": -0.00010707974433898926,
+          "hull_rejected_fraction": 0.0008665018249303102
+        }
+      }
+    ],
+    "field_vs_photographs_without_relocation_descriptive": [
+      {
+        "seed": 9361,
+        "delta": {
+          "foreground_psnr": -0.6007394790649414,
+          "crop_lpips": 0.02800658717751503,
+          "outside_alpha_mass": 0.00012100921594537795,
+          "floater_fraction": 5.443170084618032e-05,
+          "interior_alpha": 0.0001405477523803711,
+          "hull_rejected_fraction": 0.010618720203638077
+        }
+      },
+      {
+        "seed": 9362,
+        "delta": {
+          "foreground_psnr": -0.543147087097168,
+          "crop_lpips": 0.02572622522711754,
+          "outside_alpha_mass": 3.3714648452587426e-05,
+          "floater_fraction": 2.4141645553754643e-05,
+          "interior_alpha": -0.0002745389938354492,
+          "hull_rejected_fraction": 0.008951984345912933
+        }
+      },
+      {
+        "seed": 9363,
+        "delta": {
+          "foreground_psnr": -0.5351200103759766,
+          "crop_lpips": 0.021123941987752914,
+          "outside_alpha_mass": 0.00010655961523298174,
+          "floater_fraction": 0.00012398373655742034,
+          "interior_alpha": -1.1265277862548828e-05,
+          "hull_rejected_fraction": 0.012225829064846039
+        }
+      }
+    ],
+    "visual_adequacy": "requires the independent AUDIT record"
+  },
+  "command": [
+    ".venv/bin/python",
+    "scripts/experiments/20260927_silhouette_relocation_index_decode_stage_frame00008.py",
+    "run",
+    "--task",
+    "experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+    "--run-dir",
+    "runs/20260927_silhouette_relocation_index_decode_stage_frame00008"
+  ],
+  "source_lock": {
+    "schema_version": 2,
+    "task_id": "20260927_silhouette_relocation_index_decode_stage_frame00008",
+    "task_path": "experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+    "task_sha256": "fdcfca2bad4ebce826a2d822b8ef68c94dd44f1581e1856cb765dd28ed9a867d",
+    "protocol_sha256": "27f7b23ac0ad4be45e22fc2f8afbd17bb223d2d1680e70dc2a336b288000f815",
+    "protocol_review": {
+      "reviewer": "Claude-Code-Fable-5.1-reviewer",
+      "verdict": "approved",
+      "protocol_sha256": "27f7b23ac0ad4be45e22fc2f8afbd17bb223d2d1680e70dc2a336b288000f815",
+      "artifact": "experiments/reviews/20260927_silhouette_relocation_index_decode_stage_frame00008_PROTOCOL_REVIEW.md"
+    },
+    "protocol_review_artifact_sha256": "a58ce3e924fe2c8d1305dcd2437f108c9848ac32a76c194a97a96c36bb62f400",
+    "data_seal_path": "experiments/data/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+    "data_seal_sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087",
+    "source_commit": "70e4bc6dcb09442b99e511fcd9a2ffa036275a06",
+    "source_dirty": false,
+    "source_diff_sha256": "448d83d61bb792851b4008c5850d278208b0d73534859ed160fac37034360d09",
+    "development": false,
+    "started_at_utc": "2026-09-27T12:46:04.984296+00:00",
+    "command": [
+      ".venv/bin/python",
+      "scripts/experiments/20260927_silhouette_relocation_index_decode_stage_frame00008.py",
+      "run",
+      "--task",
+      "experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+      "--run-dir",
+      "runs/20260927_silhouette_relocation_index_decode_stage_frame00008"
+    ],
+    "report_template_version": 2
+  },
+  "raw_comparison_path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/comparison.json"
+}

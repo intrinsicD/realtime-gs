@@ -1,0 +1,523 @@
+{
+ "task_id": "20260927_silhouette_relocation_index_decode_stage_frame00008",
+ "items": [
+  {
+   "path": "experiments/tasks/20260927_silhouette_relocation_index_decode_stage_frame00008.json",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "fdcfca2bad4ebce826a2d822b8ef68c94dd44f1581e1856cb765dd28ed9a867d"
+  },
+  {
+   "path": "experiments/reviews/20260927_silhouette_relocation_index_decode_stage_frame00008_PROTOCOL_REVIEW.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "a58ce3e924fe2c8d1305dcd2437f108c9848ac32a76c194a97a96c36bb62f400"
+  },
+  {
+   "path": "experiments/tasks/20260927_silhouette_relocation_stage_frame00008.json",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "92d569e6046d5252c43074bc162090086e3f633a413c385e3fbe161eb59d282a"
+  },
+  {
+   "path": "experiments/reviews/20260927_silhouette_relocation_stage_frame00008_PROTOCOL_REVIEW.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "fcab35ad92dc69466d83ffe8a0841e029023adad98723e4ca8e13c6f4170f016"
+  },
+  {
+   "path": "experiments/reviews/20260927_silhouette_relocation_stage_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "d894f3ddc1728ee56a97ff0a0d98f50d17505db1385a3e3eed58085c6e39ac25"
+  },
+  {
+   "path": "experiments/reviews/20260927_silhouette_relocation_stage_frame00008_DRIVER_RESPONSE_R1.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "cfedf22f462ccd1fbd882537aa3278382fc5cf61957600c0c1afc73681e24935"
+  },
+  {
+   "path": "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_RESULT.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "d0662dd68b600725b3d49a6438ca3d8b5bdf8ba95bb67f8dadb53805f669c15a"
+  },
+  {
+   "path": "benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_RESULT.json",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "8ccba0b53245cb20a63c778f98d388f091be2f9b13f967d117c1fe08e78a2c80"
+  },
+  {
+   "path": "ara/evidence/tables/20260927_silhouette_relocation_failed_run/README.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "f654430b2ee8787374af6e9d45554de42b0d8da2bd026d0ce87ccae7c63f5607"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/task.lock.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "ef15a9fd37240ff95ce8b963fddf57d41676aa6ea4740918a0ce503b9b278d67"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/run_receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "7d9a27e5ff04e78ab5d6c881f241f2e3719ddacf294465926c4f374c16fa032f"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/environment.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "48df639af890ab9bd4645e34aee095f398fedeb311b698aa11607f97bf89941f"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/preflight.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "f39ee981bfb38021523b14d606982da1fb90aa16e1c73c4c6632dfdf681517cf"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/launch_context.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "c81bc682e1658daa667602535dde6b4c165c6d23d2d277099257d05cf68db43f"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/input_integrity_entry.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "7407951380feaf6ce52b27b05de2d2009d296d6f07efc3e6159399ab23de1164"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/input_integrity_exit.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "bb2eece8e9213f57ebd7133a70ca5059478fe746db6cf0611a68875231091d00"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/preparation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "3a35120b9477815b210a0d2be0e4f752a01d7abfeb6c56c0fdc47058cb5ef961"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/initialization.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "8ff76cd066c08518ae7315b5188196bfb95629a8495c205b04cbdaa6906a7982"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/comparison.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "6cb3a974b817bac6c186bd7effb69fb62428046e73cf38939ea6fff92cc6e927"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/metrics.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "c9e49c5f8a7570962b4197962b3e0f1faadcb38416e304150ff656c9662cf8e4"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/training_history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "663c238115bb68a993250025159b2b5bb50f2b0e50f69214f0375878eabe7a48"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/resource_receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "d34d109065af27d1518575b721e2da251c39fa67ba1518ef9898093c8a319369"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/input_boundary_receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "147da95a08e027261dc447e424798d3a9af24af69efff39add2e158a24ac1d65"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/source_snapshot/manifest.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "f1d27e9443fb8bcb399517bade40188ab0dcad4d30f060c799107d267ce46720"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9361/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "3013f51c683c60bf2e1be8ed6b43f9d9440ea790e747a53a47739074c40f3b5d"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9361/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "30d5a01962a9e04068b1012300897c3b84eaf38a6638e09e3ef0795867dea57d"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9361/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "2974dabb505e25583523c8b3aef66cb6e92fc23339ef4250ababfff8d9fd2645"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9361/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "7b6d4db4eebcabb76b59994d7dff4b46c0ffcbdc37afb49a6db8198bb5c244da"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9361/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "c479342c8b8229a924587618e27b67722d388298455df32ce43ed1ef79bea5c2"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9362/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "02e0018aecf0294328000f1144070b785a75bd4302a4e7b9af5fcffe67ed5b85"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9362/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "6784ff64e4e0e7a81c2770a265d500529c9f6fd9a9a956753283e73b4a9090dd"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9362/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "584c7cc47e61a2658ead47acd08553490ffbbb14c46b2c16583ea5e2769b09e7"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9362/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "fa02a3978ec38eabcda640114a43c02ff6e4c16334e84556f53f0aed941641ea"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9362/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "81d602216afa9997e9c89f21498a750f499f72f5662873eae026ea7aa1230a9d"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9363/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "97cc621794e04f9e028416cce35c11149951120b96ebef391079b9c16cfef7c0"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9363/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "9894475f41b344ac31f9741dc99cd6d2b12993416e83549595e279eb27c61a8c"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9363/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "66b0eecb97725cf1a7dda2f8e81a8e755806600b87cbbfe6231a045203caf898"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9363/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "57d2398102142ba79f76dd9006a40878998c15b7bcc697a9dfae91ba7357767c"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms/9363/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "f2f9d75bb58c1de4c0fcc28fc0e4b0006f0dab6f8a02f71f80cf6c8c7020086c"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9361/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "23b1627ce48ff3ea70827a59348751036e2eaea6e6ba7d6771d829c91279e7e6"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9361/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "0acf0999e2362fab5180417e89e73a5fdef87fdfbc669b9bca7cb884e7c2a920"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9361/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "772c0a9b7294d7b0753f831997ed60839f3188cdf0956faf72b4a9fc122c3350"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9361/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "683a7a094c9ada0b4f8983d440f13efcb7c1ef2ede31dfaf04e7886caa20d224"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9361/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "47962efd0025993ce78b8d4b9e0bae508bd9edd9185bad7328e33dbfd4608d10"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9362/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "46f2c749b0696efe7c8bf352da6b4033fc1b566864b50020bfcf2e15b397e573"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9362/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "7af9a90461aed6c9d1b4f93deede256d29183fe1c497ee916914197f83cf9291"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9362/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "8fbffbaa9011c223c1dd56aac1a8188d9ba47063a8ab103f85bbc568b983432d"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9362/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "5e075f64088d918dd738c386a7623f5079cf0fa5a52f9da981e1619e5763c4c4"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9362/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "1b71eb756a4010b0501b34356465c1c2553fd5114a94a7f24a3bb6f3735031af"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9363/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "5a6effd674cd88f769eb8e88e35e6ac7aba078a8cf54efbe99279a2e93fbc0ce"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9363/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "78ff6b58ea0baef0f94baea357bc9fcf3b77f362a338a20eb9f5cbcd90a147f6"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9363/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "18b0fcf50166531aeb795b2721c7cfd8f96f752ead0fa923cb79c6dea975b977"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9363/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "e3cca98f470e783040e354dbe48e279a8fc96404ae30e89a5e2603341ff04a44"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/nb_ms_reloc/9363/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "3fb580012fdda6834ab86e23f912fb2e9059171c6652f8f6a84e039f4185cf82"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9361/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "e6151f623da03c369246498a7a0fd746cbf1a323f2c7c6a830138b28fe830110"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9361/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "56993d49f7d9e4bb32caf2106f7dc59dbe527e69b7a187c09f111ed1d37e399a"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9361/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "be85d931d1f4121e979e56805e91c739e30ad7fcbe6fb5b778c25942e5cbd11e"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9361/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "a1e31879e28cf9f377fd7877143a85c0810509785b91f11d102b11561065a244"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9361/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "b7d65ea2925a4d9a6c1cc5759a2a9dfaea82c762b2ee142483fb1c32fad1c2fa"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9362/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "c2a1e6d043c52d60b97d2cd4cd9f0b34e86620e3d3a1767d810d97a8c5202313"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9362/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "4c0b0e2ddd11320dbb729fbeb72be9bd3045665f27794e9a195fccd7686aeee1"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9362/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "29f4123855e5005dc0738c045bf5c1826bf02dc8d998b63cc7a70b6a59afac90"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9362/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "7482cffb026d6ed2427da28302089852cc8efed3bb50dd7bc4163199a8021a11"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9362/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "7c6cf97d36bbcaa1cebc2678acbc9632917cf1f56e26643884801c10cf8766e1"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9363/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "0898ad477d76d885c7df805b297864004fc33262f85e73f194738c2b9f0b41b6"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9363/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "8d263469abb4ccdcdec9a13a4cbf7dcf491f57cdb7b6b8503e6ed30c88d36650"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9363/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "b28330ff94888838632aae37160c9a07f1212b22577bb8ca2b81db55627fca3e"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9363/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "c02e79b6eda77e406ddfb3d2cf9536694f872fa0378ff5c5360e7ff1f67bdb23"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms/9363/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "d373859e2271dd32c090e412aced8c6b9e8ae52bb95f8587e74a14d425e790e3"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9361/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "7edeba5428d5f10cb77e76e435dd2f3a12603a1ed17c114bc2570ac6dab34681"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9361/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "4cd4626d82b361f5bac2bd87612ccb8c9e7a33b4cb8e940255ea1209c2ecb232"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9361/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "7dffb3e7cfaac7d490a11656f63dcb3d8d5f9e83c02077f9141905e0162be26c"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9361/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "e9632902900850a887e04020658e0b5e370ca0b4d59554b27f153037ddb05505"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9361/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "49384f65ba67611388593db35c22fd1cf22ec10a50e493143ab9102498747517"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9362/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "74cb289f1d7188b0c85f9839349a54018a4579e3ae705fcc900ebbbb500c5169"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9362/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "0e029c4dcbd860efe2387fe150f54ce3f3a8f54083b166d5d813b23204397049"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9362/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "f6548f348c37c00c8cf7c6891b951f7c062b6bcfbd56aad2d5e4d5c6650f24d4"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9362/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "48185c83da798f3179d718930abc698cf2ef8885e26fe18eb4bd8745f1f7a8e3"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9362/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "204c4b6e94899238e10c005b8b4d9a13f86cd8222d99e756f99ae4bbddb97b33"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9363/receipt.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "aee0304b3d2120fad6942eafb886452de3ba9adc9915bda1f29fe27743adf6b8"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9363/evaluation.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "5145a2220a8de19731c082b1facf503b6b02d49d30c406b19434fe9856f2f080"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9363/effective_config.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "db4a6f5929ffe1d30f79aa1649cdcee3f020cac7c708cb8a360c2b1e61b24a94"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9363/history.json",
+   "kind": "cell_record",
+   "dome_derived": false,
+   "sha256": "0d86026b360b234a6167b8ec0978333fe824a9eb03c8827a15583316e48e17ef"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/cells/ph_ms_reloc/9363/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "4c26f31af59d8739b19f44657708804e56bcf4391170fe05894d487249d31822"
+  },
+  {
+   "path": "runs/20260927_silhouette_relocation_index_decode_stage_frame00008/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "47962efd0025993ce78b8d4b9e0bae508bd9edd9185bad7328e33dbfd4608d10"
+  }
+ ],
+ "excluded": [
+  "dataset/** raw photographs, masks and .rtgsv archives",
+  "runs/**/targets/** decoded targets and hull caches",
+  "**/*.npz and **/*.ply Gaussian archives",
+  "runs/**/renders/** individual renders",
+  "*.gif animations",
+  "logs"
+ ]
+}

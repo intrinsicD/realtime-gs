@@ -2929,3 +2929,20 @@ observations:
     promoted_to: logic/claims.md:C50
     crystallized_via: artifact-commitment
     stale: false
+  - id: O181
+    timestamp: 2026-09-27T16:30+02:00
+    provenance: ai-executed
+    content: In the RTGS-026 retry on Stage frame_00008 (24 training / 2 held-out colour views, downscale 8,
+      8000 steps, three paired seeds), all-mask silhouette relocation changed held-out foreground PSNR of
+      field-only distillation by +0.228, -0.016 and -0.023 dB per seed (group means 23.158 to 23.221 dB), so
+      the frozen +0.1 dB per-seed rule was inconclusive. It lowered the in-sample final hull-rejected fraction
+      from 0.0547 to 0.0018 and in-sample outside-mask alpha from 0.00178 to 0.00131.
+    context: Independent Fable 5.1 audit accepted_with_limits; alpha and hull descriptors are in-sample because
+      the held-out masks define the hull; no production model was trained.
+    potential_type: claim
+    bound_to:
+    - N249
+    promoted: true
+    promoted_to: logic/claims.md:C51
+    crystallized_via: artifact-commitment
+    stale: false

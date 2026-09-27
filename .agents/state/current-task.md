@@ -12,7 +12,7 @@ RTGS-026
 
 - Driver: Claude-Code-Opus-5.5-driver
 - Reviewer: Claude-Code-Fable-5.1-reviewer
-- Turn: driver
+- Turn: human
 
 ## Mode
 
@@ -25,7 +25,7 @@ Protected
 ## Maturity
 
 - Target: Calibrated
-- Reached: CPU-contracted
+- Reached: Calibrated
 
 ## Goal
 
@@ -85,7 +85,7 @@ RTGS-025 (C49, C50) and its audited run; `rtgs.data.field_targets`.
 
 ## Status
 
-In progress
+Blocked on human decision
 
 ## Human Decisions
 
@@ -98,6 +98,19 @@ Any single rejecting view with a small mask dilation; all masks, with held-out a
 declared in-sample.
 ### Decision
 User chose both recommendations.
+### Date
+2026-09-27
+
+### Question
+RTGS-026 closed its audited screen with H1 inconclusive. Merge `rtgs-025-main-path` into `main`,
+and which follow-up (if any) should be registered next?
+### Options
+Merge and register a colour-quality follow-up (budget/resolution, hull-initialized no-relocation
+arm); merge only; hold the branch.
+### Recommendation
+Merge; next target colour quality inside the mask rather than floaters.
+### Decision
+Pending.
 ### Date
 2026-09-27
 
@@ -296,3 +309,97 @@ None.
 
 #### Optional Improvements
 Investigate the CUDA query kernel's near-zero-weight normalization in a later task.
+
+### Handoff (2026-09-27, retry run completed; results audit pending)
+
+#### Objective
+Execute the approved retry once and hand the producer records to an independent results audit.
+
+#### Reviewed state
+Run `runs/20260927_silhouette_relocation_index_decode_stage_frame00008/` locked at `70e4bc6` (clean, non-development); one `run` invocation, exit 0,
+12/12 cells; GPU shared with an unrelated process (launch context in `.scratch/20260927_silhouette_relocation_index_decode_stage_frame00008/`).
+
+#### Changes
+None to source or protocol.
+
+#### Evidence
+Producer decision: H1 inconclusive (seed 9361 passes at +0.228 dB; seeds 9362/9363 at -0.016 and
+-0.023 dB), so no production model is trained. Relocation lowered the final hull-rejected
+Gaussian fraction from about 5.5 percent to about 0.2 percent and in-sample outside-mask alpha by
+about a quarter; the first event moved about 19400 of 20000 start points. Pre-audit values only.
+
+#### Assumptions
+Held-out alpha metrics are in-sample by design.
+
+#### Uncertainties
+Visual effect on floaters/halos; whether a longer budget or hull-guided initialization changes H1.
+
+#### Review Focus
+Results audit per the approved conditions; no post-hoc reinterpretation of the per-seed rule.
+
+#### Protected actions not taken
+No production phase (gate not passed), no audit dispatch, render, viewer receipt or commit of
+the RESULT. The audit would read dome-derived previews; user authorization is required.
+
+#### Recommended Next Action
+Ask the user to authorize the Fable 5.1 results audit including dome-derived previews.
+
+### Review (2026-09-27, independent results audit of the retry)
+
+#### Verdict
+Accepted with follow-up
+
+#### Self-reviewed
+No
+
+#### Correctness
+Claude-Code-Fable-5.1-reviewer (claude-fable-5-1, effort max) returned `accepted_with_limits`
+after the user authorized reading 13 dome-derived previews; all numbers reproduce; H1
+inconclusive; no production model; no producer statement retired. Verbatim:
+`benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_AUDIT.md/json`.
+
+#### Evidence Quality
+Receipts, bindings, boundaries, relocation events and all 12 cells checked; downscaled sheets only.
+
+#### Simplicity
+No rerun or source change.
+
+#### Missing Cases
+Hull-initialized no-relocation arm; masks excluded from the hull for out-of-sample floater tests.
+
+#### Required Changes
+Carry four disclosures into EXPERIMENTS.md/ARA and label interior alpha in-sample (done).
+
+#### Optional Improvements
+Future colour-quality task; CUDA query kernel near-zero-weight normalization.
+
+### Handoff (2026-09-27, bundle complete)
+
+#### Objective
+Close the RTGS-026 bundle after the independent audit.
+
+#### Reviewed state
+Run `runs/20260927_silhouette_relocation_index_decode_stage_frame00008/` with AUDIT records, second render and viewer receipt; tracked receipts in
+`ara/evidence/tables/20260927_silhouette_relocation_final_handoff/`.
+
+#### Changes
+AUDIT persisted verbatim; HTTP mirrors and favicon in the run root; headless viewer receipt;
+EXPERIMENTS.md entry; N249, O181, C51.
+
+#### Evidence
+`check-run` OK; `check_results_bundle.py` OK; 517 report targets HTTP 200.
+
+#### Assumptions
+Headless SwiftShader viewer receipt is acceptable (as in RTGS-016/025).
+
+#### Uncertainties
+Whether relocation helps with a longer budget or other frames.
+
+#### Review Focus
+Human decision on merge and the next task.
+
+#### Protected actions not taken
+No production phase (gate inconclusive), no default change, no merge.
+
+#### Recommended Next Action
+User decides merge and follow-up.

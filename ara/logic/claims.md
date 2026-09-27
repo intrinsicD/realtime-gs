@@ -1070,3 +1070,16 @@
 - **Tags**: mask-silhouette, floaters, objective, development, descriptive
 - **From staging**: O180
 - **Boundary**: Descriptive H4 only; the premultiplied arm also differs in view schedule and ends with about half the final Gaussian count. One exposed frame, three seeds, downscale 8. Outside-alpha levels are about 0.1 percent in both arms.
+
+## C51: All-mask silhouette floater relocation did not consistently improve novel-view colour
+
+- **Statement**: In the RTGS-026 retry on Stage frame_00008, relocating Gaussian centres rejected by any of the 26 calibrated silhouettes into the visual hull changed held-out foreground PSNR of field-only distillation by +0.228, -0.016 and -0.023 dB in the three paired seeds, so the frozen rule (at least +0.1 dB with crop LPIPS no worse than +0.005 in every seed) was inconclusive and no production model was trained. Relocation lowered the in-sample final hull-rejected Gaussian fraction from 0.0547 to 0.0018 and in-sample outside-mask alpha from 0.00178 to 0.00131.
+- **Status**: untested novel-view colour benefit; frozen per-seed rule inconclusive
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Independent recomputation from the per-view evaluation rows changes a per-seed verdict or the in-sample descriptors, or task/source/input bindings fail.
+- **Proof**: [`benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_RESULT.json`, `benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_AUDIT.md`, `benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_AUDIT.json`]
+- **Dependencies**: [C49]
+- **Tags**: field-supervision, floaters, visual-hull, relocation, development, no-default
+- **From staging**: O181
+- **Boundary**: One previously exposed frame, one split with two held-out colour views, three seeds, one 8000-step budget at downscale 8. The held-out masks define the hull, so all alpha and hull descriptors (including interior alpha) are in-sample; only held-out colour is a novel-view measurement. The first event moves most random start points onto the hull, but about 96 percent of initial Gaussians are pruned at the first refinement. The installed gsplat never resets opacity. Numbers are not comparable to the published RTGS-025 run (different decoder). No default, speed or generalization claim.

@@ -3523,3 +3523,35 @@ The independent Fable 5.1 results audit is `accepted_with_limits`. Evidence:
 `runs/20260926_field_only_distillation_stage_frame00008/index.html` (local). The frozen report command names port 8765, which another local
 server occupied; the report was served on 8766 for the browser check. The viewer check ran in headless Chrome (SwiftShader WebGL2) because the app browser pane was unavailable; `check-run` and the bundle gate pass. Receipts: `ara/evidence/tables/20260927_field_only_final_handoff/`. Next step (N248): register
 a successor that lifts the photograph reference above the unchanged floor before retesting H1/H2.
+
+## 2026-09-27 — RTGS-026 all-mask silhouette floater relocation (H1 inconclusive)
+
+The user proposed identifying floaters with the masks of all views and actively moving them into
+the masks, holding out two RGB-field views as novel views, and retraining on all data only if the
+method works. RTGS-026 added the opt-in `Trainer.train(parameter_step_callback=...)` seam and
+`rtgs.optim.silhouette_relocation`: a Gaussian centre rejected by any calibrated view's 1-pixel-
+dilated silhouette moves to the nearest occupied visual-hull voxel with its Adam moments reset.
+The first approved task (`20260927_silhouette_relocation_stage_frame00008`) failed closed in
+`prepare` at its frozen CUDA-vs-CPU decoder-parity gate before any cell (receipts:
+`ara/evidence/tables/20260927_silhouette_relocation_failed_run/`). The independently approved retry
+`20260927_silhouette_relocation_index_decode_stage_frame00008` decodes with the exact CPU tile index and is otherwise identical: 4 conditions × 3 seeds,
+24 training / 2 held-out colour views (C0001, C0029), hull from all 26 masks, 8000 steps.
+
+The frozen per-seed rule (relocation ≥ +0.1 dB held-out foreground PSNR with LPIPS no worse than
++0.005 in every seed) was inconclusive: one seed passed, two did not (C51). No production model
+was trained. Relocation strongly reduced the in-sample hull-rejected Gaussian fraction and
+in-sample outside-mask alpha; these alpha descriptors, including interior alpha, are in-sample
+because the held-out masks define the hull. The independent Fable 5.1 audit is
+`accepted_with_limits` and requires these disclosures here: gsplat refinement after each event uses
+screen-gradient statistics partly accumulated at pre-relocation positions; the installed gsplat
+1.5.3 never executes its opacity reset, also in RTGS-025; a second pre-review smoke (prepare plus
+initialize on the frozen split) exposed parity, hull size, teacher fidelity and initial hull
+rejection to the Driver without changing thresholds; and the `nb_ms` arm is an in-task re-fit on
+CPU-index-decoded targets, so its numbers are not comparable to the published RTGS-025 run. The
+first relocation event moves most random start points onto the hull, but about 96 percent of the
+initial Gaussians are pruned at the first refinement in every arm.
+
+Evidence: `benchmarks/results/20260927_silhouette_relocation_index_decode_stage_frame00008_RESULT.md/json` and `_AUDIT.md/json`; report
+`runs/20260927_silhouette_relocation_index_decode_stage_frame00008/index.html` (local); receipts in
+`ara/evidence/tables/20260927_silhouette_relocation_final_handoff/`. The viewer check used headless
+Chrome (SwiftShader WebGL2); the report was served on port 8767.

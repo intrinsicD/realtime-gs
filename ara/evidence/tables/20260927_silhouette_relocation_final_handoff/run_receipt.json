@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "task_id": "20260927_silhouette_relocation_index_decode_stage_frame00008",
+  "status": "completed",
+  "started_at_utc": "2026-09-27T12:46:04.984296+00:00",
+  "finished_at_utc": "2026-09-27T13:18:24.806813+00:00",
+  "exit_code": 0,
+  "failure_phase": null,
+  "message": "All frozen fitting cells and final evaluations completed."
+}

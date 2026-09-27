@@ -1,0 +1,5 @@
+{
+  "cuda": "NVIDIA GeForce RTX 3050",
+  "gsplat": "1.5.3",
+  "lpips": 0.04364500567317009
+}
