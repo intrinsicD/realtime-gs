@@ -6,13 +6,13 @@
  "task_slug": "silhouette_relocation",
  "data_slug": "stage_frame00008",
  "arm": "rgb_3dgs",
- "status": "draft",
+ "status": "ready",
  "owner": "Claude-Code-Opus-5.5-driver",
  "protocol_review": {
-  "reviewer": null,
-  "verdict": "pending",
-  "protocol_sha256": null,
-  "artifact": null
+  "reviewer": "Claude-Code-Fable-5.1-reviewer",
+  "verdict": "approved",
+  "protocol_sha256": "f53d1074c29c8ddc8614f9872a05556014ab4b99ec131d4d9ef83fb5c814f2ad",
+  "artifact": "experiments/reviews/20260927_silhouette_relocation_stage_frame00008_PROTOCOL_REVIEW.md"
  },
  "depends_on": [],
  "title": "All-mask silhouette-hull floater relocation for field-only distillation on Janelle frame 00008",

@@ -12,7 +12,7 @@ RTGS-026
 
 - Driver: Claude-Code-Opus-5.5-driver
 - Reviewer: Claude-Code-Fable-5.1-reviewer
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -85,7 +85,7 @@ RTGS-025 (C49, C50) and its audited run; `rtgs.data.field_targets`.
 
 ## Status
 
-In review
+In progress
 
 ## Human Decisions
 
@@ -201,3 +201,32 @@ No init-run or protected execution.
 
 #### Recommended Next Action
 Fable 5.1 review round 2; a second rejection escalates to the user.
+
+### Review (2026-09-27, Fable 5.1 prospective protocol review round 2)
+
+#### Verdict
+Accepted
+
+#### Self-reviewed
+No
+
+#### Correctness
+Approved digest `f53d1074c29c8ddc8614f9872a05556014ab4b99ec131d4d9ef83fb5c814f2ad`: B1/B2
+resolved, optional changes defect-free, no design drift. Readiness only, not results. Verbatim:
+`experiments/reviews/20260927_silhouette_relocation_stage_frame00008_PROTOCOL_REVIEW.md`.
+
+#### Evidence Quality
+Digest and 22 CPU tests reproduced; aggregate pinned by git object ids (`src/rtgs` tree
+`9293a19a...`) and enforced by `init-run`.
+
+#### Simplicity
+No further changes.
+
+#### Missing Cases
+Residual execution conditions 1-6 (single invocation, production sequence, disclosures).
+
+#### Required Changes
+None.
+
+#### Optional Improvements
+Validate `dilation_px >= 0` in `SilhouetteHull`; broaden the non-position-row test (later task).
