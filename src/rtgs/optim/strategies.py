@@ -369,9 +369,13 @@ class IntendedOpacityReset:
     """Opt-in ``parameter_step_callback`` restoring gsplat Default's intended opacity reset.
 
     At every completed step with ``0 < step < stop_iter`` and ``step % reset_every == 0``, opacity
-    logits are clamped to ``logit(value)`` and the opacity Adam moments are zeroed, matching
-    gsplat's ``reset_opa`` and the repository's geometric-arena path (value ``2 * prune_opacity``
-    by default). No gsplat import is needed; the Gaussian count never changes.
+    logits are clamped to ``logit(value)`` and the opacity Adam moments are zeroed (Adam's scalar
+    ``step`` survives), matching the clamp and moment semantics of gsplat's ``reset_opa`` and the
+    repository's geometric-arena path (value ``2 * prune_opacity`` by default). The callback sees
+    the Trainer's completed step, so it resets one iteration earlier than the gsplat-strategy and
+    arena ``global_it`` clock and on the classic controller's clock; the reset count is the same.
+    Under opt-in ``conditional_density`` it also fires during coarse phases whose density hooks are
+    suppressed. No gsplat import is needed; the Gaussian count never changes.
     """
 
     def __init__(self, reset_every: int, stop_iter: int, value: float) -> None:
@@ -383,7 +387,10 @@ class IntendedOpacityReset:
         self.events: list[dict[str, Any]] = []
 
     @classmethod
-    def from_density(cls, config: DensityConfig) -> IntendedOpacityReset:
+    def from_density(cls, config: DensityConfig) -> IntendedOpacityReset | None:
+        """Return ``None`` when the configuration disables resets (non-positive period)."""
+        if config.opacity_reset_every <= 0:
+            return None
         return cls(config.opacity_reset_every, config.stop_iter, 2.0 * config.prune_opacity)
 
     def due(self, step: int) -> bool:
@@ -396,7 +403,7 @@ class IntendedOpacityReset:
         opacities = params["opacities"]
         cap = float(torch.logit(torch.tensor(self.value)))
         clamped = int((opacities > cap).sum())
-        opacities.data.clamp_(max=cap)
+        opacities.clamp_(max=cap)
         optimizer = optimizers["opacities"]
         for group in optimizer.param_groups:
             for parameter in group["params"]:

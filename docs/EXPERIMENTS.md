@@ -3564,4 +3564,7 @@ including RTGS-021, RTGS-025 and RTGS-026, trained without opacity resets; their
 changed. RTGS-027 adds the opt-in `rtgs.optim.strategies.IntendedOpacityReset` (clamp to
 `2 * prune_opacity`, zero opacity Adam moments at `0 < step < stop_iter`, `step % reset_every == 0`)
 and `chain_parameter_callbacks`; a CUDA test confirms the reset fires inside gsplat-default training.
-No default changed and no quality effect has been measured.
+The callback uses the Trainer's completed-step clock, one iteration before the gsplat/arena clock;
+the reset count matches. `opacity_reset_every` was never fully inert: it still paused refinement
+after each would-be reset and gated gsplat's large-scale pruning onset. No default changed and no
+quality effect has been measured.

@@ -23,9 +23,13 @@ def test_upstream_reset_condition_never_fires() -> None:
 
 
 def test_installed_gsplat_carries_the_defective_expression() -> None:
+    gsplat = pytest.importorskip("gsplat")
     default = pytest.importorskip("gsplat.strategy.default")
     source = inspect.getsource(default.DefaultStrategy.step_post_backward)
-    assert "step % self.reset_every == 0 & step > 0" in source
+    assert "step % self.reset_every == 0 & step > 0" in source, (
+        f"gsplat {gsplat.__version__} no longer carries the inert reset expression; "
+        "re-evaluate RTGS-027 before relying on IntendedOpacityReset"
+    )
 
 
 def _params(n: int = 4):
@@ -51,6 +55,7 @@ def test_intended_reset_clamps_and_zeroes_moments_only_when_due() -> None:
     state = optimizers["opacities"].state[params["opacities"]]
     assert torch.count_nonzero(state["exp_avg"]) == 0
     assert torch.count_nonzero(state["exp_avg_sq"]) == 0
+    assert float(state["step"]) == 1.0  # Adam's scalar step survives, as in gsplat reset_opa
     assert reset.events == [{"step": 10, "clamped": int((before > cap).sum()), "n": 4}]
 
 
@@ -58,6 +63,7 @@ def test_from_density_uses_twice_the_prune_opacity() -> None:
     config = DensityConfig(opacity_reset_every=3000, stop_iter=6000, prune_opacity=0.005)
     reset = IntendedOpacityReset.from_density(config)
     assert (reset.reset_every, reset.stop_iter, reset.value) == (3000, 6000, 0.01)
+    assert IntendedOpacityReset.from_density(DensityConfig(opacity_reset_every=0)) is None
     with pytest.raises(ValueError):
         IntendedOpacityReset(0, 10, 0.01)
 
@@ -106,3 +112,20 @@ def test_intended_reset_runs_inside_gsplat_default_training() -> None:
     )
     assert [event["step"] for event in reset.events] == [20]
     assert seen["max"] <= 2.0 * density.prune_opacity + 1e-6
+
+
+def test_intended_reset_through_the_cpu_trainer_seam() -> None:
+    from rtgs.data.synthetic import make_synthetic_scene
+    from rtgs.optim.trainer import TrainConfig, Trainer
+
+    scene = make_synthetic_scene(n_gaussians=8, n_cameras=3, image_size=16, seed=4)
+    config = TrainConfig(
+        iterations=12, rasterizer="torch", densify=False, eval_every=12, ssim_lambda=0.0
+    )
+    reset = IntendedOpacityReset(reset_every=5, stop_iter=11, value=0.05)
+    refined, _ = Trainer(config).train(
+        scene, scene.gt_gaussians.detach(), parameter_step_callback=reset
+    )
+    assert [event["step"] for event in reset.events] == [5, 10]
+    assert all(event["n"] == scene.gt_gaussians.n for event in reset.events)
+    assert refined.n == scene.gt_gaussians.n

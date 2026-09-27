@@ -2952,10 +2952,12 @@ observations:
     content: The installed gsplat 1.5.3 DefaultStrategy.step_post_backward guards its opacity reset with
       `step % self.reset_every == 0 & step > 0`, a chained comparison whose last term is `0 > 0`, so the
       reset never executes. On the repository's default dynamic storage path every gsplat-default run
-      (including RTGS-021, RTGS-025 and RTGS-026) therefore trained without opacity resets while still
-      pausing refinement for `pause_refine_after_reset` steps after each would-be reset; the geometric-arena
-      path performs the reset itself.
+      (including RTGS-021, RTGS-025 and RTGS-026) therefore trained without opacity resets, while
+      opacity_reset_every still paused refinement for `every` steps after each would-be reset and gated
+      the onset of gsplat's large-scale pruning via `step > reset_every`; the geometric-arena path
+      performs the reset itself.
     context: Found in the RTGS-026 Fable 5.1 review (R1); reproduced by tests/test_gsplat_opacity_reset.py.
+      RTGS-025/026 receipts record gsplat 1.5.3; RTGS-021 relies on the uv.lock pin of 1.5.3.
       RTGS-027 adds the opt-in IntendedOpacityReset; no default or historical result changes.
     potential_type: heuristic
     bound_to:
