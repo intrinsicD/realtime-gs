@@ -497,6 +497,12 @@ def prepare(task: dict, run: Path) -> None:
     hull_cameras, hull_masks = [], []
     for view_id in task["hull"]["mask_views"]:
         view = load_view(task, FIELD, view_id, load_alpha=True)
+        for kind, path in (
+            ("rgb", f"{frame}/rgb/{view_id}.jpg"),
+            ("mask", f"{frame}/mask/mask_{view_id}.png"),
+        ):
+            if view.source[kind]["sha256"] != sealed[path]:
+                raise RuntimeError(f"{view_id} was not fitted to the sealed {kind}")
         full = view.camera
         hull_cameras.append(downscale_pinhole(full, factor))
         hull_masks.append(
@@ -540,6 +546,7 @@ def load_hull(run: Path, task: dict, device: str = "cpu"):
         cameras,
         masks,
         dilation_px=task["hull"]["dilation_px"],
+        threshold=task["hull"]["threshold"],
         near=task["hull"]["near"],
         device=device,
     )
@@ -627,8 +634,6 @@ def relocator_for(task: dict, run: Path, seed: int, device: str):
         every=spec["every"],
         start=spec["start"],
         stop=spec["stop"],
-        dilation_px=task["hull"]["dilation_px"],
-        near=task["hull"]["near"],
         jitter_fraction=spec["jitter_fraction"],
         seed=seed,
     )
@@ -751,6 +756,8 @@ def evaluate(task: dict, run: Path) -> None:
         sites = quadrature_sites(camera.width, camera.height, factor)
         raw_mask = source.masks[0] > 0.5
         view = load_view(task, FIELD, view_id, load_alpha=True)
+        if camera_record(view.camera) != camera_record(source.cameras[0]):
+            raise RuntimeError(f"held-out compact/calibrated camera mismatch for {view_id}")
         packed = view.alpha.full_mask((source.cameras[0].height, source.cameras[0].width))
         if int((packed != raw_mask).sum()):
             raise RuntimeError(f"held-out packed alpha differs from its source mask: {view_id}")
@@ -922,6 +929,9 @@ def report_module():
 
 
 def coordinate(task_path: Path, task: dict, run: Path) -> None:
+    for consumed in (run / "targets", run / "preparation.json"):
+        if consumed.exists():
+            raise RuntimeError(f"run root already consumed ({consumed.name}); refusing re-entry")
     split_digest = hashlib.sha256(json.dumps(task["splits"], sort_keys=True).encode()).hexdigest()
     logs = run / "logs"
     logs.mkdir(exist_ok=True)
@@ -945,7 +955,7 @@ def coordinate(task_path: Path, task: dict, run: Path) -> None:
                 },
                 stdout=stream,
                 stderr=subprocess.STDOUT,
-                timeout=3600 if phase in {"fit", "production"} else None,
+                timeout=3600 if phase == "fit" else None,
                 check=True,
             )
 

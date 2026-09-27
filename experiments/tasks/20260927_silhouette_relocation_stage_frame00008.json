@@ -18,7 +18,7 @@
  "title": "All-mask silhouette-hull floater relocation for field-only distillation on Janelle frame 00008",
  "question": "When the masks of all 26 calibrated views define a visual hull and Gaussians that any view's dilated silhouette rejects are actively moved into that hull during field-only distillation, does novel-view colour inside the two held-out masks improve over the masked objective alone?",
  "hypothesis": "H1: nb_ms_reloc improves held-out foreground PSNR over nb_ms by at least 0.1 dB with crop LPIPS no worse than +0.005 in every paired seed. Descriptive: the same comparison with photograph targets, and field versus photograph targets with and without relocation.",
- "claim_boundary": "Development screen on one previously outcome-exposed frame (RTGS-021/024/025 used it), one split with two held-out colour views, three paired seeds and one 8000-step budget at downscale 8. The masks of all 26 views, including both held-out views, define the visual hull by the user's design, so held-out alpha, floater and hull-rejection metrics are in-sample; only held-out colour is a novel-view measurement. Training packed alpha is mask-derived; arms are field-plus-silhouette. No default, SOTA, generalization, physical-geometry or speed claim. The conditional all-view production model has no held-out view and is not evidence. Relocation also re-places the random initialization: most random start points lie outside the hull and move to its surface at the first event, so H1 measures the method as a whole (hull-guided placement plus ongoing relocation), not ongoing relocation alone. Before protocol review, a non-protocol driver smoke (60 iterations, two training views standing in for held-out, no real held-out colour) exposed relocation counts, hull size and a meaningless 60-iteration gate value to the Driver; no threshold changed afterwards.",
+ "claim_boundary": "Development screen on one previously outcome-exposed frame (RTGS-021/024/025 used it), one split with two held-out colour views, three paired seeds and one 8000-step budget at downscale 8. The masks of all 26 views, including both held-out views, define the visual hull by the user's design, so held-out alpha, floater and hull-rejection metrics are in-sample; only held-out colour is a novel-view measurement. Training packed alpha is mask-derived; the field arms are field-plus-silhouette and the photograph arms photograph-plus-silhouette. No default, SOTA, generalization, physical-geometry or speed claim. The conditional all-view production model has no held-out view and is not evidence. Relocation also re-places the random initialization: most random start points lie outside the hull and move to its surface at the first event, so H1 measures the method as a whole (hull-guided placement plus ongoing relocation), not ongoing relocation alone. Before protocol review, a non-protocol driver smoke (60 iterations, two training views standing in for held-out, no real held-out colour) exposed relocation counts, hull size and a meaningless 60-iteration gate value to the Driver; no threshold changed afterwards.",
  "evidence_phase": "development",
  "datasets": [
   {
@@ -77,7 +77,8 @@
    "gaussians2d",
    "gaussians3d_initialization",
    "mask",
-   "rgb"
+   "rgb",
+   "heldout_mask_alpha"
   ],
   "reconstruction_forbidden": [
    "heldout_rgb",
@@ -390,7 +391,7 @@
   "stop": 7000,
   "jitter_fraction": 0.5,
   "seed_policy": "paired seed",
-  "definition": "rtgs.optim.silhouette_relocation.SilhouetteRelocator via Trainer.train(parameter_step_callback=...): at completed steps 500, 600, ..., 7000, every hull-rejected Gaussian centre moves to its nearest occupied voxel plus uniform in-voxel jitter (fallback to the voxel centre if the jitter leaves the hull), and its exp_avg/exp_avg_sq rows are zeroed in every parameter group. Colour, scale, rotation and opacity are kept; the count never changes. Relocation events are recorded per cell."
+  "definition": "rtgs.optim.silhouette_relocation.SilhouetteRelocator via Trainer.train(parameter_step_callback=...): at completed steps 500, 600, ..., 7000, every hull-rejected Gaussian centre moves to its nearest occupied voxel plus uniform in-voxel jitter (fallback to the voxel centre if the jitter leaves the hull), and its exp_avg/exp_avg_sq rows are zeroed in every parameter group. Colour, scale, rotation and opacity are kept; the count never changes. Relocation events are recorded per cell. The gsplat Default strategy refines on the iteration after an event using screen-gradient statistics accumulated partly at pre-relocation positions for relocated rows. The installed gsplat 1.5.3 never executes its opacity reset (operator precedence in strategy/default.py makes the reset condition always false), so opacity_reset_every is inert in every arm, as it was in RTGS-025."
  },
  "initialization": {
   "n_points": 20000,
@@ -677,7 +678,7 @@
   "h1_relocation": "Pass iff for every paired seed nb_ms_reloc foreground PSNR >= nb_ms foreground PSNR + 0.1 dB and nb_ms_reloc crop LPIPS <= nb_ms crop LPIPS + 0.005 (evaluated in this written form). Reject iff for every paired seed nb_ms_reloc foreground PSNR <= nb_ms foreground PSNR - 0.1 dB. Otherwise inconclusive. No absolute quality floor.",
   "descriptive": "Photograph relocation pair and field-versus-photograph pairs with and without relocation are paired deltas with no pass/fail; in-sample alpha and hull metrics are mechanism descriptors.",
   "consequence": "A pass permits the production phase: one nb_ms_reloc model trained on all 26 views (fields plus packed alpha) with seed 9361, saved under runs/<task_id>/production/, declared not evidence. No default promotion.",
-  "stopping": "Fixed final 8000 steps, no early stopping; abort a cell on non-finite values, CUDA OOM or 3600 s wall (timed_out receipt); stop the matrix on the first failure. One run invocation; a failure after prepare began consumes the root."
+  "stopping": "Fixed final 8000 steps, no early stopping; abort a cell on non-finite values, CUDA OOM or 3600 s wall (timed_out receipt); stop the matrix on the first failure. One run invocation; a failure after prepare began consumes the root. The coordinator refuses to start on a root that already contains targets/ or preparation.json."
  },
  "production": {
   "seed": 9361,
@@ -691,7 +692,8 @@
    "experiments/tasks/20260927_silhouette_relocation_stage_frame00008.json",
    "--run-dir",
    "runs/20260927_silhouette_relocation_stage_frame00008"
-  ]
+  ],
+  "sequence": "Only after the run completed, the independent results audit is persisted, the report is rendered with its viewer receipt, and both check-run and scripts/check_results_bundle.py pass on the evidence bundle, and only if h1_relocation == pass: run the production command once, then rerender once and rerun both gates so the manifest inventories production/. production/ is never listed as evidence and the production model never enters RESULT or AUDIT comparisons. Production runs as a single manual invocation outside the 3600 s cell limit."
  },
  "execution_order": {
   "cells": [
@@ -775,7 +777,7 @@
     "pyproject.toml"
    ],
    "file_count": 120,
-   "aggregate_sha256": "263b011ac4a0222f60426a5b416c0705fbfc28a9a34bd7a49b7d2ee4e8598bc2"
+   "aggregate_sha256": "f7877b92c3655feb1efde420c6ca37e27d6abe2f711308ba1323c11a6bcf0e8f"
   },
   "live_integrity_policy": {
    "verify_source_at_coordinator_worker_and_bundle": true,

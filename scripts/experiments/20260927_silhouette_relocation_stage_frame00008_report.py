@@ -410,7 +410,10 @@ def publish(task: dict, run: Path) -> dict:
         "Colour metrics are computed only inside held-out masks; floaters use rendered alpha "
         "outside the 3-pixel-dilated held-out mask.",
         "Held-out masks define the hull; held-out alpha, floater and hull metrics are in-sample.",
-        "Held-out colour (fields and photographs) never enters fitting.",
+        "Held-out colour (fields and photographs) never enters the twelve evidence cells.",
+        "A production/ directory, if present, holds a model trained on all 26 views including the "
+        "held-out fields after the audited gates passed; it is not evidence and never enters "
+        "RESULT or AUDIT comparisons.",
         "Shared preparation/initialization intervals recur across series and must not be summed.",
         "No timing advantage is inferred on a local desktop GPU.",
     ]

@@ -29,8 +29,6 @@ class SilhouetteRelocationConfig:
     every: int = 100
     start: int = 500
     stop: int = 7000
-    dilation_px: int = 1
-    near: float = 1e-3
     jitter_fraction: float = 0.5
     seed: int = 0
     chunk: int = 65536
@@ -38,8 +36,8 @@ class SilhouetteRelocationConfig:
     def __post_init__(self) -> None:
         if self.every <= 0 or self.start < 0 or self.stop < self.start:
             raise ValueError("relocation schedule requires every > 0 and 0 <= start <= stop")
-        if self.dilation_px < 0 or not 0.0 <= self.jitter_fraction <= 1.0:
-            raise ValueError("dilation_px must be >= 0 and jitter_fraction in [0, 1]")
+        if not 0.0 <= self.jitter_fraction <= 1.0:
+            raise ValueError("jitter_fraction must lie in [0, 1]")
 
     def active(self, step: int) -> bool:
         return self.start <= step <= self.stop and (step - self.start) % self.every == 0
@@ -128,12 +126,13 @@ class SilhouetteRelocator:
     def __post_init__(self) -> None:
         self.targets = self.targets.to(self.hull.device, torch.float32)
         self._generator = torch.Generator(device=self.hull.device).manual_seed(self.config.seed)
+        self.last_fallbacks = 0
 
     def nearest_targets(self, points: torch.Tensor) -> torch.Tensor:
         chosen = torch.empty(points.shape[0], dtype=torch.long, device=points.device)
-        for start in range(0, points.shape[0], 1024):
-            distances = torch.cdist(points[start : start + 1024], self.targets)
-            chosen[start : start + 1024] = distances.argmin(1)
+        for start in range(0, points.shape[0], 256):
+            distances = torch.cdist(points[start : start + 256], self.targets)
+            chosen[start : start + 256] = distances.argmin(1)
         return self.targets[chosen]
 
     def relocate(self, means: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -141,6 +140,7 @@ class SilhouetteRelocator:
         points = means.detach().to(self.hull.device, torch.float32)
         rejected = torch.cat([self.hull.rejected(c) for c in points.split(self.config.chunk)])
         rows = torch.nonzero(rejected).squeeze(1)
+        self.last_fallbacks = 0
         if rows.numel() == 0:
             return rows, points[:0]
         base = self.nearest_targets(points[rows])
@@ -148,6 +148,7 @@ class SilhouetteRelocator:
         moved = base + jitter * self.config.jitter_fraction * self.voxel
         outside = ~self.hull.supported(moved)
         moved[outside] = base[outside]
+        self.last_fallbacks = int(outside.sum())
         return rows, moved
 
     def __call__(self, params: dict, optimizers: dict, step: int) -> None:
@@ -155,7 +156,12 @@ class SilhouetteRelocator:
             return
         means = params["means"]
         rows, moved = self.relocate(means)
-        record = {"step": int(step), "n_gaussians": int(means.shape[0]), "relocated": 0}
+        record = {
+            "step": int(step),
+            "n_gaussians": int(means.shape[0]),
+            "relocated": 0,
+            "jitter_fallbacks": 0,
+        }
         if rows.numel():
             rows_param = rows.to(means.device)
             means.data[rows_param] = moved.to(means.device, means.dtype)
@@ -167,4 +173,5 @@ class SilhouetteRelocator:
                             if key in state and state[key].shape[:1] == parameter.shape[:1]:
                                 state[key][rows_param] = 0
             record["relocated"] = int(rows.numel())
+            record["jitter_fallbacks"] = self.last_fallbacks
         self.events.append(record)

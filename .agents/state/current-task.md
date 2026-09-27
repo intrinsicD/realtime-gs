@@ -143,3 +143,61 @@ No init-run, protected execution or held-out colour access.
 
 #### Recommended Next Action
 Fable 5.1 prospective review of the exact digest.
+
+### Review (2026-09-27, Fable 5.1 prospective protocol review V1)
+
+#### Verdict
+Revision required
+
+#### Self-reviewed
+No
+
+#### Correctness
+Rejected digest `57370d13...` for B1 (production phase outside the bundle lifecycle) and B2
+(coordinator re-entry); scientific core, leakage boundary and mechanism accepted. Verbatim:
+`experiments/reviews/20260927_silhouette_relocation_stage_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md`.
+
+#### Evidence Quality
+Digest recomputed, focused CPU tests run; no outcome access.
+
+#### Simplicity
+Bounded lifecycle fixes only.
+
+#### Missing Cases
+Production sequencing; consumed-root refusal.
+
+#### Required Changes
+B1, B2.
+
+#### Optional Improvements
+R1-R10 (R1 found the inert gsplat opacity reset).
+
+### Handoff (2026-09-27, revision 1 for review round 2)
+
+#### Objective
+Second prospective review of the revised digest.
+
+#### Reviewed state
+Digest `f53d1074c29c8ddc8614f9872a05556014ab4b99ec131d4d9ef83fb5c814f2ad`, binding 120 files
+`f7877b92c3655feb1efde420c6ca37e27d6abe2f711308ba1323c11a6bcf0e8f`.
+
+#### Changes
+See `experiments/reviews/20260927_silhouette_relocation_stage_frame00008_DRIVER_RESPONSE_R1.md`.
+
+#### Evidence
+22 focused CPU tests pass; repeated GPU smoke passed.
+
+#### Assumptions
+Production after the audited gates (option b) matches the user's "if it works" instruction.
+
+#### Uncertainties
+None new beyond the disclosed ones.
+
+#### Review Focus
+B1/B2 fixes, adopted optional changes, no design drift.
+
+#### Protected actions not taken
+No init-run or protected execution.
+
+#### Recommended Next Action
+Fable 5.1 review round 2; a second rejection escalates to the user.

@@ -120,3 +120,12 @@ def test_selftest_denies_forbidden_worker_opens() -> None:
     )
     result = json.loads(completed.stdout.strip().splitlines()[-1])
     assert result["field_worker_input_guard"] == "4 forbidden open probes denied"
+
+
+def test_coordinator_refuses_a_consumed_run_root(driver, task, tmp_path) -> None:
+    run = tmp_path / "run"
+    (run / "targets").mkdir(parents=True)
+    before = sorted(p.relative_to(run) for p in run.rglob("*"))
+    with pytest.raises(RuntimeError, match="refusing re-entry"):
+        driver.coordinate(tmp_path / "task.json", task, run)
+    assert sorted(p.relative_to(run) for p in run.rglob("*")) == before

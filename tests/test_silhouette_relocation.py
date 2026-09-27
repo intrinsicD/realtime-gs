@@ -93,7 +93,7 @@ def test_relocator_moves_only_floaters_and_resets_their_moments() -> None:
     cameras, masks = _disc_views()
     hull = SilhouetteHull(cameras, masks, dilation_px=0)
     voxels, step = hull.occupied_voxels(torch.zeros(3), 2.4, 24)
-    config = SilhouetteRelocationConfig(every=10, start=10, stop=30, dilation_px=0, seed=3)
+    config = SilhouetteRelocationConfig(every=10, start=10, stop=30, seed=3)
     relocator = SilhouetteRelocator(hull, voxels, step, config)
     means = torch.tensor([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0], [0.05, 0.02, 0.0], [0.0, 1.5, 0.0]])
     params, optimizers = _params_with_state(means)
@@ -104,7 +104,9 @@ def test_relocator_moves_only_floaters_and_resets_their_moments() -> None:
     after = params["means"].detach()
     assert torch.equal(after[[0, 2]], before[[0, 2]])
     assert bool(hull.supported(after).all())
-    assert relocator.events == [{"step": 10, "n_gaussians": 4, "relocated": 2}]
+    event = relocator.events[0]
+    assert (event["step"], event["n_gaussians"], event["relocated"]) == (10, 4, 2)
+    assert 0 <= event["jitter_fallbacks"] <= 2
     for name, optimizer in optimizers.items():
         state = optimizer.state[params[name]]
         for key in ("exp_avg", "exp_avg_sq"):
@@ -159,3 +161,43 @@ def test_trainer_rejects_count_changing_callback() -> None:
 
     with pytest.raises(RuntimeError, match="must not change the Gaussian count"):
         _tiny_run(shrink)
+
+
+def test_relocation_leaves_non_position_rows_unchanged() -> None:
+    cameras, masks = _disc_views()
+    hull = SilhouetteHull(cameras, masks, dilation_px=0)
+    voxels, step = hull.occupied_voxels(torch.zeros(3), 2.4, 24)
+    relocator = SilhouetteRelocator(
+        hull, voxels, step, SilhouetteRelocationConfig(start=1, every=1)
+    )
+    params, optimizers = _params_with_state(torch.tensor([[1.4, 0.0, 0.0], [0.0, 0.0, 0.0]]))
+    params["scales"].data[:] = torch.tensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
+    scales = params["scales"].detach().clone()
+    relocator(params, optimizers, 1)
+    assert torch.equal(params["scales"].detach(), scales)
+
+
+def test_seam_sees_post_density_parameters_with_classic_densification() -> None:
+    from rtgs.optim.density import DensityConfig
+
+    scene = make_synthetic_scene(n_gaussians=8, n_cameras=3, image_size=16, seed=4)
+    init = scene.gt_gaussians.detach()
+    init.means += 0.02
+    config = TrainConfig(
+        iterations=6,
+        rasterizer="torch",
+        densify=True,
+        density_strategy="classic",
+        density=DensityConfig(
+            every=3, start_iter=1, stop_iter=1000, grad_threshold=1e-9, max_gaussians=32
+        ),
+        eval_every=6,
+        ssim_lambda=0.0,
+    )
+    seen = []
+    refined, history = Trainer(config).train(
+        scene, init, parameter_step_callback=lambda p, o, step: seen.append(p["means"].shape[0])
+    )
+    counts = dict(history["n_gaussians"])
+    assert seen[-1] == refined.n == counts[6]
+    assert max(seen) > init.n, "the callback must observe rows added by densification"
