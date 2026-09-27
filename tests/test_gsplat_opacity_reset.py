@@ -42,12 +42,13 @@ def _params(n: int = 4):
 
 def test_intended_reset_clamps_and_zeroes_moments_only_when_due() -> None:
     reset = IntendedOpacityReset(reset_every=10, stop_iter=25, value=0.01)
-    assert [s for s in range(0, 40) if reset.due(s)] == [10, 20]
+    # Completed steps 11 and 21 are gsplat iterations 10 and 20.
+    assert [s for s in range(0, 40) if reset.due(s)] == [11, 21]
     params, optimizers = _params()
     before = params["opacities"].detach().clone()
     reset(params, optimizers, 5)
     assert torch.equal(params["opacities"].detach(), before) and reset.events == []
-    reset(params, optimizers, 10)
+    reset(params, optimizers, 11)
     cap = torch.logit(torch.tensor(0.01))
     assert float(params["opacities"].detach().max()) <= float(cap) + 1e-7
     below = before <= cap
@@ -56,7 +57,9 @@ def test_intended_reset_clamps_and_zeroes_moments_only_when_due() -> None:
     assert torch.count_nonzero(state["exp_avg"]) == 0
     assert torch.count_nonzero(state["exp_avg_sq"]) == 0
     assert float(state["step"]) == 1.0  # Adam's scalar step survives, as in gsplat reset_opa
-    assert reset.events == [{"step": 10, "clamped": int((before > cap).sum()), "n": 4}]
+    assert reset.events == [
+        {"step": 11, "gsplat_iteration": 10, "clamped": int((before > cap).sum()), "n": 4}
+    ]
 
 
 def test_from_density_uses_twice_the_prune_opacity() -> None:
@@ -103,14 +106,14 @@ def test_intended_reset_runs_inside_gsplat_default_training() -> None:
     seen = {}
 
     def observe(params, optimizers, step):
-        if step == 20:
+        if step == 21:
             seen["max"] = float(torch.sigmoid(params["opacities"]).max())
 
     init = scene.gt_gaussians.detach()
     Trainer(config).train(
         scene, init, parameter_step_callback=chain_parameter_callbacks(reset, observe)
     )
-    assert [event["step"] for event in reset.events] == [20]
+    assert [event["gsplat_iteration"] for event in reset.events] == [20]
     assert seen["max"] <= 2.0 * density.prune_opacity + 1e-6
 
 
@@ -126,6 +129,22 @@ def test_intended_reset_through_the_cpu_trainer_seam() -> None:
     refined, _ = Trainer(config).train(
         scene, scene.gt_gaussians.detach(), parameter_step_callback=reset
     )
-    assert [event["step"] for event in reset.events] == [5, 10]
+    assert [event["gsplat_iteration"] for event in reset.events] == [5, 10]
     assert all(event["n"] == scene.gt_gaussians.n for event in reset.events)
     assert refined.n == scene.gt_gaussians.n
+
+
+def test_no_reset_on_the_final_iteration_of_a_reset_multiple_run() -> None:
+    from rtgs.data.synthetic import make_synthetic_scene
+    from rtgs.optim.trainer import TrainConfig, Trainer
+
+    scene = make_synthetic_scene(n_gaussians=8, n_cameras=3, image_size=16, seed=4)
+    config = TrainConfig(
+        iterations=10, rasterizer="torch", densify=False, eval_every=10, ssim_lambda=0.0
+    )
+    reset = IntendedOpacityReset(reset_every=5, stop_iter=10_000_000, value=0.05)
+    refined, _ = Trainer(config).train(
+        scene, scene.gt_gaussians.detach(), parameter_step_callback=reset
+    )
+    assert [event["gsplat_iteration"] for event in reset.events] == [5]
+    assert float(refined.opacity.max()) > 0.05

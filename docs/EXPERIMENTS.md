@@ -3562,9 +3562,9 @@ gsplat 1.5.3 never executes its DefaultStrategy opacity reset (operator preceden
 `tests/test_gsplat_opacity_reset.py`). Every gsplat-default run on the default dynamic storage path,
 including RTGS-021, RTGS-025 and RTGS-026, trained without opacity resets; their records are not
 changed. RTGS-027 adds the opt-in `rtgs.optim.strategies.IntendedOpacityReset` (clamp to
-`2 * prune_opacity`, zero opacity Adam moments at `0 < step < stop_iter`, `step % reset_every == 0`)
-and `chain_parameter_callbacks`; a CUDA test confirms the reset fires inside gsplat-default training.
-The callback uses the Trainer's completed-step clock, one iteration before the gsplat/arena clock;
-the reset count matches. `opacity_reset_every` was never fully inert: it still paused refinement
+`2 * prune_opacity`, zero opacity Adam moments) and `chain_parameter_callbacks`. The callback
+evaluates gsplat's intended predicate on gsplat's own iteration counter, so it fires at exactly the
+iterations gsplat intends and never on a run's final iteration; a CUDA test confirms it fires inside
+gsplat-default training. `opacity_reset_every` was never fully inert: it still paused refinement
 after each would-be reset and gated gsplat's large-scale pruning onset. No default changed and no
 quality effect has been measured.

@@ -368,14 +368,15 @@ def upstream_default_reset_fires(step: int, reset_every: int) -> bool:
 class IntendedOpacityReset:
     """Opt-in ``parameter_step_callback`` restoring gsplat Default's intended opacity reset.
 
-    At every completed step with ``0 < step < stop_iter`` and ``step % reset_every == 0``, opacity
-    logits are clamped to ``logit(value)`` and the opacity Adam moments are zeroed (Adam's scalar
-    ``step`` survives), matching the clamp and moment semantics of gsplat's ``reset_opa`` and the
-    repository's geometric-arena path (value ``2 * prune_opacity`` by default). The callback sees
-    the Trainer's completed step, so it resets one iteration earlier than the gsplat-strategy and
-    arena ``global_it`` clock and on the classic controller's clock; the reset count is the same.
-    Under opt-in ``conditional_density`` it also fires during coarse phases whose density hooks are
-    suppressed. No gsplat import is needed; the Gaussian count never changes.
+    The callback receives the Trainer's completed step and evaluates gsplat's intended predicate
+    on gsplat's own iteration counter ``g = step - 1``: it fires at the end of exactly the
+    iterations with ``0 < g < stop_iter`` and ``g % reset_every == 0``, the same iterations the
+    gsplat strategy and the geometric-arena path use, so it never resets on a run's final
+    iteration. It clamps opacity logits to ``logit(value)`` and zeroes the opacity Adam moments
+    (Adam's scalar ``step`` survives), matching gsplat's ``reset_opa`` (value ``2 * prune_opacity``
+    by default). Do not combine it with ``gaussian_storage_policy="geometric"``, whose arena already
+    resets. Under opt-in ``conditional_density`` it also fires during coarse phases whose density
+    hooks are suppressed. No gsplat import is needed; the Gaussian count never changes.
     """
 
     def __init__(self, reset_every: int, stop_iter: int, value: float) -> None:
@@ -394,7 +395,9 @@ class IntendedOpacityReset:
         return cls(config.opacity_reset_every, config.stop_iter, 2.0 * config.prune_opacity)
 
     def due(self, step: int) -> bool:
-        return 0 < step < self.stop_iter and step % self.reset_every == 0
+        """``step`` is the Trainer's completed step; gsplat's counter is ``step - 1``."""
+        iteration = step - 1
+        return 0 < iteration < self.stop_iter and iteration % self.reset_every == 0
 
     @torch.no_grad()
     def __call__(self, params: dict, optimizers: dict, step: int) -> None:
@@ -410,7 +413,14 @@ class IntendedOpacityReset:
                 for moment in optimizer.state.get(parameter, {}).values():
                     if torch.is_tensor(moment) and moment.shape == parameter.shape:
                         moment.zero_()
-        self.events.append({"step": int(step), "clamped": clamped, "n": int(opacities.shape[0])})
+        self.events.append(
+            {
+                "step": int(step),
+                "gsplat_iteration": int(step) - 1,
+                "clamped": clamped,
+                "n": int(opacities.shape[0]),
+            }
+        )
 
 
 def chain_parameter_callbacks(*callbacks):
