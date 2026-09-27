@@ -12,7 +12,7 @@ RTGS-025
 
 - Driver: Claude-Code-Opus-5.5-driver
 - Reviewer: Claude-Code-Fable-5.1-reviewer
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -83,7 +83,7 @@ RTGS-016 (C43), RTGS-021 (C47), RTGS-024 (C48) and the unregistered 2026-09-26 d
 
 ## Status
 
-In review
+In progress
 
 ## Human Decisions
 
@@ -376,3 +376,39 @@ No init-run, protected execution, held-out access or outcome inspection.
 
 #### Recommended Next Action
 Fable 5.1 review round 2. A second rejection escalates to a human decision per workflow.
+
+### Review (2026-09-27, Fable 5.1 prospective protocol review round 2)
+
+#### Verdict
+Accepted
+
+#### Self-reviewed
+No
+
+#### Correctness
+Claude-Code-Fable-5.1-reviewer approved digest
+`05048698cc34656fd562c8f60d534037745d99acf91b9cac6712a5f314b23f61`: B1-B3 resolved, adopted
+optional changes correct, no design drift. This accepts readiness to execute, not results.
+Verbatim: `experiments/reviews/20260926_field_only_distillation_stage_frame00008_PROTOCOL_REVIEW.md`.
+
+#### Evidence Quality
+Digest, validate, validate-data and focused tests reproduced by the reviewer; the source-binding
+aggregate could not be recomputed in its sandbox, so source is pinned by git object ids
+(`src/rtgs` tree `641dbc4ee15b2c9ff697c2b3e2f83fb25135c195`) and enforced by `init-run`.
+
+#### Simplicity
+No further changes required.
+
+#### Missing Cases
+Residual execution conditions 1-6 in the review (single `run` invocation policy, audit must name
+the boundary-band difference and H2 family confound, optional hardening deferred).
+
+#### Required Changes
+None.
+
+#### Optional Improvements
+Coordinator re-entry hardening deferred to a later task (condition 6).
+
+Driver note: condition 4 satisfied by a non-protocol prepare-only smoke over all 22 frozen
+training views in `.scratch/` (0 clipped mask pixels, all source digests match the seal; no
+held-out access). The task is `ready`; `init-run` and execution await the user's go-ahead.
