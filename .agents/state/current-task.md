@@ -12,7 +12,7 @@ RTGS-026
 
 - Driver: Claude-Code-Opus-5.5-driver
 - Reviewer: Claude-Code-Fable-5.1-reviewer
-- Turn: driver
+- Turn: reviewer
 
 ## Mode
 
@@ -71,7 +71,7 @@ Changing Trainer defaults, footprint/scale clamping, new frames, or promoting a 
 
 ## Experiment Contract
 
-None
+experiments/tasks/20260927_silhouette_relocation_stage_frame00008.json
 
 ## Current Evidence
 
@@ -85,7 +85,7 @@ RTGS-025 (C49, C50) and its audited run; `rtgs.data.field_targets`.
 
 ## Status
 
-In progress
+In review
 
 ## Human Decisions
 
@@ -108,3 +108,38 @@ Use `###` for entries and `####` for their fields so entries remain nested below
 Never delete earlier entries. On terminal closeout, archive the complete record as
 `docs/tasks/<task-id>-<slug>.md`, change the archived `Turn` to `none`, and reset this file to the
 unchanged template.
+
+### Handoff (2026-09-27, mechanism and protocol for prospective review)
+
+#### Objective
+Obtain Fable 5.1 prospective review of the RTGS-026 relocation protocol.
+
+#### Reviewed state
+Commit `d41eb5e` (mechanism) plus the draft task, driver, report module and tests on branch
+`rtgs-025-main-path`; digest `57370d132b561b48b5bc95b7f7c15a8bfd8b3b01c129e55d200f209ce084f76f`,
+source binding 120 files `263b011ac4a0222f60426a5b416c0705fbfc28a9a34bd7a49b7d2ee4e8598bc2`.
+
+#### Changes
+Opt-in `Trainer.train(parameter_step_callback=...)`, `rtgs.optim.silhouette_relocation`,
+RTGS-026 driver/report/tests, protocol and data seal.
+
+#### Evidence
+CPU tests pass (mechanism 9, protocol 5, plus existing trainer tests); `verify.sh` exit 0 at the
+mechanism commit. Non-protocol GPU smoke exercised every phase; relocation moved most random start
+points into the hull at the first event and reduced the final hull-rejected fraction.
+
+#### Assumptions
+Held-out masks as hull inputs are the user's explicit design; held-out colour stays evaluation-only.
+
+#### Uncertainties
+The first relocation event doubles as hull-guided re-initialization (disclosed in the boundary).
+
+#### Review Focus
+Leakage (held-out views contribute packed alpha only), relocation correctness and optimizer-state
+handling, gate definitions, production gating.
+
+#### Protected actions not taken
+No init-run, protected execution or held-out colour access.
+
+#### Recommended Next Action
+Fable 5.1 prospective review of the exact digest.
