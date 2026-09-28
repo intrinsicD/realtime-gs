@@ -6,13 +6,13 @@
  "task_slug": "field_only_portfolio",
  "data_slug": "stage_frame00008",
  "arm": "rgb_3dgs",
- "status": "draft",
+ "status": "ready",
  "owner": "Claude-Code-Opus-5.5-driver",
  "protocol_review": {
-  "reviewer": null,
-  "verdict": "pending",
-  "protocol_sha256": null,
-  "artifact": null
+  "reviewer": "Claude-Code-Fable-5.1-reviewer",
+  "verdict": "approved",
+  "protocol_sha256": "345e57a95cac3edb93fa7cc56d7a0ec43edb9d398f08da4e895583d9b32dfd68",
+  "artifact": "experiments/reviews/20260928_field_only_portfolio_stage_frame00008_PROTOCOL_REVIEW.md"
  },
  "depends_on": [],
  "title": "Field-only distillation improvement portfolio (SH degree, regularization, budget factors, resolution, view count) on Janelle frame 00008",

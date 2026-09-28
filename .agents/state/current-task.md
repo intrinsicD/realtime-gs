@@ -12,7 +12,7 @@ RTGS-029
 
 - Driver: Claude-Code-Opus-5.5-driver
 - Reviewer: Claude-Code-Fable-5.1-reviewer
-- Turn: reviewer
+- Turn: driver
 
 ## Mode
 
@@ -78,7 +78,7 @@ C49, C51, C52, O182; RTGS-025-028 bundles.
 
 ## Status
 
-In review
+In progress
 
 ## Human Decisions
 
@@ -193,3 +193,65 @@ No init-run or protected execution.
 
 #### Recommended Next Action
 Fable 5.1 review round 2; a second rejection escalates to the user.
+
+### Review (2026-09-28, Fable 5.1 prospective protocol review round 2)
+
+#### Verdict
+Accepted
+
+#### Self-reviewed
+No
+
+#### Correctness
+Approved digest `345e57a95cac3edb93fa7cc56d7a0ec43edb9d398f08da4e895583d9b32dfd68` with residual
+conditions (verbatim: `experiments/reviews/20260928_field_only_portfolio_stage_frame00008_PROTOCOL_REVIEW.md`). Readiness only.
+
+#### Evidence Quality
+Digest, binding, validators and tests reproduced.
+
+#### Simplicity
+No added cells.
+
+#### Missing Cases
+Carried as residual conditions.
+
+#### Required Changes
+None.
+
+#### Optional Improvements
+The Driver trimmed a stray transmittal line from the archived V1 review file (content otherwise
+byte-identical), as the reviewer recommended.
+
+### Handoff (2026-09-28, session pause before execution)
+
+#### Objective
+Pause at the user's request after the protocol approval; execution is the next step.
+
+#### Reviewed state
+Task `experiments/tasks/20260928_field_only_portfolio_stage_frame00008.json` is `ready` with the approved digest
+`345e57a95cac3edb93fa7cc56d7a0ec43edb9d398f08da4e895583d9b32dfd68` and source binding 119 files
+`2848f1d6695c69680fd8a724dc8d1408d33ad92d031e5c0ae3fa061e98831b6e`; merged to `main` by user request.
+
+#### Changes
+Approval recorded; no run root exists; nothing executed.
+
+#### Evidence
+Round-2 approval; 7 protocol tests pass; `./scripts/verify.sh` exit 0 on this tree.
+
+#### Assumptions
+The approval stays valid only while every bound file is unchanged (review condition 2).
+
+#### Uncertainties
+Runtime of the downscale-4 and 30000-step cells (about 5-13 minutes each on a free GPU).
+
+#### Review Focus
+None pending before execution.
+
+#### Protected actions not taken
+No init-run, protected execution, audit or default change.
+
+#### Recommended Next Action
+When no other compute process uses the GPU (review condition 3), run from a clean tree:
+`.venv/bin/python scripts/experiment_contract.py init-run experiments/tasks/20260928_field_only_portfolio_stage_frame00008.json`, then the
+frozen `run_command` once. Then results audit (ask the user to authorize the dome-derived preview
+payload), render, headless viewer smoke, second render, both gates, EXPERIMENTS/ARA, closeout.

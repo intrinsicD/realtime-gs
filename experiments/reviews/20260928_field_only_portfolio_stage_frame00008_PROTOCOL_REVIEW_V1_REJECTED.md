@@ -1,5 +1,3 @@
-# Prospective Protocol Review` heading to the end of this message verbatim.
-
 # Prospective Protocol Review
 
 - Task ID: `20260928_field_only_portfolio_stage_frame00008`
