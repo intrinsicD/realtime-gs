@@ -1096,3 +1096,16 @@
 - **Tags**: field-supervision, training-budget, opacity-reset, development, no-default
 - **From staging**: O183
 - **Boundary**: One previously exposed frame, one split, three seeds, downscale 8. The budget package couples iterations, densification window and the means learning-rate horizon, so iteration count alone is not identified, and an overfitting mechanism is a hypothesis. No cell reached the 100000 cap. Reset value 0.01. No default, speed or generalization claim.
+
+## C53: SH reduction, opacity/scale regularization and downscale-4 training each improved field-only held-out colour; 30000 steps lowered it
+
+- **Statement**: In RTGS-029 on Stage frame_00008, against the 8000-step field-only configuration (held-out foreground PSNR inside the mask 22.099 dB primary operator / 23.440 dB point operator), each single lever passed the frozen per-seed rule (+0.1 dB, LPIPS and outside-alpha margins 0.005) in all three paired seeds: SH degree 1 (+0.29 to +0.44 dB primary; +0.25 to +0.40 dB point), SH degree 0 (+0.40 to +0.52; +0.15 to +0.37), opacity and scale regularization 0.01 (+0.90 to +1.08; +0.51 to +0.59) and training at downscale 4 (+1.84 to +2.01; +1.02 to +1.16, gated under both operators). 30000 steps with densification stopping at 6000 lowered held-out colour in every seed, with the 30000-step means learning-rate horizon (-0.83 to -1.02 dB primary) and with the 8000-step decay continued (-0.52 to -0.62 dB). Halving the training views cost about 0.85 dB (descriptive).
+- **Status**: supported development screening signal (SH 0/1, regularization, downscale 4); refuted development expectation (30000 steps with densification stop 6000)
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Independent recomputation from the per-view evaluation rows changes a per-seed sign or verdict under either operator, task/source/input bindings fail, or a registered confirmation on new seeds with the frozen rule fails to reproduce a pass.
+- **Proof**: [`benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.json`, `benchmarks/results/20260928_field_only_portfolio_stage_frame00008_AUDIT.md`, `benchmarks/results/20260928_field_only_portfolio_stage_frame00008_AUDIT.json`]
+- **Dependencies**: [C49, C52]
+- **Tags**: field-supervision, sh-degree, regularization, training-resolution, training-budget, development, no-default
+- **From staging**: O184
+- **Boundary**: One previously exposed frame, one split, three seeds, six simultaneous uncorrected comparisons; every pass is a screening signal and combinations are untested. Primary-operator numbers are not comparable to earlier tasks; point-operator context is descriptive only (gsplat 1.5.3). Regularization is a capacity-plus-regularization package (26k versus 44k Gaussians, interior alpha 0.994); downscale 4 is a resolution package with about 2.7x fit wall and 2x VRAM and no cap hit; the SH and regularization arms raise outside-mask alpha by +0.0002 to +0.0004. The 30000-step arm with its own horizon also grew more Gaussians, so iteration count is not isolated; overfitting is a hypothesis (no training-view PSNR). No default, speed or generalization claim.

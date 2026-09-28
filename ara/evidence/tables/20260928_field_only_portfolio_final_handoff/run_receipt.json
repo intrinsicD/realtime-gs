@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "task_id": "20260928_field_only_portfolio_stage_frame00008",
+  "status": "completed",
+  "started_at_utc": "2026-09-28T08:21:04.932543+00:00",
+  "finished_at_utc": "2026-09-28T09:36:56.943838+00:00",
+  "exit_code": 0,
+  "failure_phase": null,
+  "message": "All frozen fitting cells and final evaluations completed."
+}

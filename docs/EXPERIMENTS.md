@@ -3596,3 +3596,54 @@ regularization or more views rather than longer training.
 Evidence: `benchmarks/results/20260927_color_budget_reset_stage_frame00008_RESULT.md/json` and `_AUDIT.md/json`; report
 `runs/20260927_color_budget_reset_stage_frame00008/index.html` (local); receipts in
 `ara/evidence/tables/20260928_color_budget_reset_final_handoff/`.
+
+## 2026-09-28 — RTGS-029 field-only improvement portfolio (SH, regularization, resolution pass; 30000 steps reject)
+
+After RTGS-028 the user asked to "try everything". Task `20260928_field_only_portfolio_stage_frame00008` screened six single
+levers against the 8000-step field-only configuration (decoded no_boundary fields, exact CPU-index
+decoding, masked objective, random initialization) on the RTGS-025 split of Stage frame_00008
+(22 training / 4 held-out views), 3 fresh paired seeds (9561-9563), 27 cells, plus two descriptive
+arms (half the training views; photograph references). Held-out masks never entered fitting, so alpha
+metrics are out-of-sample. Every model was scored under two operators: primary, a downscale-4 render
+box-averaged to the downscale-8 grid; second, the point-sampled downscale-8 render of RTGS-025/026/028
+(gsplat 1.5.3 in both runs). gsplat's 0.3 px^2 dilation acts in render pixels, so only the
+downscale-4-trained arm is scored with its training render under the primary operator; it was gated
+under both. Primary numbers are not comparable to earlier tasks.
+
+Held-out foreground PSNR inside the mask, group means (primary / point), and per-seed paired deltas
+against `nb_base` (22.10 / 23.44 dB):
+
+| Arm | primary | point | primary delta per seed | point delta per seed | verdict |
+|---|---:|---:|---|---|---|
+| SH degree 1 | 22.45 | 23.75 | +0.44 / +0.33 / +0.29 | +0.40 / +0.29 / +0.25 | pass (screen) |
+| SH degree 0 | 22.56 | 23.72 | +0.47 / +0.40 / +0.52 | +0.33 / +0.15 / +0.37 | pass (screen) |
+| opacity + scale reg. 0.01 | 23.09 | 24.00 | +1.08 / +0.90 / +1.00 | +0.59 / +0.51 / +0.59 | pass (screen) |
+| 30000 steps, densify to 6000 | 21.17 | 22.80 | -0.83 / -1.02 / -0.95 | -0.58 / -0.69 / -0.66 | reject |
+| same, 8000-step LR decay continued | 21.54 | 22.89 | -0.54 / -0.62 / -0.52 | -0.56 / -0.60 / -0.49 | reject |
+| training at downscale 4 | 24.04 | 24.55 | +1.97 / +1.84 / +2.01 | +1.15 / +1.02 / +1.16 | pass under both (screen) |
+
+Descriptive: halving the training views cost about 0.85 dB under both operators; the photograph
+references beat distillation by 0.30-0.50 dB under the point operator but about 0 under the primary
+operator, and by 0.015-0.020 crop LPIPS under both. The downscale-8 arms' point-operator rule outcomes
+are descriptive only. All three passing levers lowered crop LPIPS in every seed; the SH-reduced arms
+and the regularized arm raised outside-mask alpha by +0.0002 to +0.0004 in every seed (inside the
+0.005 margin). Regularization halved the population (26k versus 44k Gaussians) and lowered interior
+alpha to 0.994, so it is a regularization-plus-capacity package. Downscale-4 training carries its
+resolution package (halved physical dilation and SSIM window, doubled pixel-unit positional
+gradients, effectively lower growth threshold), about 2.7x fit wall and 2x peak VRAM; it never hit
+the 100000 cap (38k Gaussians). The 30000-step arm with the 30000-step means learning-rate horizon
+(factor 0.398 at 6000, 0.293 at 8000, 0.01 at 30000) grew 59k Gaussians inside the same window, so it
+is again a package; the arm that continued the 8000-step decay (means learning rate 1e-3 by 12000 and
+3.2e-8 at 30000, frozen topology after 6000) shows that 22000 further non-positional steps alone lose
+about 0.55 dB while the training loss keeps falling. Overfitting is consistent with this and with the
+SH gains but is a hypothesis: no training-view PSNR was recorded. Six uncorrected comparisons on an
+outcome-exposed frame; each pass is a screening signal. A pre-review smoke (and a second smoke
+evaluation with the two-operator code) exposed training-view values to the Driver without changing
+thresholds. GPU exclusivity is a Driver statement; timings are descriptive. The independent Fable 5.1
+audit (run as an in-session subagent) is `accepted_with_limits` and reproduced every number with zero
+deviation. No default changed; combining the passing levers on new seeds, with training-view metrics
+recorded, is the next confirmation.
+
+Evidence: `benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.md/json` and `_AUDIT.md/json`;
+report `runs/20260928_field_only_portfolio_stage_frame00008/index.html` (local); receipts in
+`ara/evidence/tables/20260928_field_only_portfolio_final_handoff/`.

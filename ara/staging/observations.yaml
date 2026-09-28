@@ -2983,3 +2983,20 @@ observations:
     promoted_to: logic/claims.md:C52
     crystallized_via: artifact-commitment
     stale: false
+  - id: O184
+    timestamp: 2026-09-28T13:00+02:00
+    provenance: ai-executed
+    content: In RTGS-029 on Stage frame_00008 (22 training / 4 held-out views, three paired seeds), SH degree 1
+      or 0, opacity/scale regularization 0.01 and downscale-4 training each raised field-only held-out foreground
+      PSNR in every seed under both evaluation operators (downscale 4 by +1.8 to +2.0 dB primary, +1.0 to +1.2 dB
+      point); 30000 steps with densification stopping at 6000 lowered it in every seed with or without the
+      8000-step learning-rate decay; halving the views cost about 0.85 dB.
+    context: Independent Fable 5.1 audit accepted_with_limits; six uncorrected comparisons on an exposed frame;
+      regularization and downscale 4 are packages; overfitting is a hypothesis.
+    potential_type: claim
+    bound_to:
+    - N251
+    promoted: true
+    promoted_to: logic/claims.md:C53
+    crystallized_via: artifact-commitment
+    stale: false

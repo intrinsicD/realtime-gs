@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "Byte-identical copies of referenced repository evidence at the paths a browser resolves for outward relative links under the run-root HTTP server. Originals are unchanged.",
+  "files": {
+    "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_AUDIT.json": {
+      "source": "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_AUDIT.json",
+      "bytes": 17645,
+      "sha256": "5427251d2379949e195cd77b6e318e62401a0def9f361e6513d6ad34227ab702"
+    },
+    "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_AUDIT.md": {
+      "source": "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_AUDIT.md",
+      "bytes": 54150,
+      "sha256": "883071d9329ef1059560a2a85d6a25ee316ae1bfc2c25f06bad5ac823a55c383"
+    },
+    "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.json": {
+      "source": "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.json",
+      "bytes": 29068,
+      "sha256": "dd2de9470baf8784dda886585368a0ade125bd9f9be786b888048a326fba18dd"
+    },
+    "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.md": {
+      "source": "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.md",
+      "bytes": 3219,
+      "sha256": "3c449ef496245b67af5818d467f55bd2954b0e72780b663fb9bc56b7365ac266"
+    },
+    "experiments/data/20260928_field_only_portfolio_stage_frame00008.json": {
+      "source": "experiments/data/20260928_field_only_portfolio_stage_frame00008.json",
+      "bytes": 18603,
+      "sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087"
+    },
+    "experiments/reviews/20260928_field_only_portfolio_stage_frame00008_PROTOCOL_REVIEW.md": {
+      "source": "experiments/reviews/20260928_field_only_portfolio_stage_frame00008_PROTOCOL_REVIEW.md",
+      "bytes": 28132,
+      "sha256": "e6528c748c4f4f50fef639e86486c90824d5f75deeb62cf27329c385ad4d40c0"
+    },
+    "experiments/tasks/20260928_field_only_portfolio_stage_frame00008.json": {
+      "source": "experiments/tasks/20260928_field_only_portfolio_stage_frame00008.json",
+      "bytes": 71549,
+      "sha256": "d945c7051b988f0516c6bbd7c6b3ff11f9dba82c481e351499d54492b57c6c58"
+    }
+  }
+}

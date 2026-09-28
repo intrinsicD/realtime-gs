@@ -4585,3 +4585,17 @@ tree:
     also_depends_on:
     - N249
     status: resolved
+  - id: N251
+    type: experiment
+    title: Which single lever improves field-only colour quality beyond the 8000-step configuration?
+    provenance: ai-executed
+    timestamp: 2026-09-28T13:00+02:00
+    description: RTGS-029; SH degree 1/0, opacity/scale regularization and downscale-4 training pass as screening
+      signals; 30000 steps with densification stop 6000 reject with either learning-rate regime. Fable 5.1 audit
+      accepted_with_limits.
+    evidence:
+    - benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.json
+    - benchmarks/results/20260928_field_only_portfolio_stage_frame00008_AUDIT.md
+    also_depends_on:
+    - N250
+    status: resolved

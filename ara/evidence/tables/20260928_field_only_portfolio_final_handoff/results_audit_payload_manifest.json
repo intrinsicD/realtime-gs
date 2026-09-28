@@ -1,0 +1,961 @@
+{
+ "task_id": "20260928_field_only_portfolio_stage_frame00008",
+ "items": [
+  {
+   "path": "experiments/tasks/20260928_field_only_portfolio_stage_frame00008.json",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "d945c7051b988f0516c6bbd7c6b3ff11f9dba82c481e351499d54492b57c6c58"
+  },
+  {
+   "path": "experiments/reviews/20260928_field_only_portfolio_stage_frame00008_PROTOCOL_REVIEW.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "e6528c748c4f4f50fef639e86486c90824d5f75deeb62cf27329c385ad4d40c0"
+  },
+  {
+   "path": "experiments/reviews/20260928_field_only_portfolio_stage_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "174909597efe731f1befd5d24c2e3fe3f15a51380001893ace3a17d792137406"
+  },
+  {
+   "path": "experiments/reviews/20260928_field_only_portfolio_stage_frame00008_DRIVER_RESPONSE_R1.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "c6ce0a46e76ce63ea13466a583618363289463959b2657e79e0662314262772c"
+  },
+  {
+   "path": "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "3c449ef496245b67af5818d467f55bd2954b0e72780b663fb9bc56b7365ac266"
+  },
+  {
+   "path": "benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.json",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "dd2de9470baf8784dda886585368a0ade125bd9f9be786b888048a326fba18dd"
+  },
+  {
+   "path": "docs/tasks/RTGS-027-gsplat-opacity-reset.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "943b5d410a43324461654f7812702efca9079441aa160aa719ba2310f77e3154"
+  },
+  {
+   "path": "docs/tasks/RTGS-028-color-budget-reset.md",
+   "kind": "record",
+   "dome_derived": false,
+   "sha256": "3f383c00c9523739afbd48d7c5d014070af9a4fe8e1c5668dbcbecbc77fe3816"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/task.lock.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "57d1d857357f191d681cd6a30a9c6489cbf38a0f1855baabce932b6d51f7ff4f"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/run_receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "b80d64718bfc55a321cf7136ee43ccca2425d3593cbda2127a6bfa11d1592b6e"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/environment.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "48df639af890ab9bd4645e34aee095f398fedeb311b698aa11607f97bf89941f"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/preflight.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "242d6a926ff249cca48f5e60ca64903cf9c3807bdb8ca1888a3f3287a2d2428c"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/input_integrity_entry.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "7407951380feaf6ce52b27b05de2d2009d296d6f07efc3e6159399ab23de1164"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/input_integrity_exit.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "56f46a84845e0cf7979f7d5c969d0392ae4506d12a4c81aa26b1109e866bb846"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/preparation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "db473c83aea221c3929fc3f5d794664ab2ce12df9023af18bf5868e1e7e29b91"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/initialization.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "1eff1c3e1ad9827d0a5f88962d149f73c2a2ba00161683d1ba4f6d1f3df2f309"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/comparison.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "188d32bcaa152306fee42f632e6f4d9e4ed794a342321fd25e31d06740343e98"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/metrics.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "8ce78cabe21446f74d9b053125d7da40952c8da039891a6e16aea0d5962f1997"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/training_history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "e25a7e52f49b12d83a58948f08bb7d24d8012a5c3659b437a426e832e7e1b9aa"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/resource_receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "8b021e04537c005e2050a2c52caab66881a7db24ded3e17b35900cbae1b9d2b0"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/input_boundary_receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "98139efd956da1a97f3a68fef139647e99cca4920b30781999f521f417ea2c34"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/source_snapshot/manifest.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "45b9afb1aec8d44c440bf52ed3587d3c7778645ec742b30b06cc5dcbd11445b5"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "8096fa260af844509708762997c001a8c86503ee4d53e69af5623e0050160dbc"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9561/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "5c0b67bfa9e20999cca0f4889b74064b2cc279fde3f635ab762e47715955aed0"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9561/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "012a02288eff61939ef18c7a87a566869cdba39d4fe872d945a6a7ee5ad93e27"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9561/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "eb0b38c028ddddee00d7088e15ec8d163d392a40c98f8340c411bfcc337a97c1"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9561/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "7b906e40428a542b59795e917add3d97415b6fab62568348c5e328077e525f65"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9561/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "7b767e9d72877a7c5009ead368bf1f1f35e45229e2f43a6d72ec3c4678fb0ead"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9562/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "77f4626ebe6cb4833bcc7789d23acd3e964ff342f97731c2e90a881edf36a0be"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9562/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "9a36abc4cc38cecf0a9ef9745eed0552414ab04038cd3a155338c33afc424988"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9562/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "e6ae198d62dcd8677f0fa8483b7f5c50baacadc649914ef2786c241bf6aba610"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9562/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "4fd0d6094ee95dfc6dd0b39cd67b2343b209184b8b0bd2fe1d03c07aa32c43f1"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9562/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "c42d4416d7a1f4171899b6f323d0522894512a5614bcb3d949bbfb2fade61a2a"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9563/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "7284278b656390bbae2b3187cc17bc80c3704d6fd0b7e166789702a00a3dfc53"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9563/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "81fb25569871572cd29a2891162eac7076cba0d16eeebf720d2679b23236723e"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9563/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "ebb78ec544e13a5f6ecb45489711968ffe0060b3667e2dc7112ab0c4e20c9d46"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9563/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "0e8887277aa05bd361363ef7ccb27cdfd2a11f2f4783c40701fab5a6adbdc7a7"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6/9563/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "6d633aa116dcf1813465c68eff95e10135f2fa20d0102c483293d1259a8992ea"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9561/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "79d16e441b486cb90d6bffdbee4046b38ba043b0a5f2bc7b03d3ba89c1701890"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9561/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "6c23328525bd406b07d330071fff02485c2a45243b4cd910ca13ef1464cc4126"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9561/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "dcd771473b2e20c8737ad1c8a4337c1b5ea57e0a82260163ea0efd8def91ea9b"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9561/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "7d8e46c502e4d7a32a2ac76db0aee0482d971b1c737c2a40394415fc4896d2ba"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9561/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "9a0e9facc9d1b89e09d5aad04faf5a480257570dfe00b558fc1360848e0e58f7"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9562/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "065af0b88283fc3e1f31365ec7b967652d22fe8172c5ad7815a89f9dd24f5420"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9562/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "934a292b83cdb08817aec34e129f5380387e5ebcef5f0f1497b7982350d6dd7d"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9562/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "dd84a297676b3990938e599793dfc628a29ac2b483c98508a4f2b0902b5a882f"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9562/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "4a319ab7facc327d21eba35b70e4106344479c385a2e417781462861f0fc1813"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9562/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "e4a7c6217ba8d3bda6027439f7badcd0be70763998189b2ae50038d5d6580659"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9563/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "09d62902f5254d7b3358b05cdb6aeb021079a086c2d48922eac43b790b6c19fe"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9563/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "0ee6dc47aabdb8a26147c5b721a8ed10a0a00553104d1fe903f2042d1acfc7b2"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9563/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "7645114c091dc4bd41cf7675cc9b0a43e6371f43052b1dc3770a904683005105"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9563/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "35a09135f66d4145d04e16a45b9ead923ba2fda1cb538059bf2b8ef8af23dab4"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_30k_d6_lr/9563/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "791247fce245528533077f3047f31b6a7016e456b65b0e2083ce54b4fb1f4518"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9561/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "d764b4157796d406ceedcf51d1afe0f8a2224291de841cd9e79930298b3ce72a"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9561/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "1f2e8b324c032d49ee9ded6787907f12bb81da9ecf9e467a9187ede040c9cc36"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9561/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "d2549ab3c39eda14663945c3e373bc042eedb045b25b54a2647f4997e2215016"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9561/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "b9785c091980f848446035c09655c534376e32f297885512d5933d9fcc7b7470"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9561/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "8096fa260af844509708762997c001a8c86503ee4d53e69af5623e0050160dbc"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9562/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "4ae7c1e0fbdb1d2f4448533503f9838b9eaba6b0a55cbcf0c1ddee54632807a4"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9562/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "792092938553dbbceb87432b38dd33df735391da1670eec893f30d4bc70fdd9a"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9562/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "3c6dfbcd5c75a8ba565a15be3a8b6c9434a97aeb82a3948526616593c7ff4d0e"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9562/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "e3691cd5a8ec2133075cc5dfaa13c55c198518e0c5c0d3f8fa5721b917e10ed6"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9562/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "a656b500383c19347df2ec5fef2b90fcf436efe9f9074fef017f2ae5a6cf00fc"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9563/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "839efbabede98a6b3d544f83f6b999a918feb44f34c97fa38d8b6bb247e7ca54"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9563/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "6abc6ff4dec307d31320c0b162c95af3aff77bc38eaad25f15870356a958f118"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9563/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "2c63b13c4b840788600bb3d086a98d28e288c5974d5266fb1094131f38eccb96"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9563/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "9aaf3622a98813c5269962b086537c7389e96fb588db13629e4710eada4a86b8"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_base/9563/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "5d1decd81767b3f7aba1ef7ffe4c1a8dfb4f7bff90513f6744fec77488ecdf83"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9561/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "24ee539321e32f598ac0b0cc3ea863e17d251c6d2f295f9b346b1ae4af7dec02"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9561/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "e4b7dffa0021c2437eb40c8e7c0dd6ffb05d8b75b4ce53bcc17020062e17be1f"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9561/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "7d9bf1a7bfb3d3b05fe5f9506a822f31f4d6c334445b7c4c8edeb62b7272004c"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9561/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "f7c9b1c5bb6b29fd2e4b19e8dda00164a2f3b77c520a9feda3df3123a8c0d831"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9561/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "f3b9c99e97e37b756c27f9a6a6f00960590e8fd9be5997f5feefc781f04b2a3b"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9562/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "da53f3e4d3486309f5f1e73b5f37987f9c48964aba77a5199b3ee85e6d5636ee"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9562/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "8a263d2275fb237db684af435c14913cfbd29154f996cdaa99a0f5bef62b97e0"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9562/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "b53fc8a31a44172d8c426c6dac724bfc94d81a3ad5fad92542228e715f4abcde"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9562/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "a3c125fd7b5dd6be4fe2933d4896e0f5b3fb845bab42948f0b3cee9ecb8b2ddc"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9562/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "1e45596e163c46b421d20cd0639eeb182308d3b7bc896ea3fb1211d0fc558638"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9563/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "01ab5a7e2b4a4c541a15f280564d85bb867856792b55b663f46b7f326eb0957b"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9563/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "9f1f4b2fd8d1dc14a001ff7e64eefa118d41d2a0114a62e6a87ec6b7f46b2129"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9563/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "caae8c456919f6f2cc761ef8d4a96748d04b29af13eaca4d25b7a58ce76afe01"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9563/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "5da9453c9d0224ebcb2ab020ef6a6f3bf1d4b100da73771c56b6fc2562aedfa5"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_ds4/9563/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "c5ac4012563136aaaa95c464fd4a8a9b277c9b8b207dfe0291ff3ae0ee6ff8f6"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9561/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "2e954b00a0428b02570bf3e7f9046ef96b6a1ec64d86cf9bef4fb0a8b0ce16ac"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9561/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "2ae27bb4c98502d7397b1edb44d3f43d0cb789d79f50edee0aa8afb9dc08657d"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9561/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "2c8f06c317f122a3a0bcf805ac6e1161262850810c9b4a1e3e1bab3bda18ae65"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9561/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "b8efd33da781249aa629bf2624c6f163eddbdfcc9a8af32ae6edf977a18ec790"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9561/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "6efcadac0b58060a8f77767fc165a35421815279c0f2843fd1c0ad8095dd2adc"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9562/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "8f9e6a41dee24488b62bd3755dd0f9dc26629b45b2efc28a2fac72bcc686d4b5"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9562/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "0c58d9aedbef7e523c802b031d7be93e35a455ce4b6c627ca0c4362cdd4c9232"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9562/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "6fcfbd9ac0a8894f64f02b5ed18c06aef07ed3e1fdabc029cbdd5f179f71384d"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9562/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "d22301f8f736f630135444669a7a913c85af0b39a07b56b914e3a3461e2c491c"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9562/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "66355d8935112834e593ff5631c0c86a81b8d078b6703d3507f7a9200f591eb8"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9563/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "4c993856f8781ed42f352bbaf2c337618014544964731d1080d445cd6e319090"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9563/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "baf414b95474ac9c1777a1f800fcd330841fa0e384680c0b2c69912fbb3bea14"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9563/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "4c103410f9195eaa6142de44a015ea7cf3ede5a4de002fd472a454898ae4fca4"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9563/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "655ba50cf4d8de2ec8118be332068607a5347e46e8052a33ecc6eb1ce67178df"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_reg/9563/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "0bcb09a8c4094bb2b74c9580d254bb6530cd130ede9024c61c3bdd2cad18eb28"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9561/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "db1cb260390890d33a0125205caec3860a5a8093288f179d3e9cca62f667482d"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9561/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "6f052bf08c7a135310122bd341af09a0d7d268e451d560c9d4bd8ee17a665cda"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9561/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "db8da48deb95ca0fa42bd91b99f079b12a3a0f14c97b28300edd584993a30efd"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9561/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "61d29155cec4f45be8a1acdbe2cf56024c69ada4124c3d5fce77e607c86c3c56"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9561/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "83ffa2d3a214980a7e07532327d54ee66a7869380a91bd3f6daee98ce0358703"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9562/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "aea03de4b140e7428693eae07101b5ab34e89449c986621c6538bd94e9f9450c"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9562/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "9d33904749e45569851ea0baec949a735e738181c2636f94285fe6cf0c5162c5"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9562/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "33e25bd5a878bbece665fa848a4eae631d48c46f2a22b07108b46576ba33cff9"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9562/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "4a1f3816fc4fb57338ca76bd744cc9981537cb3ba709b3993099a4d9e30dd713"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9562/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "c5f1be608c5c1af3db6b071c9e6547c3e9445d90d950281e4bfd71ebbd955c09"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9563/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "f6786e19a0107b7f62e8f398c4a45b7529fa65e3f61b65c7330ce90fd34dc8b7"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9563/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "ac8a6b5727e426ed3995b91895c98f8e9193f58ab17f60a7e247ae39c16f78dd"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9563/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "c87d541f098c347a9823740a45d9302de0c5aae196e1062e8e32e107ba26d7ad"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9563/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "ae7d633af335eb3660c7a7745b94fc7525e7d154de0b7987483d30ee171f1fd9"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh0/9563/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "934abb05f57e8ca0dcdd0ef06c35c33069b02855fab0335e2ca8b067affcfb99"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9561/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "2c9e250db7123e02c07de2cc7006e99f230e660a440e31f6e5d036b63afb5f91"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9561/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "aabb7493f9db2fb1b0b86819de3996211e786740e0280ee83e324eed72faac0b"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9561/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "b7cac40d52e0a36774ca7c13590ea11506a58bed5d4094f992d5139e1f2cbf8c"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9561/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "49d03d7e0b17a8e9a7698caff43629b7050ee84f4c259ac01c9151f41e267e99"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9561/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "1296dfd04fe12eda5a80b090d26a358ad1ddf5ed47ccbf72abd39c1121d9b4d6"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9562/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "1957ab8a48abab0054a44e6e53f38b48398c00ce7f12eed0cbf53d8b88f2e00f"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9562/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "d60b9964238c231f4b3474571ce6d1056702fe7a0baf2036b327995d90e24567"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9562/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "582c142648dc1117aa5853f51aa2a148f8e1b2045ed156ff9fe3e29341f9ecda"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9562/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "f804384437c3e9dabd4a02f1b43425fa2e7d561763f33f8c2231de7dd78d1ca8"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9562/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "e9b945c7c750f7809792b4f49a718e4b6c970c580a946f4f190edcf432574510"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9563/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "5e8c573bcc7bb499d21b21bc72b7371766cfe5071d0511a5bc754e9fa7b183bb"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9563/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "bdda5fd0f68f6072f94a8c4ac45dfa0b86f3d8d50eb09e140515f53be91d8201"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9563/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "070bb7b2e96793df803db57e46acf1f0fffa8fac71fc64a21b9e11cca8178d9c"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9563/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "03dcf0470cf94b1e5f60df0d2d0afa3b54f0a76f76f90deb85311d2a6c6f6a8d"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_sh1/9563/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "e9435373b8bc45efe90b9e14a943f0a7ba4957fb3630f0bf1d88090cda131e32"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9561/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "49b4416f6fff99d637b48da5eb0eb8d51161b9d750e571cb053c3e689e40a813"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9561/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "01b04e0e4d56f339d369fa1f9c460ec86e3f6783d8d22b982c99fecde0b13200"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9561/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "f8e709bedece363add75d534a70a8d4e031b84e8a0f18300a5b57d8568a8b065"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9561/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "b08d1749a13d8b7e6aafbc0dc3f9649e73534be426027226362bbcb8643a1b02"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9561/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "f56ed10c7f89d6f6bfd9c8dc6530bf6279306cac6bcb2e01c4b1bdc2e47937c8"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9562/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "e3f92901a18abd931b4d7078d1f6aafe956659e14bdb0d7e990f0b6a35051e92"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9562/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "311e40b6909a8787095267e8a4583ca7a5b0115ebb4602c8d1e583dd726a3c8a"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9562/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "87e667de6e9b59870c5c2782b576ba0b11286ca94553a815f39c6bee4d60e105"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9562/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "918d3e1abb6b310d53dcc8974f7eff9e344320261bc3c8ce79122e34da9b235c"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9562/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "b99b827604ec00f0d886359e1c5918ced99b91160aa123cc21be7cdfbf2c4c26"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9563/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "40057da68562bb3c4cd87899d753a94d978f5ab23be00f2cb867ed59f9ad9214"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9563/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "0b1a12d186a131e9c501a7ea033e0dce78377fcf89e3b3f62d59a3c761041bbf"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9563/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "b15213afbdd6e7cb791f66da6ed05013568f5443505e4644d39d8ae80962712e"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9563/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "c53531cec2d9fcf435f9b1299d887f93fc2fa8f03053f98644dcafd6a756c3ee"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/nb_v11/9563/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "915c6a85c014cd38d10ddc9b11d5f10de9564c8ec00207c273d1c2bd4ee9fb88"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9561/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "0e3c59e1a7f72cb721e205ea3fcaa2f438b33b9be25edfd5a79625c2e69c80d9"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9561/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "7ff02ef678ea25d2d1dc8c827bcb99f7601be4e1b5d9e0d2d1718d835e2070e6"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9561/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "dbe4dad14620744ac53e964a9500291c3d72b0c1b9f562dfdf3d71dd75ffdb63"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9561/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "a7b6f27d935a7091ba968f8e670c3ff2d85be8b45e4d9c13dee284759afa8003"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9561/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "d41bf9c4fc1aa1950fe8e854c37fc957807adf919d1513e824f8a1d5dee9b2c8"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9562/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "1e24c3222a7274f4bdb5b0afbd1707b67dc20c6b6e7c78e03554fb7cdd30b032"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9562/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "f996754d4b7ac3fd6017ed688d1a668be4f5dbfd04e183e4506d547b2bbab5d1"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9562/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "0e82b64a986161bbbf033e8bc4881436930c84c74b4f1eef29d5b1628ecc8f0f"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9562/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "95a89c88d0a0550c2384af7b2fa8c5371d2b3c7aa455e01a0fcb7c1c651ee1a5"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9562/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "22629762406946128e34b4410d1947d53c4d94a8b8cd869706b1fdb9520f0c69"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9563/receipt.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "394a2584eeb34e58e1cd240c4429b519e5885d9d90ac13010102ffeba4659fbf"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9563/evaluation.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "46e560003c66a1bd5c7d9db16772fb69f824e70ea380e8a6e4c3eee6d9436314"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9563/effective_config.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "fa100be49ee91b1190b44d0abca2e07c3eb52234dee1a96ebcf23776d68fb8ae"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9563/history.json",
+   "kind": "run_record",
+   "dome_derived": false,
+   "sha256": "2ad742766c495c1f698f3671b81645ad6fffd90a8cf0ff01a8f21af141b10b41"
+  },
+  {
+   "path": "runs/20260928_field_only_portfolio_stage_frame00008/cells/ph_base/9563/reconstruction_contact_sheet.png",
+   "kind": "preview",
+   "dome_derived": true,
+   "sha256": "64d5ed4457001b48b46b245af67a79378bd69922039cf53b83c15c9120a384d0"
+  }
+ ],
+ "excluded": [
+  "dataset/** raw photographs, masks and .rtgsv archives",
+  "runs/**/targets/** decoded targets",
+  "**/*.npz and **/*.ply Gaussian archives",
+  "runs/**/renders/** individual renders",
+  "*.gif animations",
+  "logs"
+ ]
+}

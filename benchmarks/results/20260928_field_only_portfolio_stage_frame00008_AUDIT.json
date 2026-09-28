@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "task_id": "20260928_field_only_portfolio_stage_frame00008",
+  "task_record": "RTGS-029",
+  "reviewer": "Claude-Code-Fable-5.1-reviewer",
+  "model": "claude-fable-5-1",
+  "self_reviewed": false,
+  "verdict": "accepted_with_limits",
+  "protocol_sha256": "345e57a95cac3edb93fa7cc56d7a0ec43edb9d398f08da4e895583d9b32dfd68",
+  "outcome_access": "full post-run results audit",
+  "execution_mode": "in-session subagent (Agent tool); detached CLI launch not permitted in this session; read-only tools; no nested agents; no fallback model",
+  "authorization": {
+    "record": ".scratch/20260928_field_only_portfolio_stage_frame00008/claude_results_audit/authorization.json",
+    "authorized_by": "user in chat 2026-09-28 ('Ja bitte.')",
+    "payload_manifest_sha256": "9001da43d02d2bdf9dee28f2d7946318893368857ab48770b233d6d034386e1c",
+    "manifest_items": 158,
+    "previews_viewed": 28,
+    "distinct_preview_files": 27,
+    "root_preview_equals": "cells/nb_base/9561/reconstruction_contact_sheet.png (frozen preview_policy)",
+    "all_item_hashes_match": true,
+    "reads_outside_manifest": [
+      "rg gsplat line of ara/evidence/tables/20260928_color_budget_reset_final_handoff/preflight.json (RTGS-028 gsplat version 1.5.3)",
+      "first 1500 bytes of .scratch/<task>/claude_results_audit/prompt.txt",
+      ".scratch/<task>/ directory names only"
+    ]
+  },
+  "chronology": {
+    "approval_commit": "c1abcd00876d9f16bc9b1f4eb31d847bb5bbe6e8",
+    "approval_commit_time": "2026-09-28T07:02:42Z",
+    "lock_started_at_utc": "2026-09-28T08:21:04.932543Z",
+    "finished_at_utc": "2026-09-28T09:36:56.943838Z",
+    "source_dirty": false,
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "single_invocation": true,
+    "execution_failure_json": false,
+    "run_roots_for_task": 1,
+    "fit_intervals_sequential_in_frozen_order": true,
+    "last_fit_end_s": 4449.65,
+    "first_evaluate_start_s": 4464.26,
+    "max_fit_wall_s": 378,
+    "cell_timeout_s": 3600,
+    "post_run_tree_changes": [".agents/state/current-task.md (Driver handoff appended)", "benchmarks/results/<task>_RESULT.json (untracked, run-written)", "benchmarks/results/<task>_RESULT.md (untracked, run-written)"]
+  },
+  "binding": {
+    "task_sha256": "d945c7051b988f0516c6bbd7c6b3ff11f9dba82c481e351499d54492b57c6c58",
+    "review_artifact_sha256": "e6528c748c4f4f50fef639e86486c90824d5f75deeb62cf27329c385ad4d40c0",
+    "data_seal_sha256": "d01254e739961dcb1acc4a9abca6694bb63e319ff179581ebe2ec2ae08706087",
+    "source_binding_files": 119,
+    "source_binding_aggregate_sha256": "2848f1d6695c69680fd8a724dc8d1408d33ad92d031e5c0ae3fa061e98831b6e",
+    "source_binding_reproduced_on_live_tree": true,
+    "snapshot_files": 121,
+    "snapshot_matches_live_tree": true,
+    "src_rtgs_tree": "1cebc4bc92e5e83a904b4fc4394fc0429423bbd2",
+    "review_digest_reproduced": true,
+    "validate": "OK",
+    "validate_data": "OK",
+    "protocol_tests": "7 passed",
+    "input_integrity_entry": {"files_checked": 81, "all_match": true},
+    "input_integrity_exit": {"files_checked": 81, "all_match": true, "split_sha256_reproduced": true},
+    "environment": {"python": "3.12.9", "torch": "2.9.0", "gsplat": "1.5.3", "lpips": "0.1.4", "device": "NVIDIA GeForce RTX 3050", "cuda": "12.8"},
+    "preflight_gsplat": "1.5.3",
+    "rtgs028_preflight_gsplat": "1.5.3"
+  },
+  "input_boundary": {
+    "prepare_opened_views": "exactly the 22 frozen training views; denied []",
+    "initialize_opens": [],
+    "fit_opens_all_cells": [],
+    "evaluate_opened_views": ["C0001", "C0018", "C0029", "C1002"],
+    "evaluate_after_all_receipts_completed": true,
+    "heldout_closed_before_evaluate": true,
+    "alpha_metrics_out_of_sample": true
+  },
+  "cells": {
+    "count": 27,
+    "all_completed": true,
+    "all_effective_configs_equal_frozen": true,
+    "all_initial_sha256_match_seed_initialization": true,
+    "all_executed_iterations_equal_frozen": true,
+    "density_stop_iter_all": 6000,
+    "last_density_event_iteration_all": 5900,
+    "cap_100000_reached_any_cell": false,
+    "run_wide_max_live_count": 59878,
+    "nb_ds4": {"final_counts": {"9561": 38090, "9562": 38713, "9563": 37902}, "max_live_counts_equal_final": true, "pruned_to_budget_total": 0, "training_downscale": 4},
+    "nb_v11": {"train_view_ids_equal_frozen_half": true, "sampled_train_views_range": [0, 10], "sampled_length": 8000},
+    "nb_30k_d6": {"means_lr_gamma": 0.9998465061085267, "means_lr_final_factor": 0.01, "final_counts": {"9561": 59424, "9562": 59878, "9563": 59391}},
+    "nb_30k_d6_lr": {"means_lr_gamma": 0.9994245193792801, "means_lr_final_factor": 3.16227766016838e-08, "final_counts": {"9561": 43315, "9562": 43280, "9563": 42490}, "sampled_views_identical_to_nb_base_first_8000": true, "trajectory_bit_identical_to_nb_base": false},
+    "nb_reg": {"opacity_reg": 0.01, "scale_reg": 0.01, "regularization_terms_nonzero_only_here": true, "final_counts": {"9561": 26192, "9562": 26610, "9563": 26661}},
+    "sh_degrees": {"nb_sh1": 1, "nb_sh0": 0, "others": 3},
+    "record_train_metrics": false,
+    "training_view_psnr_available": false
+  },
+  "official_gates": {
+    "recomputed_from_per_view_rows": true,
+    "operators": ["primary_box_ds4_to_ds8", "ds8_point"],
+    "max_abs_deviation_group_means": 0.0,
+    "max_abs_deviation_paired_deltas": 0.0,
+    "rule": "pass iff every seed: dPSNR >= +0.1 dB and dLPIPS <= +0.005 and d_outside_alpha <= +0.005; reject iff every seed dPSNR <= -0.1 dB; else inconclusive; nb_ds4 pass/reject requires both operators",
+    "arms": {
+      "nb_sh1": {"verdict": "pass", "primary_dpsnr": [0.439, 0.330, 0.293], "primary_rule": "pass", "point_dpsnr": [0.398, 0.287, 0.246], "point_rule_descriptive": "pass"},
+      "nb_sh0": {"verdict": "pass", "primary_dpsnr": [0.473, 0.395, 0.524], "primary_rule": "pass", "point_dpsnr": [0.329, 0.146, 0.374], "point_rule_descriptive": "pass"},
+      "nb_reg": {"verdict": "pass", "primary_dpsnr": [1.075, 0.901, 1.000], "primary_rule": "pass", "point_dpsnr": [0.589, 0.506, 0.585], "point_rule_descriptive": "pass"},
+      "nb_30k_d6": {"verdict": "reject", "primary_dpsnr": [-0.826, -1.016, -0.949], "primary_rule": "reject", "point_dpsnr": [-0.582, -0.689, -0.660], "point_rule_descriptive": "reject"},
+      "nb_30k_d6_lr": {"verdict": "reject", "primary_dpsnr": [-0.540, -0.616, -0.519], "primary_rule": "reject", "point_dpsnr": [-0.558, -0.598, -0.493], "point_rule_descriptive": "reject"},
+      "nb_ds4": {"verdict": "pass", "gated_under_both": true, "primary_dpsnr": [1.972, 1.843, 2.007], "primary_rule": "pass", "point_dpsnr": [1.145, 1.018, 1.160], "point_rule": "pass"}
+    },
+    "descriptive_pairs": {
+      "nb_base_minus_nb_v11": {"primary_dpsnr": [0.856, 0.880, 0.833], "point_dpsnr": [0.945, 0.956, 0.803]},
+      "nb_base_minus_ph_base": {"primary_dpsnr": [-0.075, 0.019, -0.239], "point_dpsnr": [-0.334, -0.299, -0.502], "primary_dlpips": [0.0191, 0.0146, 0.0193], "point_dlpips": [0.0202, 0.0147, 0.0180]}
+    },
+    "decision_string_reproduced": true
+  },
+  "point_operator_table": {
+    "operator": "point-sampled downscale-8 render (RTGS-025/026/028 operator), gsplat 1.5.3 classic mode",
+    "source": "RESULT.json.groups_ds8_point == comparison.json.groups_ds8_point == recomputed from per_view[].ds8_point",
+    "groups": {
+      "nb_base": {"foreground_psnr": 23.439983, "crop_lpips": 0.144824, "outside_alpha_mass": 0.001089, "floater_fraction": 0.000797, "interior_alpha": 0.999034},
+      "nb_sh1": {"foreground_psnr": 23.750570, "crop_lpips": 0.138984, "outside_alpha_mass": 0.001316, "floater_fraction": 0.000826, "interior_alpha": 0.999103},
+      "nb_sh0": {"foreground_psnr": 23.722980, "crop_lpips": 0.140194, "outside_alpha_mass": 0.001436, "floater_fraction": 0.000819, "interior_alpha": 0.999171},
+      "nb_reg": {"foreground_psnr": 24.000339, "crop_lpips": 0.131565, "outside_alpha_mass": 0.001442, "floater_fraction": 0.000891, "interior_alpha": 0.995901},
+      "nb_30k_d6": {"foreground_psnr": 22.796301, "crop_lpips": 0.168117, "outside_alpha_mass": 0.000936, "floater_fraction": 0.000787, "interior_alpha": 0.999069},
+      "nb_30k_d6_lr": {"foreground_psnr": 22.889935, "crop_lpips": 0.160938, "outside_alpha_mass": 0.000995, "floater_fraction": 0.000821, "interior_alpha": 0.999129},
+      "nb_ds4": {"foreground_psnr": 24.547521, "crop_lpips": 0.118451, "outside_alpha_mass": 0.001075, "floater_fraction": 0.000902, "interior_alpha": 0.999430},
+      "nb_v11": {"foreground_psnr": 22.538518, "crop_lpips": 0.165887, "outside_alpha_mass": 0.001544, "floater_fraction": 0.001123, "interior_alpha": 0.998785},
+      "ph_base": {"foreground_psnr": 23.818399, "crop_lpips": 0.127218, "outside_alpha_mass": 0.001073, "floater_fraction": 0.000821, "interior_alpha": 0.999168}
+    },
+    "paired_deltas_vs_nb_base_dpsnr": {
+      "nb_sh1": [0.398, 0.287, 0.246], "nb_sh0": [0.329, 0.146, 0.374], "nb_reg": [0.589, 0.506, 0.585],
+      "nb_30k_d6": [-0.582, -0.689, -0.660], "nb_30k_d6_lr": [-0.558, -0.598, -0.493], "nb_ds4": [1.145, 1.018, 1.160],
+      "nb_base_minus_nb_v11": [0.945, 0.956, 0.803], "nb_base_minus_ph_base": [-0.334, -0.299, -0.502]
+    },
+    "paired_deltas_vs_nb_base_dlpips": {
+      "nb_sh1": [-0.0068, -0.0050, -0.0058], "nb_sh0": [-0.0034, -0.0030, -0.0075], "nb_reg": [-0.0144, -0.0122, -0.0132],
+      "nb_30k_d6": [0.0239, 0.0252, 0.0207], "nb_30k_d6_lr": [0.0154, 0.0159, 0.0170], "nb_ds4": [-0.0253, -0.0264, -0.0274]
+    },
+    "metric_semantics": "secondary_metrics ids ds8_point_* map to the unprefixed METRICS keys under per_view[].ds8_point and mean_ds8_point; gates.<arm>.ds8_point_descriptive.verdict is a descriptive rule outcome, not a verdict"
+  },
+  "claim_dispositions": [
+    {"claim": "27 paired development cells completed; one invocation; exit 0; no execution failure", "disposition": "confirm"},
+    {"claim": "Primary-operator group means (RESULT.md table)", "disposition": "confirm"},
+    {"claim": "nb_sh1 pass", "disposition": "confirm as screening signal; narrow: +0.29..+0.44 dB primary, +0.25..+0.40 dB point; outside alpha +0.0002 every seed"},
+    {"claim": "nb_sh0 pass", "disposition": "confirm as screening signal; narrow: +0.40..+0.52 dB primary, +0.15..+0.37 dB point"},
+    {"claim": "nb_reg pass", "disposition": "confirm as screening signal; narrow: regularization-plus-capacity package (26k Gaussians, interior alpha 0.994)"},
+    {"claim": "nb_30k_d6 reject", "disposition": "confirm; narrow: rejects the 30000-step package with the 30000-step means-LR horizon and a 59k population; does not isolate iteration count"},
+    {"claim": "nb_30k_d6_lr reject", "disposition": "confirm; narrow: 22000 further non-positional steps on frozen topology lose 0.5-0.6 dB; overfitting reading is a hypothesis (no training-view PSNR)"},
+    {"claim": "nb_ds4 pass gated under both operators", "disposition": "confirm as screening signal; carry resolution-package, ~2.7x wall / ~2x VRAM, no cap hit, final = max count"},
+    {"claim": "Pass effects of 0.3-2 dB need confirmation (handoff)", "disposition": "confirm"},
+    {"claim": "View-count sensitivity and photograph gap are descriptive", "disposition": "confirm; narrow: photograph gap operator-dependent in PSNR (0.3-0.5 dB point, ~0 primary), 0.015-0.020 in LPIPS under both"},
+    {"claim": "Both operators with the dilation mechanism; only nb_ds4 scored with its training render under the primary", "disposition": "confirm"},
+    {"claim": "Upstream gsplat 1.5.3 performs no opacity reset in any arm", "disposition": "confirm (preflight/environment 1.5.3; RTGS-027/028 evidence; no reset callback; canary test not run here)"},
+    {"claim": "Point set is the RTGS-028 operator", "disposition": "confirm (gsplat 1.5.3 in both preflights; src/rtgs unchanged)"},
+    {"claim": "Alpha metrics out-of-sample; held-out closed until evaluate", "disposition": "confirm"},
+    {"claim": "Timings descriptive; GPU had no other compute process", "disposition": "confirm descriptive; unresolved for exclusivity (no record in bundle; walls consistent with RTGS-028 free-GPU walls)"},
+    {"claim": "Locked from the clean approved tree at c1abcd0; binding check passed", "disposition": "confirm"},
+    {"claim": "No default changes", "disposition": "confirm"}
+  ],
+  "visual_disposition": {
+    "previews_viewed": 28,
+    "render_operator_of_previews": "downscale-8 held-out cameras (point-operator geometry)",
+    "gross_failures": 0,
+    "summary": "All 27 cells reconstruct the figure with correct silhouette and colour; residual thin rim error along the mask boundary and low-amplitude interior speckle in every cell (strongest on C0001); sparse background floaters visible only as faint specks in the error panels, densest in nb_v11, nb_sh0, nb_sh1 and nb_reg, sparsest in the 30000-step arms, matching the recorded outside_alpha_mass ordering; nb_ds4 visibly sharpest; no halo beyond the rim band; adequate for a development screen"
+  },
+  "limitations": [
+    "development screen on an outcome-exposed frame (RTGS-021/024/025/026/028), one split, three seeds; six simultaneous uncorrected comparisons; every pass is a screening signal requiring a separately registered confirmation",
+    "RESULT.md omits the condition-4 disclosures listed in section 9 (point table, means-LR factors, nb_ds4 package/counts, nb_v11 receipts, preflight/RTGS-027/028 citation, second smoke pass, GPU-exclusivity statement, operator-dependent photograph gap); this audit and the EXPERIMENTS/ARA entries must carry them",
+    "nb_30k_d6 does not isolate iteration count (means-LR horizon changed the population grown in the same window); nb_reg is a regularization-plus-capacity package",
+    "no training-view PSNR recorded; overfitting interpretations of the 30000-step and SH-degree effects are hypotheses; the falling training objective is consistent with but does not establish them",
+    "GPU exclusivity and the second two-operator smoke evaluation are Driver statements without records in the bundle; timings descriptive",
+    "previews are point-operator renders at downscale 8, not the primary box render",
+    "nb_30k_d6_lr equals nb_base through step 8000 in configuration, seed, targets and schedule only; realized trajectories differ by CUDA nondeterminism (about 2 percent population difference at 6000)",
+    "the smallest pass margin under the descriptive point operator (nb_sh0 seed 9562, +0.146 dB) is close to the 0.1 dB floor; primary margins are all >= +0.29 dB",
+    "no default, SOTA, generalization, physical-geometry, speed or VRAM claim"
+  ],
+  "commands_executed_by_reviewer": [
+    "git status --short; git status --porcelain --untracked-files=all; git rev-parse HEAD; git log --oneline -8; git log --format='%H %ad %s' --date=iso -4",
+    "git diff .agents/state/current-task.md; git diff --stat 9abf11c c1abcd0; git diff 9abf11c c1abcd0 -- experiments/tasks/<task>.json",
+    "git rev-parse HEAD:src/rtgs HEAD:<driver> HEAD:<report> HEAD:<protocol test> HEAD:<task JSON>",
+    "sha256sum over the payload manifest, bound driver/report/test, contract, bundle checker, pyproject.toml, tests/test_field_targets.py, data seal, trainer.py, strategies.py, gsplat_backend.py, field_targets.py, source_snapshot/tracked.diff",
+    "ls / ls -la / wc -c over runs/, the run root, one cell, source_snapshot/, .scratch/<task>/ names, the audit directory",
+    "cat / sed -n / rg over CLAUDE.md, the audit skill, the task JSON, both reviews, R1, RTGS-027/028 records, RESULT.md, driver, report module, lock, receipts, environment, preflight, integrity, boundary, resource, preparation, initialization, snapshot manifest, git-status.txt",
+    "rg -n gsplat ara/evidence/tables/20260928_color_budget_reset_final_handoff/preflight.json",
+    ".venv/bin/python scripts/experiment_contract.py review-digest experiments/tasks/<task>.json",
+    ".venv/bin/python scripts/experiment_contract.py validate",
+    ".venv/bin/python scripts/experiment_contract.py validate-data experiments/tasks/<task>.json",
+    ".venv/bin/python -m pytest -q tests/test_field_only_portfolio_protocol.py",
+    ".venv/bin/python -c / heredoc read-only recomputation scripts over the manifest JSON files (manifest hashes, source binding, snapshot comparison, per-cell checks, both-operator means/deltas/verdicts, split digest, trajectory comparison, training-objective means, diagnostic means, one PIL image size)",
+    "Read (image view) of the 28 manifest previews"
+  ],
+  "not_executed": [
+    "init-run; driver run/prepare/initialize/fit/evaluate/selftest; check-run; check_results_bundle.py",
+    "any render, viewer smoke, GIF or GPU work; verify.sh; ruff; full pytest suite; RTGS-027 canary test",
+    "no file created or modified in the repository",
+    "no raw photograph, mask, .rtgsv, .npz, .ply, targets/, renders/, log or GIF opened; smoke directories not entered",
+    "no RTGS-025/026/028 RESULT or AUDIT record read (only the gsplat line of the RTGS-028 preflight receipt)"
+  ],
+  "remaining_handoff_checks": [
+    "persist AUDIT.md and AUDIT.json verbatim; do not edit RESULT.md/RESULT.json",
+    "render the report page, headless viewer receipt, second render; run check-run and check_results_bundle.py",
+    "EXPERIMENTS.md entry and ARA rows carrying all section-9 disclosures and the both-operator deltas; supported claims cite RESULT.json / comparison.json / cell records; nothing above development screening signal",
+    "task record: audit ran as in-session subagent; Turn/Status; confirmation of combined passing arms on new seeds with record_train_metrics so overfitting becomes testable",
+    "no default change"
+  ]
+}
