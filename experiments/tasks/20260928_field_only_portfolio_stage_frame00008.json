@@ -17,8 +17,8 @@
  "depends_on": [],
  "title": "Field-only distillation improvement portfolio (SH degree, regularization, budget factors, resolution, view count) on Janelle frame 00008",
  "question": "Which single change to the 8000-step field-only distillation configuration improves held-out colour inside the mask: lower SH degree, opacity/scale regularization, 30000 steps with the densification window held at 6000 (with or without the 8000-step means learning-rate decay), or training at downscale 4? How sensitive is quality to halving the training views, and how large is the gap to photograph supervision?",
- "hypothesis": "Each treatment arm is tested against nb_base: pass iff in every paired seed held-out foreground PSNR improves by at least 0.1 dB with crop LPIPS no worse than +0.005 and outside-mask alpha no worse than +0.005; reject iff it loses at least 0.1 dB in every seed. Expected directions: lower SH degree and regularization help if the RTGS-028 loss reflects overfitting; the two 30000-step arms separate iteration count from the densification window and learning-rate horizon; downscale 4 helps if resolution limits detail. View sensitivity and the photograph gap are descriptive.",
- "claim_boundary": "Development screen of six simultaneous treatment comparisons on one previously outcome-exposed frame (RTGS-021/024/025/026/028 used it), the RTGS-025 split (22 training / 4 held-out views), three paired seeds. A pass is a screening signal that needs a separately registered confirmation. The frame has no further calibrated photographs, so more views cannot be tested directly; the half-view arm only estimates view-count sensitivity. All models are rendered at downscale 4 and box-averaged to the downscale-8 evaluation grid (matching the reference quadrature), so numbers are not comparable to earlier tasks. Training packed alpha is mask-derived; held-out masks are evaluation-only, so alpha metrics are out-of-sample. Targets are decoded with the exact CPU tile index. Upstream gsplat 1.5.3 performs no opacity reset in any arm. Timings are descriptive. No default, SOTA, generalization, physical-geometry or speed claim. Before protocol review, a non-protocol driver smoke (60/120 iterations, two training views standing in for held-out, no real held-out access) exposed training-view teacher fidelity and meaningless tiny-budget values to the Driver; no threshold changed afterwards.",
+ "hypothesis": "Each treatment arm is tested against nb_base: pass iff in every paired seed held-out foreground PSNR improves by at least 0.1 dB with crop LPIPS no worse than +0.005 and outside-mask alpha no worse than +0.005; reject iff it loses at least 0.1 dB in every seed. Expected directions: lower SH degree and regularization help if the RTGS-028 loss reflects overfitting; the two 30000-step arms separate iteration count from the densification window and learning-rate horizon; downscale 4 helps if resolution limits detail. View sensitivity and the photograph gap are descriptive. The densification-window separation for the 30000-step arms is relative to RTGS-028's nb_30k_up (different seeds and evaluation operator), not a within-run comparison.",
+ "claim_boundary": "Development screen of six simultaneous treatment comparisons on one previously outcome-exposed frame (RTGS-021/024/025/026/028 used it), the RTGS-025 split (22 training / 4 held-out views), three paired seeds. A pass is a screening signal that needs a separately registered confirmation. The frame has no further calibrated photographs, so more views cannot be tested directly; the half-view arm only estimates view-count sensitivity. Every model is scored under two operators: primary, a downscale-4 render box-averaged to the downscale-8 grid (its pixel centres coincide with the reference quadrature sites in position only); second, the point-sampled downscale-8 render used in RTGS-025/026/028. gsplat's classic-mode 2D dilation of 0.3 px^2 acts in the render's own pixel units, so only nb_ds4 is scored with its training render under the primary operator; nb_ds4 is therefore gated under both operators. Primary-operator numbers are not comparable to earlier tasks. Training packed alpha is mask-derived; held-out masks are evaluation-only, so alpha metrics are out-of-sample. Targets are decoded with the exact CPU tile index. Upstream gsplat 1.5.3 performs no opacity reset in any arm. Timings are descriptive. No default, SOTA, generalization, physical-geometry or speed claim. Before protocol review, a non-protocol driver smoke (60/120 iterations, two training views standing in for held-out, no real held-out access) exposed training-view teacher fidelity and meaningless tiny-budget values to the Driver; no threshold changed afterwards.",
  "evidence_phase": "development",
  "datasets": [
   {
@@ -188,22 +188,22 @@
   {
    "id": "nb_30k_d6",
    "label": "nb 30k d6",
-   "purpose": "30000 iterations with densification still stopping at 6000; means learning-rate horizon over 30000 steps."
+   "purpose": "30000 iterations with densification still stopping at 6000; the means learning-rate horizon spans 30000 steps, so the means-LR factor is 0.398 at step 6000, 0.293 at 8000, 0.1 at 15000 and 0.01 at 30000, versus 0.0316 at 6000 and 0.01 at 8000 in nb_base."
   },
   {
    "id": "nb_30k_d6_lr",
    "label": "nb 30k d6 lr",
-   "purpose": "As nb_30k_d6 but means_lr_final_factor = 0.01^(30000/8000), so the means learning rate follows the 8000-step decay (1 percent at step 8000) and keeps decaying."
+   "purpose": "As nb_30k_d6 but means_lr_final_factor = 0.01^(30000/8000): identical to nb_base through step 8000, then 22000 further steps with the means learning rate at 1e-3 of its initial value by step 12000 and 3.2e-8 at 30000 (positions effectively frozen) while quaternions, scales, opacities and SH keep constant rates, with no densification, pruning or reset after step 6000."
   },
   {
    "id": "nb_ds4",
    "label": "nb ds4",
-   "purpose": "Training at downscale 4 (four times the pixels) with the same 8000-step configuration."
+   "purpose": "Training at downscale 4 with the same 8000-step configuration: a resolution package that also halves the physical scale of the 0.3 px^2 dilation and of the 11 x 11 SSIM window and doubles pixel-unit positional gradients for the same NDC error, so the 0.0002 grow threshold is effectively lower and the 100000 cap may engage. Gated under both evaluation operators."
   },
   {
    "id": "nb_v11",
    "label": "fields / base configuration / 11 training views",
-   "purpose": "Descriptive view-count sensitivity (every second training view)."
+   "purpose": "Descriptive view-count sensitivity: every second training view (11 views); keeps the 22-view object bounds and shared initialization, loads only the frozen 11 views, and samples each view about twice as often at the fixed budget."
   },
   {
    "id": "ph_base",
@@ -1951,12 +1951,12 @@
   }
  },
  "scoring": {
-  "evaluation_render": "Every model rendered with the gsplat rasterizer at the downscale-4 held-out camera and box-averaged 2x2 to the downscale-8 grid; the downscale-4 pixel centres inside a downscale-8 pixel coincide with the reference quadrature sites.",
+  "evaluation_render": "Primary: every model rendered with the gsplat rasterizer (classic mode, no antialiasing) at the downscale-4 held-out camera and box-averaged 2x2 to the downscale-8 grid, colour and alpha. Second (ds8_point): a point-sampled render at the downscale-8 held-out camera, colour and alpha exactly as in RTGS-028, scored by the same mask_scores on the same reference, mask, bands and LPIPS crop and stored per view with its own per-cell mean. gsplat adds a 0.3 px^2 dilation in the render's pixel units without opacity compensation, so downscale-8-trained Gaussians render thinner at downscale 4 than in training while nb_ds4 is unaffected; the two operators bracket the resolution effect from both sides.",
   "diagnostic_only": "Foreground PSNR against the decoded held-out no_boundary field at downscale 8 inside the held-out mask (field consistency), computed only in evaluate.",
   "selection": "Final models only; no held-out selection."
  },
  "decision_policy": {
-  "per_arm": "For each of nb_sh1, nb_sh0, nb_reg, nb_30k_d6, nb_30k_d6_lr and nb_ds4 against nb_base: pass iff for every paired seed foreground PSNR >= nb_base + 0.1 dB, crop LPIPS <= nb_base + 0.005 and outside_alpha_mass <= nb_base + 0.005 (written form); reject iff for every paired seed foreground PSNR <= nb_base - 0.1 dB; otherwise inconclusive.",
+  "per_arm": "For each of nb_sh1, nb_sh0, nb_reg, nb_30k_d6 and nb_30k_d6_lr against nb_base under the primary operator: pass iff for every paired seed foreground PSNR >= nb_base + 0.1 dB, crop LPIPS <= nb_base + 0.005 and outside_alpha_mass <= nb_base + 0.005 (written form); reject iff for every paired seed foreground PSNR <= nb_base - 0.1 dB; otherwise inconclusive; the point-sampled operator is reported descriptively. nb_ds4 is gated under both operators: pass iff the written rule passes under both operators in every seed; reject iff it reverses under both operators in every seed; otherwise inconclusive (including operator-dependent outcomes).",
   "descriptive": "nb_base minus nb_v11 (view-count sensitivity) and nb_base minus ph_base (photograph gap) are paired deltas without verdicts.",
   "multiplicity": "Six simultaneous comparisons without correction; any pass is a screening signal requiring a separately registered confirmation (for example combining passing arms).",
   "consequence": "No default promotion.",
@@ -2103,11 +2103,48 @@
     "pyproject.toml"
    ],
    "file_count": 119,
-   "aggregate_sha256": "7f720ea0c04c83d642f776d364b6590f3e2cd7ecd98297b5d47beed6ce2b176f"
+   "aggregate_sha256": "2848f1d6695c69680fd8a724dc8d1408d33ad92d031e5c0ae3fa061e98831b6e"
   },
   "live_integrity_policy": {
    "verify_source_at_coordinator_worker_and_bundle": true,
    "verify_full_data_seal_at_coordinator_entry_exit_and_bundle": true
   }
- }
+ },
+ "secondary_metrics": [
+  {
+   "id": "ds8_point_foreground_psnr",
+   "label": "Held-out foreground PSNR (point-sampled downscale-8 operator)",
+   "unit": "dB",
+   "direction": "higher",
+   "aggregation": "As the primary metric but from the point-sampled downscale-8 render; gates nb_ds4 jointly with the primary operator and is descriptive for all other arms."
+  },
+  {
+   "id": "ds8_point_crop_lpips",
+   "label": "Held-out masked-crop LPIPS (point-sampled downscale-8 operator)",
+   "unit": "distance",
+   "direction": "lower",
+   "aggregation": "As the primary metric but from the point-sampled downscale-8 render; gates nb_ds4 jointly with the primary operator and is descriptive for all other arms."
+  },
+  {
+   "id": "ds8_point_outside_alpha_mass",
+   "label": "Held-out outside-mask alpha mass (point-sampled downscale-8 operator)",
+   "unit": "fraction",
+   "direction": "lower",
+   "aggregation": "As the primary metric but from the point-sampled downscale-8 render; gates nb_ds4 jointly with the primary operator and is descriptive for all other arms."
+  },
+  {
+   "id": "ds8_point_floater_fraction",
+   "label": "Held-out floater pixel fraction (point-sampled downscale-8 operator)",
+   "unit": "fraction",
+   "direction": "lower",
+   "aggregation": "As the primary metric but from the point-sampled downscale-8 render; gates nb_ds4 jointly with the primary operator and is descriptive for all other arms."
+  },
+  {
+   "id": "ds8_point_interior_alpha",
+   "label": "Held-out interior coverage (point-sampled downscale-8 operator)",
+   "unit": "fraction",
+   "direction": "higher",
+   "aggregation": "As the primary metric but from the point-sampled downscale-8 render; gates nb_ds4 jointly with the primary operator and is descriptive for all other arms."
+  }
+ ]
 }

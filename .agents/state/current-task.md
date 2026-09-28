@@ -133,3 +133,63 @@ No init-run or protected execution.
 
 #### Recommended Next Action
 Fable 5.1 prospective review.
+
+### Review (2026-09-28, Fable 5.1 prospective protocol review V1)
+
+#### Verdict
+Revision required
+
+#### Self-reviewed
+No
+
+#### Correctness
+Rejected digest `4dd390c2...`: the primary box operator favours nb_ds4 alone because gsplat's
+0.3 px^2 dilation acts in render pixels (two-operator evaluation required); five disclosures
+(means-LR factors, post-8000 regime, ds4 package side effects, relative densification-window
+comparison, half-view sampling) must enter the frozen protocol. Verbatim:
+`experiments/reviews/20260928_field_only_portfolio_stage_frame00008_PROTOCOL_REVIEW_V1_REJECTED.md`.
+
+#### Evidence Quality
+Digest, validators and tests reproduced; published RTGS-028 outcome read by design.
+
+#### Simplicity
+No added cells.
+
+#### Missing Cases
+Operator bias for mixed training resolutions.
+
+#### Required Changes
+Two-operator evaluation and disclosures.
+
+#### Optional Improvements
+None blocking.
+
+### Handoff (2026-09-28, revision 1 for review round 2)
+
+#### Objective
+Second prospective review of the revised digest.
+
+#### Reviewed state
+Digest `345e57a95cac3edb93fa7cc56d7a0ec43edb9d398f08da4e895583d9b32dfd68`, binding 119 files
+`2848f1d6695c69680fd8a724dc8d1408d33ad92d031e5c0ae3fa061e98831b6e`.
+
+#### Changes
+See `experiments/reviews/20260928_field_only_portfolio_stage_frame00008_DRIVER_RESPONSE_R1.md`.
+
+#### Evidence
+7 protocol tests pass; validate OK; smoke evaluation produced both operators.
+
+#### Assumptions
+Point-sampled ds8 matches the RTGS-028 operator exactly.
+
+#### Uncertainties
+None new.
+
+#### Review Focus
+Two-operator implementation and gating; disclosures.
+
+#### Protected actions not taken
+No init-run or protected execution.
+
+#### Recommended Next Action
+Fable 5.1 review round 2; a second rejection escalates to the user.

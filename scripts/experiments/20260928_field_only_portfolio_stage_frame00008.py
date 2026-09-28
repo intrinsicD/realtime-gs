@@ -3,9 +3,11 @@
 One-factor-at-a-time arms against the 8000-step RTGS-025/028 configuration: SH degree,
 opacity/scale regularization, a 30000-step budget with the densification window held at 6000
 (with and without the 8000-step means learning-rate decay), training at downscale 4, half the
-training views, and a photograph reference. Every model is scored by rendering at downscale 4 and
-box-averaging to the downscale-8 grid, which matches the reference quadrature. Held-out views
-never enter fitting.
+training views, and a photograph reference. Every model is scored under two operators: a
+downscale-4 render box-averaged to the downscale-8 grid (primary) and a point-sampled
+downscale-8 render (the RTGS-025/026/028 operator); gsplat's pixel-unit dilation makes the
+primary operator favour the downscale-4 arm alone, which is therefore gated under both. Held-out
+views never enter fitting.
 """
 
 from __future__ import annotations
@@ -743,6 +745,17 @@ def evaluate(task: dict, run: Path) -> None:
                     "view_id": view_id,
                     **mask_scores(color, alpha, references[index], masks[index], perceptual),
                 }
+                # Second operator: point-sampled downscale-8 render, as in RTGS-025/026/028.
+                point = renderer.render(final, cameras8[index].to("cuda:0"))
+                point_color = point.color.cpu()
+                point_alpha = point.alpha.cpu().reshape(masks[index].shape)
+                row["ds8_point"] = {
+                    key: value
+                    for key, value in mask_scores(
+                        point_color, point_alpha, references[index], masks[index], perceptual
+                    ).items()
+                    if key in METRICS
+                }
                 errors = (color.clamp(0, 1) - fields[index]).square().mean(-1)[masks[index]]
                 row["diagnostic_field_consistency_psnr"] = float(
                     -10 * torch.log10(errors.mean().clamp_min(1e-12))
@@ -762,6 +775,9 @@ def evaluate(task: dict, run: Path) -> None:
             {
                 "per_view": rows,
                 "mean": {key: float(np.mean([row[key] for row in rows])) for key in METRICS},
+                "mean_ds8_point": {
+                    key: float(np.mean([row["ds8_point"][key] for row in rows])) for key in METRICS
+                },
                 "artifacts": artifacts,
                 "access_guard": access,
                 "stage_intervals": {"evaluate": [started, run_seconds(run)]},

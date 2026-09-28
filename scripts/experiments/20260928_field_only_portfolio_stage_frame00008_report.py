@@ -61,26 +61,34 @@ def _once(path: Path, value: object) -> None:
 # --------------------------------------------------------------------------- decision policy
 
 
-def _cell(cells: list[dict], condition: str, seed: int) -> dict:
+PRIMARY = "mean"  # downscale-4 render box-averaged to the downscale-8 grid
+POINT = "mean_ds8_point"  # point-sampled downscale-8 render (the RTGS-025/026/028 operator)
+
+
+def _cell(cells: list[dict], condition: str, seed: int, operator: str = PRIMARY) -> dict:
     matches = [c for c in cells if c["condition"] == condition and c["seed"] == seed]
     if len(matches) != 1:
         raise ValueError(f"expected exactly one {condition}/{seed} cell")
-    return matches[0]["evaluation"]["mean"]
+    return matches[0]["evaluation"][operator]
 
 
-def _paired(cells: list[dict], seeds: list[int], left: str, right: str) -> list[dict]:
+def _paired(
+    cells: list[dict], seeds: list[int], left: str, right: str, operator: str = PRIMARY
+) -> list[dict]:
     rows = []
     for seed in seeds:
-        a, b = _cell(cells, left, seed), _cell(cells, right, seed)
+        a, b = _cell(cells, left, seed, operator), _cell(cells, right, seed, operator)
         rows.append({"seed": seed, "delta": {key: a[key] - b[key] for key in a}})
     return rows
 
 
-def _rule(cells, seeds, treatment, control, gain, lpips_margin, alpha_margin=None) -> dict:
+def _rule(
+    cells, seeds, treatment, control, gain, lpips_margin, alpha_margin=None, operator=PRIMARY
+) -> dict:
     """Per-seed inclusive rule in written form; reject iff every seed loses at least ``gain``."""
     rows = []
     for seed in seeds:
-        a, b = _cell(cells, treatment, seed), _cell(cells, control, seed)
+        a, b = _cell(cells, treatment, seed, operator), _cell(cells, control, seed, operator)
         passed = (
             a["foreground_psnr"] >= b["foreground_psnr"] + gain
             and a["crop_lpips"] <= b["crop_lpips"] + lpips_margin
@@ -107,9 +115,33 @@ def _rule(cells, seeds, treatment, control, gain, lpips_margin, alpha_margin=Non
 def gates(task: dict, cells: list[dict]) -> dict:
     """Apply the frozen per-arm rule against nb_base, per paired seed, in written form."""
     seeds = task["seeds"]
-    result = {arm: _rule(cells, seeds, arm, "nb_base", 0.1, 0.005, 0.005) for arm in TREATMENTS}
+    result = {}
+    for arm in TREATMENTS:
+        primary = _rule(cells, seeds, arm, "nb_base", 0.1, 0.005, 0.005)
+        point = _rule(cells, seeds, arm, "nb_base", 0.1, 0.005, 0.005, operator=POINT)
+        if arm == "nb_ds4":
+            # Two-operator gate: the primary operator favours the downscale-4 arm alone.
+            rows = [
+                {
+                    "seed": a["seed"],
+                    "pass": a["pass"] and b["pass"],
+                    "reverse": a["reverse"] and b["reverse"],
+                }
+                for a, b in zip(primary["rows"], point["rows"])
+            ]
+            if all(r["pass"] for r in rows):
+                verdict = "pass"
+            elif all(r["reverse"] for r in rows):
+                verdict = "reject"
+            else:
+                verdict = "inconclusive"
+            result[arm] = {"verdict": verdict, "rows": rows, "primary": primary, "ds8_point": point}
+        else:
+            result[arm] = {**primary, "ds8_point_descriptive": point}
     result["view_sensitivity_descriptive"] = _paired(cells, seeds, "nb_base", "nb_v11")
     result["field_vs_photographs_descriptive"] = _paired(cells, seeds, "nb_base", "ph_base")
+    result["view_sensitivity_ds8_point"] = _paired(cells, seeds, "nb_base", "nb_v11", POINT)
+    result["field_vs_photographs_ds8_point"] = _paired(cells, seeds, "nb_base", "ph_base", POINT)
     result["visual_adequacy"] = "requires the independent AUDIT record"
     return result
 
@@ -265,6 +297,14 @@ def publish(task: dict, run: Path) -> dict:
         if any(abs(observed[k] - cell["evaluation"]["mean"][k]) > 1e-10 for k in metric_keys):
             raise ValueError("saved evaluation mean differs from per-view rows")
         cell["evaluation"]["mean"] = observed
+        point_rows = [
+            {"view_id": row["view_id"], **row["ds8_point"]}
+            for row in cell["evaluation"]["per_view"]
+        ]
+        point = row_means(point_rows, heldout, metric_keys)
+        if any(abs(point[k] - cell["evaluation"][POINT][k]) > 1e-10 for k in metric_keys):
+            raise ValueError("saved point-operator mean differs from per-view rows")
+        cell["evaluation"][POINT] = point
         receipt["stage_intervals"] = {
             **preparation["stage_intervals"],
             **initialization["stage_intervals"],
@@ -293,12 +333,20 @@ def publish(task: dict, run: Path) -> dict:
         }
         for condition in CONDITIONS
     }
+    groups_ds8_point = {
+        condition: {
+            key: mean(c["evaluation"][POINT][key] for c in cells if c["condition"] == condition)
+            for key in metric_keys
+        }
+        for condition in CONDITIONS
+    }
     result_gates = gates(task, cells)
     decision = decision_text(result_gates)
     write(
         run / "comparison.json",
         {
             "groups": groups,
+            "groups_ds8_point": groups_ds8_point,
             "gates": result_gates,
             "teacher_mean_foreground_psnr": preparation["teacher_mean_foreground_psnr"],
             "cells": [{k: v for k, v in c.items() if k != "history"} for c in cells],
@@ -422,7 +470,10 @@ def publish(task: dict, run: Path) -> dict:
         "Colour metrics are computed only inside held-out masks; floaters use rendered alpha "
         "outside the 3-pixel-dilated held-out mask.",
         "Held-out masks and colour never enter fitting; alpha metrics are out-of-sample.",
-        "All models are rendered at downscale 4 and box-averaged to the downscale-8 grid.",
+        "Primary operator: render at downscale 4 and box-average to the downscale-8 grid; second "
+        "operator: point-sampled downscale-8 render (RTGS-025/026/028). gsplat's 0.3 px^2 "
+        "dilation acts in render pixels, so only nb_ds4 is scored with its training render under "
+        "the primary operator; nb_ds4 is gated under both operators.",
         "Six simultaneous treatment comparisons: a pass is a screening signal only.",
         "Shared preparation/initialization intervals recur across series and must not be summed.",
         "No timing advantage is inferred on a local desktop GPU.",
@@ -452,6 +503,7 @@ def publish(task: dict, run: Path) -> dict:
         "decision": decision,
         "claim_boundary": task["claim_boundary"],
         "groups": groups,
+        "groups_ds8_point": groups_ds8_point,
         "gates": result_gates,
         "command": task["run_command"],
         "source_lock": read(run / "task.lock.json"),

@@ -133,8 +133,16 @@ def _cells(values: dict[str, dict], seeds=(1, 2)) -> list[dict]:
         "nb_v11",
         "ph_base",
     )
+    point_values = values.pop("__point__", {})
     return [
-        {"condition": c, "seed": s, "evaluation": {"mean": {**base, **values.get(c, {})}}}
+        {
+            "condition": c,
+            "seed": s,
+            "evaluation": {
+                "mean": {**base, **values.get(c, {})},
+                "mean_ds8_point": {**base, **values.get(c, {}), **point_values.get(c, {})},
+            },
+        }
         for s in seeds
         for c in conditions
     ]
@@ -157,6 +165,36 @@ def test_per_arm_rule_is_inclusive_and_independent(report) -> None:
     assert result["nb_ds4"]["verdict"] == "reject"
     assert result["nb_sh0"]["verdict"] == "inconclusive"
     assert "nb_sh1: pass" in report.decision_text(result)
+
+
+def test_downscale4_arm_needs_both_operators(report) -> None:
+    task = {"seeds": [1, 2]}
+    both = report.gates(task, _cells({"nb_ds4": {"foreground_psnr": 24.25}}))
+    assert both["nb_ds4"]["verdict"] == "pass"
+    primary_only = report.gates(
+        task,
+        _cells(
+            {
+                "nb_ds4": {"foreground_psnr": 24.25},
+                "__point__": {"nb_ds4": {"foreground_psnr": 24.0}},
+            }
+        ),
+    )
+    assert primary_only["nb_ds4"]["verdict"] == "inconclusive"
+    assert primary_only["nb_ds4"]["primary"]["verdict"] == "pass"
+    assert primary_only["nb_ds4"]["ds8_point"]["verdict"] == "inconclusive"
+    # Other arms stay on the primary operator; the point operator is descriptive only.
+    sh1 = report.gates(
+        task,
+        _cells(
+            {
+                "nb_sh1": {"foreground_psnr": 24.25},
+                "__point__": {"nb_sh1": {"foreground_psnr": 24.0}},
+            }
+        ),
+    )
+    assert sh1["nb_sh1"]["verdict"] == "pass"
+    assert sh1["nb_sh1"]["ds8_point_descriptive"]["verdict"] == "inconclusive"
 
 
 def test_selftest_denies_forbidden_worker_opens() -> None:
