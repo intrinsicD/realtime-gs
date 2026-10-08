@@ -60,9 +60,16 @@ GEOMETRY = (
 
 
 def closest_point(points: np.ndarray, axes) -> np.ndarray:
-    """Closest point on ``sum x_k^2/a_k^2 = 1``: ``x_k = a_k^2 p_k/(a_k^2 + t)``, root ``t`` of
-    ``f(t) = sum a_k^2 p_k^2/(a_k^2 + t)^2 - 1`` (decreasing on ``t > -min a^2``), bisection."""
-    a2 = np.asarray(axes, dtype=np.float64) ** 2
+    """Closest point on ``sum x_k^2/a_k^2 = 1``.
+
+    Regular branch: ``x_k = a_k^2 p_k/(a_k^2 + t)`` with the root ``t > -c^2`` (``c`` the shortest
+    axis) of ``f(t) = sum a_k^2 p_k^2/(a_k^2 + t)^2 - 1``, by bisection. Interior points near the
+    plane ``p_c = 0`` have no such root (or one lost to cancellation); there the minimiser is the
+    singular branch ``t = -c^2``: ``x_j = a_j^2 p_j/(a_j^2 - c^2)`` for the other axes and
+    ``x_c = sign(p_c) c sqrt(1 - sum_j x_j^2/a_j^2)``. Each row takes the closer valid candidate.
+    """
+    a = np.asarray(axes, dtype=np.float64)
+    a2 = a**2
     p = np.asarray(points, dtype=np.float64)
     if (np.linalg.norm(p, axis=1) < 1e-9).any():
         raise ValueError("closest point undefined at the centre")
@@ -73,6 +80,22 @@ def closest_point(points: np.ndarray, axes) -> np.ndarray:
         f = (a2 * p**2 / (a2 + t[:, None]) ** 2).sum(1) - 1
         lo, hi = np.where(f > 0, t, lo), np.where(f > 0, hi, t)
     x = a2 * p / (a2 + 0.5 * (lo + hi)[:, None])
+    bad = np.abs((x**2 / a2).sum(1) - 1) > 1e-9
+    k = int(np.argmin(a))
+    others = np.arange(3) != k
+    if bad.any() and np.ptp(a) > 0 and (a[others] > a[k]).all():
+        q = p[bad]
+        y = np.zeros_like(q)
+        y[:, others] = a2[others] * q[:, others] / (a2[others] - a2[k])
+        rest = 1 - (y[:, others] ** 2 / a2[others]).sum(1)
+        valid = rest >= 0
+        y[:, k] = np.where(q[:, k] < 0, -1.0, 1.0) * a[k] * np.sqrt(np.clip(rest, 0, None))
+        regular = x[bad]
+        regular_ok = np.abs((regular**2 / a2).sum(1) - 1) <= 1e-9
+        closer = np.linalg.norm(q - y, axis=1) <= np.linalg.norm(q - regular, axis=1)
+        take = valid & (~regular_ok | closer)
+        rows = np.flatnonzero(bad)[take]
+        x[rows] = y[take]
     residual = np.abs((x**2 / a2).sum(1) - 1).max()
     if residual > 1e-9:
         raise RuntimeError(f"closest-point solve did not converge ({residual})")
@@ -175,9 +198,9 @@ def cell_setup(task: dict, condition: str, seed: int):
         spec.update(start=h0_step, log_every=100)
     if spec["start"] != h0_step or surfel.normal_start != h0_step:
         raise RuntimeError("the prior and the anchor must start where h0 is frozen")
-    # v2.1's fit records task["field_prior_configs"][condition] as effective_config.field_prior;
-    # point it at the table that is actually used.
-    task["field_prior_configs"] = task["jet2_prior_configs"]
+    # v2.1's fit records task["field_prior_configs"][condition] as effective_config.field_prior:
+    # give it the specification that actually executes (smoke overrides included).
+    task["field_prior_configs"] = {**task["jet2_prior_configs"], condition: dict(spec)}
     weight = spec.pop("weight")
     return config, surfel, (DriverPrior(weight, **spec) if weight else None), h0_step
 
@@ -232,30 +255,38 @@ def analytic_geometry(model: Gaussians3D, frozen: dict, task: dict, seed: int) -
     signed = ((centres - closest) * n).sum(1)
     subset = model.opacity.detach().numpy() > 0.3
     cohort = frozen["cohort"].numpy()
-    hbar0 = float(frozen["h0"][frozen["cohort"]].double().mean())
+    hbar0 = float(frozen["h0"][frozen["cohort"]].double().mean()) if cohort.any() else 0.0
     samples = surface_samples(axes, task["coverage"]["mesh_points"], seed)
-    near = cKDTree(centres[subset]).query(samples, distance_upper_bound=0.5 * hbar0)[0]
+    near = (
+        cKDTree(centres[subset]).query(samples, distance_upper_bound=0.5 * hbar0)[0]
+        if subset.any()
+        else np.full(len(samples), np.inf)
+    )
     curv = curvature(model, task, closest)
     use = subset & curv["ok"]
+
+    def stat(values, rows, fn):  # None (with the count beside it) instead of a crash on empty sets
+        return float(fn(values[rows])) if rows.any() else None
+
     return {
         "n_total": model.n,
         "n_subset": int(subset.sum()),
         "n_cohort": int(cohort.sum()),
-        "normal_angle_median": float(np.median(angle[subset])),
-        "normal_angle_p90": float(np.percentile(angle[subset], 90)),
-        "centre_distance_median": float(np.median(np.abs(signed[subset]))),
-        "signed_distance_mean": float(signed[subset].mean()),
-        "signed_distance_median": float(np.median(signed[subset])),
-        "inward_fraction": float((signed[subset] < 0).mean()),
-        "coverage": float(np.isfinite(near).mean()),
-        "coverage_radius": 0.5 * hbar0,
-        "cohort_normal_angle_median": float(np.median(angle[cohort])),
-        "cohort_signed_distance_mean": float(signed[cohort].mean()),
-        "curvature_rel_error_median": float(np.median(curv["rel_error"][use])),
-        "curvature_rel_error_p90": float(np.percentile(curv["rel_error"][use], 90)),
-        "curvature_trace_ratio_median": float(np.median(curv["trace_ratio"][use])),
-        "estimator_masked_fraction": float(1 - curv["ok"][subset].mean()),
         "n_curvature": int(use.sum()),
+        "normal_angle_median": stat(angle, subset, np.median),
+        "normal_angle_p90": stat(angle, subset, lambda v: np.percentile(v, 90)),
+        "centre_distance_median": stat(np.abs(signed), subset, np.median),
+        "signed_distance_mean": stat(signed, subset, np.mean),
+        "signed_distance_median": stat(signed, subset, np.median),
+        "inward_fraction": stat(signed < 0, subset, np.mean),
+        "coverage": float(np.isfinite(near).mean()) if subset.any() else 0.0,
+        "coverage_radius": 0.5 * hbar0,
+        "cohort_normal_angle_median": stat(angle, cohort, np.median),
+        "cohort_signed_distance_mean": stat(signed, cohort, np.mean),
+        "curvature_rel_error_median": stat(curv["rel_error"], use, np.median),
+        "curvature_rel_error_p90": stat(curv["rel_error"], use, lambda v: np.percentile(v, 90)),
+        "curvature_trace_ratio_median": stat(curv["trace_ratio"], use, np.median),
+        "estimator_masked_fraction": stat(~curv["ok"], subset, np.mean),
         "flatness_max": v21.flatness_max(model),
     }
 
