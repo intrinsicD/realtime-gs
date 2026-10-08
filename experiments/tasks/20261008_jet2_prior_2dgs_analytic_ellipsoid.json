@@ -29,7 +29,7 @@
    "calibration": "dataset/external/analytic_ellipsoid/calibration_dome.json",
    "rgb_pattern": "rgb/C*.jpg",
    "mask_pattern": "mask/mask_C*.png",
-   "source": "~/Dropbox/Work/Datasets/obj/tosca_hires/cat0.obj + per-vertex colours from cat0_colored_v1.ply, copied to dataset/external/tosca_cat0/source/ (PROVENANCE.json); rendered by scripts/experiments/prepare_tosca_cat0.py (render_receipt.json). views/manifest.json is a plain view list: this RGB-only scene has no compact 2D Gaussian fields; the contract binds it in the data seal.",
+   "source": "Analytic surface sum x_k^2/a_k^2 = 1, axes [1.0, 0.75, 0.5], rendered by scripts/experiments/prepare_analytic_surfaces.py; evaluation-only reference under dataset/external/analytic_ellipsoid/source/ (PROVENANCE.json).",
    "surface_axes": [
     1.0,
     0.75,
@@ -214,22 +214,27 @@
   {
    "id": "prepare",
    "label": "Prepare",
-   "purpose": "Verify the sealed v1 renders (160 pyrender views) and compute object bounds from the 128 training cameras and masks (v1 code path)."
+   "purpose": "Object bounds from the 128 training cameras and masks of the sealed analytic_ellipsoid renders (v1 code path)."
   },
   {
    "id": "initialize",
    "label": "Initialization",
-   "purpose": "The v1 seeded random initialization (20000 points), byte-identical to the v1 run's digests; its bbox diagonal must equal the frozen scene scale."
+   "purpose": "v1 seeded random initialization (20000 points); its bbox diagonal must equal the frozen scene scale."
   },
   {
    "id": "fit",
    "label": "2DGS fitting",
-   "purpose": "gsplat rasterization_2dgs surfels, identical Trainer configuration per arm; arms differ only in the anchor weight and the field-prior weight/terms, all of which switch on at step 7500, so every arm of a seed shares the schedule up to the h0 freeze. 15000 steps, densification 500-7500, SH 1, masks on. Displacement and gradient magnitudes, guarded fraction and collapse at activation logged."
+   "purpose": "gsplat rasterization_2dgs surfels, identical Trainer configuration per arm; arms differ only in the Jet2Prior weight/order, switched on at step 7500 (end of densification), so every arm of a seed shares the schedule up to activation. 15000 steps."
   },
   {
    "id": "evaluate",
    "label": "Evaluation",
-   "purpose": "Held-out PSNR/LPIPS/silhouette IoU (2DGS render); geometry against cat0.obj in fixed units for the opacity > 0.3 final subset and the frozen step-7500 cohort; coverage; signed displacement; collapse; flatness; splat-frame export; Zhou-Laehner spectrum. The SplatDiffuseLBO operator is the separate sequential operator stage."
+   "purpose": "Held-out appearance; geometry against the analytic surface (closest point, outward normal, Weingarten map) in absolute units."
+  },
+  {
+   "id": "operator",
+   "label": "Spectrum",
+   "purpose": "SplatDiffuseLBO operator via scripts/experiments/analytic_operator_companion.py (companion env, CPU), compared with source/reference.json."
   }
  ],
  "comparators": [
@@ -251,117 +256,38 @@
  ],
  "primary_metrics": [
   {
-   "id": "normal_angle_median",
-   "label": "Surfel normal vs mesh normal, median",
-   "unit": "deg",
+   "id": "teacher_curvature_rel_error_median",
+   "label": "P3 teacher: Jet2Prior estimator vs analytic principal curvatures, median relative error",
+   "unit": "1 (S = 0 scores 1)",
    "direction": "lower",
-   "aggregation": "Final model, opacity > 0.3, surfel normal (third rotation axis, the -inf scale) vs face normal at the closest point of cat0.obj (trimesh), unoriented."
+   "aggregation": "base seed 9561 at step 7500, opacity > 0.3 splats the gate lets through"
   },
   {
-   "id": "normal_angle_p90",
-   "label": "Surfel normal vs mesh normal, 90 %",
-   "unit": "deg",
-   "direction": "lower",
-   "aggregation": "As the median; part of the verdict."
-  },
-  {
-   "id": "centre_distance_median",
-   "label": "Centre-to-surface distance, median",
-   "unit": "bbox-diagonal fraction",
-   "direction": "lower",
-   "aggregation": "Opacity > 0.3 final subset, closest-point distance in mesh units / bbox diagonal 223.537 (fixed units; the gate)."
-  },
-  {
-   "id": "coverage",
-   "label": "Mesh-area coverage",
-   "unit": "fraction",
-   "direction": "higher",
-   "aggregation": "Fraction of 20000 area-sampled cat0.obj points (trimesh sample_surface, seed = the cell seed) with an opacity > 0.3 final centre within 0.5 h0-bar; h0-bar = mean frozen h0 over the step-7500 cohort."
-  },
-  {
-   "id": "collapse_fraction",
-   "label": "Collapse fraction (hard gate, any seed)",
+   "id": "teacher_estimator_masked_fraction",
+   "label": "P3 teacher: fraction of opacity > 0.3 splats rejected by the Jet2Prior gate",
    "unit": "fraction",
    "direction": "lower",
-   "aggregation": "Share of all final splats with another splat closer than 0.05 h0_i; h0_i = mean distance to the 6 nearest centres at step 7500, identical rule in every arm. Also reported at activation (step 7500)."
+   "aggregation": "base seed 9561 at step 7500"
   },
   {
-   "id": "lbo_err_k10",
-   "label": "SplatDiffuseLBO operator max_{k<=10} |lambda_k/lambda_k^P2 - 1|",
-   "unit": "ratio",
+   "id": "teacher_normal_angle_median",
+   "label": "P3 teacher: trained surfel normal vs analytic normal, median",
+   "unit": "deg",
    "direction": "lower",
-   "aggregation": "b2 and jet, seed 9561, sequential CPU stage after the screen (8 h total): CAT_PLY=<cell>/gaussians_splat_frame.ply CAT_TAG=<task>/<arm>_9561 CAT_GUARD_MIN=<min(240, remaining)> python splat_lbo_cat.py v2 a; counts only if the companion's structural diagnostics pass (operator_stage.structural_limits)."
+   "aggregation": "base seed 9561 at step 7500, opacity > 0.3"
   }
  ],
  "secondary_metrics": [
   {
-   "id": "heldout_psnr",
-   "label": "Held-out PSNR inside mask",
-   "unit": "dB",
-   "direction": "higher",
-   "aggregation": "32 held-out views at 512x512, 2DGS render over white, squared error inside the depth mask; mean over views. Gates the decision (>= -0.3 dB vs b2, about 7 % MSE, an engineering tolerance)."
-  },
-  {
-   "id": "heldout_lpips",
-   "label": "Held-out LPIPS (AlexNet) on the masked crop",
-   "unit": "LPIPS",
-   "direction": "lower",
-   "aggregation": "Mask-weighted crop (8 px margin), mean over views."
-  },
-  {
-   "id": "heldout_silhouette_iou",
-   "label": "Held-out silhouette IoU",
-   "unit": "IoU",
-   "direction": "higher",
-   "aggregation": "Rendered alpha > 0.5 vs mask > 0.5, mean over the 32 held-out views."
-  },
-  {
-   "id": "centre_distance_over_hbar0_median",
-   "label": "Centre-to-surface median / h0-bar",
-   "unit": "ratio",
-   "direction": "descriptive",
-   "aggregation": "Median closest-point distance (mesh units) of the opacity > 0.3 final subset divided by h0-bar (mean frozen h0 over the step-7500 cohort); only to mark the PREREG's h-bar-unit prediction, not a gate."
-  },
-  {
-   "id": "signed_displacement_median",
-   "label": "Signed normal displacement, median",
-   "unit": "bbox-diagonal fraction",
-   "direction": "descriptive",
-   "aggregation": "(c - p) . n_face at the closest point, opacity > 0.3 subset; negative = inside the outward-oriented mesh. inward_fraction = share with negative sign."
-  },
-  {
-   "id": "cohort_normal_angle_median",
-   "label": "Frozen-cohort normal angle median (and p90, centre median)",
-   "unit": "deg",
-   "direction": "lower",
-   "aggregation": "The splats with opacity > 0.3 at step 7500 (identities fixed, topology frozen), evaluated in the final model; counts n_subset, n_cohort and their overlap reported."
-  },
-  {
-   "id": "flatness_max",
-   "label": "Flatness max sigma_min / sigma_mid",
-   "unit": "ratio",
-   "direction": "lower",
-   "aggregation": "Over all final splats; must be exactly 0 (backend check)."
-  },
-  {
-   "id": "zl_err_k10",
-   "label": "Zhou-Laehner max_{k<=10} |lambda_k/lambda_k^P2 - 1|",
-   "unit": "ratio",
-   "direction": "lower",
-   "aggregation": "robust_laplacian defaults on the subset centres in the splat frame, vs data/cat_reference.npz lam_p2 (v1 evaluator)."
+   "id": "p4_metrics",
+   "label": "P4 confirmation metrics",
+   "unit": "n/a",
+   "direction": "n/a",
+   "aggregation": "DRAFT pending the P4 packet; the P3 pilot reports every GEOMETRY field of the driver, held-out appearance and the operator spectrum descriptively."
   }
  ],
- "decision_policy": {
-  "per_arm": "Pass iff for every paired seed: b2 normal median - jet normal median >= 3 deg, jet normal p90 < b2 normal p90, jet centre median (bbox-diagonal fraction) <= b2's, jet coverage >= b2's, jet collapse fraction <= b2's + 0.01, jet held-out PSNR >= b2 - 0.3 dB. Reject iff jet loses on the normal median in every seed or fails the collapse gate in every seed. Else inconclusive. Collapse gate any-seed: one seed above b2 + 1 point fails the arm regardless of its other metrics. (b) b2_noanchor vs b2, jet_noanchor vs jet and vs b2_noanchor, and the jet_c ablation are descriptive; collapse controls jet_noanchor -> b2_noanchor, jet_c -> b2.",
-  "predictions": "As stated in the PREREG v2.1: b2 normals 8-14 deg, centre 0.3-0.6 h-bar (marked with centre_distance_over_hbar0_median), flatness 0; b2_noanchor normals worse than b2 by >= 3 deg every seed; jet normal median < 7 deg and >= 3 deg below b2, centre <= b2, gate passed, PSNR within -0.3 dB every seed; jet_noanchor normals as good as jet but centre not better than b2_noanchor; jet_c centres inward (signed displacement negative) at ears and paws, coverage not better than jet; operator jet < b2 (seed 9561). Each is marked right/wrong in the RESULT.",
-  "consequence": "No default promotion; a real-capture confirmation is a separate registration.",
-  "stopping": "Fixed steps; abort a cell on non-finite loss, CUDA OOM, a finite third scale (backend check) or a splat-count change after the h0 freeze. Go/no-go before the screen: the teacher check (teacher_check)."
- },
- "decision_rule": {
-  "normal_gain_deg": 3.0,
-  "psnr_floor_db": -0.3,
-  "collapse_margin": 0.01
- },
+ "decision_policy": "DRAFT pending the P4 confirmation packet (docs/TASK_jet2_synthetic_sphere_ellipsoid.md); not frozen.",
+ "decision_rule": "DRAFT pending the P4 confirmation packet (docs/TASK_jet2_synthetic_sphere_ellipsoid.md); not frozen.",
  "collapse_gate": {
   "h0_step": 7500,
   "neighbour_fraction_of_h0": 0.05,
@@ -375,10 +301,10 @@
  "coverage": {
   "mesh_points": 20000,
   "radius": "0.5 h0-bar (mean frozen h0 over the step-7500 cohort)",
-  "sampling": "trimesh.sample.sample_surface(mesh, 20000, seed=<cell seed>)"
+  "sampling": "area-weighted samples of the scaled icosphere (subdivision 6), projected to the analytic surface, seed = cell seed"
  },
  "scene_scale": {
-  "definition": "bbox diagonal of the sealed initialization centres (mesh units); divides gsplat's raw-depth distortion",
+  "definition": "bbox diagonal of the sealed initialization centres (scene units); divides gsplat's raw-depth distortion",
   "values": {
    "9561": 4.58939379269345,
    "9562": 4.5775201348721986,
@@ -392,7 +318,7 @@
   "third_scale": "pinned to -inf by the trainer for gsplat-2dgs (flat surfels through densification and export)."
  },
  "resource_protocol": {
-  "scope": "Fresh process per fitting cell including loading and final save; one GPU job at a time; no fitting cell starts while a companion CPU job (splat_lbo_cat) runs; the operator stage runs after every GPU cell, one model at a time, 8 h CPU total. Descriptive only.",
+  "scope": "Fresh process per fitting cell; one GPU job at a time; the operator runs on CPU in the companion env, one model at a time, after the GPU cells. Descriptive only.",
   "warmup_runs": 1,
   "measured_runs": 3,
   "aggregation": "All seeds retained; no speed inference.",
@@ -428,8 +354,7 @@
   "reconstruction_forbidden": [
    "heldout_rgb",
    "heldout_masks",
-   "source_mesh",
-   "companion_reference_data",
+   "source_reference",
    "test_metrics_for_selection"
   ],
   "evaluation_allowed": [
@@ -437,18 +362,17 @@
    "rgb",
    "mask",
    "saved_models",
-   "source_mesh",
-   "companion_reference_data"
+   "analytic_surface",
+   "source_reference"
   ]
  },
  "execution_guards": [
   "deny_heldout_training_access",
-  "deny_mesh_before_evaluation",
+  "deny_source_before_evaluation",
   "split_hash_at_exit",
   "data_seals_at_entry_exit",
   "shared_initialization_digest",
   "explicit_cuda_no_fallback",
-  "no_training_while_companion_cpu_job_runs",
   "third_scale_neg_inf_check",
   "h0_freeze_topology_check",
   "scene_scale_check"
@@ -466,14 +390,12 @@
  },
  "training": {
   "configs": {
-   "b2": "15000 steps, gsplat-default densification 500-7500 every 100 (grad 2e-4 on gsplat's gradient_2dgs, no absgrad, max 100000, opacity reset 3000 declared inert), SH degree 1 (interval 1000), masks on, random background, ssim 0.2; rasterizer gsplat-2dgs (third log-scale pinned to -inf); depth distortion 0.01 * D / s from step 3000 (s = scene_scale); centre-depth consistency 0.05 from step 7500; lambda_jet 0",
-   "b2_noanchor": "b2 with centre-depth consistency 0",
-   "jet": "b2 with the field prior, normal term, lambda_jet 0.1 from step 7500",
-   "jet_noanchor": "b2_noanchor with the field prior, normal term, lambda_jet 0.1 from step 7500",
-   "jet_c": "jet with terms normal+centre"
+   "base": "15000 steps, gsplat-default densification 500-7500 every 100 (grad 2e-4, max 100000, opacity reset 3000 declared inert), SH degree 1 (interval 1000), masks on, random background, ssim 0.2; rasterizer gsplat-2dgs; depth distortion 0.01 * D / s from step 3000 (s = scene_scale); normal (centre-depth) consistency 0.05 from step 7500; no jet prior",
+   "jet1": "base + Jet2Prior order 1 (S = 0), weight 0.1 from step 7500",
+   "jet2": "base + Jet2Prior order 2, weight 0.1 from step 7500"
   },
   "surfel_regularization": "rtgs.render.gsplat_2dgs_backend.SurfelRegularization(depth_distortion, normal_consistency, distortion_start, normal_start, depth_scale=scene_scale[seed]) passed to Trainer.train(surfel_regularization=...): distortion = mean over pixels of gsplat's render_distort (L1 sum_ij w_i w_j |z_i - z_j| in camera depth, mesh units) divided by s; centre-depth consistency = mean over pixels of 1 - n_rendered . (n_from_expected_centre_depth * alpha.detach()); active for step > start.",
-  "field_prior": "rtgs.optim.jet_prior.FieldPrior(weight, start=7500, terms, refresh_every=50, radius=3.0, bandwidth=1.5, n_bandwidth=6, min_gap=0.1, min_support=4.0, log_every=500) passed as Trainer.train(jet_prior=...): h0_i = mean distance to the 6 nearest centres at the first active step (frozen); pairs |c_j - c_i| < 3 h0_i, self included, refreshed every 50 steps; g_ij = exp(-|c_j - c_i|^2 / 2 (1.5 h0_i)^2); rho_j = sum_k g_jk; a_ij = (opacity_j / rho_j) g_ij; m_i = sum_j a_ij c_j / sum_j a_ij; C_i = sum_j a_ij (Sigma_j + (c_j - m_i)(c_j - m_i)^T); n_i = smallest eigenvector; guard: (l2 - l1)/l3 >= 0.1 and sum_j a_ij / max_j a_ij >= 4, else the residual is 0; r_nu = 1 - (nu_i . n_i)^2; r_c = ((c_i - m_i) . n_i)^2 / h0_i^2 (jet_c only); loss lambda_jet * mean over all splats; n_i, m_i detached; gradients into quats_i (r_nu) and means_i (r_c).",
+  "field_prior": "not used; the arms use rtgs.optim.jet2_prior.Jet2Prior per jet2_prior_configs (driver DriverPrior adds h0/log bookkeeping only)",
   "other": "Exact Trainer values in resolved_training_configs (identical across arms except seed); the 2DGS terms in surfel_regularization_configs (+ scene_scale); the prior in field_prior_configs."
  },
  "resolved_training_configs": {
@@ -1262,7 +1184,7 @@
  },
  "scoring": {
   "evaluation_render": "gsplat rasterization_2dgs, unpacked, full 512x512 held-out cameras, white background.",
-  "geometry": "Fixed-unit geometry, coverage, signed displacement and the frozen cohort in the v2.1 driver (mesh_geometry); splat-frame export and Zhou-Laehner via scripts/experiments/eval_jet_prior_tosca_cat0.py (v1 evaluator).",
+  "geometry": "analytic_geometry in scripts/experiments/20261008_jet2_prior_2dgs_analytic.py: opacity > 0.3 final subset and the frozen step-7500 cohort, absolute units of the surface.",
   "selection": "Final models only; no held-out selection."
  },
  "execution_order": {
@@ -1313,10 +1235,10 @@
   "rng_policy": "After warmup, seed Python random, NumPy, torch CPU and all CUDA generators with the paired seed; CUDA bitwise determinism is not assumed."
  },
  "preview_policy": {
-  "selected_model": "b2 seed 9561, fixed before outcomes",
+  "selected_model": "base seed 9561, fixed before outcomes",
   "selection": "No best-model selection."
  },
- "source_lifecycle": "init-run is official if the owner commits the v1 and v2 implementation before it (clean worktree); otherwise it is a --development run on a dirty worktree. Either way the coordinator archives the exact bound source before the first worker; no source mutation during execution.",
+ "source_lifecycle": "Pilot (P3) runs write below .scratch/ from a committed, clean worktree; the commit is recorded in the packet. Official P4 runs use init-run after their own packet review.",
  "frozen_configuration": {
   "source_binding": {
    "patterns": [
@@ -1326,16 +1248,20 @@
     "src/rtgs/**/*.h",
     "scripts/experiment_contract.py",
     "scripts/check_results_bundle.py",
+    "scripts/experiments/20261008_jet2_prior_2dgs_analytic.py",
     "scripts/experiments/20261008_jet_field_prior_2dgs_tosca_cat0.py",
     "scripts/experiments/20261007_jet_consistency_prior_tosca_cat0.py",
-    "scripts/experiments/eval_jet_prior_tosca_cat0.py",
+    "scripts/experiments/analytic_operator_companion.py",
+    "scripts/experiments/prepare_analytic_surfaces.py",
     "scripts/experiments/prepare_tosca_cat0.py",
-    "tests/test_jet_prior.py",
+    "tests/test_jet2_prior.py",
+    "tests/test_jet2_analytic_geometry.py",
+    "tests/test_jet2_eval_controls.py",
     "tests/test_gsplat_2dgs.py",
     "pyproject.toml"
    ],
-   "file_count": 123,
-   "aggregate_sha256": "09f1202fca234c437aae0fa46be77d7655c3e7b7185d83f7f9152de3128270fe"
+   "file_count": 128,
+   "aggregate_sha256": "b6e7b9a58d1fa5e0c4e6072c8fbba86a143a2061b81e90075ecb6f4fea1c0e4c"
   },
   "live_integrity_policy": {
    "verify_source_at_coordinator_worker_and_bundle": true,
@@ -1372,6 +1298,46 @@
    "min_mass": 0.5,
    "min_conditioning": 0.02,
    "log_every": 500
+  }
+ },
+ "pilot": {
+  "purpose": "P3 pilot/calibration packet: teacher check of the Jet2Prior estimator at activation, base seed spread and run-to-run floor, operator calibration on ideal surfels and operator cost/baseline on base fits. Not a test of the prior.",
+  "cells": [
+   [
+    "base",
+    9561
+   ],
+   [
+    "base",
+    9562
+   ],
+   [
+    "base",
+    9563
+   ]
+  ],
+  "repeat_cells": [
+   [
+    "base",
+    9561
+   ]
+  ],
+  "teacher_cell": [
+   "base",
+   9561
+  ],
+  "operator_guard_minutes": 60,
+  "calibration": {
+   "counts": [
+    4000,
+    15000
+   ],
+   "tilts_deg": [
+    0,
+    5,
+    10
+   ],
+   "seed": 11
   }
  }
 }

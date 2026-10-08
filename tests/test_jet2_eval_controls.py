@@ -109,8 +109,8 @@ def test_clones_trip_the_collapse_gate():
 
 
 def test_opacity_selection_is_visible_in_counts_and_cohort():
-    # 10 % of splats tilted by 30 deg and made transparent: the opacity subset hides them, the
-    # frozen cohort and the subset count do not.
+    # 10 % of splats tilted by 30 deg and made transparent: the opacity subset hides them; the
+    # subset count and the frozen cohort's tail statistic do not (its median does not either).
     model, axes = _ideal("sphere")
     bad_model, _ = _ideal("sphere", tilt_deg=30.0)
     bad = torch.arange(N) % 10 == 0
@@ -118,6 +118,27 @@ def test_opacity_selection_is_visible_in_counts_and_cohort():
     model.opacity[bad] = 0.1
     g = _evaluate(model, axes)
     assert g["n_subset"] == N - int(bad.sum()) and g["n_cohort"] == N
-    assert g["normal_angle_median"] < 0.5  # the subset alone looks clean
-    tilted_cohort = _evaluate(model, axes, cohort=bad)
-    assert tilted_cohort["cohort_normal_angle_median"] > 25
+    assert g["normal_angle_median"] < 0.5 and g["normal_fraction_gt_10deg"] == 0.0
+    assert abs(g["cohort_normal_fraction_gt_10deg"] - 0.1) < 0.01
+
+
+def test_coverage_drops_with_a_hole():
+    # removing every splat above z = 0.5 (a cap of a quarter of the sphere's area) must lower
+    # coverage by about that fraction at the same frozen radius
+    model, axes = _ideal("sphere")
+    full = _evaluate(model, axes)
+    hole = model.means[:, 2] > 0.5
+    model.opacity[hole] = 0.1
+    frozen_h0 = mean_neighbour_distance(model.means)  # same centres, same radius as `full`
+    g = driver.analytic_geometry(
+        model,
+        {"h0": frozen_h0, "cohort": torch.ones(N, dtype=torch.bool)},
+        {
+            "datasets": [{"surface_axes": list(axes)}],
+            "jet2_prior_configs": TASK_PRIOR,
+            "coverage": {"mesh_points": 5000},
+        },
+        seed=0,
+    )
+    assert g["coverage_radius"] == full["coverage_radius"]
+    assert abs(g["coverage"] / full["coverage"] - 0.75) < 0.05

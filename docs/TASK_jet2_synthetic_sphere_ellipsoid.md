@@ -1,7 +1,8 @@
 # Plan: 2-jet prior on analytic surfaces (sphere, ellipsoid) before the cat
 
-Status: plan rev. 3, 2026-10-08. P1 implemented (`src/rtgs/optim/jet2_prior.py`,
-`tests/test_jet2_prior.py`); nothing run. Task RTGS-030 continuation.
+Status: plan rev. 3, 2026-10-08. P1 and P2 implemented and reviewed (Codex approve); P3 packet
+in `experiments/reviews/20261008_jet2_prior_2dgs_analytic_P3/`, awaiting two reviews. Nothing
+results-bearing run. Task RTGS-030 continuation.
 Rev. 1 was reviewed by Codex (thread 01a11b57-2016-7921-8ca1-1d2686f66b47) and a fresh Claude
 session (11cc7558-abe8-46f9-9df8-6ce919fce3ee); both `revise`. Changes are marked [R2]. Rev. 2 exchange round: both `revise` for P1 with concrete
 estimator requirements; rev. 3 implements them (section "P1 as implemented").

@@ -45,6 +45,7 @@ GEOMETRY = (
     "inward_fraction",
     "coverage",
     "cohort_normal_angle_median",
+    "cohort_normal_fraction_gt_10deg",
     "cohort_signed_distance_mean",
     "curvature_rel_error_median",
     "curvature_trace_ratio_median",
@@ -185,7 +186,7 @@ def cell_setup(task: dict, condition: str, seed: int):
     h0_step = task["collapse_gate"]["h0_step"]
     if v21.SMOKE is not None and v21.SMOKE["mode"] == "teacher":
         config = replace(config, iterations=h0_step, schedule_iterations=config.iterations)
-    elif v21.SMOKE is not None:  # shortened, not results-bearing schedule
+    elif v21.SMOKE is not None and v21.SMOKE["mode"] == "smoke":  # shortened schedule
         h0_step = v21.SMOKE["iterations"] // 2
         config = replace(
             config,
@@ -282,6 +283,9 @@ def analytic_geometry(model: Gaussians3D, frozen: dict, task: dict, seed: int) -
         "coverage": float(np.isfinite(near).mean()) if subset.any() else 0.0,
         "coverage_radius": 0.5 * hbar0,
         "cohort_normal_angle_median": stat(angle, cohort, np.median),
+        "cohort_normal_angle_p90": stat(angle, cohort, lambda v: np.percentile(v, 90)),
+        "normal_fraction_gt_10deg": stat(angle > 10, subset, np.mean),
+        "cohort_normal_fraction_gt_10deg": stat(angle > 10, cohort, np.mean),
         "cohort_signed_distance_mean": stat(signed, cohort, np.mean),
         "curvature_rel_error_median": stat(curv["rel_error"], use, np.median),
         "curvature_rel_error_p90": stat(curv["rel_error"], use, lambda v: np.percentile(v, 90)),
@@ -362,6 +366,171 @@ def teacher(task: dict, run: Path) -> None:
     v1.write_json(run / "teacher_check.json", result)
 
 
+# --------------------------------------------------------------------------- operator
+
+
+def ideal_surfels(
+    axes, count: int, seed: int, tilt_deg: float = 0.0, shift: float = 0.0
+) -> Gaussians3D:
+    """Surfels at area-uniform surface samples, frame from the analytic normal, tangent sigma
+    0.75 sqrt(A/N) (A from the render icosphere), opacity 0.9; optionally every normal tilted by
+    ``tilt_deg`` about a random tangent axis and every centre moved by ``-shift`` along it."""
+    import math
+
+    import trimesh
+
+    from rtgs.core.gaussians3d import rotmat_to_quat
+
+    mesh = trimesh.creation.icosphere(subdivisions=6)
+    mesh.vertices = mesh.vertices * np.asarray(axes)
+    x = surface_samples(axes, count, seed=seed)
+    n, _ = surface_frame(x, axes)
+    centres = x - shift * n
+
+    def frame(normal):
+        helper = np.where(np.abs(normal[:, :1]) < 0.9, [[1.0, 0, 0]], [[0, 1.0, 0]])
+        t1 = np.cross(normal, helper)
+        t1 /= np.linalg.norm(t1, axis=1, keepdims=True)
+        return t1, np.cross(normal, t1)
+
+    t1, t2 = frame(n)
+    if tilt_deg:
+        phi = np.random.default_rng(seed + 1).uniform(0, 2 * np.pi, count)[:, None]
+        axis = np.cos(phi) * t1 + np.sin(phi) * t2
+        angle = math.radians(tilt_deg)
+        n = math.cos(angle) * n + math.sin(angle) * np.cross(axis, n)
+        t1, t2 = frame(n)
+    sigma = 0.75 * math.sqrt(float(mesh.area) / count)
+    return Gaussians3D(
+        torch.tensor(centres, dtype=torch.float32),
+        rotmat_to_quat(torch.tensor(np.stack([t1, t2, n], 2), dtype=torch.float32)),
+        torch.tensor([math.log(sigma)] * 2 + [-math.inf]).expand(count, 3).clone(),
+        torch.full((count,), 0.9),
+        torch.zeros(count, 1, 3),
+    )
+
+
+COMPANION_ADAPTER = Path(__file__).resolve().parent / "analytic_operator_companion.py"
+
+
+def spectrum(task: dict, ply: Path, out: Path) -> dict:
+    """Companion operator on one PLY (fresh process), compared with ``source/reference.json``:
+    relative errors of lambda_1..lambda_10, raw and area-normalised (lambda * area / area_ref)."""
+    import subprocess
+
+    guard = task["pilot"]["operator_guard_minutes"]
+    command = [str(v21.COMPANION_PYTHON), str(COMPANION_ADAPTER), str(ply)]
+    command += [str(a) for a in axes_of(task)] + [str(guard), str(out)]
+    with out.with_suffix(".log").open("w") as stream:
+        code = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT).returncode
+    result = v1.read_json(out) if out.exists() else {"status": f"no output (exit {code})"}
+    result["exit_code"] = code
+    if result.get("status") == "valid":
+        reference = v1.read_json(v1.frame(task) / "source/reference.json")
+        ref = np.asarray(reference["eigenvalues"][1:11])
+        lam = np.asarray(result["lam"][1:11])
+        scaled = lam * result["area"] / reference["area"]
+        result["rel_error"] = (lam / ref - 1).tolist()
+        result["rel_error_area_normalised"] = (scaled / ref - 1).tolist()
+        result["max_abs_rel_error"] = float(np.abs(lam / ref - 1).max())
+        result["max_abs_rel_error_area_normalised"] = float(np.abs(scaled / ref - 1).max())
+        result["area_rel_error"] = result["area"] / reference["area"] - 1
+    v1.write_json(out, result)
+    return result
+
+
+def operator(task: dict, run: Path, cells: list) -> None:
+    v1.access_guard(task, "evaluate")
+    for condition, seed in cells:
+        output = run / "cells" / condition / str(seed)
+        result = spectrum(task, output / "gaussians.ply", output / "operator.json")
+        print(f"operator {condition}/{seed}: {result['status']}", flush=True)
+
+
+def calibrate(task: dict, run: Path) -> None:
+    """Instrument calibration on ideal surfels (frozen grid in task['pilot']['calibration'])."""
+    v1.access_guard(task, "evaluate")
+    spec = task["pilot"]["calibration"]
+    axes = axes_of(task)
+    rows = []
+    for count in spec["counts"]:
+        for tilt in spec["tilts_deg"]:
+            name = f"ideal_n{count}_tilt{tilt:g}"
+            model = ideal_surfels(axes, count, seed=spec["seed"], tilt_deg=tilt)
+            directory = run / "calibration" / name
+            directory.mkdir(parents=True)
+            model.save_ply(directory / "gaussians.ply")
+            frozen = {
+                "h0": mean_neighbour_distance(model.means),
+                "cohort": torch.ones(model.n, dtype=torch.bool),
+            }
+            geometry = analytic_geometry(model, frozen, task, spec["seed"])
+            operator_result = spectrum(
+                task, directory / "gaussians.ply", directory / "operator.json"
+            )
+            rows.append(
+                {
+                    "name": name,
+                    "count": count,
+                    "tilt_deg": tilt,
+                    "geometry": geometry,
+                    "operator_status": operator_result["status"],
+                }
+            )
+            print(f"calibration {name}: {operator_result['status']}", flush=True)
+    v1.write_json(run / "calibration.json", {"rows": rows})
+
+
+def pilot_main(task_path: Path, task: dict) -> None:
+    """Pilot / calibration mode (P3): frozen schedule, cells from task['pilot'], .scratch only."""
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    commands = ("pilot", "prepare", "initialize", "fit", "evaluate", "operator", "calibrate")
+    parser.add_argument("command", choices=commands)
+    parser.add_argument("--task", type=Path, required=True)
+    parser.add_argument("--run-dir", type=Path, required=True)
+    parser.add_argument("--condition", choices=CONDITIONS)
+    parser.add_argument("--seed", type=int)
+    parser.add_argument("--pilot", action="store_true")
+    parser.add_argument("--repeat", action="store_true", help="the repeat cells (run-to-run floor)")
+    args = parser.parse_args()
+    torch.set_num_threads(2)
+    run = args.run_dir.resolve()
+    if not run.is_relative_to(v21.ROOT / ".scratch"):
+        raise ValueError("pilot runs write below .scratch/ only")
+    v21.SMOKE = {"mode": "pilot"}
+    cells = task["pilot"]["repeat_cells" if args.repeat else "cells"]
+    flags = ["--pilot", "--repeat"] if args.repeat else ["--pilot"]
+    if args.command == "pilot":
+        v21.preflight(task_path, run, flags, cells, ["evaluate"])
+        for phase in (["operator"], [] if args.repeat else ["calibrate"]):
+            if phase:
+                command = [sys.executable, __file__, *phase, "--task", str(task_path)]
+                subprocess_run(command + ["--run-dir", str(run), *flags])
+    elif args.command == "prepare":
+        v1.prepare(task, run)
+    elif args.command == "initialize":
+        v21.initialize(task, run)
+    elif args.command == "fit":
+        if [args.condition, args.seed] not in cells:
+            parser.error("fit cell is not in the frozen pilot cells")
+        v21.fit(task, run, args.condition, args.seed)
+    elif args.command == "evaluate":
+        evaluate(task, run, cells)
+    elif args.command == "operator":
+        operator(task, run, cells)
+    elif args.command == "calibrate":
+        calibrate(task, run)
+
+
+def subprocess_run(command: list[str]) -> None:
+    import subprocess
+
+    print(" ".join(command[2:3]), flush=True)
+    subprocess.run(command, cwd=v21.ROOT, check=True)
+
+
 # --------------------------------------------------------------------------- wiring
 
 
@@ -379,9 +548,12 @@ def main() -> None:
     v21.evaluate = evaluate
     v21.teacher = teacher
     v21.mesh_geometry = None  # cat-only; must never be reached
-    v21.operator = None  # the spectral stage is not wired yet (P3 spike)
+    v21.operator = None  # cat-only; the analytic spectrum runs through the pilot mode
     v21.publish = None  # official runs need the analytic publish step (P4)
-    v21.main()
+    if "--pilot" in sys.argv:
+        pilot_main(task_path, task)
+    else:
+        v21.main()
 
 
 if __name__ == "__main__":
