@@ -99,18 +99,20 @@ def jet2_residuals(
         r1 = torch.stack([s0, s1, zero], -1)  # n_1 = S11 s0 + S12 s1
         r2 = torch.stack([zero, s0, s1], -1)  # n_2 = S12 s0 + S22 s1
         outer = a[:, None, None] * (r1[:, :, None] * r1[:, None] + r2[:, :, None] * r2[:, None])
-        normal = means.new_zeros(n, 3, 3).index_add_(0, rows, outer).double()
+        # The batched 3x3 algebra runs on the CPU: cuSOLVER's batched eigvalsh asked for 12.7 GiB
+        # of workspace at ~1e4 splats (2026-10-08 smoke); the systems are tiny and detached.
+        normal = means.new_zeros(n, 3, 3).index_add_(0, rows, outer).double().cpu()
         trace = normal.diagonal(dim1=1, dim2=2).sum(-1)
         conditioning = torch.linalg.eigvalsh(normal)[:, 0] / trace.clamp_min(1e-300)
-        ok = (total > 0) & (total >= min_mass) & (conditioning >= min_conditioning)
+        ok = (total > 0) & (total >= min_mass) & (conditioning.to(total.device) >= min_conditioning)
         if order == 2:
             nd = nij.detach()
             rhs_p = a[:, None] * (r1 * nd[:, :1] + r2 * nd[:, 1:])
-            rhs = means.new_zeros(n, 3).index_add_(0, rows, rhs_p).double()
-            eye = torch.eye(3, dtype=normal.dtype, device=normal.device)
+            rhs = means.new_zeros(n, 3).index_add_(0, rows, rhs_p).double().cpu()
+            eye = torch.eye(3, dtype=normal.dtype)
             reg = ridge * trace.clamp_min(1e-300)[:, None, None] * eye
-            x = torch.linalg.solve(normal + reg, rhs[..., None])[..., 0]
-            x = torch.where(ok[:, None], x, torch.zeros_like(x)).to(means.dtype)
+            x = torch.linalg.solve(normal + reg, rhs[..., None])[..., 0].to(means)
+            x = torch.where(ok[:, None], x, torch.zeros_like(x))
         else:
             x = means.new_zeros(n, 3)
         shape = torch.stack([torch.stack([x[:, 0], x[:, 1]], -1), x[:, 1:]], -2)  # (N,2,2)
