@@ -130,7 +130,9 @@ src/rtgs/
                strict fitting-view projected-center containment); silhouette_relocation.py (RTGS-026 opt-in
                all-mask visual-hull floater relocation via parameter_step_callback);
                jet_prior.py (opt-in jet-consistency normal/centre prior, --jet-lambda; v2.1
-               FieldPrior, --jet-prior field --jet-start --jet-terms); 2DGS regularizers via
+               FieldPrior, --jet-prior field --jet-start --jet-terms); jet2_prior.py (v3 2-jet
+               prior on a frozen clone-invariant neighbourhood, driver-only; plan
+               docs/TASK_jet2_synthetic_sphere_ellipsoid.md); 2DGS regularizers via
                --rasterizer gsplat-2dgs --depth-distortion --depth-scale --normal-consistency
   data/        scenes/loaders plus compact_views.py capped view bundles; field_inputs.py
                explicit compact train/heldout seam; field_targets.py fast indexed/CUDA decode of

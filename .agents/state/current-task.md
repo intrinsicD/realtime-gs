@@ -147,3 +147,23 @@ r_nu of a random normal field drops to ~1e-15 (one copy: 0.61 -> 0.45 only).
 #### Recommended Next Action
 Teacher check of estimated S from trained 2DGS splats against mesh S (vs S = 0), and an
 operator-metric budget under 8 GB, before a v3 PREREG.
+
+### Plan reviews (2026-10-08, coordinator: Claude session; author of plan and P1 code)
+
+#### Object
+`docs/TASK_jet2_synthetic_sphere_ellipsoid.md` rev. 1 (round 1) and rev. 2 (exchange; SHA-256
+652189ee7cf0fe50f8b647c7f67cf8b23093e81a275ff2335ef27f2875169398 per Codex).
+
+#### Reviewers
+Codex codex-cli 0.161.0, requested gpt-6-astra / xhigh, thread 01a11b57-2016-7921-8ca1-1d2686f66b47,
+read-only sandbox (probe OK); recursion protection instruction-only (other MCP/plugin tools not
+disabled). Claude Code 2.1.294, claude-opus-5-5 / max, session 11cc7558-abe8-46f9-9df8-6ce919fce3ee,
+tools Read/Grep/Glob, recursion protection enforced; could not read SplatDiffuseLBO in round 1 and
+realtime-gs in the exchange round (directory permissions of the callee session).
+
+#### Verdicts
+Round 1: Codex `revise`, Claude `revise`. Exchange: Codex "revise for P1/P2 as written"; Claude
+"revise" (P1 may proceed once its test list covers the failure modes and the estimator fixes are
+in the design). Full answers kept in the session scratch (/tmp/peer, not durable); the binding
+requirements are carried into plan rev. 3. Disagreement "sphere cannot separate jet1/jet2" settled
+by an analytic check (cap test), not by argument.
