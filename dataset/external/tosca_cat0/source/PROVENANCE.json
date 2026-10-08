@@ -1,0 +1,20 @@
+{
+ "dataset": "TOSCA high-resolution, cat0 (Bronstein, Bronstein, Kimmel)",
+ "copied_from": "/home/alex/Dropbox/Work/Datasets/obj/tosca_hires",
+ "files": {
+  "cat0.obj": {
+   "sha256": "a62fa49a40d8277073c7c0410a70a7e67fc8b3079bbcd40a9150d0f70e92c8cc",
+   "bytes": 1801400
+  },
+  "cat0_colored_v1.ply": {
+   "sha256": "4a58f9a5a226504682d79ea23e27fc4ba7702ec5a4f15e21b0e8be837ff452e9",
+   "bytes": 13029746
+  }
+ },
+ "colour_rule": "per-vertex mean of the PLY face-corner colours (PLY frame = (x, -z, y) of the OBJ, identical face order)",
+ "colour_check": {
+  "corner_frame_error": 1.1401367189023404e-05,
+  "isolated_vertices": 0
+ },
+ "boundary": "Only this preparation and the post-training geometry evaluation read the mesh; reconstruction sees RGB, masks and calibration of the training views only."
+}

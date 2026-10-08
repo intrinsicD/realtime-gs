@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "task_id": "20261007_jet_consistency_prior_tosca_cat0",
+  "summary": "11 cells completed. 3-seed means, normal-angle median: base 14.82 deg, jet1 40.97 deg, jet2 38.52 deg, jet2_l001 16.83 deg, jet2_l1 39.57 deg; held-out PSNR: base 37.38 dB, jet1 33.91 dB, jet2 34.16 dB, jet2_l001 36.50 dB, jet2_l1 32.61 dB.",
+  "decision": "PREREG decision (jet2 vs base, every seed): reject; jet1 under the same rule (descriptive): reject. Development screen on one synthetic object; no default promotion.",
+  "claim_boundary": "Development screen on one synthetic object (TOSCA cat0 renders), three paired seeds, one lambda; a pass is a screening signal requiring a separately registered real-capture confirmation; no default promotion.",
+  "groups": {
+    "base": {
+      "normal_angle_median": 14.82126026485102,
+      "normal_angle_p90": 64.55047977237305,
+      "centre_distance_median": 0.0035040942001387486,
+      "centre_distance_p90": 0.008133285276524132,
+      "centre_distance_over_h_median": 1.3046651156086924,
+      "zl_err_k10": 0.38540547775935713,
+      "heldout_psnr": 37.376811464627586,
+      "heldout_lpips": 0.0022001911481008087
+    },
+    "jet1": {
+      "normal_angle_median": 40.96664883518832,
+      "normal_angle_p90": 80.57110423813543,
+      "centre_distance_median": 0.010004496198017203,
+      "centre_distance_p90": 0.014730216100323377,
+      "centre_distance_over_h_median": 50.40185198348168,
+      "zl_err_k10": 0.6270151827675572,
+      "heldout_psnr": 33.90983418623606,
+      "heldout_lpips": 0.0045424042861365406
+    },
+    "jet2": {
+      "normal_angle_median": 38.51514494521714,
+      "normal_angle_p90": 78.4375736165601,
+      "centre_distance_median": 0.010592183018724229,
+      "centre_distance_p90": 0.01495236902954974,
+      "centre_distance_over_h_median": 29.76584163600338,
+      "zl_err_k10": 0.585018671100061,
+      "heldout_psnr": 34.16120199362437,
+      "heldout_lpips": 0.004326678512976893
+    },
+    "jet2_l001": {
+      "normal_angle_median": 16.83074931018189,
+      "normal_angle_p90": 68.66224769092001,
+      "centre_distance_median": 0.004328258420985259,
+      "centre_distance_p90": 0.009301695826154447,
+      "centre_distance_over_h_median": 3.594475874876778,
+      "zl_err_k10": 0.2369148987809635,
+      "heldout_psnr": 36.49563157558441,
+      "heldout_lpips": 0.002576310960648698
+    },
+    "jet2_l1": {
+      "normal_angle_median": 39.567663025383546,
+      "normal_angle_p90": 78.0313297217033,
+      "centre_distance_median": 0.010591388880132327,
+      "centre_distance_p90": 0.02091187825320528,
+      "centre_distance_over_h_median": 36.18170723507433,
+      "zl_err_k10": 1.0000000000266018,
+      "heldout_psnr": 32.61217075586319,
+      "heldout_lpips": 0.006249910380574875
+    }
+  },
+  "gates": {
+    "jet2": {
+      "verdict": "reject",
+      "rows": [
+        {
+          "seed": 9561,
+          "normal_median_gain_deg": -24.61941301833191,
+          "centre_median_ratio": 3.1446846481806507,
+          "psnr_delta_db": -3.738150179386139,
+          "pass": false,
+          "loses_normal": true,
+          "loses_centre": true
+        },
+        {
+          "seed": 9562,
+          "normal_median_gain_deg": -23.71200816963737,
+          "centre_median_ratio": 2.8879411573074694,
+          "psnr_delta_db": -2.9069342017173767,
+          "pass": false,
+          "loses_normal": true,
+          "loses_centre": true
+        },
+        {
+          "seed": 9563,
+          "normal_median_gain_deg": -22.750232853129067,
+          "centre_median_ratio": 3.0359345667589173,
+          "psnr_delta_db": -3.001744031906128,
+          "pass": false,
+          "loses_normal": true,
+          "loses_centre": true
+        }
+      ]
+    },
+    "jet1": {
+      "verdict": "reject",
+      "rows": [
+        {
+          "seed": 9561,
+          "normal_median_gain_deg": -26.841867475227403,
+          "centre_median_ratio": 2.9070835982875782,
+          "psnr_delta_db": -3.5592649579048157,
+          "pass": false,
+          "loses_normal": true,
+          "loses_centre": true
+        },
+        {
+          "seed": 9562,
+          "normal_median_gain_deg": -27.064208733366534,
+          "centre_median_ratio": 2.8995474645021413,
+          "psnr_delta_db": -3.6490967869758606,
+          "pass": false,
+          "loses_normal": true,
+          "loses_centre": true
+        },
+        {
+          "seed": 9563,
+          "normal_median_gain_deg": -24.530089502417983,
+          "centre_median_ratio": 2.7572597741805747,
+          "psnr_delta_db": -3.1925700902938843,
+          "pass": false,
+          "loses_normal": true,
+          "loses_centre": true
+        }
+      ]
+    },
+    "jet1_descriptive_only": true
+  },
+  "cells": {
+    "base/9561": {
+      "heldout_psnr": 37.390660524368286,
+      "heldout_lpips": 0.0021992111705912976,
+      "normal_angle_median": 14.915005593994238,
+      "normal_angle_p90": 64.62797504944886,
+      "centre_distance_median": 0.003520952687429984,
+      "centre_distance_p90": 0.008100760981468018,
+      "centre_distance_over_h_median": 1.3477383587623886,
+      "zl_err_k10": 0.387118014862496
+    },
+    "jet1/9561": {
+      "heldout_psnr": 33.83139556646347,
+      "heldout_lpips": 0.004726554630906321,
+      "normal_angle_median": 41.75687306922164,
+      "normal_angle_p90": 80.93510405445893,
+      "centre_distance_median": 0.010235703807974277,
+      "centre_distance_p90": 0.015095112612510815,
+      "centre_distance_over_h_median": 62.89320750755466,
+      "zl_err_k10": 0.4266491081505479
+    },
+    "jet2/9561": {
+      "heldout_psnr": 33.65251034498215,
+      "heldout_lpips": 0.004808353616681416,
+      "normal_angle_median": 39.53441861232615,
+      "normal_angle_p90": 78.40363818681308,
+      "centre_distance_median": 0.011072285863131475,
+      "centre_distance_p90": 0.015338894471040903,
+      "centre_distance_over_h_median": 31.515080260737328,
+      "zl_err_k10": 0.6325695738758688
+    },
+    "base/9562": {
+      "heldout_psnr": 37.3248565196991,
+      "heldout_lpips": 0.0022354906377586303,
+      "normal_angle_median": 14.58111334902828,
+      "normal_angle_p90": 65.80323265685259,
+      "centre_distance_median": 0.0035201361962020577,
+      "centre_distance_p90": 0.007989026450323547,
+      "centre_distance_over_h_median": 1.2877346807384444,
+      "zl_err_k10": 0.38001392136189227
+    },
+    "jet1/9562": {
+      "heldout_psnr": 33.675759732723236,
+      "heldout_lpips": 0.0046319581306306645,
+      "normal_angle_median": 41.64532208239481,
+      "normal_angle_p90": 82.00952000699837,
+      "centre_distance_median": 0.010206801982399889,
+      "centre_distance_p90": 0.014782911512457612,
+      "centre_distance_over_h_median": 37.137980970552235,
+      "zl_err_k10": 0.45439644014066827
+    },
+    "jet2/9562": {
+      "heldout_psnr": 34.41792231798172,
+      "heldout_lpips": 0.004039058585476596,
+      "normal_angle_median": 38.29312151866565,
+      "normal_angle_p90": 78.78548379811019,
+      "centre_distance_median": 0.010165946200339684,
+      "centre_distance_p90": 0.01492471389749536,
+      "centre_distance_over_h_median": 27.18907653450592,
+      "zl_err_k10": 0.5594996525795396
+    },
+    "base/9563": {
+      "heldout_psnr": 37.41491734981537,
+      "heldout_lpips": 0.0021658716359524988,
+      "normal_angle_median": 14.96766185153054,
+      "normal_angle_p90": 63.22023161081773,
+      "centre_distance_median": 0.003471193716784204,
+      "centre_distance_p90": 0.008310068397780833,
+      "centre_distance_over_h_median": 1.278522307325244,
+      "zl_err_k10": 0.3890844970536832
+    },
+    "jet1/9563": {
+      "heldout_psnr": 34.222347259521484,
+      "heldout_lpips": 0.004268700096872635,
+      "normal_angle_median": 39.49775135394852,
+      "normal_angle_p90": 78.768688652949,
+      "centre_distance_median": 0.009570982803677444,
+      "centre_distance_p90": 0.014312624176001702,
+      "centre_distance_over_h_median": 51.17436747233814,
+      "zl_err_k10": 1.0000000000114553
+    },
+    "jet2/9563": {
+      "heldout_psnr": 34.41317331790924,
+      "heldout_lpips": 0.004132623336772667,
+      "normal_angle_median": 37.71789470465961,
+      "normal_angle_p90": 78.12359886475701,
+      "centre_distance_median": 0.010538316992701528,
+      "centre_distance_p90": 0.014593498720112957,
+      "centre_distance_over_h_median": 30.59336811276689,
+      "zl_err_k10": 0.5629867868447745
+    },
+    "jet2_l001/9561": {
+      "heldout_psnr": 36.49563157558441,
+      "heldout_lpips": 0.002576310960648698,
+      "normal_angle_median": 16.83074931018189,
+      "normal_angle_p90": 68.66224769092001,
+      "centre_distance_median": 0.004328258420985259,
+      "centre_distance_p90": 0.009301695826154447,
+      "centre_distance_over_h_median": 3.594475874876778,
+      "zl_err_k10": 0.2369148987809635
+    },
+    "jet2_l1/9561": {
+      "heldout_psnr": 32.61217075586319,
+      "heldout_lpips": 0.006249910380574875,
+      "normal_angle_median": 39.567663025383546,
+      "normal_angle_p90": 78.0313297217033,
+      "centre_distance_median": 0.010591388880132327,
+      "centre_distance_p90": 0.02091187825320528,
+      "centre_distance_over_h_median": 36.18170723507433,
+      "zl_err_k10": 1.0000000000266018
+    }
+  },
+  "command": [
+    ".venv/bin/python",
+    "scripts/experiments/20261007_jet_consistency_prior_tosca_cat0.py",
+    "run",
+    "--task",
+    "experiments/tasks/20261007_jet_consistency_prior_tosca_cat0.json",
+    "--run-dir",
+    "runs/20261007_jet_consistency_prior_tosca_cat0"
+  ],
+  "source_lock": {
+    "schema_version": 2,
+    "task_id": "20261007_jet_consistency_prior_tosca_cat0",
+    "task_path": "experiments/tasks/20261007_jet_consistency_prior_tosca_cat0.json",
+    "task_sha256": "af3b5ae47844489efdf33efa6bb6bad246e54ff5aa003f60dc5c4e1415bf1551",
+    "protocol_sha256": "03e3b661ebaa33203df3d2f8786858d68633d1f336461257b403647cfb9c35a1",
+    "protocol_review": {
+      "reviewer": "Alexander Dieckman",
+      "verdict": "approved",
+      "protocol_sha256": "03e3b661ebaa33203df3d2f8786858d68633d1f336461257b403647cfb9c35a1",
+      "artifact": "experiments/reviews/20261007_jet_consistency_prior_tosca_cat0_PROTOCOL_REVIEW.md"
+    },
+    "protocol_review_artifact_sha256": "e91891ee2f3c6844aa7056d8a6fa39e4f1d613a109a39e67bcfb4352b008d73b",
+    "data_seal_path": "experiments/data/20261007_jet_consistency_prior_tosca_cat0.json",
+    "data_seal_sha256": "d0ee8a9b6f20092acbdb7ec374443201e598dd0c4825c715edda5920e328b73a",
+    "source_commit": "27c6ce5e1fae66c6b60191403b93dc16c643f758",
+    "source_dirty": true,
+    "source_diff_sha256": "ca7fa97f1ab566d7514961720bef78010ec8a8e5a23fa256de513ce20a24882b",
+    "development": true,
+    "started_at_utc": "2026-10-07T18:01:08.446578+00:00",
+    "command": [
+      ".venv/bin/python",
+      "scripts/experiments/20261007_jet_consistency_prior_tosca_cat0.py",
+      "run",
+      "--task",
+      "experiments/tasks/20261007_jet_consistency_prior_tosca_cat0.json",
+      "--run-dir",
+      "runs/20261007_jet_consistency_prior_tosca_cat0"
+    ],
+    "report_template_version": 2
+  },
+  "raw_comparison_path": "runs/20261007_jet_consistency_prior_tosca_cat0/comparison.json"
+}

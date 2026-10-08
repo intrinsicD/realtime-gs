@@ -3000,3 +3000,16 @@ observations:
     promoted_to: logic/claims.md:C53
     crystallized_via: artifact-commitment
     stale: false
+  - id: O185
+    timestamp: 2026-10-07T22:30+02:00
+    provenance: ai-executed
+    content: In task 20261007_jet_consistency_prior_tosca_cat0 the jet-consistency prior (lambda 0.1) and its
+      first-order control worsened the splat normal median (about 15 to 38-42 deg), tripled the centre distance and
+      cost about 3 dB held-out PSNR in every seed; treated models collapse into stacks of near-coincident splats.
+    context: Self-audited development screen on synthetic renders; operator metric deferred.
+    potential_type: claim
+    bound_to: []
+    promoted: true
+    promoted_to: logic/claims.md:C54
+    crystallized_via: artifact-commitment
+    stale: false

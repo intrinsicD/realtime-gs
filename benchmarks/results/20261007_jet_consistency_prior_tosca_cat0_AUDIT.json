@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "20261007_jet_consistency_prior_tosca_cat0",
+  "auditor": "task owner (self-audit; not independent)",
+  "independent": false,
+  "verdict": "result reproduced from raw per-cell records; decision reject stands",
+  "checks": [
+    "gates recomputed from comparison.json per seed",
+    "geometry evaluator validated on the companion model before training (16.52 deg, 49.45 deg, 0.0279 splat units, ZL 0.3821)",
+    "previews of base/9561 inspected: reconstruction matches the held-out references",
+    "run_receipt completed; input_integrity entry/exit all_match",
+    "neighbour-collapse diagnostic computed post hoc on seed 9561 models"
+  ],
+  "open": [
+    "SplatDiffuseLBO operator metric deferred",
+    "independent audit pending"
+  ]
+}

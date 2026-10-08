@@ -1,0 +1,646 @@
+{
+ "schema": "rtgs-view-list",
+ "note": "RGB/mask-only scene: no compact 2D Gaussian fields exist; this view list is the manifest the experiment contract binds in the data seal.",
+ "views": [
+  {
+   "view_id": "C0001",
+   "path": "../rgb/C0001.jpg"
+  },
+  {
+   "view_id": "C0002",
+   "path": "../rgb/C0002.jpg"
+  },
+  {
+   "view_id": "C0003",
+   "path": "../rgb/C0003.jpg"
+  },
+  {
+   "view_id": "C0004",
+   "path": "../rgb/C0004.jpg"
+  },
+  {
+   "view_id": "C0005",
+   "path": "../rgb/C0005.jpg"
+  },
+  {
+   "view_id": "C0006",
+   "path": "../rgb/C0006.jpg"
+  },
+  {
+   "view_id": "C0007",
+   "path": "../rgb/C0007.jpg"
+  },
+  {
+   "view_id": "C0008",
+   "path": "../rgb/C0008.jpg"
+  },
+  {
+   "view_id": "C0009",
+   "path": "../rgb/C0009.jpg"
+  },
+  {
+   "view_id": "C0010",
+   "path": "../rgb/C0010.jpg"
+  },
+  {
+   "view_id": "C0011",
+   "path": "../rgb/C0011.jpg"
+  },
+  {
+   "view_id": "C0012",
+   "path": "../rgb/C0012.jpg"
+  },
+  {
+   "view_id": "C0013",
+   "path": "../rgb/C0013.jpg"
+  },
+  {
+   "view_id": "C0014",
+   "path": "../rgb/C0014.jpg"
+  },
+  {
+   "view_id": "C0015",
+   "path": "../rgb/C0015.jpg"
+  },
+  {
+   "view_id": "C0016",
+   "path": "../rgb/C0016.jpg"
+  },
+  {
+   "view_id": "C0017",
+   "path": "../rgb/C0017.jpg"
+  },
+  {
+   "view_id": "C0018",
+   "path": "../rgb/C0018.jpg"
+  },
+  {
+   "view_id": "C0019",
+   "path": "../rgb/C0019.jpg"
+  },
+  {
+   "view_id": "C0020",
+   "path": "../rgb/C0020.jpg"
+  },
+  {
+   "view_id": "C0021",
+   "path": "../rgb/C0021.jpg"
+  },
+  {
+   "view_id": "C0022",
+   "path": "../rgb/C0022.jpg"
+  },
+  {
+   "view_id": "C0023",
+   "path": "../rgb/C0023.jpg"
+  },
+  {
+   "view_id": "C0024",
+   "path": "../rgb/C0024.jpg"
+  },
+  {
+   "view_id": "C0025",
+   "path": "../rgb/C0025.jpg"
+  },
+  {
+   "view_id": "C0026",
+   "path": "../rgb/C0026.jpg"
+  },
+  {
+   "view_id": "C0027",
+   "path": "../rgb/C0027.jpg"
+  },
+  {
+   "view_id": "C0028",
+   "path": "../rgb/C0028.jpg"
+  },
+  {
+   "view_id": "C0029",
+   "path": "../rgb/C0029.jpg"
+  },
+  {
+   "view_id": "C0030",
+   "path": "../rgb/C0030.jpg"
+  },
+  {
+   "view_id": "C0031",
+   "path": "../rgb/C0031.jpg"
+  },
+  {
+   "view_id": "C0032",
+   "path": "../rgb/C0032.jpg"
+  },
+  {
+   "view_id": "C0033",
+   "path": "../rgb/C0033.jpg"
+  },
+  {
+   "view_id": "C0034",
+   "path": "../rgb/C0034.jpg"
+  },
+  {
+   "view_id": "C0035",
+   "path": "../rgb/C0035.jpg"
+  },
+  {
+   "view_id": "C0036",
+   "path": "../rgb/C0036.jpg"
+  },
+  {
+   "view_id": "C0037",
+   "path": "../rgb/C0037.jpg"
+  },
+  {
+   "view_id": "C0038",
+   "path": "../rgb/C0038.jpg"
+  },
+  {
+   "view_id": "C0039",
+   "path": "../rgb/C0039.jpg"
+  },
+  {
+   "view_id": "C0040",
+   "path": "../rgb/C0040.jpg"
+  },
+  {
+   "view_id": "C0041",
+   "path": "../rgb/C0041.jpg"
+  },
+  {
+   "view_id": "C0042",
+   "path": "../rgb/C0042.jpg"
+  },
+  {
+   "view_id": "C0043",
+   "path": "../rgb/C0043.jpg"
+  },
+  {
+   "view_id": "C0044",
+   "path": "../rgb/C0044.jpg"
+  },
+  {
+   "view_id": "C0045",
+   "path": "../rgb/C0045.jpg"
+  },
+  {
+   "view_id": "C0046",
+   "path": "../rgb/C0046.jpg"
+  },
+  {
+   "view_id": "C0047",
+   "path": "../rgb/C0047.jpg"
+  },
+  {
+   "view_id": "C0048",
+   "path": "../rgb/C0048.jpg"
+  },
+  {
+   "view_id": "C0049",
+   "path": "../rgb/C0049.jpg"
+  },
+  {
+   "view_id": "C0050",
+   "path": "../rgb/C0050.jpg"
+  },
+  {
+   "view_id": "C0051",
+   "path": "../rgb/C0051.jpg"
+  },
+  {
+   "view_id": "C0052",
+   "path": "../rgb/C0052.jpg"
+  },
+  {
+   "view_id": "C0053",
+   "path": "../rgb/C0053.jpg"
+  },
+  {
+   "view_id": "C0054",
+   "path": "../rgb/C0054.jpg"
+  },
+  {
+   "view_id": "C0055",
+   "path": "../rgb/C0055.jpg"
+  },
+  {
+   "view_id": "C0056",
+   "path": "../rgb/C0056.jpg"
+  },
+  {
+   "view_id": "C0057",
+   "path": "../rgb/C0057.jpg"
+  },
+  {
+   "view_id": "C0058",
+   "path": "../rgb/C0058.jpg"
+  },
+  {
+   "view_id": "C0059",
+   "path": "../rgb/C0059.jpg"
+  },
+  {
+   "view_id": "C0060",
+   "path": "../rgb/C0060.jpg"
+  },
+  {
+   "view_id": "C0061",
+   "path": "../rgb/C0061.jpg"
+  },
+  {
+   "view_id": "C0062",
+   "path": "../rgb/C0062.jpg"
+  },
+  {
+   "view_id": "C0063",
+   "path": "../rgb/C0063.jpg"
+  },
+  {
+   "view_id": "C0064",
+   "path": "../rgb/C0064.jpg"
+  },
+  {
+   "view_id": "C0065",
+   "path": "../rgb/C0065.jpg"
+  },
+  {
+   "view_id": "C0066",
+   "path": "../rgb/C0066.jpg"
+  },
+  {
+   "view_id": "C0067",
+   "path": "../rgb/C0067.jpg"
+  },
+  {
+   "view_id": "C0068",
+   "path": "../rgb/C0068.jpg"
+  },
+  {
+   "view_id": "C0069",
+   "path": "../rgb/C0069.jpg"
+  },
+  {
+   "view_id": "C0070",
+   "path": "../rgb/C0070.jpg"
+  },
+  {
+   "view_id": "C0071",
+   "path": "../rgb/C0071.jpg"
+  },
+  {
+   "view_id": "C0072",
+   "path": "../rgb/C0072.jpg"
+  },
+  {
+   "view_id": "C0073",
+   "path": "../rgb/C0073.jpg"
+  },
+  {
+   "view_id": "C0074",
+   "path": "../rgb/C0074.jpg"
+  },
+  {
+   "view_id": "C0075",
+   "path": "../rgb/C0075.jpg"
+  },
+  {
+   "view_id": "C0076",
+   "path": "../rgb/C0076.jpg"
+  },
+  {
+   "view_id": "C0077",
+   "path": "../rgb/C0077.jpg"
+  },
+  {
+   "view_id": "C0078",
+   "path": "../rgb/C0078.jpg"
+  },
+  {
+   "view_id": "C0079",
+   "path": "../rgb/C0079.jpg"
+  },
+  {
+   "view_id": "C0080",
+   "path": "../rgb/C0080.jpg"
+  },
+  {
+   "view_id": "C0081",
+   "path": "../rgb/C0081.jpg"
+  },
+  {
+   "view_id": "C0082",
+   "path": "../rgb/C0082.jpg"
+  },
+  {
+   "view_id": "C0083",
+   "path": "../rgb/C0083.jpg"
+  },
+  {
+   "view_id": "C0084",
+   "path": "../rgb/C0084.jpg"
+  },
+  {
+   "view_id": "C0085",
+   "path": "../rgb/C0085.jpg"
+  },
+  {
+   "view_id": "C0086",
+   "path": "../rgb/C0086.jpg"
+  },
+  {
+   "view_id": "C0087",
+   "path": "../rgb/C0087.jpg"
+  },
+  {
+   "view_id": "C0088",
+   "path": "../rgb/C0088.jpg"
+  },
+  {
+   "view_id": "C0089",
+   "path": "../rgb/C0089.jpg"
+  },
+  {
+   "view_id": "C0090",
+   "path": "../rgb/C0090.jpg"
+  },
+  {
+   "view_id": "C0091",
+   "path": "../rgb/C0091.jpg"
+  },
+  {
+   "view_id": "C0092",
+   "path": "../rgb/C0092.jpg"
+  },
+  {
+   "view_id": "C0093",
+   "path": "../rgb/C0093.jpg"
+  },
+  {
+   "view_id": "C0094",
+   "path": "../rgb/C0094.jpg"
+  },
+  {
+   "view_id": "C0095",
+   "path": "../rgb/C0095.jpg"
+  },
+  {
+   "view_id": "C0096",
+   "path": "../rgb/C0096.jpg"
+  },
+  {
+   "view_id": "C0097",
+   "path": "../rgb/C0097.jpg"
+  },
+  {
+   "view_id": "C0098",
+   "path": "../rgb/C0098.jpg"
+  },
+  {
+   "view_id": "C0099",
+   "path": "../rgb/C0099.jpg"
+  },
+  {
+   "view_id": "C0100",
+   "path": "../rgb/C0100.jpg"
+  },
+  {
+   "view_id": "C0101",
+   "path": "../rgb/C0101.jpg"
+  },
+  {
+   "view_id": "C0102",
+   "path": "../rgb/C0102.jpg"
+  },
+  {
+   "view_id": "C0103",
+   "path": "../rgb/C0103.jpg"
+  },
+  {
+   "view_id": "C0104",
+   "path": "../rgb/C0104.jpg"
+  },
+  {
+   "view_id": "C0105",
+   "path": "../rgb/C0105.jpg"
+  },
+  {
+   "view_id": "C0106",
+   "path": "../rgb/C0106.jpg"
+  },
+  {
+   "view_id": "C0107",
+   "path": "../rgb/C0107.jpg"
+  },
+  {
+   "view_id": "C0108",
+   "path": "../rgb/C0108.jpg"
+  },
+  {
+   "view_id": "C0109",
+   "path": "../rgb/C0109.jpg"
+  },
+  {
+   "view_id": "C0110",
+   "path": "../rgb/C0110.jpg"
+  },
+  {
+   "view_id": "C0111",
+   "path": "../rgb/C0111.jpg"
+  },
+  {
+   "view_id": "C0112",
+   "path": "../rgb/C0112.jpg"
+  },
+  {
+   "view_id": "C0113",
+   "path": "../rgb/C0113.jpg"
+  },
+  {
+   "view_id": "C0114",
+   "path": "../rgb/C0114.jpg"
+  },
+  {
+   "view_id": "C0115",
+   "path": "../rgb/C0115.jpg"
+  },
+  {
+   "view_id": "C0116",
+   "path": "../rgb/C0116.jpg"
+  },
+  {
+   "view_id": "C0117",
+   "path": "../rgb/C0117.jpg"
+  },
+  {
+   "view_id": "C0118",
+   "path": "../rgb/C0118.jpg"
+  },
+  {
+   "view_id": "C0119",
+   "path": "../rgb/C0119.jpg"
+  },
+  {
+   "view_id": "C0120",
+   "path": "../rgb/C0120.jpg"
+  },
+  {
+   "view_id": "C0121",
+   "path": "../rgb/C0121.jpg"
+  },
+  {
+   "view_id": "C0122",
+   "path": "../rgb/C0122.jpg"
+  },
+  {
+   "view_id": "C0123",
+   "path": "../rgb/C0123.jpg"
+  },
+  {
+   "view_id": "C0124",
+   "path": "../rgb/C0124.jpg"
+  },
+  {
+   "view_id": "C0125",
+   "path": "../rgb/C0125.jpg"
+  },
+  {
+   "view_id": "C0126",
+   "path": "../rgb/C0126.jpg"
+  },
+  {
+   "view_id": "C0127",
+   "path": "../rgb/C0127.jpg"
+  },
+  {
+   "view_id": "C0128",
+   "path": "../rgb/C0128.jpg"
+  },
+  {
+   "view_id": "C0129",
+   "path": "../rgb/C0129.jpg"
+  },
+  {
+   "view_id": "C0130",
+   "path": "../rgb/C0130.jpg"
+  },
+  {
+   "view_id": "C0131",
+   "path": "../rgb/C0131.jpg"
+  },
+  {
+   "view_id": "C0132",
+   "path": "../rgb/C0132.jpg"
+  },
+  {
+   "view_id": "C0133",
+   "path": "../rgb/C0133.jpg"
+  },
+  {
+   "view_id": "C0134",
+   "path": "../rgb/C0134.jpg"
+  },
+  {
+   "view_id": "C0135",
+   "path": "../rgb/C0135.jpg"
+  },
+  {
+   "view_id": "C0136",
+   "path": "../rgb/C0136.jpg"
+  },
+  {
+   "view_id": "C0137",
+   "path": "../rgb/C0137.jpg"
+  },
+  {
+   "view_id": "C0138",
+   "path": "../rgb/C0138.jpg"
+  },
+  {
+   "view_id": "C0139",
+   "path": "../rgb/C0139.jpg"
+  },
+  {
+   "view_id": "C0140",
+   "path": "../rgb/C0140.jpg"
+  },
+  {
+   "view_id": "C0141",
+   "path": "../rgb/C0141.jpg"
+  },
+  {
+   "view_id": "C0142",
+   "path": "../rgb/C0142.jpg"
+  },
+  {
+   "view_id": "C0143",
+   "path": "../rgb/C0143.jpg"
+  },
+  {
+   "view_id": "C0144",
+   "path": "../rgb/C0144.jpg"
+  },
+  {
+   "view_id": "C0145",
+   "path": "../rgb/C0145.jpg"
+  },
+  {
+   "view_id": "C0146",
+   "path": "../rgb/C0146.jpg"
+  },
+  {
+   "view_id": "C0147",
+   "path": "../rgb/C0147.jpg"
+  },
+  {
+   "view_id": "C0148",
+   "path": "../rgb/C0148.jpg"
+  },
+  {
+   "view_id": "C0149",
+   "path": "../rgb/C0149.jpg"
+  },
+  {
+   "view_id": "C0150",
+   "path": "../rgb/C0150.jpg"
+  },
+  {
+   "view_id": "C0151",
+   "path": "../rgb/C0151.jpg"
+  },
+  {
+   "view_id": "C0152",
+   "path": "../rgb/C0152.jpg"
+  },
+  {
+   "view_id": "C0153",
+   "path": "../rgb/C0153.jpg"
+  },
+  {
+   "view_id": "C0154",
+   "path": "../rgb/C0154.jpg"
+  },
+  {
+   "view_id": "C0155",
+   "path": "../rgb/C0155.jpg"
+  },
+  {
+   "view_id": "C0156",
+   "path": "../rgb/C0156.jpg"
+  },
+  {
+   "view_id": "C0157",
+   "path": "../rgb/C0157.jpg"
+  },
+  {
+   "view_id": "C0158",
+   "path": "../rgb/C0158.jpg"
+  },
+  {
+   "view_id": "C0159",
+   "path": "../rgb/C0159.jpg"
+  },
+  {
+   "view_id": "C0160",
+   "path": "../rgb/C0160.jpg"
+  }
+ ]
+}

@@ -28,12 +28,14 @@ from rtgs.optim.active_set import ActiveSetConfig, ActiveSetSelector
 from rtgs.optim.density import DensityConfig, DensityController
 from rtgs.optim.init_density import InitPreservingConfig, InitPreservingController
 from rtgs.optim.init_trust import TrustConfig, TrustSchedule
+from rtgs.optim.jet_prior import FieldPrior, JetPrior
 from rtgs.render.base import (
     DEFAULT_VISIBILITY_MARGIN_SIGMA,
     KernelSupportDiagnostics,
     SHColorDiagnostics,
     get_rasterizer,
 )
+from rtgs.render.gsplat_2dgs_backend import SurfelRegularization, surfel_terms
 from rtgs.render.torch_ref import KERNEL_SUPPORT_CUTOFF, KERNEL_SUPPORT_TAPER_WIDTH
 
 
@@ -305,8 +307,22 @@ class Trainer:
         parameter_step_callback: (
             Callable[[dict[str, torch.Tensor], dict[str, torch.optim.Optimizer], int], None] | None
         ) = None,
+        jet_prior: JetPrior | FieldPrior | None = None,
+        surfel_regularization: SurfelRegularization | None = None,
     ) -> tuple[Gaussians3D, dict]:
         """Run optimization and return ``(refined, history)``.
+
+        ``jet_prior`` (opt-in, ``rtgs.optim.jet_prior.JetPrior``) adds
+        ``jet_prior.weight * jet_prior(means, quats, log_scales, step)`` to the loss beside the
+        opacity/scale regularizers; ``None`` (default) leaves training unchanged. It is a call
+        argument rather than a ``TrainConfig`` field so frozen resolved configurations of earlier
+        tasks keep round-tripping. ``FieldPrior`` (v2) is called the same way and receives the
+        detached opacities as field weights.
+
+        ``surfel_regularization`` (opt-in, requires ``rasterizer='gsplat-2dgs'``) adds the 2DGS
+        scale-normalized depth-distortion and centre-depth consistency terms of
+        ``rtgs.render.gsplat_2dgs_backend.surfel_terms``. With the 2DGS rasterizer the third
+        log-scale column is pinned to ``-inf`` (flat surfels; the kernel ignores it).
 
         ``checkpoint_callback`` is an opt-in research observer. At each normal evaluation
         checkpoint it receives an isolated detached Gaussian clone and the completed step while
@@ -467,6 +483,11 @@ class Trainer:
             "sh0": torch.nn.Parameter(init.sh[:, :1].detach().clone()),
             "shN": torch.nn.Parameter(init.sh[:, 1:].detach().clone()),
         }
+        if cfg.rasterizer == "gsplat-2dgs":
+            with torch.no_grad():
+                params["scales"][:, 2] = -math.inf  # surfel normal axis: sigma_min = 0
+        elif surfel_regularization is not None:
+            raise ValueError("2DGS regularizers require rasterizer='gsplat-2dgs'")
         if initialization_callback is not None:
             snapshot = Gaussians3D(
                 means=params["means"],
@@ -749,6 +770,27 @@ class Trainer:
             if scale_reg:
                 scale_regularization = torch.exp(params["scales"]).mean()
                 loss = loss + scale_reg * scale_regularization
+            jet_regularization = target.new_zeros(())
+            if jet_prior is not None:
+                jet_regularization = jet_prior(
+                    params["means"],
+                    params["quats"],
+                    params["scales"],
+                    global_it,
+                    opacities=torch.sigmoid(params["opacities"]).detach(),
+                )
+                loss = loss + jet_prior.weight * jet_regularization
+            surfel_values = None
+            if surfel_regularization is not None:
+                distortion, normal_error = surfel_terms(out, surfel_regularization.depth_scale)
+                lambda_d, lambda_n = surfel_regularization.weights(global_it)
+                loss = loss + lambda_d * distortion + lambda_n * normal_error
+                surfel_values = {
+                    "depth_distortion_lambda": lambda_d,
+                    "depth_distortion": float(distortion.detach()),
+                    "normal_consistency_lambda": lambda_n,
+                    "normal_consistency": float(normal_error.detach()),
+                }
             loss.backward()
 
             if cfg.collect_sh_color_diagnostics:
@@ -871,6 +913,9 @@ class Trainer:
                     "opacity_regularization": float(opacity_regularization.detach()),
                     "scale_reg": scale_reg,
                     "scale_regularization": float(scale_regularization.detach()),
+                    "jet_lambda": 0.0 if jet_prior is None else jet_prior.weight,
+                    "jet_regularization": float(jet_regularization.detach()),
+                    **(surfel_values or {}),
                 }
             )
 

@@ -23,3 +23,6 @@ dataset/**/mask/*
 # RTGS-016 downloaded/prepared inputs are bound by tracked hash receipts.
 dataset/external/haelyn_halfbody/
 dataset/2025_03_07_stage_with_fabric/frame_00008/gaussians2d_rtgs016_masked/
+
+# 20261007 jet-consistency prior: copied TOSCA source mesh (bound by source/PROVENANCE.json).
+dataset/external/tosca_cat0/source/*.obj

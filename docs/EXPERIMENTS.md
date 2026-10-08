@@ -3647,3 +3647,36 @@ recorded, is the next confirmation.
 Evidence: `benchmarks/results/20260928_field_only_portfolio_stage_frame00008_RESULT.md/json` and `_AUDIT.md/json`;
 report `runs/20260928_field_only_portfolio_stage_frame00008/index.html` (local); receipts in
 `ara/evidence/tables/20260928_field_only_portfolio_final_handoff/`.
+
+## 2026-10-07 — Jet-consistency (Weingarten) prior on TOSCA cat0 renders (reject; neighbour collapse)
+- **Question**: does a closed-form, detached shape-operator consistency loss on neighbouring splat
+  normals and centres (`rtgs.optim.jet_prior`, `--jet-lambda`) reduce normal noise and shell
+  thickness during training without costing appearance? PREREG
+  `benchmarks/results/20261007_jet_consistency_prior_tosca_cat0_PREREG.md`.
+- **Setup**: task `20261007_jet_consistency_prior_tosca_cat0` (development init-run on a dirty
+  worktree at 27c6ce5); 160 pyrender views of TOSCA cat0 (`scripts/experiments/prepare_tosca_cat0.py`,
+  128 train / 32 held-out), 20000 seeded random points, gsplat-default, 15000 steps, SH 1, masks;
+  arms base / jet1 (S = 0) / jet2 at lambda 0.1, seeds 9561-9563, plus jet2 at lambda 0.01 and 1.0
+  (seed 9561). Geometry against the mesh with `scripts/experiments/eval_jet_prior_tosca_cat0.py`
+  (opacity > 0.3). Bundle: `runs/20261007_jet_consistency_prior_tosca_cat0/` (check-run and
+  results-bundle gate OK).
+- **Result** (C54): base normal median 14.6-15.0 deg; jet2 37.7-39.5 deg and jet1 39.5-41.8 deg;
+  centre median x2.89-3.14 (jet2) against base; held-out PSNR -2.9 to -3.7 dB. The frozen rule
+  rejects jet2 (worse on both geometry metrics in every seed). Post hoc: 64-73 % of treated splats
+  have a neighbour within 0.01 mesh units (base 2 %); the 16-NN residuals vanish on stacks of
+  near-coincident copies, which gsplat's clone step supplies. Full table and marked predictions in
+  `benchmarks/results/20261007_jet_consistency_prior_tosca_cat0_RESULT.md`.
+- **Conclusion**: this formulation of the prior is refuted on this object; the failure is a
+  degenerate minimiser, not over-smoothing. The SplatDiffuseLBO operator metric was deferred (the
+  companion script needs more than the 8 GB host-RAM limit and takes no input path). Self-audited
+  only.
+- **Follow-ups**: a new registration with a neighbourhood of minimum spatial extent (radius tied
+  to the splat's tangential scale, or de-duplicated centres) before any real-capture trial.
+
+## 2026-10-08 — kNN jet prior: collapse mechanism pinned by a CPU control (mechanism screen)
+- **Question**: how many coincident copies does the v1 16-NN residual need to vanish?
+- **Result**: on 2000 sphere splats with random normals, r_nu = 0.61 clean, 0.45 with 2 copies,
+  0.12 with 4, ~1e-15 with 8 or 16 (copies fill the 6-NN bandwidth, h -> 0). Test
+  `tests/test_jet_prior.py::test_knn_prior_collapse_minimum_from_clones` pins the 8-copy case.
+- **Conclusion**: any 2-jet prior must use a neighbourhood of minimum spatial extent with
+  density-normalised weights; synthetic only, no training claim.

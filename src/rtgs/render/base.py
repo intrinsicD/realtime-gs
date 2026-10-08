@@ -70,6 +70,11 @@ class RenderOutput:
     # Backend-native metadata used by optional optimization strategies. Pipeline code must
     # otherwise remain backend-agnostic; torch_ref leaves this as None.
     strategy_info: dict | None = None
+    # 2DGS geometry maps (gsplat-2dgs only; world frame): see rtgs.render.gsplat_2dgs_backend.
+    normals: torch.Tensor | None = None  # (H, W, 3) alpha-weighted rendered normals
+    normals_from_depth: torch.Tensor | None = None  # (H, W, 3) normals of the rendered depth
+    distortion: torch.Tensor | None = None  # (H, W) depth distortion
+    median_depth: torch.Tensor | None = None  # (H, W)
 
 
 class Rasterizer(Protocol):
@@ -100,7 +105,8 @@ def get_rasterizer(
     collect_kernel_support_diagnostics: bool = False,
     visibility_margin_sigma: float = DEFAULT_VISIBILITY_MARGIN_SIGMA,
 ) -> Rasterizer:
-    """Return a rasterizer backend: 'torch' (reference), 'gsplat' (CUDA), or 'auto'.
+    """Return a rasterizer backend: 'torch' (reference), 'gsplat' (CUDA), 'gsplat-2dgs'
+    (CUDA 2D Gaussian surfels, explicit only), or 'auto'.
 
     'auto' picks gsplat when both the package and a CUDA device are available,
     otherwise the reference implementation. Supplying ``device`` also prevents a
@@ -136,7 +142,23 @@ def get_rasterizer(
             collect_kernel_support_diagnostics=collect_kernel_support_diagnostics,
             visibility_margin_sigma=visibility_margin_sigma,
         )
-    raise ValueError(f"unknown rasterizer '{name}' (expected 'auto', 'torch' or 'gsplat')")
+    if name == "gsplat-2dgs":
+        from rtgs.render.gsplat_2dgs_backend import Gsplat2DGSRasterizer
+
+        return Gsplat2DGSRasterizer(
+            packed=packed,
+            absgrad=absgrad,
+            antialiased=antialiased,
+            sh_color_activation=sh_color_activation,
+            sh_smu1_mu=sh_smu1_mu,
+            collect_sh_color_diagnostics=collect_sh_color_diagnostics,
+            kernel_support_mode=kernel_support_mode,
+            collect_kernel_support_diagnostics=collect_kernel_support_diagnostics,
+            visibility_margin_sigma=visibility_margin_sigma,
+        )
+    raise ValueError(
+        f"unknown rasterizer '{name}' (expected 'auto', 'torch', 'gsplat' or 'gsplat-2dgs')"
+    )
 
 
 def _gsplat_available() -> bool:
