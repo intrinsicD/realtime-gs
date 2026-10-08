@@ -353,28 +353,74 @@ def evaluate(task: dict, run: Path, cells: list) -> None:
         print(f"evaluated {condition}/{seed}", flush=True)  # values are read from the bundle
 
 
-def teacher(task: dict, run: Path) -> None:
-    """Base arm at the activation step: the prior's estimator vs the analytic curvature, the
-    trained normal vs the analytic normal. Writes numbers only; the go rule is in the task."""
+def teacher(task: dict, run: Path, cells: list) -> dict:
+    """Base arm at the activation step, every teacher seed: the prior's estimator vs the analytic
+    curvature (S = 0 scores 1), trained normals vs analytic normals, and the frozen go rule."""
     v1.access_guard(task, "evaluate")
-    condition, seed = v21.TEACHER_CELLS[0]
-    output = run / "cells" / condition / str(seed)
-    model = Gaussians3D.load_npz(output / "gaussians.npz")
-    frozen = torch.load(output / "h0.pt")
-    geometry = analytic_geometry(model, frozen, task, seed)
-    result = {"step": task["collapse_gate"]["h0_step"], "geometry": geometry}
+    rule = task["pilot"]["teacher_go_rule"]
+    rows = {}
+    for condition, seed in cells:
+        output = run / "cells" / condition / str(seed)
+        model = Gaussians3D.load_npz(output / "gaussians.npz")
+        receipt = v1.read_json(output / "receipt.json")
+        geometry = analytic_geometry(model, torch.load(output / "h0.pt"), task, seed)
+        all_masked = curvature_masked_all(model, task)
+        checks = {
+            "curvature_rel_error_median": _le(
+                geometry["curvature_rel_error_median"], rule["curvature_rel_error_median_max"]
+            ),
+            "estimator_masked_fraction": _le(
+                geometry["estimator_masked_fraction"], rule["estimator_masked_fraction_max"]
+            ),
+            "n_curvature": geometry["n_curvature"] >= rule["n_curvature_min"],
+            "collapse_fraction_at_activation": _le(
+                receipt["collapse_fraction_at_activation"],
+                rule["collapse_fraction_at_activation_max"],
+            ),
+        }
+        rows[f"{condition}/{seed}"] = {
+            "geometry": geometry,
+            "estimator_masked_fraction_all_splats": all_masked,
+            "collapse_fraction_at_activation": receipt["collapse_fraction_at_activation"],
+            "checks": checks,
+            "go": all(checks.values()),
+        }
+    result = {
+        "step": task["collapse_gate"]["h0_step"],
+        "rule": rule,
+        "rows": rows,
+        "go": all(row["go"] for row in rows.values()),
+    }
     v1.write_json(run / "teacher_check.json", result)
+    return result
+
+
+def _le(value, limit) -> bool:
+    """Missing values never pass."""
+    return value is not None and value <= limit
+
+
+def curvature_masked_all(model: Gaussians3D, task: dict) -> float:
+    """Gate rejection over all splats (the prior acts on all, not only on opacity > 0.3)."""
+    closest = closest_point(model.means.detach().double().numpy(), axes_of(task))
+    return float(1 - curvature(model, task, closest)["ok"].mean())
 
 
 # --------------------------------------------------------------------------- operator
 
 
 def ideal_surfels(
-    axes, count: int, seed: int, tilt_deg: float = 0.0, shift: float = 0.0
+    axes,
+    count: int,
+    seed: int,
+    tilt_deg: float = 0.0,
+    shift: float = 0.0,
+    size_spread: float = 0.0,
 ) -> Gaussians3D:
     """Surfels at area-uniform surface samples, frame from the analytic normal, tangent sigma
-    0.75 sqrt(A/N) (A from the render icosphere), opacity 0.9; optionally every normal tilted by
-    ``tilt_deg`` about a random tangent axis and every centre moved by ``-shift`` along it."""
+    0.75 sqrt(A/N) (A from the render icosphere) times ``exp(size_spread z)``, z ~ N(0, 1) per
+    surfel, opacity 0.9; optionally every normal tilted by ``tilt_deg`` about a random tangent
+    axis and every centre moved by ``-shift`` along it."""
     import math
 
     import trimesh
@@ -393,38 +439,56 @@ def ideal_surfels(
         t1 /= np.linalg.norm(t1, axis=1, keepdims=True)
         return t1, np.cross(normal, t1)
 
+    rng = np.random.default_rng(seed + 1)
     t1, t2 = frame(n)
     if tilt_deg:
-        phi = np.random.default_rng(seed + 1).uniform(0, 2 * np.pi, count)[:, None]
+        phi = rng.uniform(0, 2 * np.pi, count)[:, None]
         axis = np.cos(phi) * t1 + np.sin(phi) * t2
         angle = math.radians(tilt_deg)
         n = math.cos(angle) * n + math.sin(angle) * np.cross(axis, n)
         t1, t2 = frame(n)
     sigma = 0.75 * math.sqrt(float(mesh.area) / count)
+    log_sigma = math.log(sigma) + size_spread * rng.standard_normal(count)
+    log_scales = np.stack([log_sigma, log_sigma, np.full(count, -np.inf)], 1)
     return Gaussians3D(
         torch.tensor(centres, dtype=torch.float32),
         rotmat_to_quat(torch.tensor(np.stack([t1, t2, n], 2), dtype=torch.float32)),
-        torch.tensor([math.log(sigma)] * 2 + [-math.inf]).expand(count, 3).clone(),
+        torch.tensor(log_scales, dtype=torch.float32),
         torch.full((count,), 0.9),
         torch.zeros(count, 1, 3),
     )
 
 
 COMPANION_ADAPTER = Path(__file__).resolve().parent / "analytic_operator_companion.py"
+EXIT_STATUS = {3: "rss_watchdog"}
 
 
-def spectrum(task: dict, ply: Path, out: Path) -> dict:
-    """Companion operator on one PLY (fresh process), compared with ``source/reference.json``:
-    relative errors of lambda_1..lambda_10, raw and area-normalised (lambda * area / area_ref)."""
+def spectrum(task: dict, ply: Path, out: Path, flat: bool = False) -> dict:
+    """Companion operator (v2, or v2flat) on one PLY in a fresh process with a hard timeout,
+    compared with ``source/reference.json``: relative errors of lambda_1..lambda_10, raw and
+    area-normalised (lambda * area / area_ref). Every exit path yields a status."""
     import subprocess
+    import time
 
     guard = task["pilot"]["operator_guard_minutes"]
     command = [str(v21.COMPANION_PYTHON), str(COMPANION_ADAPTER), str(ply)]
-    command += [str(a) for a in axes_of(task)] + [str(guard), str(out)]
+    command += [str(a) for a in axes_of(task)] + [str(guard), str(out)] + (["flat"] if flat else [])
+    started = time.time()
     with out.with_suffix(".log").open("w") as stream:
-        code = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT).returncode
-    result = v1.read_json(out) if out.exists() else {"status": f"no output (exit {code})"}
-    result["exit_code"] = code
+        try:
+            code = subprocess.run(
+                command, stdout=stream, stderr=subprocess.STDOUT, timeout=guard * 60 + 600
+            ).returncode
+        except subprocess.TimeoutExpired:
+            code = None
+    if out.exists():
+        result = v1.read_json(out)
+    else:
+        status = (
+            "killed_timeout" if code is None else EXIT_STATUS.get(code, f"no output (exit {code})")
+        )
+        result = {"status": status, "peak_rss_bytes": None}
+    result.update(exit_code=code, caller_wall_s=time.time() - started)
     if result.get("status") == "valid":
         reference = v1.read_json(v1.frame(task) / "source/reference.json")
         ref = np.asarray(reference["eigenvalues"][1:11])
@@ -448,87 +512,214 @@ def operator(task: dict, run: Path, cells: list) -> None:
 
 
 def calibrate(task: dict, run: Path) -> None:
-    """Instrument calibration on ideal surfels (frozen grid in task['pilot']['calibration'])."""
+    """Instrument calibration on ideal surfels (frozen rows in task['pilot']['calibration']).
+    Coverage samples use their own seed (a shared seed puts sample points on surfel centres)."""
     v1.access_guard(task, "evaluate")
     spec = task["pilot"]["calibration"]
     axes = axes_of(task)
     rows = []
-    for count in spec["counts"]:
-        for tilt in spec["tilts_deg"]:
-            name = f"ideal_n{count}_tilt{tilt:g}"
-            model = ideal_surfels(axes, count, seed=spec["seed"], tilt_deg=tilt)
-            directory = run / "calibration" / name
-            directory.mkdir(parents=True)
-            model.save_ply(directory / "gaussians.ply")
-            frozen = {
-                "h0": mean_neighbour_distance(model.means),
-                "cohort": torch.ones(model.n, dtype=torch.bool),
-            }
-            geometry = analytic_geometry(model, frozen, task, spec["seed"])
-            operator_result = spectrum(
-                task, directory / "gaussians.ply", directory / "operator.json"
-            )
-            rows.append(
-                {
-                    "name": name,
-                    "count": count,
-                    "tilt_deg": tilt,
-                    "geometry": geometry,
-                    "operator_status": operator_result["status"],
-                }
-            )
-            print(f"calibration {name}: {operator_result['status']}", flush=True)
-    v1.write_json(run / "calibration.json", {"rows": rows})
+    for row in spec["rows"]:
+        model = ideal_surfels(
+            axes,
+            row["count"],
+            spec["seed"],
+            row.get("tilt_deg", 0.0),
+            size_spread=row.get("size_spread", 0.0),
+        )
+        directory = run / "calibration" / row["name"]
+        directory.mkdir(parents=True)
+        model.save_ply(directory / "gaussians.ply")
+        frozen = {
+            "h0": mean_neighbour_distance(model.means),
+            "cohort": torch.ones(model.n, dtype=torch.bool),
+        }
+        geometry = analytic_geometry(model, frozen, task, spec["coverage_seed"])
+        result = spectrum(
+            task, directory / "gaussians.ply", directory / "operator.json", row.get("flat", False)
+        )
+        rows.append({**row, "geometry": geometry, "operator": result})
+        print(f"calibration {row['name']}: {result['status']}", flush=True)
+    by_name = {row["name"]: row for row in rows}
+    rule = spec["instrument_rule"]
+    exact, tilted = by_name[rule["exact_row"]]["operator"], by_name[rule["tilted_row"]]["operator"]
+    passed = (
+        exact.get("status") == "valid"
+        and exact["max_abs_rel_error"] <= rule["exact_max_abs_rel_error_max"]
+        and tilted.get("status") == "valid"
+        and tilted["max_abs_rel_error"] >= rule["tilt_factor_min"] * exact["max_abs_rel_error"]
+    )
+    v1.write_json(run / "calibration.json", {"rows": rows, "rule": rule, "instrument_pass": passed})
+
+
+# --------------------------------------------------------------------------- pilot orchestration
+
+
+def surprises(task: dict, run: Path, cells: list, stage: str) -> list[str]:
+    """Frozen surprise triggers (task['pilot']['surprise']); any trigger stops the plan."""
+    rule = task["pilot"]["surprise"]
+    found = []
+    for condition, seed in cells:
+        output = run / "cells" / condition / str(seed)
+        if stage == "evaluate":
+            mean_ = v1.read_json(output / "evaluation.json")["mean"]
+            if not _le(mean_["normal_angle_median"], rule["normal_angle_median_max"]):
+                found.append(f"{condition}/{seed}: normal median {mean_['normal_angle_median']}")
+            if not mean_["heldout_psnr"] >= rule["heldout_psnr_min"]:
+                found.append(f"{condition}/{seed}: base not learned (PSNR {mean_['heldout_psnr']})")
+            if not mean_["heldout_silhouette_iou"] >= rule["heldout_silhouette_iou_min"]:
+                found.append(
+                    f"{condition}/{seed}: silhouette IoU {mean_['heldout_silhouette_iou']}"
+                )
+        else:
+            result = v1.read_json(output / "operator.json")
+            rss = result.get("peak_rss_bytes")
+            if result["status"] == "invalid":
+                found.append(f"{condition}/{seed}: operator structural gate G15a failed")
+            if result["status"] in ("memory", "rss_watchdog") or (
+                rss is not None and rss > rule["operator_rss_max_bytes"]
+            ):
+                found.append(f"{condition}/{seed}: operator memory {result['status']} rss {rss}")
+            if result["status"] in ("error", "killed_timeout") or result["status"].startswith(
+                "no "
+            ):
+                found.append(f"{condition}/{seed}: operator {result['status']}")
+    v1.write_json(run / f"surprises_{stage}.json", {"stage": stage, "triggers": found})
+    return found
+
+
+def record(path: Path, task: dict) -> dict:
+    """Start/end record: both commits and worktree states, data seals, GPU occupancy."""
+    import subprocess
+
+    def git(repo, *args):
+        return subprocess.run(
+            ["git", "-C", str(repo), *args], capture_output=True, text=True
+        ).stdout
+
+    gpu = subprocess.run(
+        ["nvidia-smi", "--query-gpu=memory.used,utilization.gpu", "--format=csv,noheader"],
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    payload = {
+        "repository_head": git(v21.ROOT, "rev-parse", "HEAD").strip(),
+        "repository_dirty": git(v21.ROOT, "status", "--porcelain", "--untracked-files=no"),
+        "companion_head": git(v21.COMPANION, "rev-parse", "HEAD").strip(),
+        "companion_dirty": git(v21.COMPANION, "status", "--porcelain", "--untracked-files=no"),
+        "data_guard": v1.data_guard(task),
+        "gpu": gpu,
+    }
+    v1.write_json(path, payload)
+    return payload
 
 
 def pilot_main(task_path: Path, task: dict) -> None:
-    """Pilot / calibration mode (P3): frozen schedule, cells from task['pilot'], .scratch only."""
+    """Pilot / calibration mode (P3), one surface per invocation, writes below .scratch/ only.
+
+    ``pilot`` orchestrates, each phase a fresh process with a hard timeout:
+    start record -> calibrate -> teacher (fits truncated at 7500, teacher-eval, go rule) ->
+    pilot fits -> evaluate -> surprise check -> operator -> surprise check -> repeat fit ->
+    evaluate -> check -> operator -> check -> end record. A trigger or a failed phase stops.
+    """
     import argparse
+    import datetime as dt
+    import subprocess
 
     parser = argparse.ArgumentParser()
     commands = ("pilot", "prepare", "initialize", "fit", "evaluate", "operator", "calibrate")
-    parser.add_argument("command", choices=commands)
+    parser.add_argument("command", choices=(*commands, "teacher-eval"))
     parser.add_argument("--task", type=Path, required=True)
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--condition", choices=CONDITIONS)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--pilot", action="store_true")
-    parser.add_argument("--repeat", action="store_true", help="the repeat cells (run-to-run floor)")
+    parser.add_argument("--stage", choices=("teacher", "pilot", "repeat"))
     args = parser.parse_args()
     torch.set_num_threads(2)
-    run = args.run_dir.resolve()
-    if not run.is_relative_to(v21.ROOT / ".scratch"):
+    root = args.run_dir.resolve()
+    if not root.is_relative_to(v21.ROOT / ".scratch"):
         raise ValueError("pilot runs write below .scratch/ only")
-    v21.SMOKE = {"mode": "pilot"}
-    cells = task["pilot"]["repeat_cells" if args.repeat else "cells"]
-    flags = ["--pilot", "--repeat"] if args.repeat else ["--pilot"]
-    if args.command == "pilot":
-        v21.preflight(task_path, run, flags, cells, ["evaluate"])
-        for phase in (["operator"], [] if args.repeat else ["calibrate"]):
-            if phase:
-                command = [sys.executable, __file__, *phase, "--task", str(task_path)]
-                subprocess_run(command + ["--run-dir", str(run), *flags])
-    elif args.command == "prepare":
-        v1.prepare(task, run)
-    elif args.command == "initialize":
-        v21.initialize(task, run)
-    elif args.command == "fit":
-        if [args.condition, args.seed] not in cells:
-            parser.error("fit cell is not in the frozen pilot cells")
-        v21.fit(task, run, args.condition, args.seed)
-    elif args.command == "evaluate":
-        evaluate(task, run, cells)
-    elif args.command == "operator":
-        operator(task, run, cells)
-    elif args.command == "calibrate":
-        calibrate(task, run)
+    spec = task["pilot"]
+    cells = {
+        "teacher": spec["teacher_cells"],
+        "pilot": spec["cells"],
+        "repeat": spec["repeat_cells"],
+    }
+    v21.SMOKE = {"mode": "teacher" if args.stage == "teacher" else "pilot"}
+    if args.command != "pilot":
+        run = root
+        stage_cells = cells[args.stage] if args.stage else []
+        if args.command == "prepare":
+            v1.prepare(task, run)
+        elif args.command == "initialize":
+            v21.initialize(task, run)
+        elif args.command == "fit":
+            if [args.condition, args.seed] not in stage_cells:
+                parser.error("fit cell is not in the frozen cells of this stage")
+            v21.fit(task, run, args.condition, args.seed)
+        elif args.command == "evaluate":
+            evaluate(task, run, stage_cells)
+        elif args.command == "teacher-eval":
+            teacher(task, run, stage_cells)
+        elif args.command == "operator":
+            operator(task, run, stage_cells)
+        elif args.command == "calibrate":
+            calibrate(task, run)
+        return
 
+    if root.exists():
+        raise ValueError(f"{root} exists; pilot runs never overwrite")
+    root.mkdir(parents=True)
+    timeouts = spec["timeouts_seconds"]
+    start = record(root / "start_record.json", task)
+    if start["repository_dirty"] or start["companion_dirty"]:
+        raise RuntimeError("pilot runs start from clean worktrees (tracked files)")
 
-def subprocess_run(command: list[str]) -> None:
-    import subprocess
+    def phase(run: Path, command: str, stage: str | None = None, cell=None) -> None:
+        argv = [sys.executable, __file__, command, "--task", str(task_path), "--run-dir", str(run)]
+        argv += ["--pilot"] + (["--stage", stage] if stage else [])
+        if cell is not None:
+            argv += ["--condition", cell[0], "--seed", str(cell[1])]
+        print(f"{run.name}: {command} {cell or ''}", flush=True)
+        subprocess.run(argv, cwd=v21.ROOT, check=True, timeout=timeouts[command])
 
-    print(" ".join(command[2:3]), flush=True)
-    subprocess.run(command, cwd=v21.ROOT, check=True)
+    def stage_dir(name: str) -> Path:
+        run = root / name
+        run.mkdir()
+        v1.write_json(
+            run / "task.lock.json",
+            {"preflight": True, "started_at_utc": dt.datetime.now(dt.timezone.utc).isoformat()},
+        )
+        return run
+
+    def stop_if(found: list[str]) -> None:
+        if found:
+            v1.write_json(root / "stopped.json", {"triggers": found})
+            raise SystemExit(f"surprise triggers, plan stopped: {found}")
+
+    phase(stage_dir("calibration"), "calibrate")
+    run = stage_dir("teacher")
+    for command in ("prepare", "initialize"):
+        phase(run, command, "teacher")
+    for cell in cells["teacher"]:
+        phase(run, "fit", "teacher", cell)
+    phase(run, "teacher-eval", "teacher")
+    for name in ("pilot", "repeat"):
+        run = stage_dir(name)
+        for command in ("prepare", "initialize"):
+            phase(run, command, name)
+        for cell in cells[name]:
+            phase(run, "fit", name, cell)
+        phase(run, "evaluate", name)
+        stop_if(surprises(task, run, cells[name], "evaluate"))
+        phase(run, "operator", name)
+        stop_if(surprises(task, run, cells[name], "operator"))
+    end = record(root / "end_record.json", task)
+    if (end["repository_head"], end["companion_head"]) != (
+        start["repository_head"],
+        start["companion_head"],
+    ):
+        raise RuntimeError("a commit changed during the pilot")
 
 
 # --------------------------------------------------------------------------- wiring
@@ -542,11 +733,10 @@ def main() -> None:
     v21.CONDITIONS = CONDITIONS
     v21.GEOMETRY = GEOMETRY
     v21.SMOKE_CELLS = [["base", 9561], ["jet1", 9561], ["jet2", 9561]]
-    v21.TEACHER_CELLS = [["base", 9561]]
     v21.check_protocol_tables = check_protocol_tables
     v21.cell_setup = cell_setup
     v21.evaluate = evaluate
-    v21.teacher = teacher
+    v21.teacher = None  # the analytic teacher runs through the pilot mode
     v21.mesh_geometry = None  # cat-only; must never be reached
     v21.operator = None  # cat-only; the analytic spectrum runs through the pilot mode
     v21.publish = None  # official runs need the analytic publish step (P4)

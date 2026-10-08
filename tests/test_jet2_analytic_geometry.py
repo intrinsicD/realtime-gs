@@ -96,3 +96,9 @@ def test_effective_config_records_the_executed_prior_spec():
     recorded = task["field_prior_configs"]["jet2"]
     assert h0_step == 300 and prior.start == 300 and recorded["start"] == 300
     assert recorded["log_every"] == 100 and recorded["weight"] == 0.1
+
+
+def test_surface_samples_are_area_uniform():
+    # sphere: the cap z > 0.5 holds a quarter of the area
+    x = driver.surface_samples((1.0, 1.0, 1.0), 40000, seed=3)
+    assert abs((x[:, 2] > 0.5).mean() - 0.25) < 0.01

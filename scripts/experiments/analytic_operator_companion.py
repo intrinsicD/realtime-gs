@@ -1,20 +1,25 @@
 """LBO spectrum of a fitted splat PLY with the SplatDiffuseLBO operator (runs in the companion env).
 
     ~/miniconda3/bin/python3.12 scripts/experiments/analytic_operator_companion.py \
-        <gaussians.ply> <a1> <a2> <a3> <guard_minutes> <out.json>
+        <gaussians.ply> <a1> <a2> <a3> <guard_minutes> <out.json> [flat]
 
-The companion's §16 operator on the opacity > 0.3 subset: ``splat_lbo_scene.splatset`` widths
-(``σ_n = max(σ_min, sqrt(σ_t1 σ_t2)/50)``, i.e. ``sqrt(σ_t1 σ_t2)/50`` for 2DGS surfels), the
-companion estimator ``shape_estimated`` for the osculating splats, numba sparse assembly with
+The companion's §16 operator, configuration **v2** (§16.3, the companion's rule for trained
+splats), on the opacity > 0.3 subset: ``splat_lbo_scene.splatset`` widths
+(``σ_n = max(σ_min, sqrt(σ_t1 σ_t2)/50)``, i.e. ``sqrt(σ_t1 σ_t2)/50`` for 2DGS surfels), trial
+width ``σ_χ,i = 0.75 h_i`` (h_i = mean distance to the 6 nearest centres), the companion
+estimator ``shape_estimated`` with ``S_i = 0`` where ``|S_i| σ_t1,i > 1`` (``flat``: ``S ≡ 0``,
+the companion's v2flat control), numba sparse assembly with
 ``measure="closed"`` (``splat_lbo_measure_v3.NUMBA``), zero-row removal, ``mcheck`` / shift-invert
 ``eig`` (λ_0..λ_31) / ``structure`` (gate G15a), the reduced solve as report-only when
 cond(M) > 1e13, and per-mode n90 (DOFs carrying 90 % of vᵀMv) as the localisation diagnostic.
 Built from the companion's functions, not ``splat_lbo_cat.run`` (no K/M cache, no cat reference).
 Normals are oriented by the analytic outward gradient ``x/a^2`` instead of Hoppe propagation.
 
-Status in the JSON: ``valid`` (exit 0), ``invalid`` (a structural gate failed, exit 1),
-``timeout`` (whole-process wall guard, exit 4; unevaluated, not failed). RSS above the companion's
-20 GB watchdog aborts with exit 3 and no JSON.
+Status in the JSON, always with ``wall_s`` and ``peak_rss_bytes``: ``valid`` (gate G15a passed,
+exit 0), ``invalid`` (G15a failed, exit 1), ``timeout`` (assembly deadline or whole-process wall
+guard, exit 4), ``memory`` (the companion's 16 GB assembly limit, exit 5), ``error`` (any other
+exception, exit 6). ``timeout`` and ``memory`` are unevaluated, not failed. RSS above the
+companion's 20 GB watchdog aborts with exit 3 and no JSON (the caller records it).
 """
 
 from __future__ import annotations
@@ -28,6 +33,8 @@ from pathlib import Path
 
 COMPANION = Path.home() / "Documents/SplatDiffuseLBO"
 ARGS = [str(Path(a).resolve()) if i in (0, 5) else a for i, a in enumerate(sys.argv[1:])]
+FLAT = ARGS[6:] == ["flat"]
+ARGS = ARGS[:6]
 sys.path.insert(0, str(COMPANION))
 os.chdir(COMPANION)
 
@@ -51,10 +58,24 @@ def n90(K, M, lam, V) -> list[int]:
 
 def main(ply: str, axes: list[float], guard_min: float, out: str) -> int:
     started = time.time()
-    base = {"ply": ply, "axes": axes, "guard_minutes": guard_min, "operator": CAT.V.NUMBA}
+    base = {
+        "ply": ply,
+        "axes": axes,
+        "guard_minutes": guard_min,
+        "operator": CAT.V.NUMBA,
+        "configuration": "v2flat" if FLAT else "v2",
+    }
 
     def expire():
-        write(out, {**base, "status": "timeout", "wall_s": time.time() - started})
+        write(
+            out,
+            {
+                **base,
+                "status": "timeout",
+                "wall_s": time.time() - started,
+                "peak_rss_bytes": int(CAT.rss()),
+            },
+        )
         os._exit(4)
 
     timer = threading.Timer(guard_min * 60, expire)
@@ -68,7 +89,13 @@ def main(ply: str, axes: list[float], guard_min: float, out: str) -> int:
     flip = (S["nu"] * outward).sum(1) < 0
     S["nu"][flip] *= -1
     S["e2"] = np.cross(S["nu"], S["e1"])
+    S["sx"] = 0.75 * S["h"]  # §16.3 (1): trial PU from the centre layout
     shape = CAT.C.shape_estimated(S)
+    validity = CAT.S3.shape_norm(shape) * S["s1"]
+    shape[validity > 1] = 0.0  # §16.3 (2): the 2-jet only where it is a jet
+    if FLAT:
+        shape[:] = 0.0
+    base["jet_invalid_fraction"] = float(np.mean(validity > 1))
     w = S["w"]
     t = time.time()
     K, M, mass, _, _ = CAT.S3.assemble(
@@ -135,4 +162,21 @@ def main(ply: str, axes: list[float], guard_min: float, out: str) -> int:
 if __name__ == "__main__":
     if len(ARGS) != 6:
         raise SystemExit(__doc__)
-    sys.exit(main(ARGS[0], [float(x) for x in ARGS[1:4]], float(ARGS[4]), ARGS[5]))
+    begun = time.time()
+    try:
+        sys.exit(main(ARGS[0], [float(x) for x in ARGS[1:4]], float(ARGS[4]), ARGS[5]))
+    except (TimeoutError, MemoryError, Exception) as error:  # noqa: BLE001 - every exit path reports
+        kind = {TimeoutError: ("timeout", 4), MemoryError: ("memory", 5)}.get(
+            type(error), ("error", 6)
+        )
+        write(
+            ARGS[5],
+            {
+                "ply": ARGS[0],
+                "status": kind[0],
+                "error": repr(error),
+                "wall_s": time.time() - begun,
+                "peak_rss_bytes": int(CAT.rss()),
+            },
+        )
+        sys.exit(kind[1])

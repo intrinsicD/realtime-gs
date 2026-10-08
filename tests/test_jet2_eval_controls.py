@@ -17,11 +17,9 @@ import math
 import sys
 from pathlib import Path
 
-import numpy as np
 import pytest
 import torch
 
-from rtgs.core.gaussians3d import Gaussians3D, rotmat_to_quat
 from rtgs.optim.jet_prior import mean_neighbour_distance
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/experiments"))
@@ -32,33 +30,8 @@ TASK_PRIOR = {"jet2": {"radius": 3.0, "min_mass": 0.5, "min_conditioning": 0.02}
 
 
 def _ideal(surface: str, tilt_deg: float = 0.0, shift: float = 0.0, seed: int = 11):
-    axes, area = SURFACES[surface]
-    x = driver.surface_samples(axes, N, seed=seed)
-    n, _ = driver.surface_frame(x, axes)
-    helper = np.where(np.abs(n[:, :1]) < 0.9, [[1.0, 0, 0]], [[0, 1.0, 0]])
-    t1 = np.cross(n, helper)
-    t1 /= np.linalg.norm(t1, axis=1, keepdims=True)
-    t2 = np.cross(n, t1)
-    if tilt_deg:
-        phi = np.random.default_rng(seed + 1).uniform(0, 2 * np.pi, N)[:, None]
-        axis = np.cos(phi) * t1 + np.sin(phi) * t2
-        a = math.radians(tilt_deg)
-        n = math.cos(a) * n + math.sin(a) * np.cross(axis, n)
-        t1 = np.cross(n, helper)
-        t1 /= np.linalg.norm(t1, axis=1, keepdims=True)
-        t2 = np.cross(n, t1)
-    centres = x - shift * driver.surface_frame(x, axes)[0]
-    rot = torch.tensor(np.stack([t1, t2, n], 2), dtype=torch.float32)
-    sigma = 0.75 * math.sqrt(area / N)
-    log_scales = torch.tensor([math.log(sigma)] * 2 + [-math.inf]).expand(N, 3).clone()
-    model = Gaussians3D(
-        torch.tensor(centres, dtype=torch.float32),
-        rotmat_to_quat(rot),
-        log_scales,
-        torch.full((N,), 0.9),
-        torch.zeros(N, 1, 3),
-    )
-    return model, axes
+    axes, _ = SURFACES[surface]
+    return driver.ideal_surfels(axes, N, seed, tilt_deg=tilt_deg, shift=shift), axes
 
 
 def _evaluate(model, axes, cohort=None):

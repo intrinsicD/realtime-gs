@@ -1301,7 +1301,17 @@
   }
  },
  "pilot": {
-  "purpose": "P3 pilot/calibration packet: teacher check of the Jet2Prior estimator at activation, base seed spread and run-to-run floor, operator calibration on ideal surfels and operator cost/baseline on base fits. Not a test of the prior.",
+  "purpose": "P3 pilot/calibration packet (experiments/reviews/20261008_jet2_prior_2dgs_analytic_P3/): instrument calibration on ideal surfels, teacher check of the Jet2Prior estimator at activation (two seeds), base seed spread and one run-to-run repeat, operator cost and baseline on base fits. Not a test of the prior.",
+  "teacher_cells": [
+   [
+    "base",
+    9561
+   ],
+   [
+    "base",
+    9562
+   ]
+  ],
   "cells": [
    [
     "base",
@@ -1322,22 +1332,91 @@
     9561
    ]
   ],
-  "teacher_cell": [
-   "base",
-   9561
-  ],
+  "teacher_go_rule": {
+   "curvature_rel_error_median_max": 0.5,
+   "estimator_masked_fraction_max": 0.5,
+   "n_curvature_min": 1000,
+   "collapse_fraction_at_activation_max": 0.05,
+   "scope": "every teacher seed; opacity > 0.3 splats; missing values never pass"
+  },
+  "surprise": {
+   "normal_angle_median_max": 15.0,
+   "heldout_psnr_min": 25.0,
+   "heldout_silhouette_iou_min": 0.95,
+   "operator_rss_max_bytes": 16000000000.0,
+   "operator_statuses_that_stop": [
+    "invalid",
+    "memory",
+    "rss_watchdog",
+    "error",
+    "killed_timeout",
+    "no output"
+   ]
+  },
   "operator_guard_minutes": 60,
+  "timeouts_seconds": {
+   "calibrate": 14400,
+   "prepare": 600,
+   "initialize": 600,
+   "fit": 3600,
+   "teacher-eval": 1800,
+   "evaluate": 3600,
+   "operator": 16800
+  },
   "calibration": {
-   "counts": [
-    4000,
-    15000
+   "seed": 11,
+   "coverage_seed": 1011,
+   "rows": [
+    {
+     "name": "n4000_tilt0",
+     "count": 4000,
+     "tilt_deg": 0
+    },
+    {
+     "name": "n4000_tilt5",
+     "count": 4000,
+     "tilt_deg": 5
+    },
+    {
+     "name": "n4000_tilt10",
+     "count": 4000,
+     "tilt_deg": 10
+    },
+    {
+     "name": "n15000_tilt0",
+     "count": 15000,
+     "tilt_deg": 0
+    },
+    {
+     "name": "n15000_tilt5",
+     "count": 15000,
+     "tilt_deg": 5
+    },
+    {
+     "name": "n15000_tilt10",
+     "count": 15000,
+     "tilt_deg": 10
+    },
+    {
+     "name": "n15000_tilt0_spread0.5",
+     "count": 15000,
+     "tilt_deg": 0,
+     "size_spread": 0.5
+    },
+    {
+     "name": "n15000_tilt0_flat",
+     "count": 15000,
+     "tilt_deg": 0,
+     "flat": true
+    }
    ],
-   "tilts_deg": [
-    0,
-    5,
-    10
-   ],
-   "seed": 11
+   "instrument_rule": {
+    "exact_row": "n15000_tilt0",
+    "tilted_row": "n15000_tilt10",
+    "exact_max_abs_rel_error_max": 0.03,
+    "tilt_factor_min": 2.0,
+    "field": "max_abs_rel_error (raw, lambda_1..lambda_10)"
+   }
   }
  }
 }
