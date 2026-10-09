@@ -1,0 +1,63 @@
+{
+ "schema_version": 1,
+ "surface": "sphere",
+ "implicit": "F(x) = sum_k x_k^2 / a_k^2 = 1, centred at the origin",
+ "axes": [
+  1.0,
+  1.0,
+  1.0
+ ],
+ "render_mesh": "trimesh icosphere subdivision 6 scaled by axes, analytic vertex normals",
+ "colour": "procedural_colour(unit-sphere parameter), see source",
+ "renderer": "pyrender 0.1.45 (EGL offscreen)",
+ "bbox_diagonal": 3.4641016151377544,
+ "camera_radius": 7.62102355330306,
+ "views": 160,
+ "size": [
+  512,
+  512
+ ],
+ "yfov_rad": 0.5,
+ "focal_px": 1002.5772453493606,
+ "lights": [
+  {
+   "direction": [
+    -0.4,
+    -0.3,
+    -1.0
+   ],
+   "intensity": 2.0
+  },
+  {
+   "direction": [
+    1.0,
+    0.6,
+    -0.2
+   ],
+   "intensity": 1.2
+  },
+  {
+   "direction": [
+    -0.6,
+    1.0,
+    0.5
+   ],
+   "intensity": 0.8
+  }
+ ],
+ "ambient": 0.25,
+ "background": [
+  1.0,
+  1.0,
+  1.0
+ ],
+ "mask_rule": "depth > 0",
+ "rgb_encoding": "JPEG quality 100, 4:4:4",
+ "mask_coverage": {
+  "min": 0.21102523803710938,
+  "max": 0.2110443115234375
+ },
+ "vertex_on_silhouette_fraction_min": 1.0,
+ "source_code_sha256": "21af18d2ceb7ad592b491139c9c73d48273199d4ed31d97acd5db75aadf8914f",
+ "renderer_module_sha256": "e7b810d9f10aec586e6e1ff870de09b9784fd66e647057fe78cb912020a7a6fe"
+}

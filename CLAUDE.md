@@ -15,10 +15,16 @@ images ──► [1] image2gs: fit compact 2D gaussians per image (native or Str
               D. lift.hybrid   — aligned depth seed + bounded-ray photometric correction
               E. lift.field    — image-free compact-field proxy refit + topology research path
        ──► [3] optim: standard RGB-backed 3DGS, or the separate compact-only fixed-topology
-                      carrier path (2D fields only; no SceneData/image handover)
+                      carrier path (2D fields only; no SceneData/image handover);
+                      opt-in: 2DGS surfels (--rasterizer gsplat-2dgs, --depth-distortion,
+                      --depth-scale, --normal-consistency) and the jet/field priors
+                      (--jet-lambda, --jet-prior field, --jet-start, --jet-terms)
 ```
 
 ## Hard rules (do not break these)
+
+`LESSONS.md` (pre-flight check) is read before registering any task and its checklist is
+verified in the protocol-review packet before the digest is approved.
 
 1. **CPU-first testability.** No module may require CUDA at import time. `gsplat`,
    `transformers`, and any GPU-only dependency are imported lazily inside functions and
@@ -114,14 +120,20 @@ src/rtgs/
                surfel_init (cover-consistent covariance/opacity post-process),
                surfel_lift (ADR-XXXX closed-form covariance/opacity/colour), field_* and merge
   depth/       DepthBackend protocol, mock (tests), depth_anything (lazy), align (scale/shift)
-  render/      dense Rasterizer (torch CPU ref, gsplat CUDA); sparse PointRasterizer (torch CPU)
+  render/      dense Rasterizer (torch CPU ref, gsplat CUDA, gsplat-2dgs CUDA surfels with
+               normal/depth-distortion maps); sparse PointRasterizer (torch CPU)
   optim/       stage 3: RGB trainer.py; RGB-free fixed-topology compact_trainer.py;
                CPU classic density.py; CUDA gsplat strategies.py; active_set.py (opt-in
                priority-ranked update masking); ADR-YYYY init_density.py
                (three-channel appearance-preserving growth) + init_trust.py (trust schedule);
                carrier_schedule.py (ADR-002 compact fixed-topology two-phase maturation +
                strict fitting-view projected-center containment); silhouette_relocation.py (RTGS-026 opt-in
-               all-mask visual-hull floater relocation via parameter_step_callback)
+               all-mask visual-hull floater relocation via parameter_step_callback);
+               jet_prior.py (opt-in jet-consistency normal/centre prior, --jet-lambda; v2.1
+               FieldPrior, --jet-prior field --jet-start --jet-terms); jet2_prior.py (v3 2-jet
+               prior on a frozen clone-invariant neighbourhood, driver-only; plan
+               docs/TASK_jet2_synthetic_sphere_ellipsoid.md); 2DGS regularizers via
+               --rasterizer gsplat-2dgs --depth-distortion --depth-scale --normal-consistency
   data/        scenes/loaders plus compact_views.py capped view bundles; field_inputs.py
                explicit compact train/heldout seam; field_targets.py fast indexed/CUDA decode of
                compact views into dense photometric targets (RTGS-025 main path); reconstruction_inputs.py fixed-topology seam

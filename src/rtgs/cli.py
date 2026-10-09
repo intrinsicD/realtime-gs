@@ -367,7 +367,11 @@ def _cmd_refine(args: argparse.Namespace) -> int:
         print(f"live viewer: {viewer.url}")
         viewer.publish(init, step=0)
     refined, history = Trainer(cfg).train(
-        scene, init, checkpoint_callback=viewer.checkpoint_callback if viewer else None
+        scene,
+        init,
+        checkpoint_callback=viewer.checkpoint_callback if viewer else None,
+        jet_prior=_jet_prior(args),
+        surfel_regularization=_surfel_regularization(args),
     )
     metrics = _split_metrics(scene, refined, cfg)
     print(json.dumps({"metrics": metrics, "training": _history_summary(history)}, indent=2))
@@ -433,7 +437,13 @@ def _cmd_run(args: argparse.Namespace) -> int:
         seed=args.seed,
     )
     fits = None if args.fits is None else _load_2d_fits(Path(args.fits), scene, args.fit_format)
-    result = run_pipeline(scene, cfg, gaussians2d=fits)
+    result = run_pipeline(
+        scene,
+        cfg,
+        gaussians2d=fits,
+        jet_prior=_jet_prior(args),
+        surfel_regularization=_surfel_regularization(args),
+    )
     print(json.dumps({"metrics": result.metrics, "timings": result.timings}, indent=2))
     if args.out:
         out = Path(args.out)
@@ -644,6 +654,26 @@ def _train_config(args: argparse.Namespace, iterations: int, cls=None):
     )
 
 
+def _jet_prior(args: argparse.Namespace):
+    if not args.jet_lambda:
+        return None
+    from rtgs.optim.jet_prior import FieldPrior, JetPrior
+
+    if args.jet_prior == "field":
+        return FieldPrior(args.jet_lambda, start=args.jet_start, terms=args.jet_terms)
+    return JetPrior(args.jet_lambda, order=args.jet_order)
+
+
+def _surfel_regularization(args: argparse.Namespace):
+    if not (args.depth_distortion or args.normal_consistency):
+        return None
+    from rtgs.render.gsplat_2dgs_backend import SurfelRegularization
+
+    return SurfelRegularization(
+        args.depth_distortion, args.normal_consistency, depth_scale=args.depth_scale
+    )
+
+
 def _split_metrics(scene, gaussians, config) -> dict:
     from rtgs.optim.trainer import Trainer
     from rtgs.render.base import get_rasterizer
@@ -740,6 +770,48 @@ def _add_training_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--mask-alpha-lambda", type=float, default=0.05)
     p.add_argument("--opacity-reg", type=float, default=None)
     p.add_argument("--scale-reg", type=float, default=None)
+    p.add_argument(
+        "--jet-lambda",
+        type=float,
+        default=0.0,
+        help="weight of the jet-consistency (Weingarten) normal/centre prior; 0 = off",
+    )
+    p.add_argument(
+        "--jet-order", type=int, choices=(1, 2), default=2, help="2 = jet prior, 1 = S=0 control"
+    )
+    p.add_argument(
+        "--jet-prior",
+        choices=("jet", "field"),
+        default="jet",
+        help="jet = v1 kNN Weingarten prior; field = v2 collapse-proof field prior (FieldPrior)",
+    )
+    p.add_argument(
+        "--jet-start", type=int, default=7500, help="first step of the field prior (h0 frozen)"
+    )
+    p.add_argument(
+        "--jet-terms",
+        choices=("normal", "normal+centre"),
+        default="normal",
+        help="field prior residuals: normal (treatment) or normal+centre (ablation)",
+    )
+    p.add_argument(
+        "--depth-distortion",
+        type=float,
+        default=0.0,
+        help="2DGS depth-distortion weight (needs --rasterizer gsplat-2dgs); 0 = off",
+    )
+    p.add_argument(
+        "--depth-scale",
+        type=float,
+        default=1.0,
+        help="scene scale dividing the 2DGS distortion (camera-depth units); 1 = raw",
+    )
+    p.add_argument(
+        "--normal-consistency",
+        type=float,
+        default=0.0,
+        help="2DGS centre-depth consistency weight (needs --rasterizer gsplat-2dgs); 0 = off",
+    )
     p.add_argument("--packed", action=argparse.BooleanOptionalAction, default=False)
     p.add_argument("--antialiased", action=argparse.BooleanOptionalAction, default=False)
     p.add_argument(

@@ -1,0 +1,9 @@
+{
+ "files": {
+  "reference.json": {
+   "sha256": "e35b48c2531281918c2982ead85733be759ced50ccce0b85eb1680862e7186ae"
+  }
+ },
+ "boundary": "Evaluation only; reconstruction never opens source/.",
+ "source_code_sha256": "7899f9ec423556733ffd8ee9f2aca2a0c1cf593ba4bd56bf18e42f7d24f3c0c5"
+}

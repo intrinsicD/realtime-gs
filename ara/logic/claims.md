@@ -1109,3 +1109,16 @@
 - **Tags**: field-supervision, sh-degree, regularization, training-resolution, training-budget, development, no-default
 - **From staging**: O184
 - **Boundary**: One previously exposed frame, one split, three seeds, six simultaneous uncorrected comparisons; every pass is a screening signal and combinations are untested. Primary-operator numbers are not comparable to earlier tasks; point-operator context is descriptive only (gsplat 1.5.3). Regularization is a capacity-plus-regularization package (26k versus 44k Gaussians, interior alpha 0.994); downscale 4 is a resolution package with about 2.7x fit wall and 2x VRAM and no cap hit; the SH and regularization arms raise outside-mask alpha by +0.0002 to +0.0004. The 30000-step arm with its own horizon also grew more Gaussians, so iteration count is not isolated; overfitting is a hypothesis (no training-view PSNR). No default, speed or generalization claim.
+
+## C54: The jet-consistency (Weingarten) prior at lambda 0.1 made trained splat normals and centres worse on TOSCA cat0, through neighbour collapse
+
+- **Statement**: In task 20261007_jet_consistency_prior_tosca_cat0 (160 pyrender views of TOSCA cat0, 128 train / 32 held-out, three paired seeds, 15000 steps), adding the detached closed-form jet-consistency term at lambda 0.1 raised the median splat-normal angle to the mesh from 14.6-15.0 deg (base) to 37.7-39.5 deg, tripled the median centre-to-surface distance (x2.89-3.14) and lowered held-out PSNR inside the mask by 2.9-3.7 dB in every seed; the first-order control (S = 0) failed the same way. The frozen PREREG rule rejects the prior. Post hoc, 64-73 % of splats in the treated models have a nearest neighbour within 0.01 mesh units (base 2 %): the loss is minimised by stacks of near-coincident copies.
+- **Status**: refuted development expectation (jet prior improves normals and shell thickness)
+- **Provenance**: ai-executed
+- **Crystallized via**: artifact-commitment
+- **Falsification criteria**: Recomputation from runs/20261007_jet_consistency_prior_tosca_cat0/comparison.json changes a per-seed sign, the task/source/data bindings fail, or an independent audit finds an implementation error in rtgs.optim.jet_prior that the sphere tests do not cover.
+- **Proof**: [`benchmarks/results/20261007_jet_consistency_prior_tosca_cat0_RESULT.json`, `benchmarks/results/20261007_jet_consistency_prior_tosca_cat0_RESULT.md`, `tests/test_jet_prior.py`]
+- **Dependencies**: []
+- **Tags**: jet-prior, geometry-regularizer, normals, synthetic, development, no-default
+- **From staging**: O185
+- **Boundary**: One synthetic object, one lambda (plus a descriptive 0.01 / 1.0 pair on one seed), this formulation (16-NN neighbourhoods with no minimum radius, detached S). It refutes this formulation, not neighbour-consistency priors in general; a neighbourhood with a minimum spatial extent is untested. The SplatDiffuseLBO operator metric was not evaluated; the audit is a self-audit.

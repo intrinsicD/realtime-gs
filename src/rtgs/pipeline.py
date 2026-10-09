@@ -102,8 +102,14 @@ def run_pipeline(
     scene: SceneData,
     config: PipelineConfig | None = None,
     gaussians2d: list[Gaussians2D] | None = None,
+    jet_prior=None,
+    surfel_regularization=None,
 ) -> PipelineResult:
-    """Run stages 1-3 on a scene. Pass precomputed ``gaussians2d`` to skip stage 1."""
+    """Run stages 1-3 on a scene. Pass precomputed ``gaussians2d`` to skip stage 1.
+
+    ``jet_prior`` and ``surfel_regularization`` are forwarded to ``Trainer.train`` (opt-in;
+    ``None`` leaves training unchanged).
+    """
     from rtgs.image2gs.fit import fit_views
     from rtgs.lift import get_lifter
     from rtgs.optim.trainer import Trainer
@@ -162,7 +168,9 @@ def run_pipeline(
     if config.refine:
         t2 = time.perf_counter()
         train_config = replace(config.train, device=str(device))
-        refined, train_history = Trainer(train_config).train(scene, init)
+        refined, train_history = Trainer(train_config).train(
+            scene, init, jet_prior=jet_prior, surfel_regularization=surfel_regularization
+        )
         _sync(device)
         timings["refine"] = time.perf_counter() - t2
         metrics["final_n_gaussians"] = refined.n

@@ -1,0 +1,60 @@
+{
+ "schema_version": 1,
+ "task_id": "20261007_jet_consistency_prior_tosca_cat0",
+ "renderer": "pyrender 0.1.45 (EGL offscreen)",
+ "mesh_units": true,
+ "centroid": [
+  1.9817650045189052e-08,
+  -3.6257901245025748,
+  48.154183301992994
+ ],
+ "bbox_diagonal": 223.5374568946427,
+ "camera_radius": 491.782405168214,
+ "views": 160,
+ "size": [
+  512,
+  512
+ ],
+ "yfov_rad": 0.5,
+ "focal_px": 1002.5772453493606,
+ "lights": [
+  {
+   "direction": [
+    -0.4,
+    -0.3,
+    -1.0
+   ],
+   "intensity": 2.0
+  },
+  {
+   "direction": [
+    1.0,
+    0.6,
+    -0.2
+   ],
+   "intensity": 1.2
+  },
+  {
+   "direction": [
+    -0.6,
+    1.0,
+    0.5
+   ],
+   "intensity": 0.8
+  }
+ ],
+ "ambient": 0.25,
+ "background": [
+  1.0,
+  1.0,
+  1.0
+ ],
+ "mask_rule": "depth > 0",
+ "rgb_encoding": "JPEG quality 100, 4:4:4",
+ "mask_coverage": {
+  "min": 0.041290283203125,
+  "max": 0.09211349487304688
+ },
+ "vertex_on_silhouette_fraction_min": 0.999247149924715,
+ "source_code_sha256": "e7b810d9f10aec586e6e1ff870de09b9784fd66e647057fe78cb912020a7a6fe"
+}

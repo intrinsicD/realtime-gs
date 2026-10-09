@@ -1,0 +1,1793 @@
+{
+  "schema_version": 1,
+  "data_slug": "tosca_cat0",
+  "input_profile": "rgb",
+  "datasets": [
+    {
+      "id": "tosca_cat0",
+      "role": "development",
+      "frame_path": "dataset/external/tosca_cat0",
+      "view_ids": [
+        "C0001",
+        "C0002",
+        "C0003",
+        "C0004",
+        "C0005",
+        "C0006",
+        "C0007",
+        "C0008",
+        "C0009",
+        "C0010",
+        "C0011",
+        "C0012",
+        "C0013",
+        "C0014",
+        "C0015",
+        "C0016",
+        "C0017",
+        "C0018",
+        "C0019",
+        "C0020",
+        "C0021",
+        "C0022",
+        "C0023",
+        "C0024",
+        "C0025",
+        "C0026",
+        "C0027",
+        "C0028",
+        "C0029",
+        "C0030",
+        "C0031",
+        "C0032",
+        "C0033",
+        "C0034",
+        "C0035",
+        "C0036",
+        "C0037",
+        "C0038",
+        "C0039",
+        "C0040",
+        "C0041",
+        "C0042",
+        "C0043",
+        "C0044",
+        "C0045",
+        "C0046",
+        "C0047",
+        "C0048",
+        "C0049",
+        "C0050",
+        "C0051",
+        "C0052",
+        "C0053",
+        "C0054",
+        "C0055",
+        "C0056",
+        "C0057",
+        "C0058",
+        "C0059",
+        "C0060",
+        "C0061",
+        "C0062",
+        "C0063",
+        "C0064",
+        "C0065",
+        "C0066",
+        "C0067",
+        "C0068",
+        "C0069",
+        "C0070",
+        "C0071",
+        "C0072",
+        "C0073",
+        "C0074",
+        "C0075",
+        "C0076",
+        "C0077",
+        "C0078",
+        "C0079",
+        "C0080",
+        "C0081",
+        "C0082",
+        "C0083",
+        "C0084",
+        "C0085",
+        "C0086",
+        "C0087",
+        "C0088",
+        "C0089",
+        "C0090",
+        "C0091",
+        "C0092",
+        "C0093",
+        "C0094",
+        "C0095",
+        "C0096",
+        "C0097",
+        "C0098",
+        "C0099",
+        "C0100",
+        "C0101",
+        "C0102",
+        "C0103",
+        "C0104",
+        "C0105",
+        "C0106",
+        "C0107",
+        "C0108",
+        "C0109",
+        "C0110",
+        "C0111",
+        "C0112",
+        "C0113",
+        "C0114",
+        "C0115",
+        "C0116",
+        "C0117",
+        "C0118",
+        "C0119",
+        "C0120",
+        "C0121",
+        "C0122",
+        "C0123",
+        "C0124",
+        "C0125",
+        "C0126",
+        "C0127",
+        "C0128",
+        "C0129",
+        "C0130",
+        "C0131",
+        "C0132",
+        "C0133",
+        "C0134",
+        "C0135",
+        "C0136",
+        "C0137",
+        "C0138",
+        "C0139",
+        "C0140",
+        "C0141",
+        "C0142",
+        "C0143",
+        "C0144",
+        "C0145",
+        "C0146",
+        "C0147",
+        "C0148",
+        "C0149",
+        "C0150",
+        "C0151",
+        "C0152",
+        "C0153",
+        "C0154",
+        "C0155",
+        "C0156",
+        "C0157",
+        "C0158",
+        "C0159",
+        "C0160"
+      ],
+      "selected_modalities": [
+        "calibration",
+        "rgb",
+        "mask"
+      ],
+      "canonical_rgb_pattern": "rgb/C*.jpg",
+      "canonical_mask_pattern": "mask/mask_C*.png"
+    }
+  ],
+  "files": [
+    {
+      "path": "dataset/external/tosca_cat0/calibration_dome.json",
+      "bytes": 115500,
+      "sha256": "9a187c3472df6207116eb7b1f48af9e7059d8cc16f1df3998ba6fe9d9156f0a9"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0001.png",
+      "bytes": 1674,
+      "sha256": "16d71f9da028eb004e683561d26f3a7877e78e836fd3e3fdc1b3cf639e030a9e"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0002.png",
+      "bytes": 2086,
+      "sha256": "777bb8aec5de70d23344f2c64fc5f7d0a13f9f439dffe001136a0fc2995d8310"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0003.png",
+      "bytes": 1688,
+      "sha256": "6c127493b2b54b20b9bfa6f3f0004d1b0d9bac7243b06dbcec1f823836051845"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0004.png",
+      "bytes": 2251,
+      "sha256": "f4e377b2ec34ba2e230b138d64bb304dadcf2986a75332905d6110eddfab3b73"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0005.png",
+      "bytes": 1374,
+      "sha256": "11577f9f117f578f75ffe1da579cd58df419808d3b9b407f27255ef6c96b93ce"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0006.png",
+      "bytes": 1901,
+      "sha256": "11b6f7d147a4c38f9de18ee72641920954b02c214d1b5b3de598a436df52f1a4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0007.png",
+      "bytes": 2060,
+      "sha256": "0b2be97f7831ee99d1b44ceba12171400ff6fa994faca2d60e45af5bf9fb4767"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0008.png",
+      "bytes": 2103,
+      "sha256": "b50d26e6f6a524df8b34306acec4adf57cf9d9d4550e4ef2a41c6966dfc3bafa"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0009.png",
+      "bytes": 1959,
+      "sha256": "14f301a4e1be9de38f83089f8967b1b99c25091726809a6857d54ecc27bdbfe4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0010.png",
+      "bytes": 2000,
+      "sha256": "dc73300469e7d2c0276d6e019d9576d0ae63532dc7956fd77137eff9a2f52186"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0011.png",
+      "bytes": 2005,
+      "sha256": "ea7d3e7ae5fa1580cedc0256c2dd65621cf30bee70f1174db3b456ad7ab54ea6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0012.png",
+      "bytes": 2027,
+      "sha256": "27159f3881d55956866d8789d0721000d0837197d85871d3029b4095838f39b2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0013.png",
+      "bytes": 1958,
+      "sha256": "9011a2d74d82a873a49264d884ef79dd080b1cb3a274947c42ba183f4e35dddd"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0014.png",
+      "bytes": 1574,
+      "sha256": "0be2821a24ae80b015a05f32187ba98b8b393749f804f16b128be83e32dd751b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0015.png",
+      "bytes": 2273,
+      "sha256": "57675517ec874bfe2e2be28f098647bf5033b11e28436abb85af88a7033455ce"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0016.png",
+      "bytes": 1604,
+      "sha256": "0b299fabfe37032f6bb1b0f9ff8f94abc77358977530b2b730313128f9e3090d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0017.png",
+      "bytes": 2324,
+      "sha256": "85f51ebe7548c35a4ecf7863a1565007412ea3ad7330392f65c011c4c07d0281"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0018.png",
+      "bytes": 1609,
+      "sha256": "184c5097fd3a520d15880e46db202f9cd6c5d26bfdded716e208445be443b5cf"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0019.png",
+      "bytes": 2156,
+      "sha256": "9292f12fbc4a7d3680a8a858e1b5bc87bfbd1d608a3d52f3651cdb0e04af5aa7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0020.png",
+      "bytes": 1605,
+      "sha256": "70c23927cc58cfa574c967f86191b1cc13376cdb2bd5a2089c1d2285e277f5b5"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0021.png",
+      "bytes": 2126,
+      "sha256": "f148c8d7370c1db9ba23bfe2468994a7f8f53652f6f27fc73a82d3bcebf93afe"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0022.png",
+      "bytes": 1760,
+      "sha256": "83b5a867af391170d9f56b3663f68b3f63578c8cf705b7e0b37e9a427d4bf591"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0023.png",
+      "bytes": 2214,
+      "sha256": "fa7e7a2dab10101347d9db953478d2d9a739a3db5970ac8a35505c8e8b76bc46"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0024.png",
+      "bytes": 1747,
+      "sha256": "0afd0d6127cc955252ee1ac1e4a9b47f5b508d18aa210af68bf7a12a288498cd"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0025.png",
+      "bytes": 2181,
+      "sha256": "09938bde470a962417749fe85e74bd60779fa78de5ce90c203a35e38ad3e7a99"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0026.png",
+      "bytes": 1780,
+      "sha256": "23e99e54c6adc391b1c39e5ce32455577adc00a7b1cff165f7dfd801629a041b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0027.png",
+      "bytes": 1878,
+      "sha256": "d7e982ecb53624c9d76e40b531e6eda0b87f7aa8f59be1b55e12786bca1c3bd6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0028.png",
+      "bytes": 2102,
+      "sha256": "d4210c7735c191ccadaf5c1b5b5c10c59fc34f72e933536a69572caa7f1239aa"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0029.png",
+      "bytes": 1871,
+      "sha256": "46ef3e08bd2d49afb6aa9e543d660e45298d95298df622d080653dd17ce263dc"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0030.png",
+      "bytes": 2228,
+      "sha256": "36974edcf6d310d961fc8b891bf5803378b66cafd9c332c1fa300ea9ad2f32d1"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0031.png",
+      "bytes": 1955,
+      "sha256": "a31c12024f42e005362f3f2854bc8f0d1632fb9608fb5f4a5e47159100a101c9"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0032.png",
+      "bytes": 2003,
+      "sha256": "b481a3fb68a8503709db77c8197394915b05e360d13562f73dffadae309570c3"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0033.png",
+      "bytes": 1632,
+      "sha256": "447cc2d32a20aefa4ccd9a5e528f2bcda9e2116063bf9c79cb43811adea61648"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0034.png",
+      "bytes": 2041,
+      "sha256": "67e647ba48926b07e830bb21468c37293693e3cbf49947ca695e3704f1b67ad1"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0035.png",
+      "bytes": 1733,
+      "sha256": "23145bf612191e2f68c2dea1e947231ccd671d4e7325d74d127df8f8876c16f3"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0036.png",
+      "bytes": 2269,
+      "sha256": "59a60c88fe3582f04948dae06107f9c4c1640ef370d77cb7919fe6880ccc2f77"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0037.png",
+      "bytes": 1275,
+      "sha256": "de4515eec1815dc015826740b305ea047563c85f88fdd121b2bc060b4df26e52"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0038.png",
+      "bytes": 2261,
+      "sha256": "af09f73afecdf62263176bb731ce4b6e867154dcb6883088166d4cac75a32aa3"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0039.png",
+      "bytes": 1765,
+      "sha256": "66a1144034dd11af13b6a94ba25783af90999efb90d27f6551a898f9330af0af"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0040.png",
+      "bytes": 2026,
+      "sha256": "db270f6b6a72e596e24804c8dd8e68b2b9a9381246c2935e8538c670f8a62934"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0041.png",
+      "bytes": 1539,
+      "sha256": "f8f9b313a964dc4bb442053be2cdcce0abb33da3bc14d4dc1e847dd3c1701baf"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0042.png",
+      "bytes": 1984,
+      "sha256": "145c9d9fb84f89b83585e0a5bf2bdd19067d11360f9b9fa47954d4e2bd452a17"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0043.png",
+      "bytes": 1984,
+      "sha256": "cdb221a87b79ebf28dd50dc9bcf8198f5ca9e6e26707d9dd9db8c934e14034be"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0044.png",
+      "bytes": 2084,
+      "sha256": "0b5bb1505350fdccf8b2f008c3973d63ec42abec45740f1eb04ee4b40b2a1fd3"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0045.png",
+      "bytes": 1720,
+      "sha256": "588e0885b15c55115e21050aea240f8e37e4c379123c09b6b12877e8f211d2f5"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0046.png",
+      "bytes": 1877,
+      "sha256": "471cd8d8e2313dbb2efb22fd3a07ae83c459c960d5bbf29537fbe3ff6a8fdbc9"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0047.png",
+      "bytes": 1882,
+      "sha256": "b26487f4420ed1a5b6c28c0d59449b1c9d3f36d3ced5dfc752ae69a351eaa357"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0048.png",
+      "bytes": 1867,
+      "sha256": "ec0c15e8ca4db7aa014b204f9cf658da07fb14666e6ea5b49f604b88b201d6f0"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0049.png",
+      "bytes": 1994,
+      "sha256": "8103d75048f8dead850a11f13ae013ac512f76c7d443f90f793eb7c4934eaa60"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0050.png",
+      "bytes": 1482,
+      "sha256": "90e2f418301639f09585d1d5865f7ddab8d1bb66658dad17c22badee507abe56"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0051.png",
+      "bytes": 2177,
+      "sha256": "e0af6c73967a7280450ea54e5a9944e4cd3d49ddd4865d82b038391f0f2c8bff"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0052.png",
+      "bytes": 1837,
+      "sha256": "4fc5eda48ac352f0ec0145d8986826d27959d1e99c210b08459955808491a7f8"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0053.png",
+      "bytes": 1891,
+      "sha256": "aaa70611964d960347785763bd8ee69a27fea117838693583b78f214c1b75604"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0054.png",
+      "bytes": 1233,
+      "sha256": "aee859288ba945abae9d33acdda8f264c6831f0adaafd496da6befb0f448d7b0"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0055.png",
+      "bytes": 1859,
+      "sha256": "c06f1082657ababed866f8f90069a7db2748b501514980dc3c1c233512496c6c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0056.png",
+      "bytes": 1757,
+      "sha256": "d1f425c325945e6f9da13d8cf42d9c460aa4996f5ee8f952e1d0b6825a2102c7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0057.png",
+      "bytes": 2092,
+      "sha256": "f8e212747c54b0bb8cc6af699e299dc767480b6cc66a10a37aa915585b87554c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0058.png",
+      "bytes": 1304,
+      "sha256": "181600634f417a32ce30f80d3fdf9ca33a886c6a6e62e16deb4f5ae9882c7b6c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0059.png",
+      "bytes": 2039,
+      "sha256": "dd0916049d98943984660637b2fd014c6247f34885a810ef9ce88d605829a22c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0060.png",
+      "bytes": 1836,
+      "sha256": "045e0cc07f51e9d270dd485e893b247150c96a6e486255178066764095e1c9e5"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0061.png",
+      "bytes": 1869,
+      "sha256": "1d1b7aa8288fe0f1d6f72bafe8d40e2cb158c003268c39028df4e616ceb3e4eb"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0062.png",
+      "bytes": 1630,
+      "sha256": "f62a69480f2e158ddfd6a3108aff45b8682f44e765262192689cce48adc44381"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0063.png",
+      "bytes": 1604,
+      "sha256": "35bcf08ddeac5a82e80a7ff49011c478ac0b6063564781bf26bddeabaa338270"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0064.png",
+      "bytes": 1847,
+      "sha256": "82070dd23acc17e89b913e9da5073f2d349929fe3e47d66a6d6672f1dae8833d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0065.png",
+      "bytes": 1818,
+      "sha256": "3ff1b49f7df745abe58013eb5debd03d4d4ef3b1df2e550f27db05f3d7bcbf1b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0066.png",
+      "bytes": 1723,
+      "sha256": "d6e1870f66a7c4ce1cdc21366a813e0d2e531827d2c32cba484ebd31b6d78493"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0067.png",
+      "bytes": 1469,
+      "sha256": "03c38e0ea67f0a7e37f62f7732865065a1b1e61fae055a2219c7881b4a40f458"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0068.png",
+      "bytes": 1878,
+      "sha256": "1aa0ccb7d1b1cba35792cd81c907e98ed540d60d6d87b22854d645ac3a4a0e50"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0069.png",
+      "bytes": 1730,
+      "sha256": "c91f550db967b0bdf4bd4315eecd7417b95850bb59e620920f5faeebfad120db"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0070.png",
+      "bytes": 1783,
+      "sha256": "6ecbb4bd934b63daccdaea1d9d653076b8d8d7c536985ed4a4e93976ab412cdb"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0071.png",
+      "bytes": 1220,
+      "sha256": "46197e5b22c15e4864ffb8a829437bb9979942ed0235c00a19117ce708f37e9a"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0072.png",
+      "bytes": 1863,
+      "sha256": "cb161b3964e10f9f7bf731b3cacc4c27412538559ed6962e25b1f0d3801186b5"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0073.png",
+      "bytes": 1706,
+      "sha256": "41939e88e7d2b7eea3baadad02c792af9c24b37bce5be0fd918bb6949e3af93a"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0074.png",
+      "bytes": 1853,
+      "sha256": "b2c126bb7c64d41f04f7fe59ae86d6c7b653229ba4ec74600300af0f517cf6b2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0075.png",
+      "bytes": 1191,
+      "sha256": "d04a57fba81d27cdf5736f5df0e5bbdfba2473a975a98a69b27078182efb96f2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0076.png",
+      "bytes": 1737,
+      "sha256": "dbe5f44066fd20f820c777f87b6fab4ee6d82525943d1974f9bfe42d3c84d774"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0077.png",
+      "bytes": 1687,
+      "sha256": "b9217814765aa4ab89b0fd17da1e1b7dd11ae4b1b200fdc00ffd9cc584362ec8"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0078.png",
+      "bytes": 1708,
+      "sha256": "7ac3ea508d14d8b2d275b4a5fd384e34c81516a2a65ec249b317d1048613c5e9"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0079.png",
+      "bytes": 1459,
+      "sha256": "8e358feb2736e8a23e96659b2638aa7d66eb9974ef8486daee7e59d616166a46"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0080.png",
+      "bytes": 1497,
+      "sha256": "9bc54c2bf4bfb937f8bda5ce0f36b4c834d6b3ab3baed19aeedba4753c5ab818"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0081.png",
+      "bytes": 1777,
+      "sha256": "a7dd1f0adfa59041da627adc782388f1f940032a31d5e33216f48060eae13251"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0082.png",
+      "bytes": 1783,
+      "sha256": "e826149e143f7e067a202815dea4bb00552fd479356a817cbcbb38d79325b9a1"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0083.png",
+      "bytes": 1485,
+      "sha256": "00657fa3a9604fe5b1078c7475afa9621b0ad7150b27654060db362a1e9babaa"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0084.png",
+      "bytes": 1461,
+      "sha256": "ceb00f6371d42540609e4cddd778771d68e499a9c22e30ca42df9905033bb0c2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0085.png",
+      "bytes": 1737,
+      "sha256": "ab2c43aff2d82c158f9ab7e1805fc334083be9390e049aaf999dc9c6165de738"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0086.png",
+      "bytes": 1668,
+      "sha256": "c7cdd5bb707e56eb4d1314b29b4feb5c88fd203320921dfb87348161de71b082"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0087.png",
+      "bytes": 1869,
+      "sha256": "3e233425a41c012108fae1909be34c306e5db8d3c5e9c1efa6dd04da55233227"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0088.png",
+      "bytes": 1135,
+      "sha256": "47478d206d0f3268397e07c24ce06db0ac33d4336784436c152f192a07faebad"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0089.png",
+      "bytes": 1923,
+      "sha256": "fcff644f500a5ccbc653e18a31518751814cd912b51c68b12b1ce09bc157a048"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0090.png",
+      "bytes": 1677,
+      "sha256": "ea5899736b04ea75dd44f7d25319f1b582e07d705a83885e253e5b45f0f4d347"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0091.png",
+      "bytes": 1729,
+      "sha256": "cd962e6a30374f0a37e7f1e2e61214c91ca6f2ba083a4d5aee8a900f6eef2a80"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0092.png",
+      "bytes": 1252,
+      "sha256": "9b28a782c57319ae7c706465b40118c7c593c510179c97f52c362a21a327e8e4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0093.png",
+      "bytes": 1724,
+      "sha256": "b5e234be2d37a2717bbaf84a91210324eca23f85be430c967eba0fc9890da3cf"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0094.png",
+      "bytes": 1758,
+      "sha256": "afa9b032f3d8f3909ecc05bd7f76332052607e2ad0daf905b1e9dc24d1a712c1"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0095.png",
+      "bytes": 2064,
+      "sha256": "b5a0f88fd2e586ac93d4a72304161d27c2012b5f8afb903d56207bf8cd92806e"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0096.png",
+      "bytes": 1419,
+      "sha256": "7f2b09c3d59825eb346d7d445d2b3ebccd199a9ba0e3570dbe668b34da3300af"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0097.png",
+      "bytes": 1809,
+      "sha256": "7174c22e6aaa9080cebe18da56d9b9ade81ff89155a11e96231d6dee2e611a90"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0098.png",
+      "bytes": 1668,
+      "sha256": "9fa54d35325bfe99a6b4e7c20286e723f8fdfe9349eaa75c2514cc2f324b91f6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0099.png",
+      "bytes": 1793,
+      "sha256": "bfe96191804dc699f26786574e30b87a0ca5993b312d2e463ae360808edf4756"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0100.png",
+      "bytes": 1738,
+      "sha256": "911b1242133ed738cc1e24d759e66ade5e150220868fadcb24b6e7f08518039f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0101.png",
+      "bytes": 1621,
+      "sha256": "268904f079e15ab0c7e2bfd7270385fdba7e06ff15565e1caa864ddf4b5a89df"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0102.png",
+      "bytes": 2034,
+      "sha256": "70f75379e012981d8eae68897c07720ad33a68b99fd5ef392c896948a8ea5bcd"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0103.png",
+      "bytes": 1856,
+      "sha256": "bc615d54192e2c95f9d77cb28ce0f49ee1ab31df89f986c788cfa3b1d94954b9"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0104.png",
+      "bytes": 1895,
+      "sha256": "175e44994e429b5539b61a7a525b47a9d74dfd44500ba14271778d4601ebe436"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0105.png",
+      "bytes": 1418,
+      "sha256": "1a68255cb5c9e622cfc957d662117e699ec3cc9f4992b135015e842a7c8c0502"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0106.png",
+      "bytes": 1906,
+      "sha256": "4a2d436c3954a657a6ad8d33e7ef78c7102c70268f7ee67051609cd67d3eaab9"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0107.png",
+      "bytes": 1725,
+      "sha256": "1674a62a89e616b8f99e167e970a8861e1e0b2c105d523acaad85d6b26775fd0"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0108.png",
+      "bytes": 2210,
+      "sha256": "2bd838cb00cf1773f3aed08b6181fe2878976dcdc4c1564db9615fb25216c47c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0109.png",
+      "bytes": 1264,
+      "sha256": "b8ea0cc92eb5e1b427d82893f7878fe17e1ed0d5800ebf2d1cc926446cd22308"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0110.png",
+      "bytes": 2124,
+      "sha256": "bb882edd632aeb38f3aaf3c2b810f4bb0b6bbce505928ce34ec408eed7ab8ffe"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0111.png",
+      "bytes": 1686,
+      "sha256": "f6c4ea27af4b0d87d43681b98648f7f0bb4ae8dd767b2c9800d68e08655cc605"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0112.png",
+      "bytes": 1943,
+      "sha256": "4573861e3c29a6c653748895f854565536202404a2804bac772fc7a343c80e95"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0113.png",
+      "bytes": 1475,
+      "sha256": "1b7357eef8d0f177746c1d528d4a983a1cc4ebf5c9b593b0f54661fd7aa57328"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0114.png",
+      "bytes": 2092,
+      "sha256": "bb6b32e1484b1ed73a2c0ee7509a91fab443405c8a780441948da2fdc7c71a61"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0115.png",
+      "bytes": 1967,
+      "sha256": "457e606f05aac029dbbdf1d18205c57b0ff719311a667f590cc5113aa5224b16"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0116.png",
+      "bytes": 2179,
+      "sha256": "b086b6291463dd1f4e39fdf94afe661c7f7125682ee98d379bb27e56a6c570e1"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0117.png",
+      "bytes": 1929,
+      "sha256": "d35ecfc4043841a0e9363871283394b02d8135fe96bb353d1c6c55e8240e1b1e"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0118.png",
+      "bytes": 1807,
+      "sha256": "f241c38d7ca68175120876583325e6797c8db9822e440a1a82139bd3f16cc76a"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0119.png",
+      "bytes": 1954,
+      "sha256": "eb589d370a8cb2309428dafd25a95b3212a7c8af2e3c8d9246f030cc1f9615d4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0120.png",
+      "bytes": 1841,
+      "sha256": "9e3cc54f37e4e521f81ba11f51cc84cab605335b271b7832c52c973b84845817"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0121.png",
+      "bytes": 2031,
+      "sha256": "6d36fe51527ca960a020b4cc393ddb5148a3ab4d36659b7a96e170684c90b566"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0122.png",
+      "bytes": 1721,
+      "sha256": "ad89bfcdeb721258b426e9cd1461ae7cabee09b29f08138256647a5c9bbf3936"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0123.png",
+      "bytes": 2195,
+      "sha256": "e66038659ffd8a217d1c8cfbd16c92c06429bdd37881ee4774e5246f5515a85d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0124.png",
+      "bytes": 1869,
+      "sha256": "7c1473103d08be41b09530e5cc5ac940aed02a45a028edadeae6fceb751cdca0"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0125.png",
+      "bytes": 2233,
+      "sha256": "7bdbc0174a7060779fae14d219eac377fc6552765b42ea55fa316ba5c4d19c1d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0126.png",
+      "bytes": 1381,
+      "sha256": "b7368969be84495ed74cc1ec9c2bb94d4abb4be84f4f63dc6c732a4b92099943"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0127.png",
+      "bytes": 2227,
+      "sha256": "3c84c0f61af3bf49120d7a6e7bec0aed7584479444c170c57b6589afb10e18b2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0128.png",
+      "bytes": 1777,
+      "sha256": "2c44c7f805ca7e2edf1857310feeb8ef7aa9e488be3fbcbefb015eeb8dc5f39d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0129.png",
+      "bytes": 2318,
+      "sha256": "f2f46615dcfa6585ce84595b736caaea19c477da7b07587dd332010b5aba6350"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0130.png",
+      "bytes": 1722,
+      "sha256": "104a79c34e56e98539b04d7ddc124b3287b1e87ecfe25d908c357785249c9e5f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0131.png",
+      "bytes": 2088,
+      "sha256": "f749719c30ffac71117b922900cde64f96187cc95b3a517da8ac8200afa1e8da"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0132.png",
+      "bytes": 1824,
+      "sha256": "7dc71cf15bd471e3c8878c58fa324c1caaef10f4582bbfa4eadf281c4dd31448"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0133.png",
+      "bytes": 2033,
+      "sha256": "28157550acb6ab01b0447702b301f31121b578744a38ae8d2dbcca8828c5c842"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0134.png",
+      "bytes": 1710,
+      "sha256": "129a0387fe897c4ec9a5c1c647be947437106689c2e018bad04218b49ceb844f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0135.png",
+      "bytes": 2156,
+      "sha256": "5b08ed844cbcb4067bddbfdf05d4afa70bc41255afbe348256c818dfcc007bc0"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0136.png",
+      "bytes": 2117,
+      "sha256": "77a15991473d5868674ce001d7b61f1f70f6cd47fecd9a18b30d82148d3e1602"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0137.png",
+      "bytes": 2096,
+      "sha256": "a5c08c6b76280012b60b1193fa0744f2edad72a5d816aa938afb397deb058f03"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0138.png",
+      "bytes": 2246,
+      "sha256": "06dbf6ec51758b94c38492651fd857f8aac03629c9d41c31a632efcf96d75757"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0139.png",
+      "bytes": 1659,
+      "sha256": "8f2e0b698a13d30024efa086089a274a2ffbecadf7abef64e963dc8d146ae3e6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0140.png",
+      "bytes": 2129,
+      "sha256": "3078234079a511a96c3c15a8587ec15a2e78dcf28156e14ef9ac47c85042947a"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0141.png",
+      "bytes": 1709,
+      "sha256": "6fb7539a5b57871d12abf806c24befbbf464233bee7e4a33f7be7c98f481256b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0142.png",
+      "bytes": 2115,
+      "sha256": "420a8cc4fa4f1a3ca23e9d545e71b12ec7550e3ec676b5cb12d610aa292eb09a"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0143.png",
+      "bytes": 1558,
+      "sha256": "e9b6ab64664d55886898c8ac767fc0e42970cd5b5eaab180954bbee61498e616"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0144.png",
+      "bytes": 2192,
+      "sha256": "f3e646b3283c3b017444a31edfa1356428218b4cc6b2e77a83e4c79d1b1910a4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0145.png",
+      "bytes": 1620,
+      "sha256": "e5617cabb3e9a86a9373f56213bc4b83b3635fc4659516096f7416ad43c167d8"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0146.png",
+      "bytes": 2311,
+      "sha256": "e73e2cda067f6f48fd622ae2408f28f0cc6bb4bad32ae212dce4efedd9523f15"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0147.png",
+      "bytes": 1596,
+      "sha256": "471abda2f37deecc9c0777b058f37de0c1db25264c40f0b51cbd021eecb2ce8e"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0148.png",
+      "bytes": 2311,
+      "sha256": "857b071916455039f500accae221d48d4099b800844c3a8bdc7cb9788df07a81"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0149.png",
+      "bytes": 1822,
+      "sha256": "4c7a42b907bbe8ebc78ea63d6cf7626c6591e5c67c8d5053318f91ca77ac2a40"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0150.png",
+      "bytes": 2126,
+      "sha256": "67fdd5f598132b7abac1d9639204a349df184b75b6c5cfa08e1234e21d2c2ff6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0151.png",
+      "bytes": 2057,
+      "sha256": "11656cbbc05d3f1f25bc2f497382d56b88a490826444a6410fe1396d1ad8e401"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0152.png",
+      "bytes": 2019,
+      "sha256": "35573c41dad5d59e483f69cbb7de28f7de110047c0a0ff52df3ced95003d070c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0153.png",
+      "bytes": 1844,
+      "sha256": "1d29227784c98102cf5e298342435bd3f936a2214292372937e67eb325e396a8"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0154.png",
+      "bytes": 1829,
+      "sha256": "29e456c3268becddbfdaa956cdca2a8208c59d83a61b4c9f54e3766bcc545a17"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0155.png",
+      "bytes": 2034,
+      "sha256": "29d1ed060ee642d11794f1282ffa6eeaca8bf04b02ba18e64415fe32cc9121e8"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0156.png",
+      "bytes": 1949,
+      "sha256": "665db22b49266ad466eb494193b8b7c9e179c0027a38cefbb890c05255f9f826"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0157.png",
+      "bytes": 1982,
+      "sha256": "2a0e548e369660aa789593df11df0121aa4874a4e7a9958ce4165a6b58e6869a"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0158.png",
+      "bytes": 1504,
+      "sha256": "9bd3db0c93016140a20a9e9a6b1fee44f105ad53e0bfa3a0a552aed4c4900655"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0159.png",
+      "bytes": 2164,
+      "sha256": "cec35ab98a63750f8ffa6d0e70f6bf31df095048aaff7645036a4bb683781dc4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/mask/mask_C0160.png",
+      "bytes": 1588,
+      "sha256": "f6ad7195dc22a3025b2cbd8f9c2fc0a6a58acd4ffc2c9bf5dea7fae763790b4e"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0001.jpg",
+      "bytes": 16835,
+      "sha256": "bffe6494f73aa5ca8aab5723487f5c005ac482dc41ab4d24e8b5a30ddea538c8"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0002.jpg",
+      "bytes": 17609,
+      "sha256": "06dd555a5a5fc0f39ea1daff5ba23e3d46dbcbf45a37620e3ad783e26c49a86c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0003.jpg",
+      "bytes": 16062,
+      "sha256": "0a320b22b6ebaf21b7e320a27ffd7129d12cbd4265ea19060eb750b5027835b5"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0004.jpg",
+      "bytes": 19830,
+      "sha256": "da39a0a84d2b237382f2cf222588f489c38be773244801209ab4860a607c8fc4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0005.jpg",
+      "bytes": 17006,
+      "sha256": "ef7a01f9cc346eb09c2c03283ebd7f70d79621eff69b7d84a5c8106019234f0d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0006.jpg",
+      "bytes": 21690,
+      "sha256": "d342c0bed18fd120a7dbd60f1a162a3f11618994ba7fe465afa107fe6a2c15a8"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0007.jpg",
+      "bytes": 17329,
+      "sha256": "3ea550cd8ee825d5221a4abcdaf261cee0c931ff7c669a99263e60f541bf01fe"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0008.jpg",
+      "bytes": 16803,
+      "sha256": "ad9984e9cc1363873aeb1affa9dd891ee92c25c7b1bb660f6680e81a495acee8"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0009.jpg",
+      "bytes": 21559,
+      "sha256": "e30f9e96cc17c2ac5cb5dbc73b222ef78f133257566fba673fe680053a6f5d49"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0010.jpg",
+      "bytes": 18567,
+      "sha256": "6aa0aee285a573bc406c8fbaf91f36bdccbbbcce6a36bfecee035d319978e7b6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0011.jpg",
+      "bytes": 20374,
+      "sha256": "4ce073f461590c7fdd85b10857f3455e20af3d5967dd610f45cd59f17f82eae1"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0012.jpg",
+      "bytes": 19348,
+      "sha256": "9e4b96e079790e0993b7e6bf0ee7f5d837c494f1a15faf8ce6dffb5d282b9b43"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0013.jpg",
+      "bytes": 19295,
+      "sha256": "49836ceed86828d02d156195b33bc2cc3ab8360bdbd660221cf6ce28ab075494"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0014.jpg",
+      "bytes": 21984,
+      "sha256": "55f207b9d19e621fc6936f3b3895355e22c274b48838c6917981b52cf3d1ea6b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0015.jpg",
+      "bytes": 19549,
+      "sha256": "ed8b5651b41c81119eda2a9ca7d280a7eb4b3695d99c83140a2855f3f1cffe90"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0016.jpg",
+      "bytes": 16311,
+      "sha256": "d7f46b20257211bf1aab7e6063456369cf769b1f820656eef997b9b50224f787"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0017.jpg",
+      "bytes": 22359,
+      "sha256": "6f5f0763339a917ee65ec13f71e9028c36934a8d258351383179d9f03451e874"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0018.jpg",
+      "bytes": 18440,
+      "sha256": "da6fcd86f49d95f244f7795e83c6e54087698495b0ed2ca13511236041ca7cd8"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0019.jpg",
+      "bytes": 22444,
+      "sha256": "39e282e0e0a223702f5a739b768899f734520a409127bfd38aaf6e6cb472ba1d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0020.jpg",
+      "bytes": 17234,
+      "sha256": "bd2127bd1f5f002b53f3f02a16a6f6bf75db1400c5c09536de5122f259523f6b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0021.jpg",
+      "bytes": 20241,
+      "sha256": "09146d2faa31a5a78e451459cd5307b696b43a3bb51b15a8c9df8252be91857c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0022.jpg",
+      "bytes": 22397,
+      "sha256": "8fdba79c67fc1674223c114b64bdfa7f9eef14e85e190fdc9391baebb31e4a43"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0023.jpg",
+      "bytes": 21398,
+      "sha256": "478e8acaa780fd6840ef7d2d1083e24be654c4d118474e217c5956c290b6b728"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0024.jpg",
+      "bytes": 19934,
+      "sha256": "4a4aa1e2f2789b5999bae6977ebf094cc93311b94207829ffbc6ecbdb3bfc174"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0025.jpg",
+      "bytes": 21512,
+      "sha256": "95f9ace0c5223b737be8386db122ffb5e9722d7d53d6bab23b95ebe9e26fdb1a"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0026.jpg",
+      "bytes": 21366,
+      "sha256": "282ffa701f05bc53a740ef7310ed54ae3ce4c766bd782765f86cd99aa320bff7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0027.jpg",
+      "bytes": 23833,
+      "sha256": "584daa1539e68fe09abd2fd424e6c1045d72ce686840cb673731cc257fc75db4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0028.jpg",
+      "bytes": 19562,
+      "sha256": "a77cf41d5ccdb289c1c04c0d224df54cc197783e4a93cc657844f5e6a947b4c3"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0029.jpg",
+      "bytes": 18767,
+      "sha256": "7070cca9d01f539bf167dc40ce970d4cbeeaea8dc82d242041f6d527822f0a01"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0030.jpg",
+      "bytes": 23666,
+      "sha256": "8bcca94a091dcd6c9176787aa3c4ecad81697c82ac86bf160871142637f4be8c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0031.jpg",
+      "bytes": 20935,
+      "sha256": "88681d13c1d431b9f639be54e24cf1be594124066de739fe0b4e6903561184a0"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0032.jpg",
+      "bytes": 22588,
+      "sha256": "4811bb10e8b99b988db7537ed2308a246c2eafbe25dced9a2d3c2d098b2796da"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0033.jpg",
+      "bytes": 18608,
+      "sha256": "b4be2f899c2a06c597bda7894999ee22ec4eef3cfbe9c0d52d06bd847637c308"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0034.jpg",
+      "bytes": 22683,
+      "sha256": "012e9723dfa8f28ed08ab2715ccc246a058c35993bb7083b16417eb2cf003336"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0035.jpg",
+      "bytes": 24055,
+      "sha256": "c2f219cf0a6799e59e7d0c1a2a4d7dbb3c87f8db89e3b91aa190aae89d9a2083"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0036.jpg",
+      "bytes": 23010,
+      "sha256": "cc52920a88414d231f436d72037aa5402476192d5690dc4facac28047796fc5f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0037.jpg",
+      "bytes": 16306,
+      "sha256": "2a597cd69c7c26afbde7d4bbc8aa72e3806c2bafcbe879273bf5edb865be91ba"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0038.jpg",
+      "bytes": 24002,
+      "sha256": "ee04a64ba1571d6ab1fdd8a78665be2097282dfef8d8e4254afd261cece494c6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0039.jpg",
+      "bytes": 21360,
+      "sha256": "0acf22e65203c82e9adee6a17b26da7689aafb71a7104c98c0576c2efd92da89"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0040.jpg",
+      "bytes": 24626,
+      "sha256": "c5f5f26de756db09ead4da3b78595492dc330d0a742e3716d34814395b7129ad"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0041.jpg",
+      "bytes": 17091,
+      "sha256": "4adfe4a1bdfeb8305a087b954f78b6567267a5d7dafacb938b37d229efa12b42"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0042.jpg",
+      "bytes": 21904,
+      "sha256": "4564ad9b732cb7250a1057df906348c1e2bcf9c0d3405fd5575b23255c27bde3"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0043.jpg",
+      "bytes": 24022,
+      "sha256": "2a2387045a76d405fc1fdcfd5ade1514f0976ec575d00c3f7773ec800bc6f33f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0044.jpg",
+      "bytes": 22799,
+      "sha256": "9ddbfd970ea3b9fb4d2199c62dbf2473ae40d4d8bf84ba131d6fe69b10932252"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0045.jpg",
+      "bytes": 21474,
+      "sha256": "c8bb101e78486ad53082cef473b7f3b8f64ea1b51ba690deb0d455bf878080b6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0046.jpg",
+      "bytes": 21826,
+      "sha256": "dc51fcee5a04a90953062fc5729b6897c2f7089c3652591abc6211d7ff234d04"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0047.jpg",
+      "bytes": 23979,
+      "sha256": "0c610a19182b0c51f64a08f238cf6cdac4ae708b8502ffa917e827b7f3e3149c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0048.jpg",
+      "bytes": 24636,
+      "sha256": "e612133e9bb0feb81103c9df0afdc68059aaee547860fa5c97b8759375889938"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0049.jpg",
+      "bytes": 22390,
+      "sha256": "fba7fcb75ea95d9d46f05db74af2116f61c5790c13150ebacfb902721b6ca77f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0050.jpg",
+      "bytes": 18403,
+      "sha256": "7b061b55aa453d3c29ee267e84d152f7ff6083117899a96efed6146dbf4df818"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0051.jpg",
+      "bytes": 24733,
+      "sha256": "c209e123044bbc08e8daaeb47ff25c6e516130044e9c71771a598cb55556f621"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0052.jpg",
+      "bytes": 21469,
+      "sha256": "726126b5f50ac29b11de07c1129c891f5308904e38483040e59203fc1b3737ff"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0053.jpg",
+      "bytes": 24200,
+      "sha256": "1292bf9acaa5af4729f8a3228f2f0b9321b88ea46077a9484fedd05022ba9bb7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0054.jpg",
+      "bytes": 16429,
+      "sha256": "c6efe0402ddf102c9be9d8cccad70d773dba9062ce2a965be48880d654f648fe"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0055.jpg",
+      "bytes": 23476,
+      "sha256": "063559942288f26d8f220fea6cd6903e7fa0d11fd8cd177584041c78bfb957d7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0056.jpg",
+      "bytes": 24285,
+      "sha256": "70def9b473c033319773104ae49a26c98d4846d8911b360f49e951db23dde7c6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0057.jpg",
+      "bytes": 24124,
+      "sha256": "87c7512f2a9d0d56f15f059c9ef4c477174994f056746ca5790386b9a418f29b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0058.jpg",
+      "bytes": 19517,
+      "sha256": "51f648ad335ad30243e524e71bdcb89aaed3a4f9d88adea58c2dbba1afaf737a"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0059.jpg",
+      "bytes": 23551,
+      "sha256": "6841cfecbc8e69fba6cef82c8bb7c1dbf5bde0c2a0cc31bc2f4c2de9af79e59f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0060.jpg",
+      "bytes": 23448,
+      "sha256": "81c2b635965a263d438ca888b9b00a0bbd735d73181f013f4942aad8543cc7ac"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0061.jpg",
+      "bytes": 25142,
+      "sha256": "fb0cab46e930c818a7768a4f4e05b893b4aa99c7ab040e8ae495df5499329661"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0062.jpg",
+      "bytes": 18917,
+      "sha256": "f7b63167b87220a02d14ed032ae935c558a8648430d8362639788aa395e8bafd"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0063.jpg",
+      "bytes": 21368,
+      "sha256": "262691fcb5642a4f2722b6b71b6c4e4ce20f25b764848476036896a44a41b524"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0064.jpg",
+      "bytes": 24491,
+      "sha256": "06deb1159eae2352f76b38162f7180d7a94f82e0ab43520723ae8f24d4a43257"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0065.jpg",
+      "bytes": 22805,
+      "sha256": "7bff5fa679047c84a91bee4fcf5d4276d59e4812abe1c28f82eb4339a4a949d0"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0066.jpg",
+      "bytes": 22825,
+      "sha256": "11f02219b962837544a693afe1ba92091c2e8e87b3c0cdee37976f073f970222"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0067.jpg",
+      "bytes": 19901,
+      "sha256": "a13a60846727a2f4459bf38bbaa6041991a919bc070159fe29f5434c26fcb6fb"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0068.jpg",
+      "bytes": 24655,
+      "sha256": "e629546cad015ca477a27016930965efb15fd738f5426c4207333c2ddb2a8143"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0069.jpg",
+      "bytes": 24681,
+      "sha256": "a4ae697c6893e127d129a07c134aba72c337f6684f361ad62f8101f6b58399da"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0070.jpg",
+      "bytes": 23233,
+      "sha256": "a0f8b4d016538370645ef8c50ad6a21336740387a761ce0f023a77534178b835"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0071.jpg",
+      "bytes": 17767,
+      "sha256": "8a1b83244769944c84a58f94b762c2d028e4fc1742046806086b279e5a230f5d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0072.jpg",
+      "bytes": 24933,
+      "sha256": "a5b69243f3460648fe8b02a5ae2e6fe7da0f9c1661d3e6c2d8e0ed78edf63cde"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0073.jpg",
+      "bytes": 20767,
+      "sha256": "e6d253cd614a3d8f53960a61787ade94dd2b556be015704100fb8293a7132b9b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0074.jpg",
+      "bytes": 24618,
+      "sha256": "0b5460b9ad81ce66192ce79c7f3af71aefd932640ddb5706e5bf7b1f7d4f56d9"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0075.jpg",
+      "bytes": 18219,
+      "sha256": "7e46e3f294e005dd63d57519ce0ae12790ec523bfdb721c39b772bba54e37b04"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0076.jpg",
+      "bytes": 23839,
+      "sha256": "372a75db21d3d2b9bac086dbcd66e391acbf46d5e1be627075ce93f798875f72"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0077.jpg",
+      "bytes": 24254,
+      "sha256": "f9661c9b8a343e1acd8dacd3945183844229c3ec4558b38b88ff77bbc0c3567d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0078.jpg",
+      "bytes": 23768,
+      "sha256": "745289361f16f659df82e1adcab5297e28b2ffde8da5089350cd6c6314941ee4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0079.jpg",
+      "bytes": 20481,
+      "sha256": "46588054e6d5ddf142170c8bd1c31befdb29d52a546fb961d2a4368950b791f7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0080.jpg",
+      "bytes": 22767,
+      "sha256": "809e30bbf5e4aaf9971c0b4e1497db21ee692500ae963c8f077e6992c2e06371"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0081.jpg",
+      "bytes": 24231,
+      "sha256": "c019657c6f5e43b688213e45c196b8b4e6a9c610df4d639fcba7ae1c233c2ffb"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0082.jpg",
+      "bytes": 25275,
+      "sha256": "995e27bf6c10ec55fbfc2edb77f9c1f7a55cb0acb9ddb0bc3fc0b3f6c4a7f372"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0083.jpg",
+      "bytes": 21518,
+      "sha256": "2bc5a245256a8da39832aef3fc2a73ebddec447f5106fe569d1b70aa37f9c00f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0084.jpg",
+      "bytes": 18889,
+      "sha256": "dd524d59ffa296ea38d8d15493eb93ab0f27c217bf95305ce3f1da30a35258b7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0085.jpg",
+      "bytes": 25342,
+      "sha256": "bfaa43ee71e85c57b3ab0662a18643ca1060cf39e508eaad9c2b4b69e5b34165"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0086.jpg",
+      "bytes": 22641,
+      "sha256": "e49e7a43b3ea2867a8b9fd0ab919b77fdff9370622bae2ea536a4cc2c7e6ac70"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0087.jpg",
+      "bytes": 24426,
+      "sha256": "1bd9301b4bfcbe41fa79f4d21dd0a7064aabfd4fa32ca963e6042075639ddfd2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0088.jpg",
+      "bytes": 18335,
+      "sha256": "fc4823d5a1d8432a82de420fb19e544f29bb32236c59e23257b0804a348e57fb"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0089.jpg",
+      "bytes": 24821,
+      "sha256": "658c92d71b5b65d46b3c64b672562c0c0f51a1ca339ab9eec39017244dee1968"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0090.jpg",
+      "bytes": 24254,
+      "sha256": "cbf28da8b3e7055ec634722039427494f3a4ffe9588ebac0286fabf4c28d9e62"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0091.jpg",
+      "bytes": 24620,
+      "sha256": "5a197cc7522151bd2f5949dab2c334086fefbb9b8810f2bf28435aa87ca2d7ca"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0092.jpg",
+      "bytes": 17847,
+      "sha256": "3692c7d05597f24f2834b5c6f57352127011b20981018cd8f0ae78cdd28b15e6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0093.jpg",
+      "bytes": 25252,
+      "sha256": "e580e56ac8fbaabf19670b1e15ca982ab263342dc9c1cb73a7a8db790e904a38"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0094.jpg",
+      "bytes": 22827,
+      "sha256": "870c9588605af0b03129efdeb637db9d3421403e6358050c6215c383efa297b7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0095.jpg",
+      "bytes": 26032,
+      "sha256": "17c8dcb545e371fbf7b71a6d895f9ea7798fe6a4081f2df8060eedf7921452a6"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0096.jpg",
+      "bytes": 20413,
+      "sha256": "7d101b800faf25686743715317b719c5111a64d5d2a0a6e48cae54bae53d80e7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0097.jpg",
+      "bytes": 23665,
+      "sha256": "a8cdc7b2d4cf8cbd9bae6c3eae8f52d5de74fca1fe8fa1141615eb5721984ca0"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0098.jpg",
+      "bytes": 26195,
+      "sha256": "8fae9fb7317fe221dc7771067a089c69257512a44d56b3f50895ffa74906fb90"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0099.jpg",
+      "bytes": 25648,
+      "sha256": "527fc399e9b43a5b515c8c8b7157e8ecd890a66ae18d20f76a52706a4eb7947b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0100.jpg",
+      "bytes": 22879,
+      "sha256": "174493e462de30657d5bbaf03164a541f2ad36bb6160bf56502c976fe8a11c4c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0101.jpg",
+      "bytes": 21969,
+      "sha256": "fcf725ee7b3e4e2cae62b9ba76c32155c31a076881b18085ade16dfd1a41760c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0102.jpg",
+      "bytes": 25732,
+      "sha256": "24ff8e5a9a7de7634cebf03f3e8d61c6a6d5a0c749af71dd6055a5cd518fd24e"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0103.jpg",
+      "bytes": 25478,
+      "sha256": "64b742c984602f132ada0f38986286d3ad148e48d56695231f789d4f588125fc"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0104.jpg",
+      "bytes": 24892,
+      "sha256": "016b774de4ade4d86a647a34a990dc9ec722eb25a8f0b08b27fd5b95b2b0cac4"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0105.jpg",
+      "bytes": 20393,
+      "sha256": "e9b349d1be86bbd299ad493b99cec4632c4cf83515994d6c60c96c99ed0f668d"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0106.jpg",
+      "bytes": 26611,
+      "sha256": "7769ff25a71e340234973eee4c76909497a6b5367c983f4e5f8136374430a8da"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0107.jpg",
+      "bytes": 23994,
+      "sha256": "bc2f0113cefbbe808db425248d847ecea9a3e9ec3fd659638378c589d585437f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0108.jpg",
+      "bytes": 25910,
+      "sha256": "8027233094507d455c08702b8621ccd38a680f37bfc68e55e5cf757843ef7dba"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0109.jpg",
+      "bytes": 18456,
+      "sha256": "30f10859ecb309cb204ff7fb112ca75592e2d621c76ea52c3b98f7e566f4bbaf"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0110.jpg",
+      "bytes": 24955,
+      "sha256": "a04eec1dc4d595f85b021110a22ba669b64abfedc7780362e9a8fc9ae1aba8b7"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0111.jpg",
+      "bytes": 25652,
+      "sha256": "015a36a1830663912260b388b6cb810e24db1c1ea1a121be9bdb6080c5df4402"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0112.jpg",
+      "bytes": 26564,
+      "sha256": "8d07b9939586467f64ff01945ab0830c9f08aea6ace21f0601ee7f9058b02851"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0113.jpg",
+      "bytes": 20797,
+      "sha256": "52bb140dc3464a04e682735ecfbbca7e3ffd3e4102552bdb9608927d08f7f157"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0114.jpg",
+      "bytes": 25127,
+      "sha256": "ea768e0b12d0de13d008f6291df984de4fb14bed46afd68ce727b16b9e4d4f95"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0115.jpg",
+      "bytes": 25017,
+      "sha256": "f3a6fd269d8acf9f967920f04401e9d7e6b6241723fd7213ddee3731e3370daf"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0116.jpg",
+      "bytes": 26397,
+      "sha256": "9d10c34a3d63bece9fdcceff4d5804d60e5a9890716ab9f8d67818df702673d5"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0117.jpg",
+      "bytes": 23412,
+      "sha256": "6cc745772fc5290886972c7402531ec35ed0de4954252233a729e27d6a19a656"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0118.jpg",
+      "bytes": 22547,
+      "sha256": "cd0fd7a5db0e310c7a562e8ff5b84661702ebf83522971088240da13e24f59de"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0119.jpg",
+      "bytes": 27348,
+      "sha256": "c8b5b82ea48420cb06c3014d7fb7da9738d9b49bf65ad8588c0dddc2bcfc2d3f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0120.jpg",
+      "bytes": 25886,
+      "sha256": "2f999ca5b507df5fb166a327759346dc2245ee1e43ca928f096d0c879cb017de"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0121.jpg",
+      "bytes": 23925,
+      "sha256": "e135bb9a0284973ea8e12ac754bbc1010eeaba575efb68e692f8665ad870e29e"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0122.jpg",
+      "bytes": 22491,
+      "sha256": "c4e3ee61ad4023f1becdf3bd3d4cec2f482c9ac7fdb67533d7b841715b969061"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0123.jpg",
+      "bytes": 25884,
+      "sha256": "66d6b464d8e18e97dd48ac46eab71dc597ed5e440cc9d0f1f96c5cc017818716"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0124.jpg",
+      "bytes": 26184,
+      "sha256": "1abd2399a2b8b99d75111ba3f4384df06643659f19adc74295dde7baea84c294"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0125.jpg",
+      "bytes": 26528,
+      "sha256": "4b9e74337e90738327dfb3f842cce408d27631e465369c862bbfc05245b3f687"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0126.jpg",
+      "bytes": 20146,
+      "sha256": "f1dc4c2fa35c2e5503c42b79f0f20021915a95b15a11f99e17ad39d8a39c729b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0127.jpg",
+      "bytes": 26837,
+      "sha256": "a0b46c75282c45d78147281d038358fbab7d2ed31e028632e16ce8096ee9c76f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0128.jpg",
+      "bytes": 25207,
+      "sha256": "a65ec50e9de52f9cab3c26bc7f654a986ea57d1180bd6692ecc9eccd3d4075db"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0129.jpg",
+      "bytes": 25566,
+      "sha256": "8ccb857365b06481eddc159ae677f7f36cfca09b034e061f1aaf25879b3c0761"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0130.jpg",
+      "bytes": 22166,
+      "sha256": "2b1040469558916f7fe9007455af1273b6b805045dccdade4a1633a52ec27947"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0131.jpg",
+      "bytes": 24411,
+      "sha256": "8eef1393853b718a72d74bb61759fee701d6e58d2df81c4ffcddf8749037811f"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0132.jpg",
+      "bytes": 26638,
+      "sha256": "dfe0393a6d86da7f782c4be46cc5059fa58f6ff2ed58c99106a717d1e5a243b2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0133.jpg",
+      "bytes": 27374,
+      "sha256": "37ab7f8e9a03c653029bdbeeaca9e608d5b8d1de42781565fb2dfe1919093bdb"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0134.jpg",
+      "bytes": 22138,
+      "sha256": "ae3faa36e6fc0b49342e65b169988b357a30ce254856995e631fc906a9128a64"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0135.jpg",
+      "bytes": 24867,
+      "sha256": "b11c6f8e66a73c509e757868813549df887d03e4b119471b38849da9ac63a227"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0136.jpg",
+      "bytes": 25513,
+      "sha256": "665b86a2aec662c1d5a79eaa329ecc3b20348686009ecbb473059543b85104ae"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0137.jpg",
+      "bytes": 26288,
+      "sha256": "fb2c97d635205ef740a303de866e1b0e0a0e8b72be37231979887c460543a6bd"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0138.jpg",
+      "bytes": 25159,
+      "sha256": "28d19fcc54611e68a67e23d286a572875371ad32722f136ae10365746752f569"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0139.jpg",
+      "bytes": 21197,
+      "sha256": "8f1b0cf43745978175459ffdccf0e910300fd236d160169f35bd9ffec4295a53"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0140.jpg",
+      "bytes": 27041,
+      "sha256": "a6f02244895a501d5d23123188b6df87ea0d877ed43eb90c17bcd0baaeec83fe"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0141.jpg",
+      "bytes": 25781,
+      "sha256": "2d4ddfb2c6a4aeb499793912feca125aa24103baf653e1b982c3a068e55b35f9"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0142.jpg",
+      "bytes": 24399,
+      "sha256": "1844a4833a973c074359fcbbe785a0ba190f97069948c6172d60476da14f59ff"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0143.jpg",
+      "bytes": 21902,
+      "sha256": "f883c6cf03c77651a43cb73343f95a4580846bfb205630a192f244452644a967"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0144.jpg",
+      "bytes": 25138,
+      "sha256": "c31157d1822c2a033e6cea844088eff0971f85c47a65f0141175c49d36bd5c60"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0145.jpg",
+      "bytes": 25039,
+      "sha256": "a9aa624d04ef206d5b396ab2bdb2a410b030eb36346b3f809634143f4d139c06"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0146.jpg",
+      "bytes": 25910,
+      "sha256": "e4f21102a93274b33fe2a0d3403a798a84a88502dac0cc3010c01026f77b793b"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0147.jpg",
+      "bytes": 20782,
+      "sha256": "c7068bf91c6aa1a61eb9e6b4f5bbb3cf9951da9c4045026f2bd8d35cb16a0aec"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0148.jpg",
+      "bytes": 25556,
+      "sha256": "ff5d3127b6623f611ef3134aef82d59036b04b6f21f494ea545f4b83c711a6fb"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0149.jpg",
+      "bytes": 25234,
+      "sha256": "809e683d2f1f427f97df72e0b83e448d26a6c0375304fc172374445d229e09e5"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0150.jpg",
+      "bytes": 24776,
+      "sha256": "004c2e9f044a76171c3535edbe128088dd1d23b34530c42e418ea4b0d4273fc0"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0151.jpg",
+      "bytes": 23169,
+      "sha256": "ddb470bdbd8e010ebbedd517b8714829e5aff87932c403f7259614bdc0f280e1"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0152.jpg",
+      "bytes": 22701,
+      "sha256": "c100637c0f317bc8106057218f88370bad4bd3795e8d236828d213adb2d1a4a5"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0153.jpg",
+      "bytes": 25839,
+      "sha256": "3e1acc8b06ec8dcb0311a5dd47a081742e0d3e4b8ca20b0c387e3359a35cfad2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0154.jpg",
+      "bytes": 25391,
+      "sha256": "89077d45f7f7c3440f0aeaf102f57a74a3494b6243485de5716829ee830733c2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0155.jpg",
+      "bytes": 22381,
+      "sha256": "8efa471c5c759663a2645fbbfe824d9cc874344a97870c552af9ff52bef48368"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0156.jpg",
+      "bytes": 23005,
+      "sha256": "0bb4fd2a69f4917287ce49a9228ddcaaee0422278ce5fecabde0b9c6de4f4688"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0157.jpg",
+      "bytes": 24135,
+      "sha256": "05cdbbb4aa1886ccb2ebbb56cbb2793d9f0da5db0f746c90362f1e4ba22ff6ee"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0158.jpg",
+      "bytes": 23560,
+      "sha256": "5a150e9070854c89da3e12b2a8508529e7ca4dfbd3e51cf9cd66cb9d31ca2dd2"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0159.jpg",
+      "bytes": 24303,
+      "sha256": "12893c197f940a6b8bb9bbb9ab3ba5fcc65c8de3f1ec2ab244d1a93187dc1291"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/rgb/C0160.jpg",
+      "bytes": 20614,
+      "sha256": "50dc3dc0de81299d6e91dfdcb83f66476effeff3a87e569beaec135070cbcd1c"
+    },
+    {
+      "path": "dataset/external/tosca_cat0/views/manifest.json",
+      "bytes": 10116,
+      "sha256": "5fdae315652240e262af75de0dacc3a2b59f20d70e878e9789513ad6510b0653"
+    }
+  ]
+}
