@@ -489,16 +489,22 @@ def spectrum(task: dict, ply: Path, out: Path, flat: bool = False) -> dict:
         )
         result = {"status": status, "peak_rss_bytes": None}
     result.update(exit_code=code, caller_wall_s=time.time() - started)
-    if result.get("status") == "valid":
-        reference = v1.read_json(v1.frame(task) / "source/reference.json")
+    reference = v1.read_json(v1.frame(task) / "source/reference.json")
+
+    def compare(block: dict) -> None:
         ref = np.asarray(reference["eigenvalues"][1:11])
-        lam = np.asarray(result["lam"][1:11])
-        scaled = lam * result["area"] / reference["area"]
-        result["rel_error"] = (lam / ref - 1).tolist()
-        result["rel_error_area_normalised"] = (scaled / ref - 1).tolist()
-        result["max_abs_rel_error"] = float(np.abs(lam / ref - 1).max())
-        result["max_abs_rel_error_area_normalised"] = float(np.abs(scaled / ref - 1).max())
-        result["area_rel_error"] = result["area"] / reference["area"] - 1
+        lam = np.asarray(block["lam"][1:11])
+        scaled = lam * block["area"] / reference["area"]
+        block["rel_error"] = (lam / ref - 1).tolist()
+        block["rel_error_area_normalised"] = (scaled / ref - 1).tolist()
+        block["max_abs_rel_error"] = float(np.abs(lam / ref - 1).max())
+        block["max_abs_rel_error_area_normalised"] = float(np.abs(scaled / ref - 1).max())
+        block["area_rel_error"] = block["area"] / reference["area"] - 1
+
+    if result.get("status") == "valid":
+        compare(result)
+    if "zhou_laehner" in result:  # comparator, computed before the operator's own assembly
+        compare(result["zhou_laehner"])
     v1.write_json(out, result)
     return result
 

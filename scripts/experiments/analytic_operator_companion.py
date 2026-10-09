@@ -15,6 +15,10 @@ cond(M) > 1e13, and per-mode n90 (DOFs carrying 90 % of vᵀMv) as the localisat
 Built from the companion's functions, not ``splat_lbo_cat.run`` (no K/M cache, no cat reference).
 Normals are oriented by the analytic outward gradient ``x/a^2`` instead of Hoppe propagation.
 
+Comparator on the same subset, computed first so it survives an operator timeout: Zhou & Lähner's
+point-cloud Laplacian (``robust_laplacian.point_cloud_laplacian`` on the centres, defaults
+``n_neighbors=30``, ``mollify_factor=1e-5``), λ_0..λ_31 by the same shift-invert rule.
+
 Status in the JSON, always with ``wall_s`` and ``peak_rss_bytes``: ``valid`` (gate G15a passed,
 exit 0), ``invalid`` (G15a failed, exit 1), ``timeout`` (assembly deadline or whole-process wall
 guard, exit 4), ``memory`` (the companion's 16 GB assembly limit, exit 5), ``error`` (any other
@@ -96,6 +100,17 @@ def main(ply: str, axes: list[float], guard_min: float, out: str) -> int:
     if FLAT:
         shape[:] = 0.0
     base["jet_invalid_fraction"] = float(np.mean(validity > 1))
+    t = time.time()
+    import robust_laplacian  # after the companion pinned its BLAS threads
+
+    L, Mz = robust_laplacian.point_cloud_laplacian(S["c"])
+    lam_zl, _, _, _ = CAT.eig(L.tocsr(), Mz.tocsr(), "zhou-laehner")
+    base["zhou_laehner"] = {
+        "lam": [float(x) for x in lam_zl],
+        "area": float(Mz.sum()),
+        "params": {"n_neighbors": 30, "mollify_factor": 1e-5},
+        "wall_s": time.time() - t,
+    }
     w = S["w"]
     t = time.time()
     K, M, mass, _, _ = CAT.S3.assemble(

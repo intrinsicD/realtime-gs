@@ -78,7 +78,9 @@ flip, S (jet2 -> S = 0) or flipping the height sign each fails at least one test
   `σ_n = σ_t1/50` (SplatDiffuseLBO loader default), trial width `σ_χ = σ_t`, `measure="closed"`,
   GT orientation (Hoppe agreement reported separately).
 
-**P3 — pilot packet (preflight + two reviews), CPU + one GPU cell per surface.** [R2]
+**P3 — pilot packet (preflight + two reviews).** Superseded in detail by the packet
+`experiments/reviews/20261008_jet2_prior_2dgs_analytic_P3/` (rev. 2), whose Layer B lists the
+deviations from this section. Original text: [R2]
 - Evaluation calibration on frozen synthetic surfel sets (counts 5k/10k/20k, σ_t from
   `sqrt(area/N)`): exact; normals perturbed 2°/5°/10°; 8 clones; inward shift 0.002/0.005;
   worst 10 % dropped; S set to 0 in the LBO. Each must move its metric beyond a frozen threshold.

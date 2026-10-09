@@ -1,70 +1,76 @@
-# P3 packet, Layer B (intent): jet2 analytic pilot
+# P3 packet, Layer B (intent): jet2 analytic pilot — revision 2
 
-Plan: `docs/TASK_jet2_synthetic_sphere_ellipsoid.md` (P3). Stage: **pilot / calibration**. Its
-outputs inform whether and how P4 (base / jet1 / jet2 x 3 seeds) is run; they are not evidence
-for or against the 2-jet prior and stay labelled pilot exposure.
+Stage: **pilot / calibration**. Outputs decide whether and how P4 (base / jet1 / jet2) runs; they
+are not evidence for or against the 2-jet prior and stay labelled pilot exposure.
 
 ## Questions
 
-1. **Teacher.** At the activation step (7500) of a base 2DGS fit, does the Jet2Prior's own
-   shape-operator estimator recover the analytic curvature better than `S = 0` (the quantity
-   jet1 uses instead), and on how many splats does its gate let it act?
-2. **Instrument.** Does the spectrum path (companion operator on fitted surfels) reproduce the
-   reference spectrum for ideal surfels, and does it react to normal noise?
-3. **Floor.** How large are seed-to-seed and run-to-run differences of every P4 candidate metric
-   for the base arm (the detection limit P4 must exceed)?
-4. **Cost.** Wall time and peak RSS of the operator on base fits.
+1. **Teacher.** At activation (step 7500) of base fits, does the Jet2Prior's own estimator recover
+   the analytic curvature better than `S = 0` (what jet1 uses), and on how many splats can it act?
+2. **Instrument.** Does the spectrum path reproduce the reference for ideal surfels, react to
+   normal noise, survive mixed surfel sizes, and differ between `S` and `S ≡ 0`?
+3. **Spread.** Seed-to-seed and run-to-run differences of the base arm, per reported field.
+4. **Cost.** Operator wall time and peak RSS on base fits.
 
-## Known calibration before this run (deterministic, `tests/test_jet2_eval_controls.py`)
+## Known before this run
 
-Ideal surfels, N = 4000, sigma = 0.75 sqrt(A/N): estimator relative curvature error 0.000
-(sphere) / 0.007 (ellipsoid) with exact normals; 0.57 / 0.43 with every normal tilted by 5 deg.
-Mechanism: over the estimator radius the true normal turns by about 0.1 rad, so a few degrees
-of normal error is comparable to the curvature signal.
+Deterministic controls (`pytest.txt`): with ideal surfels (N = 4000, σ = 0.75 sqrt(A/N)) the
+estimator's relative curvature error is ~0 with exact normals and 0.43-0.57 with every normal
+tilted by 5 deg (over the estimator radius the true normal turns by ~0.1 rad). Technical runs
+(not read as results): operator on a 600-step sphere model (12.5k splats) 7 min, 6.4 GB; on 4000
+ideal surfels 9 s, 0.8 GB.
 
-## Predictions (made before any P3 output)
+## Predictions (before any P3 output)
 
-- Teacher: the trained base normal median at 7500 is between 2 and 10 deg; by the calibration
-  above, the estimator's median relative curvature error then lies between about 0.2 and 1.0.
-  I do not predict which side of 0.5 it falls; the gate's masked fraction is below 0.5.
-- Instrument: exact ideal surfels give max |rel. error| over lambda_1..lambda_10 <= 2 % (sphere)
-  and <= 3 % (ellipsoid) at N = 15000; at N = 4000 at most twice that. 5 and 10 deg tilt raise it
-  monotonically, by more than a factor 2 at 10 deg.
-- Floor: seed-to-seed range of the base normal median <= 1 deg; run-to-run range smaller.
-- Cost: operator <= 30 min and <= 12 GB per base model.
+- Teacher: trained base normal median at 7500 between 2 and 10 deg; estimator median relative
+  curvature error between ~0.2 and 1.0; which side of 0.5 is not predicted. Masked fraction < 0.5.
+- Instrument (raw `max_abs_rel_error` over λ_1..λ_10): exact N = 15000 ≤ 2 % (sphere), ≤ 3 %
+  (ellipsoid); N = 4000 at most twice that; tilt 10 deg at least 2× exact; spread row within 2×
+  exact; flat row differs from exact (sign not predicted on these convex shapes).
+- Spread: seed-to-seed range of the base normal median ≤ 1 deg; repeat difference smaller.
+- Cost: ≤ 30 min and ≤ 12 GB per base model (from the 12.5k technical run, roughly linear in N).
 
-## What an ineffective estimator would show
+## Ineffective estimator signature
 
-Median relative curvature error near or above 1 (no better than `S = 0`), or a masked fraction
-near 1 (the prior would act on almost nothing). In either case jet2 cannot differ from jet1 for
-the reason the hypothesis gives.
+Median relative curvature error near or above 1, or masked fraction near 1: jet2 could then not
+differ from jet1 for the reason the hypothesis gives.
 
-## Decision rules (frozen)
+## Decision rules (frozen in task `pilot`; missing values never pass)
 
-- **Teacher go** on a surface iff, on base 9561 at step 7500, opacity > 0.3:
-  `curvature_rel_error_median <= 0.5` and `estimator_masked_fraction <= 0.5`.
-- **Instrument pass** iff exact ideal surfels at N = 15000 give `status = valid` and max
-  |rel. error| over lambda_1..lambda_10 <= 3 % on that surface, and 10 deg tilt raises it.
-  Without a pass the spectrum stays descriptive in P4 (not a decision metric).
-- **P4 proceeds** on a surface only with teacher go. No go on both surfaces: P4 is not run in this
-  form; the result (with the calibration) is recorded, and any redesign (e.g. a larger estimator
-  radius, which trades noise for curvature resolution) is a new question with a new packet.
-- **Detection limit** per metric m: `DL_m = max |m_a - m_b|` over the four base runs of a surface
-  (seeds 9561, 9562, 9563 and the 9561 repeat). P4 thresholds must exceed `DL_m`; P4 freezes them.
-- **Surprise rule**: a base normal median above 15 deg, a failed structural gate on a base fit,
-  or an operator RSS above 16 GB voids the remaining plan until the packet is revised.
+- **Teacher go** on a surface iff for **both** teacher seeds (opacity > 0.3):
+  `curvature_rel_error_median ≤ 0.5`, `estimator_masked_fraction ≤ 0.5`, `n_curvature ≥ 1000`,
+  `collapse_fraction_at_activation ≤ 0.05`. The masked fraction over all splats is reported beside.
+- **Instrument pass** iff row `n15000_tilt0` is `valid` with raw `max_abs_rel_error ≤ 0.03` and
+  row `n15000_tilt10` is `valid` with at least 2× that error. Without a pass the spectrum is
+  descriptive only in P4.
+- **P4 runs** on a surface only with teacher go. No go on both: P4 is not run in this form; any
+  redesign (e.g. a larger estimator radius, trading noise for curvature resolution) is a new
+  question with a new packet.
+- **Spread** is reported as the range over the four base runs (3 seeds + repeat) and separately
+  the repeat difference. With n = 4 this is a descriptive floor, not a detection limit or a
+  variance estimate; P4 must set its thresholds above it and state its own replication argument.
+- **Surprise / stop rules** as in Layer A (enforced in code between phases).
 
 ## Controls
 
-Positive: exact ideal surfels (geometry and spectrum). Negative: 5 and 10 deg tilted ideal
-surfels. Deterministic evaluation controls (tilt, inward shift, clones, opacity selection) pass
-in the test suite. `S = 0` is the reference the teacher must beat (relative error 1 by definition).
+Positive: exact ideal surfels (geometry, spectrum). Negative: 5/10 deg tilt; mixed sizes (the
+regime of trained splats); `S ≡ 0` spectrum. Deterministic geometry controls in the test suite
+(tilt, inward shift, clones, opacity selection with a tail statistic, coverage hole, sampler
+uniformity). Not run as spectrum controls, with reason: shift (λ scales with 1/R², covered by
+area normalisation and absolute distances), clones (stopped earlier by the collapse fraction).
 
-## Replication and analysis
+## Analysis (all summaries reported, none selected)
 
-Replication unit: a fitting run (seed). Teacher: one run per surface (pilot, descriptive plus
-the go rule). Floor: four base runs per surface. All numbers are reported with counts (subset,
-cohort, curvature-eligible). Metrics and units: angles in degrees, distances in surface units
-(R = 1, a1 = 1), curvature errors relative (1 = `S = 0`), spectra as relative errors of
-lambda_1..lambda_10, raw and area-normalised. No selection, no aggregation beyond medians/p90 as
-defined in `analytic_geometry`.
+Per model: every field of `analytic_geometry` — medians, p90, means and fractions as defined
+there, with counts `n_subset`, `n_cohort`, `n_curvature`; held-out PSNR / LPIPS / IoU means;
+operator status, λ_0..λ_31, raw and area-normalised relative errors of λ_1..λ_10 and their max,
+area error, G15a, n90, cond(M), resources. Units: degrees; surface units (R = 1, a1 = 1);
+curvature error relative (1 = `S = 0`). `None` = unevaluated.
+
+## Deviations from the TASK plan (rev. 3), recorded
+
+Counts 5k/10k/20k → 4000/15000; perturbations 2/5/10 deg → 0/5/10; shift/clone/drop spectrum
+controls → geometry tests; transported-normal comparison dropped (the estimator comparison against
+`S = 0` answers the teacher question); Hoppe agreement not reported (orientation is not under
+test; analytic orientation is used); closest point by bisection with a singular branch, not
+Newton; operator thickness is `sqrt(σ_t1 σ_t2)/50` (companion loader), not `σ_t1/50`.
