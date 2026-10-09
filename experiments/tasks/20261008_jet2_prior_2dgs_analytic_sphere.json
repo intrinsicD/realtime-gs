@@ -1261,7 +1261,7 @@
     "pyproject.toml"
    ],
    "file_count": 128,
-   "aggregate_sha256": "84846b19d458cdff402b4483034b1c67113f3f3f091558c54cae12da5d939899"
+   "aggregate_sha256": "e8f617f6b52fe9ebe291fa05e7bbacf8366cced8ca64d89ed78dd5aff4d026f1"
   },
   "live_integrity_policy": {
    "verify_source_at_coordinator_worker_and_bundle": true,

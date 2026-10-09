@@ -102,3 +102,9 @@ def test_surface_samples_are_area_uniform():
     # sphere: the cap z > 0.5 holds a quarter of the area
     x = driver.surface_samples((1.0, 1.0, 1.0), 40000, seed=3)
     assert abs((x[:, 2] > 0.5).mean() - 0.25) < 0.01
+
+
+def test_surface_area_matches_closed_forms():
+    assert abs(driver.surface_area((1.0, 1.0, 1.0)) / (4 * np.pi) - 1) < 1e-3
+    # E12 reference area of the (1, 0.75, 0.5) ellipsoid (P1 FEM level 7): 6.971480
+    assert abs(driver.surface_area(ELLIPSOID) / 6.971480 - 1) < 1e-3

@@ -115,13 +115,26 @@ def surface_frame(x: np.ndarray, axes) -> tuple[np.ndarray, np.ndarray]:
 
 
 def surface_samples(axes, count: int, seed: int) -> np.ndarray:
-    """Area-uniform samples: fine scaled icosphere, area-weighted, projected to the surface."""
-    import trimesh
+    """Exact area-uniform samples of ``sum x_k^2/a_k^2 = 1``: ``x = a * u`` with ``u`` uniform on
+    the unit sphere has area element ``prod(a) |u/a| dOmega``, so ``u`` is accepted with
+    probability ``|u/a| min(a)`` (rejection sampling; no mesh, no extra dependency)."""
+    a = np.asarray(axes, dtype=np.float64)
+    rng = np.random.default_rng(seed)
+    kept = []
+    while sum(len(k) for k in kept) < count:
+        u = rng.standard_normal((2 * count, 3))
+        u /= np.linalg.norm(u, axis=1, keepdims=True)
+        accept = rng.uniform(size=len(u)) < np.linalg.norm(u / a, axis=1) * a.min()
+        kept.append(a * u[accept])
+    return np.concatenate(kept)[:count]
 
-    mesh = trimesh.creation.icosphere(subdivisions=6)
-    mesh.vertices = mesh.vertices * np.asarray(axes)
-    samples, _ = trimesh.sample.sample_surface(mesh, count, seed=seed)
-    return closest_point(samples, axes)
+
+def surface_area(axes, samples: int = 1_000_000) -> float:
+    """``4 pi prod(a) E|u/a|`` over a fixed uniform sample (relative error ~1e-4)."""
+    a = np.asarray(axes, dtype=np.float64)
+    u = np.random.default_rng(0).standard_normal((samples, 3))
+    u /= np.linalg.norm(u, axis=1, keepdims=True)
+    return float(4 * np.pi * a.prod() * np.linalg.norm(u / a, axis=1).mean())
 
 
 def axes_of(task: dict):
@@ -418,17 +431,13 @@ def ideal_surfels(
     size_spread: float = 0.0,
 ) -> Gaussians3D:
     """Surfels at area-uniform surface samples, frame from the analytic normal, tangent sigma
-    0.75 sqrt(A/N) (A from the render icosphere) times ``exp(size_spread z)``, z ~ N(0, 1) per
+    0.75 sqrt(A/N) (A from ``surface_area``) times ``exp(size_spread z)``, z ~ N(0, 1) per
     surfel, opacity 0.9; optionally every normal tilted by ``tilt_deg`` about a random tangent
     axis and every centre moved by ``-shift`` along it."""
     import math
 
-    import trimesh
-
     from rtgs.core.gaussians3d import rotmat_to_quat
 
-    mesh = trimesh.creation.icosphere(subdivisions=6)
-    mesh.vertices = mesh.vertices * np.asarray(axes)
     x = surface_samples(axes, count, seed=seed)
     n, _ = surface_frame(x, axes)
     centres = x - shift * n
@@ -447,7 +456,7 @@ def ideal_surfels(
         angle = math.radians(tilt_deg)
         n = math.cos(angle) * n + math.sin(angle) * np.cross(axis, n)
         t1, t2 = frame(n)
-    sigma = 0.75 * math.sqrt(float(mesh.area) / count)
+    sigma = 0.75 * math.sqrt(surface_area(axes) / count)
     log_sigma = math.log(sigma) + size_spread * rng.standard_normal(count)
     log_scales = np.stack([log_sigma, log_sigma, np.full(count, -np.inf)], 1)
     return Gaussians3D(
